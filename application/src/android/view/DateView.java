@@ -36,7 +36,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 /**
- * A implementation for the XML element DateView that alters the textview in the 
+ * An implementation for the XML element DateView that alters the textview in the 
  * formating of the text when displaying a date in ms from 1970.
  *
  * @version $Id$
