@@ -2,11 +2,8 @@
    ==  NOTICE file corresponding to the section 4 d of                    ==
    ==  the Apache License, Version 2.0,                                   ==
    ==  in this case:                                                      ==
-   ==  ic_media_play.png                                                  ==
-   ==  ic_media_play_mirrored.png                                         ==
    ==  icon.png                                                           ==
-   ==  stip.gif                                                           ==
-   ==  stip2.gif                                                          ==
+   ==  MockGPSLoggerService.createLocationCommand(...)                    ==
    ==  Copyright (c) 2005-2008, The Android Open Source Project           ==
    =========================================================================
 
