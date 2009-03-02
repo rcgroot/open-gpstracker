@@ -1,0 +1,9 @@
+<resources>
+
+<string-array name="spinnerItems">
+	<item>1x min</item>
+	<item>1x 5 min</item>
+	<item>1x 15 min</item>
+</string-array>
+
+</resources>
