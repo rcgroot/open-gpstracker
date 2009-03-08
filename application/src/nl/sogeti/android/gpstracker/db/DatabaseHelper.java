@@ -62,7 +62,7 @@ class DatabaseHelper extends SQLiteOpenHelper
    public DatabaseHelper(Context context)
    {
       super( context, GPStracking.DATABASE_NAME, null, GPStracking.DATABASE_VERSION );
-      this.mContext = context.getApplicationContext();
+      this.mContext = context;
     
    }
 
