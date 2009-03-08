@@ -146,8 +146,11 @@ public class GPSLoggerService extends Service
    public synchronized void stopLogging()
    {
       this.locationManager.removeUpdates( this.mLocationListener );
-      this.mWakeLock.release();
-      this.mWakeLock = null ;
+      if( this.mWakeLock != null )
+      {
+         this.mWakeLock.release();
+         this.mWakeLock = null ;
+      }
       this.logging = false;
    }
 
