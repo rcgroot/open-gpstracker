@@ -198,6 +198,10 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       double coord = 1d;
       ContentValues wp ;
       
+      Cursor cursor = this.mResolver.query( Waypoints.CONTENT_URI, new String[] { }, null, null, null );
+      Assert.assertEquals( "We should now have 0 waypoints", 0, cursor.getCount() );
+      cursor.close();
+      
       wp = new ContentValues();
       wp.put( WaypointsColumns.LONGITUDE, new Double( coord ) );
       wp.put( WaypointsColumns.LATITUDE, new Double( coord ) );
@@ -240,7 +244,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       this.mResolver.insert( Waypoints.CONTENT_URI, wp );
       coord++;
       
-      Cursor cursor = this.mResolver.query( Segments.CONTENT_URI, new String[] { Segments.TRACK }, null, null, null );
+      cursor = this.mResolver.query( Segments.CONTENT_URI, new String[] { Segments.TRACK }, null, null, null );
       Assert.assertEquals( "We should now have 2 segements", 2, cursor.getCount() );
       Assert.assertTrue( "Working", cursor.moveToFirst() );
       
@@ -249,7 +253,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       Assert.assertEquals("Second segment is second track", 2,  cursor.getLong( 0 ));
       cursor.close();
       cursor = this.mResolver.query( Waypoints.CONTENT_URI, new String[] { }, null, null, null );
-      Assert.assertEquals( "We should now have 0 waypoints", 0, cursor.getCount() );
+      Assert.assertEquals( "We should now have 4 waypoints", 4, cursor.getCount() );
       cursor.close();
 
       
