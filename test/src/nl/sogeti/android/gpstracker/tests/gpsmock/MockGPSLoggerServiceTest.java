@@ -52,7 +52,7 @@ public class MockGPSLoggerServiceTest extends AndroidTestCase
    public void testCreateLocationCommand()
    {
       Log.d(LOG_TAG, "Service: "+this.service ); 
-      String command = this.service.createLocationCommand( 5.117719d, 52.096524d, 0d );
+      String command = MockGPSLoggerService .createLocationCommand( 5.117719d, 52.096524d, 0d );
       Assert.assertEquals( "The GPS command for somewhere in Utrecht","geo nmea $GPGGA,102102.741,05205.791440,N,00507.063140,E,1,10,0.0,0.0,0,0.0,0,0.0,0000\r\n", command );
    }
 }
