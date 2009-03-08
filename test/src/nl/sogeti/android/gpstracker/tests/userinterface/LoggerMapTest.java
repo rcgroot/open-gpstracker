@@ -32,6 +32,7 @@ import junit.framework.Assert;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import android.content.pm.ActivityInfo;
 import android.test.ActivityInstrumentationTestCase;
 import com.google.android.maps.MapView;
 
@@ -150,7 +151,37 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase<LoggerMap>
       
       //5. Verwijderen route
       this.sendKeys( "DPAD_DOWN DPAD_DOWN MENU D");
+      //TODO
       
       //6. Applicatie stoppen 
+   }
+   
+   /**
+    * 
+    *  Switch orientation during route review
+    * 
+    */
+   public void testOrientationSwitch()
+   {
+      this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+      
+      // Route historie openen
+      this.sendKeys( "MENU L" );     
+      
+      // Route uit de historie openen
+      this.sendKeys( "DPAD_DOWN DPAD_DOWN DPAD_CENTER");
+      
+      // Review route
+      this.sendKeys( "T T" );
+      
+      // Switch orientation
+      this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+      this.sendKeys( "G G" );
+      
+      // Switch orientation
+      this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+
    }
 }

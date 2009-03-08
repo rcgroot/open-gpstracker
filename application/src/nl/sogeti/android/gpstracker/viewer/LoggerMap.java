@@ -84,16 +84,16 @@ public class LoggerMap extends MapActivity
    private GPSLoggerServiceManager loggerServiceManager;
 
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
-   {
-      private static final String LOG_TAG = "LoggerMap.ContentObserver";
-      @Override
-      public void onChange(boolean selfUpdate) 
       {
-         Log.d(LOG_TAG, "onChange() for the mTrackObserver");
-         LoggerMap.this.mMapView.getController().animateTo( getLastKnowGeopointLocation() );
-         LoggerMap.this.drawTrackingData();
-      }
-   };
+         private static final String LOG_TAG = "LoggerMap.ContentObserver";
+         @Override
+         public void onChange(boolean selfUpdate) 
+         {
+            Log.d(LOG_TAG, "onChange() for the mTrackObserver");
+            LoggerMap.this.mMapView.getController().animateTo( getLastKnowGeopointLocation() );
+            LoggerMap.this.drawTrackingData();
+         }
+      };
 
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
@@ -209,9 +209,9 @@ public class LoggerMap extends MapActivity
     *
     */
    @Override
-   protected void onCreate( Bundle savedInstanceState )
+   protected void onCreate( Bundle load )
    {
-      super.onCreate( savedInstanceState );
+      super.onCreate( load );
 
       this.startService( new Intent( GPSLoggerService.SERVICENAME ) );
       this.loggerServiceManager = new GPSLoggerServiceManager( (Context)this );
@@ -230,12 +230,51 @@ public class LoggerMap extends MapActivity
       this.mMapController = this.mMapView.getController();
 
       /* Initial display: Last logged track drawn and zoomed to current location */
-      this.mTrackId = getLastTrack();
-      attempToMoveToTrack( this.mTrackId );
-      this.mMapView.getController().animateTo( getLastKnowGeopointLocation());
-      this.mMapController.setZoom( LoggerMap.ZOOM_LEVEL );
+      if( load==null || !load.containsKey("track") )
+      {
+         this.mTrackId = getLastTrack();
+         attempToMoveToTrack( this.mTrackId );
+      }
+      if( load==null || !load.containsKey("e6lat") || !load.containsKey("e6long") )
+      {
+         this.mMapView.getController().animateTo( getLastKnowGeopointLocation());
+      }
+      if( load==null || !load.containsKey("zoom") )
+      {
+         this.mMapController.setZoom( LoggerMap.ZOOM_LEVEL );
+      }
+   }
+   
+   @Override
+   public void onRestoreInstanceState(Bundle load) 
+   {
+      if( load!=null && load.containsKey("track") )
+      {
+         this.mTrackId = load.getLong( "track" );
+         attempToMoveToTrack( this.mTrackId );
+      }
+      if( load!=null && load.containsKey("e6lat") && load.containsKey("e6long") )
+      {
+         GeoPoint lastPoint = new GeoPoint( load.getInt("e6lat"),  load.getInt("e6long") );
+         this.mMapView.getController().animateTo( lastPoint );
+      }
+      if( load!=null && load.containsKey("zoom") )
+      {
+         this.mMapController.setZoom(  load.getInt("zoom") );
+      }
    }
 
+   @Override 
+   public void onSaveInstanceState(Bundle save) 
+   {
+      GeoPoint point = this.mMapView.getMapCenter();
+      save.putInt("e6lat", point.getLatitudeE6() );
+      save.putInt("e6long", point.getLongitudeE6() );
+      save.putInt("zoom", this.mMapView.getZoomLevel() );
+      save.putLong("track", this.mTrackId );
+      super.onSaveInstanceState(save); 
+   }
+   
    /*
     * (non-Javadoc)
     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
