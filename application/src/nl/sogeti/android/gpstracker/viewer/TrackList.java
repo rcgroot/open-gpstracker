@@ -53,7 +53,7 @@ public class TrackList extends ListActivity
        this.setContentView(R.layout.tracklist);
        
        // Get all of the rows from the database and create the item list
-       ContentResolver resolver = this.getApplicationContext().getContentResolver();
+       ContentResolver resolver = this.getContentResolver();
        Cursor tracksCursor = resolver.query( 
              Tracks.CONTENT_URI, 
              new String[] { Tracks._ID, Tracks.NAME, Tracks.STARTTIME, Tracks.ENDTIME }, 
@@ -70,7 +70,7 @@ public class TrackList extends ListActivity
        SimpleCursorAdapter notes = 
            new SimpleCursorAdapter(this, R.layout.trackitem, tracksCursor, from, to);
        setListAdapter(notes);
-       tracksCursor.close();
+       //tracksCursor.close();
    }
    
    @Override
