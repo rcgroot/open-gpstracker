@@ -70,7 +70,6 @@ public class TrackList extends ListActivity
        SimpleCursorAdapter notes = 
            new SimpleCursorAdapter(this, R.layout.trackitem, tracksCursor, from, to);
        setListAdapter(notes);
-       //tracksCursor.close();
    }
    
    @Override
