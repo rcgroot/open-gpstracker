@@ -70,7 +70,7 @@ import com.google.android.maps.Overlay;
  */
 public class LoggerMap extends MapActivity
 {
-   private static final int ZOOM_LEVEL = 11;
+   private static final int ZOOM_LEVEL = 9;
    private static final int MENU_SETTINGS = 0;
    private static final int MENU_TOGGLE   = 1;
    private static final int MENU_TRACKLIST = 5;
@@ -235,13 +235,21 @@ public class LoggerMap extends MapActivity
          this.mTrackId = getLastTrack();
          attempToMoveToTrack( this.mTrackId );
       }
-      if( load==null || !load.containsKey("e6lat") || !load.containsKey("e6long") )
-      {
-         this.mMapView.getController().animateTo( getLastKnowGeopointLocation());
-      }
       if( load==null || !load.containsKey("zoom") )
       {
          this.mMapController.setZoom( LoggerMap.ZOOM_LEVEL );
+      }
+      if( load==null || !load.containsKey("e6lat") || !load.containsKey("e6long") )
+      {
+         GeoPoint point = getLastKnowGeopointLocation();
+         if( point.getLatitudeE6() != 0 && point.getLongitudeE6() != 0 )
+         {
+            this.mMapView.getController().animateTo( point );
+         }
+         else 
+         {
+            this.mMapController.setZoom( 1 );
+         }
       }
    }
    
@@ -253,14 +261,14 @@ public class LoggerMap extends MapActivity
          this.mTrackId = load.getLong( "track" );
          attempToMoveToTrack( this.mTrackId );
       }
+      if( load!=null && load.containsKey("zoom") )
+      {
+         this.mMapController.setZoom(  load.getInt("zoom") );
+      }
       if( load!=null && load.containsKey("e6lat") && load.containsKey("e6long") )
       {
          GeoPoint lastPoint = new GeoPoint( load.getInt("e6lat"),  load.getInt("e6long") );
          this.mMapView.getController().animateTo( lastPoint );
-      }
-      if( load!=null && load.containsKey("zoom") )
-      {
-         this.mMapController.setZoom(  load.getInt("zoom") );
       }
    }
 
