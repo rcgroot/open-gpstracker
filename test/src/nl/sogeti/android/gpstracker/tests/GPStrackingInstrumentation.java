@@ -29,9 +29,12 @@
 package nl.sogeti.android.gpstracker.tests;
 
 import junit.framework.TestSuite;
+
 import nl.sogeti.android.gpstracker.tests.db.GPStrackingProviderTest;
 import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerServiceTest;
+import nl.sogeti.android.gpstracker.tests.logger.GPSLoggerServiceTest;
 import nl.sogeti.android.gpstracker.tests.userinterface.LoggerMapTest;
+
 import android.test.InstrumentationTestRunner;
 import android.test.InstrumentationTestSuite;
 
@@ -59,8 +62,10 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner
       suite.setName( "GPS Tracking Testsuite" );
       suite.addTestSuite( GPStrackingProviderTest.class );
       suite.addTestSuite( MockGPSLoggerServiceTest.class );
+      suite.addTestSuite( GPSLoggerServiceTest.class );
       suite.addTestSuite( LoggerMapTest.class );
-      //suite.addTestSuite( LoggerMapDemoTest.class );
+      
+      //suite.addTestSuite( LoggerMapDemoTest.class ); // The demo recorded for youtube
       return suite;
    }
 

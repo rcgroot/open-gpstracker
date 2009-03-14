@@ -60,7 +60,6 @@ public class MockGPSLoggerService implements Runnable
 
    public MockGPSLoggerService(Context context)
    {
-      Log.d( MockGPSLoggerService.LOG_TAG, "Constructor LoggerThread()" );
       this.timeout = DEFAULT_TIMEOUT;
       this.mContext = context;
       this.sender = new TelnetPositionSender();
@@ -85,7 +84,6 @@ public class MockGPSLoggerService implements Runnable
 
    public void run()
    {
-      Log.d( MockGPSLoggerService.LOG_TAG, "GPSLoggerService.run() start" );
       prepareRun( R.xml.denhaagdenbosch );      
       //prepareRun( R.xml.rondjesingelutrecht );
 
@@ -93,7 +91,6 @@ public class MockGPSLoggerService implements Runnable
       while (this.running && ( this.positions.size() > 0 ) )
       {
          SimplePosition position = this.positions.remove( 0 );
-         Log.d( LOG_TAG, "Position: " + position );
          String nmeaCommand = createLocationCommand(position.getLongitude(), position.getLatitude(), 0);
          this.sender.sendCommand( nmeaCommand );
 
@@ -103,10 +100,9 @@ public class MockGPSLoggerService implements Runnable
          }
          catch (InterruptedException e)
          {
-            Log.d( MockGPSLoggerService.LOG_TAG, "Interrupted" );
+            Log.w( MockGPSLoggerService.LOG_TAG, "Interrupted" );
          }
       }
-      Log.d( MockGPSLoggerService.LOG_TAG, "GPSLoggerService.run() finished" );
    }
 
    public void stop()

@@ -33,7 +33,6 @@ import java.util.List;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
@@ -41,6 +40,7 @@ import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -87,7 +87,11 @@ public class LoggerMap extends MapActivity
       @Override
       public void onChange(boolean selfUpdate) 
       {
-         animateToLastTrackPoint();
+         GeoPoint lastPoint = GPSLoggerService.getLastTrackPoint(LoggerMap.this) ;
+         if( lastPoint != null )
+         {
+            LoggerMap.this.mMapView.getController().animateTo( lastPoint );
+         }
          LoggerMap.this.drawTrackingData();
       }
    };
@@ -229,8 +233,7 @@ public class LoggerMap extends MapActivity
       /* Initial display: Last logged track drawn and zoomed to current location */
       if( load==null || !load.containsKey("track") )
       {
-         this.mTrackId = getLastTrack();
-         attempToMoveToTrack( this.mTrackId );
+         moveToLastTrack();
       }
       if( load==null || !load.containsKey("zoom") )
       {
@@ -405,36 +408,6 @@ public class LoggerMap extends MapActivity
    }
 
    /**
-    * Retrieve the last point of the current track and animate the map 
-    * to that point
-    */
-   private void animateToLastTrackPoint()
-   {
-      Cursor track = null;
-      try{
-         ContentResolver resolver = this.getApplicationContext().getContentResolver();
-         track = resolver.query( 
-               Waypoints.CONTENT_URI, 
-               new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,  "max("+Waypoints._ID+")"  }, null, null, null );
-         boolean exists = track.moveToLast();
-         if( exists )
-         {
-            int microLatitude = (int) ( track.getDouble( 0 ) * 1E6d );
-            int microLongitude = (int) ( track.getDouble( 1 ) * 1E6d );
-            new GeoPoint(microLatitude, microLongitude);
-            LoggerMap.this.mMapView.getController().animateTo( getLastKnowGeopointLocation() );
-         }
-      }
-      finally 
-      {
-         if( track != null )
-         {
-            track.close();
-         }
-      }
-   }
-
-   /**
     * 
     * Alter the view to display the title with track information 
     */
@@ -467,20 +440,29 @@ public class LoggerMap extends MapActivity
       return geoPoint;
    }
 
-   private int getLastTrack()
+   private int moveToLastTrack()
    {
       int trackId = 0;
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
-      Cursor tracks = resolver.query( 
-            Tracks.CONTENT_URI, 
-            new String[] { Tracks._ID, Tracks.NAME }, 
-            null, null, null );
-      if(tracks.moveToLast())
+      Cursor track = null;
+      try 
       {
-         trackId = tracks.getInt( 0 );
-         setTitleToTrackName( tracks.getString( 1 ) );
+         ContentResolver resolver = this.getApplicationContext().getContentResolver();
+         track = resolver.query( 
+               Tracks.CONTENT_URI, 
+               new String[] {  "max("+Tracks._ID+")", Tracks.NAME,  }, 
+               null, null, null );
+         if(track.moveToLast())
+         {
+            attempToMoveToTrack( this.mTrackId );
+         }
       }
-      tracks.close();
+      finally 
+      {
+         if( track != null )
+         {
+            track.close();
+         }
+      }
       return trackId;
    }
 
