@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;

@@ -174,8 +174,6 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public Uri insert( Uri uri, ContentValues values )
    {
-      Log.d( GPStrackingProvider.LOG_TAG, "Inserting into: " + uri.toString() );
-
       Uri insertedUri = null;
       int match = GPStrackingProvider.sURIMatcher.match( uri );
       long id = -1;
@@ -224,8 +222,6 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder )
    {
-      Log.d( GPStrackingProvider.LOG_TAG, "Query on Uri " + uri );
-
       int match = GPStrackingProvider.sURIMatcher.match( uri );
 
       String tableName = null;
@@ -295,7 +291,6 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public int update( Uri uri, ContentValues givenValues, String selection, String[] selectionArgs )
    {
-      Log.d( GPStrackingProvider.LOG_TAG, "Update on Uri " + uri );
       int updates = -1 ;
 
       int match = GPStrackingProvider.sURIMatcher.match( uri );

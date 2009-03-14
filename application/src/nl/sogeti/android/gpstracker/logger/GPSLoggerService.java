@@ -44,8 +44,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
-import android.util.Log;
-
 
 /**
  * A system service as controlling the background logging of gps locations.
@@ -57,7 +55,6 @@ public class GPSLoggerService extends Service
 {  
    private static final String GPS_PROVIDER = LocationManager.GPS_PROVIDER;
    //private static final String GPS_PROVIDER = "gps";
-   private static final String LOG_TAGNAME = "nl.sogeti.android.gpstracker.logger.GPSLoggerService";
    public static final String SERVICENAME = "nl.sogeti.android.gpstrack.logger.GPSLoggerService";
    private Context mCtx;
    private LocationManager locationManager;
@@ -95,7 +92,6 @@ public class GPSLoggerService extends Service
    @Override
    public void onCreate()
    {
-      Log.d( LOG_TAGNAME, "GPSLoggerService created" );
       super.onCreate();
       this.mCtx = getApplicationContext();
       this.locationManager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
@@ -109,10 +105,8 @@ public class GPSLoggerService extends Service
    @Override
    public void onDestroy()
    {
-      Log.d( LOG_TAGNAME, "service destroyed" ); 
       stopLogging();
       super.onDestroy();
-
    }
 
    /**
@@ -120,7 +114,8 @@ public class GPSLoggerService extends Service
     * @see android.app.Service#onBind(android.content.Intent)
     */
    @Override
-   public IBinder onBind(Intent intent) {
+   public IBinder onBind(Intent intent) 
+   {
        return this.mBinder;
    }
 
@@ -185,12 +180,10 @@ public class GPSLoggerService extends Service
     * @param location
     */
    private void storeLocation( Location location )
-   {
-      Log.d( GPSLoggerService.LOG_TAGNAME, "Trying to store location: " + location );              
+   {   
       ContentValues args = new ContentValues();
       args.put( Waypoints.LATITUDE, new Double( location.getLatitude() ) );
       args.put( Waypoints.LONGITUDE, new Double( location.getLongitude() ) );
       this.mCtx.getContentResolver().insert( Waypoints.CONTENT_URI, args );
-      Log.d( GPSLoggerService.LOG_TAGNAME, "Lat: " + location.getLatitude() + ", lon: " + location.getLongitude() );
    }
 }

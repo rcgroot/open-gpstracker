@@ -91,11 +91,11 @@ public class SettingsManager
         }
          catch (FileNotFoundException e)
          {
-            Log.e( SettingsManager.LOG_TAG, "Coult not read properties", e );
+            Log.e( SettingsManager.LOG_TAG, "Could not read properties", e );
          }
          catch (IOException e)
          {
-            Log.e( SettingsManager.LOG_TAG, "Coult not read properties", e );
+            Log.e( SettingsManager.LOG_TAG, "Could not read properties", e );
          }
          finally 
          {
@@ -136,11 +136,11 @@ public class SettingsManager
       }
       catch (FileNotFoundException e)
       {
-         Log.e( SettingsManager.LOG_TAG, "Coult not write properties", e );
+         Log.e( SettingsManager.LOG_TAG, "Could not write properties", e );
       }
       catch (IOException e)
       {
-         Log.e( SettingsManager.LOG_TAG, "Coult not write properties", e );
+         Log.e( SettingsManager.LOG_TAG, "Could not write properties", e );
       }
       finally 
       {

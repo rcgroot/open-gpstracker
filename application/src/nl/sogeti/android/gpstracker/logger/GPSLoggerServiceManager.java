@@ -56,13 +56,10 @@ public class GPSLoggerServiceManager
    {
       public void onServiceConnected( ComponentName className, IBinder service )
       {
-         Log.d(LOG_TAGNAME, "onServiceConnected()");
          GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
-         Log.d(LOG_TAGNAME, "GPSLoggerServiceRemote: " + GPSLoggerServiceManager.this.mGPSLoggerRemote);
       }
       public void onServiceDisconnected( ComponentName className )
       {
-         Log.d(LOG_TAGNAME, "onServiceDisconnected()");
          GPSLoggerServiceManager.this.mGPSLoggerRemote = null;
       }
    };
@@ -70,7 +67,6 @@ public class GPSLoggerServiceManager
 
    public GPSLoggerServiceManager(Context ctx)
    {
-      Log.d(LOG_TAGNAME, "Created GPSLoggerServiceManager ");
       this.mCtx = ctx;
       SettingsManager settingsManager = SettingsManager.getInstance();
       connectToGPSLoggerService();
@@ -89,12 +85,10 @@ public class GPSLoggerServiceManager
       { 
          try
          {
-            Log.d( GPSLoggerServiceManager.LOG_TAGNAME, "mService.isLogging: " + this.mGPSLoggerRemote.isLogging() );
             logging = this.mGPSLoggerRemote.isLogging();
          }
          catch (RemoteException e)
          {
-            Log.e( GPSLoggerServiceManager.REMOTE_EXCEPTION, "Could not determine GPSLoggerServiceStatus.", e );
             logging = false;
          }
       }
@@ -147,7 +141,6 @@ public class GPSLoggerServiceManager
     */
    public void disconnectFromGPSLoggerService()
    {
-      Log.d( LOG_TAGNAME, "ready to unbind : " + this.mServiceConnection );
       if( this.mServiceConnection != null )
       {
          this.mCtx.unbindService( this.mServiceConnection );
@@ -160,7 +153,6 @@ public class GPSLoggerServiceManager
     */
    public void connectToGPSLoggerService()
    {
-      boolean succeed = this.mCtx.bindService( new Intent( GPSLoggerService.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
-      Log.d( LOG_TAGNAME, "bindService resulted in: "+succeed+" " + this.mServiceConnection );
+      this.mCtx.bindService( new Intent( GPSLoggerService.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
    }
 }

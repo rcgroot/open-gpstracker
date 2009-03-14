@@ -44,7 +44,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 /**
  * Class to hold bare-metal database operations exposed as functionality blocks To be used by database adapters, like a content provider, that implement a required functionality set
@@ -54,8 +53,6 @@ import android.util.Log;
  */
 class DatabaseHelper extends SQLiteOpenHelper
 {
-
-   private static final String LOG_TAG = DatabaseHelper.class.getName();
    private Context mContext;
    
    
@@ -105,8 +102,6 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    long insertWaypoint( double latitude, double longitude )
    {
-      Log.d( DatabaseHelper.LOG_TAG, "inserting " + latitude + " " + longitude );
-
       long currentSegmentId = getCurrentSegment( getCurrentTrack() );
 
       long time = ( new Date() ).getTime();
@@ -147,8 +142,6 @@ class DatabaseHelper extends SQLiteOpenHelper
    @Override
    public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion )
    {
-      Log.w(LOG_TAG, "Upgrading database from version " + oldVersion + " to "
-            + newVersion + ", which will destroy all old data");
       db.execSQL("DROP TABLE IF EXISTS "+Tracks.TABLE);
       db.execSQL("DROP TABLE IF EXISTS "+Segments.TABLE);
       db.execSQL("DROP TABLE IF EXISTS "+Waypoints.TABLE);
@@ -173,8 +166,6 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    private long toNextSegment( long trackId )
    {
-      Log.d( DatabaseHelper.LOG_TAG, "Moving to the next segment" );
-
       long currentTime = new Date().getTime();
       ContentValues args = new ContentValues();
       args.put( SegmentsColumns.TRACK, trackId );
@@ -201,8 +192,6 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    long toNextTrack(String name)
    {
-      Log.d( DatabaseHelper.LOG_TAG, "Moving to the next track" );
-
       ContentValues args = new ContentValues();
       long currentTime = new Date().getTime();
       args.put( TracksColumns.STARTTIME, currentTime );
@@ -229,8 +218,6 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    private void updateSegmentEndtime( long time )
    {
-      Log.d( DatabaseHelper.LOG_TAG, "updateSegmentEndtime to " + time );
-
       long currentSegmentId = getCurrentSegment( getCurrentTrack() );
 
       ContentValues args = new ContentValues();
@@ -254,8 +241,6 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    private void updateTrackEndtime( long time )
    {
-      Log.d( DatabaseHelper.LOG_TAG, "updateTrackEndtime to " + time );
-
       long currentTrackId = getCurrentTrack();
 
       ContentValues args = new ContentValues();
@@ -267,7 +252,6 @@ class DatabaseHelper extends SQLiteOpenHelper
       
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+currentTrackId ) ;
-      Log.d( DatabaseHelper.LOG_TAG, "notifyChange to " + notifyUri );
       resolver.notifyChange( notifyUri, null );
    }
 

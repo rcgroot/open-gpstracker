@@ -33,6 +33,7 @@ import java.util.List;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
@@ -48,7 +49,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -74,7 +74,6 @@ public class LoggerMap extends MapActivity
    private static final int MENU_SETTINGS = 0;
    private static final int MENU_TOGGLE   = 1;
    private static final int MENU_TRACKLIST = 5;
-   private static final String LOG_TAG = "LoggerMap";
    private static final int TRACK_TITLE_ID = 0;
 
 
@@ -84,16 +83,14 @@ public class LoggerMap extends MapActivity
    private GPSLoggerServiceManager loggerServiceManager;
 
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
+   {
+      @Override
+      public void onChange(boolean selfUpdate) 
       {
-         private static final String LOG_TAG = "LoggerMap.ContentObserver";
-         @Override
-         public void onChange(boolean selfUpdate) 
-         {
-            Log.d(LOG_TAG, "onChange() for the mTrackObserver");
-            LoggerMap.this.mMapView.getController().animateTo( getLastKnowGeopointLocation() );
-            LoggerMap.this.drawTrackingData();
-         }
-      };
+         animateToLastTrackPoint();
+         LoggerMap.this.drawTrackingData();
+      }
+   };
 
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
@@ -252,7 +249,7 @@ public class LoggerMap extends MapActivity
          }
       }
    }
-   
+
    @Override
    public void onRestoreInstanceState(Bundle load) 
    {
@@ -282,7 +279,7 @@ public class LoggerMap extends MapActivity
       save.putLong("track", this.mTrackId );
       super.onSaveInstanceState(save); 
    }
-   
+
    /*
     * (non-Javadoc)
     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
@@ -290,7 +287,6 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onActivityResult( int requestCode, int resultCode, Intent data )
    {
-      Log.d(LOG_TAG, "onActivityResult with code "+resultCode+" and data "+data);
       super.onActivityResult(requestCode, resultCode, data);
       if( resultCode != RESULT_CANCELED )
       {
@@ -315,9 +311,8 @@ public class LoggerMap extends MapActivity
       return true;
    }
 
-
    /**
-    * For a given track identifier the route of that track is drawn 
+    * For the current track identifier the route of that track is drawn 
     * by adding a OverLay for each segments in the track
     * 
     * @param trackId
@@ -325,8 +320,6 @@ public class LoggerMap extends MapActivity
     */
    private void drawTrackingData()
    {
-      Log.d(LOG_TAG, "Draw track data for number: "+this.mTrackId);
-
       List<Overlay> overlays = this.mMapView.getOverlays();
       overlays.clear();
 
@@ -376,26 +369,33 @@ public class LoggerMap extends MapActivity
     */
    private boolean attempToMoveToTrack( long trackId )
    {
-      Log.d(LOG_TAG, "Attempting to move to track "+trackId);
       boolean exists;
       if( trackId >= 0 )
       {
-         ContentResolver resolver = this.getApplicationContext().getContentResolver();
-         Uri trackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+trackId ) ;
-         Cursor track = resolver.query( 
-               trackUri, 
-               new String[] { Tracks.NAME }, null, null, null );
-         exists = track.moveToFirst();
-         if( exists )
-         {
-            this.mTrackId = trackId ;
-            setTitleToTrackName(track.getString( 0 ));
-            resolver.unregisterContentObserver( this.mTrackObserver );
-            Log.d(LOG_TAG, "Registering observer to "+trackUri);
-            resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
-            drawTrackingData();
+         Cursor track = null;
+         try{
+            ContentResolver resolver = this.getApplicationContext().getContentResolver();
+            Uri trackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+trackId ) ;
+            track = resolver.query( 
+                  trackUri, 
+                  new String[] { Tracks.NAME }, null, null, null );
+            exists = track.moveToFirst();
+            if( exists )
+            {
+               this.mTrackId = trackId ;
+               setTitleToTrackName(track.getString( 0 ));
+               resolver.unregisterContentObserver( this.mTrackObserver );
+               resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
+               drawTrackingData();
+            }
          }
-         track.close();
+         finally 
+         {
+            if( track != null )
+            {
+               track.close();
+            }
+         }
       }
       else 
       {
@@ -403,6 +403,37 @@ public class LoggerMap extends MapActivity
       }
       return exists;
    }
+
+   /**
+    * Retrieve the last point of the current track and animate the map 
+    * to that point
+    */
+   private void animateToLastTrackPoint()
+   {
+      Cursor track = null;
+      try{
+         ContentResolver resolver = this.getApplicationContext().getContentResolver();
+         track = resolver.query( 
+               Waypoints.CONTENT_URI, 
+               new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,  "max("+Waypoints._ID+")"  }, null, null, null );
+         boolean exists = track.moveToLast();
+         if( exists )
+         {
+            int microLatitude = (int) ( track.getDouble( 0 ) * 1E6d );
+            int microLongitude = (int) ( track.getDouble( 1 ) * 1E6d );
+            new GeoPoint(microLatitude, microLongitude);
+            LoggerMap.this.mMapView.getController().animateTo( getLastKnowGeopointLocation() );
+         }
+      }
+      finally 
+      {
+         if( track != null )
+         {
+            track.close();
+         }
+      }
+   }
+
    /**
     * 
     * Alter the view to display the title with track information 
