@@ -30,7 +30,7 @@ package nl.sogeti.android.gpstracker.tests.userinterface;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerService;
+import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.test.ActivityInstrumentationTestCase;
 
@@ -81,7 +81,7 @@ public class LoggerMapDemoTest extends ActivityInstrumentationTestCase<LoggerMap
    public void testTracking() throws InterruptedException 
    {
       // Our data feeder to the emulator
-      MockGPSLoggerService service = new MockGPSLoggerService( this.mLoggermap );
+      MockGPSLoggerDriver service = new MockGPSLoggerDriver( this.mLoggermap );
       try
       {
          Thread.sleep( 1 * 1000 );

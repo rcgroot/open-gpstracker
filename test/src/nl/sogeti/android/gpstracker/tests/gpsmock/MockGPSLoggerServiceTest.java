@@ -42,17 +42,17 @@ import android.util.Log;
 public class MockGPSLoggerServiceTest extends AndroidTestCase
 {
    private static final String LOG_TAG = "MockGPSLoggerServiceTest";
-   MockGPSLoggerService service;
+   MockGPSLoggerDriver service;
    
    public MockGPSLoggerServiceTest()
    {
-      this.service = new MockGPSLoggerService( getContext() );
+      this.service = new MockGPSLoggerDriver( getContext() );
    }
    
    public void testCreateLocationCommand()
    {
       Log.d(LOG_TAG, "Service: "+this.service ); 
-      String command = MockGPSLoggerService .createLocationCommand( 5.117719d, 52.096524d, 0d );
+      String command = MockGPSLoggerDriver .createLocationCommand( 5.117719d, 52.096524d, 0d );
       Assert.assertTrue("Start of a NMEA sentence: ", command.startsWith( "geo nmea $GPGGA" ));
       Assert.assertTrue("End of a NMEA sentence", command.endsWith( "05205.791440,N,00507.063140,E,1,10,0.0,0.0,0,0.0,0,0.0,0000\r\n" ));
    }

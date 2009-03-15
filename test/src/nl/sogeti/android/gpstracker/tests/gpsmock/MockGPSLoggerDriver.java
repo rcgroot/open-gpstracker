@@ -42,13 +42,13 @@ import android.content.res.XmlResourceParser;
 import android.util.Log;
 
 /**
- * Service that logs GPS-location
+ * Feeder of GPS-location information
  * 
  * @version $Id$
  * @author Maarten van Berkel (maarten.van.berkel@sogeti.nl / +0586)
  *
  */
-public class MockGPSLoggerService implements Runnable
+public class MockGPSLoggerDriver implements Runnable
 {
    private static final String LOG_TAG = "GPSLoggerService";
    private final static int DEFAULT_TIMEOUT = 2000;
@@ -57,10 +57,12 @@ public class MockGPSLoggerService implements Runnable
    private Context mContext;
    private TelnetPositionSender sender;
    private ArrayList<SimplePosition> positions;
+   private int mRouteResource;
 
-   public MockGPSLoggerService(Context context)
+   public MockGPSLoggerDriver(Context context)
    {
       this.timeout = DEFAULT_TIMEOUT;
+      this.mRouteResource = R.xml.denhaagdenbosch;
       this.mContext = context;
       this.sender = new TelnetPositionSender();
    }
@@ -70,6 +72,16 @@ public class MockGPSLoggerService implements Runnable
       return this.positions.size();
    }
 
+   public void setTimeout(int t)
+   {
+      this.timeout = t;
+   }
+   
+   public void setRoute(int t)
+   {
+      this.mRouteResource = t;
+   }
+   
    public int getTimeout()
    {
       return this.timeout;
@@ -84,9 +96,7 @@ public class MockGPSLoggerService implements Runnable
 
    public void run()
    {
-      prepareRun( R.xml.denhaagdenbosch );      
-      //prepareRun( R.xml.rondjesingelutrecht );
-
+      prepareRun( mRouteResource );      
 
       while (this.running && ( this.positions.size() > 0 ) )
       {
@@ -100,7 +110,7 @@ public class MockGPSLoggerService implements Runnable
          }
          catch (InterruptedException e)
          {
-            Log.w( MockGPSLoggerService.LOG_TAG, "Interrupted" );
+            Log.w( MockGPSLoggerDriver.LOG_TAG, "Interrupted" );
          }
       }
    }
