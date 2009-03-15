@@ -97,9 +97,9 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    long insertWaypoint( double latitude, double longitude )
    {
-      SQLiteDatabase mDb = getWritableDatabase();
-      long segmentId = getCurrentSegment( mDb );
-      long trackId = getCurrentTrack(mDb) ;
+      SQLiteDatabase sqldb = getWritableDatabase();
+      long segmentId = getCurrentSegment( sqldb );
+      long trackId = getCurrentTrack(sqldb) ;
       
       long time = ( new Date() ).getTime();
       ContentValues args = new ContentValues();
@@ -108,8 +108,8 @@ class DatabaseHelper extends SQLiteOpenHelper
       args.put( WaypointsColumns.TIME, time );
       args.put( WaypointsColumns.SEGMENT, segmentId );
 
-      long waypointId = mDb.insert( Waypoints.TABLE, null, args );
-      mDb.close();
+      long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
+      sqldb.close();
 
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri;
@@ -135,11 +135,11 @@ class DatabaseHelper extends SQLiteOpenHelper
       args.put( TracksColumns.NAME, name );
       args.put( TracksColumns.CREATION_TIME, currentTime );
 
-      SQLiteDatabase mDb = getWritableDatabase();
-      mDb.insert( Tracks.TABLE, null, args );
+      SQLiteDatabase sqldb = getWritableDatabase();
+      sqldb.insert( Tracks.TABLE, null, args );
 
-      long trackId = getCurrentTrack( mDb );
-      mDb.close();
+      long trackId = getCurrentTrack( sqldb );
+      sqldb.close();
 
       toNextSegment();
 
@@ -156,15 +156,15 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    long toNextSegment()
    {
-      SQLiteDatabase mDb = getWritableDatabase();
-      long trackId = getCurrentTrack(mDb) ;
+      SQLiteDatabase sqldb = getWritableDatabase();
+      long trackId = getCurrentTrack(sqldb) ;
 
       ContentValues args = new ContentValues();
       args.put( SegmentsColumns.TRACK, trackId );
-      mDb.insert( Segments.TABLE, null, args );
+      sqldb.insert( Segments.TABLE, null, args );
 
-      long segmentId = getCurrentSegment( mDb );
-      mDb.close();
+      long segmentId = getCurrentSegment( sqldb );
+      sqldb.close();
 
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentId ) ;
@@ -173,14 +173,14 @@ class DatabaseHelper extends SQLiteOpenHelper
       return segmentId;
    }
 
-   private long getCurrentSegment(SQLiteDatabase mDb)
+   private long getCurrentSegment(SQLiteDatabase sqldb)
    {
-      long trackId = getCurrentTrack(mDb) ;
+      long trackId = getCurrentTrack(sqldb) ;
       long segmentId = 0;
       Cursor mCursor = null; 
       try 
       {
-         mCursor = mDb.query( Segments.TABLE, new String[] { "max(" + Segments._ID + ")" }, SegmentsColumns.TRACK + "=" + trackId, null, null, null, null, "1" );
+         mCursor = sqldb.query( Segments.TABLE, new String[] { "max(" + Segments._ID + ")" }, SegmentsColumns.TRACK + "=" + trackId, null, null, null, null, "1" );
          if (mCursor.moveToFirst())
          {
             segmentId = mCursor.getLong( 0 );
@@ -201,14 +201,14 @@ class DatabaseHelper extends SQLiteOpenHelper
       return segmentId;
    }
 
-   private long getCurrentTrack(SQLiteDatabase mDb)
+   private long getCurrentTrack(SQLiteDatabase sqldb)
    {
 
       long trackId = 0;
       Cursor mCursor = null; 
       try
       {
-         mCursor = mDb.query( Tracks.TABLE, new String[] { "max(" + Tracks._ID + ")" }, null, null, null, null, null, null );
+         mCursor = sqldb.query( Tracks.TABLE, new String[] { "max(" + Tracks._ID + ")" }, null, null, null, null, null, null );
          if (mCursor.moveToFirst())
          {
             trackId = mCursor.getLong( 0 );
