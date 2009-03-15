@@ -96,7 +96,7 @@ public class MockGPSLoggerDriver implements Runnable
 
    public void run()
    {
-      prepareRun( mRouteResource );      
+      prepareRun( this.mRouteResource );      
 
       while (this.running && ( this.positions.size() > 0 ) )
       {

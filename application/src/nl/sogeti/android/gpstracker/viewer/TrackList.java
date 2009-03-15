@@ -56,12 +56,12 @@ public class TrackList extends ListActivity
        ContentResolver resolver = this.getContentResolver();
        Cursor tracksCursor = resolver.query( 
              Tracks.CONTENT_URI, 
-             new String[] { Tracks._ID, Tracks.NAME, Tracks.STARTTIME, Tracks.ENDTIME }, 
+             new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, 
              null, null, null );
        startManagingCursor(tracksCursor);
 
        // Create an array to specify the fields we want to display in the list (only TITLE)
-       String[] from = new String[]{Tracks.NAME, Tracks.STARTTIME};
+       String[] from = new String[]{Tracks.NAME, Tracks.CREATION_TIME};
 
        // and an array of the fields we want to bind those fields to (in this case just text1)
        int[] to = new int[]{R.id.listitem_name, R.id.listitem_from};

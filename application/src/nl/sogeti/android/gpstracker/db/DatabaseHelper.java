@@ -43,8 +43,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.provider.BaseColumns;
-
+import android.util.Log;
 /**
  * Class to hold bare-metal database operations exposed as functionality blocks To be used by database adapters, like a content provider, that implement a required functionality set
  * 
@@ -54,73 +53,13 @@ import android.provider.BaseColumns;
 class DatabaseHelper extends SQLiteOpenHelper
 {
    private Context mContext;
-   
-   
+   private final static String LOG = "nl.sogeti.android.gpstracker.db.DatabaseHelper";
+
    public DatabaseHelper(Context context)
    {
       super( context, GPStracking.DATABASE_NAME, null, GPStracking.DATABASE_VERSION );
       this.mContext = context;
-    
-   }
 
-   private long getCurrentSegment( long trackId )
-   {
-      long segmentId = 0;
-      SQLiteDatabase mDb = getWritableDatabase();
-      Cursor mCursor = mDb.query( Segments.TABLE, new String[] { "max(" + BaseColumns._ID + ")" }, SegmentsColumns.TRACK + "=" + trackId, null, null, null, null, "1" );
-      if (mCursor.moveToFirst())
-      {
-         segmentId = mCursor.getLong( 0 );
-         mCursor.close();
-         mDb.close();
-      }
-      return segmentId;
-   }
-
-   private long getCurrentTrack()
-   {
-
-      long trackId = 0;
-      SQLiteDatabase mDb = getWritableDatabase();
-      Cursor mCursor = mDb.query( Tracks.TABLE, new String[] { "max(" + BaseColumns._ID + ")" }, null, null, null, null, null, "1" );
-      if (mCursor.moveToFirst())
-      {
-         trackId = mCursor.getLong( 0 );
-         mCursor.close();
-         mDb.close();
-      }
-      return trackId;
-   }
-
-   /**
-    * Creates a waypoint under the current track segment with the current time on which the waypoint is reached
-    * 
-    * @param latitude latitude
-    * @param longitude longitude
-    * @param time time
-    * @return
-    */
-   long insertWaypoint( double latitude, double longitude )
-   {
-      long currentSegmentId = getCurrentSegment( getCurrentTrack() );
-
-      long time = ( new Date() ).getTime();
-      ContentValues args = new ContentValues();
-      args.put( WaypointsColumns.LATITUDE, latitude );
-      args.put( WaypointsColumns.LONGITUDE, longitude );
-      args.put( WaypointsColumns.TIME, time );
-      args.put( WaypointsColumns.SEGMENT, currentSegmentId );
-
-      SQLiteDatabase mDb = getWritableDatabase();
-      long waypointId = mDb.insert( Waypoints.TABLE, null, args );
-      mDb.close();
-      
-      ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Waypoints.CONTENT_URI, ""+waypointId ) ;
-      resolver.notifyChange( notifyUri, null );
-
-      updateSegmentEndtime( time );
-      return waypointId;
    }
 
    /*
@@ -149,41 +88,39 @@ class DatabaseHelper extends SQLiteOpenHelper
    }
 
    /**
-    * Moves to a fresh segment to which waypoints can be connected
+    * Creates a waypoint under the current track segment with the current time on which the waypoint is reached
+    * 
+    * @param latitude latitude
+    * @param longitude longitude
+    * @param time time
     * @return
     */
-   long toNextSegment()
+   long insertWaypoint( double latitude, double longitude )
    {
-
-      long segmentId = toNextSegment( getCurrentTrack() );
-
-      return segmentId;
-   }
-
-   /**
-    * Moves to a fresh segment to which waypoints can be connected
-    * @return
-    */
-   private long toNextSegment( long trackId )
-   {
-      long currentTime = new Date().getTime();
-      ContentValues args = new ContentValues();
-      args.put( SegmentsColumns.TRACK, trackId );
-      args.put( SegmentsColumns.STARTTIME, currentTime );
-      args.put( SegmentsColumns.ENDTIME, currentTime );
-
       SQLiteDatabase mDb = getWritableDatabase();
-      mDb.insert( Segments.TABLE, null, args );
+      long segmentId = getCurrentSegment( mDb );
+      long trackId = getCurrentTrack(mDb) ;
+      
+      long time = ( new Date() ).getTime();
+      ContentValues args = new ContentValues();
+      args.put( WaypointsColumns.LATITUDE, latitude );
+      args.put( WaypointsColumns.LONGITUDE, longitude );
+      args.put( WaypointsColumns.TIME, time );
+      args.put( WaypointsColumns.SEGMENT, segmentId );
+
+      long waypointId = mDb.insert( Waypoints.TABLE, null, args );
       mDb.close();
 
-      long segmentId = getCurrentSegment( trackId );
-      
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentId ) ;
-      resolver.notifyChange( notifyUri, null );
-      
+      Uri notifyUri;
+      notifyUri = Uri.withAppendedPath( Waypoints.CONTENT_URI, ""+waypointId ) ;
+      resolver.notifyChange( notifyUri, null );    
+      notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentId ) ;
+      resolver.notifyChange( notifyUri, null );    
+      notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+trackId ) ;
+      resolver.notifyChange( notifyUri, null );      
 
-      return segmentId;
+      return waypointId;
    }
 
    /**
@@ -192,18 +129,20 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    long toNextTrack(String name)
    {
-      ContentValues args = new ContentValues();
+
       long currentTime = new Date().getTime();
-      args.put( TracksColumns.STARTTIME, currentTime );
-      args.put( TracksColumns.ENDTIME, currentTime );
+      ContentValues args = new ContentValues();
       args.put( TracksColumns.NAME, name );
+      args.put( TracksColumns.CREATION_TIME, currentTime );
+
       SQLiteDatabase mDb = getWritableDatabase();
       mDb.insert( Tracks.TABLE, null, args );
+
+      long trackId = getCurrentTrack( mDb );
       mDb.close();
 
-      long trackId = getCurrentTrack();
-      toNextSegment( trackId );
-      
+      toNextSegment();
+
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+trackId ) ;
       resolver.notifyChange( notifyUri, null );
@@ -212,47 +151,82 @@ class DatabaseHelper extends SQLiteOpenHelper
    }
 
    /**
-    * Adjust the current segment to a new endtime
-    * 
-    * @param time
+    * Moves to a fresh segment to which waypoints can be connected
+    * @return
     */
-   private void updateSegmentEndtime( long time )
+   long toNextSegment()
    {
-      long currentSegmentId = getCurrentSegment( getCurrentTrack() );
+      SQLiteDatabase mDb = getWritableDatabase();
+      long trackId = getCurrentTrack(mDb) ;
 
       ContentValues args = new ContentValues();
-      args.put( SegmentsColumns.ENDTIME, time );
+      args.put( SegmentsColumns.TRACK, trackId );
+      mDb.insert( Segments.TABLE, null, args );
 
-      SQLiteDatabase mDb = getWritableDatabase();
-      mDb.update( Segments.TABLE, args, BaseColumns._ID + "=" + currentSegmentId, null );
+      long segmentId = getCurrentSegment( mDb );
       mDb.close();
-      
+
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+currentSegmentId ) ;
+      Uri notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentId ) ;
       resolver.notifyChange( notifyUri, null );
 
-      updateTrackEndtime( time );
+      return segmentId;
    }
 
-   /**
-    * Adjust the current track to a new endtime
-    * 
-    * @param time
-    */
-   private void updateTrackEndtime( long time )
+   private long getCurrentSegment(SQLiteDatabase mDb)
    {
-      long currentTrackId = getCurrentTrack();
+      long trackId = getCurrentTrack(mDb) ;
+      long segmentId = 0;
+      Cursor mCursor = null; 
+      try 
+      {
+         mCursor = mDb.query( Segments.TABLE, new String[] { "max(" + Segments._ID + ")" }, SegmentsColumns.TRACK + "=" + trackId, null, null, null, null, "1" );
+         if (mCursor.moveToFirst())
+         {
+            segmentId = mCursor.getLong( 0 );
+            
+         }
+         else 
+         {
+            Log.e(LOG, "Did not find the last active segment");
+         }
+      }
+      finally
+      {
+         if( mCursor!= null )
+         {
+            mCursor.close();
+         }
+      }
+      return segmentId;
+   }
 
-      ContentValues args = new ContentValues();
-      args.put( TracksColumns.ENDTIME, time );
+   private long getCurrentTrack(SQLiteDatabase mDb)
+   {
 
-      SQLiteDatabase mDb = getWritableDatabase();
-      mDb.update( Tracks.TABLE, args, BaseColumns._ID + "=" + currentTrackId, null );
-      mDb.close();
-      
-      ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+currentTrackId ) ;
-      resolver.notifyChange( notifyUri, null );
+      long trackId = 0;
+      Cursor mCursor = null; 
+      try
+      {
+         mCursor = mDb.query( Tracks.TABLE, new String[] { "max(" + Tracks._ID + ")" }, null, null, null, null, null, null );
+         if (mCursor.moveToFirst())
+         {
+            trackId = mCursor.getLong( 0 );
+            mCursor.close();
+         }
+         else 
+         {
+            Log.e(LOG, "Did not find the last active track");
+         }
+      }
+      finally
+      {
+         if( mCursor!= null )
+         {
+            mCursor.close();
+         }
+      }
+      return trackId;
    }
 
 }

@@ -188,7 +188,7 @@ public class GPStrackingProvider extends ContentProvider
             insertedUri =  Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + GPStracking.Segments.TABLE + "/" + id );
             break;
          case TRACK:
-            String name = values == null ? "" : values.getAsString( Tracks.NAME );
+            String name = ( values == null ) ? "" : values.getAsString( Tracks.NAME );
             id = this.mDbHelper.toNextTrack(name);
             insertedUri =  Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + GPStracking.Tracks.TABLE + "/" + id );
             break;
