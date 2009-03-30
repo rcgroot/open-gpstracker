@@ -36,6 +36,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
+
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -68,11 +69,12 @@ import com.google.android.maps.Overlay;
  * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */
 public class LoggerMap extends MapActivity
-{
+{   
    private static final int ZOOM_LEVEL = 9;
    private static final int MENU_SETTINGS = 0;
    private static final int MENU_TOGGLE   = 1;
    private static final int MENU_TRACKLIST = 5;
+   private static final int MENU_ACTION = 7;
    private static final int TRACK_TITLE_ID = 0;
 
 
@@ -130,9 +132,11 @@ public class LoggerMap extends MapActivity
    public boolean onCreateOptionsMenu( Menu menu )
    {
       boolean result =  super.onCreateOptionsMenu(menu);
-      menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings).setIcon(android.R.drawable.ic_menu_preferences).setAlphabeticShortcut( 's' );
+      
       menu.add(0, MENU_TOGGLE, 0, R.string.menu_toggle_on).setIcon(android.R.drawable.ic_menu_mapmode).setAlphabeticShortcut( 't' );
-      menu.add(0, MENU_TRACKLIST, 0, R.string.tracklist).setIcon(android.R.drawable.ic_menu_gallery).setAlphabeticShortcut( 'l' );
+      menu.add(0, MENU_TRACKLIST, 0, R.string.menu_tracklist).setIcon(android.R.drawable.ic_menu_gallery).setAlphabeticShortcut( 'l' );
+      menu.add(0, MENU_ACTION, 0, R.string.menu_action).setIcon(android.R.drawable.ic_menu_save).setAlphabeticShortcut( 'e' );
+      menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings).setIcon(android.R.drawable.ic_menu_preferences).setAlphabeticShortcut( 's' );
       return result;
    }
 
@@ -175,9 +179,14 @@ public class LoggerMap extends MapActivity
             handled = true;
             break;
          case MENU_TRACKLIST:
-            Intent i = new Intent(this, TrackList.class);
-            i.putExtra( Tracks._ID, this.mTrackId );
-            startActivityForResult(i, MENU_TRACKLIST);
+            Intent tracklistIntent = new Intent(this, TrackList.class);
+            tracklistIntent.putExtra( Tracks._ID, this.mTrackId );
+            startActivityForResult(tracklistIntent, MENU_TRACKLIST);
+            break;
+         case MENU_ACTION:
+            Intent actionIntent = new Intent(Intent.ACTION_SEND, Uri.withAppendedPath( Tracks.CONTENT_URI, ""+this.mTrackId ) );
+            this.sendBroadcast( actionIntent, android.Manifest.permission.ACCESS_FINE_LOCATION );
+            handled = true;
             break;
          default:
             handled = super.onOptionsItemSelected(item);

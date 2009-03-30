@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.tests;
 
 import junit.framework.TestSuite;
 
+import nl.sogeti.android.gpstracker.tests.actions.ExportGPXTest;
 import nl.sogeti.android.gpstracker.tests.db.GPStrackingProviderTest;
 import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerServiceTest;
 import nl.sogeti.android.gpstracker.tests.logger.GPSLoggerServiceTest;
@@ -65,10 +66,11 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner
       suite.addTestSuite( GPStrackingProviderTest.class );
       suite.addTestSuite( MockGPSLoggerServiceTest.class );
       suite.addTestSuite( GPSLoggerServiceTest.class );
+      suite.addTestSuite( ExportGPXTest.class );
+
       suite.addTestSuite( LoggerMapTest.class );
-      
       //suite.addTestSuite( LoggerMapDemoTest.class ); // The demo recorded for youtube
-      suite.addTestSuite( LoggerMapStressTest.class ); // The stress test of the tracking viewer
+      //suite.addTestSuite( LoggerMapStressTest.class ); // The stress test of the tracking viewer
       return suite;
    }
 

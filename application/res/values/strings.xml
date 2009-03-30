@@ -7,11 +7,13 @@
 	<string name="btn_save">Save</string>
 
 	<string name="menu_settings">Settings</string>
-	<string name="menu_toggle_off">Stop track</string>
-	<string name="menu_toggle_on">Start track</string>
+	<string name="menu_toggle_off">Stop tracking</string>
+	<string name="menu_toggle_on">Start tracking</string>
 
 	<string name="dialog_routename_title">Name of the new track</string>
 
-	<string name="tracklist">Track list</string>
+	<string name="menu_tracklist">Track list</string>
 	<string name="from">Tracked on: </string>
+<string name="exportgpx">Export</string>
+<string name="menu_action">Send route</string>
 </resources>
