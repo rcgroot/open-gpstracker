@@ -124,8 +124,18 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public int delete( Uri uri, String selection, String[] selectionArgs )
    {
-      // Not gonna do deletes
-      return 0;
+      int match = GPStrackingProvider.sURIMatcher.match( uri );
+      int affected = 0; 
+      switch( match )
+      {
+         case GPStrackingProvider.TRACK_ID:
+            affected = this.mDbHelper.deleteTrack( new Long( uri.getLastPathSegment() ).longValue() );
+            break;
+         default:
+            affected = 0;
+            break;   
+      }
+      return affected;
    }
 
    /**

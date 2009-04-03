@@ -255,7 +255,62 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       cursor = this.mResolver.query( Waypoints.CONTENT_URI, new String[] { }, null, null, null );
       Assert.assertEquals( "We should now have 4 waypoints", 4, cursor.getCount() );
       cursor.close();
-
-      
    }
+   
+   public void testDeleteEmptyTrack()
+   {
+      // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Cursor trackCursor = this.mResolver.query( trackUri, new String[] { Tracks._ID }, null, null, null );
+      Assert.assertEquals( "One track inserted", 1, trackCursor.getCount() );
+
+      int affected = this.mResolver.delete( trackUri, null, null);
+      Assert.assertEquals( "One track deleted", 1, affected );
+      
+      trackCursor.requery();
+      trackCursor.close();
+      Assert.assertEquals( "No track left", 0, trackCursor.getCount() );
+   }
+   
+   public void testDeleteSimpleTrack()
+   {
+      ContentValues wp ;
+      double coord = 1d;
+      
+      // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Cursor trackCursor = this.mResolver.query( trackUri, new String[] { Tracks._ID }, null, null, null );
+      Cursor segmentCursor = this.mResolver.query( Uri.withAppendedPath( trackUri, "segments" ), new String[] { Segments._ID }, null, null, null );
+      Assert.assertEquals( "One track created", 1, trackCursor.getCount() );
+      Assert.assertEquals( "One segment created", 1, segmentCursor.getCount() );
+      
+      // Stuff 2 waypoints as the track contents
+      wp = new ContentValues();
+      wp.put( WaypointsColumns.LONGITUDE, new Double( coord ) );
+      wp.put( WaypointsColumns.LATITUDE, new Double( coord ) );
+      Uri wp1 = this.mResolver.insert( Waypoints.CONTENT_URI, wp );
+      wp = new ContentValues();
+      wp.put( WaypointsColumns.LONGITUDE, new Double( coord ) );
+      wp.put( WaypointsColumns.LATITUDE, new Double( coord ) );
+      Uri wp2 = this.mResolver.insert( Waypoints.CONTENT_URI, wp );
+      
+      int affected = this.mResolver.delete( trackUri, null, null);
+      Assert.assertEquals( "One track and two waypoints deleted", 3, affected );
+      
+      trackCursor.requery();
+      Assert.assertEquals( "No track left", 0, trackCursor.getCount() );
+      segmentCursor.requery();
+      Assert.assertEquals( "No segments left", 0, segmentCursor.getCount() );
+      
+      Cursor wpCursor = this.mResolver.query( wp1, null, null, null, null );
+      Assert.assertEquals( "Waypoint 1 is gone", 0, wpCursor.getCount() );
+      wpCursor.close();
+      wpCursor = this.mResolver.query( wp2, null, null, null, null );
+      Assert.assertEquals( "Waypoint 2 is gone", 0, wpCursor.getCount() );
+      wpCursor.close();
+      
+      trackCursor.close();
+      segmentCursor.close();
+   }
+   
 }

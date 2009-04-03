@@ -122,14 +122,76 @@ class DatabaseHelper extends SQLiteOpenHelper
 
       return waypointId;
    }
+   
+   /**
+    * Deletes a single track and all underlying segments and waypoints
+    * 
+    * @param trackId
+    * @return
+    */
+   int deleteTrack(long trackId)
+   {
+      SQLiteDatabase sqldb = getWritableDatabase();
+      int affected = 0;
+      Cursor cursor = null; 
+      long segmentId = -1;
+      
+      try 
+      {
+         cursor = sqldb.query( Segments.TABLE, new String[] { Segments._ID }, Segments.TRACK + "= ?", new String[]{ ""+trackId }, null, null, null, null );
+         if (cursor.moveToFirst())
+         {
+            segmentId = cursor.getLong( 0 ) ;
+            affected += deleteSegment( sqldb, segmentId );
+            
+         }
+         else 
+         {
+            Log.e(LOG, "Did not find the last active segment");
+         }
+      }
+      finally
+      {
+         if( cursor!= null )
+         {
+            cursor.close();
+         }
+      }
+      affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ ""+trackId } );
+      sqldb.close();
+      
+      ContentResolver resolver = this.mContext.getContentResolver();
+      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+trackId ) ;
+      resolver.notifyChange( notifyUri, null );
+      
+      return affected ;
+   }
+   
+   
+   /**
+    * Delete a segment and all member waypoints
+    * 
+    * @param segmentId
+    * @return
+    */
+   int deleteSegment(SQLiteDatabase sqldb, long segmentId)
+   {
+      int affected = sqldb.delete( Tracks.TABLE, Tracks._ID +"= ?", new String[]{ ""+segmentId }  ) ;
+      affected += sqldb.delete( Waypoints.TABLE, Waypoints.SEGMENT+"= ?", new String[]{ ""+segmentId } );
 
+      ContentResolver resolver = this.mContext.getContentResolver();
+      Uri notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentId ) ;
+      resolver.notifyChange( notifyUri, null );
+      
+      return affected ;
+   }
+  
    /**
     * Move to a fresh track with a new first segment for this track
     * @return
     */
    long toNextTrack(String name)
    {
-
       long currentTime = new Date().getTime();
       ContentValues args = new ContentValues();
       args.put( TracksColumns.NAME, name );
@@ -177,13 +239,13 @@ class DatabaseHelper extends SQLiteOpenHelper
    {
       long trackId = getCurrentTrack(sqldb) ;
       long segmentId = 0;
-      Cursor mCursor = null; 
+      Cursor cursor = null; 
       try 
       {
-         mCursor = sqldb.query( Segments.TABLE, new String[] { "max(" + Segments._ID + ")" }, SegmentsColumns.TRACK + "=" + trackId, null, null, null, null, "1" );
-         if (mCursor.moveToFirst())
+         cursor = sqldb.query( Segments.TABLE, new String[] { "max(" + Segments._ID + ")" }, SegmentsColumns.TRACK + "=" + trackId, null, null, null, null, "1" );
+         if (cursor.moveToFirst())
          {
-            segmentId = mCursor.getLong( 0 );
+            segmentId = cursor.getLong( 0 );
             
          }
          else 
@@ -193,9 +255,9 @@ class DatabaseHelper extends SQLiteOpenHelper
       }
       finally
       {
-         if( mCursor!= null )
+         if( cursor!= null )
          {
-            mCursor.close();
+            cursor.close();
          }
       }
       return segmentId;
@@ -228,5 +290,4 @@ class DatabaseHelper extends SQLiteOpenHelper
       }
       return trackId;
    }
-
 }
