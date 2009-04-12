@@ -14,6 +14,10 @@
 
 	<string name="menu_tracklist">Track list</string>
 	<string name="from">Tracked on: </string>
-<string name="exportgpx">Export</string>
+<string name="exportgpx">Export track</string>
 <string name="menu_action">Send route</string>
+
+<string name="menu_deleteTrack">Delete track</string>
+<string name="dialog_deleteconfirmation">Delete track?</string>
+<string name="dialog_deletetitle">Confirm delete</string>
 </resources>

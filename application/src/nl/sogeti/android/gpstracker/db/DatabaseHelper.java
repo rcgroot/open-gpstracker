@@ -161,8 +161,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       sqldb.close();
       
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+trackId ) ;
-      resolver.notifyChange( notifyUri, null );
+      resolver.notifyChange( Tracks.CONTENT_URI, null );
       
       return affected ;
    }
@@ -180,8 +179,8 @@ class DatabaseHelper extends SQLiteOpenHelper
       affected += sqldb.delete( Waypoints.TABLE, Waypoints.SEGMENT+"= ?", new String[]{ ""+segmentId } );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentId ) ;
-      resolver.notifyChange( notifyUri, null );
+      resolver.notifyChange( Segments.CONTENT_URI, null );
+      resolver.notifyChange( Waypoints.CONTENT_URI, null );
       
       return affected ;
    }

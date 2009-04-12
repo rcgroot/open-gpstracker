@@ -30,15 +30,22 @@ package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-
+import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 /**
  *
@@ -47,42 +54,123 @@ import android.widget.SimpleCursorAdapter;
  */
 public class TrackList extends ListActivity
 {
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-       super.onCreate(savedInstanceState);
-       this.setContentView(R.layout.tracklist);
-       
-       // Get all of the rows from the database and create the item list
-       ContentResolver resolver = this.getContentResolver();
-       Cursor tracksCursor = resolver.query( 
-             Tracks.CONTENT_URI, 
-             new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, 
-             null, null, null );
-       startManagingCursor(tracksCursor);
+   private static final String TAG = "nl.sogeti.android.gpstracker.viewer.TrackList";
+   private static final int MENU_DETELE = 0;
+   private static final int MENU_EXPORT = 1;
+   private Cursor mTracksCursor;
 
-       // Create an array to specify the fields we want to display in the list (only TITLE)
-       String[] from = new String[]{Tracks.NAME, Tracks.CREATION_TIME};
+   private class DeleteClickListener implements DialogInterface.OnClickListener 
+   {
+      private Uri mUri;
 
-       // and an array of the fields we want to bind those fields to (in this case just text1)
-       int[] to = new int[]{R.id.listitem_name, R.id.listitem_from};
+      public DeleteClickListener(Uri uri) 
+      {
+         this.mUri = uri;
+      }
 
-       // Now create a simple cursor adapter and set it to display
-       SimpleCursorAdapter notes = 
-           new SimpleCursorAdapter(this, R.layout.trackitem, tracksCursor, from, to);
-       setListAdapter(notes);
+      public void onClick(DialogInterface dialog, int which) 
+      {
+         getContentResolver().delete(this.mUri, null, null);
+      }
    }
-   
+
+
+   @Override
+   protected void onCreate(Bundle savedInstanceState) 
+   {
+      super.onCreate(savedInstanceState);
+      this.setContentView(R.layout.tracklist);
+
+      this.mTracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null);
+
+      // Create an array to specify the fields we want to display in the list (only TITLE)
+      String[] from = new String[]{Tracks.NAME, Tracks.CREATION_TIME};
+
+      // and an array of the fields we want to bind those fields to (in this case just text1)
+      int[] to = new int[]{R.id.listitem_name, R.id.listitem_from};
+
+      // Now create a simple cursor adapter and set it to display
+      SimpleCursorAdapter notes = 
+         new SimpleCursorAdapter(this, R.layout.trackitem, this.mTracksCursor, from, to);
+      setListAdapter(notes);
+
+      // Add the context menu (the long press thing)
+      registerForContextMenu(getListView());
+   }
+
    @Override
    protected void onListItemClick(ListView l, View v, int position, long id) {
-       super.onListItemClick(l, v, position, id);
-      
-       Intent mIntent = new Intent();
-       Bundle bundle = new Bundle();
-       bundle.putLong( Tracks._ID, id );
-       mIntent.putExtras(bundle);
-       setResult(RESULT_OK, mIntent);
-       finish();
+      super.onListItemClick(l, v, position, id);
+
+      Intent mIntent = new Intent();
+      Bundle bundle = new Bundle();
+      bundle.putLong( Tracks._ID, id );
+      mIntent.putExtras(bundle);
+      setResult(RESULT_OK, mIntent);
+      finish();
    }
-   
-   
+
+   public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) 
+   {
+      if (menuInfo instanceof AdapterView.AdapterContextMenuInfo) 
+      {
+         AdapterView.AdapterContextMenuInfo itemInfo = (AdapterView.AdapterContextMenuInfo) menuInfo;
+         TextView textView = (TextView) itemInfo.targetView.findViewById(android.R.id.text1);
+         if (textView != null) 
+         {
+            menu.setHeaderTitle(textView.getText());
+         }
+      }
+      menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
+      menu.add(0, MENU_EXPORT, 0, R.string.exportgpx);
+   }
+
+   @Override
+   public boolean onContextItemSelected(MenuItem item) {
+      boolean handled = false ;
+      AdapterView.AdapterContextMenuInfo info;
+      try 
+      {
+         info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+      } 
+      catch (ClassCastException e) 
+      {
+         Log.e(TAG, "Bad menuInfo", e);
+         return handled;
+      }
+
+      Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+      switch (item.getItemId()) 
+      {
+         case MENU_DETELE: 
+         {
+            // Get confirmation
+            Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
+            new AlertDialog.Builder(TrackList.this)
+            .setTitle(R.string.dialog_deletetitle)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setMessage(R.string.dialog_deleteconfirmation)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(android.R.string.ok, new DeleteClickListener(uri))
+            .show();
+            handled = true;
+            break;
+         }
+         case MENU_EXPORT: 
+         {
+            Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
+            Intent actionIntent = new Intent(Intent.ACTION_SEND, uri );
+            this.sendBroadcast( actionIntent, android.Manifest.permission.ACCESS_FINE_LOCATION );
+            handled = true;
+            break;
+         }
+         default:
+            handled = super.onContextItemSelected(item);
+         break;
+      }
+      return handled;
+   }
+
+
+
 }
