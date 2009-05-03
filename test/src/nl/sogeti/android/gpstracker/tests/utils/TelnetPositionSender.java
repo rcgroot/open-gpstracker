@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.tests.gpsmock;
+package nl.sogeti.android.gpstracker.tests.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.tests.gpsmock;
+package nl.sogeti.android.gpstracker.tests.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -148,7 +148,7 @@ public class MockGPSLoggerDriver implements Runnable
       }
    }
 
-   protected static String createLocationCommand(double longitude, double latitude, double elevation) 
+   public static String createLocationCommand(double longitude, double latitude, double elevation) 
    {
       
       final String COMMAND_GPS = 

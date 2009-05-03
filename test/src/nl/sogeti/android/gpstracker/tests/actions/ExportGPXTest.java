@@ -33,14 +33,13 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.mock.MockContentResolver;
+import android.test.suitebuilder.annotation.SmallTest;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class ExportGPXTest extends TestCase
-{
-
-   
-   
+{   
+   @SmallTest
    public void testIntentCreation()
    {
       ContentResolver resolver = new MockContentResolver();

@@ -33,7 +33,10 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.content.pm.ActivityInfo;
-import android.test.ActivityInstrumentationTestCase;
+import android.test.ActivityInstrumentationTestCase2;
+import android.test.FlakyTest;
+import android.test.suitebuilder.annotation.MediumTest;
+
 import com.google.android.maps.MapView;
 
 /** 
@@ -41,7 +44,7 @@ import com.google.android.maps.MapView;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-public class LoggerMapTest extends ActivityInstrumentationTestCase<LoggerMap>
+public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
 {
    
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
@@ -80,6 +83,8 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase<LoggerMap>
     * @throws InterruptedException 
     * 
     */
+   @FlakyTest
+   @MediumTest
    public void testStartTracking() throws InterruptedException
    {
 
@@ -100,6 +105,8 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase<LoggerMap>
     * 
     * 
     */
+   @FlakyTest
+   @MediumTest
    public void testBackgroundTracking() throws Exception
    {
       Assert.assertTrue( "No tracking at startup", !this.mLoggerServiceManager.isLogging() );
@@ -124,6 +131,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase<LoggerMap>
     *  C: Review route
     * 
     */
+   @MediumTest
    public void testMapKeyControls()
    {
       //1. Applicatie starten
@@ -161,6 +169,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase<LoggerMap>
     *  Switch orientation during route review
     * 
     */
+   @MediumTest
    public void testOrientationSwitch()
    {
       this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

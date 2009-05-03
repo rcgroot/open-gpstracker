@@ -39,7 +39,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.test.ProviderTestCase;
+import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.SmallTest;
 
 /**
  * Basically test that the functions offered by the content://nl.sogeti.android.gpstracker does what is documented.
@@ -48,7 +49,7 @@ import android.test.ProviderTestCase;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvider>
+public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvider>
 {
 
    private ContentResolver mResolver;
@@ -65,7 +66,8 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       super.setUp();
       this.mResolver = getMockContentResolver();
    }
-
+   
+   @SmallTest
    public void testQuerySegmentsCursor()
    {
       Cursor cursor = this.mResolver.query( Segments.CONTENT_URI, null, null, null, null );
@@ -74,7 +76,8 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       Assert.assertEquals( "No segments are loaded", 0, cursor.getCount() );
       cursor.close();
    }
-
+   
+   @SmallTest
    public void testQueryTracksCursor()
    {
       Cursor cursor = this.mResolver.query( Tracks.CONTENT_URI, null, null, null, null );
@@ -84,6 +87,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       cursor.close();
    }
 
+   @SmallTest
    public void testQueryWaypointsCursor()
    {
       Cursor cursor = this.mResolver.query( Waypoints.CONTENT_URI, null, null, null, null );
@@ -93,6 +97,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       cursor.close();
    }
 
+   @SmallTest
    public void testStartTracks()
    {
       Uri firstTrack = Uri.parse( Tracks.CONTENT_URI + "/1" );
@@ -109,6 +114,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
    /**
     * Create a track with a name
     */
+   @SmallTest
    public void testStartTracksWithName()
    {
       String testname = "testStartTracksWithName";
@@ -126,6 +132,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
    /**
     * Create a track with a name
     */
+   @SmallTest
    public void testUpdateTrackWithName()
    {
       Cursor trackCursor;
@@ -153,6 +160,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
    /**
     * Start a track, insert 2 waypoints and expect 1 track with 1 segment with the 2 waypoints that where inserted
     */
+   @SmallTest
    public void testTrackWaypointWaypoint()
    {
       ContentValues wp = new ContentValues();
@@ -189,6 +197,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
    /**
     * Create a track with a name
     */
+   @SmallTest
    public void testMakeTwoTracks()
    {
       String testname = "track";
@@ -257,6 +266,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       cursor.close();
    }
    
+   @SmallTest
    public void testDeleteEmptyTrack()
    {
       // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
@@ -273,6 +283,7 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       trackCursor.close();
    }
    
+   @SmallTest
    public void testDeleteSimpleTrack()
    {
       ContentValues wp ;

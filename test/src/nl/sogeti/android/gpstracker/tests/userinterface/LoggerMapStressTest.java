@@ -30,10 +30,11 @@ package nl.sogeti.android.gpstracker.tests.userinterface;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerDriver;
+import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.os.Debug;
-import android.test.ActivityInstrumentationTestCase;
+import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.LargeTest;
 
 /**
  * Goal is to feed as the LoggerMap as many points as possible to give it a good workout.
@@ -41,7 +42,7 @@ import android.test.ActivityInstrumentationTestCase;
  * @version $Id$
  * @author rene (c) Mar 15, 2009, Sogeti B.V.
  */
-public class LoggerMapStressTest extends ActivityInstrumentationTestCase<LoggerMap>
+public class LoggerMapStressTest extends ActivityInstrumentationTestCase2<LoggerMap>
 {
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
@@ -72,6 +73,7 @@ public class LoggerMapStressTest extends ActivityInstrumentationTestCase<LoggerM
     * 
     * @throws InterruptedException
     */
+   @LargeTest
    public void testLapsAroundUtrecht() throws InterruptedException
    {    
       // Our data feeder to the emulator

@@ -30,9 +30,10 @@ package nl.sogeti.android.gpstracker.tests.userinterface;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerDriver;
+import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
-import android.test.ActivityInstrumentationTestCase;
+import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.LargeTest;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -42,7 +43,7 @@ import com.google.android.maps.MapView;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-public class LoggerMapDemoTest extends ActivityInstrumentationTestCase<LoggerMap>
+public class LoggerMapDemoTest extends ActivityInstrumentationTestCase2<LoggerMap>
 {
 
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
@@ -78,6 +79,7 @@ public class LoggerMapDemoTest extends ActivityInstrumentationTestCase<LoggerMap
     * @throws InterruptedException 
     * 
     */
+   @LargeTest
    public void testTracking() throws InterruptedException 
    {
       // Our data feeder to the emulator

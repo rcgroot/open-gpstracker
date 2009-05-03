@@ -29,20 +29,19 @@
 package nl.sogeti.android.gpstracker.tests.logger;
 
 import junit.framework.Assert;
-
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.IGPSLoggerServiceRemote;
-
 import android.content.Intent;
 import android.location.Location;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 /**
  * Test cases for nl.sogeti.android.gpstracker.logger.GPSLoggerService
  *
- * @version $Id:$
+ * @version $Id$
  * @author rene (c) Mar 14, 2009, Sogeti B.V.
  */
 public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
@@ -62,6 +61,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       super( serviceClass );
    }
 
+   @SmallTest
    public void testStartStop()
    {
       startService( new Intent( GPSLoggerService.SERVICENAME ) );
@@ -69,6 +69,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       Assert.assertTrue( "No exceptions thrown", true );
    }
    
+   @SmallTest
    public void testStartBind() throws RemoteException
    {
       IBinder ibinder = bindService(new Intent( GPSLoggerService.SERVICENAME ) ) ;
@@ -79,6 +80,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       shutdownService();
    }
       
+   @SmallTest
    public void testInaccurateLocation()
    {
       startService( new Intent( GPSLoggerService.SERVICENAME ) );
@@ -92,6 +94,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       Assert.assertFalse( "An unacceptable fix", service.isLocationAcceptable( this.mLocation ) );
    }
    
+   @SmallTest
    public void testAccurateLocation()
    {
       startService( new Intent( GPSLoggerService.SERVICENAME ) );
