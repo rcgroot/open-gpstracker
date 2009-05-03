@@ -268,8 +268,9 @@ public class GPStrackingProviderTest extends ProviderTestCase<GPStrackingProvide
       Assert.assertEquals( "One track deleted", 1, affected );
       
       trackCursor.requery();
-      trackCursor.close();
+      
       Assert.assertEquals( "No track left", 0, trackCursor.getCount() );
+      trackCursor.close();
    }
    
    public void testDeleteSimpleTrack()

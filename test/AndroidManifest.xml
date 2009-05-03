@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="nl.sogeti.android.gpstracker.tests">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="nl.sogeti.android.gpstracker.tests">
 
 	<application>
 		<uses-library android:name="android.test.runner" />
@@ -12,9 +11,10 @@
 		</intent-filter>
 	</service>
 
-	<instrumentation android:name="GPStrackingInstrumentation"
-		android:label="GPS Tracker test suite" android:targetPackage="nl.sogeti.android.gpstracker">
+	<instrumentation android:name="GPStrackingInstrumentation" android:label="GPS Tracker test suite"
+		android:targetPackage="nl.sogeti.android.gpstracker">
 	</instrumentation>
-
+	
+	<uses-sdk android:minSdkVersion="3"></uses-sdk>
 
 </manifest>

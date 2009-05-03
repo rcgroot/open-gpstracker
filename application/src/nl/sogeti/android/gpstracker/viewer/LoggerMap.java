@@ -135,7 +135,7 @@ public class LoggerMap extends MapActivity
       
       menu.add(0, MENU_TOGGLE, 0, R.string.menu_toggle_on).setIcon(android.R.drawable.ic_menu_mapmode).setAlphabeticShortcut( 't' );
       menu.add(0, MENU_TRACKLIST, 0, R.string.menu_tracklist).setIcon(android.R.drawable.ic_menu_gallery).setAlphabeticShortcut( 'l' );
-      menu.add(0, MENU_ACTION, 0, R.string.menu_action).setIcon(android.R.drawable.ic_menu_save).setAlphabeticShortcut( 'e' );
+      menu.add(0, MENU_ACTION, 0, R.string.menu_exportTrack).setIcon(android.R.drawable.ic_menu_save).setAlphabeticShortcut( 'e' );
       menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings).setIcon(android.R.drawable.ic_menu_preferences).setAlphabeticShortcut( 's' );
       return result;
    }

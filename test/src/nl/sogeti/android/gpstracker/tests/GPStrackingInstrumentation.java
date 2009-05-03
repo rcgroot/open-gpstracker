@@ -68,9 +68,9 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner
       suite.addTestSuite( GPSLoggerServiceTest.class );
       suite.addTestSuite( ExportGPXTest.class );
 
-      //suite.addTestSuite( LoggerMapTest.class );
-      //suite.addTestSuite( LoggerMapDemoTest.class ); // The demo recorded for youtube
-      //suite.addTestSuite( LoggerMapStressTest.class ); // The stress test of the tracking viewer
+      suite.addTestSuite( LoggerMapTest.class );
+      suite.addTestSuite( LoggerMapDemoTest.class ); // The demo recorded for youtube
+      suite.addTestSuite( LoggerMapStressTest.class ); // The stress test of the tracking viewer
       return suite;
    }
 

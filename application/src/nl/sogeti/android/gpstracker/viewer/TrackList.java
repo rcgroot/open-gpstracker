@@ -122,7 +122,7 @@ public class TrackList extends ListActivity
          }
       }
       menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
-      menu.add(0, MENU_EXPORT, 0, R.string.exportgpx);
+      menu.add(0, MENU_EXPORT, 0, R.string.menu_exportTrack);
    }
 
    @Override
