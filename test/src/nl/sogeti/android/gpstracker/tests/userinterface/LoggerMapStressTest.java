@@ -34,6 +34,8 @@ import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.os.Debug;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.PerformanceTestCase;
+import android.test.PerformanceTestCase.Intermediates;
 import android.test.suitebuilder.annotation.LargeTest;
 
 /**
@@ -42,12 +44,13 @@ import android.test.suitebuilder.annotation.LargeTest;
  * @version $Id$
  * @author rene (c) Mar 15, 2009, Sogeti B.V.
  */
-public class LoggerMapStressTest extends ActivityInstrumentationTestCase2<LoggerMap>
+public class LoggerMapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> implements PerformanceTestCase
 {
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
    private LoggerMap mLoggermap;
    private GPSLoggerServiceManager mLoggerServiceManager;
+   private Intermediates mIntermediates;
 
    public LoggerMapStressTest()
    {
@@ -89,12 +92,25 @@ public class LoggerMapStressTest extends ActivityInstrumentationTestCase2<Logger
 
       // Start method tracing for Issue 18
       Debug.startMethodTracing("testLapsAroundUtrecht");
+      this.mIntermediates.startTiming( true ) ;
       while( feeder.isAlive() )
       {
          Thread.sleep( 5 * 1000 );
       }
       // Start method tracing for Issue 18
+      this.mIntermediates.finishTiming( true ) ;
       Debug.stopMethodTracing();
+   }
+
+   public boolean isPerformanceOnly()
+   {
+      return true;
+   }
+
+   public int startPerformance( Intermediates intermediates )
+   {
+      this.mIntermediates = intermediates;
+      return 1;
    }
 
 }
