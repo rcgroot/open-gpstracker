@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">GPSTracker</string>
-
+	<string name="dialog_routename_title">Name of the new track</string>
+    <string name="from">Tracked on: </string>
+	
 	<string name="auto_start_service_label">Start logging at startup</string>
 	<string name="btn_cancel">Cancel</string>
 	<string name="btn_save">Save</string>
@@ -9,15 +11,11 @@
 	<string name="menu_settings">Settings</string>
 	<string name="menu_toggle_off">Stop tracking</string>
 	<string name="menu_toggle_on">Start tracking</string>
+	<string name="menu_tracklist">List tracks</string>
+	<string name="menu_exportTrack">Export track</string>
+	<string name="menu_deleteTrack">Delete track</string>
 
-	<string name="dialog_routename_title">Name of the new track</string>
-
-	<string name="menu_tracklist">Track list</string>
-	<string name="from">Tracked on: </string>
-<string name="exportgpx">Export track</string>
-<string name="menu_action">Send route</string>
-
-<string name="menu_deleteTrack">Delete track</string>
-<string name="dialog_deleteconfirmation">Delete track?</string>
-<string name="dialog_deletetitle">Confirm delete</string>
+	<string name="dialog_deleteconfirmation">Delete track?</string>
+	<string name="dialog_deletetitle">Confirm delete</string>
+	<string name="receive_filewriter">Save to GPX file</string>
 </resources>
