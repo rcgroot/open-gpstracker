@@ -58,6 +58,7 @@ public class TrackList extends ListActivity
    private static final int MENU_DETELE = 0;
    private static final int MENU_EXPORT = 1;
    private Cursor mTracksCursor;
+   SimpleCursorAdapter notes;
 
    private class DeleteClickListener implements DialogInterface.OnClickListener 
    {
@@ -71,6 +72,9 @@ public class TrackList extends ListActivity
       public void onClick(DialogInterface dialog, int which) 
       {
          getContentResolver().delete(this.mUri, null, null);
+
+         TrackList.this.mTracksCursor.requery();
+         TrackList.this.notes.notifyDataSetChanged();
       }
    }
 
@@ -82,16 +86,14 @@ public class TrackList extends ListActivity
       this.setContentView(R.layout.tracklist);
 
       this.mTracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null);
-
+      
       // Create an array to specify the fields we want to display in the list (only TITLE)
-      String[] from = new String[]{Tracks.NAME, Tracks.CREATION_TIME};
-
       // and an array of the fields we want to bind those fields to (in this case just text1)
-      int[] to = new int[]{R.id.listitem_name, R.id.listitem_from};
+      String[] fromColumns = new String[]{Tracks.NAME, Tracks.CREATION_TIME}; 
+      int[] toItems = new int[]{R.id.listitem_name, R.id.listitem_from};
 
       // Now create a simple cursor adapter and set it to display
-      SimpleCursorAdapter notes = 
-         new SimpleCursorAdapter(this, R.layout.trackitem, this.mTracksCursor, from, to);
+      notes = new SimpleCursorAdapter(this, R.layout.trackitem, this.mTracksCursor, fromColumns, toItems);
       setListAdapter(notes);
 
       // Add the context menu (the long press thing)

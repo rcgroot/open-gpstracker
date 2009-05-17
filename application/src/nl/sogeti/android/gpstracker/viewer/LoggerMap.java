@@ -55,7 +55,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -233,9 +232,7 @@ public class LoggerMap extends MapActivity
       this.mMapView.setSatellite( false );
 
       /* Collect the zoomcontrols and place them */
-      View zoomView = this.mMapView.getZoomControls();
-      LinearLayout layout_zoom =  (LinearLayout) findViewById(R.id.layout_zoom);
-      layout_zoom.addView( zoomView );
+      this.mMapView.setBuiltInZoomControls( true );
       this.mMapController = this.mMapView.getController();
 
       /* Initial display: Last logged track drawn and zoomed to current location */

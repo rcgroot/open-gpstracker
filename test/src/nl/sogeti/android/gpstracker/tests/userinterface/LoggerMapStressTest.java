@@ -35,7 +35,6 @@ import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.os.Debug;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.PerformanceTestCase;
-import android.test.PerformanceTestCase.Intermediates;
 import android.test.suitebuilder.annotation.LargeTest;
 
 /**
@@ -92,13 +91,19 @@ public class LoggerMapStressTest extends ActivityInstrumentationTestCase2<Logger
 
       // Start method tracing for Issue 18
       Debug.startMethodTracing("testLapsAroundUtrecht");
-      this.mIntermediates.startTiming( true ) ;
+      if( this.mIntermediates != null )
+      {
+         this.mIntermediates.startTiming( true ) ;
+      }
       while( feeder.isAlive() )
       {
          Thread.sleep( 5 * 1000 );
       }
       // Start method tracing for Issue 18
-      this.mIntermediates.finishTiming( true ) ;
+      if( this.mIntermediates != null )
+      {
+         this.mIntermediates.finishTiming( true ) ;
+      }
       Debug.stopMethodTracing();
    }
 

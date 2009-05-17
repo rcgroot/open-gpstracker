@@ -109,7 +109,6 @@ class DatabaseHelper extends SQLiteOpenHelper
       args.put( WaypointsColumns.SEGMENT, segmentId );
 
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
-      sqldb.close();
 
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri;
@@ -158,7 +157,6 @@ class DatabaseHelper extends SQLiteOpenHelper
          }
       }
       affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ ""+trackId } );
-      sqldb.close();
       
       ContentResolver resolver = this.mContext.getContentResolver();
       resolver.notifyChange( Tracks.CONTENT_URI, null );
@@ -175,7 +173,7 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    int deleteSegment(SQLiteDatabase sqldb, long segmentId)
    {
-      int affected = sqldb.delete( Tracks.TABLE, Tracks._ID +"= ?", new String[]{ ""+segmentId }  ) ;
+      int affected = sqldb.delete( Segments.TABLE, Segments._ID +"= ?", new String[]{ ""+segmentId }  ) ;
       affected += sqldb.delete( Waypoints.TABLE, Waypoints.SEGMENT+"= ?", new String[]{ ""+segmentId } );
 
       ContentResolver resolver = this.mContext.getContentResolver();
@@ -200,7 +198,6 @@ class DatabaseHelper extends SQLiteOpenHelper
       sqldb.insert( Tracks.TABLE, null, args );
 
       long trackId = getCurrentTrack( sqldb );
-      sqldb.close();
 
       toNextSegment();
 
@@ -225,7 +222,6 @@ class DatabaseHelper extends SQLiteOpenHelper
       sqldb.insert( Segments.TABLE, null, args );
 
       long segmentId = getCurrentSegment( sqldb );
-      sqldb.close();
 
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentId ) ;
