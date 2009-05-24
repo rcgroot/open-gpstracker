@@ -3,32 +3,23 @@
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-
-
-
 	<CheckBox android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:id="@+id/AutoStartService"
 		android:text="@string/auto_start_service_label"></CheckBox>
-	
-	
-	
-	
-	
-	
-
-
-
 
 	<TableRow android:id="@+id/TableRow01" android:layout_width="wrap_content"
 		android:layout_height="wrap_content">
+		
 		<Button android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:id="@+id/SaveButton"
-			android:text="@string/btn_save">
+			android:text="@+string/btn_save">
 		</Button>
+		
 		<Button android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:id="@+id/CancelButton"
-			android:text="@string/btn_cancel">
+			android:text="@+string/btn_cancel">
 		</Button>
+		
 	</TableRow>
 
 </LinearLayout>

@@ -52,60 +52,67 @@ import android.util.Xml;
 /**
  * ????
  *
- * @version $Id:$
+ * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.
  */
 public class ExportGPX extends BroadcastReceiver
 {
-   private static final String FILENAME = "/sdcard/trackingoutput.gpx";
+   public static final String FILENAME = "filename";
    private static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
    @Override
-   public void onReceive( Context context, Intent intent )
+   public void onReceive( final Context context, final Intent intent )
    {
-      try 
-      {
-         XmlSerializer serializer =  Xml.newSerializer();
-         BufferedOutputStream buf = new BufferedOutputStream(new FileOutputStream(FILENAME));
-         serializer.setOutput( buf, "UTF-8" );
-         serializer.startDocument( "UTF-8", true );
-         serializer.startTag( "http://www.topografix.com/GPX/1/1", "gpx" );
+      new Thread(new Runnable() {
+         public void run() {
+            String filename = "/sdcard/"+intent.getExtras().getString( FILENAME );
+            try 
+            {
+               XmlSerializer serializer =  Xml.newSerializer();
+               BufferedOutputStream buf = new BufferedOutputStream(new FileOutputStream(filename), 8192);
+               serializer.setOutput( buf, "UTF-8" );
+               serializer.startDocument( "UTF-8", true );
+               serializer.startTag( "http://www.topografix.com/GPX/1/1", "gpx" );
 
-         Uri trackUri = intent.getData();
+               Uri trackUri = intent.getData();
 
-         // Big header of the track
-         String name = serializeTrack( context, serializer, trackUri );
-         
-         serializer.text( "\n" );
-         serializer.startTag( "http://www.topografix.com/GPX/1/1", "trk" );
-         serializer.text( "\n" );
-         serializer.startTag( "http://www.topografix.com/GPX/1/1", "name" );
-         serializer.text( name );
-         serializer.endTag( "http://www.topografix.com/GPX/1/1", "name" );
-         
-         // The list of segments in the track
-         serializeSegments( context, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
-         
-         serializer.text( "\n" );
-         serializer.endTag( "http://www.topografix.com/GPX/1/1", "trk" );
-         serializer.text( "\n" );
-         serializer.endTag( "http://www.topografix.com/GPX/1/1", "gpx" );
-         serializer.endDocument();
-      }
-      catch (IllegalArgumentException e)
-      {
-         e.printStackTrace();
-      }
-      catch (IllegalStateException e)
-      {
-         e.printStackTrace();
-      }
-      catch (IOException e)
-      {
-         e.printStackTrace();
-      }
+               // Big header of the track
+               String name = serializeTrack( context, serializer, trackUri );
+
+               serializer.text( "\n" );
+               serializer.startTag( "http://www.topografix.com/GPX/1/1", "trk" );
+               serializer.text( "\n" );
+               serializer.startTag( "http://www.topografix.com/GPX/1/1", "name" );
+               serializer.text( name );
+               serializer.endTag( "http://www.topografix.com/GPX/1/1", "name" );
+
+               // The list of segments in the track
+               serializeSegments( context, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
+
+               serializer.text( "\n" );
+               serializer.endTag( "http://www.topografix.com/GPX/1/1", "trk" );
+               serializer.text( "\n" );
+               serializer.endTag( "http://www.topografix.com/GPX/1/1", "gpx" );
+               serializer.endDocument();
+            }
+            catch (IllegalArgumentException e)
+            {
+               e.printStackTrace();
+            }
+            catch (IllegalStateException e)
+            {
+               e.printStackTrace();
+            }
+            catch (IOException e)
+            {
+               e.printStackTrace();
+            }
+         }
+      }).start();
+
+
    }
-   
+
    private String serializeTrack(Context context,  XmlSerializer serializer, Uri trackUri ) throws IOException
    {
       ContentResolver resolver = context.getContentResolver();
@@ -209,6 +216,6 @@ public class ExportGPX extends BroadcastReceiver
             waypointsCursor.close();
          }
       }
-      
+
    }
 }

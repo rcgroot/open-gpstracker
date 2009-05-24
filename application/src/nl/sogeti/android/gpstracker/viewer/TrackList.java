@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.ExportGPX;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -58,7 +59,7 @@ public class TrackList extends ListActivity
    private static final int MENU_DETELE = 0;
    private static final int MENU_EXPORT = 1;
    private Cursor mTracksCursor;
-   SimpleCursorAdapter notes;
+   SimpleCursorAdapter mNotes;
 
    private class DeleteClickListener implements DialogInterface.OnClickListener 
    {
@@ -74,7 +75,7 @@ public class TrackList extends ListActivity
          getContentResolver().delete(this.mUri, null, null);
 
          TrackList.this.mTracksCursor.requery();
-         TrackList.this.notes.notifyDataSetChanged();
+         TrackList.this.mNotes.notifyDataSetChanged();
       }
    }
 
@@ -93,8 +94,8 @@ public class TrackList extends ListActivity
       int[] toItems = new int[]{R.id.listitem_name, R.id.listitem_from};
 
       // Now create a simple cursor adapter and set it to display
-      notes = new SimpleCursorAdapter(this, R.layout.trackitem, this.mTracksCursor, fromColumns, toItems);
-      setListAdapter(notes);
+      this.mNotes = new SimpleCursorAdapter(this, R.layout.trackitem, this.mTracksCursor, fromColumns, toItems);
+      setListAdapter(this.mNotes);
 
       // Add the context menu (the long press thing)
       registerForContextMenu(getListView());

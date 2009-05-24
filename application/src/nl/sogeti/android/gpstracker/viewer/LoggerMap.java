@@ -31,16 +31,19 @@ package nl.sogeti.android.gpstracker.viewer;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.ExportGPX;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
-
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -50,6 +53,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -70,18 +74,22 @@ import com.google.android.maps.Overlay;
 public class LoggerMap extends MapActivity
 {   
    private static final int ZOOM_LEVEL = 9;
+   
+   // MENU'S
    private static final int MENU_SETTINGS = 0;
    private static final int MENU_TOGGLE   = 1;
    private static final int MENU_TRACKLIST = 5;
    private static final int MENU_ACTION = 7;
+   
+   // DIALOGS
    private static final int TRACK_TITLE_ID = 0;
 
-
-   private long mTrackId;
+   private long mTrackId = -1;
    private MapView mMapView = null;
    private MapController mMapController = null;
    private GPSLoggerServiceManager loggerServiceManager;
-
+   private EditText fileNameView = null;
+   
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
    {
       @Override
@@ -95,7 +103,45 @@ public class LoggerMap extends MapActivity
          LoggerMap.this.drawTrackingData();
       }
    };
+   
+   private final DialogInterface.OnClickListener noTrackDialogListener = new DialogInterface.OnClickListener()
+   {
+      public void onClick(DialogInterface dialog, int which)
+      {
+         switch( which )
+         {
+            case DialogInterface.BUTTON_POSITIVE:
+               Intent tracklistIntent = new Intent(LoggerMap.this, TrackList.class);
+               tracklistIntent.putExtra( Tracks._ID, LoggerMap.this.mTrackId );
+               startActivityForResult(tracklistIntent, MENU_TRACKLIST);
+               break;
+            case DialogInterface.BUTTON_NEGATIVE:
+               break;
+         }
+      }
+   } ;
 
+   private final DialogInterface.OnClickListener fileNameDialogListener = new DialogInterface.OnClickListener()
+   {
+      public void onClick(DialogInterface dialog, int which)
+      {
+         switch( which )
+         {
+            case DialogInterface.BUTTON_POSITIVE:
+               Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId );
+               Intent actionIntent = new Intent(Intent.ACTION_SEND, uri );
+               actionIntent.putExtra( ExportGPX.FILENAME, LoggerMap.this.fileNameView.getText().toString() );
+               LoggerMap.this.sendBroadcast( actionIntent, android.Manifest.permission.ACCESS_FINE_LOCATION );
+               LoggerMap.this.fileNameView = null;
+               break;
+            case DialogInterface.BUTTON_NEGATIVE:
+               break;
+         }
+      }
+   } ;
+
+   private String mTrackName;
+   
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
    {
@@ -131,7 +177,7 @@ public class LoggerMap extends MapActivity
    public boolean onCreateOptionsMenu( Menu menu )
    {
       boolean result =  super.onCreateOptionsMenu(menu);
-      
+
       menu.add(0, MENU_TOGGLE, 0, R.string.menu_toggle_on).setIcon(android.R.drawable.ic_menu_mapmode).setAlphabeticShortcut( 't' );
       menu.add(0, MENU_TRACKLIST, 0, R.string.menu_tracklist).setIcon(android.R.drawable.ic_menu_gallery).setAlphabeticShortcut( 'l' );
       menu.add(0, MENU_ACTION, 0, R.string.menu_exportTrack).setIcon(android.R.drawable.ic_menu_save).setAlphabeticShortcut( 'e' );
@@ -183,8 +229,14 @@ public class LoggerMap extends MapActivity
             startActivityForResult(tracklistIntent, MENU_TRACKLIST);
             break;
          case MENU_ACTION:
-            Intent actionIntent = new Intent(Intent.ACTION_SEND, Uri.withAppendedPath( Tracks.CONTENT_URI, ""+this.mTrackId ) );
-            this.sendBroadcast( actionIntent, android.Manifest.permission.ACCESS_FINE_LOCATION );
+            if( this.mTrackId >= 0 )
+            {
+               this.showAlertFileName();
+            }
+            else
+            {
+               this.showAlertNoTrack();
+            }
             handled = true;
             break;
          default:
@@ -418,6 +470,7 @@ public class LoggerMap extends MapActivity
     */
    private void setTitleToTrackName(String trackName) 
    {
+      this.mTrackName = trackName;
       this.setTitle( this.getString( R.string.app_name ) + ": " + trackName); 
    }
 
@@ -497,5 +550,32 @@ public class LoggerMap extends MapActivity
             } 
       );
       return dialog;
+   }
+
+   private void showAlertNoTrack() 
+   {
+      new AlertDialog.Builder( this )
+      .setTitle( R.string.dialog_notrack_title )
+      .setIcon( android.R.drawable.ic_dialog_alert )
+      .setMessage(R.string.dialog_notrack_message )
+      .setNegativeButton( R.string.btn_cancel, this.noTrackDialogListener )
+      .setPositiveButton( R.string.btn_selecttrack, this.noTrackDialogListener )
+      .show();
+   }
+
+   private void showAlertFileName() 
+   {
+      LayoutInflater factory = LayoutInflater.from( this );
+      View view = factory.inflate( R.layout.filenamedialog, null );
+      this.fileNameView = (EditText) view.findViewById( R.id.fileNameField );
+      this.fileNameView.setText( this.mTrackName+".gpx" );
+
+      new AlertDialog.Builder( LoggerMap.this )
+      .setTitle( R.string.dialog_filename_title )
+      .setView( view )
+      .setMessage(R.string.dialog_enterfilename_message )
+      .setNegativeButton( R.string.btn_cancel, this.fileNameDialogListener )
+      .setPositiveButton( R.string.btn_okay, this.fileNameDialogListener )
+      .show();
    }
 }
