@@ -34,6 +34,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import android.util.Log;
+
 
 /**
  * Translates SimplePosition objects to a telnet command and sends the commands to a telnet session with an android emulator.
@@ -59,7 +61,7 @@ public class TelnetPositionSender
     */
    public TelnetPositionSender() 
    {
-      createTelnetConnection();
+
    }
 
    /**
@@ -72,7 +74,7 @@ public class TelnetPositionSender
          this.out = this.socket.getOutputStream();
 
          Thread.sleep(500); // give the telnet session half a second to
-                        // respond
+         // respond
       } catch (UnknownHostException e) {
          e.printStackTrace();
       } catch (IOException e) {
@@ -80,8 +82,22 @@ public class TelnetPositionSender
       } catch (InterruptedException e) {
          e.printStackTrace();
       }
-
       readInput(); // read the input to throw it away the first time :)
+   }
+
+
+   private void closeConnection()
+   {
+      try
+      {
+         this.out.close();
+         this.in.close();
+         this.socket.close();
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
    }
 
    /**
@@ -111,11 +127,16 @@ public class TelnetPositionSender
     */
    public void sendCommand(String telnetString) 
    {
+      createTelnetConnection();
+
+      Log.d(this.getClass().getName(), "Sending command: "+telnetString);
+      
       byte[] sendArray = telnetString.getBytes();
 
       for (byte b : sendArray) 
       {
-         try {
+         try 
+         {
             this.out.write(b);
          } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
@@ -127,7 +148,7 @@ public class TelnetPositionSender
       {
          System.err.println("Warning: no OK mesage message was(" + feedback + ")");
       }
+      closeConnection();
 
    }
-
 }

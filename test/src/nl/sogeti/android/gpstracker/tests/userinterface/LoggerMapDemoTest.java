@@ -86,6 +86,7 @@ public class LoggerMapDemoTest extends ActivityInstrumentationTestCase2<LoggerMa
       MockGPSLoggerDriver service = new MockGPSLoggerDriver( this.mLoggermap );
       try
       {
+         /*
          Thread.sleep( 1 * 1000 );
          // Browse the Utrecht map
          service.sendSMS("Selecting a previous recorded track");
@@ -109,7 +110,7 @@ public class LoggerMapDemoTest extends ActivityInstrumentationTestCase2<LoggerMa
          //service.sendSMS("Some buildings are 500 years old"); 
          //this.sendKeys( "S T " );
          this.sendKeys( "S G" );
-
+*/
          // Start feeding the GPS API with location data
          new Thread( service ).start();
          service.sendSMS("Let start a new route");

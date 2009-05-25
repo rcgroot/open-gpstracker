@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.tests.utils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -50,7 +51,6 @@ import android.util.Log;
  */
 public class MockGPSLoggerDriver implements Runnable
 {
-   private static final String LOG_TAG = "GPSLoggerService";
    private final static int DEFAULT_TIMEOUT = 2000;
    private boolean running = true;
    private int timeout;
@@ -102,7 +102,8 @@ public class MockGPSLoggerDriver implements Runnable
       {
          SimplePosition position = this.positions.remove( 0 );
          String nmeaCommand = createLocationCommand(position.getLongitude(), position.getLatitude(), 0);
-         this.sender.sendCommand( nmeaCommand );
+         String checksum = calulateChecksum(nmeaCommand);
+         this.sender.sendCommand( "geo nmea $"+nmeaCommand+"*"+checksum+"\r\n" );
 
          try
          {
@@ -110,9 +111,29 @@ public class MockGPSLoggerDriver implements Runnable
          }
          catch (InterruptedException e)
          {
-            Log.w( MockGPSLoggerDriver.LOG_TAG, "Interrupted" );
+            Log.w( MockGPSLoggerDriver.class.getName(), "Interrupted" );
          }
       }
+   }
+
+   public static String calulateChecksum( String nmeaCommand )
+   {
+      byte[] chars = null;
+      try
+      {
+         chars = nmeaCommand.getBytes("ASCII");
+      }
+      catch (UnsupportedEncodingException e)
+      {
+         e.printStackTrace();
+      }
+      byte xor = 0;
+      for (int i = 0; i < chars.length; i++)
+      {
+         xor ^= chars[i];
+      }
+      return  Integer.toHexString( (int) xor ).toUpperCase();
+
    }
 
    public void stop()
@@ -152,9 +173,19 @@ public class MockGPSLoggerDriver implements Runnable
    {
       
       final String COMMAND_GPS = 
-         "geo nmea $GPGGA,%1$02d%2$02d%3$02d.%4$03d," + //$NON-NLS-1$
-         "%5$03d%6$09.6f,%7$c,%8$03d%9$09.6f,%10$c," + //$NON-NLS-1$
-         "1,10,0.0,0.0,0,0.0,0,0.0,0000\r\n"; //$NON-NLS-1$
+         "GPGGA," +  // $--GGA,
+         "%1$02d" +   // hh      c.get(Calendar.HOUR_OF_DAY)
+         "%2$02d" +   // mm      c.get(Calendar.MINUTE)
+         "%3$02d." +  // ss.     c.get(Calendar.SECOND)
+         "%4$03d," +  // sss,    c.get(Calendar.MILLISECOND)
+         "%5$02d" +   // llll    latDegree
+         "%6$09.6f," +//         latMinute
+         "%7$c," +    //         latDirection
+         "%8$02d" +   //         longDegree
+         "%9$09.6f," +//         longMinutett
+         "%10$c," +   //         longDirection
+         "7,05,1.5,280.2,M,-34.0,M,,"; 
+
       Calendar c = Calendar.getInstance();
 
       double absLong = Math.abs(longitude);
@@ -176,11 +207,16 @@ public class MockGPSLoggerDriver implements Runnable
       double latMinute = (absLat - Math.floor(absLat)) * 60;
 
       String command = String.format(COMMAND_GPS,
-            c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE),
-            c.get(Calendar.SECOND), c.get(Calendar.MILLISECOND),
-            latDegree, latMinute, latDirection,
-            longDegree, longMinute, longDirection);
-
+            c.get(Calendar.HOUR_OF_DAY), 
+            c.get(Calendar.MINUTE),
+            c.get(Calendar.SECOND), 
+            c.get(Calendar.MILLISECOND),
+            latDegree, 
+            latMinute, 
+            latDirection,
+            longDegree, 
+            longMinute, 
+            longDirection);
       return command;
    }
 
@@ -207,7 +243,7 @@ public class MockGPSLoggerDriver implements Runnable
 
    public void sendSMS( String string )
    {
-      this.sender.sendCommand( "sms send 31886606607 "+string+"\r\n");
+      //this.sender.sendCommand( "sms send 31886606607 "+string+"\r\n");
    }
 
 }
