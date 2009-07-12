@@ -47,7 +47,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Looper;
+import android.util.Log;
 import android.util.Xml;
+import android.widget.Toast;
 
 /**
  * ????
@@ -57,22 +60,34 @@ import android.util.Xml;
  */
 public class ExportGPX extends BroadcastReceiver
 {
+   private static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
+   private static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
    public static final String FILENAME = "filename";
    private static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+   protected static final String TAG = "ExportGPX";
 
    @Override
    public void onReceive( final Context context, final Intent intent )
    {
       new Thread(new Runnable() {
          public void run() {
-            String filename = "/sdcard/"+intent.getExtras().getString( FILENAME );
+            Looper.prepare();
+
+            String fileName = intent.getExtras().getString( FILENAME );
+            String filePath = "/sdcard/"+fileName;
             try 
             {
                XmlSerializer serializer =  Xml.newSerializer();
-               BufferedOutputStream buf = new BufferedOutputStream(new FileOutputStream(filename), 8192);
+               BufferedOutputStream buf = new BufferedOutputStream(new FileOutputStream(filePath), 8192);
                serializer.setOutput( buf, "UTF-8" );
                serializer.startDocument( "UTF-8", true );
-               serializer.startTag( "http://www.topografix.com/GPX/1/1", "gpx" );
+               serializer.setPrefix( "xsi", NS_SCHEMA );
+               serializer.setPrefix( "gpx", NS_GPX_11 );
+               serializer.startTag( "", "gpx" );
+               serializer.attribute( null, "version", "1.1" );
+               serializer.attribute( null, "creator", "nl.sogeti.android.gpstracker" );
+               serializer.attribute( NS_SCHEMA, "schemaLocation", NS_GPX_11+" http://www.topografix.com/gpx/1/1/gpx.xsd" );
+               serializer.attribute( null, "xmlns", NS_GPX_11 );
 
                Uri trackUri = intent.getData();
 
@@ -80,33 +95,44 @@ public class ExportGPX extends BroadcastReceiver
                String name = serializeTrack( context, serializer, trackUri );
 
                serializer.text( "\n" );
-               serializer.startTag( "http://www.topografix.com/GPX/1/1", "trk" );
+               serializer.startTag( "", "trk" );
                serializer.text( "\n" );
-               serializer.startTag( "http://www.topografix.com/GPX/1/1", "name" );
+               serializer.startTag( "", "name" );
                serializer.text( name );
-               serializer.endTag( "http://www.topografix.com/GPX/1/1", "name" );
+               serializer.endTag( "", "name" );
 
                // The list of segments in the track
                serializeSegments( context, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
 
                serializer.text( "\n" );
-               serializer.endTag( "http://www.topografix.com/GPX/1/1", "trk" );
+               serializer.endTag( "", "trk" );
                serializer.text( "\n" );
-               serializer.endTag( "http://www.topografix.com/GPX/1/1", "gpx" );
+               serializer.endTag( "", "gpx" );
                serializer.endDocument();
             }
             catch (IllegalArgumentException e)
             {
+               Log.e( TAG, "Unable to save "+e );
                e.printStackTrace();
             }
             catch (IllegalStateException e)
             {
+               Log.e( TAG, "Unable to save "+e );
                e.printStackTrace();
             }
             catch (IOException e)
             {
+               Log.e( TAG, "Unable to save "+e );
                e.printStackTrace();
             }
+            CharSequence text = "Stored on SD-Card the route: "+fileName;
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context.getApplicationContext(), text, duration);
+            toast.show();
+            
+            Looper.loop();
+            
          }
       }).start();
 
@@ -128,13 +154,13 @@ public class ExportGPX extends BroadcastReceiver
          if( trackCursor.moveToFirst() )
          { 
             name = trackCursor.getString( 1 ) ;
-            serializer.startTag( "http://www.topografix.com/GPX/1/1", "metadata" );
-            serializer.startTag( "http://www.topografix.com/GPX/1/1", "time" );
+            serializer.startTag( "", "metadata" );
+            serializer.startTag( "", "time" );
             Date time = new Date( trackCursor.getLong( 2 ) );
             DateFormat formater = new SimpleDateFormat(DATETIME);
             serializer.text( formater.format( time ) );
-            serializer.endTag( "http://www.topografix.com/GPX/1/1", "time" );
-            serializer.endTag( "http://www.topografix.com/GPX/1/1", "metadata" );
+            serializer.endTag( "", "time" );
+            serializer.endTag( "", "metadata" );
          }
       }
       finally 
@@ -162,10 +188,10 @@ public class ExportGPX extends BroadcastReceiver
             {
                Uri waypoints = Uri.withAppendedPath( Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentCursor.getLong( 0 ) ), "waypoints" );
                serializer.text( "\n" );
-               serializer.startTag( "http://www.topografix.com/GPX/1/1", "trkseg" );
+               serializer.startTag( "", "trkseg" );
                serializeWaypoints( context, serializer, waypoints );
                serializer.text( "\n" );
-               serializer.endTag( "http://www.topografix.com/GPX/1/1", "trkseg" );
+               serializer.endTag( "", "trkseg" );
             }
             while( segmentCursor.moveToNext() );
 
@@ -194,17 +220,21 @@ public class ExportGPX extends BroadcastReceiver
             do
             {
                serializer.text( "\n" );
-               serializer.startTag( "http://www.topografix.com/GPX/1/1", "trkpt" );
-               serializer.attribute( null, "lon", waypointsCursor.getString( 0 ) );
+               serializer.startTag( "", "trkpt" );
                serializer.attribute( null, "lat", waypointsCursor.getString( 1 ) );
+               serializer.attribute( null, "lon", waypointsCursor.getString( 0 ) );
                serializer.text( "\n" );
-               serializer.startTag( "http://www.topografix.com/GPX/1/1", "time" );
+               serializer.startTag( "", "time" );
                Date time = new Date( waypointsCursor.getLong( 2 ) );
                DateFormat formater = new SimpleDateFormat(DATETIME);
                serializer.text( formater.format( time ) );
-               serializer.endTag( "http://www.topografix.com/GPX/1/1", "time" );
+               serializer.endTag( "", "time" );
                serializer.text( "\n" );
-               serializer.endTag( "http://www.topografix.com/GPX/1/1", "trkpt" );
+               serializer.startTag( "", "name" );
+               serializer.text( "point_"+waypointsCursor.getPosition()  );
+               serializer.endTag( "", "name" );
+               serializer.text( "\n" );
+               serializer.endTag( "", "trkpt" );
             }
             while( waypointsCursor.moveToNext() );
          }
