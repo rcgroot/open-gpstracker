@@ -1,12 +1,12 @@
 /*------------------------------------------------------------------------------
- **     Ident: Innovation en Inspiration > Google Android 
+ **     Ident: Innovation en Inspiration > Google Android
  **    Author: rene
  ** Copyright: (c) Jan 22, 2009 Sogeti Nederland B.V. All Rights Reserved.
  **------------------------------------------------------------------------------
- ** Sogeti Nederland B.V.            |  No part of this file may be reproduced  
- ** Distributed Software Engineering |  or transmitted in any form or by any        
- ** Lange Dreef 17                   |  means, electronic or mechanical, for the      
- ** 4131 NJ Vianen                   |  purpose, without the express written    
+ ** Sogeti Nederland B.V.            |  No part of this file may be reproduced
+ ** Distributed Software Engineering |  or transmitted in any form or by any
+ ** Lange Dreef 17                   |  means, electronic or mechanical, for the
+ ** 4131 NJ Vianen                   |  purpose, without the express written
  ** The Netherlands                  |  permission of the copyright holder.
  *------------------------------------------------------------------------------
  *
@@ -44,7 +44,7 @@ import android.util.Log;
 
 /**
  * Feeder of GPS-location information
- * 
+ *
  * @version $Id$
  * @author Maarten van Berkel (maarten.van.berkel@sogeti.nl / +0586)
  *
@@ -76,18 +76,18 @@ public class MockGPSLoggerDriver implements Runnable
    {
       this.timeout = t;
    }
-   
+
    public void setRoute(int t)
    {
       this.mRouteResource = t;
    }
-   
+
    public int getTimeout()
    {
       return this.timeout;
    }
 
-   private void prepareRun(int xmlResource) 
+   private void prepareRun(int xmlResource)
    {
       this.positions = new ArrayList<SimplePosition>();
       XmlResourceParser xmlParser = this.mContext.getResources().getXml( xmlResource );
@@ -96,12 +96,13 @@ public class MockGPSLoggerDriver implements Runnable
 
    public void run()
    {
-      prepareRun( this.mRouteResource );      
+      prepareRun( this.mRouteResource );
 
       while (this.running && ( this.positions.size() > 0 ) )
       {
          SimplePosition position = this.positions.remove( 0 );
-         String nmeaCommand = createLocationCommand(position.getLongitude(), position.getLatitude(), 0);
+         //String nmeaCommand = createGPGGALocationCommand(position.getLongitude(), position.getLatitude(), 0);
+         String nmeaCommand = createGPRMCLocationCommand(position.getLongitude(), position.getLatitude(), 0);
          String checksum = calulateChecksum(nmeaCommand);
          this.sender.sendCommand( "geo nmea $"+nmeaCommand+"*"+checksum+"\r\n" );
 
@@ -150,9 +151,9 @@ public class MockGPSLoggerDriver implements Runnable
 
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
-            if 
+            if
             (
-                  ( eventType == XmlPullParser.START_TAG ) && 
+                  ( eventType == XmlPullParser.START_TAG ) &&
                   ( xmlParser.getName().equals( "trkpt" ) || xmlParser.getName().equals( "rtept" ) )
             )
             {
@@ -169,22 +170,85 @@ public class MockGPSLoggerDriver implements Runnable
       }
    }
 
-   public static String createLocationCommand(double longitude, double latitude, double elevation) 
+   public static String createGPRMCLocationCommand(double longitude, double latitude, double elevation)
    {
-      
-      final String COMMAND_GPS = 
+      final String COMMAND_GPS =
+         "GPRMC," +
+         "%1$02d" +    // hh      c.get(Calendar.HOUR_OF_DAY)
+         "%2$02d" +    // mm      c.get(Calendar.MINUTE)
+         "%3$02d." +   // ss.     c.get(Calendar.SECOND)
+         "%4$03d,A," + // ss,     c.get(Calendar.MILLISECOND)
+
+         "%5$03d" +   // llll    latDegree
+         "%6$09.6f," +//         latMinute
+
+         "%7$c," +     //         latDirection (N or S)
+
+         "%8$03d" +   //         longDegree
+         "%9$09.6f," +//         longMinutett
+
+         "%10$c," +     //         longDirection (E or W)
+         "1.5," +         //         Speed over ground in knot
+         "0," +         //         Track made good in degrees True
+         "%11$02d" +    // dd
+         "%12$02d" +   // mm
+         "%13$02d," +   // yy
+         "0," +         //         Magnetic variation degrees (Easterly var. subtracts from true course)
+         "E," +          //         East/West
+         "mode" ;       // Just as workaround....
+
+      Calendar c = Calendar.getInstance();
+      double absLong = Math.abs(longitude);
+      int longDegree = (int)Math.floor(absLong);
+      char longDirection = 'E';
+      if (longitude < 0) {
+         longDirection = 'W';
+      }
+      double longMinute = (absLong - Math.floor(absLong)) * 60;
+      double absLat = Math.abs(latitude);
+      int latDegree = (int)Math.floor(absLat);
+      char latDirection = 'N';
+      if (latitude < 0) {
+         latDirection = 'S';
+      }
+      double latMinute = (absLat - Math.floor(absLat)) * 60;
+
+
+      String command = String.format(COMMAND_GPS,
+            c.get(Calendar.HOUR_OF_DAY),
+            c.get(Calendar.MINUTE),
+            c.get(Calendar.SECOND),
+            c.get(Calendar.MILLISECOND),
+            latDegree,
+            latMinute,
+            latDirection,
+            longDegree,
+            longMinute,
+            longDirection,
+            c.get( Calendar.DAY_OF_MONTH),
+            c.get( Calendar.MONTH),
+            c.get(  Calendar.YEAR ) - 2000
+            );
+      return command;
+
+   }
+
+   public static String createGPGGALocationCommand(double longitude, double latitude, double elevation)
+   {
+
+      final String COMMAND_GPS =
          "GPGGA," +  // $--GGA,
          "%1$02d" +   // hh      c.get(Calendar.HOUR_OF_DAY)
          "%2$02d" +   // mm      c.get(Calendar.MINUTE)
          "%3$02d." +  // ss.     c.get(Calendar.SECOND)
          "%4$03d," +  // sss,    c.get(Calendar.MILLISECOND)
-         "%5$02d" +   // llll    latDegree
+         "%5$03d" +   // llll    latDegree
          "%6$09.6f," +//         latMinute
          "%7$c," +    //         latDirection
-         "%8$02d" +   //         longDegree
+         "%8$03d" +   //         longDegree
          "%9$09.6f," +//         longMinutett
          "%10$c," +   //         longDirection
-         "7,05,1.5,280.2,M,-34.0,M,,"; 
+         "1,05,02.1,00545.5,M,-26.0,M,,";
 
       Calendar c = Calendar.getInstance();
 
@@ -207,15 +271,15 @@ public class MockGPSLoggerDriver implements Runnable
       double latMinute = (absLat - Math.floor(absLat)) * 60;
 
       String command = String.format(COMMAND_GPS,
-            c.get(Calendar.HOUR_OF_DAY), 
+            c.get(Calendar.HOUR_OF_DAY),
             c.get(Calendar.MINUTE),
-            c.get(Calendar.SECOND), 
+            c.get(Calendar.SECOND),
             c.get(Calendar.MILLISECOND),
-            latDegree, 
-            latMinute, 
+            latDegree,
+            latMinute,
             latDirection,
-            longDegree, 
-            longMinute, 
+            longDegree,
+            longMinute,
             longDirection);
       return command;
    }
@@ -238,7 +302,7 @@ public class MockGPSLoggerDriver implements Runnable
       public double getLongitude()
       {
          return this.lng;
-      }      
+      }
    }
 
    public void sendSMS( String string )

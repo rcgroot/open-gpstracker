@@ -51,10 +51,18 @@ public class MockGPSLoggerServiceTest extends AndroidTestCase
    }
    
    @SmallTest
-   public void testCreateLocationCommand()
+   public void testGPGGACreateLocationCommand()
    {
-      String command = MockGPSLoggerDriver.createLocationCommand( 5.117719d, 52.096524d, 0d );
+      String command = MockGPSLoggerDriver.createGPGGALocationCommand( 5.117719d, 52.096524d, 0d );
       Assert.assertTrue("Start of a NMEA sentence: ", command.startsWith( "geo nmea $GPGGA" ));
+      Assert.assertTrue("End of a NMEA sentence", command.endsWith( "05205.791440,N,00507.063140,E,1,10,0.0,0.0,M,0.0,M,0.0,0000\r\n" ));
+   }
+   
+   @SmallTest
+   public void testGPRMCreateLocationCommand()
+   {
+      String command = MockGPSLoggerDriver.createGPRMCLocationCommand( 5.117719d, 52.096524d, 0d );
+      Assert.assertTrue("Start of a NMEA sentence: ", command.startsWith( "geo nmea $GPRMC" ));
       Assert.assertTrue("End of a NMEA sentence", command.endsWith( "05205.791440,N,00507.063140,E,1,10,0.0,0.0,M,0.0,M,0.0,0000\r\n" ));
    }
    
@@ -63,7 +71,6 @@ public class MockGPSLoggerServiceTest extends AndroidTestCase
    {
       Assert.assertEquals( "4F", MockGPSLoggerDriver.calulateChecksum("GPGGA,064746.000,4925.4895,N,00103.9255,E,1,05,2.1,-68.0,M,47.1,M,,0000") );
       Assert.assertEquals( "47", MockGPSLoggerDriver.calulateChecksum("GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,," ) );
-      Assert.assertEquals( "47", MockGPSLoggerDriver.calulateChecksum("GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,," ) );
-
+      Assert.assertEquals( "39","GPRMC,120557.916,A,5058.7456,N,00647.0515,E,0.00,82.33,220503,," );
    }
 }

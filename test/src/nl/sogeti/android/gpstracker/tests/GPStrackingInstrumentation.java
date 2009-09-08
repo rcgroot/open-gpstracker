@@ -1,12 +1,12 @@
 /*------------------------------------------------------------------------------
- **     Ident: Innovation en Inspiration > Google Android 
+ **     Ident: Innovation en Inspiration > Google Android
  **    Author: rene
  ** Copyright: (c) Jan 22, 2009 Sogeti Nederland B.V. All Rights Reserved.
  **------------------------------------------------------------------------------
- ** Sogeti Nederland B.V.            |  No part of this file may be reproduced  
- ** Distributed Software Engineering |  or transmitted in any form or by any        
- ** Lange Dreef 17                   |  means, electronic or mechanical, for the      
- ** 4131 NJ Vianen                   |  purpose, without the express written    
+ ** Sogeti Nederland B.V.            |  No part of this file may be reproduced
+ ** Distributed Software Engineering |  or transmitted in any form or by any
+ ** Lange Dreef 17                   |  means, electronic or mechanical, for the
+ ** 4131 NJ Vianen                   |  purpose, without the express written
  ** The Netherlands                  |  permission of the copyright holder.
  *------------------------------------------------------------------------------
  *
@@ -29,21 +29,15 @@
 package nl.sogeti.android.gpstracker.tests;
 
 import junit.framework.TestSuite;
-
-import nl.sogeti.android.gpstracker.tests.actions.ExportGPXTest;
-import nl.sogeti.android.gpstracker.tests.db.GPStrackingProviderTest;
 import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerServiceTest;
-import nl.sogeti.android.gpstracker.tests.logger.GPSLoggerServiceTest;
 import nl.sogeti.android.gpstracker.tests.userinterface.LoggerMapDemoTest;
-import nl.sogeti.android.gpstracker.tests.userinterface.LoggerMapStressTest;
-import nl.sogeti.android.gpstracker.tests.userinterface.LoggerMapTest;
-
+import nl.sogeti.android.gpstracker.tests.userinterface.MapStressTest;
 import android.test.InstrumentationTestRunner;
 import android.test.InstrumentationTestSuite;
 
 /**
  * Perform unit tests Run on the adb shell:
- * 
+ *
  * <pre>
  *   am instrument -w nl.sogeti.android.gpstracker.tests/.GPStrackingInstrumentation
  * </pre>
@@ -64,13 +58,14 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner
       TestSuite suite = new InstrumentationTestSuite( this );
       suite.setName( "GPS Tracking Testsuite" );
       //suite.addTestSuite( GPStrackingProviderTest.class );
-      suite.addTestSuite( MockGPSLoggerServiceTest.class );
+      //suite.addTestSuite( MockGPSLoggerServiceTest.class );
       //suite.addTestSuite( GPSLoggerServiceTest.class );
       //suite.addTestSuite( ExportGPXTest.class );
 
       //suite.addTestSuite( LoggerMapTest.class );
-      suite.addTestSuite( LoggerMapDemoTest.class ); // The demo recorded for youtube
-      //suite.addTestSuite( LoggerMapStressTest.class ); // The stress test of the tracking viewer
+      //suite.addTestSuite( LoggerMapDemoTest.class ); // The demo recorded for youtube
+      //suite.addTestSuite( LoggerMapStressTest.class ); // The stress test of the tracking
+      suite.addTestSuite( MapStressTest.class ); // The stress test of the map viewer
       return suite;
    }
 

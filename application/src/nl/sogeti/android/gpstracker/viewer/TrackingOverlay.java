@@ -43,6 +43,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -61,21 +62,28 @@ public class TrackingOverlay extends Overlay
    public static final int MIDDLE = 0 ;
    public static final int FIRST = 1 ;
    public static final int LAST = 2 ;
+   public static final String TAG = TrackingOverlay.class.getName();
 
    private ContentResolver mResolver;
    private Point mStartPoint ;
    private Point mEndPoint ;
    private Point mRecylcePoint ;
+   private Point mPrevPoint ;
    private Path mPath ;
    private int mPlace = TrackingOverlay.MIDDLE ;
    private Projection mProjection;
    private Uri mTrackUri;
    private Context mCtx;
+   
+   private int skip ;
+   private int mCalculatedPoints;
+   private Canvas mCanvas; 
 
    TrackingOverlay(Context cxt, ContentResolver resolver, Uri trackUri)  
    {
       super();
       this.mCtx = cxt;
+      this.mPath = new Path();
       this.mResolver = resolver; 
       this.mTrackUri = trackUri;
    }
@@ -91,7 +99,9 @@ public class TrackingOverlay extends Overlay
       this.mStartPoint = new Point();
       this.mEndPoint = new Point();
       this.mRecylcePoint = new Point();
-      this.mPath = new Path();
+      this.mPrevPoint = new Point();
+      this.mPath.rewind();
+      this.mCanvas = canvas;
 
       // The current state with all the Points must be recalculated 
       // because the projecting of the map me be different then
@@ -107,22 +117,25 @@ public class TrackingOverlay extends Overlay
       routePaint.setStyle(Paint.Style.STROKE);
       routePaint.setStrokeWidth( 5 );
       routePaint.setAntiAlias( true );
-      canvas.drawPath(this.mPath, routePaint );
+      
+      this.mCanvas.drawPath(this.mPath, routePaint );
 
       Bitmap bitmap;
       if(this.mPlace==FIRST || this.mPlace==FIRST+LAST )
       {         
          bitmap = BitmapFactory.decodeResource( this.mCtx.getResources(), R.drawable.stip2 );
-         canvas.drawBitmap( bitmap, this.mStartPoint.x-8, this.mStartPoint.y-8, new Paint() );
+         this.mCanvas.drawBitmap( bitmap, this.mStartPoint.x-8, this.mStartPoint.y-8, new Paint() );
       }
       if(this.mPlace==LAST || this.mPlace==FIRST+LAST)
       {
          bitmap = BitmapFactory.decodeResource( this.mCtx.getResources(), R.drawable.stip );
-         canvas.drawBitmap( bitmap, this.mEndPoint.x-5,  this.mEndPoint.y-5, new Paint() );
+         this.mCanvas.drawBitmap( bitmap, this.mEndPoint.x-5,  this.mEndPoint.y-5, new Paint() );
 
       }
-
-      super.draw( canvas, mapView, shadow );
+      Log.d( TAG, "Transformerd number of points: "+ mCalculatedPoints );
+      
+      super.draw( this.mCanvas, mapView, shadow );
+      this.mCanvas = null;
    }
 
    /**
@@ -138,6 +151,7 @@ public class TrackingOverlay extends Overlay
    private void transformAllWaypointsToPath()
    {
       Cursor trackCursor = null ;
+      mCalculatedPoints = 0; 
       try 
       {
          trackCursor = this.mResolver.query(
@@ -149,12 +163,14 @@ public class TrackingOverlay extends Overlay
             transformSingleWaypointToCurrentPoint(trackCursor.getDouble( 0 ),trackCursor.getDouble( 1 ));
             this.mStartPoint.set( this.mRecylcePoint.x, this.mRecylcePoint.y );
             this.mPath.moveTo( this.mRecylcePoint.x, this.mRecylcePoint.y );
+            
             do
             {
                transformSingleWaypointToCurrentPoint(trackCursor.getDouble( 0 ),trackCursor.getDouble( 1 ));
                addCurrentPointToPath();
             } 
-            while( trackCursor.moveToNext() );
+            while( trackCursor.move( skip ) );
+            
             this.mEndPoint.set( this.mRecylcePoint.x, this.mRecylcePoint.y );
          }
       }
@@ -177,12 +193,32 @@ public class TrackingOverlay extends Overlay
    {
       int microLatitude = (int) ( lat * 1E6d );
       int microLongitude = (int) ( lon * 1E6d );
-      this.mProjection.toPixels(new GeoPoint(microLatitude, microLongitude), this.mRecylcePoint);            
+      this.mProjection.toPixels(new GeoPoint(microLatitude, microLongitude), this.mRecylcePoint);        
+      mCalculatedPoints++;
    }
 
    private void addCurrentPointToPath()
    {
+      if( this.mRecylcePoint.x <= 0 || this.mRecylcePoint.x <= 0 || this.mRecylcePoint.y > this.mCanvas.getHeight() || this.mRecylcePoint.x > this.mCanvas.getWidth()  )
+      {
+         skip++;
+      }
+      
+      
+      int diff = Math.abs( this.mRecylcePoint.x - this.mPrevPoint.x ) + Math.abs( this.mRecylcePoint.y - this.mPrevPoint.y ) ;
+      if( diff > 20 && skip > 1) 
+      {
+         skip--;     
+      }
+      else
+      {
+         skip++;
+      }
+      
       this.mPath.lineTo(this.mRecylcePoint.x, this.mRecylcePoint.y);
+      
+      this.mPrevPoint.x = this.mRecylcePoint.x;
+      this.mPrevPoint.y = this.mRecylcePoint.y;
    }
 
 
