@@ -48,36 +48,35 @@ import android.util.Log;
  * Goal of this Content Provider is to make the GPS Tracking information uniformly 
  * available to this application and even other applications. The GPS-tracking 
  * database can hold, tracks, segments or waypoints 
- * 
+ * <p>
  * A track is an actual route taken from start to finish. All the GPS locations
  * collected are waypoints. Waypoints taken in sequence without loss of GPS-signal
  * are considered connected and are grouped in segments. A route is build up out of
  * 1 or more segments.
- * 
- * 
- * For example: 
- * content://nl.sogeti.android.gpstracker/tracks 
+ * <p>
+ * For example:<br>
+ * <code>content://nl.sogeti.android.gpstracker/tracks</code>
  * is the URI that returns all the stored tracks or starts a new track on insert 
- * 
- * content://nl.sogeti.android.gpstracker/tracks/23
+ * <p>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/23</code>
  * is the URI string that would return a single result row, the track with ID = 23. 
- * 
- * content://nl.sogeti.android.gpstracker/tracks/2/segments is the URI that returns 
+ * <p>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments</code> is the URI that returns 
  * all the stored segments of a track with ID = 2 
- * 
- * content://nl.sogeti.android.gpstracker/segments is the URI that returns all the 
+ * <p>
+ * <code>content://nl.sogeti.android.gpstracker/segments</code> is the URI that returns all the 
  * stored segments or starts a new segment on insert 
- * 
- * content://nl.sogeti.android.gpstracker/segments/3 is
+ * <p>
+ * <code>content://nl.sogeti.android.gpstracker/segments/3</code> is
  * the URI string that would return a single result row, the segment with ID = 3. 
- * 
- * content://nl.sogeti.android.gpstracker/segments/1/waypoints is the URI that 
+ * <p>
+ * <code>content://nl.sogeti.android.gpstracker/segments/1/waypoints</code> is the URI that 
  * returns all the waypoints of a segment
- * 
- * content://nl.sogeti.android.gpstracker/waypoints is the URI that returns all 
+ * <p>
+ * <code>content://nl.sogeti.android.gpstracker/waypoints</code> is the URI that returns all 
  * the waypoints 
- * 
- * content://nl.sogeti.android.gpstracker/waypoints/52 is the URI string that 
+ * <p>
+ * <code>content://nl.sogeti.android.gpstracker/waypoints/52</code> is the URI string that 
  * would return a single result row, the waypoint with ID = 52
  * 
  * @version $Id$
