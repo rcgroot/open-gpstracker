@@ -51,185 +51,227 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
 /**
- * Creates an overlay that can draw a single segment of connected 
- * waypoints
- *
- * @version $Id$
+ * Creates an overlay that can draw a single segment of connected waypoints
+ * 
+ * @version $Id: TrackingOverlay.java 51 2009-09-08 16:48:39Z rcgroot@gmail.com
+ *          $
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */
 public class TrackingOverlay extends Overlay
 {
-   public static final int MIDDLE = 0 ;
-   public static final int FIRST = 1 ;
-   public static final int LAST = 2 ;
-   public static final String TAG = TrackingOverlay.class.getName();
+	public static final int MIDDLE = 0;
+	public static final int FIRST = 1;
+	public static final int LAST = 2;
+	public static final String TAG = TrackingOverlay.class.getName();
 
-   private ContentResolver mResolver;
-   private Point mStartPoint ;
-   private Point mEndPoint ;
-   private Point mRecylcePoint ;
-   private Point mPrevPoint ;
-   private Path mPath ;
-   private int mPlace = TrackingOverlay.MIDDLE ;
-   private Projection mProjection;
-   private Uri mTrackUri;
-   private Context mCtx;
-   
-   private int skip ;
-   private int mCalculatedPoints;
-   private Canvas mCanvas; 
+	private ContentResolver mResolver;
+	private Point mStartPoint;
+	private Point mEndPoint;
+	private Point mRecylcePoint;
+	private Point mPrevPoint;
+	private Path mPath;
+	private int mPlacement = TrackingOverlay.MIDDLE;
+	private Projection mProjection;
+	private Uri mTrackUri;
+	private Context mCtx;
 
-   TrackingOverlay(Context cxt, ContentResolver resolver, Uri trackUri)  
-   {
-      super();
-      this.mCtx = cxt;
-      this.mPath = new Path();
-      this.mResolver = resolver; 
-      this.mTrackUri = trackUri;
-   }
+	private int mListPosition;
+	private int mStepSize;
+	private int mCalculatedPoints;
+	private Canvas mCanvas;
+	private boolean mLastPointInFrame;
 
-   /**
-    * (non-Javadoc)
-    * @see com.google.android.maps.Overlay#draw(android.graphics.Canvas, com.google.android.maps.MapView, boolean)
-    */
-   @Override
-   public void draw( Canvas canvas, MapView mapView, boolean shadow )
-   {
-      // Holder of the onscreen Points are reset
-      this.mStartPoint = new Point();
-      this.mEndPoint = new Point();
-      this.mRecylcePoint = new Point();
-      this.mPrevPoint = new Point();
-      this.mPath.rewind();
-      this.mCanvas = canvas;
+	TrackingOverlay(Context cxt, ContentResolver resolver, Uri trackUri)
+	{
+		super();
+		this.mCtx = cxt;
+		this.mPath = new Path();
+		this.mResolver = resolver;
+		this.mTrackUri = trackUri;
+	}
 
-      // The current state with all the Points must be recalculated 
-      // because the projecting of the map me be different then
-      // the last call (the map moved, redraw the route to move along)
-      this.mProjection = mapView.getProjection();
-      transformAllWaypointsToPath();
-      this.mProjection = null;
+	/**
+	 * (non-Javadoc)
+	 * 
+	 * @see com.google.android.maps.Overlay#draw(android.graphics.Canvas,
+	 *      com.google.android.maps.MapView, boolean)
+	 */
+	@Override
+	public void draw(Canvas canvas, MapView mapView, boolean shadow)
+	{
+		// Holder of the onscreen Points are reset
+		this.mStartPoint = new Point();
+		this.mEndPoint = new Point();
+		this.mRecylcePoint = new Point();
+		this.mPrevPoint = new Point();
+		this.mPath.rewind();
+		this.mListPosition = 0;
+		this.mCanvas = canvas;
 
-      // Just the rendering bits left to do
-      Paint routePaint =  new Paint() ;
-      routePaint.setPathEffect( new CornerPathEffect(10));
-      routePaint.setColor( Color.RED );
-      routePaint.setStyle(Paint.Style.STROKE);
-      routePaint.setStrokeWidth( 5 );
-      routePaint.setAntiAlias( true );
-      
-      this.mCanvas.drawPath(this.mPath, routePaint );
+		// The current state with all the Points must be recalculated
+		// because the projecting of the map me be different then
+		// the last call (the map moved, redraw the route to move along)
+		this.mProjection = mapView.getProjection();
+		transformAllWaypointsToPath();
+		this.mProjection = null;
 
-      Bitmap bitmap;
-      if(this.mPlace==FIRST || this.mPlace==FIRST+LAST )
-      {         
-         bitmap = BitmapFactory.decodeResource( this.mCtx.getResources(), R.drawable.stip2 );
-         this.mCanvas.drawBitmap( bitmap, this.mStartPoint.x-8, this.mStartPoint.y-8, new Paint() );
-      }
-      if(this.mPlace==LAST || this.mPlace==FIRST+LAST)
-      {
-         bitmap = BitmapFactory.decodeResource( this.mCtx.getResources(), R.drawable.stip );
-         this.mCanvas.drawBitmap( bitmap, this.mEndPoint.x-5,  this.mEndPoint.y-5, new Paint() );
+		// Just the rendering bits left to do
+		Paint routePaint = new Paint();
+		routePaint.setPathEffect(new CornerPathEffect(10));
+		routePaint.setColor(Color.RED);
+		routePaint.setStyle(Paint.Style.STROKE);
+		routePaint.setStrokeWidth(5);
+		routePaint.setAntiAlias(true);
 
-      }
-      Log.d( TAG, "Transformerd number of points: "+ mCalculatedPoints );
-      
-      super.draw( this.mCanvas, mapView, shadow );
-      this.mCanvas = null;
-   }
+		this.mCanvas.drawPath(this.mPath, routePaint);
 
-   /**
-    * 
-    * Convert the cursor from the GPSTracking provider
-    * into Points on the Path 
-    * 
-    * @see Cursor Cursor used as input
-    * @see Point Point used as transformation target
-    * @see Path Path used as drawable line
-    *  
-    */
-   private void transformAllWaypointsToPath()
-   {
-      Cursor trackCursor = null ;
-      mCalculatedPoints = 0; 
-      try 
-      {
-         trackCursor = this.mResolver.query(
-               this.mTrackUri, 
-               new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, 
-               null, null, null);
-         if( trackCursor.moveToFirst() )
-         { 
-            transformSingleWaypointToCurrentPoint(trackCursor.getDouble( 0 ),trackCursor.getDouble( 1 ));
-            this.mStartPoint.set( this.mRecylcePoint.x, this.mRecylcePoint.y );
-            this.mPath.moveTo( this.mRecylcePoint.x, this.mRecylcePoint.y );
-            
-            do
-            {
-               transformSingleWaypointToCurrentPoint(trackCursor.getDouble( 0 ),trackCursor.getDouble( 1 ));
-               addCurrentPointToPath();
-            } 
-            while( trackCursor.move( skip ) );
-            
-            this.mEndPoint.set( this.mRecylcePoint.x, this.mRecylcePoint.y );
-         }
-      }
-      finally 
-      {
-         if( trackCursor != null )
-         {
-            trackCursor.close();
-         }
-      }
-   }
+		Bitmap bitmap;
+		if (this.mPlacement == FIRST || this.mPlacement == FIRST + LAST)
+		{
+			bitmap = BitmapFactory.decodeResource(this.mCtx.getResources(),
+					R.drawable.stip2);
+			this.mCanvas.drawBitmap(bitmap, this.mStartPoint.x - 8,
+					this.mStartPoint.y - 8, new Paint());
+		}
+		if (this.mPlacement == LAST || this.mPlacement == FIRST + LAST)
+		{
+			bitmap = BitmapFactory.decodeResource(this.mCtx.getResources(),
+					R.drawable.stip);
+			this.mCanvas.drawBitmap(bitmap, this.mEndPoint.x - 5,
+					this.mEndPoint.y - 5, new Paint());
 
-   /**
-    * 
-    * The the waypoint in the cursor is converted into 
-    * the the point based on the projection
-    * 
-    */
-   private void transformSingleWaypointToCurrentPoint(double lat, double lon)
-   {
-      int microLatitude = (int) ( lat * 1E6d );
-      int microLongitude = (int) ( lon * 1E6d );
-      this.mProjection.toPixels(new GeoPoint(microLatitude, microLongitude), this.mRecylcePoint);        
-      mCalculatedPoints++;
-   }
+		}
+		Log.d(TAG, "Transformerd number of points: " + mCalculatedPoints);
 
-   private void addCurrentPointToPath()
-   {
-      if( this.mRecylcePoint.x <= 0 || this.mRecylcePoint.x <= 0 || this.mRecylcePoint.y > this.mCanvas.getHeight() || this.mRecylcePoint.x > this.mCanvas.getWidth()  )
-      {
-         skip++;
-      }
-      
-      
-      int diff = Math.abs( this.mRecylcePoint.x - this.mPrevPoint.x ) + Math.abs( this.mRecylcePoint.y - this.mPrevPoint.y ) ;
-      if( diff > 20 && skip > 1) 
-      {
-         skip--;     
-      }
-      else
-      {
-         skip++;
-      }
-      
-      this.mPath.lineTo(this.mRecylcePoint.x, this.mRecylcePoint.y);
-      
-      this.mPrevPoint.x = this.mRecylcePoint.x;
-      this.mPrevPoint.y = this.mRecylcePoint.y;
-   }
+		super.draw(this.mCanvas, mapView, shadow);
+		this.mCanvas = null;
+	}
+
+	/**
+	 * Set the mPlace to the specified value.
+	 * 
+	 * @see TrackingOverlay.FIRST
+	 * @see TrackingOverlay.MIDDLE
+	 * @see TrackingOverlay.LAST
+	 * 
+	 * @param place
+	 *            The placement of this segment in the line.
+	 */
+	public void setPlacement(int place)
+	{
+		this.mPlacement += place;
+	}
+
+	/**
+	 * 
+	 * Convert the cursor from the GPSTracking provider into Points on the Path
+	 * 
+	 * @see Cursor Cursor used as input
+	 * @see Point Point used as transformation target
+	 * @see Path Path used as drawable line
+	 * 
+	 */
+	private void transformAllWaypointsToPath()
+	{
+		Cursor trackCursor = null;
+		mCalculatedPoints = 0;
+		try
+		{
+			trackCursor = this.mResolver
+					.query(this.mTrackUri, new String[] { Waypoints.LATITUDE,
+							Waypoints.LONGITUDE }, null, null, null);
+			if (trackCursor.moveToFirst())
+			{
+				transformSingleWaypointToCurrentPoint(trackCursor.getDouble(0),
+						trackCursor.getDouble(1));
+				this.mStartPoint
+						.set(this.mRecylcePoint.x, this.mRecylcePoint.y);
+				this.mPath.moveTo(this.mRecylcePoint.x, this.mRecylcePoint.y);
+
+				while (moveToNextWayPoint(trackCursor))
+				{
+					transformSingleWaypointToCurrentPoint(trackCursor
+							.getDouble(0), trackCursor.getDouble(1));
+					drawPointToPath();
+				}
+
+				this.mEndPoint.set(this.mRecylcePoint.x, this.mRecylcePoint.y);
+			}
+		}
+		finally
+		{
+			if (trackCursor != null)
+			{
+				trackCursor.close();
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * The the waypoint in the cursor is converted into the the point based on
+	 * the projection
+	 * 
+	 */
+	private void transformSingleWaypointToCurrentPoint(double lat, double lon)
+	{
+		int microLatitude = (int) (lat * 1E6d);
+		int microLongitude = (int) (lon * 1E6d);
+		this.mProjection.toPixels(new GeoPoint(microLatitude, microLongitude),
+				this.mRecylcePoint);
+		mCalculatedPoints++;
+	}
+
+	private void drawPointToPath()
+	{
+		// Determine how much line this new point adds
+		int diff = Math.abs(this.mRecylcePoint.x - this.mPrevPoint.x)
+				+ Math.abs(this.mRecylcePoint.y - this.mPrevPoint.y);
+		adjustStepSize(diff);
+		
+		// Determine whether this new point lies within the vieuwing frame
+		boolean inFrame = this.mRecylcePoint.x <= 0
+				|| this.mRecylcePoint.x <= 0
+				|| this.mRecylcePoint.y > this.mCanvas.getHeight()
+				|| this.mRecylcePoint.x > this.mCanvas.getWidth();
+		adjustFrameStepping( inFrame );
 
 
-   /**
-    * Set the mPlace to the specified value.
-    *
-    * @param place The mPlace to set.
-    */
-   public void setPlace( int place )
-   {
-      this.mPlace += place;
-   }
 
+		this.mPath.lineTo(this.mRecylcePoint.x, this.mRecylcePoint.y);
+
+		this.mPrevPoint.x = this.mRecylcePoint.x;
+		this.mPrevPoint.y = this.mRecylcePoint.y;
+	}
+
+	private boolean moveToNextWayPoint(Cursor trackCursor)
+	{
+		mListPosition += mStepSize;
+		return trackCursor.moveToPosition(mListPosition);
+	}
+	
+	private void adjustFrameStepping(boolean inFrame)
+	{
+		if( !inFrame )					// We are outside the frame
+		{
+			mListPosition =+ mStepSize*5;
+		}
+		else if( mLastPointInFrame )		// We just entered the frame
+		{
+			mListPosition =- mStepSize*5;
+		}
+		mLastPointInFrame = inFrame;
+	}
+
+	private void adjustStepSize(int diff)
+	{
+		if( diff > 20 && mStepSize > 1 )
+		{
+			mStepSize--;
+		}
+		else if( diff < 10 )
+		{
+			mStepSize++;
+		}
+	}
 }

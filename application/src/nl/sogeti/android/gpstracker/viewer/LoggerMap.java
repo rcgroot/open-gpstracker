@@ -400,11 +400,11 @@ public class LoggerMap extends MapActivity
                overlays.add( segmentOverlay );
                if( segments.isFirst() ) 
                {
-                  segmentOverlay.setPlace( TrackingOverlay.FIRST );
+                  segmentOverlay.setPlacement( TrackingOverlay.FIRST );
                } 
                if( segments.isLast() )
                {
-                  segmentOverlay.setPlace( TrackingOverlay.LAST );
+                  segmentOverlay.setPlacement( TrackingOverlay.LAST );
                }
             }
             while( segments.moveToNext());
