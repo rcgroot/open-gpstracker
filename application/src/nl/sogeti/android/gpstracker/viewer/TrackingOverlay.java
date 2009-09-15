@@ -79,7 +79,9 @@ public class TrackingOverlay extends Overlay
 	private int mStepSize;
 	private int mCalculatedPoints;
 	private Canvas mCanvas;
-	private boolean mLastPointInFrame;
+	private int lastXcol ;
+	private int lastYcol ;
+   private int mPrevPosition;
 
 	TrackingOverlay(Context cxt, ContentResolver resolver, Uri trackUri)
 	{
@@ -106,6 +108,9 @@ public class TrackingOverlay extends Overlay
 		this.mPrevPoint = new Point();
 		this.mPath.rewind();
 		this.mListPosition = 0;
+		this.mStepSize = 1;
+	   lastXcol = 2 ;
+	   lastYcol = 2;
 		this.mCanvas = canvas;
 
 		// The current state with all the Points must be recalculated
@@ -190,8 +195,7 @@ public class TrackingOverlay extends Overlay
 
 				while (moveToNextWayPoint(trackCursor))
 				{
-					transformSingleWaypointToCurrentPoint(trackCursor
-							.getDouble(0), trackCursor.getDouble(1));
+					transformSingleWaypointToCurrentPoint(trackCursor.getDouble(0), trackCursor.getDouble(1));
 					drawPointToPath();
 				}
 
@@ -223,49 +227,91 @@ public class TrackingOverlay extends Overlay
 	}
 
 	private void drawPointToPath()
-	{
-		// Determine how much line this new point adds
-		int diff = Math.abs(this.mRecylcePoint.x - this.mPrevPoint.x)
-				+ Math.abs(this.mRecylcePoint.y - this.mPrevPoint.y);
-		adjustStepSize(diff);
-		
-		// Determine whether this new point lies within the vieuwing frame
-		boolean inFrame = this.mRecylcePoint.x <= 0
-				|| this.mRecylcePoint.x <= 0
-				|| this.mRecylcePoint.y > this.mCanvas.getHeight()
-				|| this.mRecylcePoint.x > this.mCanvas.getWidth();
-		adjustFrameStepping( inFrame );
-
-
+	{		
+		if( correctCurrentPoint() )
+		{
+		   return;
+		}
 
 		this.mPath.lineTo(this.mRecylcePoint.x, this.mRecylcePoint.y);
 
 		this.mPrevPoint.x = this.mRecylcePoint.x;
 		this.mPrevPoint.y = this.mRecylcePoint.y;
+		
+	    // Determine how much line this new point adds
+      int diff = Math.abs(this.mRecylcePoint.x - this.mPrevPoint.x)
+            + Math.abs(this.mRecylcePoint.y - this.mPrevPoint.y);
+      
+      adjustStepSize(diff);
 	}
 
-	private boolean moveToNextWayPoint(Cursor trackCursor)
-	{
-		mListPosition += mStepSize;
-		return trackCursor.moveToPosition(mListPosition);
+	private boolean moveToNextWayPoint( Cursor trackCursor )
+	{	   
+	   if( mListPosition > trackCursor.getCount() )
+	   {
+	      return false;
+	   }
+	   mPrevPosition = mListPosition;
+	   mListPosition += mStepSize;
+		if( mListPosition > trackCursor.getCount() )
+		{
+		   return trackCursor.moveToLast();
+		}
+		else
+		{
+		   return trackCursor.moveToPosition(mListPosition);		   
+		}
+		
 	}
 	
-	private void adjustFrameStepping(boolean inFrame)
+	private boolean correctCurrentPoint()
 	{
-		if( !inFrame )					// We are outside the frame
+	   int currentXcol, currentYcol;
+      // Determine whether this new point lies compared to the viewing frame
+	   if( this.mRecylcePoint.x > this.mCanvas.getWidth() )
+	   { currentXcol = 3; } 
+	   else if( this.mRecylcePoint.x >= 0 )
+	   { currentXcol = 2; } 
+	   else if( this.mRecylcePoint.x < 0 )
+	   { currentXcol = 1; } 
+	   else 
+	   { currentXcol = -1; } 
+	   
+      if( this.mRecylcePoint.y > this.mCanvas.getHeight() )
+      { currentYcol = 3; } 
+      else if( this.mRecylcePoint.y >= 0 )
+      { currentYcol = 2; } 
+      else if( this.mRecylcePoint.y < 0 )
+      { currentYcol = 1; } 
+      else 
+      { currentYcol = -1; } 
+      
+      if( lastXcol != 2 || lastYcol != 2   )
 		{
-			mListPosition =+ mStepSize*5;
+	      mStepSize+= 5 ;
+	      //Log.d( TAG, "Point "+ mListPosition +" outside stepping up to "+mStepSize );
 		}
-		else if( mLastPointInFrame )		// We just entered the frame
+		
+		if( (lastXcol != currentXcol || lastYcol != currentYcol) )
 		{
-			mListPosition =- mStepSize*5;
+		   //Log.d( TAG, "Point "+ mListPosition +"  from quadrant ("+lastXcol+","+lastYcol+")" );
+		   //Log.d( TAG, "Point "+ mListPosition +"  to quadrant ("+currentXcol+","+currentYcol+")" );
+		   if( mListPosition > (mPrevPosition+1) )
+		   {
+		      mListPosition = mPrevPosition;
+		      mStepSize = 1;
+	         return true;
+		   }
 		}
-		mLastPointInFrame = inFrame;
+	   //Log.d( TAG, "Point "+ mListPosition +"  remained in quadrant ("+currentXcol+","+currentYcol+")" );
+      lastXcol = currentXcol;  
+      lastYcol = currentYcol;
+      return false;
 	}
 
 	private void adjustStepSize(int diff)
 	{
-		if( diff > 20 && mStepSize > 1 )
+		if( diff > 15 && mStepSize > 1 )
 		{
 			mStepSize--;
 		}
