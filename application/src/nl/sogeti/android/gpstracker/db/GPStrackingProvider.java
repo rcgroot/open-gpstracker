@@ -188,8 +188,12 @@ public class GPStrackingProvider extends ContentProvider
       long id = -1;
       switch (match)
       {
+         
          case WAYPOINT:
-            id = this.mDbHelper.insertWaypoint( values.getAsDouble( WaypointsColumns.LATITUDE ), values.getAsDouble( WaypointsColumns.LONGITUDE ) );
+            id = this.mDbHelper.insertWaypoint( 
+                  values.getAsDouble( WaypointsColumns.LATITUDE ), 
+                  values.getAsDouble( WaypointsColumns.LONGITUDE ), 
+                  values.getAsFloat( WaypointsColumns.SPEED ) );
             insertedUri = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + GPStracking.Waypoints.TABLE + "/" + id );
             break;
          case SEGMENT:

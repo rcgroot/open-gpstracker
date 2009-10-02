@@ -46,7 +46,7 @@ public final class GPStracking
    /** The name of the database file */
    static final String DATABASE_NAME = "GPSLOG.db";
    /** The version of the database schema */
-   static final int DATABASE_VERSION = 6;
+   static final int DATABASE_VERSION = 7;
 
    /**
     * This table contains tracks.
@@ -111,9 +111,14 @@ public final class GPStracking
 
       /** The name of this table */
       static final String TABLE = "waypoints";
-      static final String CREATE_STATEMENT = "CREATE TABLE " + Waypoints.TABLE + "(" + " " + BaseColumns._ID + " " + WaypointsColumns._ID_TYPE + "," + " " + WaypointsColumns.LATITUDE + " "
-            + WaypointsColumns.LATITUDE_TYPE + "," + " " + WaypointsColumns.LONGITUDE + " " + WaypointsColumns.LONGITUDE_TYPE + "," + " " + WaypointsColumns.TIME + " " + WaypointsColumns.TIME_TYPE
-            + "," + " " + WaypointsColumns.SEGMENT + " " + WaypointsColumns.SEGMENT_TYPE + ");";
+      static final String CREATE_STATEMENT = "CREATE TABLE " + Waypoints.TABLE + 
+      "(" + " " + BaseColumns._ID + " " + WaypointsColumns._ID_TYPE + 
+      "," + " " + WaypointsColumns.LATITUDE + " " + WaypointsColumns.LATITUDE_TYPE + 
+      "," + " " + WaypointsColumns.LONGITUDE + " " + WaypointsColumns.LONGITUDE_TYPE + 
+      "," + " " + WaypointsColumns.TIME + " " + WaypointsColumns.TIME_TYPE + 
+      "," + " " + WaypointsColumns.SPEED + " " + WaypointsColumns.SPEED + 
+      "," + " " + WaypointsColumns.SEGMENT + " " + WaypointsColumns.SEGMENT_TYPE + 
+      ");";
    }
    
    /**
@@ -158,11 +163,14 @@ public final class GPStracking
       public static final String LONGITUDE = "longitude";
       /** The recorded time */
       public static final String TIME = "time";
+      /** The speed in meters per second */
+      public static final String SPEED = "speed";
       /** The segment _id to which this segment belongs */
       public static final String SEGMENT = "tracksegment";
       static final String LATITUDE_TYPE = "REAL NOT NULL";
       static final String LONGITUDE_TYPE = "REAL NOT NULL";
       static final String TIME_TYPE = "INTEGER NOT NULL";
+      static final String SPEED_TYPE = "REAL NOT NULL";
       static final String SEGMENT_TYPE = "INTEGER NOT NULL";
       static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
    }

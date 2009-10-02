@@ -53,7 +53,7 @@ import android.util.Log;
 class DatabaseHelper extends SQLiteOpenHelper
 {
    private Context mContext;
-   private final static String LOG = "nl.sogeti.android.gpstracker.db.DatabaseHelper";
+   private final static String TAG = "nl.sogeti.android.gpstracker.db.DatabaseHelper";
 
    public DatabaseHelper(Context context)
    {
@@ -95,8 +95,10 @@ class DatabaseHelper extends SQLiteOpenHelper
     * @param time time
     * @return
     */
-   long insertWaypoint( double latitude, double longitude )
+   long insertWaypoint( double latitude, double longitude, float speed )
    {
+      //Log.d( TAG, "New waypoint ("+latitude+","+longitude+") with speed "+speed );
+      
       SQLiteDatabase sqldb = getWritableDatabase();
       long segmentId = getCurrentSegment( sqldb );
       long trackId = getCurrentTrack(sqldb) ;
@@ -106,6 +108,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       args.put( WaypointsColumns.LATITUDE, latitude );
       args.put( WaypointsColumns.LONGITUDE, longitude );
       args.put( WaypointsColumns.TIME, time );
+      args.put( WaypointsColumns.SPEED, speed );
       args.put( WaypointsColumns.SEGMENT, segmentId );
 
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
@@ -146,7 +149,7 @@ class DatabaseHelper extends SQLiteOpenHelper
          }
          else 
          {
-            Log.e(LOG, "Did not find the last active segment");
+            Log.e(TAG, "Did not find the last active segment");
          }
       }
       finally
@@ -245,7 +248,7 @@ class DatabaseHelper extends SQLiteOpenHelper
          }
          else 
          {
-            Log.e(LOG, "Did not find the last active segment");
+            Log.e(TAG, "Did not find the last active segment");
          }
       }
       finally
@@ -273,7 +276,7 @@ class DatabaseHelper extends SQLiteOpenHelper
          }
          else 
          {
-            Log.e(LOG, "Did not find the last active track");
+            Log.e(TAG, "Did not find the last active track");
          }
       }
       finally

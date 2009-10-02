@@ -33,6 +33,7 @@ import com.google.android.maps.GeoPoint;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
 
 import android.app.Service;
 import android.content.ContentResolver;
@@ -181,8 +182,8 @@ public class GPSLoggerService extends Service
          Location lastLocation = new Location(SERVICENAME);
          lastLocation.setLatitude( lastPoint.getLatitudeE6() / 1E6d  );
          lastLocation.setLongitude( lastPoint.getLongitudeE6() / 1E6d );
-         Log.d(this.getClass().getCanonicalName(), "Distance traveled is: "+lastLocation.distanceTo( proposedLocation ));
-         Log.d(this.getClass().getCanonicalName(), "Accuratcy is: "+proposedLocation.getAccuracy() );
+         //Log.d(this.getClass().getCanonicalName(), "Distance traveled is: "+lastLocation.distanceTo( proposedLocation ));
+         //Log.d(this.getClass().getCanonicalName(), "Accuratcy is: "+proposedLocation.getAccuracy() );
          acceptable = proposedLocation.getAccuracy() < lastLocation.distanceTo( proposedLocation ) ;
       }
       return acceptable;
@@ -214,6 +215,7 @@ public class GPSLoggerService extends Service
       ContentValues args = new ContentValues();
       args.put( Waypoints.LATITUDE, new Double( location.getLatitude() ) );
       args.put( Waypoints.LONGITUDE, new Double( location.getLongitude() ) );
+      args.put( Waypoints.SPEED, new Float( location.getSpeed() ) );
       context.getContentResolver().insert( Waypoints.CONTENT_URI, args );
    }
 
