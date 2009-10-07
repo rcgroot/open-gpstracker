@@ -28,19 +28,12 @@
  */
 package nl.sogeti.android.gpstracker.logger;
 
-import com.google.android.maps.GeoPoint;
-
-import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
-
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -49,7 +42,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
-import android.util.Log;
 
 /**
  * A system service as controlling the background logging of gps locations.
@@ -61,10 +53,15 @@ public class GPSLoggerService extends Service
 {  
    private static final String GPS_PROVIDER = LocationManager.GPS_PROVIDER;
    public static final String SERVICENAME = "nl.sogeti.android.gpstrack.logger.GPSLoggerService";
+   
    private Context mCtx;
    private LocationManager locationManager;
    private boolean logging;
    private PowerManager.WakeLock mWakeLock ;
+   
+   private long trackId = -1;
+   private long segmentId = -1 ;
+   private Location previousLocation;
 
    private LocationListener mLocationListener =  new LocationListener() {
       public void onLocationChanged( Location location )
@@ -84,9 +81,10 @@ public class GPSLoggerService extends Service
       {
          return GPSLoggerService.this.isLogging();
       }
-      public int startLogging() throws RemoteException
+      public long startLogging() throws RemoteException
       {
-         return GPSLoggerService.this.startLogging();
+         GPSLoggerService.this.startLogging();
+         return trackId;
       }
       public void stopLogging() throws RemoteException
       {
@@ -131,15 +129,15 @@ public class GPSLoggerService extends Service
     * (non-Javadoc)
     * @see nl.sogeti.android.gpstracker.IGPSLoggerService#startLogging()
     */
-   public synchronized int startLogging()
+   public synchronized long startLogging()
    {
-      int trackid = startNewTrack() ;
+      startNewTrack() ;
       this.locationManager.requestLocationUpdates( GPS_PROVIDER, 1000, 0F, this.mLocationListener );
       PowerManager pm = (PowerManager) this.mCtx.getSystemService( Context.POWER_SERVICE );
       this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, SERVICENAME);
       this.mWakeLock.acquire();
       this.logging = true;
-      return trackid;
+      return trackId;
    }
 
    /**
@@ -176,15 +174,11 @@ public class GPSLoggerService extends Service
    public boolean isLocationAcceptable( Location proposedLocation )
    {
       boolean acceptable = true; 
-      if( proposedLocation.hasAccuracy() )
+      if( previousLocation != null && proposedLocation.hasAccuracy() )
       {
-         GeoPoint lastPoint = getLastTrackPoint(this);
-         Location lastLocation = new Location(SERVICENAME);
-         lastLocation.setLatitude( lastPoint.getLatitudeE6() / 1E6d  );
-         lastLocation.setLongitude( lastPoint.getLongitudeE6() / 1E6d );
          //Log.d(this.getClass().getCanonicalName(), "Distance traveled is: "+lastLocation.distanceTo( proposedLocation ));
          //Log.d(this.getClass().getCanonicalName(), "Accuratcy is: "+proposedLocation.getAccuracy() );
-         acceptable = proposedLocation.getAccuracy() < lastLocation.distanceTo( proposedLocation ) ;
+         acceptable = proposedLocation.getAccuracy() < previousLocation.distanceTo( proposedLocation ) ;
       }
       return acceptable;
    }
@@ -192,10 +186,11 @@ public class GPSLoggerService extends Service
    /**
     * Trigged by events that start a new track
     */
-   private int startNewTrack() 
+   private void startNewTrack() 
    {
       Uri newTrack = this.mCtx.getContentResolver().insert( Tracks.CONTENT_URI, null );
-      return new Integer(newTrack.getLastPathSegment()).intValue();
+      trackId =  new Long(newTrack.getLastPathSegment()).longValue();
+      startNewSegment();
    }
 
    /**
@@ -203,53 +198,21 @@ public class GPSLoggerService extends Service
     */
    private void startNewSegment() 
    {
-      this.mCtx.getContentResolver().insert( Segments.CONTENT_URI, null );
+      Uri newSegment = this.mCtx.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" ), null ); 
+      segmentId = new Long(newSegment.getLastPathSegment()).longValue();
    }
 
    /**
     * Use the ContentResolver mechanism to store a received location
     * @param location
     */
-   public static void storeLocation(Context context, Location location )
+   public void storeLocation(Context context, Location location )
    {   
+      previousLocation = location;
       ContentValues args = new ContentValues();
       args.put( Waypoints.LATITUDE, new Double( location.getLatitude() ) );
       args.put( Waypoints.LONGITUDE, new Double( location.getLongitude() ) );
       args.put( Waypoints.SPEED, new Float( location.getSpeed() ) );
-      context.getContentResolver().insert( Waypoints.CONTENT_URI, args );
+      context.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId+"/waypoints" ), args );
    }
-
-   /**
-    * Retrieve the last point of the current track 
-    * 
-    *  @param context 
-    */
-   public static GeoPoint getLastTrackPoint(Context context)
-   {
-      Cursor waypoint = null;
-      GeoPoint lastPoint = null;
-      try
-      {
-         ContentResolver resolver = context.getContentResolver();
-         waypoint = resolver.query( 
-               Waypoints.CONTENT_URI, 
-               new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,  "max("+Waypoints._ID+")"  }, null, null, null );
-         boolean exists = waypoint.moveToLast();
-         if( exists )
-         {
-            int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
-            int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
-            lastPoint = new GeoPoint(microLatitude, microLongitude);
-         }
-      }
-      finally 
-      {
-         if( waypoint != null )
-         {
-            waypoint.close();
-         }
-      }
-      return lastPoint;
-   }
-
 }

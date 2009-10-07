@@ -34,7 +34,6 @@ import nl.sogeti.android.gpstracker.db.GPStrackingProvider;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -70,7 +69,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    @SmallTest
    public void testQuerySegmentsCursor()
    {
-      Cursor cursor = this.mResolver.query( Segments.CONTENT_URI, null, null, null, null );
+      Cursor cursor = this.mResolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments" ), null, null, null, null );
       Assert.assertNotNull( "Curson should not be null", cursor );
       Assert.assertTrue( "Curson should be a cursor", cursor instanceof android.database.Cursor );
       Assert.assertEquals( "No segments are loaded", 0, cursor.getCount() );
@@ -90,7 +89,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    @SmallTest
    public void testQueryWaypointsCursor()
    {
-      Cursor cursor = this.mResolver.query( Waypoints.CONTENT_URI, null, null, null, null );
+      Cursor cursor = this.mResolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), null, null, null, null );
       Assert.assertNotNull( "Curson should not be null", cursor );
       Assert.assertTrue( "Curson should be a cursor", cursor instanceof android.database.Cursor );
       Assert.assertEquals( "No waypoints are loaded", 0, cursor.getCount() );
@@ -127,6 +126,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Assert.assertTrue( "Should be possble to move to the first track", trackCursor.moveToFirst() );
       Assert.assertEquals( "This track query should have 1 track", 1, trackCursor.getCount() );
       Assert.assertEquals( "Name should be the same", testname, trackCursor.getString( 0 ) );
+      trackCursor.close();
    }
    
    /**
@@ -144,7 +144,6 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Assert.assertTrue( "Should be possble to move to the first track", trackCursor.moveToFirst() );
       Assert.assertEquals( "This track query should have 1 track", 1, trackCursor.getCount() );
       Assert.assertEquals( "Name should be the same", "", trackCursor.getString( 0 ) );
-      
      
       ContentValues values = new ContentValues();
       values.put( Tracks.NAME, testname);
@@ -154,6 +153,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Assert.assertTrue( "Should be possble to move to the first track", trackCursor.moveToFirst() );
       Assert.assertEquals( "This track query should have 1 track", 1, trackCursor.getCount() );
       Assert.assertEquals( "Name should be the same", testname, trackCursor.getString( 0 ) );
+      trackCursor.close();
    }
 
 
@@ -164,25 +164,26 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    public void testTrackWaypointWaypoint()
    {
       ContentValues wp = new ContentValues();
-      wp.put( WaypointsColumns.LONGITUDE, new Double( 200d ) );
-      wp.put( WaypointsColumns.LATITUDE, new Double( 100d ) );
+      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
+      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
 
       // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
-      this.mResolver.insert( Waypoints.CONTENT_URI, wp );
-      this.mResolver.insert( Waypoints.CONTENT_URI, wp );
+      this.mResolver.insert( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), wp );
+      this.mResolver.insert( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), wp );
 
       // E.g. content://nl.sogeti.android.gpstracker/tracks/2/segments
-      Uri segments = Uri.withAppendedPath( trackUri, "/segments" );
-      Cursor tracksCursor = this.mResolver.query( segments, new String[] { Segments._ID }, null, null, null );
-      tracksCursor.moveToFirst();
-      int segmentId = tracksCursor.getInt( 0 );
-      Assert.assertEquals( "This track should have a segment", 1, tracksCursor.getCount() );
-      Assert.assertTrue( "Should be possble to move to the first track", tracksCursor.moveToFirst() );
-
+      Uri segments = Uri.withAppendedPath( trackUri, "segments" );
+      Cursor trackCursor = this.mResolver.query( segments, new String[] { Segments._ID }, null, null, null );
+      trackCursor.moveToFirst();
+      int segmentId = trackCursor.getInt( 0 );
+      Assert.assertEquals( "This track should have a segment", 1, trackCursor.getCount() );
+      Assert.assertTrue( "Should be possble to move to the first track", trackCursor.moveToFirst() );
+      trackCursor.close();
+      
       // E.g. content://nl.sogeti.android.gpstracker/segments/1/waypoints
-      Uri waypoints = Uri.withAppendedPath( Segments.CONTENT_URI, "/" + segmentId + "/waypoints" );
-      Cursor waypointCursor = this.mResolver.query( waypoints, new String[] { WaypointsColumns.LONGITUDE, WaypointsColumns.LATITUDE }, null, null, null );
+      Uri waypoints = Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/" + segmentId + "/waypoints" );
+      Cursor waypointCursor = this.mResolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE }, null, null, null );
       Assert.assertEquals( "This segment should list waypoints", 2, waypointCursor.getCount() );
       Assert.assertTrue( "Should be possble to move to the first waypoint", waypointCursor.moveToFirst() );
 
@@ -192,6 +193,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
          Assert.assertEquals( "First Latitude", 100d, waypointCursor.getDouble( 1 ) );
       }
       while (waypointCursor.moveToNext());
+      waypointCursor.close();
    }
    
    /**
@@ -207,14 +209,14 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       double coord = 1d;
       ContentValues wp ;
       
-      Cursor cursor = this.mResolver.query( Waypoints.CONTENT_URI, new String[] { }, null, null, null );
+      Cursor cursor = this.mResolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), new String[] { }, null, null, null );
       Assert.assertEquals( "We should now have 0 waypoints", 0, cursor.getCount() );
       cursor.close();
       
       wp = new ContentValues();
-      wp.put( WaypointsColumns.LONGITUDE, new Double( coord ) );
-      wp.put( WaypointsColumns.LATITUDE, new Double( coord ) );
-      this.mResolver.insert( Waypoints.CONTENT_URI, wp );
+      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
+      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      this.mResolver.insert( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), wp );
       coord++;
       
       values = new ContentValues();
@@ -222,9 +224,9 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       newTrackUri = this.mResolver.insert( Tracks.CONTENT_URI, values );
       
       wp = new ContentValues();
-      wp.put( WaypointsColumns.LONGITUDE, new Double( coord ) );
-      wp.put( WaypointsColumns.LATITUDE, new Double( coord ) );
-      this.mResolver.insert( Waypoints.CONTENT_URI, wp );
+      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
+      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      this.mResolver.insert( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), wp );
       coord++;
       
       trackCursor = this.mResolver.query( newTrackUri, new String[] { Tracks.NAME }, null, null, null );
@@ -243,17 +245,17 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       trackCursor.close();
       
       wp = new ContentValues();
-      wp.put( WaypointsColumns.LONGITUDE, new Double( coord ) );
-      wp.put( WaypointsColumns.LATITUDE, new Double( coord ) );
-      this.mResolver.insert( Waypoints.CONTENT_URI, wp );
+      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
+      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      this.mResolver.insert( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), wp );
       coord++;
       wp = new ContentValues();
-      wp.put( WaypointsColumns.LONGITUDE, new Double( coord ) );
-      wp.put( WaypointsColumns.LATITUDE, new Double( coord ) );
-      this.mResolver.insert( Waypoints.CONTENT_URI, wp );
+      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
+      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      this.mResolver.insert( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), wp );
       coord++;
       
-      cursor = this.mResolver.query( Segments.CONTENT_URI, new String[] { Segments.TRACK }, null, null, null );
+      cursor = this.mResolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments" ), new String[] { Segments.TRACK }, null, null, null );
       Assert.assertEquals( "We should now have 2 segements", 2, cursor.getCount() );
       Assert.assertTrue( "Working", cursor.moveToFirst() );
       
@@ -261,7 +263,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Assert.assertTrue( "Working", cursor.moveToNext() );
       Assert.assertEquals("Second segment is second track", 2,  cursor.getLong( 0 ));
       cursor.close();
-      cursor = this.mResolver.query( Waypoints.CONTENT_URI, new String[] { }, null, null, null );
+      cursor = this.mResolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), new String[] { }, null, null, null );
       Assert.assertEquals( "We should now have 4 waypoints", 4, cursor.getCount() );
       cursor.close();
    }
@@ -299,13 +301,13 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       
       // Stuff 2 waypoints as the track contents
       wp = new ContentValues();
-      wp.put( WaypointsColumns.LONGITUDE, new Double( coord ) );
-      wp.put( WaypointsColumns.LATITUDE, new Double( coord ) );
-      Uri wp1 = this.mResolver.insert( Waypoints.CONTENT_URI, wp );
+      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
+      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      Uri wp1 = this.mResolver.insert( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), wp );
       wp = new ContentValues();
-      wp.put( WaypointsColumns.LONGITUDE, new Double( coord ) );
-      wp.put( WaypointsColumns.LATITUDE, new Double( coord ) );
-      Uri wp2 = this.mResolver.insert( Waypoints.CONTENT_URI, wp );
+      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
+      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      Uri wp2 = this.mResolver.insert( Uri.withAppendedPath( Tracks.CONTENT_URI, "1/segments/1/waypoints" ), wp );
       
       // Pivot of the test case THE DELETE
       int affected = this.mResolver.delete( trackUri, null, null);

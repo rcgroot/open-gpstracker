@@ -4,5 +4,5 @@ interface IGPSLoggerServiceRemote {
 
 	boolean isLogging();
 	void stopLogging();
-	int startLogging();
+	long startLogging();
 }

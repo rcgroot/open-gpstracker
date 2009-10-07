@@ -34,6 +34,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ExportGPX;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
@@ -47,11 +48,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -73,7 +76,7 @@ import com.google.android.maps.Overlay;
  */
 public class LoggerMap extends MapActivity
 {   
-   private static final int ZOOM_LEVEL = 9;
+   private static final int ZOOM_LEVEL = 10;
    
    // MENU'S
    private static final int MENU_SETTINGS = 0;
@@ -83,6 +86,8 @@ public class LoggerMap extends MapActivity
    
    // DIALOGS
    private static final int TRACK_TITLE_ID = 0;
+
+   private static final String TAG = LoggerMap.class.getName();
 
    private long mTrackId = -1;
    private MapView mMapView = null;
@@ -95,11 +100,6 @@ public class LoggerMap extends MapActivity
       @Override
       public void onChange(boolean selfUpdate) 
       {
-         GeoPoint lastPoint = GPSLoggerService.getLastTrackPoint(LoggerMap.this) ;
-         if( lastPoint != null )
-         {
-            LoggerMap.this.mMapView.getController().animateTo( lastPoint );
-         }
          LoggerMap.this.drawTrackingData();
       }
    };
@@ -301,11 +301,11 @@ public class LoggerMap extends MapActivity
          GeoPoint point = getLastKnowGeopointLocation();
          if( point.getLatitudeE6() != 0 && point.getLongitudeE6() != 0 )
          {
-            this.mMapView.getController().animateTo( point );
+             this.mMapView.getController().animateTo( point );
          }
          else 
          {
-            this.mMapController.setZoom( 1 );
+            this.mMapController.setZoom( LoggerMap.ZOOM_LEVEL );
          }
       }
    }
@@ -387,24 +387,40 @@ public class LoggerMap extends MapActivity
       Cursor segments = null ;
       try 
       {
+         Uri segmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/segments" );
          segments = resolver.query( 
-               Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/segments" ), 
+               segmentsUri, 
                new String[] { Segments._ID }, 
                null, null, null );
          if(segments.moveToFirst())
          {
             do 
             {
-               Uri segmentUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segments.getInt( 0 )+"/waypoints" );
+               long segmentsId = segments.getLong( 0 );
+               Uri segmentUri = Uri.withAppendedPath( segmentsUri, segmentsId+"/waypoints" );
                TrackingOverlay segmentOverlay = new TrackingOverlay((Context)this, resolver, segmentUri);
                overlays.add( segmentOverlay );
                if( segments.isFirst() ) 
                {
                   segmentOverlay.setPlacement( TrackingOverlay.FIRST );
-               } 
+               }
                if( segments.isLast() )
                {
                   segmentOverlay.setPlacement( TrackingOverlay.LAST );
+                  GeoPoint lastPoint = getLastTrackPoint( this.mTrackId, segmentsId );
+                  if( lastPoint != null )
+                  {
+                     Point out = new Point();
+                     this.mMapView.getProjection().toPixels( lastPoint, out );
+                     if( out.x < this.mMapView.getWidth()/4 
+                           || out.y < this.mMapView.getHeight()/4  
+                           || out.x > (this.mMapView.getWidth()/4)*3 
+                           || out.y > (this.mMapView.getHeight()/4)*3 ) 
+                     {
+                         Log.d( TAG, "Animating to "+out );
+                         this.mMapView.getController().animateTo( lastPoint );
+                     }
+                  }
                }
             }
             while( segments.moveToNext());
@@ -420,6 +436,40 @@ public class LoggerMap extends MapActivity
       this.mMapView.postInvalidate();
    }
 
+
+   /**
+    * Retrieve the last point of the current track 
+    * 
+    *  @param context 
+    */
+   private GeoPoint getLastTrackPoint( long trackId, long segmentId )
+   {
+      Cursor waypoint = null;
+      GeoPoint lastPoint = null;
+      try
+      {
+         ContentResolver resolver = this.getContentResolver();
+         waypoint = resolver.query( 
+               Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId+"/waypoints" ), 
+               new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,  "max("+Waypoints._ID+")"  }, null, null, null );
+         boolean exists = waypoint.moveToLast();
+         if( exists )
+         {
+            int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
+            int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
+            lastPoint = new GeoPoint(microLatitude, microLongitude);
+         }
+      }
+      finally 
+      {
+         if( waypoint != null )
+         {
+            waypoint.close();
+         }
+      }
+      return lastPoint;
+   }
+   
    /**
     * 
     * Alter this to set a new track as current.
@@ -435,7 +485,7 @@ public class LoggerMap extends MapActivity
          Cursor track = null;
          try{
             ContentResolver resolver = this.getApplicationContext().getContentResolver();
-            Uri trackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+trackId ) ;
+            Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) ;
             track = resolver.query( 
                   trackUri, 
                   new String[] { Tracks.NAME }, null, null, null );
@@ -543,7 +593,7 @@ public class LoggerMap extends MapActivity
                   ContentValues values = new ContentValues();
                   values.put( Tracks.NAME, trackName);
                   getContentResolver().update(
-                        Uri.withAppendedPath( Tracks.CONTENT_URI, ""+LoggerMap.this.mTrackId ), 
+                        ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId ), 
                         values, 
                         null, null );
                }

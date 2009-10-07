@@ -29,9 +29,7 @@
 package nl.sogeti.android.gpstracker.tests;
 
 import junit.framework.TestSuite;
-import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerServiceTest;
 import nl.sogeti.android.gpstracker.tests.userinterface.LoggerMapDemoTest;
-import nl.sogeti.android.gpstracker.tests.userinterface.MapStressTest;
 import android.test.InstrumentationTestRunner;
 import android.test.InstrumentationTestSuite;
 
@@ -56,16 +54,16 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner
    public TestSuite getAllTests()
    {
       TestSuite suite = new InstrumentationTestSuite( this );
-      suite.setName( "GPS Tracking Testsuite" );
+      //suite.setName( "GPS Tracking Testsuite" );
       //suite.addTestSuite( GPStrackingProviderTest.class );
       //suite.addTestSuite( MockGPSLoggerServiceTest.class );
       //suite.addTestSuite( GPSLoggerServiceTest.class );
       //suite.addTestSuite( ExportGPXTest.class );
 
       //suite.addTestSuite( LoggerMapTest.class );
-      //suite.addTestSuite( LoggerMapDemoTest.class ); // The demo recorded for youtube
+      suite.addTestSuite( LoggerMapDemoTest.class ); // The demo recorded for youtube
       //suite.addTestSuite( LoggerMapStressTest.class ); // The stress test of the tracking
-      suite.addTestSuite( MapStressTest.class ); // The stress test of the map viewer
+      //suite.addTestSuite( MapStressTest.class ); // The stress test of the map viewer
       return suite;
    }
 

@@ -88,7 +88,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters
-      GPSLoggerService.storeLocation( this.getContext(), reference );
+      service.storeLocation( this.getContext(), reference );
       
       this.mLocation.setAccuracy( 2000f );
       Assert.assertFalse( "An unacceptable fix", service.isLocationAcceptable( this.mLocation ) );
@@ -102,7 +102,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters
-      GPSLoggerService.storeLocation( this.getContext(), reference );
+      service.storeLocation( this.getContext(), reference );
       
       this.mLocation.setAccuracy( 50f );
       Assert.assertTrue( "An acceptable fix", service.isLocationAcceptable( this.mLocation ) );

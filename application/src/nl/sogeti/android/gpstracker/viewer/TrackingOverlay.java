@@ -76,17 +76,16 @@ public class TrackingOverlay extends Overlay
    private ContentResolver mResolver;
    private Point mStartPoint;
    private Point mEndPoint;
-   
+
    private Point mRecylcePoint;
    private Location mLocation;
 
-   private Point mPrevPoint;   
+   private Point mPrevPoint;
    private int mPrevPosition;
    private int mPrevXcol;
    private int mPrevYcol;
    private Location mPrevLocation;
-   
-   
+
    private Path mPath;
    private int mPlacement = TrackingOverlay.MIDDLE;
    private Projection mProjection;
@@ -139,13 +138,13 @@ public class TrackingOverlay extends Overlay
       // Just the rendering bits left to do
       Paint routePaint = new Paint();
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
-      switch( draw_speed ) 
+      switch (draw_speed)
       {
-         case( DRAW_CALCULATED ):
-         case( DRAW_MEASURED ):
+         case ( DRAW_CALCULATED ):
+         case ( DRAW_MEASURED ):
             routePaint.setShader( this.mShader );
             break;
-         case( DRAW_NONE ):
+         case ( DRAW_NONE ):
             routePaint.setColor( Color.RED );
             break;
       }
@@ -167,7 +166,7 @@ public class TrackingOverlay extends Overlay
          this.mCanvas.drawBitmap( bitmap, this.mEndPoint.x - 5, this.mEndPoint.y - 5, new Paint() );
 
       }
-      Log.d( TAG, "Transformerd number of points: " + mCalculatedPoints );
+      Log.d( TAG, this.mTrackUri+" transformerd number of points: " + mCalculatedPoints );
 
       super.draw( this.mCanvas, mapView, shadow );
       this.mCanvas = null;
@@ -199,7 +198,7 @@ public class TrackingOverlay extends Overlay
       mCalculatedPoints = 0;
       try
       {
-         switch ( draw_speed )
+         switch (draw_speed)
          {
             case ( DRAW_CALCULATED ):
             case ( DRAW_MEASURED ):
@@ -211,7 +210,7 @@ public class TrackingOverlay extends Overlay
                      mAvgSpeed = trackCursor.getDouble( 0 );
                      if( mAvgSpeed == 0 )
                      {
-                        mAvgSpeed = 33.33d; 
+                        mAvgSpeed = 33.33d;
                      }
                      //Log.d( TAG, "Avgspeed = " + mAvgSpeed );
                   }
@@ -248,17 +247,17 @@ public class TrackingOverlay extends Overlay
                      break;
                   case DRAW_CALCULATED:
                      double speed = -1d;
-                     this.mLocation =  new Location( this.getClass().getName() );
+                     this.mLocation = new Location( this.getClass().getName() );
                      this.mLocation.setLatitude( trackCursor.getDouble( 0 ) );
                      this.mLocation.setLongitude( trackCursor.getDouble( 1 ) );
                      this.mLocation.setTime( trackCursor.getLong( 3 ) );
                      if( this.mPrevLocation != null )
-                     {                        
+                     {
                         float distance = this.mPrevLocation.distanceTo( this.mLocation );
-                        float seconds = ((this.mLocation.getTime()-this.mPrevLocation.getTime()) / 1000f);
+                        float seconds = ( ( this.mLocation.getTime() - this.mPrevLocation.getTime() ) / 1000f );
                         speed = distance / seconds;
                         //Log.d( TAG, "Calculated speed:"+speed+" for seconds: "+seconds+" over distance "+distance );
-                     }                     
+                     }
                      drawPointToPath( speed );
                      break;
                   default:
@@ -321,7 +320,7 @@ public class TrackingOverlay extends Overlay
       // Determine how much line this new point adds
       int diff = Math.abs( this.mRecylcePoint.x - this.mPrevPoint.x ) + Math.abs( this.mRecylcePoint.y - this.mPrevPoint.y );
       adjustStepSize( diff );
-      
+
       this.mPrevLocation = this.mLocation;
       this.mPrevPoint.x = this.mRecylcePoint.x;
       this.mPrevPoint.y = this.mRecylcePoint.y;
@@ -396,76 +395,78 @@ public class TrackingOverlay extends Overlay
          currentYcol = -1;
       }
 
-      if( mPrevXcol != 2 || mPrevYcol != 2 )  // Outside the frame
+      if( mPrevXcol != 2 || mPrevYcol != 2 ) // Outside the frame
       {
 
-//         Log.d( TAG, "Outside: Picking up the step size from "+mStepSize+" to "+(mStepSize+5) );
+         //         Log.d( TAG, "Outside: Picking up the step size from "+mStepSize+" to "+(mStepSize+5) );
          mStepSize += 5;
       }
 
       if( ( mPrevXcol != currentXcol || mPrevYcol != currentYcol ) )
       {
-         boolean crossed = false; 
-         switch( mPrevXcol ) 
+         boolean crossed = false;
+         switch (mPrevXcol)
          {
-            case(1):
-               if( currentXcol>1 ) 
+            case ( 1 ):
+               if( currentXcol > 1 )
                {
-                  switch( mPrevYcol )
+                  switch (mPrevYcol)
                   {
-                     case(1):
+                     case ( 1 ):
                         crossed = currentYcol > 1;
                         break;
-                     case(2):
+                     case ( 2 ):
                         crossed = true;
                         break;
-                     case(3):
+                     case ( 3 ):
                         crossed = currentYcol < 3;
                         break;
                   }
-               };
+               }
+               ;
                break;
-            case(2):
-               switch( mPrevYcol )
+            case ( 2 ):
+               switch (mPrevYcol)
                {
-                  case(1):
+                  case ( 1 ):
                      crossed = currentYcol > 1;
                      break;
-                  case(2):
-                     crossed =  true;
+                  case ( 2 ):
+                     crossed = true;
                      break;
-                  case(3):
+                  case ( 3 ):
                      crossed = currentYcol < 3;
                      break;
                }
                break;
-            case(3):
-               if( currentXcol<3 )
+            case ( 3 ):
+               if( currentXcol < 3 )
                {
-                  switch( mPrevYcol )
+                  switch (mPrevYcol)
                   {
-                     case(1):
+                     case ( 1 ):
                         crossed = currentYcol > 1;
                         break;
-                     case(2):
+                     case ( 2 ):
                         crossed = true;
                         break;
-                     case(3):
+                     case ( 3 ):
                         crossed = currentYcol < 3;
                         break;
                   }
-               };
+               }
+               ;
                break;
          }
-         
+
          //Log.d( TAG, "Switching kwadrant from ("+mPrevXcol+","+mPrevYcol+") to ("+currentXcol+","+currentYcol+") + and crossed: "+crossed);
-         
+
          if( crossed && mListPosition > ( mPrevPosition + 1 ) )
          {
-            
+
             mListPosition = mPrevPosition;
-//            int smallerstep = Math.max( 1,  mStepSize / 2 );
-//            Log.d( TAG, "Crossing: Taking back the step size from "+mStepSize+" to "+1 );
+            //            int smallerstep = Math.max( 1,  mStepSize / 2 );
+            //            Log.d( TAG, "Crossing: Taking back the step size from "+mStepSize+" to "+1 );
             mStepSize = 1;
             return true;
          }
@@ -481,13 +482,13 @@ public class TrackingOverlay extends Overlay
       if( diff > 20 && mStepSize > 1 )
       {
 
-//         Log.d( TAG, "Big steps: Taking back the step size from "+mStepSize+" to "+(mStepSize-1) );
+         //         Log.d( TAG, "Big steps: Taking back the step size from "+mStepSize+" to "+(mStepSize-1) );
          mStepSize--;
       }
       else if( diff < 10 )
       {
 
-//         Log.d( TAG, "Small steps: Picking up the step size from "+mStepSize+" to "+(mStepSize*2) );
+         //         Log.d( TAG, "Small steps: Picking up the step size from "+mStepSize+" to "+(mStepSize*2) );
          mStepSize *= 2;
       }
    }

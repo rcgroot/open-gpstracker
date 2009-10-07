@@ -83,8 +83,6 @@ public final class GPStracking
       public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.nl.sogeti.android.segment";
       /** The MIME type of CONTENT_URI providing a directory of segments. */
       public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.segment";
-      /** The content:// style URL for this provider */
-      public static final Uri CONTENT_URI = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + Segments.TABLE );
 
       /** The name of this table */
       static final String TABLE = "segments";
@@ -106,9 +104,7 @@ public final class GPStracking
       public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.nl.sogeti.android.waypoint";
       /** The MIME type of CONTENT_URI providing a directory of waypoints. */
       public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.waypoint";
-      /** The content:// style URL for this provider */
-      public static final Uri CONTENT_URI = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + Waypoints.TABLE );
-
+      
       /** The name of this table */
       static final String TABLE = "waypoints";
       static final String CREATE_STATEMENT = "CREATE TABLE " + Waypoints.TABLE + 

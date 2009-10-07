@@ -186,7 +186,7 @@ public class ExportGPX extends BroadcastReceiver
          { 
             do
             {
-               Uri waypoints = Uri.withAppendedPath( Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentCursor.getLong( 0 ) ), "waypoints" );
+               Uri waypoints = Uri.withAppendedPath( segments, "/"+segmentCursor.getLong( 0 )+"/waypoints" );
                serializer.text( "\n" );
                serializer.startTag( "", "trkseg" );
                serializeWaypoints( context, serializer, waypoints );

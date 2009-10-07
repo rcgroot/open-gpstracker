@@ -99,7 +99,7 @@ public class GPSLoggerServiceManager
       return logging;
    }
 
-   public int startGPSLoggerService(String name)
+   public long startGPSLoggerService(String name)
    {
       connectToGPSLoggerService();
       if ( this.mGPSLoggerRemote != null ) 

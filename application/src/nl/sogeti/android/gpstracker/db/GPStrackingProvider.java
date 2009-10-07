@@ -28,13 +28,14 @@
  */
 package nl.sogeti.android.gpstracker.db;
 
+import java.util.List;
+
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.db.GPStracking.SegmentsColumns;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
-
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -58,25 +59,22 @@ import android.util.Log;
  * <code>content://nl.sogeti.android.gpstracker/tracks</code>
  * is the URI that returns all the stored tracks or starts a new track on insert 
  * <p>
- * <code>content://nl.sogeti.android.gpstracker/tracks/23</code>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2</code>
  * is the URI string that would return a single result row, the track with ID = 23. 
+ * <p>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments</code> is the URI that returns 
+ * all the stored segments of a track with ID = 2 or starts a new segment on insert 
  * <p>
  * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments</code> is the URI that returns 
  * all the stored segments of a track with ID = 2 
  * <p>
- * <code>content://nl.sogeti.android.gpstracker/segments</code> is the URI that returns all the 
- * stored segments or starts a new segment on insert 
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/3</code> is
+ * the URI string that would return a single result row, the segment with ID = 3 of a track with ID = 2 . 
  * <p>
- * <code>content://nl.sogeti.android.gpstracker/segments/3</code> is
- * the URI string that would return a single result row, the segment with ID = 3. 
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/1/waypoints</code> is the URI that 
+ * returns all the waypoints of a segment 1 of track 2.
  * <p>
- * <code>content://nl.sogeti.android.gpstracker/segments/1/waypoints</code> is the URI that 
- * returns all the waypoints of a segment
- * <p>
- * <code>content://nl.sogeti.android.gpstracker/waypoints</code> is the URI that returns all 
- * the waypoints 
- * <p>
- * <code>content://nl.sogeti.android.gpstracker/waypoints/52</code> is the URI string that 
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/1/waypoints/52</code> is the URI string that 
  * would return a single result row, the waypoint with ID = 52
  * 
  * @version $Id$
@@ -88,14 +86,14 @@ public class GPStrackingProvider extends ContentProvider
    private static final String LOG_TAG = GPStrackingProvider.class.getName();
 
    /* Action types as numbers for using the UriMatcher */
-   private static final int TRACK = 1;
+   private static final int TRACKS = 1;
    private static final int TRACK_ID = 2;
-   private static final int TRACK_SEGMENT = 3;
+   private static final int SEGMENTS = 8;
    private static final int SEGMENT_ID = 4;
-   private static final int SEGMENT_WAYPOINT = 5;
+   private static final int WAYPOINTS = 7;
    private static final int WAYPOINT_ID = 6;
-   private static final int WAYPOINT = 7;
-   private static final int SEGMENT = 8;
+
+   private static final String TAG = GPStrackingProvider.class.getName();
    private static UriMatcher sURIMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 
    /**
@@ -104,14 +102,12 @@ public class GPStrackingProvider extends ContentProvider
    static
    {
       GPStrackingProvider.sURIMatcher = new UriMatcher( UriMatcher.NO_MATCH );
-      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks", GPStrackingProvider.TRACK );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks", GPStrackingProvider.TRACKS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#", GPStrackingProvider.TRACK_ID );
-      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments", GPStrackingProvider.TRACK_SEGMENT );
-      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "segments", GPStrackingProvider.SEGMENT );
-      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "segments/#", GPStrackingProvider.SEGMENT_ID );
-      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "segments/#/waypoints", GPStrackingProvider.SEGMENT_WAYPOINT );
-      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "waypoints", GPStrackingProvider.WAYPOINT );
-      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "waypoints/#", GPStrackingProvider.WAYPOINT_ID );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments", GPStrackingProvider.SEGMENTS );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#", GPStrackingProvider.SEGMENT_ID );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints", GPStrackingProvider.WAYPOINTS );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#", GPStrackingProvider.WAYPOINT_ID );
    }
 
    private DatabaseHelper mDbHelper;
@@ -148,25 +144,19 @@ public class GPStrackingProvider extends ContentProvider
       String mime = null;
       switch (match)
       {
-         case TRACK:
+         case TRACKS:
             mime = Tracks.CONTENT_TYPE;
             break;
          case TRACK_ID:
             mime = Tracks.CONTENT_ITEM_TYPE;
             break;
-         case TRACK_SEGMENT:
-            mime = Segments.CONTENT_TYPE;
-            break;
-         case SEGMENT:
+         case SEGMENTS:
             mime = Segments.CONTENT_TYPE;
             break;
          case SEGMENT_ID:
             mime = Segments.CONTENT_ITEM_TYPE;
             break;
-         case SEGMENT_WAYPOINT:
-            mime = Waypoints.CONTENT_TYPE;
-            break;
-         case WAYPOINT:
+         case WAYPOINTS:
             mime = Waypoints.CONTENT_TYPE;
             break;
          case WAYPOINT_ID:
@@ -183,27 +173,42 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public Uri insert( Uri uri, ContentValues values )
    {
+      //Log.d( TAG, "insert on "+uri );
       Uri insertedUri = null;
       int match = GPStrackingProvider.sURIMatcher.match( uri );
-      long id = -1;
+      List<String> pathSegments = null;
+      long trackId;
+      long segmentId;
+      long waypointId = -1;
       switch (match)
       {
-         
-         case WAYPOINT:
-            id = this.mDbHelper.insertWaypoint( 
+         case WAYPOINTS:
+            pathSegments = uri.getPathSegments();
+            trackId = Integer.parseInt( pathSegments.get( 1 ) );
+            segmentId = Integer.parseInt( pathSegments.get( 3 ) );
+            float speed = -1;
+            if( values.containsKey( Waypoints.SPEED ) )
+            {
+               speed = values.getAsFloat( Waypoints.SPEED ).floatValue();
+            }
+            waypointId = this.mDbHelper.insertWaypoint( 
+                  trackId, 
+                  segmentId, 
                   values.getAsDouble( WaypointsColumns.LATITUDE ), 
                   values.getAsDouble( WaypointsColumns.LONGITUDE ), 
-                  values.getAsFloat( WaypointsColumns.SPEED ) );
-            insertedUri = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + GPStracking.Waypoints.TABLE + "/" + id );
+                  speed );
+            insertedUri = ContentUris.withAppendedId( uri, waypointId );
             break;
-         case SEGMENT:
-            id = this.mDbHelper.toNextSegment();
-            insertedUri =  Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + GPStracking.Segments.TABLE + "/" + id );
+         case SEGMENTS:
+            pathSegments = uri.getPathSegments();
+            trackId = Integer.parseInt( pathSegments.get( 1 ) );
+            segmentId = this.mDbHelper.toNextSegment( trackId );
+            insertedUri = ContentUris.withAppendedId( uri, segmentId );
             break;
-         case TRACK:
+         case TRACKS:
             String name = ( values == null ) ? "" : values.getAsString( Tracks.NAME );
-            id = this.mDbHelper.toNextTrack(name);
-            insertedUri =  Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + GPStracking.Tracks.TABLE + "/" + id );
+            trackId = this.mDbHelper.toNextTrack( name );
+            insertedUri = ContentUris.withAppendedId( uri, trackId );
             break;
          default:
             Log.e( GPStrackingProvider.LOG_TAG, "Unable to match the URI:" + uri.toString() );
@@ -239,36 +244,33 @@ public class GPStrackingProvider extends ContentProvider
 
       String tableName = null;
       String whereclause = null;
+      List<String> pathSegments = uri.getPathSegments();
       switch (match)
       {
-         case TRACK:
+         case TRACKS:
             tableName = Tracks.TABLE;
             break;
          case TRACK_ID:
             tableName = Tracks.TABLE;
-            whereclause = BaseColumns._ID + " = " + new Long( uri.getLastPathSegment() ).longValue();
+            whereclause = Tracks._ID + " = " + new Long( pathSegments.get( 1 ) ).longValue();
             break;
-         case TRACK_SEGMENT:
+         case SEGMENTS:
             tableName = Segments.TABLE;
-            whereclause = SegmentsColumns.TRACK + " = " + new Long( uri.getPathSegments().get( 1 ) ).longValue();
-            break;
-         case SEGMENT:
-            tableName = Segments.TABLE;
+            whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
             break;
          case SEGMENT_ID:
             tableName = Segments.TABLE;
-            whereclause = BaseColumns._ID + " = " + new Long( uri.getLastPathSegment() ).longValue();
+            whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue()
+              + " and " + Segments._ID   + " = " + new Long( pathSegments.get( 3 ) ).longValue();
             break;
-         case SEGMENT_WAYPOINT:
+         case WAYPOINTS:
             tableName = Waypoints.TABLE;
-            whereclause = WaypointsColumns.SEGMENT + " = " + new Long( uri.getPathSegments().get( 1 ) ).longValue();
-            break;
-         case WAYPOINT:
-            tableName = Waypoints.TABLE;
+            whereclause = Waypoints.SEGMENT + " = " + new Long( pathSegments.get( 3 ) ).longValue();
             break;
          case WAYPOINT_ID:
             tableName = Waypoints.TABLE;
-            whereclause = BaseColumns._ID + " = " + new Long( uri.getLastPathSegment() ).longValue();
+            whereclause = Waypoints.SEGMENT + " = " + new Long( pathSegments.get( 3 ) ).longValue()
+              + " and " + Waypoints._ID     + " = " + new Long( pathSegments.get( 5 ) ).longValue();
             break;
          default:
             Log.e( GPStrackingProvider.LOG_TAG, "Unable to come to an action in the query uri" + uri.toString() );

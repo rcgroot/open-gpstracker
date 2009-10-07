@@ -37,6 +37,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -89,19 +90,20 @@ class DatabaseHelper extends SQLiteOpenHelper
 
    /**
     * Creates a waypoint under the current track segment with the current time on which the waypoint is reached
-    * 
+    *  
+    * @param track track
+    * @param segment segment
     * @param latitude latitude
     * @param longitude longitude
     * @param time time
+    * @param speed the measured speed
     * @return
     */
-   long insertWaypoint( double latitude, double longitude, float speed )
+   long insertWaypoint( long trackId, long segmentId, double latitude, double longitude, float speed )
    {
       //Log.d( TAG, "New waypoint ("+latitude+","+longitude+") with speed "+speed );
       
       SQLiteDatabase sqldb = getWritableDatabase();
-      long segmentId = getCurrentSegment( sqldb );
-      long trackId = getCurrentTrack(sqldb) ;
       
       long time = ( new Date() ).getTime();
       ContentValues args = new ContentValues();
@@ -114,13 +116,12 @@ class DatabaseHelper extends SQLiteOpenHelper
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri;
-      notifyUri = Uri.withAppendedPath( Waypoints.CONTENT_URI, ""+waypointId ) ;
-      resolver.notifyChange( notifyUri, null );    
-      notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentId ) ;
-      resolver.notifyChange( notifyUri, null );    
-      notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+trackId ) ;
+      Uri notifyUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) ;
       resolver.notifyChange( notifyUri, null );      
+      notifyUri = Uri.withAppendedPath( notifyUri, "segments/"+segmentId ) ;
+      resolver.notifyChange( notifyUri, null );    
+      notifyUri = Uri.withAppendedPath( notifyUri, "waypoints/"+waypointId ) ;
+      resolver.notifyChange( notifyUri, null );    
 
       return waypointId;
    }
@@ -131,7 +132,7 @@ class DatabaseHelper extends SQLiteOpenHelper
     * @param trackId
     * @return
     */
-   int deleteTrack(long trackId)
+   int deleteTrack( long trackId )
    {
       SQLiteDatabase sqldb = getWritableDatabase();
       int affected = 0;
@@ -140,11 +141,11 @@ class DatabaseHelper extends SQLiteOpenHelper
       
       try 
       {
-         cursor = sqldb.query( Segments.TABLE, new String[] { Segments._ID }, Segments.TRACK + "= ?", new String[]{ ""+trackId }, null, null, null, null );
+         cursor = sqldb.query( Segments.TABLE, new String[] { Segments._ID }, Segments.TRACK + "= ?", new String[]{ String.valueOf( trackId ) }, null, null, null, null );
          if (cursor.moveToFirst())
          {
             segmentId = cursor.getLong( 0 ) ;
-            affected += deleteSegment( sqldb, segmentId );
+            affected += deleteSegment( sqldb, trackId, segmentId );
             
          }
          else 
@@ -159,7 +160,7 @@ class DatabaseHelper extends SQLiteOpenHelper
             cursor.close();
          }
       }
-      affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ ""+trackId } );
+      affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ String.valueOf( trackId ) } );
       
       ContentResolver resolver = this.mContext.getContentResolver();
       resolver.notifyChange( Tracks.CONTENT_URI, null );
@@ -174,14 +175,13 @@ class DatabaseHelper extends SQLiteOpenHelper
     * @param segmentId
     * @return
     */
-   int deleteSegment(SQLiteDatabase sqldb, long segmentId)
+   int deleteSegment(SQLiteDatabase sqldb, long trackId, long segmentId)
    {
-      int affected = sqldb.delete( Segments.TABLE, Segments._ID +"= ?", new String[]{ ""+segmentId }  ) ;
-      affected += sqldb.delete( Waypoints.TABLE, Waypoints.SEGMENT+"= ?", new String[]{ ""+segmentId } );
+      int affected = sqldb.delete( Segments.TABLE, Segments._ID +"= ?", new String[]{ String.valueOf( segmentId ) }  ) ;
+      affected += sqldb.delete( Waypoints.TABLE, Waypoints.SEGMENT+"= ?", new String[]{ String.valueOf( segmentId ) } );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      resolver.notifyChange( Segments.CONTENT_URI, null );
-      resolver.notifyChange( Waypoints.CONTENT_URI, null );
+      resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId ), null );
       
       return affected ;
    }
@@ -190,7 +190,7 @@ class DatabaseHelper extends SQLiteOpenHelper
     * Move to a fresh track with a new first segment for this track
     * @return
     */
-   long toNextTrack(String name)
+   long toNextTrack( String name )
    {
       long currentTime = new Date().getTime();
       ContentValues args = new ContentValues();
@@ -198,14 +198,12 @@ class DatabaseHelper extends SQLiteOpenHelper
       args.put( TracksColumns.CREATION_TIME, currentTime );
 
       SQLiteDatabase sqldb = getWritableDatabase();
-      sqldb.insert( Tracks.TABLE, null, args );
+      long trackId = sqldb.insert( Tracks.TABLE, null, args );
 
-      long trackId = getCurrentTrack( sqldb );
-
-      toNextSegment();
+      toNextSegment( trackId );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+trackId ) ;
+      Uri notifyUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) ;
       resolver.notifyChange( notifyUri, null );
 
       return trackId;
@@ -215,77 +213,18 @@ class DatabaseHelper extends SQLiteOpenHelper
     * Moves to a fresh segment to which waypoints can be connected
     * @return
     */
-   long toNextSegment()
+   long toNextSegment(long trackId)
    {
       SQLiteDatabase sqldb = getWritableDatabase();
-      long trackId = getCurrentTrack(sqldb) ;
 
       ContentValues args = new ContentValues();
-      args.put( SegmentsColumns.TRACK, trackId );
-      sqldb.insert( Segments.TABLE, null, args );
-
-      long segmentId = getCurrentSegment( sqldb );
+      args.put( Segments.TRACK, trackId );
+      long segmentId = sqldb.insert( Segments.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Segments.CONTENT_URI, ""+segmentId ) ;
+      Uri notifyUri =  Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId );
       resolver.notifyChange( notifyUri, null );
 
       return segmentId;
-   }
-
-   private long getCurrentSegment(SQLiteDatabase sqldb)
-   {
-      long trackId = getCurrentTrack(sqldb) ;
-      long segmentId = 0;
-      Cursor cursor = null; 
-      try 
-      {
-         cursor = sqldb.query( Segments.TABLE, new String[] { "max(" + Segments._ID + ")" }, SegmentsColumns.TRACK + "=" + trackId, null, null, null, null, "1" );
-         if (cursor.moveToFirst())
-         {
-            segmentId = cursor.getLong( 0 );
-            
-         }
-         else 
-         {
-            Log.e(TAG, "Did not find the last active segment");
-         }
-      }
-      finally
-      {
-         if( cursor!= null )
-         {
-            cursor.close();
-         }
-      }
-      return segmentId;
-   }
-
-   private long getCurrentTrack(SQLiteDatabase sqldb)
-   {
-
-      long trackId = 0;
-      Cursor mCursor = null; 
-      try
-      {
-         mCursor = sqldb.query( Tracks.TABLE, new String[] { "max(" + Tracks._ID + ")" }, null, null, null, null, null, null );
-         if (mCursor.moveToFirst())
-         {
-            trackId = mCursor.getLong( 0 );
-            mCursor.close();
-         }
-         else 
-         {
-            Log.e(TAG, "Did not find the last active track");
-         }
-      }
-      finally
-      {
-         if( mCursor!= null )
-         {
-            mCursor.close();
-         }
-      }
-      return trackId;
    }
 }
