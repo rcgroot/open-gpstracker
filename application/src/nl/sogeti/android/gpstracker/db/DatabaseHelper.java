@@ -102,6 +102,10 @@ class DatabaseHelper extends SQLiteOpenHelper
    long insertWaypoint( long trackId, long segmentId, double latitude, double longitude, float speed )
    {
       //Log.d( TAG, "New waypoint ("+latitude+","+longitude+") with speed "+speed );
+      if( trackId < 0 || segmentId < 0 )
+      {
+         throw new IllegalArgumentException( "Track and segments may not the less then 0." );
+      }
       
       SQLiteDatabase sqldb = getWritableDatabase();
       
@@ -200,8 +204,6 @@ class DatabaseHelper extends SQLiteOpenHelper
       SQLiteDatabase sqldb = getWritableDatabase();
       long trackId = sqldb.insert( Tracks.TABLE, null, args );
 
-      toNextSegment( trackId );
-
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) ;
       resolver.notifyChange( notifyUri, null );
@@ -213,7 +215,7 @@ class DatabaseHelper extends SQLiteOpenHelper
     * Moves to a fresh segment to which waypoints can be connected
     * @return
     */
-   long toNextSegment(long trackId)
+   long toNextSegment( long trackId )
    {
       SQLiteDatabase sqldb = getWritableDatabase();
 

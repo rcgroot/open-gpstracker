@@ -15,10 +15,41 @@
 	<string name="menu_exportTrack">Export track</string>
 	<string name="menu_deleteTrack">Delete track</string>
 
-	
-	
 	<string name="receive_filewriter">Save to GPX file</string>
-    
+    <string name="dialog_enterfilename_message">Enter the name for a file on the SDCard.</string>
 
-<string name="dialog_enterfilename_message">Enter the name for a file on the SDCard.</string>
+    <string name="opengpstracker_title"></string>
+    <string name="opengpstracker_settings"></string>   
+    <string name="logatstartup">Log at start up</string>
+    <string name="logatstartup_summary">After starten the application tracking starts.</string>   
+    <string name="disableblanking_title">Disable screen blanking</string>
+    <string name="disableblanking_summary">Keeps the screen on even during inactivity.</string>  
+     
+    <string name="precision_title">Logging precision</string>
+    <string name="precision_summary">The size of interval between GPS fixes.</string>   
+    <string-array name="precision_choices" translatable="false">
+        <item>Coarse</item>
+        <item>Normal</item>
+        <item>Fine</item>
+    </string-array>
+    <string-array name="precision_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    
+    <string name="trackcoloring_title">The track color</string>
+    <string name="trackcoloring_summary">The coloring used to draw the track.</string>
+    <string-array name="trackcoloring_choices" translatable="false">
+        <item>Green</item>
+        <item>Red</item>
+        <item>Speed</item>
+        <item>Average speed</item>
+    </string-array>
+    <string-array name="trackcoloring_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
 </resources>

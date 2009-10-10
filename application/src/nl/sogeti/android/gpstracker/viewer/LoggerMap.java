@@ -219,8 +219,8 @@ public class LoggerMap extends MapActivity
             handled = true;
             break;
          case MENU_SETTINGS:
-            Dialog d = new SettingsDialog( this );
-            d.show();
+            Intent i = new Intent( this, SettingsDialog.class );
+            startActivity( i );
             handled = true;
             break;
          case MENU_TRACKLIST:

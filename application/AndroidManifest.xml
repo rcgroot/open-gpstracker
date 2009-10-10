@@ -18,6 +18,9 @@
 
 		<activity android:label="@string/menu_tracklist" android:name=".viewer.TrackList">
 		</activity>
+		
+        <activity android:label="@string/menu_settings" android:name=".logger.SettingsDialog">
+        </activity>
 
 		<service android:enabled="true" android:name=".logger.GPSLoggerService">
 			<intent-filter android:label="GPS logger">

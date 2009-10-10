@@ -190,7 +190,7 @@ public class GPSLoggerService extends Service
    {
       Uri newTrack = this.mCtx.getContentResolver().insert( Tracks.CONTENT_URI, null );
       trackId =  new Long(newTrack.getLastPathSegment()).longValue();
-      startNewSegment();
+      startNewSegment() ;
    }
 
    /**

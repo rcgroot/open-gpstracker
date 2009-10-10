@@ -29,11 +29,8 @@
 package nl.sogeti.android.gpstracker.logger;
 
 import nl.sogeti.android.gpstracker.R;
-import android.app.Dialog;
-import android.content.Context;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
+import android.os.Bundle;
+import android.preference.PreferenceActivity;
 
 /**
  * 
@@ -42,70 +39,15 @@ import android.widget.CheckBox;
  * @version $Id$
  * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */
-public class SettingsDialog extends Dialog
+public class SettingsDialog extends PreferenceActivity
 {
 
-   private SettingsManager settingsManager;
-
-   public SettingsDialog(Context context)
+   @Override
+   protected void onCreate( Bundle savedInstanceState ) 
    {
-      super( context );
+       super.onCreate( savedInstanceState );
 
-      setContentView( R.layout.settings );
-      setTitle( R.string.menu_settings );
-
-      createSettingsManager();
-
-      populateAutoStartServiceCheckbox();
-      addCancelButtonListener();
-      addSaveButtonListener();
-   }
-
-   private void addCancelButtonListener()
-   {
-      Button button = (Button) findViewById( R.id.CancelButton );
-      button.setOnClickListener( new View.OnClickListener()
-         {
-            public void onClick( View v )
-            {
-               hide();
-            }
-         } );
-   }
-
-   private void addSaveButtonListener()
-   {
-      Button button = (Button) findViewById( R.id.SaveButton );
-      button.setOnClickListener( new View.OnClickListener()
-         {
-            public void onClick( View v )
-            {
-               saveSettings();
-               hide();
-            }
-         } );
-   }
-
-   private void createSettingsManager()
-   {
-      this.settingsManager = SettingsManager.getInstance();
-   }
-
-   private void populateAutoStartServiceCheckbox()
-   {
-      CheckBox autoStartService = (CheckBox) findViewById( R.id.AutoStartService );
-      autoStartService.setChecked( this.settingsManager.isAutoStartService() );
-   }
-
-   private void saveAutoStartServiceSetting()
-   {
-      CheckBox autoStartService = (CheckBox) findViewById( R.id.AutoStartService );
-      this.settingsManager.setAutoStartService( autoStartService.isChecked() );
-   }
-
-   private void saveSettings()
-   {
-      saveAutoStartServiceSetting();
+       addPreferencesFromResource( R.layout.settings );
    }
 
 }

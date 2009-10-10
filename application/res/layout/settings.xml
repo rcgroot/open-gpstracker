@@ -1,25 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
 
-	<CheckBox android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:id="@+id/AutoStartService"
-		android:text="@string/auto_start_service_label"></CheckBox>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/opengpstracker_title">
 
-	<TableRow android:id="@+id/TableRow01" android:layout_width="wrap_content"
-		android:layout_height="wrap_content">
-		
-		<Button android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:id="@+id/SaveButton"
-			android:text="@+string/btn_save">
-		</Button>
-		
-		<Button android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:id="@+id/CancelButton"
-			android:text="@+string/btn_cancel">
-		</Button>
-		
-	</TableRow>
+    <PreferenceCategory
+        android:title="@string/opengpstracker_settings">
+        
+        <CheckBoxPreference
+            android:key="logatstartup"
+            android:title="@string/logatstartup"
+            android:summary="@string/logatstartup_summary"
+            android:defaultValue="false" />
 
-</LinearLayout>
+        <CheckBoxPreference
+            android:key="disableblanking"
+            android:title="@string/disableblanking_title"
+            android:summary="@string/disableblanking_summary"
+            android:defaultValue="false" 
+            />
+        
+        <ListPreference
+            android:key="precision"
+            android:title="@string/precision_title"
+            android:summary="@string/precision_summary"
+            android:entries="@array/precision_choices"
+            android:entryValues="@array/precision_values"
+            android:defaultValue="1"/>
+            
+             />
+
+        <ListPreference
+            android:key="trackcoloring"
+            android:title="@string/trackcoloring_title"
+            android:summary="@string/trackcoloring_summary"
+            android:entries="@array/trackcoloring_choices"
+            android:entryValues="@array/trackcoloring_values"
+            android:defaultValue="4"/>
+             />
+            
+    </PreferenceCategory>
+
+</PreferenceScreen>
