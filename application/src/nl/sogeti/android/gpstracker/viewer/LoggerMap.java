@@ -46,6 +46,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Point;
@@ -54,6 +56,9 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -89,11 +94,65 @@ public class LoggerMap extends MapActivity
 
    private static final String TAG = LoggerMap.class.getName();
 
+   protected static final String DISABLEBLANKING = "disableblanking";
+
    private long mTrackId = -1;
    private MapView mMapView = null;
    private MapController mMapController = null;
    private GPSLoggerServiceManager loggerServiceManager;
    private EditText fileNameView = null;
+
+   private String mTrackName;
+   
+   private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
+   {
+      public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
+      {
+         Log.d( TAG, "Heard it!" );
+         if( key.equals( TrackingOverlay.TRACKCOLORING ) )
+         {
+            int trackColoringMethod = new Integer( sharedPreferences.getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
+            List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
+            for( Overlay overlay : overlays )
+            {
+               if( overlay instanceof TrackingOverlay )
+               {
+                  ( (TrackingOverlay) overlay ).setTrackColoringMethod( trackColoringMethod );
+               }
+            }
+         }
+         else if( key.equals( LoggerMap.DISABLEBLANKING ) )
+         {
+            setBlankingBehavior();
+         }
+      }
+   };
+
+   private WakeLock mWakeLock = null;
+   
+   private void resumeBlanking()
+   {
+      if( mWakeLock != null )
+      {
+         mWakeLock.release();
+         this.mWakeLock = null ;
+      }
+   }
+
+   private void setBlankingBehavior()
+   {
+      boolean disableblanking = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DISABLEBLANKING, false );
+      if( disableblanking )
+      {
+         PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
+         this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
+         this.mWakeLock.acquire();
+      }
+      else 
+      {
+         resumeBlanking();
+      }
+   }   
    
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
    {
@@ -140,8 +199,6 @@ public class LoggerMap extends MapActivity
       }
    } ;
 
-   private String mTrackName;
-   
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
    {
@@ -277,12 +334,16 @@ public class LoggerMap extends MapActivity
       this.loggerServiceManager = new GPSLoggerServiceManager( (Context)this );
       this.loggerServiceManager.connectToGPSLoggerService();
 
+      PreferenceManager.getDefaultSharedPreferences( this ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
+      setBlankingBehavior();
+      
       setContentView(R.layout.map);
       this.mMapView = (MapView) findViewById( R.id.myMapView );
       this.mMapView.setClickable( true );
       this.mMapView.setStreetView( false );
       this.mMapView.setSatellite( false );
 
+      
       /* Collect the zoomcontrols and place them */
       this.mMapView.setBuiltInZoomControls( true );
       this.mMapController = this.mMapView.getController();
@@ -308,6 +369,18 @@ public class LoggerMap extends MapActivity
             this.mMapController.setZoom( LoggerMap.ZOOM_LEVEL );
          }
       }
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see com.google.android.maps.MapActivity#onPause()
+    */
+   @Override
+   protected void onDestroy()
+   {
+      super.onDestroy();
+      resumeBlanking();
+      PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
    }
 
    @Override
@@ -385,6 +458,7 @@ public class LoggerMap extends MapActivity
 
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null ;
+      int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
       try 
       {
          Uri segmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/segments" );
@@ -398,7 +472,7 @@ public class LoggerMap extends MapActivity
             {
                long segmentsId = segments.getLong( 0 );
                Uri segmentUri = Uri.withAppendedPath( segmentsUri, segmentsId+"/waypoints" );
-               TrackingOverlay segmentOverlay = new TrackingOverlay((Context)this, resolver, segmentUri);
+               TrackingOverlay segmentOverlay = new TrackingOverlay((Context)this, resolver, segmentUri, trackColoringMethod);
                overlays.add( segmentOverlay );
                if( segments.isFirst() ) 
                {

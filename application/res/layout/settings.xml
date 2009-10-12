@@ -35,7 +35,7 @@
             android:summary="@string/trackcoloring_summary"
             android:entries="@array/trackcoloring_choices"
             android:entryValues="@array/trackcoloring_values"
-            android:defaultValue="4"/>
+            android:defaultValue="3"/>
              />
             
     </PreferenceCategory>

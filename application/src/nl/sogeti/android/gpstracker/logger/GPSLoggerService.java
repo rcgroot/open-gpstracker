@@ -34,6 +34,8 @@ import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -42,6 +44,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 
 /**
  * A system service as controlling the background logging of gps locations.
@@ -49,8 +52,9 @@ import android.os.RemoteException;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-public class GPSLoggerService extends Service
+public class GPSLoggerService extends Service 
 {  
+   private static final String PRECISION = "precision";
    private static final String GPS_PROVIDER = LocationManager.GPS_PROVIDER;
    public static final String SERVICENAME = "nl.sogeti.android.gpstrack.logger.GPSLoggerService";
    
@@ -63,7 +67,18 @@ public class GPSLoggerService extends Service
    private long segmentId = -1 ;
    private Location previousLocation;
 
-   private LocationListener mLocationListener =  new LocationListener() {
+   private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
+   {
+      public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
+      {
+         if( key.equals( PRECISION ) )
+         {
+            requestLocationUpdates();
+         }
+      }
+   };
+   private LocationListener mLocationListener =  new LocationListener() 
+   {
       public void onLocationChanged( Location location )
       {
          if( isLocationAcceptable(location) )
@@ -132,12 +147,32 @@ public class GPSLoggerService extends Service
    public synchronized long startLogging()
    {
       startNewTrack() ;
-      this.locationManager.requestLocationUpdates( GPS_PROVIDER, 1000, 0F, this.mLocationListener );
+      requestLocationUpdates();
+      PreferenceManager.getDefaultSharedPreferences( this.mCtx ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
       PowerManager pm = (PowerManager) this.mCtx.getSystemService( Context.POWER_SERVICE );
       this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, SERVICENAME);
       this.mWakeLock.acquire();
       this.logging = true;
       return trackId;
+   }
+
+   private void requestLocationUpdates()
+   {
+      this.locationManager.removeUpdates( this.mLocationListener );
+      int precision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mCtx ).getString( PRECISION, "1" ) ).intValue();
+      switch( precision )
+      {
+         case(1): // Coarse
+            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 15000l, 5F, this.mLocationListener );
+            break;
+         case(2): // Normal
+            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 5000l, 3F, this.mLocationListener );
+            break;
+         case(3): // Fine
+            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 1000l, 1F, this.mLocationListener );
+            break;
+      }
+      
    }
 
    /**
@@ -146,6 +181,7 @@ public class GPSLoggerService extends Service
     */
    public synchronized void stopLogging()
    {
+      PreferenceManager.getDefaultSharedPreferences( this.mCtx ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
       this.locationManager.removeUpdates( this.mLocationListener );
       if( this.mWakeLock != null )
       {

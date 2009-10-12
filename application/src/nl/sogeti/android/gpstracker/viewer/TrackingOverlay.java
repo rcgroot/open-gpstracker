@@ -32,6 +32,8 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -48,6 +50,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
@@ -68,10 +71,12 @@ public class TrackingOverlay extends Overlay
    public static final int LAST = 2;
    public static final String TAG = TrackingOverlay.class.getName();
 
-   private static final int DRAW_NONE = 0;
-   private static final int DRAW_MEASURED = 1;
-   private static final int DRAW_CALCULATED = 2;
-   public static final int draw_speed = DRAW_CALCULATED;
+   public static final int DRAW_GREEN = 0;
+   public static final int DRAW_RED = 1;
+   public static final int DRAW_MEASURED = 2;
+   public static final int DRAW_CALCULATED = 3;
+   public static final String TRACKCOLORING = "trackcoloring";
+   private int trackColoringMethod = DRAW_CALCULATED;
 
    private ContentResolver mResolver;
    private Point mStartPoint;
@@ -90,7 +95,7 @@ public class TrackingOverlay extends Overlay
    private int mPlacement = TrackingOverlay.MIDDLE;
    private Projection mProjection;
    private Uri mTrackUri;
-   private Context mCtx;
+   private Context mContext;
    private int mListPosition;
    private int mStepSize;
    private int mCalculatedPoints;
@@ -98,14 +103,15 @@ public class TrackingOverlay extends Overlay
    private Shader mShader;
    private double mAvgSpeed;
 
-   TrackingOverlay(Context cxt, ContentResolver resolver, Uri trackUri)
+   TrackingOverlay( Context cxt, ContentResolver resolver, Uri trackUri, int color )
    {
       super();
-      this.mCtx = cxt;
+      this.mContext = cxt;
+      this.trackColoringMethod = color;
       this.mPath = new Path();
       this.mResolver = resolver;
       this.mTrackUri = trackUri;
-   }
+   }  
 
    /**
     * (non-Javadoc)
@@ -138,14 +144,19 @@ public class TrackingOverlay extends Overlay
       // Just the rendering bits left to do
       Paint routePaint = new Paint();
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
-      switch (draw_speed)
+//      Log.d( TAG, "Drawing color is "+trackColoringMethod );
+      switch (trackColoringMethod)
       {
          case ( DRAW_CALCULATED ):
          case ( DRAW_MEASURED ):
             routePaint.setShader( this.mShader );
             break;
-         case ( DRAW_NONE ):
+         case ( DRAW_RED ):
             routePaint.setColor( Color.RED );
+            break;
+         case ( DRAW_GREEN ):
+         default:
+            routePaint.setColor( Color.GREEN );
             break;
       }
       routePaint.setStyle( Paint.Style.STROKE );
@@ -157,16 +168,16 @@ public class TrackingOverlay extends Overlay
       Bitmap bitmap;
       if( this.mPlacement == FIRST || this.mPlacement == FIRST + LAST )
       {
-         bitmap = BitmapFactory.decodeResource( this.mCtx.getResources(), R.drawable.stip2 );
+         bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
          this.mCanvas.drawBitmap( bitmap, this.mStartPoint.x - 8, this.mStartPoint.y - 8, new Paint() );
       }
       if( this.mPlacement == LAST || this.mPlacement == FIRST + LAST )
       {
-         bitmap = BitmapFactory.decodeResource( this.mCtx.getResources(), R.drawable.stip );
+         bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip );
          this.mCanvas.drawBitmap( bitmap, this.mEndPoint.x - 5, this.mEndPoint.y - 5, new Paint() );
 
       }
-      Log.d( TAG, this.mTrackUri+" transformerd number of points: " + mCalculatedPoints );
+//      Log.d( TAG, this.mTrackUri+" transformerd number of points: " + mCalculatedPoints );
 
       super.draw( this.mCanvas, mapView, shadow );
       this.mCanvas = null;
@@ -198,7 +209,7 @@ public class TrackingOverlay extends Overlay
       mCalculatedPoints = 0;
       try
       {
-         switch (draw_speed)
+         switch (trackColoringMethod)
          {
             case ( DRAW_CALCULATED ):
             case ( DRAW_MEASURED ):
@@ -224,7 +235,9 @@ public class TrackingOverlay extends Overlay
                }
                trackCursor = this.mResolver.query( this.mTrackUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
                break;
-            case ( DRAW_NONE ):
+            case ( DRAW_GREEN ):   
+            case ( DRAW_RED ):
+            default:
                trackCursor = this.mResolver.query( this.mTrackUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
                break;
          }
@@ -237,9 +250,9 @@ public class TrackingOverlay extends Overlay
             while (moveToNextWayPoint( trackCursor ))
             {
                transformSingleWaypointToCurrentPoint( trackCursor.getDouble( 0 ), trackCursor.getDouble( 1 ) );
-               switch (draw_speed)
+               switch (trackColoringMethod)
                {
-                  case DRAW_NONE:
+                  case DRAW_RED:
                      drawPointToPath( -1d );
                      break;
                   case DRAW_MEASURED:
@@ -491,5 +504,10 @@ public class TrackingOverlay extends Overlay
          //         Log.d( TAG, "Small steps: Picking up the step size from "+mStepSize+" to "+(mStepSize*2) );
          mStepSize *= 2;
       }
+   }
+
+   public void setTrackColoringMethod( int coloring )
+   {
+      this.trackColoringMethod = coloring;
    }
 }

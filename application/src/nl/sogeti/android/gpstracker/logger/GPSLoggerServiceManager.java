@@ -68,11 +68,11 @@ public class GPSLoggerServiceManager
    public GPSLoggerServiceManager(Context ctx)
    {
       this.mCtx = ctx;
-      SettingsManager settingsManager = SettingsManager.getInstance();
       connectToGPSLoggerService();
 
-      if( settingsManager.isAutoStartService() )
+      if( false )
       {
+         //TODO use the preference system
          startGPSLoggerService("Autostart");
       }
 
