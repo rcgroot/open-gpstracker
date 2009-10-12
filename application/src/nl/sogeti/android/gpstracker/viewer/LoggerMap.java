@@ -491,7 +491,7 @@ public class LoggerMap extends MapActivity
                            || out.x > (this.mMapView.getWidth()/4)*3 
                            || out.y > (this.mMapView.getHeight()/4)*3 ) 
                      {
-                         Log.d( TAG, "Animating to "+out );
+//                         Log.d( TAG, "Animating to "+out );
                          this.mMapView.getController().animateTo( lastPoint );
                      }
                   }
