@@ -108,7 +108,6 @@ public class LoggerMap extends MapActivity
    {
       public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
       {
-         Log.d( TAG, "Heard it!" );
          if( key.equals( TrackingOverlay.TRACKCOLORING ) )
          {
             int trackColoringMethod = new Integer( sharedPreferences.getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();

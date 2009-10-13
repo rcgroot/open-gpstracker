@@ -69,13 +69,6 @@ public class GPSLoggerServiceManager
    {
       this.mCtx = ctx;
       connectToGPSLoggerService();
-
-      if( false )
-      {
-         //TODO use the preference system
-         startGPSLoggerService("Autostart");
-      }
-
    }
 
    public boolean isLogging()

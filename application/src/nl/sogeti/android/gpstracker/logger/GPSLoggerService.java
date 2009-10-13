@@ -30,7 +30,9 @@ package nl.sogeti.android.gpstracker.logger;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Service;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -45,6 +47,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * A system service as controlling the background logging of gps locations.
@@ -55,15 +58,17 @@ import android.preference.PreferenceManager;
 public class GPSLoggerService extends Service 
 {  
    private static final String PRECISION = "precision";
+   private static final String LOGATSTARTUP = "logatstartup";
    private static final String GPS_PROVIDER = LocationManager.GPS_PROVIDER;
    public static final String SERVICENAME = "nl.sogeti.android.gpstrack.logger.GPSLoggerService";
+   private static final String TAG = GPSLoggerService.class.getName();
    
-   private Context mCtx;
+   private Context mContext;
    private LocationManager locationManager;
    private boolean logging;
    private PowerManager.WakeLock mWakeLock ;
    
-   private long trackId = -1;
+   private long mTrackId = -1;
    private long segmentId = -1 ;
    private Location previousLocation;
 
@@ -83,7 +88,7 @@ public class GPSLoggerService extends Service
       {
          if( isLocationAcceptable(location) )
          {
-            storeLocation(GPSLoggerService.this.mCtx, location);
+            storeLocation(GPSLoggerService.this.mContext, location);
          }
       }
       public void onProviderDisabled( String provider ){   }
@@ -99,7 +104,7 @@ public class GPSLoggerService extends Service
       public long startLogging() throws RemoteException
       {
          GPSLoggerService.this.startLogging();
-         return trackId;
+         return mTrackId;
       }
       public void stopLogging() throws RemoteException
       {
@@ -114,8 +119,20 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
-      this.mCtx = getApplicationContext();
+      this.mContext = getApplicationContext();
       this.locationManager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+      
+      boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( LOGATSTARTUP, false );
+      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
+      if( startImmidiatly )
+      {
+         startLogging();
+         ContentValues values = new ContentValues();
+         values.put( Tracks.NAME, "Recorded at startup");
+         getContentResolver().update(
+               ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ), 
+               values, null, null );
+      }
    }
 
    /**
@@ -148,18 +165,20 @@ public class GPSLoggerService extends Service
    {
       startNewTrack() ;
       requestLocationUpdates();
-      PreferenceManager.getDefaultSharedPreferences( this.mCtx ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
-      PowerManager pm = (PowerManager) this.mCtx.getSystemService( Context.POWER_SERVICE );
+      PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
+      PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
       this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, SERVICENAME);
       this.mWakeLock.acquire();
       this.logging = true;
-      return trackId;
+      return mTrackId;
    }
 
    private void requestLocationUpdates()
    {
+      
       this.locationManager.removeUpdates( this.mLocationListener );
-      int precision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mCtx ).getString( PRECISION, "1" ) ).intValue();
+      int precision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( PRECISION, "1" ) ).intValue();
+      //Log.d( TAG, "requestLocationUpdates to precision "+precision );
       switch( precision )
       {
          case(1): // Coarse
@@ -181,7 +200,7 @@ public class GPSLoggerService extends Service
     */
    public synchronized void stopLogging()
    {
-      PreferenceManager.getDefaultSharedPreferences( this.mCtx ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+      PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
       this.locationManager.removeUpdates( this.mLocationListener );
       if( this.mWakeLock != null )
       {
@@ -224,8 +243,8 @@ public class GPSLoggerService extends Service
     */
    private void startNewTrack() 
    {
-      Uri newTrack = this.mCtx.getContentResolver().insert( Tracks.CONTENT_URI, null );
-      trackId =  new Long(newTrack.getLastPathSegment()).longValue();
+      Uri newTrack = this.mContext.getContentResolver().insert( Tracks.CONTENT_URI, null );
+      mTrackId =  new Long(newTrack.getLastPathSegment()).longValue();
       startNewSegment() ;
    }
 
@@ -234,7 +253,7 @@ public class GPSLoggerService extends Service
     */
    private void startNewSegment() 
    {
-      Uri newSegment = this.mCtx.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" ), null ); 
+      Uri newSegment = this.mContext.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments" ), null ); 
       segmentId = new Long(newSegment.getLastPathSegment()).longValue();
    }
 
@@ -249,6 +268,6 @@ public class GPSLoggerService extends Service
       args.put( Waypoints.LATITUDE, new Double( location.getLatitude() ) );
       args.put( Waypoints.LONGITUDE, new Double( location.getLongitude() ) );
       args.put( Waypoints.SPEED, new Float( location.getSpeed() ) );
-      context.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId+"/waypoints" ), args );
+      context.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+segmentId+"/waypoints" ), args );
    }
 }
