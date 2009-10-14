@@ -35,12 +35,17 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
 import org.xmlpull.v1.XmlSerializer;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -50,6 +55,7 @@ import android.net.Uri;
 import android.os.Looper;
 import android.util.Log;
 import android.util.Xml;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 /**
@@ -60,21 +66,65 @@ import android.widget.Toast;
  */
 public class ExportGPX extends BroadcastReceiver
 {
+   private static final int PROGRESS_STEPS = 10;
    private static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    private static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
    public static final String FILENAME = "filename";
    private static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
    protected static final String TAG = "ExportGPX";
 
+   private RemoteViews mContentView;
+   private int barProgress = 0;
+   private int mProgress = 0;
+   private int mGoal = 0;
+   private Notification mNotification;
+   private NotificationManager mNotificationManager;
+   
    @Override
    public void onReceive( final Context context, final Intent intent )
    {
+
+
+
       new Thread(new Runnable() {
+
+         
          public void run() {
             Looper.prepare();
-
             String fileName = intent.getExtras().getString( FILENAME );
             String filePath = "/sdcard/"+fileName;
+            
+            String ns = Context.NOTIFICATION_SERVICE;
+            mNotificationManager = (NotificationManager) context.getSystemService(ns);
+            int icon = android.R.drawable.ic_menu_save;
+            CharSequence tickerText = "Creating GPX file "+fileName;
+
+
+            // Instead of the normal constructor, we're going to use the one with no args and fill
+            // in all of the data ourselves.  The normal one uses the default layout for notifications.
+            // You probably want that in most cases, but if you want to do something custom, you
+            // can set the contentView field to your own RemoteViews object.
+            mNotification = new Notification();
+            
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+                  new Intent(context, LoggerMap.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                  PendingIntent.FLAG_UPDATE_CURRENT);
+
+            // This is who should be launched if the user selects our notification.
+            mNotification.contentIntent = contentIntent;
+            // In this sample, we'll use the same text for the ticker and the expanded notification
+            mNotification.tickerText = tickerText;
+            // the icon for the status bar
+            mNotification.icon = icon;
+            // our custom view
+            mContentView = new RemoteViews(context.getPackageName(), R.layout.savenotificationprogress );
+            mContentView.setImageViewResource( R.id.icon, icon);
+            mContentView.setTextViewText( R.id.progresstext, tickerText );
+            
+            mNotification.contentView = mContentView;
+            
+            updateNotification();
+
             try 
             {
                XmlSerializer serializer =  Xml.newSerializer();
@@ -125,11 +175,14 @@ public class ExportGPX extends BroadcastReceiver
                Log.e( TAG, "Unable to save "+e );
                e.printStackTrace();
             }
+
             CharSequence text = "Stored on SD-Card the route: "+fileName;
             int duration = Toast.LENGTH_SHORT;
-
+            
             Toast toast = Toast.makeText(context.getApplicationContext(), text, duration);
             toast.show();
+            
+            mNotificationManager.cancel( R.layout.savenotificationprogress );
             
             Looper.loop();
             
@@ -184,6 +237,8 @@ public class ExportGPX extends BroadcastReceiver
                null, null, null);
          if( segmentCursor.moveToFirst() )
          { 
+            updateNotification();
+            
             do
             {
                Uri waypoints = Uri.withAppendedPath( segments, "/"+segmentCursor.getLong( 0 )+"/waypoints" );
@@ -217,8 +272,12 @@ public class ExportGPX extends BroadcastReceiver
                null, null, null);
          if( waypointsCursor.moveToFirst() )
          { 
+            mGoal += waypointsCursor.getCount();
             do
             {
+               mProgress++;            
+               updateNotification();
+               
                serializer.text( "\n" );
                serializer.startTag( "", "trkpt" );
                serializer.attribute( null, "lat", waypointsCursor.getString( 1 ) );
@@ -245,6 +304,30 @@ public class ExportGPX extends BroadcastReceiver
          {
             waypointsCursor.close();
          }
+      }
+
+   }
+
+   private void updateNotification()
+   {
+      if( mProgress > 0 && mProgress < mGoal)
+      {
+         if( (mProgress*PROGRESS_STEPS)/mGoal != barProgress )
+         {
+            barProgress = (mProgress*PROGRESS_STEPS)/mGoal ;
+            mContentView.setProgressBar( R.id.progress, mGoal, mProgress, false );
+            mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
+         }
+      }
+      else if( mProgress == 0 )
+      {
+         mContentView.setProgressBar( R.id.progress, mGoal, mProgress, true );
+         mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
+      }
+      else if( mProgress >= mGoal )
+      {
+         mContentView.setProgressBar( R.id.progress, mGoal, mProgress, false );
+         mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
       }
 
    }
