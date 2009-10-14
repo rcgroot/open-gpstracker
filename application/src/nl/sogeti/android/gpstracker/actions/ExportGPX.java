@@ -99,24 +99,14 @@ public class ExportGPX extends BroadcastReceiver
             int icon = android.R.drawable.ic_menu_save;
             CharSequence tickerText = "Creating GPX file "+fileName;
 
-
-            // Instead of the normal constructor, we're going to use the one with no args and fill
-            // in all of the data ourselves.  The normal one uses the default layout for notifications.
-            // You probably want that in most cases, but if you want to do something custom, you
-            // can set the contentView field to your own RemoteViews object.
             mNotification = new Notification();
-            
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
                   new Intent(context, LoggerMap.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                   PendingIntent.FLAG_UPDATE_CURRENT);
 
-            // This is who should be launched if the user selects our notification.
             mNotification.contentIntent = contentIntent;
-            // In this sample, we'll use the same text for the ticker and the expanded notification
             mNotification.tickerText = tickerText;
-            // the icon for the status bar
             mNotification.icon = icon;
-            // our custom view
             mContentView = new RemoteViews(context.getPackageName(), R.layout.savenotificationprogress );
             mContentView.setImageViewResource( R.id.icon, icon);
             mContentView.setTextViewText( R.id.progresstext, tickerText );
