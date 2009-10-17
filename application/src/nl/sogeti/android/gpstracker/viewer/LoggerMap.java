@@ -122,7 +122,7 @@ public class LoggerMap extends MapActivity
          }
          else if( key.equals( LoggerMap.DISABLEBLANKING ) )
          {
-            setBlankingBehavior();
+            updateBlankingBehavior();
          }
       }
    };
@@ -138,7 +138,7 @@ public class LoggerMap extends MapActivity
       }
    }
 
-   private void setBlankingBehavior()
+   private void updateBlankingBehavior()
    {
       boolean disableblanking = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DISABLEBLANKING, false );
       if( disableblanking && this.mLoggerServiceManager.isLogging() )
@@ -263,7 +263,7 @@ public class LoggerMap extends MapActivity
             if( this.mLoggerServiceManager.isLogging() ) 
             {
                this.mLoggerServiceManager.stopGPSLoggerService();
-               setBlankingBehavior();
+               updateBlankingBehavior();
                item.setTitle( R.string.menu_toggle_on );
             }
             else 
@@ -335,7 +335,7 @@ public class LoggerMap extends MapActivity
       this.mLoggerServiceManager.connectToGPSLoggerService();
 
       PreferenceManager.getDefaultSharedPreferences( this ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
-      setBlankingBehavior();
+      updateBlankingBehavior();
       
       setContentView(R.layout.map);
       this.mMapView = (MapView) findViewById( R.id.myMapView );
