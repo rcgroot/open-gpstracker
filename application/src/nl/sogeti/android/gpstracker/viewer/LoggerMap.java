@@ -99,7 +99,7 @@ public class LoggerMap extends MapActivity
    private long mTrackId = -1;
    private MapView mMapView = null;
    private MapController mMapController = null;
-   private GPSLoggerServiceManager loggerServiceManager;
+   private GPSLoggerServiceManager mLoggerServiceManager;
    private EditText fileNameView = null;
 
    private String mTrackName;
@@ -141,7 +141,7 @@ public class LoggerMap extends MapActivity
    private void setBlankingBehavior()
    {
       boolean disableblanking = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DISABLEBLANKING, false );
-      if( disableblanking )
+      if( disableblanking && this.mLoggerServiceManager.isLogging() )
       {
          PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
          this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
@@ -244,7 +244,7 @@ public class LoggerMap extends MapActivity
    @Override
    public boolean onPrepareOptionsMenu(Menu menu) {
       super.onPrepareOptionsMenu(menu);
-      if( this.loggerServiceManager.isLogging() ) 
+      if( this.mLoggerServiceManager.isLogging() ) 
       {
          menu.findItem( MENU_TOGGLE ).setTitle( R.string.menu_toggle_off );
       }
@@ -260,14 +260,15 @@ public class LoggerMap extends MapActivity
       boolean handled = false ;
       switch ( item.getItemId() ) {
          case MENU_TOGGLE:
-            if( this.loggerServiceManager.isLogging() ) 
+            if( this.mLoggerServiceManager.isLogging() ) 
             {
-               this.loggerServiceManager.stopGPSLoggerService();
+               this.mLoggerServiceManager.stopGPSLoggerService();
+               setBlankingBehavior();
                item.setTitle( R.string.menu_toggle_on );
             }
             else 
             {
-               this.mTrackId = this.loggerServiceManager.startGPSLoggerService(null);
+               this.mTrackId = this.mLoggerServiceManager.startGPSLoggerService(null);
                attempToMoveToTrack( this.mTrackId );
                showDialog(TRACK_TITLE_ID);
                item.setTitle( R.string.menu_toggle_off );
@@ -330,8 +331,8 @@ public class LoggerMap extends MapActivity
       super.onCreate( load );
 
       this.startService( new Intent( GPSLoggerService.SERVICENAME ) );
-      this.loggerServiceManager = new GPSLoggerServiceManager( (Context)this );
-      this.loggerServiceManager.connectToGPSLoggerService();
+      this.mLoggerServiceManager = new GPSLoggerServiceManager( (Context)this );
+      this.mLoggerServiceManager.connectToGPSLoggerService();
 
       PreferenceManager.getDefaultSharedPreferences( this ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
       setBlankingBehavior();
