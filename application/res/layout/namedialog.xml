@@ -1,10 +1,8 @@
 <LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content"
 	xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
 	android:layout_width="fill_parent">
+	
 	<EditText android:layout_height="wrap_content" android:clickable="true"
 		android:singleLine="true" android:id="@+id/nameField" android:layout_width="fill_parent"></EditText>
-
-	<Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:text="@+string/btn_okay" android:id="@+id/doneButton"></Button>
 		
 </LinearLayout>

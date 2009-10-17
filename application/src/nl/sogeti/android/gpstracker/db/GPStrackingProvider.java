@@ -35,6 +35,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -313,13 +314,16 @@ public class GPStrackingProvider extends ContentProvider
       String tableName;
       String whereclause;
       ContentValues args = new ContentValues();
+      Uri notifyUri;
       
       switch (match)
       {
          case TRACK_ID:
             tableName = Tracks.TABLE;
-            whereclause = BaseColumns._ID + " = " + new Long( uri.getLastPathSegment() ).longValue();
+            long trackId = new Long( uri.getLastPathSegment() ).longValue();
+            whereclause = Tracks._ID + " = " + trackId;
             args.put( Tracks.NAME, givenValues.getAsString( Tracks.NAME ) );
+            notifyUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) ;
             break;
          default:
             Log.e( GPStrackingProvider.LOG_TAG, "Unable to come to an action in the query uri" + uri.toString() );
@@ -329,6 +333,10 @@ public class GPStrackingProvider extends ContentProvider
       // Execute the query.
       SQLiteDatabase mDb = this.mDbHelper.getWritableDatabase();
       updates = mDb.update(tableName, args , whereclause, null) ;
+      
+      ContentResolver resolver = this.getContext().getContentResolver();
+      resolver.notifyChange( notifyUri, null );   
+      
       return updates;
    }
 

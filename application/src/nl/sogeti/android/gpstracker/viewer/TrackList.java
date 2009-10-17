@@ -34,6 +34,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -41,9 +42,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -58,13 +61,14 @@ public class TrackList extends ListActivity
    private static final String TAG = "nl.sogeti.android.gpstracker.viewer.TrackList";
    private static final int MENU_DETELE = 0;
    private static final int MENU_EXPORT = 1;
+   private static final int MENU_RENAME = 2;
    private Cursor mTracksCursor;
    SimpleCursorAdapter mNotes;
+   private EditText mTrackNameView;
 
    private class DeleteClickListener implements DialogInterface.OnClickListener 
    {
       private Uri mUri;
-
       public DeleteClickListener(Uri uri) 
       {
          this.mUri = uri;
@@ -78,6 +82,27 @@ public class TrackList extends ListActivity
          TrackList.this.mNotes.notifyDataSetChanged();
       }
    }
+   
+   class RenameClickListener implements DialogInterface.OnClickListener 
+   {
+      private Uri mUri;
+      public RenameClickListener(Uri uri) 
+      {
+         this.mUri = uri;
+      }
+      
+      public void onClick( DialogInterface dialog, int which )
+      {
+         String trackName = mTrackNameView.getText().toString();
+         
+         ContentValues values = new ContentValues();
+         values.put( Tracks.NAME, trackName);
+         getContentResolver().update(
+               mUri, 
+               values, null, null );
+         mTrackNameView = null;
+      }
+   } ;
 
 
    @Override
@@ -125,7 +150,8 @@ public class TrackList extends ListActivity
          }
       }
       menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
-      menu.add(0, MENU_EXPORT, 0, R.string.menu_exportTrack);
+      menu.add(0, MENU_EXPORT, 0, R.string.menu_shareTrack);
+      menu.add(0, MENU_RENAME, 0, R.string.menu_renameTrack );
    }
 
    @Override
@@ -164,6 +190,18 @@ public class TrackList extends ListActivity
             Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
             Intent actionIntent = new Intent(Intent.ACTION_SEND, uri );
             this.sendBroadcast( actionIntent, android.Manifest.permission.ACCESS_FINE_LOCATION );
+            handled = true;
+            break;
+         }
+         case MENU_RENAME: 
+         {
+            Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
+            CharSequence currentName = cursor.getString( 1 );
+            LayoutInflater factory = LayoutInflater.from( this );
+            View view = factory.inflate( R.layout.namedialog, null );
+            mTrackNameView = (EditText) view.findViewById( R.id.nameField );
+            mTrackNameView.setText( currentName );
+            LoggerMap.createTrackTitleDialog( this, view, new RenameClickListener( uri ) ).show();
             handled = true;
             break;
          }

@@ -52,6 +52,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.util.Xml;
@@ -83,15 +84,19 @@ public class ExportGPX extends BroadcastReceiver
    @Override
    public void onReceive( final Context context, final Intent intent )
    {
-
-
-
+//      Log.d( TAG, "Receive intent "+intent );
+      
       new Thread(new Runnable() {
 
          
          public void run() {
             Looper.prepare();
-            String fileName = intent.getExtras().getString( FILENAME );
+            Bundle extras = intent.getExtras();
+            String fileName = "Untitled.gpx";
+            if( extras != null && extras.containsKey( FILENAME ))
+            {
+               fileName = extras.getString( FILENAME );
+            }
             String filePath = "/sdcard/"+fileName;
             
             String ns = Context.NOTIFICATION_SERVICE;

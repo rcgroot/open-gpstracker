@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">GPSTracker</string>
-	<string name="dialog_routename_title">Name of the new track</string>
+	
+	<string name="dialog_routename_title">Name track</string>
+    <string name="dialog_routename_message">Please enter the name of the track</string>
     <string name="dialog_notrack_title">No track is selected</string>
-    <string name="dialog_filename_title">Enter filename</string>
-    <string name="dialog_deleteconfirmation">Delete track?</string>
-    <string name="dialog_deletetitle">Confirm delete</string>
-    <string name="dialog_notrack_message">Select a track first before exporting</string>
+    <string name="dialog_notrack_message">Please select a track first before exporting</string>
+    <string name="dialog_filename_title">File name</string>
+    <string name="dialog_filename_message">Please enter the name for a GPX file on the SDCard</string>
+    <string name="dialog_deleteconfirmation">Delete track</string>
+    <string name="dialog_deletetitle">Please confirm the deletion of the track</string>
+    
     <string name="from">Tracked on: </string>
 	
-	<string name="btn_okay">OK</string><string name="btn_cancel">Cancel</string>
+	<string name="btn_okay">OK</string>
+	<string name="btn_cancel">Cancel</string>
 	<string name="btn_save">Save</string>
 	<string name="btn_selecttrack">Select track</string>
+	
 	<string name="menu_settings">Settings</string>
 	<string name="menu_toggle_off">Stop tracking</string>
 	<string name="menu_toggle_on">Start tracking</string>
 	<string name="menu_tracklist">List tracks</string>
-	<string name="menu_exportTrack">Export track</string>
+	<string name="menu_shareTrack">Share track</string>
+    <string name="menu_saveTrack">Save to file </string>
 	<string name="menu_deleteTrack">Delete track</string>
+    <string name="menu_renameTrack">Rename track</string>
 
 	<string name="receive_filewriter">Save to GPX file</string>
-    <string name="dialog_enterfilename_message">Enter the name for a file on the SDCard.</string>
 
     <string name="opengpstracker_title">GPSTracker</string>
     <string name="opengpstracker_settings">Settings</string>   
