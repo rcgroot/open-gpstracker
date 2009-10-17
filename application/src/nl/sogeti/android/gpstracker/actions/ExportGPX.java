@@ -112,6 +112,7 @@ public class ExportGPX extends BroadcastReceiver
             mNotification.contentIntent = contentIntent;
             mNotification.tickerText = tickerText;
             mNotification.icon = icon;
+            mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
             mContentView = new RemoteViews(context.getPackageName(), R.layout.savenotificationprogress );
             mContentView.setImageViewResource( R.id.icon, icon);
             mContentView.setTextViewText( R.id.progresstext, tickerText );
