@@ -31,7 +31,6 @@ package nl.sogeti.android.gpstracker.db;
 import java.util.Date;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.db.GPStracking.SegmentsColumns;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;

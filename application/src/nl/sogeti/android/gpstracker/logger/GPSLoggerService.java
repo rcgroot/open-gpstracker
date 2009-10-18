@@ -30,7 +30,6 @@ package nl.sogeti.android.gpstracker.logger;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.ContentValues;
