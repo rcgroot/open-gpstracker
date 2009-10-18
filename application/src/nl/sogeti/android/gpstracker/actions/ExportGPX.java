@@ -155,33 +155,37 @@ public class ExportGPX extends BroadcastReceiver
                serializer.text( "\n" );
                serializer.endTag( "", "gpx" );
                serializer.endDocument();
+               
+               CharSequence text = "Stored on SD-Card the route: "+fileName;
+               Toast toast = Toast.makeText( context.getApplicationContext(), text, Toast.LENGTH_SHORT );
+               toast.show();
             }
             catch (IllegalArgumentException e)
             {
                Log.e( TAG, "Unable to save "+e );
-               e.printStackTrace();
+               CharSequence text = "Unable to save the route: "+fileName+" reason: Incorrect filename";
+               Toast toast = Toast.makeText( context.getApplicationContext(), text, Toast.LENGTH_LONG );
+               toast.show();
             }
             catch (IllegalStateException e)
             {
                Log.e( TAG, "Unable to save "+e );
-               e.printStackTrace();
+               CharSequence text = "Unable to save the route: "+fileName+" reason: Error building XML";
+               Toast toast = Toast.makeText( context.getApplicationContext(), text, Toast.LENGTH_LONG );
+               toast.show();
             }
             catch (IOException e)
             {
                Log.e( TAG, "Unable to save "+e );
-               e.printStackTrace();
+               CharSequence text = "Unable to save the route: "+fileName+" reason: Error writing to SD card";
+               Toast toast = Toast.makeText( context.getApplicationContext(), text, Toast.LENGTH_LONG );
+               toast.show();
             }
-
-            CharSequence text = "Stored on SD-Card the route: "+fileName;
-            int duration = Toast.LENGTH_SHORT;
-            
-            Toast toast = Toast.makeText(context.getApplicationContext(), text, duration);
-            toast.show();
-            
-            mNotificationManager.cancel( R.layout.savenotificationprogress );
-            
-            Looper.loop();
-            
+            finally
+            {
+               mNotificationManager.cancel( R.layout.savenotificationprogress );
+               Looper.loop();
+            }            
          }
       }).start();
 
