@@ -32,8 +32,6 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -50,8 +48,6 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -94,7 +90,7 @@ public class TrackingOverlay extends Overlay
    private Path mPath;
    private int mPlacement = TrackingOverlay.MIDDLE;
    private Projection mProjection;
-   private Uri mTrackUri;
+   private Uri mSegmentUri;
    private Context mContext;
    private int mListPosition;
    private int mStepSize;
@@ -102,15 +98,16 @@ public class TrackingOverlay extends Overlay
    private Canvas mCanvas;
    private Shader mShader;
    private double mAvgSpeed;
+   private OnSpeedChangeListener mListener;
 
-   TrackingOverlay( Context cxt, ContentResolver resolver, Uri trackUri, int color )
+   TrackingOverlay( Context cxt, ContentResolver resolver, Uri segmentUri, int color )
    {
       super();
       this.mContext = cxt;
       this.trackColoringMethod = color;
       this.mPath = new Path();
       this.mResolver = resolver;
-      this.mTrackUri = trackUri;
+      this.mSegmentUri = segmentUri;
    }  
 
    /**
@@ -160,7 +157,7 @@ public class TrackingOverlay extends Overlay
             break;
       }
       routePaint.setStyle( Paint.Style.STROKE );
-      routePaint.setStrokeWidth( 5 );
+      routePaint.setStrokeWidth( 8 );
       routePaint.setAntiAlias( true );
 
       this.mCanvas.drawPath( this.mPath, routePaint );
@@ -215,14 +212,15 @@ public class TrackingOverlay extends Overlay
             case ( DRAW_MEASURED ):
                try
                {
-                  trackCursor = this.mResolver.query( this.mTrackUri, new String[] { "avg(" + Waypoints.SPEED + ")" }, null, null, null );
+                  trackCursor = this.mResolver.query( this.mSegmentUri, new String[] { "avg(" + Waypoints.SPEED + ")" }, null, null, null );
                   if( trackCursor.moveToLast() )
                   {
                      mAvgSpeed = trackCursor.getDouble( 0 );
                      if( mAvgSpeed == 0 )
                      {
-                        mAvgSpeed = 33.33d;
+                        mAvgSpeed = 33.33d/2d;
                      }
+                     mListener.onSpeedChanged( mAvgSpeed * 3.6d );
                      //Log.d( TAG, "Avgspeed = " + mAvgSpeed );
                   }
                }
@@ -233,12 +231,12 @@ public class TrackingOverlay extends Overlay
                      trackCursor.close();
                   }
                }
-               trackCursor = this.mResolver.query( this.mTrackUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+               trackCursor = this.mResolver.query( this.mSegmentUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
                break;
             case ( DRAW_GREEN ):   
             case ( DRAW_RED ):
             default:
-               trackCursor = this.mResolver.query( this.mTrackUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
+               trackCursor = this.mResolver.query( this.mSegmentUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
                break;
          }
          if( trackCursor.moveToFirst() )
@@ -509,5 +507,15 @@ public class TrackingOverlay extends Overlay
    public void setTrackColoringMethod( int coloring )
    {
       this.trackColoringMethod = coloring;
+   }
+   
+   public void setSpeedListener( OnSpeedChangeListener loggerMap )
+   {
+      this.mListener = loggerMap;
+   }
+   
+   public interface OnSpeedChangeListener 
+   {
+      void onSpeedChanged( double avgSpeed );
    }
 }
