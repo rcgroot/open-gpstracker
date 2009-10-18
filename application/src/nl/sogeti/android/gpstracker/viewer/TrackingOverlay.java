@@ -98,13 +98,13 @@ public class TrackingOverlay extends Overlay
    private Canvas mCanvas;
    private Shader mShader;
    private double mAvgSpeed;
-   private OnSpeedChangeListener mListener;
 
-   TrackingOverlay( Context cxt, ContentResolver resolver, Uri segmentUri, int color )
+   TrackingOverlay( Context cxt, ContentResolver resolver, Uri segmentUri, int color, double avgSpeed )
    {
       super();
       this.mContext = cxt;
       this.trackColoringMethod = color;
+      this.mAvgSpeed = avgSpeed;
       this.mPath = new Path();
       this.mResolver = resolver;
       this.mSegmentUri = segmentUri;
@@ -210,27 +210,6 @@ public class TrackingOverlay extends Overlay
          {
             case ( DRAW_CALCULATED ):
             case ( DRAW_MEASURED ):
-               try
-               {
-                  trackCursor = this.mResolver.query( this.mSegmentUri, new String[] { "avg(" + Waypoints.SPEED + ")" }, null, null, null );
-                  if( trackCursor.moveToLast() )
-                  {
-                     mAvgSpeed = trackCursor.getDouble( 0 );
-                     if( mAvgSpeed == 0 )
-                     {
-                        mAvgSpeed = 33.33d/2d;
-                     }
-                     mListener.onSpeedChanged( mAvgSpeed * 3.6d );
-                     //Log.d( TAG, "Avgspeed = " + mAvgSpeed );
-                  }
-               }
-               finally
-               {
-                  if( trackCursor != null )
-                  {
-                     trackCursor.close();
-                  }
-               }
                trackCursor = this.mResolver.query( this.mSegmentUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
                break;
             case ( DRAW_GREEN ):   
@@ -507,15 +486,5 @@ public class TrackingOverlay extends Overlay
    public void setTrackColoringMethod( int coloring )
    {
       this.trackColoringMethod = coloring;
-   }
-   
-   public void setSpeedListener( OnSpeedChangeListener loggerMap )
-   {
-      this.mListener = loggerMap;
-   }
-   
-   public interface OnSpeedChangeListener 
-   {
-      void onSpeedChanged( double avgSpeed );
    }
 }

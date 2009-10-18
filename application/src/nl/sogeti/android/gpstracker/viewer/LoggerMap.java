@@ -38,7 +38,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
-import nl.sogeti.android.gpstracker.viewer.TrackingOverlay.OnSpeedChangeListener;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.AlertDialog.Builder;
@@ -80,7 +79,7 @@ import com.google.android.maps.Overlay;
  * @version $Id$
  * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */
-public class LoggerMap extends MapActivity implements OnSpeedChangeListener
+public class LoggerMap extends MapActivity
 {   
    private static final int ZOOM_LEVEL = 10;
    
@@ -445,7 +444,7 @@ public class LoggerMap extends MapActivity implements OnSpeedChangeListener
          resumeBlanking();
       }
    }
-   public void onSpeedChanged( double avgSpeed )
+   public void updateSpeedTexts( double avgSpeed )
    {
          for( int i=0 ; i<mSpeedtexts.length ; i++ )
          {
@@ -491,6 +490,29 @@ public class LoggerMap extends MapActivity implements OnSpeedChangeListener
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null ;
       int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
+
+      Cursor trackCursor = null ;
+      double avgSpeed = 33.33d/2d;
+      try
+      {
+         trackCursor = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/waypoints" ), new String[] { "avg(" + Waypoints.SPEED + ")" }, null, null, null );
+         if( trackCursor.moveToLast() )
+         {
+            avgSpeed = trackCursor.getDouble( 0 );
+            if( avgSpeed == 0 )
+            {
+               avgSpeed = 33.33d/2d;
+            }
+            updateSpeedTexts( avgSpeed * 3.6d  );
+         }
+      }
+      finally
+      {
+         if( trackCursor != null )
+         {
+            trackCursor.close();
+         }
+      }
       
       try 
       {
@@ -505,10 +527,10 @@ public class LoggerMap extends MapActivity implements OnSpeedChangeListener
             {
                long segmentsId = segments.getLong( 0 );
                Uri segmentUri = Uri.withAppendedPath( segmentsUri, segmentsId+"/waypoints" );
-               TrackingOverlay segmentOverlay = new TrackingOverlay((Context)this, resolver, segmentUri, trackColoringMethod);
+               TrackingOverlay segmentOverlay = new TrackingOverlay( (Context)this, resolver, segmentUri, trackColoringMethod, avgSpeed );
+
                
                updateSpeedbarVisibility( trackColoringMethod );
-               segmentOverlay.setSpeedListener( this );
                
                overlays.add( segmentOverlay );
                if( segments.isFirst() ) 

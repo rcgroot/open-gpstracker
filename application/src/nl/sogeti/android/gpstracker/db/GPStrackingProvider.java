@@ -66,6 +66,9 @@ import android.util.Log;
  * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments</code> is the URI that returns 
  * all the stored segments of a track with ID = 2 or starts a new segment on insert 
  * <p>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/waypoints</code> is the URI that returns 
+ * all the stored waypoints of a track with ID = 2
+ * <p>
  * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments</code> is the URI that returns 
  * all the stored segments of a track with ID = 2 
  * <p>
@@ -89,12 +92,14 @@ public class GPStrackingProvider extends ContentProvider
    /* Action types as numbers for using the UriMatcher */
    private static final int TRACKS = 1;
    private static final int TRACK_ID = 2;
+   private static final int TRACK_WAYPOINTS = 3;
    private static final int SEGMENTS = 8;
    private static final int SEGMENT_ID = 4;
    private static final int WAYPOINTS = 7;
    private static final int WAYPOINT_ID = 6;
 
    private static final String TAG = GPStrackingProvider.class.getName();
+
    private static UriMatcher sURIMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 
    /**
@@ -105,6 +110,7 @@ public class GPStrackingProvider extends ContentProvider
       GPStrackingProvider.sURIMatcher = new UriMatcher( UriMatcher.NO_MATCH );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks", GPStrackingProvider.TRACKS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#", GPStrackingProvider.TRACK_ID );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/waypoints", GPStrackingProvider.TRACK_WAYPOINTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments", GPStrackingProvider.SEGMENTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#", GPStrackingProvider.SEGMENT_ID );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints", GPStrackingProvider.WAYPOINTS );
@@ -241,6 +247,8 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder )
    {
+      Log.d( TAG, "Query on Uri:"+uri ); 
+     
       int match = GPStrackingProvider.sURIMatcher.match( uri );
 
       String tableName = null;
@@ -272,6 +280,10 @@ public class GPStrackingProvider extends ContentProvider
             tableName = Waypoints.TABLE;
             whereclause = Waypoints.SEGMENT + " = " + new Long( pathSegments.get( 3 ) ).longValue()
               + " and " + Waypoints._ID     + " = " + new Long( pathSegments.get( 5 ) ).longValue();
+            break;
+         case TRACK_WAYPOINTS:
+            tableName = Waypoints.TABLE + " INNER JOIN " + Segments.TABLE + " ON "+ Segments.TABLE+"."+Segments._ID +"=="+ Waypoints.SEGMENT;
+            whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
             break;
          default:
             Log.e( GPStrackingProvider.LOG_TAG, "Unable to come to an action in the query uri" + uri.toString() );
