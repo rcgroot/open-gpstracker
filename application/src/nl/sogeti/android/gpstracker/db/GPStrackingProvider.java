@@ -246,7 +246,7 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder )
    {
-      Log.d( TAG, "Query on Uri:"+uri ); 
+//      Log.d( TAG, "Query on Uri:"+uri ); 
      
       int match = GPStrackingProvider.sURIMatcher.match( uri );
 

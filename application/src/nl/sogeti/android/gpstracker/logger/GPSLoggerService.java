@@ -180,14 +180,17 @@ public class GPSLoggerService extends Service
       //Log.d( TAG, "requestLocationUpdates to precision "+precision );
       switch( precision )
       {
-         case(1): // Coarse
+         case(0): // Coarse
             this.locationManager.requestLocationUpdates( GPS_PROVIDER, 15000l, 5F, this.mLocationListener );
             break;
-         case(2): // Normal
+         case(1): // Normal
             this.locationManager.requestLocationUpdates( GPS_PROVIDER, 5000l, 3F, this.mLocationListener );
             break;
-         case(3): // Fine
+         case(2): // Fine
             this.locationManager.requestLocationUpdates( GPS_PROVIDER, 1000l, 1F, this.mLocationListener );
+            break;
+         default:
+            Log.e( TAG, "Unknown precision "+precision );
             break;
       }
       
