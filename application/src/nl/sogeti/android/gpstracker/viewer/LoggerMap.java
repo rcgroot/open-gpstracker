@@ -242,7 +242,6 @@ public class LoggerMap extends MapActivity
             if( this.mLoggerServiceManager.isLogging() ) 
             {
                this.mLoggerServiceManager.stopGPSLoggerService();
-               updateBlankingBehavior();
                item.setTitle( R.string.menu_toggle_on );
             }
             else 
@@ -256,6 +255,7 @@ public class LoggerMap extends MapActivity
                mTrackNameView = (EditText) view.findViewById( R.id.nameField );
                createTrackTitleDialog( this, view, mTrackNameDialogListener ).show();
             }
+            updateBlankingBehavior();
             handled = true;
             break;
          case MENU_SETTINGS:
