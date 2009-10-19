@@ -167,8 +167,6 @@ public class LoggerMap extends MapActivity
       public void onClick( DialogInterface dialog, int which )
       {
          String trackName = mTrackNameView.getText().toString();
-         
-         setTitleToTrackName( trackName );
          ContentValues values = new ContentValues();
          values.put( Tracks.NAME, trackName);
          getContentResolver().update(
@@ -482,14 +480,19 @@ public class LoggerMap extends MapActivity
       Cursor segments = null ;
       int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
 
-      Cursor trackCursor = null ;
+      Cursor waypointsCursor = null ;
       double avgSpeed = 33.33d/2d;
       try
       {
-         trackCursor = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/waypoints" ), new String[] { "avg(" + Waypoints.SPEED + ")" }, null, null, null );
-         if( trackCursor.moveToLast() )
+         waypointsCursor = resolver.query
+               ( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/waypoints" )
+               , new String[] { "avg("+Waypoints.SPEED+")" }
+               , null
+               , null
+               , null );
+         if( waypointsCursor.moveToLast() )
          {
-            avgSpeed = trackCursor.getDouble( 0 );
+            avgSpeed = waypointsCursor.getDouble( 0 );
             if( avgSpeed == 0 )
             {
                avgSpeed = 33.33d/2d;
@@ -499,11 +502,35 @@ public class LoggerMap extends MapActivity
       }
       finally
       {
+         if( waypointsCursor != null )
+         {
+            waypointsCursor.close();
+         }
+      }
+      
+      Cursor trackCursor = null ;
+      try
+      {
+         trackCursor = resolver.query
+               ( ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId )
+               , new String[] { Tracks.NAME }
+               , null
+               , null
+               , null );
+         if( trackCursor.moveToLast() )
+         {
+            String name = trackCursor.getString( 0 );
+            drawToTrackName( name );
+         }
+      }
+      finally
+      {
          if( trackCursor != null )
          {
             trackCursor.close();
          }
       }
+      
       
       try 
       {
@@ -560,9 +587,8 @@ public class LoggerMap extends MapActivity
       this.mMapView.postInvalidate();
    }
    /**
-    * avgSpeed in m/s
-    * TODO
-    * @param avgSpeed
+    * 
+    * @param avgSpeed  avgSpeed in m/s
     */
    private void drawSpeedTexts( double avgSpeed )
    {
@@ -636,7 +662,7 @@ public class LoggerMap extends MapActivity
             if( exists )
             {
                this.mTrackId = trackId ;
-               setTitleToTrackName(track.getString( 0 ));
+               drawToTrackName(track.getString( 0 ));
                resolver.unregisterContentObserver( this.mTrackObserver );
                resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
                drawTrackingData();
@@ -661,7 +687,7 @@ public class LoggerMap extends MapActivity
     * 
     * Alter the view to display the title with track information 
     */
-   private void setTitleToTrackName(String trackName) 
+   private void drawToTrackName(String trackName) 
    {
       this.mTrackName = trackName;
       this.setTitle( this.getString( R.string.app_name ) + ": " + trackName); 
