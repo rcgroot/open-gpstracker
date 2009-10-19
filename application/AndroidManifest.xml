@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android" 
     package="nl.sogeti.android.gpstracker"
 	android:versionCode="5" 
-	android:versionName="1.0">
+	android:versionName="0.9.1">
 
     <uses-sdk android:minSdkVersion="3"></uses-sdk>
 
