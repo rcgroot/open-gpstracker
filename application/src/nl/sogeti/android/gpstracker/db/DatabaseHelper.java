@@ -81,10 +81,17 @@ class DatabaseHelper extends SQLiteOpenHelper
    @Override
    public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion )
    {
-      db.execSQL("DROP TABLE IF EXISTS "+Tracks.TABLE);
-      db.execSQL("DROP TABLE IF EXISTS "+Segments.TABLE);
-      db.execSQL("DROP TABLE IF EXISTS "+Waypoints.TABLE);
-      onCreate(db);
+      if( newVersion == 5 &&  oldVersion < 5) // Version 5 and before are the same 
+      {
+         return;
+      }
+      else
+      {
+         db.execSQL("DROP TABLE IF EXISTS "+Tracks.TABLE);
+         db.execSQL("DROP TABLE IF EXISTS "+Segments.TABLE);
+         db.execSQL("DROP TABLE IF EXISTS "+Waypoints.TABLE);
+         onCreate(db);
+      }
    }
 
    /**
