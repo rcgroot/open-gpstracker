@@ -31,9 +31,12 @@ package nl.sogeti.android.gpstracker.viewer;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.AlertDialog.Builder;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -59,7 +62,7 @@ public class TrackList extends ListActivity
 {
    private static final String TAG = "nl.sogeti.android.gpstracker.viewer.TrackList";
    private static final int MENU_DETELE = 0;
-   private static final int MENU_EXPORT = 1;
+   private static final int MENU_SEND = 1;
    private static final int MENU_RENAME = 2;
    private Cursor mTracksCursor;
    SimpleCursorAdapter mNotes;
@@ -149,7 +152,7 @@ public class TrackList extends ListActivity
          }
       }
       menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
-      menu.add(0, MENU_EXPORT, 0, R.string.menu_shareTrack);
+      menu.add(0, MENU_SEND, 0, R.string.menu_shareTrack);
       menu.add(0, MENU_RENAME, 0, R.string.menu_renameTrack );
    }
 
@@ -184,8 +187,8 @@ public class TrackList extends ListActivity
             handled = true;
             break;
          }
-         case MENU_EXPORT: 
-         {
+         case MENU_SEND: 
+         {           
             Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
             Intent actionIntent = new Intent(Intent.ACTION_SEND, uri );
             this.sendBroadcast( actionIntent, android.Manifest.permission.ACCESS_FINE_LOCATION );
@@ -210,7 +213,4 @@ public class TrackList extends ListActivity
       }
       return handled;
    }
-
-
-
 }

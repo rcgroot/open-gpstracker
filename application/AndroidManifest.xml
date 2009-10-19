@@ -18,11 +18,21 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-
-		<activity android:label="@string/menu_tracklist" android:name=".viewer.TrackList">
-		</activity>
 		
-        <activity android:label="@string/menu_settings" android:name=".logger.SettingsDialog">
+		<activity android:label="@string/menu_tracklist" android:name=".viewer.TrackList"/>
+		
+        <activity android:label="@string/menu_settings" android:name=".logger.SettingsDialog"/>
+        
+		<activity android:label="@string/menu_statistics" android:name=".actions.Statistics">
+            <intent-filter android:label="Show track statistics">
+                <action android:name="android.intent.action.VIEW" />
+                
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:host="nl.sogeti.android.gpstracker" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
+            </intent-filter>
+            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
         </activity>
 
 		<service android:enabled="true" android:name=".logger.GPSLoggerService">

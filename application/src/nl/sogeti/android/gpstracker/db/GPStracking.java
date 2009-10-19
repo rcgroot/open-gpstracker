@@ -106,7 +106,7 @@ public final class GPStracking
       public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.waypoint";
       
       /** The name of this table */
-      static final String TABLE = "waypoints";
+      public static final String TABLE = "waypoints";
       static final String CREATE_STATEMENT = "CREATE TABLE " + Waypoints.TABLE + 
       "(" + " " + BaseColumns._ID + " " + WaypointsColumns._ID_TYPE + 
       "," + " " + WaypointsColumns.LATITUDE + " " + WaypointsColumns.LATITUDE_TYPE + 

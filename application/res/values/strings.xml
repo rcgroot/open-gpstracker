@@ -23,9 +23,10 @@
 	<string name="menu_toggle_on">Start tracking</string>
 	<string name="menu_tracklist">List tracks</string>
 	<string name="menu_shareTrack">Share track</string>
-    <string name="menu_saveTrack">Save to file </string>
+    <string name="menu_showTrack">Show details </string>
 	<string name="menu_deleteTrack">Delete track</string>
     <string name="menu_renameTrack">Rename track</string>
+    <string name="menu_statistics">Show statistics</string>
 
 	<string name="receive_filewriter">Save to GPX file</string>
 
@@ -39,4 +40,14 @@
     <string name="precision_summary">The size of interval between GPS fixes.</string>      
     <string name="trackcoloring_title">The track color</string>
     <string name="trackcoloring_summary">The coloring used to draw the track.</string>
+    
+    <string name="stat_maximumspeed">Maximum speed</string>
+    <string name="stat_averagespeed">Average speed</string>    
+    <string name="stat_distance">Tracked distance</string>    
+    <string name="stat_endtime">Last time</string>    
+    <string name="stat_starttime">Start time</string>    
+    <string name="stat_trackname">Trackname</string>
+    <string name="stat_waypoints">Number of waypoints</string>
+    
+
 </resources>

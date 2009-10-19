@@ -88,7 +88,7 @@ public class LoggerMap extends MapActivity
    private static final int MENU_SETTINGS = 0;
    private static final int MENU_TOGGLE   = 1;
    private static final int MENU_TRACKLIST = 5;
-   private static final int MENU_ACTION = 7;
+   private static final int MENU_VIEW = 7;
    
    private static final String TAG = LoggerMap.class.getName();
 
@@ -214,7 +214,7 @@ public class LoggerMap extends MapActivity
 
       menu.add(0, MENU_TOGGLE, 0, R.string.menu_toggle_on).setIcon(android.R.drawable.ic_menu_mapmode).setAlphabeticShortcut( 't' );
       menu.add(0, MENU_TRACKLIST, 0, R.string.menu_tracklist).setIcon(android.R.drawable.ic_menu_gallery).setAlphabeticShortcut( 'l' );
-      menu.add(0, MENU_ACTION, 0, R.string.menu_saveTrack).setIcon(android.R.drawable.ic_menu_save).setAlphabeticShortcut( 'e' );
+      menu.add(0, MENU_VIEW, 0, R.string.menu_showTrack).setIcon(android.R.drawable.ic_menu_view).setAlphabeticShortcut( 'e' );
       menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings).setIcon(android.R.drawable.ic_menu_preferences).setAlphabeticShortcut( 's' );
       return result;
    }
@@ -267,14 +267,14 @@ public class LoggerMap extends MapActivity
             tracklistIntent.putExtra( Tracks._ID, this.mTrackId );
             startActivityForResult(tracklistIntent, MENU_TRACKLIST);
             break;
-         case MENU_ACTION:
+         case MENU_VIEW:
             if( this.mTrackId >= 0 )
             {
-               LayoutInflater factory = LayoutInflater.from( this );
-               View view = factory.inflate( R.layout.filenamedialog, null );
-               mFileNameView = (EditText) view.findViewById( R.id.fileNameField );
-               mFileNameView.setText( mTrackName+".gpx" );
-               createAlertFileName( this, view, mFileNameDialogListener, null ).show();
+               Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId );
+               Intent actionIntent = new Intent(Intent.ACTION_VIEW, uri );
+               startActivity( actionIntent );
+               handled = true;
+               break;
             }
             else
             {
@@ -595,7 +595,7 @@ public class LoggerMap extends MapActivity
       TypedValue outValue = new TypedValue();
       this.getResources().getValue( R.raw.conversion_from_mps, outValue, false ) ;
       float conversion_from_mps =  outValue.getFloat();
-      String unit = this.getResources().getString( R.string.unitname );
+      String unit = this.getResources().getString( R.string.speed_unitname );
       
       avgSpeed = avgSpeed *  conversion_from_mps;
       for( int i=0 ; i<mSpeedtexts.length ; i++ )
@@ -752,20 +752,6 @@ public class LoggerMap extends MapActivity
       .setIcon( android.R.drawable.ic_dialog_alert )
       .setView( view )
       .setPositiveButton(R.string.btn_okay, positiveListener);
-      
-      Dialog dialog = builder.create();
-      return dialog;
-   }
-   
-   private static Dialog createAlertFileName( Context ctx, View view, DialogInterface.OnClickListener positiveListener, DialogInterface.OnClickListener negativeListener ) 
-   {
-      Builder builder = new AlertDialog.Builder( ctx )
-      .setTitle( R.string.dialog_filename_title )
-      .setMessage(R.string.dialog_filename_message )
-      .setIcon( android.R.drawable.ic_dialog_alert )
-      .setView( view )
-      .setPositiveButton( R.string.btn_okay, positiveListener )
-      .setNegativeButton( R.string.btn_cancel, negativeListener );
       
       Dialog dialog = builder.create();
       return dialog;

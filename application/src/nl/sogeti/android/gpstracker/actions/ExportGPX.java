@@ -48,6 +48,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -70,7 +71,7 @@ public class ExportGPX extends BroadcastReceiver
    private static final int PROGRESS_STEPS = 10;
    private static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    private static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
-   public static final String FILENAME = "filename";
+   public static final String FILENAME = null;
    private static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
    protected static final String TAG = "ExportGPX";
 
@@ -91,18 +92,38 @@ public class ExportGPX extends BroadcastReceiver
          
          public void run() {
             Looper.prepare();
-            Bundle extras = intent.getExtras();
-            String fileName = "Untitled.gpx";
-            if( extras != null && extras.containsKey( FILENAME ))
+
+            String fileName = "UntitledTrack.gpx";
+            Uri trackUri = intent.getData();
+            Cursor trackCursor = null ;
+            ContentResolver resolver = context.getContentResolver();
+            try
             {
-               fileName = extras.getString( FILENAME );
+               trackCursor = resolver.query
+                     ( trackUri
+                     , new String[] { Tracks.NAME }
+                     , null
+                     , null
+                     , null );
+               if( trackCursor.moveToLast() )
+               {
+                  fileName = trackCursor.getString( 0 )+".gpx";
+               }
             }
+            finally
+            {
+               if( trackCursor != null )
+               {
+                  trackCursor.close();
+               }
+            }
+
             String filePath = "/sdcard/"+fileName;
             
             String ns = Context.NOTIFICATION_SERVICE;
             mNotificationManager = (NotificationManager) context.getSystemService(ns);
             int icon = android.R.drawable.ic_menu_save;
-            CharSequence tickerText = "Creating GPX file "+fileName;
+            CharSequence tickerText = "Saving:\""+fileName+"\"";
 
             mNotification = new Notification();
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
@@ -134,8 +155,6 @@ public class ExportGPX extends BroadcastReceiver
                serializer.attribute( null, "creator", "nl.sogeti.android.gpstracker" );
                serializer.attribute( NS_SCHEMA, "schemaLocation", NS_GPX_11+" http://www.topografix.com/gpx/1/1/gpx.xsd" );
                serializer.attribute( null, "xmlns", NS_GPX_11 );
-
-               Uri trackUri = intent.getData();
 
                // Big header of the track
                String name = serializeTrack( context, serializer, trackUri );

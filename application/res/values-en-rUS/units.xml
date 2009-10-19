@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <item name="conversion_from_mps" type="raw" format="float">2.236936292</item>
-<string name="unitname">mph</string>
+<item name="conversion_from_meter" type="raw" format="float">0.000621371</item>
+<string name="speed_unitname">mph</string>
+<string name="distance_unitname">mile</string>
 </resources>
