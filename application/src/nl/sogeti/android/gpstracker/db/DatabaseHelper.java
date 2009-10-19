@@ -81,7 +81,7 @@ class DatabaseHelper extends SQLiteOpenHelper
    @Override
    public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion )
    {
-      if( newVersion == 5 &&  oldVersion < 5) // Version 5 and before are the same 
+      if( newVersion == 5 &&  oldVersion <= 5) // Version 5 and before are the same 
       {
          return;
       }
