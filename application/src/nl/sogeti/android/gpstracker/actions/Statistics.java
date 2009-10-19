@@ -46,7 +46,7 @@ import android.widget.TextView;
 /**
  * Display some calulations based on a track
  *
- * @version $Id:$
+ * @version $Id$
  * @author rene (c) Oct 19, 2009, Sogeti B.V.
  */
 public class Statistics extends Activity
@@ -117,6 +117,7 @@ public class Statistics extends Activity
       
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       
+      double maxSpeeddb = 0;
       Cursor waypointsCursor = null ;
       try
       {
@@ -128,9 +129,8 @@ public class Statistics extends Activity
                , null );
          if( waypointsCursor.moveToLast() )
          {
-            double maxSpeed = waypointsCursor.getDouble( 0 );            
-            maxSpeed = maxSpeed *  conversion_from_mps;
-            maxSpeedText = maxSpeed+" "+speed_unit;
+            maxSpeeddb = waypointsCursor.getDouble( 0 );            
+            maxSpeeddb = maxSpeeddb *  conversion_from_mps;
          }
       }
       finally
@@ -255,7 +255,8 @@ public class Statistics extends Activity
       distanceTraveled = roundingTmp / 100f;
       distanceText =  distanceTraveled + " "+distance_unit;
       
-      
+      roundingTmp = (long) (maxSpeeddb * 100);
+      maxSpeedText = roundingTmp / 100f+" "+speed_unit;
       
       maxSpeed.setText( maxSpeedText );
       avgSpeed.setText( avgSpeedText );
