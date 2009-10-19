@@ -60,6 +60,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -444,16 +445,6 @@ public class LoggerMap extends MapActivity
          resumeBlanking();
       }
    }
-   public void updateSpeedTexts( double avgSpeed )
-   {
-         for( int i=0 ; i<mSpeedtexts.length ; i++ )
-         {
-            mSpeedtexts[i].setVisibility( View.VISIBLE );
-            int speed = (int) ((avgSpeed*2d)/5d)*i;
-            mSpeedtexts[i].setText( speed+"kph" );
-         }
-   }
-   
    private void updateSpeedbarVisibility( int trackColoringMethod )
    {
       View speedbar = findViewById( R.id.speedbar );     
@@ -503,7 +494,7 @@ public class LoggerMap extends MapActivity
             {
                avgSpeed = 33.33d/2d;
             }
-            updateSpeedTexts( avgSpeed * 3.6d  );
+            drawSpeedTexts( avgSpeed );
          }
       }
       finally
@@ -568,7 +559,26 @@ public class LoggerMap extends MapActivity
       }
       this.mMapView.postInvalidate();
    }
-
+   /**
+    * avgSpeed in m/s
+    * TODO
+    * @param avgSpeed
+    */
+   private void drawSpeedTexts( double avgSpeed )
+   {
+      TypedValue outValue = new TypedValue();
+      this.getResources().getValue( R.raw.conversion_from_mps, outValue, false ) ;
+      float conversion_from_mps =  outValue.getFloat();
+      String unit = this.getResources().getString( R.string.unitname );
+      
+      avgSpeed = avgSpeed *  conversion_from_mps;
+      for( int i=0 ; i<mSpeedtexts.length ; i++ )
+      {
+         mSpeedtexts[i].setVisibility( View.VISIBLE );
+         int speed = (int) ((avgSpeed*2d)/5d)*i;
+         mSpeedtexts[i].setText( speed+unit );
+      }
+   }
 
    /**
     * Retrieve the last point of the current track 

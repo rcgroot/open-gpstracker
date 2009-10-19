@@ -1,13 +1,13 @@
 <resources>
     <string-array name="precision_choices" translatable="false">
-        <item>Coarse</item>
-        <item>Normal</item>
         <item>Fine</item>
+        <item>Normal</item>
+        <item>Coarse</item>
     </string-array>
     <string-array name="precision_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
         <item>2</item>
+        <item>1</item>
+        <item>0</item>
     </string-array>
     <string-array name="trackcoloring_choices" translatable="false">
         <item>Green</item>

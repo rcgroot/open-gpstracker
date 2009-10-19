@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<item name="conversion_from_mps" type="raw" format="float">3.6</item>
+<string name="unitname">kph</string>
+</resources>
