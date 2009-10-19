@@ -457,7 +457,7 @@ public class LoggerMap extends MapActivity
       else 
       {
          speedbar.setVisibility( View.INVISIBLE );
-         for( int i=0 ; i<5 ; i++ )
+         for( int i=0 ; i<mSpeedtexts.length ; i++ )
          {
             mSpeedtexts[i].setVisibility( View.INVISIBLE );
          }
