@@ -122,7 +122,7 @@ public class GPSLoggerService extends Service
       this.locationManager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
       
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( LOGATSTARTUP, false );
-      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
+//      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
       if( startImmidiatly )
       {
          startLogging();
