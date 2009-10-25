@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.tests.userinterface;
 
-import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
@@ -81,7 +80,7 @@ public class LoggerMapStressTest extends ActivityInstrumentationTestCase2<Logger
       // Our data feeder to the emulator
       MockGPSLoggerDriver service = new MockGPSLoggerDriver( this.mLoggermap );
       service.setTimeout( 10 );
-      service.setRoute( R.xml.rondjesingelutrecht );
+      service.setRoute( -1 );
 
       this.sendKeys( "T T T T T T T" );
       this.sendKeys( "MENU DPAD_RIGHT T T E S T R O U T E ENTER");

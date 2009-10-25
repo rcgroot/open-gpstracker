@@ -33,8 +33,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import nl.sogeti.android.gpstracker.R;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -62,7 +60,7 @@ public class MockGPSLoggerDriver implements Runnable
    public MockGPSLoggerDriver(Context context)
    {
       this.timeout = DEFAULT_TIMEOUT;
-      this.mRouteResource = R.xml.denhaagdenbosch;
+      this.mRouteResource = -1;// R.xml.denhaagdenbosch;
       this.mContext = context;
       this.sender = new TelnetPositionSender();
    }
