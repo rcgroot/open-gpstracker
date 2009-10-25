@@ -267,9 +267,25 @@ public class GPSLoggerService extends Service
    {   
       previousLocation = location;
       ContentValues args = new ContentValues();
+      
       args.put( Waypoints.LATITUDE, new Double( location.getLatitude() ) );
       args.put( Waypoints.LONGITUDE, new Double( location.getLongitude() ) );
       args.put( Waypoints.SPEED, new Float( location.getSpeed() ) );
+      args.put( Waypoints.TIME, new Float( location.getTime() ) );
+      if( location.hasAccuracy() )
+      {
+         args.put( Waypoints.ACCURACY, new Float( location.getAccuracy() ) );
+      }
+      if( location.hasAltitude() )
+      {
+         args.put( Waypoints.ALTITUDE, new Double( location.getAltitude() ) );
+         
+      }
+      if( location.hasBearing() )
+      {
+         args.put( Waypoints.BEARING, new Float( location.getBearing() ) );
+      }
+
       context.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+segmentId+"/waypoints" ), args );
    }
 }

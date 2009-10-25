@@ -46,7 +46,7 @@ public final class GPStracking
    /** The name of the database file */
    static final String DATABASE_NAME = "GPSLOG.db";
    /** The version of the database schema */
-   static final int DATABASE_VERSION = 7;
+   static final int DATABASE_VERSION = 8;
 
    /**
     * This table contains tracks.
@@ -114,7 +114,18 @@ public final class GPStracking
       "," + " " + WaypointsColumns.TIME + " " + WaypointsColumns.TIME_TYPE + 
       "," + " " + WaypointsColumns.SPEED + " " + WaypointsColumns.SPEED + 
       "," + " " + WaypointsColumns.SEGMENT + " " + WaypointsColumns.SEGMENT_TYPE + 
+      "," + " " + WaypointsColumns.ACCURACY + " " + WaypointsColumns.ACCURACY_TYPE + 
+      "," + " " + WaypointsColumns.ALTITUDE+ " " + WaypointsColumns.ALTITUDE_TYPE + 
+      "," + " " + WaypointsColumns.BEARING + " " + WaypointsColumns.BEARING_TYPE + 
       ");";
+      
+      static final String[] UPGRADE_STATEMENT_7_TO_8 = 
+         {
+            "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.ACCURACY + " " + WaypointsColumns.ACCURACY_TYPE +";",
+            "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.ALTITUDE+ " " + WaypointsColumns.ALTITUDE_TYPE +";",
+            "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.BEARING + " " + WaypointsColumns.BEARING_TYPE +";"
+         };
+      		
    }
    
    /**
@@ -163,12 +174,23 @@ public final class GPStracking
       public static final String SPEED = "speed";
       /** The segment _id to which this segment belongs */
       public static final String SEGMENT = "tracksegment";
+      /** The accuracy of the fix */
+      public static final String ACCURACY = "accuracy";
+      /** The altitude */
+      public static final String ALTITUDE = "altitude";
+      /** the bearing of the fix */
+      public static final String BEARING = "bearing";
+
       static final String LATITUDE_TYPE = "REAL NOT NULL";
       static final String LONGITUDE_TYPE = "REAL NOT NULL";
       static final String TIME_TYPE = "INTEGER NOT NULL";
       static final String SPEED_TYPE = "REAL NOT NULL";
       static final String SEGMENT_TYPE = "INTEGER NOT NULL";
+      static final String ACCURACY_TYPE = "REAL";
+      static final String ALTITUDE_TYPE = "REAL";
+      static final String BEARING_TYPE = "REAL";
       static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
+
    }
 
 }

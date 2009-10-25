@@ -42,6 +42,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
 /**
@@ -74,24 +75,34 @@ class DatabaseHelper extends SQLiteOpenHelper
       db.execSQL( Tracks.CREATE_STATEMENT );
    }
 
-   /*
-    * (non-Javadoc)
+   /**
+    * 
+    * Will update version 1 through 5 to version 8
+    * 
     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
+    * @see GPStracking.DATABASE_VERSION
     */
    @Override
-   public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion )
+   public void onUpgrade( SQLiteDatabase db, int current, int targetVersion )
    {
-      if( newVersion == 5 &&  oldVersion <= 5) // Version 5 and before are the same 
+      Log.d( TAG, "Upgrading db from "+current+" to "+targetVersion );
+      if( current <= 5 )                      // From 1-5 to 6 (these before are the same before) 
       {
-         return;
-      }
-      else
+         current = 6;
+      } 
+      if( current == 6)                     // From 6 to 7 ( no changes ) 
       {
-         db.execSQL("DROP TABLE IF EXISTS "+Tracks.TABLE);
-         db.execSQL("DROP TABLE IF EXISTS "+Segments.TABLE);
-         db.execSQL("DROP TABLE IF EXISTS "+Waypoints.TABLE);
-         onCreate(db);
+         current = 7;
       }
+      if( current == 7)                     // From 7 to 8 ( more waypoint data ) 
+      {
+         for( String statement : Waypoints.UPGRADE_STATEMENT_7_TO_8 )
+         {
+            db.execSQL( statement );
+         }
+         current = 8;
+      }
+      
    }
 
    /**
@@ -105,8 +116,8 @@ class DatabaseHelper extends SQLiteOpenHelper
     * @param speed the measured speed
     * @return
     */
-   long insertWaypoint( long trackId, long segmentId, double latitude, double longitude, float speed )
-   {
+   long insertWaypoint( long trackId, long segmentId, Location location )
+   {      
       //Log.d( TAG, "New waypoint ("+latitude+","+longitude+") with speed "+speed );
       if( trackId < 0 || segmentId < 0 )
       {
@@ -115,13 +126,16 @@ class DatabaseHelper extends SQLiteOpenHelper
       
       SQLiteDatabase sqldb = getWritableDatabase();
       
-      long time = ( new Date() ).getTime();
       ContentValues args = new ContentValues();
-      args.put( WaypointsColumns.LATITUDE, latitude );
-      args.put( WaypointsColumns.LONGITUDE, longitude );
-      args.put( WaypointsColumns.TIME, time );
-      args.put( WaypointsColumns.SPEED, speed );
       args.put( WaypointsColumns.SEGMENT, segmentId );
+      args.put( WaypointsColumns.TIME, location.getTime() );
+      args.put( WaypointsColumns.LATITUDE, location.getLatitude() );
+      args.put( WaypointsColumns.LONGITUDE, location.getLongitude() );
+      args.put( WaypointsColumns.SPEED, location.getSpeed() );
+      args.put( WaypointsColumns.ACCURACY, location.getAccuracy() );
+      args.put( WaypointsColumns.ALTITUDE, location.getAltitude() );
+      args.put( WaypointsColumns.BEARING, location.getBearing() );
+      
 
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
 

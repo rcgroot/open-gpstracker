@@ -42,6 +42,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
 
@@ -192,17 +193,30 @@ public class GPStrackingProvider extends ContentProvider
             pathSegments = uri.getPathSegments();
             trackId = Integer.parseInt( pathSegments.get( 1 ) );
             segmentId = Integer.parseInt( pathSegments.get( 3 ) );
-            float speed = -1;
-            if( values.containsKey( Waypoints.SPEED ) )
+            
+            Location loc = new Location( TAG );
+            loc.setLatitude( values.getAsDouble( Waypoints.LATITUDE ) );
+            loc.setLongitude( values.getAsDouble( Waypoints.LONGITUDE ) );
+            loc.setTime( values.getAsLong( Waypoints.TIME ) );
+            loc.setSpeed( values.getAsFloat( Waypoints.SPEED ) );
+            
+            if( values.containsKey( Waypoints.ACCURACY ) )
             {
-               speed = values.getAsFloat( Waypoints.SPEED ).floatValue();
+               loc.setAccuracy( values.getAsFloat( Waypoints.ACCURACY ) );
+            }
+            if( values.containsKey( Waypoints.ALTITUDE ) )
+            {
+               loc.setAltitude( values.getAsDouble( Waypoints.ALTITUDE ) );
+               
+            }
+            if( values.containsKey( Waypoints.BEARING ) )
+            {
+               loc.setBearing( values.getAsFloat( Waypoints.BEARING ) );
             }
             waypointId = this.mDbHelper.insertWaypoint( 
                   trackId, 
                   segmentId, 
-                  values.getAsDouble( WaypointsColumns.LATITUDE ), 
-                  values.getAsDouble( WaypointsColumns.LONGITUDE ), 
-                  speed );
+                  loc );
             insertedUri = ContentUris.withAppendedId( uri, waypointId );
             break;
          case SEGMENTS:
