@@ -14,11 +14,13 @@
         <item>Red</item>
         <item>Speed</item>
         <item>Average speed</item>
+        <item>Waypoints</item>
     </string-array>
     <string-array name="trackcoloring_values" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>
+        <item>4</item>
     </string-array>    
 </resources>

@@ -9,7 +9,8 @@
 	  android:enabled="true"
 	  android:clickable="true"
 	  android:apiKey="0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw"
-	/>
+	/> 
+	<!--  Device / Release: 0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw -->
 
    <TextView android:id="@+id/speedview00" 
        android:text="100" 

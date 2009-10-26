@@ -8,8 +8,8 @@
     <string name="dialog_notrack_message">Please select a track first before exporting</string>
     <string name="dialog_filename_title">File name</string>
     <string name="dialog_filename_message">Please enter the name for a GPX file on the SDCard</string>
-    <string name="dialog_deleteconfirmation">Delete track</string>
-    <string name="dialog_deletetitle">Please confirm the deletion of the track</string>
+    <string name="dialog_deletetitle">Delete track</string>
+    <string name="dialog_deleteconfirmation">Please confirm the deletion of the track</string>
     
     <string name="from">Tracked on: </string>
 	
