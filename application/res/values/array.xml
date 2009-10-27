@@ -1,5 +1,5 @@
 <resources>
-    <string-array name="precision_choices" translatable="false">
+    <string-array name="precision_choices">
         <item>Fine</item>
         <item>Normal</item>
         <item>Coarse</item>
@@ -9,7 +9,7 @@
         <item>1</item>
         <item>0</item>
     </string-array>
-    <string-array name="trackcoloring_choices" translatable="false">
+    <string-array name="trackcoloring_choices">
         <item>Green</item>
         <item>Red</item>
         <item>Speed</item>

@@ -1,0 +1,14 @@
+<resources>
+    <string-array name="precision_choices">
+        <item>Fijn</item>
+        <item>Normaal</item>
+        <item>Grof</item>
+    </string-array>
+    <string-array name="trackcoloring_choices">
+        <item>Groen</item>
+        <item>Rood</item>
+        <item>Snelheid</item>
+        <item>Gemiddelde snelheid</item>
+        <item>Meetpunten</item>
+    </string-array>
+</resources>

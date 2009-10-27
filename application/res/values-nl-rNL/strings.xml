@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">GPSTracker</string>
+	
+	<string name="dialog_routename_title">Naam</string>
+    <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>
+    <string name="dialog_notrack_title">Geen route gekozen</string>
+    <string name="dialog_notrack_message">Kiest u alstublieft eerst een route</string>
+    <string name="dialog_filename_title">Bestandsnaam</string>
+    <string name="dialog_filename_message">Geeft u alstublieft een naam voor het GPX bestand op de SDCards</string>
+    <string name="dialog_deletetitle">Verwijder</string>
+    <string name="dialog_deleteconfirmation">Bevestigd u alstublieft het verwijderen</string>
+    
+    <string name="from">Opgenomen op: </string>
+    
+	<string name="btn_okay">OK</string>
+    <string name="btn_cancel">Annuleren</string>
+	<string name="btn_save">Opslaan</string>
+	<string name="btn_selecttrack">Route selecteren</string>
+	
+	<string name="menu_settings">Instellingen</string>
+	<string name="menu_toggle_off">Stop opnemen</string>
+	<string name="menu_toggle_on">Start opnemen</string>
+	<string name="menu_tracklist">Toon routes</string>
+	<string name="menu_shareTrack">Deel route</string>
+    <string name="menu_showTrack">Toon statistieken </string>
+	<string name="menu_deleteTrack">Verwijder route</string>
+    <string name="menu_renameTrack">Hernoem route</string>
+    <string name="menu_statistics">Toon statistics</string>
+
+	<string name="receive_filewriter">Save to GPX file</string>
+
+    <string name="opengpstracker_title">GPSTracker</string>
+    <string name="opengpstracker_settings">Instellingen</string>   
+    <string name="logatstartup">Log bij opstarten</string>
+    <string name="logatstartup_summary">De applicatie begint direct met opnemen na het opstarten.</string>   
+    <string name="disableblanking_title">Voorkom scherm uitzetten</string>
+    <string name="disableblanking_summary">Houd het scherm aan tijdens het opnemen.</string>       
+    <string name="precision_title">Meet preciesie</string>
+    <string name="precision_summary">De interval en frequentie van meten.</string>      
+    <string name="trackcoloring_title">Route kleur</string>
+    <string name="trackcoloring_summary">De kleur en tekenmethode van de route.</string>
+    
+    <string name="stat_maximumspeed">Maximum snelheid</string>
+    <string name="stat_averagespeed">Gemiddelde snelheid</string>    
+    <string name="stat_distance">Gemeten afstand</string>    
+    <string name="stat_endtime">Laatste tijd</string>    
+    <string name="stat_starttime">Start tijd</string>    
+    <string name="stat_trackname">Route naam</string>
+    <string name="stat_waypoints">Aantal metingen</string>
+    
+
+</resources>
