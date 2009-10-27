@@ -287,7 +287,7 @@ public class ExportGPX extends BroadcastReceiver
       try {
          waypointsCursor = resolver.query(
                waypoints, 
-               new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE }, 
+               new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints.ACCURACY }, 
                null, null, null);
          if( waypointsCursor.moveToFirst() )
          { 
@@ -301,7 +301,7 @@ public class ExportGPX extends BroadcastReceiver
                serializer.startTag( "", "trkpt" );
                serializer.attribute( null, "lat", waypointsCursor.getString( 1 ) );
                serializer.attribute( null, "lon", waypointsCursor.getString( 0 ) );
-               serializer.attribute( null, "ele", waypointsCursor.getString( 2 ) );
+               serializer.attribute( null, "ele", waypointsCursor.getString( 3 ) );
                serializer.text( "\n" );
                serializer.startTag( "", "time" );
                Date time = new Date( waypointsCursor.getLong( 2 ) );

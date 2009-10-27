@@ -81,8 +81,8 @@ public class TrackingOverlay extends Overlay
    private Context mContext;
    private Projection mProjection;
    
-   private int step_minimum = 10;
-   private int step_maximum = 20;
+   private int diffMinimum = 1;
+   private int diffMaximum = 100;
    private int mPlacement = TrackingOverlay.MIDDLE;
    private Uri mSegmentUri;
    private double mAvgSpeed;
@@ -138,7 +138,7 @@ public class TrackingOverlay extends Overlay
     * 
     * @see TrackingOverlay#draw(Canvas, MapView, boolean)
     */
-   public void drawDots( Canvas canvas, MapView mapView, boolean shadow )
+   private void drawDots( Canvas canvas, MapView mapView, boolean shadow )
    {  
       this.mCanvas = canvas;
       this.mScreenPoint = new Point();
@@ -242,9 +242,9 @@ public class TrackingOverlay extends Overlay
 
    private void transformSegmentToCanvasDots()
    {
-      Log.d( TAG, "transformSegmentToPath start" );
-      step_minimum = 1;
-      step_maximum = 5;
+//      Log.d( TAG, "transformSegmentToPath start" );
+      diffMinimum = 8;
+      diffMaximum = 16;
       
       Cursor trackCursor = null;
       GeoPoint geoPoint;
@@ -263,6 +263,11 @@ public class TrackingOverlay extends Overlay
             // Start point of the segments, possible a dot
             this.mStartPoint = extractGeoPoint( trackCursor );
             moveToGeoPoint( this.mStartPoint );
+            
+            Paint radiusPaint = new Paint();
+            radiusPaint.setColor( Color.YELLOW );
+            radiusPaint.setAlpha( 100 );
+            
             do
             {
                geoPoint = extractGeoPoint( trackCursor );
@@ -272,12 +277,9 @@ public class TrackingOverlay extends Overlay
                Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
                this.mCanvas.drawBitmap( bitmap, out.x - 8, out.y - 8, new Paint() );
                float radius = mProjection.metersToEquatorPixels( trackCursor.getFloat( 2 ) );
-               if( radius > 8 )
+               if( radius > 8f )
                {
-                  Paint paint = new Paint();
-                  paint.setColor( Color.YELLOW );
-                  paint.setAlpha( 100 );
-                  this.mCanvas.drawCircle( out.x, out.y, radius, paint );
+                  this.mCanvas.drawCircle( out.x, out.y, radius, radiusPaint );
                }
                adjustSkipSmall();
                this.mPrevScreenPoint.x = this.mScreenPoint.x;
@@ -297,7 +299,7 @@ public class TrackingOverlay extends Overlay
          }
       }
       
-      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
+//      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
    }
 
    /**
@@ -309,9 +311,9 @@ public class TrackingOverlay extends Overlay
     */
    private void transformSegmentToPath()
    {
-      Log.d( TAG, "transformSegmentToPath start" );
-      step_minimum = 10;
-      step_maximum = 20;
+//      Log.d( TAG, "transformSegmentToPath start" );
+      diffMinimum = 10;
+      diffMaximum = 20;
       Cursor trackCursor = null;
       Location location = null;
       Location prevLocation = null;
@@ -386,7 +388,7 @@ public class TrackingOverlay extends Overlay
          }
       }
       
-      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
+//      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
    }
    
    private void moveToGeoPoint( GeoPoint geoPoint )
@@ -449,14 +451,14 @@ public class TrackingOverlay extends Overlay
          {
             if( trackCursor.isLast() )
             {
-               Log.d(TAG, "last on screen "+trackCursor.getPosition() );
+//               Log.d(TAG, "last on screen "+trackCursor.getPosition() );
                return true;
             }
             
             evalPoint = extractGeoPoint( trackCursor );
             if( !isOnScreen( evalPoint ) )
             {
-               Log.d(TAG, "first out screen "+trackCursor.getPosition() );
+//               Log.d(TAG, "first out screen "+trackCursor.getPosition() );
                return true;
             }
             
@@ -474,7 +476,7 @@ public class TrackingOverlay extends Overlay
          {
             if( trackCursor.isLast() )
             {
-               Log.d(TAG, "last off screen "+trackCursor.getPosition() );
+//               Log.d(TAG, "last off screen "+trackCursor.getPosition() );
                return true;
             }
             
@@ -482,7 +484,7 @@ public class TrackingOverlay extends Overlay
             if( isOnScreen( evalPoint ) )
             {
                moveToGeoPoint( lastPoint );   
-               Log.d(TAG, "first in screen "+trackCursor.getPosition() );
+//               Log.d(TAG, "first in screen "+trackCursor.getPosition() );
                return true;
             }
             lastPoint = evalPoint;
@@ -516,11 +518,11 @@ public class TrackingOverlay extends Overlay
    private void adjustSkip()
    {
       int diff = Math.abs( this.mPrevScreenPoint.x - this.mScreenPoint.x ) + Math.abs( this.mPrevScreenPoint.y - this.mScreenPoint.y );
-      if( diff > step_maximum && stepSize > 1 )
+      if( diff > diffMaximum && stepSize > 1 )
       {
          stepSize--;
       }
-      else if( diff < step_minimum )
+      else if( diff < diffMinimum )
       {
          stepSize *= 2;
       }
@@ -529,11 +531,11 @@ public class TrackingOverlay extends Overlay
    private void adjustSkipSmall()
    {
       int diff = Math.abs( this.mPrevScreenPoint.x - this.mScreenPoint.x ) + Math.abs( this.mPrevScreenPoint.y - this.mScreenPoint.y );
-      if( diff > step_maximum && stepSize > 1 )
+      if( diff > diffMaximum && stepSize > 1 )
       {
          stepSize--;
       }
-      else if( diff < step_minimum )
+      else if( diff < diffMinimum )
       {
          stepSize++;
       }

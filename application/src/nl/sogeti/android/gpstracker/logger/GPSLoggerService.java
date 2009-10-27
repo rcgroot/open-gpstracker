@@ -69,7 +69,8 @@ public class GPSLoggerService extends Service
    
    private long mTrackId = -1;
    private long segmentId = -1 ;
-   private Location previousLocation;
+   private Location previousLocation;  
+   private int mAcceptableAccuracy;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
    {
@@ -181,13 +182,16 @@ public class GPSLoggerService extends Service
       switch( precision )
       {
          case(0): // Coarse
-            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 15000l, 5F, this.mLocationListener );
+            this.mAcceptableAccuracy = 50;
+            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
             break;
          case(1): // Normal
-            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 5000l, 3F, this.mLocationListener );
+            this.mAcceptableAccuracy = 20;
+            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
             break;
          case(2): // Fine
-            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 1000l, 1F, this.mLocationListener );
+            this.mAcceptableAccuracy = 10;
+            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
             break;
          default:
             Log.e( TAG, "Unknown precision "+precision );
@@ -233,9 +237,8 @@ public class GPSLoggerService extends Service
       boolean acceptable = true; 
       if( previousLocation != null && proposedLocation.hasAccuracy() )
       {
-         //Log.d(this.getClass().getCanonicalName(), "Distance traveled is: "+lastLocation.distanceTo( proposedLocation ));
-         //Log.d(this.getClass().getCanonicalName(), "Accuratcy is: "+proposedLocation.getAccuracy() );
-         acceptable = proposedLocation.getAccuracy() < previousLocation.distanceTo( proposedLocation ) ;
+         acceptable = proposedLocation.getAccuracy() < this.mAcceptableAccuracy 
+                        && proposedLocation.getAccuracy() < previousLocation.distanceTo( proposedLocation ) ;
       }
       return acceptable;
    }
