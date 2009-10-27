@@ -23,7 +23,7 @@
 	<string name="menu_toggle_on">Start tracking</string>
 	<string name="menu_tracklist">List tracks</string>
 	<string name="menu_shareTrack">Share track</string>
-    <string name="menu_showTrack">Show details </string>
+    <string name="menu_showTrack">Show statistics </string>
 	<string name="menu_deleteTrack">Delete track</string>
     <string name="menu_renameTrack">Rename track</string>
     <string name="menu_statistics">Show statistics</string>
