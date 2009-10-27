@@ -211,7 +211,7 @@ public class LoggerMap extends MapActivity
    public boolean onCreateOptionsMenu( Menu menu )
    {
       boolean result =  super.onCreateOptionsMenu(menu);
-
+      
       menu.add(0, MENU_TOGGLE, 0, R.string.menu_toggle_on).setIcon(android.R.drawable.ic_menu_mapmode).setAlphabeticShortcut( 't' );
       menu.add(0, MENU_TRACKLIST, 0, R.string.menu_tracklist).setIcon(android.R.drawable.ic_menu_gallery).setAlphabeticShortcut( 'l' );
       menu.add(0, MENU_VIEW, 0, R.string.menu_showTrack).setIcon(android.R.drawable.ic_menu_view).setAlphabeticShortcut( 'e' );

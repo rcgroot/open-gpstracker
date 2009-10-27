@@ -81,6 +81,7 @@ public class TrackingOverlay extends Overlay
    private Context mContext;
    private Projection mProjection;
    
+   private int minimumSpeedDistance = 100 ;
    private int diffMinimum = 1;
    private int diffMaximum = 100;
    private int mPlacement = TrackingOverlay.MIDDLE;
@@ -243,8 +244,8 @@ public class TrackingOverlay extends Overlay
    private void transformSegmentToCanvasDots()
    {
 //      Log.d( TAG, "transformSegmentToPath start" );
-      diffMinimum = 8;
-      diffMaximum = 16;
+      diffMinimum = 4;
+      diffMaximum = 8;
       
       Cursor trackCursor = null;
       GeoPoint geoPoint;
@@ -359,14 +360,25 @@ public class TrackingOverlay extends Overlay
                      location.setLatitude( trackCursor.getDouble( 0 ) );
                      location.setLongitude( trackCursor.getDouble( 1 ) );
                      location.setTime( trackCursor.getLong( 3 ) );
+                     float distance = 0;
                      if( prevLocation != null )
                      {
-                        float distance = prevLocation.distanceTo( location );
+                        distance = prevLocation.distanceTo( location );
+                     }
+                     else
+                     {
+                        prevLocation = location; 
+                     }
+                     if( distance > minimumSpeedDistance  )
+                     {
                         float seconds = ( ( location.getTime() - prevLocation.getTime() ) / 1000f );
                         speed = distance / seconds;
-                        //Log.d( TAG, "Calculated speed:"+speed+" for seconds: "+seconds+" over distance "+distance );
+                        prevLocation = location; 
                      }
-                     prevLocation = location; 
+                     else 
+                     {
+                        speed = -1 ;
+                     }
                      lineToGeoPoint( geoPoint, speed );
                      break;
                   default:
@@ -533,7 +545,7 @@ public class TrackingOverlay extends Overlay
       int diff = Math.abs( this.mPrevScreenPoint.x - this.mScreenPoint.x ) + Math.abs( this.mPrevScreenPoint.y - this.mScreenPoint.y );
       if( diff > diffMaximum && stepSize > 1 )
       {
-         stepSize--;
+         stepSize/=2;
       }
       else if( diff < diffMinimum )
       {
