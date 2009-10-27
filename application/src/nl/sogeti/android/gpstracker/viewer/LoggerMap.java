@@ -241,12 +241,14 @@ public class LoggerMap extends MapActivity
             if( this.mLoggerServiceManager.isLogging() ) 
             {
                this.mLoggerServiceManager.stopGPSLoggerService();
+               updateBlankingBehavior();
                item.setTitle( R.string.menu_toggle_on );
             }
             else 
             {
                this.mTrackId = this.mLoggerServiceManager.startGPSLoggerService(null);
                attempToMoveToTrack( this.mTrackId );
+               updateBlankingBehavior();
                item.setTitle( R.string.menu_toggle_off );
                
                LayoutInflater factory = LayoutInflater.from( this );
