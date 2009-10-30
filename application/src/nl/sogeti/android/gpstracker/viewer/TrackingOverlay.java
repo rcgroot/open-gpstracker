@@ -101,11 +101,13 @@ public class TrackingOverlay extends Overlay
    private Point mScreenPoint;
    private int stepSize = 1;
    private int step = 0;
+   private MapView mMapView;
    
-   TrackingOverlay( Context cxt, ContentResolver resolver, Uri segmentUri, int color, double avgSpeed )
+   TrackingOverlay( Context cxt, ContentResolver resolver, Uri segmentUri, int color, double avgSpeed, MapView mapView )
    {
       super();
       this.mContext = cxt;
+      this.mMapView = mapView;
       this.trackColoringMethod = color;
       this.mAvgSpeed = avgSpeed;
       this.mPath = new Path();
@@ -282,7 +284,7 @@ public class TrackingOverlay extends Overlay
                {
                   this.mCanvas.drawCircle( out.x, out.y, radius, radiusPaint );
                }
-               adjustSkipSmall();
+               adjustStepSizeSmall();
                this.mPrevScreenPoint.x = this.mScreenPoint.x;
                this.mPrevScreenPoint.y = this.mScreenPoint.y;
             }
@@ -434,7 +436,7 @@ public class TrackingOverlay extends Overlay
          }
       }
       
-      adjustSkip();
+      adjustStepSize();
       this.mPrevScreenPoint.x = this.mScreenPoint.x;
       this.mPrevScreenPoint.y = this.mScreenPoint.y;
    }
@@ -527,7 +529,7 @@ public class TrackingOverlay extends Overlay
       }
    }
    
-   private void adjustSkip()
+   private void adjustStepSize()
    {
       int diff = Math.abs( this.mPrevScreenPoint.x - this.mScreenPoint.x ) + Math.abs( this.mPrevScreenPoint.y - this.mScreenPoint.y );
       if( diff > diffMaximum && stepSize > 1 )
@@ -540,16 +542,23 @@ public class TrackingOverlay extends Overlay
       }
    }
 
-   private void adjustSkipSmall()
+   private void adjustStepSizeSmall()
    {
-      int diff = Math.abs( this.mPrevScreenPoint.x - this.mScreenPoint.x ) + Math.abs( this.mPrevScreenPoint.y - this.mScreenPoint.y );
-      if( diff > diffMaximum && stepSize > 1 )
+      if( mMapView != null && mMapView.getZoomLevel() >= mMapView.getMaxZoomLevel()-1 )
       {
-         stepSize/=2;
-      }
-      else if( diff < diffMinimum )
+         stepSize = 1;
+      }  
+      else
       {
-         stepSize++;
+         int diff = Math.abs( this.mPrevScreenPoint.x - this.mScreenPoint.x ) + Math.abs( this.mPrevScreenPoint.y - this.mScreenPoint.y );
+         if( diff > diffMaximum && stepSize > 1 )
+         {
+            stepSize/=2;
+         }
+         else if( diff < diffMinimum )
+         {
+            stepSize++;
+         }
       }
    }
 

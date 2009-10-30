@@ -547,7 +547,13 @@ public class LoggerMap extends MapActivity
             {
                long segmentsId = segments.getLong( 0 );
                Uri segmentUri = Uri.withAppendedPath( segmentsUri, segmentsId+"/waypoints" );
-               TrackingOverlay segmentOverlay = new TrackingOverlay( (Context)this, resolver, segmentUri, trackColoringMethod, avgSpeed );
+               TrackingOverlay segmentOverlay = new TrackingOverlay( 
+                     (Context)this
+                     , resolver
+                     , segmentUri
+                     , trackColoringMethod
+                     , avgSpeed
+                     , this.mMapView );
 
                
                updateSpeedbarVisibility( trackColoringMethod );
