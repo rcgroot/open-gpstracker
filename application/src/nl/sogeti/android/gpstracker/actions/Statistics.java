@@ -151,7 +151,7 @@ public class Statistics extends Activity
          if( waypointsCursor.moveToLast() )
          {
             long avgSpeed = waypointsCursor.getLong(  0 );            
-            waypointsText = avgSpeed+" stored points";
+            waypointsText = avgSpeed+"";
          }
       }
       finally

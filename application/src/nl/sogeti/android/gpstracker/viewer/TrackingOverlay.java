@@ -531,14 +531,21 @@ public class TrackingOverlay extends Overlay
    
    private void adjustStepSize()
    {
-      int diff = Math.abs( this.mPrevScreenPoint.x - this.mScreenPoint.x ) + Math.abs( this.mPrevScreenPoint.y - this.mScreenPoint.y );
-      if( diff > diffMaximum && stepSize > 1 )
+      if( mMapView != null && mMapView.getZoomLevel() >= mMapView.getMaxZoomLevel()-1 )
       {
-         stepSize--;
-      }
-      else if( diff < diffMinimum )
+         stepSize = 1;
+      }  
+      else
       {
-         stepSize *= 2;
+         int diff = Math.abs( this.mPrevScreenPoint.x - this.mScreenPoint.x ) + Math.abs( this.mPrevScreenPoint.y - this.mScreenPoint.y );
+         if( diff > diffMaximum && stepSize > 1 )
+         {
+            stepSize--;
+         }
+         else if( diff < diffMinimum )
+         {
+            stepSize *= 2;
+         }
       }
    }
 

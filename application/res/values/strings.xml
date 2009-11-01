@@ -12,6 +12,10 @@
     <string name="dialog_deleteconfirmation">Please confirm the deletion of the track</string>
     
     <string name="from">Tracked on: </string>
+    <string name="ticker_saving">Saving: </string>
+    <string name="ticker_stored">Stored: </string>
+    <string name="ticker_failed">Unable to save the route: </string>
+    
 	
 	<string name="btn_okay">OK</string>
 	<string name="btn_cancel">Cancel</string>
@@ -28,7 +32,9 @@
     <string name="menu_renameTrack">Rename track</string>
     <string name="menu_statistics">Show statistics</string>
 
-	<string name="receive_filewriter">Save to GPX file</string>
+    <string name="chooser_title">How to share this track?</string>
+	<string name="receive_filewriter">Save to GPX file on the SDcard</string>
+    <string name="receive_emailsender">Send GPX file by email</string>
 
     <string name="opengpstracker_title">GPSTracker</string>
     <string name="opengpstracker_settings">Settings</string>   
@@ -46,7 +52,7 @@
     <string name="stat_distance">Tracked distance</string>    
     <string name="stat_endtime">Last time</string>    
     <string name="stat_starttime">Start time</string>    
-    <string name="stat_trackname">Trackname</string>
+    <string name="stat_trackname">Track name</string>
     <string name="stat_waypoints">Number of waypoints</string>
     
 

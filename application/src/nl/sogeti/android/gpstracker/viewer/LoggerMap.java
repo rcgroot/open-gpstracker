@@ -38,6 +38,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.AlertDialog.Builder;
@@ -98,7 +99,6 @@ public class LoggerMap extends MapActivity
    private MapView mMapView = null;
    private MapController mMapController = null;
    private GPSLoggerServiceManager mLoggerServiceManager;
-   private String mTrackName;
    private EditText mFileNameView;
    private EditText mTrackNameView;
    private WakeLock mWakeLock = null;
@@ -697,7 +697,6 @@ public class LoggerMap extends MapActivity
     */
    private void drawToTrackName(String trackName) 
    {
-      this.mTrackName = trackName;
       this.setTitle( this.getString( R.string.app_name ) + ": " + trackName); 
    }
 
@@ -751,7 +750,7 @@ public class LoggerMap extends MapActivity
       return trackId;
    }
 
-   public static Dialog createTrackTitleDialog( Context ctx, View view, DialogInterface.OnClickListener positiveListener) 
+   public static Dialog createTrackTitleDialog( Activity ctx, View view, DialogInterface.OnClickListener positiveListener) 
    {           
 
       Builder builder = new AlertDialog.Builder( ctx )
@@ -762,10 +761,11 @@ public class LoggerMap extends MapActivity
       .setPositiveButton(R.string.btn_okay, positiveListener);
       
       Dialog dialog = builder.create();
+      dialog.setOwnerActivity( ctx );
       return dialog;
    }
 
-   private static Dialog createAlertNoTrack( Context ctx, DialogInterface.OnClickListener positiveListener, DialogInterface.OnClickListener negativeListener ) 
+   private static Dialog createAlertNoTrack( Activity ctx, DialogInterface.OnClickListener positiveListener, DialogInterface.OnClickListener negativeListener ) 
    {
       Builder builder = new AlertDialog.Builder( ctx )
       .setTitle( R.string.dialog_notrack_title )
@@ -775,6 +775,7 @@ public class LoggerMap extends MapActivity
       .setNegativeButton( R.string.btn_cancel, negativeListener );
       
       Dialog dialog = builder.create();
+      dialog.setOwnerActivity( ctx );
       return dialog;
    }
 }
