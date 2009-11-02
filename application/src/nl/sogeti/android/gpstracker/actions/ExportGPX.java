@@ -218,21 +218,21 @@ public class ExportGPX extends Activity
                catch (IllegalArgumentException e)
                {
                   Log.e( TAG, "Unable to save " + e );
-                  CharSequence text = getString( R.string.ticker_failed )+"\"" + fileName+"\""  + " reason: Incorrect filename";
+                  CharSequence text = getString( R.string.ticker_failed )+"\"" + fileName+"\""  + getString( R.string.error_filename );
                   Toast toast = Toast.makeText( ExportGPX.this.getApplicationContext(), text, Toast.LENGTH_LONG );
                   toast.show();
                }
                catch (IllegalStateException e)
                {
                   Log.e( TAG, "Unable to save " + e );
-                  CharSequence text = getString( R.string.ticker_failed )+"\"" + fileName+"\""  + " reason: Error building XML";
+                  CharSequence text = getString( R.string.ticker_failed )+"\"" + fileName+"\""  + getString( R.string.error_buildxml );
                   Toast toast = Toast.makeText( ExportGPX.this.getApplicationContext(), text, Toast.LENGTH_LONG );
                   toast.show();
                }
                catch (IOException e)
                {
                   Log.e( TAG, "Unable to save " + e );
-                  CharSequence text = getString( R.string.ticker_failed )+"\"" + fileName+"\""  + " reason: Error writing to SD card";
+                  CharSequence text = getString( R.string.ticker_failed )+"\"" + fileName+"\""  + getString( R.string.error_writesdcard );
                   Toast toast = Toast.makeText( ExportGPX.this.getApplicationContext(), text, Toast.LENGTH_LONG );
                   toast.show();
                }
@@ -329,7 +329,10 @@ public class ExportGPX extends Activity
                serializer.startTag( "", "trkpt" );
                serializer.attribute( null, "lat", waypointsCursor.getString( 1 ) );
                serializer.attribute( null, "lon", waypointsCursor.getString( 0 ) );
-               serializer.attribute( null, "ele", waypointsCursor.getString( 3 ) );
+               serializer.text( "\n" );
+               serializer.startTag( "", "ele" );
+               serializer.text( waypointsCursor.getString( 3 ) );
+               serializer.endTag( "", "ele" );
                serializer.text( "\n" );
                serializer.startTag( "", "time" );
                Date time = new Date( waypointsCursor.getLong( 2 ) );
