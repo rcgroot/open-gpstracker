@@ -443,6 +443,7 @@ public class TrackingOverlay extends Overlay
       {
          while( trackCursor.moveToNext() )
          {
+            step++;
             if( trackCursor.isLast() )
             {
 //               Log.d(TAG, "last on screen "+trackCursor.getPosition() );
@@ -455,10 +456,9 @@ public class TrackingOverlay extends Overlay
 //               Log.d(TAG, "first out screen "+trackCursor.getPosition() );
                return true;
             }
-            
             if( isGoodDrawable() )
             {
-               return true;
+               return true; 
             }
          }        
          trackCursor.moveToLast();
@@ -468,6 +468,7 @@ public class TrackingOverlay extends Overlay
       {
          while( trackCursor.moveToNext() )
          {
+            step++;
             if( trackCursor.isLast() )
             {
 //               Log.d(TAG, "last off screen "+trackCursor.getPosition() );
@@ -497,7 +498,6 @@ public class TrackingOverlay extends Overlay
 
    private boolean isGoodDrawable()
    {
-      step++;
       if( step >= stepSize )
       {
          step = 0;
@@ -512,8 +512,8 @@ public class TrackingOverlay extends Overlay
    private void setStepSize()
    {
       int zoomLevel = mMapView.getZoomLevel();
-      int maxZoomLevel = mMapView.getMaxZoomLevel()-1;
-      if( mMapView != null && zoomLevel >= maxZoomLevel )
+      int maxZoomLevel = mMapView.getMaxZoomLevel();
+      if( mMapView != null && zoomLevel >= maxZoomLevel-1 )
       {
          stepSize = 1;
       } 
