@@ -561,11 +561,11 @@ public class LoggerMap extends MapActivity
                overlays.add( segmentOverlay );
                if( segments.isFirst() ) 
                {
-                  segmentOverlay.setPlacement( TrackingOverlay.FIRST );
+                  segmentOverlay.setPlacement( TrackingOverlay.FIRST_SEGMENT );
                }
                if( segments.isLast() )
                {
-                  segmentOverlay.setPlacement( TrackingOverlay.LAST );
+                  segmentOverlay.setPlacement( TrackingOverlay.LAST_SEGMENT );
                   GeoPoint lastPoint = getLastTrackPoint( this.mTrackId, segmentsId );
                   if( lastPoint != null )
                   {
