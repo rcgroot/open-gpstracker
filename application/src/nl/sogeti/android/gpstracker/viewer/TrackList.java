@@ -65,6 +65,7 @@ public class TrackList extends ListActivity
    private static final int MENU_DETELE = 0;
    private static final int MENU_SHARE = 1;
    private static final int MENU_RENAME = 2;
+   private static final int MENU_STATS = 3;
    public static final int DIALOG_FILENAME = 0;
    private Cursor mTracksCursor;
    SimpleCursorAdapter mNotes;
@@ -153,9 +154,10 @@ public class TrackList extends ListActivity
             menu.setHeaderTitle(textView.getText());
          }
       }
-      menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
-      menu.add(0, MENU_RENAME, 0, R.string.menu_renameTrack );
+      menu.add(0, MENU_STATS, 0, R.string.menu_statistics);
       menu.add(0, MENU_SHARE, 0, R.string.menu_shareTrack);
+      menu.add(0, MENU_RENAME, 0, R.string.menu_renameTrack );
+      menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
    }
 
    @Override
@@ -207,6 +209,14 @@ public class TrackList extends ListActivity
             mTrackNameView = (EditText) view.findViewById( R.id.nameField );
             mTrackNameView.setText( currentName );
             LoggerMap.createTrackTitleDialog( this, view, new RenameClickListener( uri ) ).show();
+            handled = true;
+            break;
+         }
+         case MENU_STATS:
+         {
+            Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
+            Intent actionIntent = new Intent(Intent.ACTION_VIEW, uri );
+            startActivity( actionIntent );
             handled = true;
             break;
          }
