@@ -58,6 +58,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Looper;
 import android.util.Log;
 import android.util.Xml;
@@ -84,8 +85,6 @@ public class ExportGPX extends Activity
 
    private RemoteViews mContentView;
    private int barProgress = 0;
-   private int mProgress = 0;
-   private int mGoal = 0;
    private Notification mNotification;
    private NotificationManager mNotificationManager;
    private OnClickListener negativeListener = new OnClickListener()
@@ -116,270 +115,317 @@ public class ExportGPX extends Activity
       createAlertFileName( view, positiveListener, negativeListener ).show();
    }
 
-   protected void exportGPX( final String chosenFileName )
+   protected void exportGPX( String chosenFileName )
    {
-      final Intent intent = getIntent();
-
-      new Thread( new Runnable()
-         {
-            public void run()
-            {
-               Looper.prepare();
-               Uri trackUri = intent.getData();
-               String fileName = "UntitledTrack";
-               if( chosenFileName != null && !chosenFileName.equals( "" ))
-               {
-                  fileName = chosenFileName;
-               }
-               else
-               {
-                  Cursor trackCursor = null;
-                  ContentResolver resolver = getContentResolver();
-                  try
-                  {
-                     trackCursor = resolver.query( trackUri, new String[] { Tracks.NAME }, null, null, null );
-                     if( trackCursor.moveToLast() )
-                     {
-                        fileName = trackCursor.getString( 0 );
-                     }
-                  }
-                  finally
-                  {
-                     if( trackCursor != null )
-                     {
-                        trackCursor.close();
-                     }
-                  }
-               }
-               if( !fileName.endsWith( ".gpx" ) )
-               {
-                  fileName = fileName + ".gpx";
-               }
-               String filePath = "/sdcard/" + fileName;
-
-               String ns = Context.NOTIFICATION_SERVICE;
-               mNotificationManager = (NotificationManager) ExportGPX.this.getSystemService( ns );
-               int icon = android.R.drawable.ic_menu_save;
-               CharSequence tickerText = getString( R.string.ticker_saving )+ "\"" + fileName + "\"";
-
-               mNotification = new Notification();
-               PendingIntent contentIntent = PendingIntent.getActivity( ExportGPX.this, 0, new Intent( ExportGPX.this, LoggerMap.class ).setFlags( Intent.FLAG_ACTIVITY_NEW_TASK ),
-                     PendingIntent.FLAG_UPDATE_CURRENT );
-
-               mNotification.contentIntent = contentIntent;
-               mNotification.tickerText = tickerText;
-               mNotification.icon = icon;
-               mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-               mContentView = new RemoteViews( getPackageName(), R.layout.savenotificationprogress );
-               mContentView.setImageViewResource( R.id.icon, icon );
-               mContentView.setTextViewText( R.id.progresstext, tickerText );
-
-               mNotification.contentView = mContentView;
-
-               updateNotification();
-
-               try
-               {
-                  XmlSerializer serializer = Xml.newSerializer();
-                  BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( filePath ), 8192 );
-                  serializer.setOutput( buf, "UTF-8" );
-                  serializer.startDocument( "UTF-8", true );
-                  serializer.setPrefix( "xsi", NS_SCHEMA );
-                  serializer.setPrefix( "gpx", NS_GPX_11 );
-                  serializer.startTag( "", "gpx" );
-                  serializer.attribute( null, "version", "1.1" );
-                  serializer.attribute( null, "creator", "nl.sogeti.android.gpstracker" );
-                  serializer.attribute( NS_SCHEMA, "schemaLocation", NS_GPX_11 + " http://www.topografix.com/gpx/1/1/gpx.xsd" );
-                  serializer.attribute( null, "xmlns", NS_GPX_11 );
-
-                  // Big header of the track
-                  String name = serializeTrack( ExportGPX.this, serializer, trackUri );
-
-                  serializer.text( "\n" );
-                  serializer.startTag( "", "trk" );
-                  serializer.text( "\n" );
-                  serializer.startTag( "", "name" );
-                  serializer.text( name );
-                  serializer.endTag( "", "name" );
-
-                  // The list of segments in the track
-                  serializeSegments( ExportGPX.this, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
-
-                  serializer.text( "\n" );
-                  serializer.endTag( "", "trk" );
-                  serializer.text( "\n" );
-                  serializer.endTag( "", "gpx" );
-                  serializer.endDocument();
-
-                  CharSequence text = getString( R.string.ticker_stored )+"\"" + fileName+"\"";
-                  Toast toast = Toast.makeText( ExportGPX.this.getApplicationContext(), text, Toast.LENGTH_SHORT );
-                  toast.show();
-               }
-               catch (IllegalArgumentException e)
-               {
-                  Log.e( TAG, "Unable to save " + e );
-                  CharSequence text = getString( R.string.ticker_failed )+"\"" + fileName+"\""  + getString( R.string.error_filename );
-                  Toast toast = Toast.makeText( ExportGPX.this.getApplicationContext(), text, Toast.LENGTH_LONG );
-                  toast.show();
-               }
-               catch (IllegalStateException e)
-               {
-                  Log.e( TAG, "Unable to save " + e );
-                  CharSequence text = getString( R.string.ticker_failed )+"\"" + fileName+"\""  + getString( R.string.error_buildxml );
-                  Toast toast = Toast.makeText( ExportGPX.this.getApplicationContext(), text, Toast.LENGTH_LONG );
-                  toast.show();
-               }
-               catch (IOException e)
-               {
-                  Log.e( TAG, "Unable to save " + e );
-                  CharSequence text = getString( R.string.ticker_failed )+"\"" + fileName+"\""  + getString( R.string.error_writesdcard );
-                  Toast toast = Toast.makeText( ExportGPX.this.getApplicationContext(), text, Toast.LENGTH_LONG );
-                  toast.show();
-               }
-               finally
-               {
-                  mNotificationManager.cancel( R.layout.savenotificationprogress );
-                  Looper.loop();
-               }
-            }
-         } ).start();
+      GpxCreator mGpxCreator = new GpxCreator( this, getIntent(), chosenFileName, new ProgressListener() );
+      mGpxCreator.start();
       this.finish();
    }
-
-   private String serializeTrack( Context context, XmlSerializer serializer, Uri trackUri ) throws IOException
+   
+   static public class GpxCreator extends Thread
    {
-      ContentResolver resolver = context.getContentResolver();
-      Cursor trackCursor = null;
-      String name = null;
+      private String mChosenFileName;
+      private Intent mIntent;
+      private GpxCreationProgressListener mProgressListener;
+      private Context mContext;
 
-      try
+      private int mProgress = 0;
+      private int mGoal = 0;
+      
+      GpxCreator(Context context, Intent intent, String chosenFileName, GpxCreationProgressListener listener)
       {
-         trackCursor = resolver.query( trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
-         if( trackCursor.moveToFirst() )
-         {
-            name = trackCursor.getString( 1 );
-            serializer.startTag( "", "metadata" );
-            serializer.startTag( "", "time" );
-            Date time = new Date( trackCursor.getLong( 2 ) );
-            DateFormat formater = new SimpleDateFormat( DATETIME );
-            serializer.text( formater.format( time ) );
-            serializer.endTag( "", "time" );
-            serializer.endTag( "", "metadata" );
-         }
+         mChosenFileName = chosenFileName;
+         mContext = context;
+         mIntent = intent;
+         mProgressListener = listener;
       }
-      finally
+      public void run()
       {
-         if( trackCursor != null )
+         Looper.prepare();
+         Uri trackUri = mIntent.getData();
+         String fileName = "UntitledTrack";
+         if( mChosenFileName != null && !mChosenFileName.equals( "" ))
          {
-            trackCursor.close();
+            fileName = mChosenFileName;
          }
-      }
-      return name;
-   }
-
-   private void serializeSegments( Context context, XmlSerializer serializer, Uri segments ) throws IOException
-   {
-      Cursor segmentCursor = null;
-      ContentResolver resolver = context.getContentResolver();
-      try
-      {
-         segmentCursor = resolver.query( segments, new String[] { Segments._ID }, null, null, null );
-         if( segmentCursor.moveToFirst() )
+         else
          {
-            updateNotification();
-
-            do
+            Cursor trackCursor = null;
+            ContentResolver resolver = mContext.getContentResolver();
+            try
             {
-               Uri waypoints = Uri.withAppendedPath( segments, "/" + segmentCursor.getLong( 0 ) + "/waypoints" );
-               serializer.text( "\n" );
-               serializer.startTag( "", "trkseg" );
-               serializeWaypoints( context, serializer, waypoints );
-               serializer.text( "\n" );
-               serializer.endTag( "", "trkseg" );
+               trackCursor = resolver.query( trackUri, new String[] { Tracks.NAME }, null, null, null );
+               if( trackCursor.moveToLast() )
+               {
+                  fileName = trackCursor.getString( 0 );
+               }
             }
-            while (segmentCursor.moveToNext());
-
-         }
-      }
-      finally
-      {
-         if( segmentCursor != null )
-         {
-            segmentCursor.close();
-         }
-      }
-   }
-
-   private void serializeWaypoints( Context context, XmlSerializer serializer, Uri waypoints ) throws IOException
-   {
-      Cursor waypointsCursor = null;
-      ContentResolver resolver = context.getContentResolver();
-      try
-      {
-         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints.ACCURACY }, null, null, null );
-         if( waypointsCursor.moveToFirst() )
-         {
-            mGoal += waypointsCursor.getCount();
-            do
+            finally
             {
-               mProgress++;
-               updateNotification();
-
-               serializer.text( "\n" );
-               serializer.startTag( "", "trkpt" );
-               serializer.attribute( null, "lat", waypointsCursor.getString( 1 ) );
-               serializer.attribute( null, "lon", waypointsCursor.getString( 0 ) );
-               serializer.text( "\n" );
-               serializer.startTag( "", "ele" );
-               serializer.text( waypointsCursor.getString( 3 ) );
-               serializer.endTag( "", "ele" );
-               serializer.text( "\n" );
+               if( trackCursor != null )
+               {
+                  trackCursor.close();
+               }
+            }
+         }
+         if( !fileName.endsWith( ".gpx" ) )
+         {
+            fileName = fileName + ".gpx";
+         }
+         String filePath = Environment.getExternalStorageDirectory() +"/"+fileName;
+      
+         if( mProgressListener != null )
+         {
+            mProgressListener.startNotification( fileName );
+            mProgressListener.updateNotification( mProgress, mGoal );
+         }
+      
+         try
+         {
+            XmlSerializer serializer = Xml.newSerializer();
+            BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( filePath ), 8192 );
+            serializer.setOutput( buf, "UTF-8" );
+            serializer.startDocument( "UTF-8", true );
+            serializer.setPrefix( "xsi", NS_SCHEMA );
+            serializer.setPrefix( "gpx", NS_GPX_11 );
+            serializer.startTag( "", "gpx" );
+            serializer.attribute( null, "version", "1.1" );
+            serializer.attribute( null, "creator", "nl.sogeti.android.gpstracker" );
+            serializer.attribute( NS_SCHEMA, "schemaLocation", NS_GPX_11 + " http://www.topografix.com/gpx/1/1/gpx.xsd" );
+            serializer.attribute( null, "xmlns", NS_GPX_11 );
+      
+            // Big header of the track
+            String name = serializeTrack( mContext, serializer, trackUri );
+      
+            serializer.text( "\n" );
+            serializer.startTag( "", "trk" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "name" );
+            serializer.text( name );
+            serializer.endTag( "", "name" );
+      
+            // The list of segments in the track
+            serializeSegments( mContext, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
+      
+            serializer.text( "\n" );
+            serializer.endTag( "", "trk" );
+            serializer.text( "\n" );
+            serializer.endTag( "", "gpx" );
+            serializer.endDocument();
+      
+            CharSequence text = mContext.getString( R.string.ticker_stored )+"\"" + fileName+"\"";
+            Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_SHORT );
+            toast.show();
+         }
+         catch (IllegalArgumentException e)
+         {
+            Log.e( TAG, "Unable to save " + e );
+            CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + filePath+"\""  + mContext.getString( R.string.error_filename );
+            Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+            toast.show();
+         }
+         catch (IllegalStateException e)
+         {
+            Log.e( TAG, "Unable to save " + e );
+            CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + filePath+"\""  + mContext.getString( R.string.error_buildxml );
+            Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+            toast.show();
+         }
+         catch (IOException e)
+         {
+            Log.e( TAG, "Unable to save " + e );
+            CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + filePath+"\""  + mContext.getString( R.string.error_writesdcard );
+            Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+            toast.show();
+         }
+         finally
+         {
+            if( mProgressListener != null )
+            {
+               mProgressListener.endNotification( filePath );
+            }
+            Looper.loop();
+         }
+      }
+      
+      private String serializeTrack( Context context, XmlSerializer serializer, Uri trackUri ) throws IOException
+      {
+         ContentResolver resolver = context.getContentResolver();
+         Cursor trackCursor = null;
+         String name = null;
+      
+         try
+         {
+            trackCursor = resolver.query( trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
+            if( trackCursor.moveToFirst() )
+            {
+               name = trackCursor.getString( 1 );
+               serializer.startTag( "", "metadata" );
                serializer.startTag( "", "time" );
-               Date time = new Date( waypointsCursor.getLong( 2 ) );
+               Date time = new Date( trackCursor.getLong( 2 ) );
                DateFormat formater = new SimpleDateFormat( DATETIME );
                serializer.text( formater.format( time ) );
                serializer.endTag( "", "time" );
-               serializer.text( "\n" );
-               serializer.startTag( "", "name" );
-               serializer.text( "point_" + waypointsCursor.getPosition() );
-               serializer.endTag( "", "name" );
-               serializer.text( "\n" );
-               serializer.endTag( "", "trkpt" );
+               serializer.endTag( "", "metadata" );
             }
-            while (waypointsCursor.moveToNext());
          }
-      }
-      finally
-      {
-         if( waypointsCursor != null )
+         finally
          {
-            waypointsCursor.close();
+            if( trackCursor != null )
+            {
+               trackCursor.close();
+            }
+         }
+         return name;
+      }
+      
+      private void serializeSegments( Context context, XmlSerializer serializer, Uri segments ) throws IOException
+      {
+         Cursor segmentCursor = null;
+         ContentResolver resolver = context.getContentResolver();
+         try
+         {
+            segmentCursor = resolver.query( segments, new String[] { Segments._ID }, null, null, null );
+            if( segmentCursor.moveToFirst() )
+            {
+               if( mProgressListener != null )
+               {
+                  mProgressListener.updateNotification( mProgress, mGoal );
+               }
+      
+               do
+               {
+                  Uri waypoints = Uri.withAppendedPath( segments, "/" + segmentCursor.getLong( 0 ) + "/waypoints" );
+                  serializer.text( "\n" );
+                  serializer.startTag( "", "trkseg" );
+                  serializeWaypoints( context, serializer, waypoints );
+                  serializer.text( "\n" );
+                  serializer.endTag( "", "trkseg" );
+               }
+               while (segmentCursor.moveToNext());
+      
+            }
+         }
+         finally
+         {
+            if( segmentCursor != null )
+            {
+               segmentCursor.close();
+            }
          }
       }
-
+      
+      private void serializeWaypoints( Context context, XmlSerializer serializer, Uri waypoints ) throws IOException
+      {
+         Cursor waypointsCursor = null;
+         ContentResolver resolver = context.getContentResolver();
+         try
+         {
+            waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints.ACCURACY }, null, null, null );
+            if( waypointsCursor.moveToFirst() )
+            {
+               mGoal += waypointsCursor.getCount();
+               do
+               {
+                  mProgress++;
+                  if( mProgressListener != null )
+                  {
+                     mProgressListener.updateNotification(mProgress, mGoal);
+                  }
+      
+                  serializer.text( "\n" );
+                  serializer.startTag( "", "trkpt" );
+                  serializer.attribute( null, "lat", waypointsCursor.getString( 1 ) );
+                  serializer.attribute( null, "lon", waypointsCursor.getString( 0 ) );
+                  serializer.text( "\n" );
+                  serializer.startTag( "", "ele" );
+                  serializer.text( waypointsCursor.getString( 3 ) );
+                  serializer.endTag( "", "ele" );
+                  serializer.text( "\n" );
+                  serializer.startTag( "", "time" );
+                  Date time = new Date( waypointsCursor.getLong( 2 ) );
+                  DateFormat formater = new SimpleDateFormat( DATETIME );
+                  serializer.text( formater.format( time ) );
+                  serializer.endTag( "", "time" );
+                  serializer.text( "\n" );
+                  serializer.startTag( "", "name" );
+                  serializer.text( "point_" + waypointsCursor.getPosition() );
+                  serializer.endTag( "", "name" );
+                  serializer.text( "\n" );
+                  serializer.endTag( "", "trkpt" );
+               }
+               while (waypointsCursor.moveToNext());
+            }
+         }
+         finally
+         {
+            if( waypointsCursor != null )
+            {
+               waypointsCursor.close();
+            }
+         }
+      
+      }
    }
-
-   private void updateNotification()
+   
+   interface GpxCreationProgressListener
    {
-      Log.d( "TAG", "Progress " + mProgress + " of " + mGoal );
-      if( mProgress > 0 && mProgress < mGoal )
+      public void startNotification( String fileName );
+      public void updateNotification(int progress, int goal);
+      public void endNotification( String fileName );
+   }
+   
+   class ProgressListener implements GpxCreationProgressListener
+   {
+      public void startNotification( String fileName )
       {
-         if( ( mProgress * PROGRESS_STEPS ) / mGoal != barProgress )
+         String ns = Context.NOTIFICATION_SERVICE;
+         mNotificationManager = (NotificationManager) ExportGPX.this.getSystemService( ns );
+         int icon = android.R.drawable.ic_menu_save;
+         CharSequence tickerText = getString( R.string.ticker_saving )+ "\"" + fileName + "\"";
+       
+         mNotification = new Notification();
+         PendingIntent contentIntent = PendingIntent.getActivity( ExportGPX.this, 0, new Intent( ExportGPX.this, LoggerMap.class ).setFlags( Intent.FLAG_ACTIVITY_NEW_TASK ),
+               PendingIntent.FLAG_UPDATE_CURRENT );
+       
+         mNotification.contentIntent = contentIntent;
+         mNotification.tickerText = tickerText;
+         mNotification.icon = icon;
+         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
+         mContentView = new RemoteViews( getPackageName(), R.layout.savenotificationprogress );
+         mContentView.setImageViewResource( R.id.icon, icon );
+         mContentView.setTextViewText( R.id.progresstext, tickerText );
+       
+         mNotification.contentView = mContentView;
+      }
+      
+      public void updateNotification(int progress, int goal)
+      {
+//         Log.d( "TAG", "Progress " + progress + " of " + goal );
+         if( progress > 0 && progress < goal )
          {
-            barProgress = ( mProgress * PROGRESS_STEPS ) / mGoal;
-            mContentView.setProgressBar( R.id.progress, mGoal, mProgress, false );
+            if( ( progress * PROGRESS_STEPS ) / goal != barProgress )
+            {
+               barProgress = ( progress * PROGRESS_STEPS ) / goal;
+               mContentView.setProgressBar( R.id.progress, goal, progress, false );
+               mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
+            }
+         }
+         else if( progress == 0 )
+         {
+            mContentView.setProgressBar( R.id.progress, goal, progress, true );
+            mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
+         }
+         else if( progress >= goal )
+         {
+            mContentView.setProgressBar( R.id.progress, goal, progress, false );
             mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
          }
       }
-      else if( mProgress == 0 )
+      
+      public void endNotification(String filename)
       {
-         mContentView.setProgressBar( R.id.progress, mGoal, mProgress, true );
-         mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
-      }
-      else if( mProgress >= mGoal )
-      {
-         mContentView.setProgressBar( R.id.progress, mGoal, mProgress, false );
-         mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
+         mNotificationManager.cancel( R.layout.savenotificationprogress );
       }
    }
 
@@ -392,4 +438,5 @@ public class ExportGPX extends Activity
       dialog.setOwnerActivity( this );
       return dialog;
    }
+
 }

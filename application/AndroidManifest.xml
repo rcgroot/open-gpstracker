@@ -46,20 +46,16 @@
 
 		<activity android:label="@string/receive_filewriter" android:name=".actions.ExportGPX">
 			<intent-filter>
-				<action android:name="android.intent.action.SEND" />
+				<action android:name="android.intent.action.RUN" />
                 <category android:name="android.intent.category.DEFAULT" />
-				<data android:scheme="content" />
-				<data android:host="nl.sogeti.android.gpstracker" />
 				<data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
 			</intent-filter>
 			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 		</activity>
-        <activity android:label="@string/receive_emailsender" android:name=".actions.EmailGPX">
+        <activity android:label="@string/receive_gpxsender" android:name=".actions.SendGPX">
             <intent-filter>
-                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.RUN" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="content" />
-                <data android:host="nl.sogeti.android.gpstracker" />
                 <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
             <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
