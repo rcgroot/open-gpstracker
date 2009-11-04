@@ -498,15 +498,7 @@ public class TrackingOverlay extends Overlay
 
    private boolean isGoodDrawable()
    {
-      if( step >= stepSize )
-      {
-         step = 0;
-         return true;
-      }
-      else
-      {
-         return false;
-      }
+      return step % stepSize == 0;
    }
    
    private void setStepSize()
