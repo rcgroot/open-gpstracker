@@ -245,18 +245,11 @@ public class Statistics extends Activity
             segments.close();
          }
       }
-      
-      long roundingTmp;
+            
       float avgSpeedfl = (distanceTraveled * conversion_from_meter)/((endtimeText-starttimeText)/3600000f) ;
-      roundingTmp = (long) (avgSpeedfl * 100);
-      avgSpeedText =  roundingTmp / 100f +" "+speed_unit;
-      
-      roundingTmp = (long) (distanceTraveled * conversion_from_meter * 100);
-      distanceTraveled = roundingTmp / 100f;
-      distanceText =  distanceTraveled + " "+distance_unit;
-      
-      roundingTmp = (long) (maxSpeeddb * 100);
-      maxSpeedText = roundingTmp / 100f+" "+speed_unit;
+      avgSpeedText = String.format( "%.2f", avgSpeedfl )+" "+speed_unit;
+      distanceText =  String.format( "%.2f", distanceTraveled * conversion_from_meter )+" "+distance_unit;
+      maxSpeedText = String.format( "%.2f", maxSpeeddb )+" "+speed_unit;
       
       maxSpeed.setText( maxSpeedText );
       avgSpeed.setText( avgSpeedText );
