@@ -194,8 +194,8 @@ public class TrackList extends ListActivity
          case MENU_SHARE: 
          {           
             Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
-            Intent actionIntent = new Intent(Intent.ACTION_RUN, uri );
-            actionIntent.setType( Tracks.CONTENT_ITEM_TYPE );
+            Intent actionIntent = new Intent(Intent.ACTION_RUN);
+            actionIntent.setDataAndType( uri, Tracks.CONTENT_ITEM_TYPE );
             actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
             startActivity(Intent.createChooser(actionIntent, getString(R.string.chooser_title)));
             handled = true;

@@ -401,7 +401,7 @@ public class ExportGPX extends Activity
       
       public void updateNotification(int progress, int goal)
       {
-//         Log.d( "TAG", "Progress " + progress + " of " + goal );
+//         Log.d( TAG, "Progress " + progress + " of " + goal );
          if( progress > 0 && progress < goal )
          {
             if( ( progress * PROGRESS_STEPS ) / goal != barProgress )
