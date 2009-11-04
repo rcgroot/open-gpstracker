@@ -85,7 +85,7 @@ class DatabaseHelper extends SQLiteOpenHelper
    @Override
    public void onUpgrade( SQLiteDatabase db, int current, int targetVersion )
    {
-      Log.d( TAG, "Upgrading db from "+current+" to "+targetVersion );
+//      Log.d( TAG, "Upgrading db from "+current+" to "+targetVersion );
       if( current <= 5 )                      // From 1-5 to 6 (these before are the same before) 
       {
          current = 6;

@@ -61,6 +61,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -349,6 +350,17 @@ public class LoggerMap extends MapActivity
       }
    }
 
+   protected void onPause()
+   {
+      super.onPause();
+      resumeBlanking();
+   }
+   protected void onResume()
+   {
+      this.mLoggerServiceManager.connectToGPSLoggerService();
+      super.onResume();
+      updateBlankingBehavior();
+   }
    /*
     * (non-Javadoc)
     * @see com.google.android.maps.MapActivity#onPause()
@@ -357,7 +369,6 @@ public class LoggerMap extends MapActivity
    protected void onDestroy()
    {
       super.onDestroy();
-      resumeBlanking();
       PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
    }
 
@@ -424,20 +435,22 @@ public class LoggerMap extends MapActivity
 
    private void resumeBlanking()
    {
-      if( mWakeLock != null )
+      if( mWakeLock != null && mWakeLock.isHeld() )
       {
          mWakeLock.release();
-         this.mWakeLock = null ;
       }
    }
 
    private void updateBlankingBehavior()
    {
       boolean disableblanking = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DISABLEBLANKING, false );
-      if( disableblanking && this.mLoggerServiceManager.isLogging() )
+      PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
+      if( this.mWakeLock == null )
       {
-         PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
          this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
+      }
+      if( disableblanking && this.mLoggerServiceManager.isLogging() &&  !this.mWakeLock.isHeld() )
+      {
          this.mWakeLock.acquire();
       }
       else 

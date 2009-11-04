@@ -293,7 +293,7 @@ public class TrackingOverlay extends Overlay
          }
       }
       
-      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
+//      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
    }
 
    /**
@@ -383,7 +383,7 @@ public class TrackingOverlay extends Overlay
          }
       }
       
-      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
+//      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
    }
    
    private void moveToGeoPoint( GeoPoint geoPoint )
@@ -513,7 +513,7 @@ public class TrackingOverlay extends Overlay
       {
          stepSize = (maxZoomLevel - zoomLevel)*2;
       }
-      Log.d( TAG, "Setting stepSize "+stepSize+" on a zoom of "+zoomLevel+"/"+maxZoomLevel );
+//      Log.d( TAG, "Setting stepSize "+stepSize+" on a zoom of "+zoomLevel+"/"+maxZoomLevel );
    }
    
    private boolean isOnScreen( GeoPoint eval )
