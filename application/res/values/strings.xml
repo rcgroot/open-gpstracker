@@ -39,7 +39,7 @@
     <string name="receive_gpxsender">Send GPX file</string>
     <string name="email_chooser">Choose email program</string>
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
-    <string name="email_body">Attached track in a GPS Exchange Format (GPX) file containing as described on http://www.topografix.com/gpx.asp</string>
+    <string name="email_body">Attached is a track in the GPS Exchange Format (GPX) file as described on http://www.topografix.com/gpx.asp</string>
     
     <string name="opengpstracker_title">GPSTracker</string>
     <string name="opengpstracker_settings">Settings</string>   
