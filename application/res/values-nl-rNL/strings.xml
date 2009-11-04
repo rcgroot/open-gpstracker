@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">GPSTracker</string>
+	<string name="app_name">Open GPS Tracker</string>
 	
 	<string name="dialog_routename_title">Naam</string>
     <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>
@@ -12,7 +12,13 @@
     <string name="dialog_deleteconfirmation">Bevestigd u alstublieft het verwijderen</string>
     
     <string name="from">Opgenomen op: </string>
-    
+    <string name="ticker_saving">Opslaan: </string>
+    <string name="ticker_stored">Opgeslagen: </string>
+    <string name="ticker_failed">Kon niet opslaan: </string>
+    <string name="error_filename"> reden: Fout in de bestandsnaam</string>
+    <string name="error_buildxml"> reden: Fout tijdens bouwen XML</string>
+    <string name="error_writesdcard"> reden: Fout tijdens schrijven naar de SDcard</string>
+        
 	<string name="btn_okay">OK</string>
     <string name="btn_cancel">Annuleren</string>
 	<string name="btn_save">Opslaan</string>
@@ -28,9 +34,14 @@
     <string name="menu_renameTrack">Hernoem route</string>
     <string name="menu_statistics">Toon statistics</string>
 
-	<string name="receive_filewriter">Save to GPX file</string>
+    <string name="chooser_title">Delen via?</string>
+    <string name="receive_filewriter">Opslaan op SDcard</string>
+    <string name="receive_gpxsender">Verstuur GPX bestand</string>
+    <string name="email_chooser">Kies email applicatie</string>
+    <string name="email_subject">Open GPS Tracker - Trackdata</string>
+    <string name="email_body">Bijgevoegd is een route als GPS Exchange Format (GPX) bestand zoals beschreven op http://www.topografix.com/gpx.asp</string>
 
-    <string name="opengpstracker_title">GPSTracker</string>
+    <string name="opengpstracker_title">Open GPS Tracker</string>
     <string name="opengpstracker_settings">Instellingen</string>   
     <string name="logatstartup">Log bij opstarten</string>
     <string name="logatstartup_summary">De applicatie begint direct met opnemen na het opstarten.</string>   
