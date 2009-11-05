@@ -2,6 +2,6 @@
 <resources>
 <item name="conversion_from_mps" type="raw" format="float">3.6</item>
 <item name="conversion_from_meter" type="raw" format="float">0.001</item>
-<string name="speed_unitname">kilometer per uur</string>
+<string name="speed_unitname">kph</string>
 <string name="distance_unitname">kilometer</string>
 </resources>
