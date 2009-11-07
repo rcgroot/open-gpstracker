@@ -195,10 +195,23 @@ public class GPStrackingProvider extends ContentProvider
             segmentId = Integer.parseInt( pathSegments.get( 3 ) );
             
             Location loc = new Location( TAG );
-            loc.setLatitude( values.getAsDouble( Waypoints.LATITUDE ) );
-            loc.setLongitude( values.getAsDouble( Waypoints.LONGITUDE ) );
-            loc.setTime( values.getAsLong( Waypoints.TIME ) );
-            loc.setSpeed( values.getAsFloat( Waypoints.SPEED ) );
+            
+            Double latitude = values.getAsDouble( Waypoints.LATITUDE );
+            Double longitude = values.getAsDouble( Waypoints.LONGITUDE );
+            Long time = values.getAsLong( Waypoints.TIME );
+            Float speed = values.getAsFloat( Waypoints.SPEED );
+            if( time == null )
+            {
+               time = System.currentTimeMillis();
+            }
+            if( speed == null )
+            {
+               speed  = 0f;
+            }
+            loc.setLatitude( latitude );
+            loc.setLongitude( longitude );
+            loc.setTime( time );
+            loc.setSpeed( speed );
             
             if( values.containsKey( Waypoints.ACCURACY ) )
             {

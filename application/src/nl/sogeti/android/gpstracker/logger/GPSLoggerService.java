@@ -70,7 +70,7 @@ public class GPSLoggerService extends Service
    private long mTrackId = -1;
    private long segmentId = -1 ;
    private Location previousLocation;  
-   private int mAcceptableAccuracy;
+   private int mAcceptableAccuracy = 20;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
    {
@@ -175,7 +175,6 @@ public class GPSLoggerService extends Service
 
    private void requestLocationUpdates()
    {
-      
       this.locationManager.removeUpdates( this.mLocationListener );
       int precision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( PRECISION, "1" ) ).intValue();
       //Log.d( TAG, "requestLocationUpdates to precision "+precision );

@@ -90,7 +90,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       reference.setLatitude( reference.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters
       service.storeLocation( this.getContext(), reference );
       
-      this.mLocation.setAccuracy( 2000f );
+      this.mLocation.setAccuracy( 50f );
       Assert.assertFalse( "An unacceptable fix", service.isLocationAcceptable( this.mLocation ) );
    }
    
@@ -104,8 +104,22 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       reference.setLatitude( reference.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters
       service.storeLocation( this.getContext(), reference );
       
-      this.mLocation.setAccuracy( 50f );
+      this.mLocation.setAccuracy( 9f );
       Assert.assertTrue( "An acceptable fix", service.isLocationAcceptable( this.mLocation ) );
+   }
+
+   @SmallTest
+   public void testCloseLocation()
+   {
+      startService( new Intent( GPSLoggerService.SERVICENAME ) );
+      GPSLoggerService service = this.getService();
+      
+      Location reference = new Location( this.mLocation );
+      reference.setLatitude( reference.getLatitude()+0.0001d ); 
+      service.storeLocation( this.getContext(), reference );
+      
+      this.mLocation.setAccuracy( 19f );
+      Assert.assertFalse( "An acceptable fix", service.isLocationAcceptable( this.mLocation ) );
    }
 
 }

@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.tests.actions;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.mock.MockContentResolver;
@@ -43,11 +44,14 @@ public class ExportGPXTest extends TestCase
    public void testIntentCreation()
    {
       ContentResolver resolver = new MockContentResolver();
-      
-      Intent actionIntent = new Intent(Intent.ACTION_SEND, Uri.withAppendedPath( Tracks.CONTENT_URI, ""+0 ) );
+
+      Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, 0 );
+      Intent actionIntent = new Intent(Intent.ACTION_RUN, uri );
+      actionIntent.setDataAndType( uri, Tracks.CONTENT_ITEM_TYPE );
+      actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
       
       // Action match
-      Assert.assertEquals( "Action", actionIntent.getAction(), Intent.ACTION_SEND  );
+      Assert.assertEquals( "Action", actionIntent.getAction(), Intent.ACTION_RUN  );
       
       // Category match
       Assert.assertEquals( "Category", actionIntent.getCategories(), null );
