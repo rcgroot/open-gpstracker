@@ -85,7 +85,7 @@ class DatabaseHelper extends SQLiteOpenHelper
    @Override
    public void onUpgrade( SQLiteDatabase db, int current, int targetVersion )
    {
-//      Log.d( TAG, "Upgrading db from "+current+" to "+targetVersion );
+      // Log.d( TAG, "Upgrading db from "+current+" to "+targetVersion );
       if( current <= 5 )                      // From 1-5 to 6 (these before are the same before) 
       {
          current = 6;
@@ -94,7 +94,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       {
          current = 7;
       }
-      if( current == 7)                     // From 7 to 8 ( more waypoint data ) 
+      if( current == 7)                     // From 7 to 8 ( more waypoints data ) 
       {
          for( String statement : Waypoints.UPGRADE_STATEMENT_7_TO_8 )
          {
@@ -170,7 +170,6 @@ class DatabaseHelper extends SQLiteOpenHelper
          {
             segmentId = cursor.getLong( 0 ) ;
             affected += deleteSegment( sqldb, trackId, segmentId );
-            
          }
          else 
          {
@@ -196,7 +195,9 @@ class DatabaseHelper extends SQLiteOpenHelper
    /**
     * Delete a segment and all member waypoints
     * 
-    * @param segmentId
+    * @param sqldb The SQLiteDatabase in question
+    * @param trackId The track id of this delete
+    * @param segmentId The segment that needs deleting
     * @return
     */
    int deleteSegment(SQLiteDatabase sqldb, long trackId, long segmentId)
