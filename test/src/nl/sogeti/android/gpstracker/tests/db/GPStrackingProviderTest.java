@@ -290,16 +290,14 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    {
       ContentValues wp ;
       double coord = 1d;
-      
       // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
       Cursor trackCursor = this.mResolver.query( trackUri, new String[] { Tracks._ID }, null, null, null );
+      // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2/segments/1
       Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null ); 
       Cursor segmentCursor = this.mResolver.query( segmentUri, new String[] { Segments._ID }, null, null, null );
-      
       Assert.assertEquals( "One track created", 1, trackCursor.getCount() );
       Assert.assertEquals( "One segment created", 1, segmentCursor.getCount() );
-      
       // Stuff 2 waypoints as the segment contents
       wp = new ContentValues();
       wp.put( Waypoints.LONGITUDE, new Double( coord ) );
@@ -310,7 +308,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       wp.put( Waypoints.LATITUDE, new Double( coord ) );
       Uri wp2 = this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
       
-      // Pivot of the test case THE DELETE
+      // Pivot of the test case: THE DELETE
       int affected = this.mResolver.delete( trackUri, null, null);
       
       Assert.assertEquals( "One track, one segments and two waypoints deleted", 4, affected );
@@ -318,15 +316,12 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Assert.assertEquals( "No track left", 0, trackCursor.getCount() );
       Assert.assertTrue("The cursor to the segments is still valid", segmentCursor.requery() );
       Assert.assertEquals( "No segments left", 0, segmentCursor.getCount() );
-      
       Cursor wpCursor = this.mResolver.query( wp1, null, null, null, null );
       Assert.assertEquals( "Waypoint 1 is gone", 0, wpCursor.getCount() );
       wpCursor.close();
-      
       wpCursor = this.mResolver.query( wp2, null, null, null, null );    
       Assert.assertEquals( "Waypoint 2 is gone", 0, wpCursor.getCount() );   
       wpCursor.close();
-      
       trackCursor.close();
       segmentCursor.close();
    }
