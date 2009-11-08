@@ -83,9 +83,7 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
 
       this.sendKeys( "T T T T" );
       this.sendKeys( "MENU DPAD_RIGHT T T E S T R O U T E ENTER");
-      this.sendKeys("ENTER");      
-      Thread feeder = new Thread( service );
-      feeder.start();
+      this.sendKeys("ENTER"); 
 
       // Start method tracing for Issue 18
       Debug.startMethodTracing("testLapsAroundUtrecht");
@@ -93,10 +91,9 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
       {
          this.mIntermediates.startTiming( true ) ;
       }
-      while( feeder.isAlive() )
-      {
-         Thread.sleep( 5 * 1000 );
-      }
+
+      service.run();
+
       // Start method tracing for Issue 18
       if( this.mIntermediates != null )
       {
@@ -115,5 +112,4 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
       this.mIntermediates = intermediates;
       return 1;
    }
-
 }
