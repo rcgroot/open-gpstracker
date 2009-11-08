@@ -81,7 +81,7 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
       // Our data feeder to the emulator
       MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.stukjesingelutrecht, 10 );
 
-      this.sendKeys( "T T T T" );
+      this.sendKeys( "T T T T T T" );
       this.sendKeys( "MENU DPAD_RIGHT T T E S T R O U T E ENTER");
       this.sendKeys("ENTER"); 
 
