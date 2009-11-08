@@ -31,7 +31,6 @@
                 <data android:host="nl.sogeti.android.gpstracker" />
                 <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
-            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
         </activity>
 
 		<service android:enabled="true" android:name=".logger.GPSLoggerService">
@@ -40,8 +39,10 @@
 			</intent-filter>
 		</service>
 
-		<provider android:enabled="true" android:authorities="nl.sogeti.android.gpstracker"
-			android:name=".db.GPStrackingProvider" android:permission="android.permission.ACCESS_FINE_LOCATION">
+		<provider 
+		      android:enabled="true" 
+		      android:authorities="nl.sogeti.android.gpstracker"
+		      android:name=".db.GPStrackingProvider">
 		</provider>
 
 		<activity android:label="@string/receive_filewriter" android:name=".actions.ExportGPX">
@@ -50,7 +51,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
 				<data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
 			</intent-filter>
-			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 		</activity>
         <activity android:label="@string/receive_gpxsender" android:name=".actions.SendGPX">
             <intent-filter>
@@ -58,14 +58,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
-            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
         </activity>
-		
-
 	</application>
-
-
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
 </manifest>
