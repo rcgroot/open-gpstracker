@@ -49,18 +49,25 @@ import android.util.Log;
  */
 public class MockGPSLoggerDriver implements Runnable
 {
-   private final static int DEFAULT_TIMEOUT = 2000;
+   private static final String TAG = MockGPSLoggerDriver.class.getName();
    private boolean running = true;
-   private int timeout;
+   private int mTimeout;
    private Context mContext;
    private TelnetPositionSender sender;
    private ArrayList<SimplePosition> positions;
    private int mRouteResource;
 
-   public MockGPSLoggerDriver(Context context)
+   /**
+    * 
+    * Constructor: create a new MockGPSLoggerDriver.
+    * @param context context of the test package
+    * @param route resource identifier for the xml route
+    * @param timeout time to idle between waypoints in miliseconds
+    */
+   public MockGPSLoggerDriver(Context context, int route, int timeout)
    {
-      this.timeout = DEFAULT_TIMEOUT;
-      this.mRouteResource = -1;// R.xml.denhaagdenbosch;
+      this.mTimeout = timeout;
+      this.mRouteResource = route;// R.xml.denhaagdenbosch;
       this.mContext = context;
       this.sender = new TelnetPositionSender();
    }
@@ -68,21 +75,6 @@ public class MockGPSLoggerDriver implements Runnable
    public int getPositions()
    {
       return this.positions.size();
-   }
-
-   public void setTimeout(int t)
-   {
-      this.timeout = t;
-   }
-
-   public void setRoute(int t)
-   {
-      this.mRouteResource = t;
-   }
-
-   public int getTimeout()
-   {
-      return this.timeout;
    }
 
    private void prepareRun(int xmlResource)
@@ -106,11 +98,11 @@ public class MockGPSLoggerDriver implements Runnable
 
          try
          {
-            Thread.sleep( this.timeout );
+            Thread.sleep( this.mTimeout );
          }
          catch (InterruptedException e)
          {
-            Log.w( MockGPSLoggerDriver.class.getName(), "Interrupted" );
+            Log.w( TAG, "Interrupted" );
          }
       }
    }
@@ -132,7 +124,6 @@ public class MockGPSLoggerDriver implements Runnable
          xor ^= chars[i];
       }
       return  Integer.toHexString( (int) xor ).toUpperCase();
-
    }
 
    public void stop()

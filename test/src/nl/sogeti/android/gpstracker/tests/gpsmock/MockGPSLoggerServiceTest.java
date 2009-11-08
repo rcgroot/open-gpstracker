@@ -29,10 +29,10 @@
 package nl.sogeti.android.gpstracker.tests.gpsmock;
 
 import junit.framework.Assert;
+import nl.sogeti.android.gpstracker.tests.R;
 import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
 
 /**
  * ????
@@ -47,7 +47,7 @@ public class MockGPSLoggerServiceTest extends AndroidTestCase
    
    public MockGPSLoggerServiceTest()
    {
-      this.service = new MockGPSLoggerDriver( getContext() );
+      this.service = new MockGPSLoggerDriver( getContext(), R.xml.denhaagdenbosch, 1000 );
    }
    
    @SmallTest
