@@ -31,7 +31,6 @@ package nl.sogeti.android.gpstracker.viewer;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ExportGPX;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -61,8 +60,6 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -100,7 +97,6 @@ public class LoggerMap extends MapActivity
    private MapView mMapView = null;
    private MapController mMapController = null;
    private GPSLoggerServiceManager mLoggerServiceManager;
-   private EditText mFileNameView;
    private EditText mTrackNameView;
    private WakeLock mWakeLock = null;
 
@@ -113,16 +109,8 @@ public class LoggerMap extends MapActivity
          if( key.equals( TrackingOverlay.TRACKCOLORING ) )
          {
             int trackColoringMethod = new Integer( sharedPreferences.getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
-            updateSpeedbarVisibility( trackColoringMethod );
-            List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
-            for( Overlay overlay : overlays )
-            {
-               if( overlay instanceof TrackingOverlay )
-               {
-                  ( (TrackingOverlay) overlay ).setTrackColoringMethod( trackColoringMethod );
-                  
-               }
-            }
+            // DO SKIP
+
          }
          else if( key.equals( LoggerMap.DISABLEBLANKING ) )
          {
@@ -147,20 +135,6 @@ public class LoggerMap extends MapActivity
             Intent tracklistIntent = new Intent(LoggerMap.this, TrackList.class);
             tracklistIntent.putExtra( Tracks._ID, LoggerMap.this.mTrackId );
             startActivityForResult(tracklistIntent, MENU_TRACKLIST);
-      }
-   } ;
-
-   private final DialogInterface.OnClickListener mFileNameDialogListener = new DialogInterface.OnClickListener()
-   {
-      public void onClick(DialogInterface dialog, int which)
-      {
-         String filename = mFileNameView.getText().toString();
-         
-         Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId );
-         Intent actionIntent = new Intent(Intent.ACTION_SEND, uri );         
-         actionIntent.putExtra( ExportGPX.FILENAME, filename );
-         LoggerMap.this.sendBroadcast( actionIntent, android.Manifest.permission.ACCESS_FINE_LOCATION );
-         mFileNameView = null;
       }
    } ;
    
@@ -495,34 +469,7 @@ public class LoggerMap extends MapActivity
       Cursor segments = null ;
       int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
 
-      Cursor waypointsCursor = null ;
       double avgSpeed = 33.33d/2d;
-      try
-      {
-         waypointsCursor = resolver.query
-               ( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/waypoints" )
-               , new String[] { "avg("+Waypoints.SPEED+")" }
-               , null
-               , null
-               , null );
-         if( waypointsCursor.moveToLast() )
-         {
-            avgSpeed = waypointsCursor.getDouble( 0 );
-            if( avgSpeed == 0 )
-            {
-               avgSpeed = 33.33d/2d;
-            }
-            drawSpeedTexts( avgSpeed );
-         }
-      }
-      finally
-      {
-         if( waypointsCursor != null )
-         {
-            waypointsCursor.close();
-         }
-      }
-      
       Cursor trackCursor = null ;
       try
       {
@@ -559,40 +506,23 @@ public class LoggerMap extends MapActivity
             do 
             {
                long segmentsId = segments.getLong( 0 );
-               Uri segmentUri = Uri.withAppendedPath( segmentsUri, segmentsId+"/waypoints" );
+               Uri waypointsUri = Uri.withAppendedPath( segmentsUri, segmentsId+"/waypoints" );
                TrackingOverlay segmentOverlay = new TrackingOverlay( 
                      (Context)this
                      , resolver
-                     , segmentUri
+                     , waypointsUri
                      , trackColoringMethod
                      , avgSpeed
                      , this.mMapView );
 
-               
-               updateSpeedbarVisibility( trackColoringMethod );
-               
                overlays.add( segmentOverlay );
-               if( segments.isFirst() ) 
+               
+               GeoPoint lastPoint = getLastTrackPoint( this.mTrackId, segmentsId );
+               if( lastPoint != null )
                {
-                  segmentOverlay.setPlacement( TrackingOverlay.FIRST_SEGMENT );
-               }
-               if( segments.isLast() )
-               {
-                  segmentOverlay.setPlacement( TrackingOverlay.LAST_SEGMENT );
-                  GeoPoint lastPoint = getLastTrackPoint( this.mTrackId, segmentsId );
-                  if( lastPoint != null )
-                  {
-                     Point out = new Point();
-                     this.mMapView.getProjection().toPixels( lastPoint, out );
-                     if( out.x < this.mMapView.getWidth()/4 
-                           || out.y < this.mMapView.getHeight()/4  
-                           || out.x > (this.mMapView.getWidth()/4)*3 
-                           || out.y > (this.mMapView.getHeight()/4)*3 ) 
-                     {
-//                         Log.d( TAG, "Animating to "+out );
-                         this.mMapView.getController().animateTo( lastPoint );
-                     }
-                  }
+                  Point out = new Point();
+                  this.mMapView.getProjection().toPixels( lastPoint, out );
+                  this.mMapView.getController().animateTo( lastPoint );
                }
             }
             while( segments.moveToNext());
@@ -607,25 +537,7 @@ public class LoggerMap extends MapActivity
       }
       this.mMapView.postInvalidate();
    }
-   /**
-    * 
-    * @param avgSpeed  avgSpeed in m/s
-    */
-   private void drawSpeedTexts( double avgSpeed )
-   {
-      TypedValue outValue = new TypedValue();
-      this.getResources().getValue( R.raw.conversion_from_mps, outValue, false ) ;
-      float conversion_from_mps =  outValue.getFloat();
-      String unit = this.getResources().getString( R.string.speed_unitname );
-      
-      avgSpeed = avgSpeed *  conversion_from_mps;
-      for( int i=0 ; i<mSpeedtexts.length ; i++ )
-      {
-         mSpeedtexts[i].setVisibility( View.VISIBLE );
-         int speed = (int) ((avgSpeed*2d)/5d)*i;
-         mSpeedtexts[i].setText( speed+unit );
-      }
-   }
+
 
    /**
     * Retrieve the last point of the current track 
@@ -765,7 +677,6 @@ public class LoggerMap extends MapActivity
 
    public static Dialog createTrackTitleDialog( Activity ctx, View view, DialogInterface.OnClickListener positiveListener) 
    {           
-
       Builder builder = new AlertDialog.Builder( ctx )
       .setTitle( R.string.dialog_routename_title )
       .setMessage( R.string.dialog_routename_message )

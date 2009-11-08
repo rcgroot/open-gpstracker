@@ -182,15 +182,15 @@ public class GPSLoggerService extends Service
       {
          case(0): // Coarse
             this.mAcceptableAccuracy = 50;
-            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
+            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 300l, 5F, this.mLocationListener );
             break;
          case(1): // Normal
             this.mAcceptableAccuracy = 20;
-            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
+            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 150l, 3F, this.mLocationListener );
             break;
          case(2): // Fine
             this.mAcceptableAccuracy = 10;
-            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
+            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 10l, 1F, this.mLocationListener );
             break;
          default:
             Log.e( TAG, "Unknown precision "+precision );
