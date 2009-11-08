@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.tests.userinterface;
 
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.tests.R;
 import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.os.Debug;
@@ -42,7 +43,7 @@ import android.test.suitebuilder.annotation.LargeTest;
  * @version $Id$
  * @author rene (c) Mar 15, 2009, Sogeti B.V.
  */
-public class LoggerMapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> implements PerformanceTestCase
+public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap> implements PerformanceTestCase
 {
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
@@ -50,7 +51,7 @@ public class LoggerMapStressTest extends ActivityInstrumentationTestCase2<Logger
    private GPSLoggerServiceManager mLoggerServiceManager;
    private Intermediates mIntermediates;
 
-   public LoggerMapStressTest()
+   public LoggerStressTest()
    {
       super( PACKAGE, CLASS );
    }
@@ -78,11 +79,9 @@ public class LoggerMapStressTest extends ActivityInstrumentationTestCase2<Logger
    public void testLapsAroundUtrecht() throws InterruptedException
    {    
       // Our data feeder to the emulator
-      MockGPSLoggerDriver service = new MockGPSLoggerDriver( this.mLoggermap );
-      service.setTimeout( 10 );
-      service.setRoute( -1 );
+      MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.stukjesingelutrecht, 10 );
 
-      this.sendKeys( "T T T T T T T" );
+      this.sendKeys( "T T T T" );
       this.sendKeys( "MENU DPAD_RIGHT T T E S T R O U T E ENTER");
       this.sendKeys("ENTER");      
       Thread feeder = new Thread( service );

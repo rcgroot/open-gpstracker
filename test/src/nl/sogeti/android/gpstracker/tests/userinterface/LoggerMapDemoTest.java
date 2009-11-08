@@ -28,14 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.tests.userinterface;
 
-import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.tests.R;
 import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
 
-import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
 /** 
@@ -65,7 +64,7 @@ public class LoggerMapDemoTest extends ActivityInstrumentationTestCase2<LoggerMa
       super.setUp();
       this.mLoggermap = getActivity();
       this.mLoggerServiceManager = new GPSLoggerServiceManager(this.mLoggermap);
-      this.mMapView = (MapView) this.mLoggermap.findViewById( R.id.myMapView );
+      this.mMapView = (MapView) this.mLoggermap.findViewById( nl.sogeti.android.gpstracker.R.id.myMapView );
    }  
 
    protected void tearDown() throws Exception
@@ -83,7 +82,7 @@ public class LoggerMapDemoTest extends ActivityInstrumentationTestCase2<LoggerMa
    public void testTracking() throws InterruptedException 
    {
       // Our data feeder to the emulator
-      MockGPSLoggerDriver service = new MockGPSLoggerDriver( this.mLoggermap );
+      MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.rondjesingelutrecht, 100 );
       try
       {
          /*
