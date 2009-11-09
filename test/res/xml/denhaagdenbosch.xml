@@ -2,11 +2,6 @@
 <gpx xmlns="http://www.topografix.com/GPX/1/1" creator="Sunday Morning Rides" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
   <trk>
     <trkseg>
-      <trkpt lat="52.091214688864234" lon="4.356851577758789"></trkpt>
-      <trkpt lat="52.09422047724695" lon="4.363117218017578"></trkpt>
-      <trkpt lat="52.08657377580599" lon="4.371957778930664"></trkpt>
-      <trkpt lat="52.08467508134124" lon="4.371614456176758"></trkpt>
-      <trkpt lat="52.08240709041428" lon="4.374961853027344"></trkpt>
       <trkpt lat="52.085255246553906" lon="4.378995895385742"></trkpt>
       <trkpt lat="52.07322846193344" lon="4.395647048950195"></trkpt>
       <trkpt lat="52.0691660526751" lon="4.384059906005859"></trkpt>
