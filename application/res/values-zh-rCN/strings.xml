@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Open GPS Tracker</string>
+	
+	<string name="dialog_routename_title">命名路线</string>
+    <string name="dialog_routename_message">请输入此路线的名称</string>
+    <string name="dialog_notrack_title">没有选择路线</string>
+    <string name="dialog_notrack_message">在导出之前请选择一个路线</string>
+    <string name="dialog_filename_title">文件名</string>
+    <string name="dialog_filename_message">请为 SD 卡上的 GPX 文件输入文件名</string>
+    <string name="dialog_deletetitle">删除路线</string>
+    <string name="dialog_deleteconfirmation">请确认此路线的删除操作</string>
+    
+    <string name="from">记录: </string>
+    <string name="ticker_saving">保存: </string>
+    <string name="ticker_stored">存储: </string>
+    <string name="ticker_failed">无法保存路线: </string>
+    <string name="error_filename"> 原因: 错误的文件名</string>
+    <string name="error_buildxml"> 原因: 创建 XML 时出错</string>
+    <string name="error_writesdcard"> 原因: 写入到 SD 卡时出错</string>
+    
+	<string name="btn_okay">确认</string>
+	<string name="btn_cancel">取消</string>
+	<string name="btn_save">保存</string>
+	<string name="btn_selecttrack">选择路线</string>
+	
+	<string name="menu_settings">设置</string>
+	<string name="menu_toggle_off">停止跟踪</string>
+	<string name="menu_toggle_on">开始跟踪</string>
+	<string name="menu_tracklist">列出路线</string>
+	<string name="menu_shareTrack">分享路线</string>
+    <string name="menu_showTrack">显示统计 </string>
+	<string name="menu_deleteTrack">删除路线</string>
+    <string name="menu_renameTrack">重命名路线</string>
+    <string name="menu_statistics">显示统计</string>
+
+    <string name="chooser_title">如何分享此路线?</string>
+	<string name="receive_filewriter">存储到 SD 卡</string>
+    <string name="receive_gpxsender">发送 GPX 文件</string>
+    <string name="email_chooser">选择 email 程序</string>
+    <string name="email_subject">Open GPS Tracker - Trackdata</string>
+    <string name="email_body">附件是路线的 GPS 交换格式 (GPX) 文件, 描述在 http://www.topografix.com/gpx.asp</string>
+    
+    <string name="opengpstracker_title">Open GPS Tracker</string>
+    <string name="opengpstracker_settings">设置</string>   
+    <string name="logatstartup">在启动时记录</string>
+    <string name="logatstartup_summary">在程序启动后开始记录。</string>   
+    <string name="disableblanking_title">禁止关屏</string>
+    <string name="disableblanking_summary">跟踪时保持屏幕打开。</string>       
+    <string name="precision_title">记录精度</string>
+    <string name="precision_summary">GPS 记录点之间的间隔大小。</string>      
+    <string name="trackcoloring_title">路线颜色</string>
+    <string name="trackcoloring_summary">绘制路线使用的颜色。</string>
+    
+    <string name="stat_maximumspeed">最高速度</string>
+    <string name="stat_averagespeed">平均速度</string>    
+    <string name="stat_distance">路线距离</string>    
+    <string name="stat_endtime">上次时间</string>    
+    <string name="stat_starttime">开始时间</string>    
+    <string name="stat_trackname">路线名称</string>
+    <string name="stat_waypoints">路点数量</string>
+    
+
+</resources>

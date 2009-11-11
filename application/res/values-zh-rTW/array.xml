@@ -1,0 +1,26 @@
+<resources>
+    <string-array name="precision_choices">
+        <item>極好</item>
+        <item>正常</item>
+        <item>粗糙</item>
+    </string-array>
+    <string-array name="precision_values" translatable="false">
+        <item>2</item>
+        <item>1</item>
+        <item>0</item>
+    </string-array>
+    <string-array name="trackcoloring_choices">
+        <item>綠色</item>
+        <item>紅色</item>
+        <item>速度</item>
+        <item>平均速度</item>
+        <item>路點</item>
+    </string-array>
+    <string-array name="trackcoloring_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>    
+</resources>
