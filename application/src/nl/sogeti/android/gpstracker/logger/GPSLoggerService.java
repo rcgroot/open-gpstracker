@@ -28,6 +28,9 @@
  */
 package nl.sogeti.android.gpstracker.logger;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import android.app.Service;
@@ -273,7 +276,10 @@ public class GPSLoggerService extends Service
       args.put( Waypoints.LATITUDE, new Double( location.getLatitude() ) );
       args.put( Waypoints.LONGITUDE, new Double( location.getLongitude() ) );
       args.put( Waypoints.SPEED, new Float( location.getSpeed() ) );
-      args.put( Waypoints.TIME, new Float( location.getTime() ) );
+      args.put( Waypoints.TIME, new Long( location.getTime() ) );
+      
+//      Log.d( TAG, "Location based time sent to ContentProvider"+  DateFormat.getInstance().format(new Date( args.getAsLong( Waypoints.TIME ) ) ) );
+      
       if( location.hasAccuracy() )
       {
          args.put( Waypoints.ACCURACY, new Float( location.getAccuracy() ) );

@@ -168,22 +168,22 @@ public class MockGPSLoggerDriver implements Runnable
          "%3$02d." +   // ss.     c.get(Calendar.SECOND)
          "%4$03d,A," + // ss,     c.get(Calendar.MILLISECOND)
 
-         "%5$03d" +   // llll    latDegree
-         "%6$09.6f," +//         latMinute
+         "%5$03d" +    // llll    latDegree
+         "%6$09.6f," + //         latMinute
 
          "%7$c," +     //         latDirection (N or S)
 
-         "%8$03d" +   //         longDegree
-         "%9$09.6f," +//         longMinutett
+         "%8$03d" +     //         longDegree
+         "%9$09.6f," +  //         longMinutett
 
          "%10$c," +     //         longDirection (E or W)
-         "1.5," +         //         Speed over ground in knot
+         "1.5," +       //         Speed over ground in knot
          "0," +         //         Track made good in degrees True
          "%11$02d" +    // dd
-         "%12$02d" +   // mm
+         "%12$02d" +    // mm
          "%13$02d," +   // yy
          "0," +         //         Magnetic variation degrees (Easterly var. subtracts from true course)
-         "E," +          //         East/West
+         "E," +         //         East/West
          "mode" ;       // Just as workaround....
 
       Calendar c = Calendar.getInstance();
@@ -296,7 +296,7 @@ public class MockGPSLoggerDriver implements Runnable
 
    public void sendSMS( String string )
    {
-      //this.sender.sendCommand( "sms send 31886606607 "+string+"\r\n");
+      this.sender.sendCommand( "sms send 31886606607 "+string+"\r\n");
    }
 
 }

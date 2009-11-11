@@ -28,6 +28,7 @@
  */
 package nl.sogeti.android.gpstracker.db;
 
+import java.text.DateFormat;
 import java.util.Date;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -118,7 +119,6 @@ class DatabaseHelper extends SQLiteOpenHelper
     */
    long insertWaypoint( long trackId, long segmentId, Location location )
    {      
-      //Log.d( TAG, "New waypoint ("+latitude+","+longitude+") with speed "+speed );
       if( trackId < 0 || segmentId < 0 )
       {
          throw new IllegalArgumentException( "Track and segments may not the less then 0." );
@@ -136,6 +136,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       args.put( WaypointsColumns.ALTITUDE, location.getAltitude() );
       args.put( WaypointsColumns.BEARING, location.getBearing() );
       
+      Log.d( TAG, "Waypoint time stored in the datebase"+ DateFormat.getInstance().format(new Date( args.getAsLong( Waypoints.TIME ) ) ) );
 
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
 

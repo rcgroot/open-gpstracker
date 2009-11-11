@@ -37,6 +37,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -158,7 +159,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
 
 
    /**
-    * Start a track, insert 2 waypoints and expect 1 track with 1 segment with the 2 waypoints that where inserted
+    * Start a track, 1 segment ,insert 2 waypoints and expect 1 track with 1 segment with the 2 waypoints that where inserted
     */
    @SmallTest
    public void testTrackWaypointWaypoint()
@@ -324,6 +325,32 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       wpCursor.close();
       trackCursor.close();
       segmentCursor.close();
+   }
+   
+   /**
+    * Insert a waypoint with a time and expect that same time to return 
+    */
+   @SmallTest
+   public void testWaypointTime()
+   {
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
+      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
+      long msTime = 1234567890000l;
+      wp.put( Waypoints.TIME, new Long( msTime ));
+
+      // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments"), null );
+      Uri waypointUri = this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
+
+      Cursor waypointCursor = this.mResolver.query( waypointUri, new String[] { Waypoints.TIME }, null, null, null );
+      waypointCursor.moveToFirst();
+      Location location = new Location("testWaypointTime");
+      location.setTime( waypointCursor.getLong( 0 ) );
+      Assert.assertEquals( "Time should remain unchanged", msTime, location.getTime() );
+      waypointCursor.close();
+      
    }
    
 }

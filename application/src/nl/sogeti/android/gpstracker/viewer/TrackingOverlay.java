@@ -28,6 +28,9 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import android.content.ContentResolver;
@@ -39,10 +42,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ComposeShader;
 import android.graphics.CornerPathEffect;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.RadialGradient;
 import android.graphics.Shader;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
@@ -75,6 +78,9 @@ public class TrackingOverlay extends Overlay
    public static final int DRAW_CALCULATED = 3;
    public static final int DRAW_DOTS = 4;
    public static final String TRACKCOLORING = "trackcoloring";
+   private static final float MINIMUM_RL_DISTANCE = 100;
+   private static final float MINIMUM_RL_TIME = 3;
+   private static final float MINIMUM_PX_DISTANCE = 20;
    private int trackColoringMethod = DRAW_CALCULATED;
 
    private ContentResolver mResolver;
@@ -99,8 +105,19 @@ public class TrackingOverlay extends Overlay
    private int stepSize = 1;
    private int step = 0;
    private MapView mMapView;
+   private Location location;
+   private Location prevLocation;
    
-   TrackingOverlay( Context cxt, ContentResolver resolver, Uri segmentUri, int color, double avgSpeed, MapView mapView )
+   /**
+    * 
+    * Constructor: create a new TrackingOverlay.
+    * @param cxt
+    * @param segmentUri
+    * @param color
+    * @param avgSpeed
+    * @param mapView
+    */
+   public TrackingOverlay( Context cxt, Uri segmentUri, int color, double avgSpeed, MapView mapView )
    {
       super();
       this.mContext = cxt;
@@ -108,7 +125,7 @@ public class TrackingOverlay extends Overlay
       this.trackColoringMethod = color;
       this.mAvgSpeed = avgSpeed;
       this.mPath = new Path();
-      this.mResolver = resolver;
+      this.mResolver = mContext.getApplicationContext().getContentResolver();
       this.mSegmentUri = segmentUri;
    }  
 
@@ -306,12 +323,11 @@ public class TrackingOverlay extends Overlay
    private void transformSegmentToPath()
    {
       Cursor trackCursor = null;
-      Location location = null;
-      Location prevLocation = null;
       GeoPoint geoPoint;
       mCalculatedPoints = 0;
       setStepSize();
       step = 0;
+      this.prevLocation = null;
       
       try
       {
@@ -336,36 +352,42 @@ public class TrackingOverlay extends Overlay
             do
             {
                geoPoint = extractGeoPoint( trackCursor );
+               double speed = -1d;
                switch (trackColoringMethod)
                {
                   case DRAW_RED:
-                     lineToGeoPoint( geoPoint, -1d );
+                     lineToGeoPoint( geoPoint, speed );
                      break;
                   case DRAW_MEASURED:
                      lineToGeoPoint( geoPoint, trackCursor.getDouble( 2 ) );
                      break;
                   case DRAW_CALCULATED:
-                     double speed = -1d;
-                     location = new Location( this.getClass().getName() );
-                     location.setLatitude( trackCursor.getDouble( 0 ) );
-                     location.setLongitude( trackCursor.getDouble( 1 ) );
-                     location.setTime( trackCursor.getLong( 3 ) );
-                     float distance = 0;
-                     if( prevLocation != null )
+                     this.location = new Location( this.getClass().getName() );
+                     this.location.setLatitude( trackCursor.getDouble( 0 ) );
+                     this.location.setLongitude( trackCursor.getDouble( 1 ) );
+                     this.location.setTime( trackCursor.getLong( 3 ) );
+                     
+                     if( this.prevLocation != null )
                      {
-                        distance = prevLocation.distanceTo( location );
+                        speed  = calculateSpeedBetweenLocations(this.prevLocation, this.location );
+                        if( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE
+                              && this.location.getTime()-this.prevLocation.getTime() > MINIMUM_RL_TIME)
+                        {
+                           lineToGeoPoint( geoPoint, speed );
+                        }
+                        else if( trackCursor.isLast() )
+                        {
+                           lineToGeoPoint( geoPoint, speed );
+                        }
                      }
                      else
                      {
-                        prevLocation = location; 
+                        this.prevLocation = this.location; // now previous, make one
+                        lineToGeoPoint( geoPoint, speed );
                      }
-                     float seconds = ( ( location.getTime() - prevLocation.getTime() ) / 1000f );
-                     speed = distance / seconds;
-                     prevLocation = location; 
-                     lineToGeoPoint( geoPoint, speed );
                      break;
                   default:
-                     lineToGeoPoint( geoPoint, -1d );
+                     lineToGeoPoint( geoPoint, speed );
                      break;
                }
             }
@@ -373,6 +395,7 @@ public class TrackingOverlay extends Overlay
             
             // End point of the segments, possible a dot
             this.mEndPoint = extractGeoPoint( trackCursor );
+            
          }
       }
       finally
@@ -382,10 +405,29 @@ public class TrackingOverlay extends Overlay
             trackCursor.close();
          }
       }
-      
 //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
    }
    
+   /**
+    * 
+    * TODO
+    * @param startLocation
+    * @param endLocation
+    * @return
+    */
+   public static double calculateSpeedBetweenLocations( Location startLocation, Location endLocation )
+   {
+      double speed = -1d;
+      if( startLocation != null &&  endLocation != null )
+      {
+         float distance = startLocation.distanceTo( endLocation );      
+         float seconds = ( endLocation.getTime() - startLocation.getTime() ) / 1000f;
+         speed = distance / seconds;
+//         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
+      }
+      return speed;
+   }
+
    private void moveToGeoPoint( GeoPoint geoPoint )
    {
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );
@@ -395,39 +437,67 @@ public class TrackingOverlay extends Overlay
 
    private void lineToGeoPoint( GeoPoint geoPoint, double speed )
    {
+
+      //Log.d( TAG, "Drawing line to " + geoPoint + " with speed " + speed );
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );     
       mCalculatedPoints++;
       this.mPath.lineTo( this.mScreenPoint.x, this.mScreenPoint.y );
-
+      
+//      Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
+//      this.mCanvas.drawBitmap( bitmap, this.mScreenPoint.x - 8, this.mScreenPoint.y - 8, new Paint() );
+      
       if( speed > 0  )
       {
          int greenfactor = (int) Math.min( ( 127 * speed ) / mAvgSpeed, 255 );
          int redfactor = 255 - greenfactor;
          int currentColor = Color.rgb( redfactor, greenfactor, 0 );
-         Shader s = new LinearGradient( this.mPrevScreenPoint.x, this.mPrevScreenPoint.y, extendPoint( this.mPrevScreenPoint.x, this.mScreenPoint.x ), extendPoint( this.mPrevScreenPoint.y, this.mScreenPoint.y ),
-               new int[] { Color.TRANSPARENT, currentColor, Color.TRANSPARENT }, new float[] { 0, 0.5f, 1 }, TileMode.CLAMP );
-         //Log.d( TAG, "Created shader for speed " + speed + " with greenfactor " + greenfactor );
-         if( this.mShader != null )
+         float distance = (float) distanceInPoints(this.mPrevScreenPoint, this.mScreenPoint);
+         if( distance > MINIMUM_PX_DISTANCE )
          {
-            this.mShader = new ComposeShader( this.mShader, s, Mode.XOR );
-         }
-         else
-         {
-            this.mShader = s;
+            Shader lastShader = new RadialGradient(
+                  (this.mPrevScreenPoint.x+this.mPrevScreenPoint.x)/2,
+                  (this.mPrevScreenPoint.y+this.mPrevScreenPoint.y)/2,
+                  distance,
+                  new int[] { currentColor, currentColor, Color.TRANSPARENT }, 
+                  new float[] { 0, 0.4f, 1 }, 
+                  TileMode.CLAMP );
+//            Paint foo = new Paint();
+//            foo.setStyle( Paint.Style.STROKE );
+//            this.mCanvas.drawCircle(
+//                  (this.mPrevScreenPoint.x+this.mPrevScreenPoint.x)/2,
+//                  (this.mPrevScreenPoint.y+this.mPrevScreenPoint.y)/2, 
+//                  distance*0.6f, 
+//                  foo );
+//            Log.d( TAG, "Created shader for speed " + speed + " with greenfactor " + greenfactor );
+            if( this.mShader != null )
+            {
+               this.mShader = new ComposeShader( this.mShader, lastShader, Mode.SRC_OVER );
+            }
+            else
+            {
+               this.mShader = lastShader;
+            }
+            this.prevLocation = this.location;
+            this.mPrevScreenPoint.x = this.mScreenPoint.x;
+            this.mPrevScreenPoint.y = this.mScreenPoint.y;
          }
       }
-      
-      this.mPrevScreenPoint.x = this.mScreenPoint.x;
-      this.mPrevScreenPoint.y = this.mScreenPoint.y;
    }
-   
-   private float extendPoint( int x1, int x2 )
+
+   public static int extendPoint( int x1, int x2 )
    {
       int diff = x2 - x1;
       int next = x2 + diff;
       return next;
    }
 
+   public static double distanceInPoints( Point start, Point end )
+   {
+      int x = Math.abs( end.x - start.x );
+      int y = Math.abs( end.y - start.y );
+      return (double) Math.sqrt( x*x + y*y );
+   }
+   
    private boolean moveToNextWayPoint( Cursor trackCursor )
    {
       if( trackCursor.isLast() )

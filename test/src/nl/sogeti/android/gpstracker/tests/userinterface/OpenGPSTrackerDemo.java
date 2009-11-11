@@ -34,7 +34,7 @@ import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
-
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
 /** 
@@ -42,7 +42,7 @@ import com.google.android.maps.MapView;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-public class LoggerMapDemoTest extends ActivityInstrumentationTestCase2<LoggerMap>
+public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerMap>
 {
 
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
@@ -52,7 +52,7 @@ public class LoggerMapDemoTest extends ActivityInstrumentationTestCase2<LoggerMa
    private MapView mMapView;
 
 
-   public LoggerMapDemoTest()
+   public OpenGPSTrackerDemo()
    {
       super( PACKAGE, CLASS );
    }
@@ -82,54 +82,62 @@ public class LoggerMapDemoTest extends ActivityInstrumentationTestCase2<LoggerMa
    public void testTracking() throws InterruptedException 
    {
       // Our data feeder to the emulator
-      MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.rondjesingelutrecht, 100 );
+      MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.rondjesingelutrecht, 6000 );
       try
       {
-         /*
          Thread.sleep( 1 * 1000 );
          // Browse the Utrecht map
          service.sendSMS("Selecting a previous recorded track");
          Thread.sleep( 1 * 1000 );
-         this.sendKeys( "MENU" );
-         this.sendKeys( "DPAD_RIGHT DPAD_RIGHT" );
-         Thread.sleep( 3 * 1000 );
+         this.sendKeys( "MENU DPAD_RIGHT" );
+         Thread.sleep( 2 * 1000 );
          this.sendKeys( "L" );
          Thread.sleep( 2 * 1000 );
-
          service.sendSMS("The walk around the \"singel\" in Utrecht");
+         this.sendKeys( "DPAD_CENTER" );
+         Thread.sleep( 2 * 1000 );
+         
+         service.sendSMS("Zooming");
+         this.sendKeys( "T T T T T" );
+         Thread.sleep( 2 * 1000 );
+         service.sendSMS("Scrolling about");
          this.mMapView.getController().animateTo( new GeoPoint(52095580, 5118041) );
          Thread.sleep( 2 * 1000 );
+         this.mMapView.getController().animateTo( new GeoPoint(53095580, 5118041) );
+         Thread.sleep( 2 * 1000 );
+         this.mMapView.getController().animateTo( new GeoPoint(53095580, 5018041) );
+         Thread.sleep( 2 * 1000 );
+         this.mMapView.getController().animateTo( new GeoPoint(52095580, 5018041) );
+         Thread.sleep( 2 * 1000 );
+         this.mMapView.getController().animateTo( new GeoPoint(52095580, 5118041) );
+         Thread.sleep( 2 * 1000 );
+         this.sendKeys( "G G" );
+         Thread.sleep( 2 * 1000 );
+         
+         // Show of the statistics screen
+         service.sendSMS("Lets look at some statistics");
+         this.sendKeys( "MENU DPAD_RIGHT DPAD_RIGHT" );
+         Thread.sleep( 2 * 1000 );
          this.sendKeys( "DPAD_CENTER" );
-
-         Thread.sleep( 1 * 1000 );
-         service.sendSMS("Zooming");
-         this.sendKeys( "S T T T T T" );
-         service.sendSMS("The swimming bits are GPS inaccuracy");
+         Thread.sleep( 2 * 1000 );
+         service.sendSMS("Shows the basics about time, speed and distance");
          Thread.sleep( 5 * 1000 );
-         //service.sendSMS("Some buildings are 500 years old"); 
-         //this.sendKeys( "S T " );
-         this.sendKeys( "S G" );
-*/
+         this.sendKeys("BACK");
+
          // Start feeding the GPS API with location data
          new Thread( service ).start();
-         service.sendSMS("Let start a new route");
+         service.sendSMS("Lets start a new route");
          Thread.sleep( 1 * 1000 );
-    
-         // Start tracking 
          this.sendKeys( "MENU DPAD_RIGHT" );
-         Thread.sleep( 3 * 1000 );
-
+         Thread.sleep( 2 * 1000 );
          this.sendKeys( "T" );
          Thread.sleep( 1 * 1000 );
 
-         this.sendKeys("D E M O R O U T E ENTER");
+         this.sendKeys("D E M O SPACE R O U T E ENTER");
          Thread.sleep( 2 * 1000 );
-         service.sendSMS("It is already tracking me!");
-         Thread.sleep( 2 * 1000 );
+         service.sendSMS("The GPS logger is already running as a background service");
+         Thread.sleep( 3 * 1000 );
          this.sendKeys("ENTER");
-         Thread.sleep( 2 * 1000 );
-         
-         service.sendSMS("Where are we?");
          Thread.sleep( 2 * 1000 );
          
          this.mMapView.getController().setZoom( 11 );

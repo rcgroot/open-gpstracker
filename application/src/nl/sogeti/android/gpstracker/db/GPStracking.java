@@ -190,7 +190,6 @@ public final class GPStracking
       static final String ALTITUDE_TYPE = "REAL";
       static final String BEARING_TYPE = "REAL";
       static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
-
    }
 
 }

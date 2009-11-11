@@ -562,7 +562,6 @@ public class LoggerMap extends MapActivity
                Uri segmentUri = Uri.withAppendedPath( segmentsUri, segmentsId+"/waypoints" );
                TrackingOverlay segmentOverlay = new TrackingOverlay( 
                      (Context)this
-                     , resolver
                      , segmentUri
                      , trackColoringMethod
                      , avgSpeed
