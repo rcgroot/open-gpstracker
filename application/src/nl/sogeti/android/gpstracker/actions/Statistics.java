@@ -166,14 +166,13 @@ public class Statistics extends Activity
       {
          trackCursor = resolver.query
                ( mTrackUri
-               , new String[] { Tracks.NAME, Tracks.CREATION_TIME }
+               , new String[] { Tracks.NAME }
                , null
                , null
                , null );
          if( trackCursor.moveToLast() )
          {
             tracknameText = trackCursor.getString( 0 );
-            starttimeText = trackCursor.getLong( 1 );
          }
       }
       finally
@@ -213,6 +212,10 @@ public class Statistics extends Activity
                   {
                      do 
                      {
+                        if( starttimeText == 0 )
+                        {
+                           starttimeText = waypoints.getLong( 1 );
+                        }
                         currentLocation = new Location( this.getClass().getName() );
                         endtimeText = waypoints.getLong( 1 );
                         currentLocation.setLongitude( waypoints.getDouble( 2 ) );
@@ -222,6 +225,7 @@ public class Statistics extends Activity
                            distanceTraveled += lastLocation.distanceTo( currentLocation );
                         }
                         lastLocation = currentLocation;
+                        
                      }
                      while( waypoints.moveToNext());
                   }
