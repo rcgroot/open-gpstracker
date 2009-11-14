@@ -454,7 +454,7 @@ public class LoggerMap extends MapActivity
                , null
                , null
                , null );
-         if( waypointsCursor.moveToLast() )
+         if( waypointsCursor != null && waypointsCursor.moveToLast() )
          {
             mAverageSpeed = waypointsCursor.getDouble( 0 );
             if( mAverageSpeed == 0 )
@@ -572,14 +572,17 @@ public class LoggerMap extends MapActivity
             segments.close();
          }
       }
-      Point out = new Point();
-      this.mMapView.getProjection().toPixels( lastPoint, out );
-      if( out.x < this.mMapView.getWidth()/4 
-            || out.y < this.mMapView.getHeight()/4  
-            || out.x > (this.mMapView.getWidth()/4)*3 
-            || out.y > (this.mMapView.getHeight()/4)*3 ) 
+      if( lastPoint != null )
       {
-          this.mMapView.getController().animateTo( lastPoint );
+	      Point out = new Point();
+	      this.mMapView.getProjection().toPixels( lastPoint, out );
+	      if( out.x < this.mMapView.getWidth()/4 
+	            || out.y < this.mMapView.getHeight()/4  
+	            || out.x > (this.mMapView.getWidth()/4)*3 
+	            || out.y > (this.mMapView.getHeight()/4)*3 ) 
+	      {
+	          this.mMapView.getController().animateTo( lastPoint );
+	      }
       }
       this.mMapView.postInvalidate();
    }

@@ -82,7 +82,7 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
    public void testTracking() throws InterruptedException 
    {
       // Our data feeder to the emulator
-      MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.rondjesingelutrecht, 6000 );
+      MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.denhaagdenbosch, 6000 );
       try
       {
          Thread.sleep( 1 * 1000 );
@@ -101,15 +101,15 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
          this.sendKeys( "T T T T T" );
          Thread.sleep( 2 * 1000 );
          service.sendSMS("Scrolling about");
-         this.mMapView.getController().animateTo( new GeoPoint(52095580, 5118041) );
+         this.mMapView.getController().animateTo( new GeoPoint(52095829, 5118599) );
          Thread.sleep( 2 * 1000 );
-         this.mMapView.getController().animateTo( new GeoPoint(53095580, 5118041) );
+         this.mMapView.getController().animateTo( new GeoPoint(52096778, 5125090) );
          Thread.sleep( 2 * 1000 );
-         this.mMapView.getController().animateTo( new GeoPoint(53095580, 5018041) );
+         this.mMapView.getController().animateTo( new GeoPoint(52085117, 5128255) );
          Thread.sleep( 2 * 1000 );
-         this.mMapView.getController().animateTo( new GeoPoint(52095580, 5018041) );
+         this.mMapView.getController().animateTo( new GeoPoint(52081517, 5121646) );
          Thread.sleep( 2 * 1000 );
-         this.mMapView.getController().animateTo( new GeoPoint(52095580, 5118041) );
+         this.mMapView.getController().animateTo( new GeoPoint(52093535, 5116711) );
          Thread.sleep( 2 * 1000 );
          this.sendKeys( "G G" );
          Thread.sleep( 2 * 1000 );
@@ -118,7 +118,7 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
          service.sendSMS("Lets look at some statistics");
          this.sendKeys( "MENU DPAD_RIGHT DPAD_RIGHT" );
          Thread.sleep( 2 * 1000 );
-         this.sendKeys( "DPAD_CENTER" );
+         this.sendKeys( "E§" );
          Thread.sleep( 2 * 1000 );
          service.sendSMS("Shows the basics about time, speed and distance");
          Thread.sleep( 5 * 1000 );

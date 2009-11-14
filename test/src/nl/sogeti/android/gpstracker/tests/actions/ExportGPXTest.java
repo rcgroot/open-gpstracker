@@ -57,11 +57,11 @@ public class ExportGPXTest extends TestCase
       Assert.assertEquals( "Category", actionIntent.getCategories(), null );
       
       // Data match
-      Assert.assertEquals( "Mock Infered Data Type", null, actionIntent.resolveType( resolver ) );
-      Assert.assertEquals( "Mock Data Type", actionIntent.getType(), null ) ;
+      Assert.assertEquals( "Mock Infered Data Type", Tracks.CONTENT_ITEM_TYPE, actionIntent.resolveType( resolver ) );
+      Assert.assertEquals( "Mock Data Type", Tracks.CONTENT_ITEM_TYPE, actionIntent.getType() ) ;
       
-      Assert.assertEquals( "Data Schema", actionIntent.getScheme(), "content" );
-      Assert.assertEquals( "Data Authority", actionIntent.getData().getAuthority(), "nl.sogeti.android.gpstracker" );
-      Assert.assertEquals( "Data Path", actionIntent.getData().getPath(), "/tracks/0" );
+      Assert.assertEquals( "Data Schema", "content", actionIntent.getScheme() );
+      Assert.assertEquals( "Data Authority", "nl.sogeti.android.gpstracker", actionIntent.getData().getAuthority() );
+      Assert.assertEquals( "Data Path", "/tracks/0", actionIntent.getData().getPath() );
    }
 }

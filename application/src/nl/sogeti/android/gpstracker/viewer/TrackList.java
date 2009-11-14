@@ -68,7 +68,7 @@ public class TrackList extends ListActivity
    private static final int MENU_STATS = 3;
    public static final int DIALOG_FILENAME = 0;
    private Cursor mTracksCursor;
-   SimpleCursorAdapter mNotes;
+   SimpleCursorAdapter mTrackAdapter;
    private EditText mTrackNameView;
 
    private class DeleteClickListener implements DialogInterface.OnClickListener 
@@ -84,7 +84,7 @@ public class TrackList extends ListActivity
          getContentResolver().delete(this.mUri, null, null);
 
          TrackList.this.mTracksCursor.requery();
-         TrackList.this.mNotes.notifyDataSetChanged();
+         TrackList.this.mTrackAdapter.notifyDataSetChanged();
       }
    }
    
@@ -124,8 +124,8 @@ public class TrackList extends ListActivity
       int[] toItems = new int[]{R.id.listitem_name, R.id.listitem_from};
 
       // Now create a simple cursor adapter and set it to display
-      this.mNotes = new SimpleCursorAdapter(this, R.layout.trackitem, this.mTracksCursor, fromColumns, toItems);
-      setListAdapter(this.mNotes);
+      this.mTrackAdapter = new SimpleCursorAdapter(this, R.layout.trackitem, this.mTracksCursor, fromColumns, toItems);
+      setListAdapter(this.mTrackAdapter);
 
       // Add the context menu (the long press thing)
       registerForContextMenu(getListView());
