@@ -376,6 +376,7 @@ public class TrackingOverlay extends Overlay
                double speed = -1d;
                switch (trackColoringMethod)
                {
+                  case DRAW_GREEN:
                   case DRAW_RED:
                      lineToGeoPoint( geoPoint, speed );
                      break;
@@ -617,7 +618,7 @@ public class TrackingOverlay extends Overlay
       } 
       else 
       {
-         stepSize = (maxZoomLevel - zoomLevel)*(maxZoomLevel - zoomLevel);
+         stepSize = (maxZoomLevel - zoomLevel);
       }
 //      Log.d( TAG, "Setting stepSize "+stepSize+" on a zoom of "+zoomLevel+"/"+maxZoomLevel );
    }
