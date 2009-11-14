@@ -31,7 +31,6 @@ package nl.sogeti.android.gpstracker.viewer;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ExportGPX;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -61,7 +60,6 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -103,7 +101,7 @@ public class LoggerMap extends MapActivity
    private EditText mFileNameView;
    private EditText mTrackNameView;
    private WakeLock mWakeLock = null;
-
+   private double mAverageSpeed = 33.33d/2d;
    private TextView[] mSpeedtexts = null;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
@@ -136,7 +134,7 @@ public class LoggerMap extends MapActivity
       @Override
       public void onChange(boolean selfUpdate) 
       {
-         LoggerMap.this.drawTrackingData();
+         LoggerMap.this.createTrackingDataOverlays();
       }
    };
    
@@ -147,20 +145,6 @@ public class LoggerMap extends MapActivity
             Intent tracklistIntent = new Intent(LoggerMap.this, TrackList.class);
             tracklistIntent.putExtra( Tracks._ID, LoggerMap.this.mTrackId );
             startActivityForResult(tracklistIntent, MENU_TRACKLIST);
-      }
-   } ;
-
-   private final DialogInterface.OnClickListener mFileNameDialogListener = new DialogInterface.OnClickListener()
-   {
-      public void onClick(DialogInterface dialog, int which)
-      {
-         String filename = mFileNameView.getText().toString();
-         
-         Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId );
-         Intent actionIntent = new Intent(Intent.ACTION_SEND, uri );         
-         actionIntent.putExtra( ExportGPX.FILENAME, filename );
-         LoggerMap.this.sendBroadcast( actionIntent, android.Manifest.permission.ACCESS_FINE_LOCATION );
-         mFileNameView = null;
       }
    } ;
    
@@ -460,9 +444,36 @@ public class LoggerMap extends MapActivity
    }
    private void updateSpeedbarVisibility( int trackColoringMethod )
    {
+      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      Cursor waypointsCursor = null ;
+      try
+      {
+         waypointsCursor = resolver.query
+               ( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/waypoints" )
+               , new String[] { "avg("+Waypoints.SPEED+")" }
+               , null
+               , null
+               , null );
+         if( waypointsCursor.moveToLast() )
+         {
+            mAverageSpeed = waypointsCursor.getDouble( 0 );
+            if( mAverageSpeed == 0 )
+            {
+               mAverageSpeed = 33.33d/2d;
+            }
+         }
+      }
+      finally
+      {
+         if( waypointsCursor != null )
+         {
+            waypointsCursor.close();
+         }
+      }
       View speedbar = findViewById( R.id.speedbar );     
       if( trackColoringMethod == TrackingOverlay.DRAW_MEASURED || trackColoringMethod == TrackingOverlay.DRAW_CALCULATED )
       {
+         drawSpeedTexts( mAverageSpeed );
          speedbar.setVisibility( View.VISIBLE );
          for( int i=0 ; i<mSpeedtexts.length ; i++ )
          {
@@ -486,7 +497,7 @@ public class LoggerMap extends MapActivity
     * @param trackId
     * @see TrackingOverlay
     */
-   private void drawTrackingData()
+   private void createTrackingDataOverlays()
    {
       List<Overlay> overlays = this.mMapView.getOverlays();
       overlays.clear();
@@ -494,35 +505,8 @@ public class LoggerMap extends MapActivity
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null ;
       int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
+      updateSpeedbarVisibility( trackColoringMethod );
 
-      Cursor waypointsCursor = null ;
-      double avgSpeed = 33.33d/2d;
-      try
-      {
-         waypointsCursor = resolver.query
-               ( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/waypoints" )
-               , new String[] { "avg("+Waypoints.SPEED+")" }
-               , null
-               , null
-               , null );
-         if( waypointsCursor.moveToLast() )
-         {
-            avgSpeed = waypointsCursor.getDouble( 0 );
-            if( avgSpeed == 0 )
-            {
-               avgSpeed = 33.33d/2d;
-            }
-            drawSpeedTexts( avgSpeed );
-         }
-      }
-      finally
-      {
-         if( waypointsCursor != null )
-         {
-            waypointsCursor.close();
-         }
-      }
-      
       Cursor trackCursor = null ;
       try
       {
@@ -547,6 +531,7 @@ public class LoggerMap extends MapActivity
       }
       
       
+      GeoPoint lastPoint = null;
       try 
       {
          Uri segmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/segments" );
@@ -564,34 +549,17 @@ public class LoggerMap extends MapActivity
                      (Context)this
                      , segmentUri
                      , trackColoringMethod
-                     , avgSpeed
-                     , this.mMapView );
-
-               
-               updateSpeedbarVisibility( trackColoringMethod );
-               
+                     , mAverageSpeed
+                     , this.mMapView );               
                overlays.add( segmentOverlay );
                if( segments.isFirst() ) 
                {
-                  segmentOverlay.setPlacement( TrackingOverlay.FIRST_SEGMENT );
+                  segmentOverlay.addPlacement( TrackingOverlay.FIRST_SEGMENT );
                }
                if( segments.isLast() )
                {
-                  segmentOverlay.setPlacement( TrackingOverlay.LAST_SEGMENT );
-                  GeoPoint lastPoint = getLastTrackPoint( this.mTrackId, segmentsId );
-                  if( lastPoint != null )
-                  {
-                     Point out = new Point();
-                     this.mMapView.getProjection().toPixels( lastPoint, out );
-                     if( out.x < this.mMapView.getWidth()/4 
-                           || out.y < this.mMapView.getHeight()/4  
-                           || out.x > (this.mMapView.getWidth()/4)*3 
-                           || out.y > (this.mMapView.getHeight()/4)*3 ) 
-                     {
-//                         Log.d( TAG, "Animating to "+out );
-                         this.mMapView.getController().animateTo( lastPoint );
-                     }
-                  }
+                  segmentOverlay.addPlacement( TrackingOverlay.LAST_SEGMENT );
+                  lastPoint  = getLastTrackPoint( this.mTrackId, segmentsId );
                }
             }
             while( segments.moveToNext());
@@ -603,6 +571,15 @@ public class LoggerMap extends MapActivity
          {
             segments.close();
          }
+      }
+      Point out = new Point();
+      this.mMapView.getProjection().toPixels( lastPoint, out );
+      if( out.x < this.mMapView.getWidth()/4 
+            || out.y < this.mMapView.getHeight()/4  
+            || out.x > (this.mMapView.getWidth()/4)*3 
+            || out.y > (this.mMapView.getHeight()/4)*3 ) 
+      {
+          this.mMapView.getController().animateTo( lastPoint );
       }
       this.mMapView.postInvalidate();
    }
@@ -685,7 +662,7 @@ public class LoggerMap extends MapActivity
                drawToTrackName(track.getString( 0 ));
                resolver.unregisterContentObserver( this.mTrackObserver );
                resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
-               drawTrackingData();
+               createTrackingDataOverlays();
             }
          }
          finally 

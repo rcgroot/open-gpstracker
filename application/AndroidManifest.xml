@@ -50,15 +50,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
 				<data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
 			</intent-filter>
-			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 		</activity>
+		
         <activity android:label="@string/receive_gpxsender" android:name=".actions.SendGPX">
             <intent-filter>
                 <action android:name="android.intent.action.RUN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
-            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
         </activity>
 		
 
