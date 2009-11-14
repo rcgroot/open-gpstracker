@@ -28,9 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import android.content.ContentResolver;
@@ -51,7 +48,6 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -426,7 +422,7 @@ public class TrackingOverlay extends Overlay
             trackCursor.close();
          }
       }
-      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
+//      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
    
    /**
@@ -470,7 +466,7 @@ public class TrackingOverlay extends Overlay
    private void lineToGeoPoint( GeoPoint geoPoint, double speed )
    {
 
-      Log.d( TAG, "Drawing line to " + geoPoint + " with speed " + speed );
+//      Log.d( TAG, "Drawing line to " + geoPoint + " with speed " + speed );
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );     
       mCalculatedPoints++;
       
