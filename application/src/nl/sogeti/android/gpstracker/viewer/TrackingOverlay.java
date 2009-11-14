@@ -78,9 +78,9 @@ public class TrackingOverlay extends Overlay
    public static final int DRAW_CALCULATED = 3;
    public static final int DRAW_DOTS = 4;
    public static final String TRACKCOLORING = "trackcoloring";
-   private static final float MINIMUM_RL_DISTANCE = 100;
-   private static final float MINIMUM_RL_TIME = 3;
-   private static final float MINIMUM_PX_DISTANCE = 20;
+   private static final float MINIMUM_RL_DISTANCE = 125;
+   private static final float MINIMUM_RL_TIME = 1;
+   private static final float MINIMUM_PX_DISTANCE = 5;
    private int trackColoringMethod = DRAW_CALCULATED;
 
    private ContentResolver mResolver;
@@ -180,16 +180,32 @@ public class TrackingOverlay extends Overlay
     */
    public void drawPath( Canvas canvas, MapView mapView, boolean shadow )
    {
+      super.draw( this.mCanvas, mapView, shadow );
       this.mCanvas = canvas;
-      this.mScreenPoint = new Point();
-      this.mPrevScreenPoint = new Point();
       mProjection = mapView.getProjection();
+      
+      GeoPoint oldTopLeft = mTopLeft;
+      GeoPoint oldBottumRight = mBottumRight;
       mTopLeft = mProjection.fromPixels( 0, 0 );
       mBottumRight = mProjection.fromPixels( this.mCanvas.getWidth(), this.mCanvas.getHeight() );
-
-      this.mPath.rewind();
-      this.mShader = null;
-      transformSegmentToPath();
+      
+      if( oldTopLeft != null 
+            && oldBottumRight != null 
+            && oldTopLeft.getLatitudeE6() == mTopLeft.getLatitudeE6()
+            && oldTopLeft.getLongitudeE6() == mTopLeft.getLongitudeE6()
+            && oldBottumRight.getLatitudeE6() == mBottumRight.getLatitudeE6()
+            && oldBottumRight.getLongitudeE6() == mBottumRight.getLongitudeE6() )
+      {
+         Log.d( TAG, "Just a quick rerender!" );
+      }
+      else
+      {
+         this.mScreenPoint = new Point();
+         this.mPrevScreenPoint = new Point();
+         this.mPath.rewind();
+         this.mShader = null;
+         transformSegmentToPath();
+      }
 
       // Just the rendering bits left to do
       Paint routePaint = new Paint();
@@ -217,7 +233,7 @@ public class TrackingOverlay extends Overlay
 
       drawStartStopCircles();
       
-      super.draw( this.mCanvas, mapView, shadow );
+
       this.mCanvas = null;
    }
 
@@ -239,7 +255,6 @@ public class TrackingOverlay extends Overlay
          mCalculatedPoints++;
          bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip );
          this.mCanvas.drawBitmap( bitmap, out.x - 5, out.y - 5, new Paint() );
-
       }
    }
 
@@ -251,7 +266,7 @@ public class TrackingOverlay extends Overlay
     * @see TrackingOverlay.LAST
     * @param place The placement of this segment in the line.
     */
-   public void setPlacement( int place )
+   public void addPlacement( int place )
    {
       this.mPlacement += place;
    }
@@ -329,6 +344,7 @@ public class TrackingOverlay extends Overlay
       step = 0;
       this.prevLocation = null;
       
+      int moves=0;
       try
       {
          switch (trackColoringMethod)
@@ -347,10 +363,15 @@ public class TrackingOverlay extends Overlay
          {
             // Start point of the segments, possible a dot
             this.mStartPoint = extractGeoPoint( trackCursor );
+            this.location = new Location( this.getClass().getName() );
+            this.location.setLatitude( trackCursor.getDouble( 0 ) );
+            this.location.setLongitude( trackCursor.getDouble( 1 ) );
+            this.location.setTime( trackCursor.getLong( 3 ) );
             moveToGeoPoint( this.mStartPoint );
             
             do
             {
+//               Log.d(TAG, "Moving the loop of: moveToNextWayPoint() at cursor position: "+trackCursor.getPosition() ) ;
                geoPoint = extractGeoPoint( trackCursor );
                double speed = -1d;
                switch (trackColoringMethod)
@@ -366,30 +387,23 @@ public class TrackingOverlay extends Overlay
                      this.location.setLatitude( trackCursor.getDouble( 0 ) );
                      this.location.setLongitude( trackCursor.getDouble( 1 ) );
                      this.location.setTime( trackCursor.getLong( 3 ) );
-                     
-                     if( this.prevLocation != null )
+                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE
+                           && this.location.getTime()-this.prevLocation.getTime() > MINIMUM_RL_TIME) 
+                        || trackCursor.isLast() )
                      {
                         speed  = calculateSpeedBetweenLocations(this.prevLocation, this.location );
-                        if( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE
-                              && this.location.getTime()-this.prevLocation.getTime() > MINIMUM_RL_TIME)
-                        {
-                           lineToGeoPoint( geoPoint, speed );
-                        }
-                        else if( trackCursor.isLast() )
-                        {
-                           lineToGeoPoint( geoPoint, speed );
-                        }
+                        lineToGeoPoint( geoPoint, speed );
                      }
                      else
                      {
-                        this.prevLocation = this.location; // now previous, make one
-                        lineToGeoPoint( geoPoint, speed );
+                        lineToGeoPoint( geoPoint, -1d );
                      }
                      break;
                   default:
                      lineToGeoPoint( geoPoint, speed );
                      break;
                }
+               moves++;
             }
             while( moveToNextWayPoint( trackCursor ) );
             
@@ -405,7 +419,7 @@ public class TrackingOverlay extends Overlay
             trackCursor.close();
          }
       }
-//      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
+      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
    
    /**
@@ -413,7 +427,7 @@ public class TrackingOverlay extends Overlay
     * TODO
     * @param startLocation
     * @param endLocation
-    * @return
+    * @return speed in m/s between 2 locations
     */
    public static double calculateSpeedBetweenLocations( Location startLocation, Location endLocation )
    {
@@ -425,14 +439,25 @@ public class TrackingOverlay extends Overlay
          speed = distance / seconds;
 //         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
       }
-      return speed;
+      if( speed > 1 )
+      {
+         return speed;
+      }
+      else
+      {
+         return -1d;
+      }
    }
 
    private void moveToGeoPoint( GeoPoint geoPoint )
    {
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );
       mCalculatedPoints++;
+      
       this.mPath.moveTo( this.mScreenPoint.x, this.mScreenPoint.y );
+      this.prevLocation = this.location;
+      this.mPrevScreenPoint.x = this.mScreenPoint.x;
+      this.mPrevScreenPoint.y = this.mScreenPoint.y;
    }  
 
    private void lineToGeoPoint( GeoPoint geoPoint, double speed )
@@ -441,7 +466,6 @@ public class TrackingOverlay extends Overlay
       //Log.d( TAG, "Drawing line to " + geoPoint + " with speed " + speed );
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );     
       mCalculatedPoints++;
-      this.mPath.lineTo( this.mScreenPoint.x, this.mScreenPoint.y );
       
 //      Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
 //      this.mCanvas.drawBitmap( bitmap, this.mScreenPoint.x - 8, this.mScreenPoint.y - 8, new Paint() );
@@ -454,21 +478,26 @@ public class TrackingOverlay extends Overlay
          float distance = (float) distanceInPoints(this.mPrevScreenPoint, this.mScreenPoint);
          if( distance > MINIMUM_PX_DISTANCE )
          {
+            int x_circle = (this.mPrevScreenPoint.x+this.mScreenPoint.x)/2;
+            int y_circle = (this.mPrevScreenPoint.y+this.mScreenPoint.y)/2;
+            float radius_factor = 0.4f;
             Shader lastShader = new RadialGradient(
-                  (this.mPrevScreenPoint.x+this.mPrevScreenPoint.x)/2,
-                  (this.mPrevScreenPoint.y+this.mPrevScreenPoint.y)/2,
+                  x_circle,
+                  y_circle,
                   distance,
                   new int[] { currentColor, currentColor, Color.TRANSPARENT }, 
-                  new float[] { 0, 0.4f, 1 }, 
+                  new float[] { 0, radius_factor, 1 }, 
                   TileMode.CLAMP );
 //            Paint foo = new Paint();
 //            foo.setStyle( Paint.Style.STROKE );
 //            this.mCanvas.drawCircle(
-//                  (this.mPrevScreenPoint.x+this.mPrevScreenPoint.x)/2,
-//                  (this.mPrevScreenPoint.y+this.mPrevScreenPoint.y)/2, 
-//                  distance*0.6f, 
+//                  x_circle,
+//                  y_circle, 
+//                  distance*radius_factor, 
 //                  foo );
-//            Log.d( TAG, "Created shader for speed " + speed + " with greenfactor " + greenfactor );
+//            Log.d( TAG, "mPrevScreenPoint"+ mPrevScreenPoint );
+//            Log.d( TAG, "mScreenPoint"+ mScreenPoint );
+//            Log.d( TAG, "Created shader for speed " + speed + " on "+x_circle+","+y_circle);
             if( this.mShader != null )
             {
                this.mShader = new ComposeShader( this.mShader, lastShader, Mode.SRC_OVER );
@@ -477,11 +506,13 @@ public class TrackingOverlay extends Overlay
             {
                this.mShader = lastShader;
             }
-            this.prevLocation = this.location;
-            this.mPrevScreenPoint.x = this.mScreenPoint.x;
-            this.mPrevScreenPoint.y = this.mScreenPoint.y;
          }
+         this.prevLocation = this.location;
+         this.mPrevScreenPoint.x = this.mScreenPoint.x;
+         this.mPrevScreenPoint.y = this.mScreenPoint.y;
       }
+
+      this.mPath.lineTo( this.mScreenPoint.x, this.mScreenPoint.y );
    }
 
    public static int extendPoint( int x1, int x2 )
@@ -500,63 +531,68 @@ public class TrackingOverlay extends Overlay
    
    private boolean moveToNextWayPoint( Cursor trackCursor )
    {
+      boolean onScreen = isOnScreen( extractGeoPoint( trackCursor ) );
+      if( onScreen )
+      {
+         return moveToNextOnScreenWaypoint( trackCursor );
+      }
+      else
+      {
+         return moveToNextOffScreenWaypoint( trackCursor );
+      }
+   }
+   
+   private boolean moveToNextOnScreenWaypoint( Cursor trackCursor )
+   {
       if( trackCursor.isLast() )
       {
          return false;
       }
-      
-      GeoPoint lastPoint = extractGeoPoint( trackCursor );
-      boolean onScreen = isOnScreen( lastPoint );
-      
       GeoPoint evalPoint;
-      if( onScreen )
+      while( trackCursor.moveToNext() )
       {
-         while( trackCursor.moveToNext() )
+         step++;         
+         evalPoint = extractGeoPoint( trackCursor );
+         
+         if( !isOnScreen( evalPoint ) )
          {
-            step++;
-            if( trackCursor.isLast() )
-            {
-//               Log.d(TAG, "last on screen "+trackCursor.getPosition() );
-               return true;
-            }
-            
-            evalPoint = extractGeoPoint( trackCursor );
-            if( !isOnScreen( evalPoint ) )
-            {
 //               Log.d(TAG, "first out screen "+trackCursor.getPosition() );
-               return true;
-            }
-            if( isGoodDrawable() )
-            {
-               return true; 
-            }
-         }        
-         trackCursor.moveToLast();
-         return false;
-      }
-      else
-      {
-         while( trackCursor.moveToNext() )
-         {
-            step++;
-            if( trackCursor.isLast() )
-            {
-//               Log.d(TAG, "last off screen "+trackCursor.getPosition() );
-               return true;
-            }
-            
-            evalPoint = extractGeoPoint( trackCursor );
-            if( isOnScreen( evalPoint ) )
-            {
-               moveToGeoPoint( lastPoint );   
-//               Log.d(TAG, "first in screen "+trackCursor.getPosition() );
-               return true;
-            }
-            lastPoint = evalPoint;
+            return true;
          }
-         trackCursor.moveToLast();
+         if( isGoodDrawable() )
+         {
+            return true; 
+         }
+      }
+      return trackCursor.moveToLast();
+   }
+
+   private boolean moveToNextOffScreenWaypoint( Cursor trackCursor )
+   {
+      if( trackCursor.isLast() )
+      {
          return false;
       }
+      GeoPoint lastPoint = extractGeoPoint( trackCursor );
+      while( trackCursor.moveToNext() )
+      {
+         step++;
+         if( trackCursor.isLast() )
+         {
+//               Log.d(TAG, "last off screen "+trackCursor.getPosition() );
+            return true;
+         }
+         
+         GeoPoint evalPoint = extractGeoPoint( trackCursor );
+         if( isOnScreen( evalPoint ) )
+         {
+            moveToGeoPoint( lastPoint );   
+//               Log.d(TAG, "first in screen "+trackCursor.getPosition() );
+            return true;
+         }
+         lastPoint = evalPoint;
+      }
+      return trackCursor.moveToLast();
    }
    
    private GeoPoint extractGeoPoint( Cursor trackCursor )
@@ -581,7 +617,7 @@ public class TrackingOverlay extends Overlay
       } 
       else 
       {
-         stepSize = (maxZoomLevel - zoomLevel)*2;
+         stepSize = (maxZoomLevel - zoomLevel)*(maxZoomLevel - zoomLevel);
       }
 //      Log.d( TAG, "Setting stepSize "+stepSize+" on a zoom of "+zoomLevel+"/"+maxZoomLevel );
    }
