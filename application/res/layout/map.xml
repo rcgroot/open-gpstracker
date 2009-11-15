@@ -8,9 +8,9 @@
 	  android:layout_height="fill_parent"
 	  android:enabled="true"
 	  android:clickable="true"
-	  android:apiKey="0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw"
+	  android:apiKey="0bmdf4-ggC50pzCfGzq5ADyCoBsyRz0kUybFeUw"
 	/>
-    <!--  Device / Release: 0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw -->
+    <!--  Device / Release: 0bmdf4-ggC50pzCfGzq5ADyCoBsyRz0kUybFeUw -->
     <!--  Emulator / Debug: 0bmdf4-ggC50pzCfGzq5ADyCoBsyRz0kUybFeUw -->
     <!--  Mac emulator    : 0bmdf4-ggC527Bi-Ac3W30MvwmhnL-5CBRo6Slg -->
 
@@ -97,7 +97,7 @@
 		android:textColor="#ff000000" 
         android:background="#80aaaaaa"
         android:visibility="invisible"/>
-	
+
 	<ImageView android:id="@+id/speedbar"
 	       android:layout_alignParentTop="true"
 	       android:layout_alignParentRight="true"
@@ -105,7 +105,19 @@
 	       android:layout_marginRight="10dp"
 	       android:layout_height="250dp" 
 	       android:layout_width="30dp" 
-	       android:src="@drawable/speedindexbar"/>
-	    
+	       android:src="@drawable/speedindexbar"
+           android:visibility="invisible"/>
 
+   <TextView android:id="@+id/currentSpeed"
+        android:textStyle="bold"
+        android:textColor="#ff000000"       
+        android:textSize="12pt"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"/>
+        	       
 </RelativeLayout>

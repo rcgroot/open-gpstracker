@@ -94,16 +94,20 @@ public class LoggerMap extends MapActivity
    private static final String TAG = LoggerMap.class.getName();
 
    protected static final String DISABLEBLANKING = "disableblanking";
+   protected static final String SHOWSPEED = "showspeed";
+   private static final float MINIMUM_RL_DISTANCE = 50;
+   private static final float MINIMUM_RL_TIME = 10;
 
    private long mTrackId = -1;
    private MapView mMapView = null;
    private MapController mMapController = null;
    private GPSLoggerServiceManager mLoggerServiceManager;
-   private EditText mFileNameView;
    private EditText mTrackNameView;
    private WakeLock mWakeLock = null;
    private double mAverageSpeed = 33.33d/2d;
    private TextView[] mSpeedtexts = null;
+   private TextView mAverageSpeedText = null;
+   private Location mLastLocation;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
    {
@@ -112,7 +116,7 @@ public class LoggerMap extends MapActivity
          if( key.equals( TrackingOverlay.TRACKCOLORING ) )
          {
             int trackColoringMethod = new Integer( sharedPreferences.getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
-            updateSpeedbarVisibility( trackColoringMethod );
+            updateSpeedbarVisibility();
             List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
             for( Overlay overlay : overlays )
             {
@@ -127,6 +131,10 @@ public class LoggerMap extends MapActivity
          {
             updateBlankingBehavior();
          }
+         else if( key.equals( SHOWSPEED ))
+         {
+            updateSpeedDisplayVisibility();
+         }
       }
    };
 
@@ -136,6 +144,7 @@ public class LoggerMap extends MapActivity
       public void onChange(boolean selfUpdate) 
       {
          LoggerMap.this.createTrackingDataOverlays();
+         LoggerMap.this.createSpeedDisplayNumbers();
       }
    };
    
@@ -307,14 +316,15 @@ public class LoggerMap extends MapActivity
       this.mMapView.setStreetView( false );
       this.mMapView.setSatellite( false );
       TextView[] speeds = 
-      { (TextView) findViewById( R.id.speedview05)
-      , (TextView) findViewById( R.id.speedview04)
-      , (TextView) findViewById( R.id.speedview03)
-      , (TextView) findViewById( R.id.speedview02)
-      , (TextView) findViewById( R.id.speedview01)
-      , (TextView) findViewById( R.id.speedview00)
+      { (TextView) findViewById( R.id.speedview05 )
+      , (TextView) findViewById( R.id.speedview04 )
+      , (TextView) findViewById( R.id.speedview03 )
+      , (TextView) findViewById( R.id.speedview02 )
+      , (TextView) findViewById( R.id.speedview01 )
+      , (TextView) findViewById( R.id.speedview00 )
       } ;
       mSpeedtexts = speeds;
+      mAverageSpeedText = (TextView) findViewById( R.id.currentSpeed );
 
       
       /* Collect the zoomcontrols and place them */
@@ -354,6 +364,8 @@ public class LoggerMap extends MapActivity
       this.mLoggerServiceManager.connectToGPSLoggerService();
       super.onResume();
       updateBlankingBehavior();
+      updateSpeedbarVisibility();
+      updateSpeedDisplayVisibility();
    }
    /*
     * (non-Javadoc)
@@ -452,8 +464,10 @@ public class LoggerMap extends MapActivity
          resumeBlanking();
       }
    }
-   private void updateSpeedbarVisibility( int trackColoringMethod )
+   
+   private void updateSpeedbarVisibility()
    {
+      int trackColoringMethod = new Integer(PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor waypointsCursor = null ;
       try
@@ -500,6 +514,69 @@ public class LoggerMap extends MapActivity
       }
    }
    
+   private void updateSpeedDisplayVisibility()
+   {
+      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.SHOWSPEED, false );
+      if( showspeed )
+      {
+         mAverageSpeedText.setVisibility( View.VISIBLE );      
+      }
+      else
+      {
+         mAverageSpeedText.setVisibility( View.INVISIBLE );      
+      }
+   }
+   
+   protected void createSpeedDisplayNumbers()
+   {
+      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      Cursor waypointsCursor = null ;
+      Location location = null;
+      try
+      {
+         waypointsCursor = resolver.query
+               ( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/waypoints" )
+               , new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.TIME }
+               , null
+               , null
+               , null );
+         if( waypointsCursor.moveToLast() )
+         {
+            location = new Location( this.getClass().getName() );
+            location.setLatitude( waypointsCursor.getDouble( 0 ) );
+            location.setLongitude( waypointsCursor.getDouble( 1 ) );
+            location.setTime( waypointsCursor.getLong( 2 ) );
+         }
+      }
+      finally
+      {
+         if( waypointsCursor != null )
+         {
+            waypointsCursor.close();
+         }
+      }
+      if( mLastLocation != null && location != null )
+      {
+         if( ( mLastLocation.distanceTo( location ) > MINIMUM_RL_DISTANCE 
+               && location.getTime() - mLastLocation.getTime() > MINIMUM_RL_TIME )  )
+         {
+            String speed_unit = this.getResources().getString( R.string.speed_unitname );
+            TypedValue outValue = new TypedValue();
+            this.getResources().getValue( R.raw.conversion_from_mps, outValue, false ) ;
+            float conversion_from_mps =  outValue.getFloat();
+            double speed = TrackingOverlay.calculateSpeedBetweenLocations( mLastLocation, location );
+            speed = speed *  conversion_from_mps;
+            String speedText = String.format( "%.0f", speed )+" "+speed_unit;
+            mAverageSpeedText.setText( speedText );
+            mLastLocation = location;
+         }
+      }
+      else
+      {
+         mLastLocation = location;
+      }
+   }
+
    /**
     * For the current track identifier the route of that track is drawn 
     * by adding a OverLay for each segments in the track
@@ -515,7 +592,6 @@ public class LoggerMap extends MapActivity
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null ;
       int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
-      updateSpeedbarVisibility( trackColoringMethod );
 
       Cursor trackCursor = null ;
       try

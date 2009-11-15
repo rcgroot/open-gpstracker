@@ -2,33 +2,9 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/opengpstracker_title">
-
+    
     <PreferenceCategory
-        android:title="@string/opengpstracker_settings">
-        
-        <CheckBoxPreference
-            android:key="logatstartup"
-            android:title="@string/logatstartup"
-            android:summary="@string/logatstartup_summary"
-            android:defaultValue="false" />
-
-        <CheckBoxPreference
-            android:key="disableblanking"
-            android:title="@string/disableblanking_title"
-            android:summary="@string/disableblanking_summary"
-            android:defaultValue="false" 
-            />
-        
-        <ListPreference
-            android:key="precision"
-            android:title="@string/precision_title"
-            android:summary="@string/precision_summary"
-            android:entries="@array/precision_choices"
-            android:entryValues="@array/precision_values"
-            android:defaultValue="1"/>
-            
-             />
-
+        android:title="@string/preference_display">
         <ListPreference
             android:key="trackcoloring"
             android:title="@string/trackcoloring_title"
@@ -37,7 +13,34 @@
             android:entryValues="@array/trackcoloring_values"
             android:defaultValue="3"/>
              />
-            
+        <CheckBoxPreference
+            android:key="showspeed"
+            android:title="@string/showspeed_title"
+            android:summary="@string/showspeed_summary"
+            android:defaultValue="true" 
+            />
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="@string/preference_behavior">
+        <ListPreference
+            android:key="precision"
+            android:title="@string/precision_title"
+            android:summary="@string/precision_summary"
+            android:entries="@array/precision_choices"
+            android:entryValues="@array/precision_values"
+            android:defaultValue="1"/>
+        <CheckBoxPreference
+            android:key="disableblanking"
+            android:title="@string/disableblanking_title"
+            android:summary="@string/disableblanking_summary"
+            android:defaultValue="false" 
+            />
+        <CheckBoxPreference
+            android:key="logatstartup"
+            android:title="@string/logatstartup"
+            android:summary="@string/logatstartup_summary"
+            android:defaultValue="false" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -42,7 +42,9 @@
     <string name="email_body">Attached is a track in the GPS Exchange Format (GPX) file as described on http://www.topografix.com/gpx.asp</string>
     
     <string name="opengpstracker_title">Open GPS Tracker</string>
-    <string name="opengpstracker_settings">Settings</string>   
+    <string name="opengpstracker_settings">Settings</string>
+    <string name="preference_display">Display settings</string>
+    <string name="preference_behavior">Run settings</string>
     <string name="logatstartup">Log at start up</string>
     <string name="logatstartup_summary">After starting the application tracking starts.</string>   
     <string name="disableblanking_title">Disable screen blanking</string>
@@ -51,6 +53,8 @@
     <string name="precision_summary">The size of interval between GPS fixes.</string>      
     <string name="trackcoloring_title">The track color</string>
     <string name="trackcoloring_summary">The coloring used to draw the track.</string>
+    <string name="showspeed_title">Display speed</string>
+    <string name="showspeed_summary">Show the average speed since the last waypoint.</string>
     
     <string name="stat_maximumspeed">Maximum speed</string>
     <string name="stat_averagespeed">Average speed</string>    
