@@ -68,6 +68,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -164,6 +165,7 @@ public class LoggerMap extends MapActivity
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
    {
+      Toast toast;
       boolean propagate = true;
       switch (keyCode)
       {
@@ -175,6 +177,14 @@ public class LoggerMap extends MapActivity
             break;
          case KeyEvent.KEYCODE_S:
             this.mMapView.setSatellite( !this.mMapView.isSatellite() );
+            toast = Toast.makeText( this.getApplicationContext(), "Satellite: "+this.mMapView.isSatellite(), Toast.LENGTH_SHORT );
+            toast.show();
+            propagate = false;
+            break;
+         case KeyEvent.KEYCODE_A:
+            this.mMapView.setTraffic( !this.mMapView.isTraffic() );
+            toast = Toast.makeText( this.getApplicationContext(), "Traffic: "+this.mMapView.isTraffic(), Toast.LENGTH_SHORT );
+            toast.show();
             propagate = false;
             break;
          case KeyEvent.KEYCODE_F:
