@@ -88,7 +88,7 @@ public class GPSLoggerService extends Service
       {
          if( isLocationAcceptable(location) )
          {
-            Log.d( TAG, "Change loc: "+location );
+//            Log.d( TAG, "Change loc: "+location );
             storeLocation(GPSLoggerService.this.mContext, location);
          }
       }

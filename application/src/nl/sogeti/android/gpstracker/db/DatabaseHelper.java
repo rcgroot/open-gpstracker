@@ -136,7 +136,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       args.put( WaypointsColumns.ALTITUDE, location.getAltitude() );
       args.put( WaypointsColumns.BEARING, location.getBearing() );
       
-      Log.d( TAG, "Waypoint time stored in the datebase"+ DateFormat.getInstance().format(new Date( args.getAsLong( Waypoints.TIME ) ) ) );
+//      Log.d( TAG, "Waypoint time stored in the datebase"+ DateFormat.getInstance().format(new Date( args.getAsLong( Waypoints.TIME ) ) ) );
 
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
 
