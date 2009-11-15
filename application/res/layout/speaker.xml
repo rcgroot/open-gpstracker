@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="fill_parent">
+<TextView android:text="@+id/TextView01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/speakertextview"></TextView>
+<Spinner android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/speakerintervalspinner"></Spinner>
+<CheckBox android:text="@+id/CheckBox01" android:id="@+id/CheckBox01" android:layout_width="wrap_content" android:layout_height="wrap_content"></CheckBox>
+
+<CheckBox android:text="@+id/CheckBox02" android:id="@+id/CheckBox02" android:layout_width="wrap_content" android:layout_height="wrap_content"></CheckBox>
+<CheckBox android:text="@+id/CheckBox03" android:id="@+id/CheckBox03" android:layout_width="wrap_content" android:layout_height="wrap_content"></CheckBox>
+<Button android:text="@+id/Button01" android:id="@+id/Button01" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+
+</LinearLayout>

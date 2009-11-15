@@ -37,6 +37,7 @@
     <string name="chooser_title">How to share this track?</string>
 	<string name="receive_filewriter">Store to SDcard</string>
     <string name="receive_gpxsender">Send GPX file</string>
+    <string name="receive_speaksummary">Send track updates to speech</string>
     <string name="email_chooser">Choose email program</string>
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
     <string name="email_body">Attached is a track in the GPS Exchange Format (GPX) file as described on http://www.topografix.com/gpx.asp</string>
