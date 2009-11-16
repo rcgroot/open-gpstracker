@@ -37,7 +37,7 @@
     <string name="chooser_title">How to share this track?</string>
 	<string name="receive_filewriter">Store to SDcard</string>
     <string name="receive_gpxsender">Send GPX file</string>
-    <string name="receive_speaksummary">Send track updates to speech</string>
+    <string name="receive_speaksummary">Give voice updates</string>
     <string name="email_chooser">Choose email program</string>
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
     <string name="email_body">Attached is a track in the GPS Exchange Format (GPX) file as described on http://www.topografix.com/gpx.asp</string>
@@ -65,5 +65,17 @@
     <string name="stat_trackname">Track name</string>
     <string name="stat_waypoints">Number of waypoints</string>
     
+    
+    <string name="voiceover_explained">At the given interval a spoken update will be given. This uses your Android TextToSpeech (TTS) system. Please make sure a voice pack is installed. The installing of voices is a separate installation retrieved from the Android Market.</string>
+    <string name="voiceover_spinner">Update interval:</string>
+    <string name="interval_prompt">Please select an interval</string>
+    <string name="voiceover_interval">Interval mentioned</string>
+    <string name="voiceover_distance">Distance logged mentioned</string>
+    <string name="voiceover_speed">Average speed mentioned</string>
+    
+    <!-- 
+    <string name=""></string>
+    <string name=""></string>
+     -->
 
 </resources>

@@ -11,6 +11,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 public class SpeakSummary extends Activity implements TextToSpeech.OnInitListener
 {
@@ -31,9 +33,14 @@ public class SpeakSummary extends Activity implements TextToSpeech.OnInitListene
    protected void onCreate( Bundle load )
    {
       super.onCreate( load );
-      setContentView( R.layout.speaker );
+      setContentView( R.layout.voiceover );
       this.mTrackUri = this.getIntent().getData();
 
+      Spinner s = (Spinner) findViewById(R.id.voiceover_interval);
+      ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource( this, R.array.intervals, android.R.layout.simple_spinner_item );
+      adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+      s.setAdapter(adapter);
+      
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       resolver.registerContentObserver( mTrackUri, false, this.mTrackObserver );
 
@@ -46,7 +53,6 @@ public class SpeakSummary extends Activity implements TextToSpeech.OnInitListene
    protected void updateSummary()
    {
       // TODO Auto-generated method stub
-
    }
 
    protected void onActivityResult( int requestCode, int resultCode, Intent data )
