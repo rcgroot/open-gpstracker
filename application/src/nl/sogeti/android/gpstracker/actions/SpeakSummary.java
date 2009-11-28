@@ -1,81 +1,58 @@
 package nl.sogeti.android.gpstracker.actions;
 
-import java.util.Timer;
-
 import nl.sogeti.android.gpstracker.R;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.speech.tts.TextToSpeech;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AbsSpinner;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
-public class SpeakSummary extends Activity implements TextToSpeech.OnInitListener
+public class SpeakSummary extends Activity
 {
-   private static final int MY_DATA_CHECK_CODE = 0;
-   private Timer timer;
-   private TextToSpeech mTts;
-   private Uri mTrackUri;
-   private final ContentObserver mTrackObserver = new ContentObserver( new Handler() )
+   private final OnClickListener mOkayOnClickListener = new OnClickListener()
       {
-         @Override
-         public void onChange( boolean selfUpdate )
+         public void onClick( View v )
          {
-            SpeakSummary.this.updateSummary();
+            long item = mSpinner.getSelectedItemId();
+            int period = 1000*SpeakSummary.this.getResources().getIntArray( R.array.intervals_values )[(int) item];
+            //TODO: period *= 60 ;
+            mTrackUri.toString(); 
+            startService(speaker);
          }
       };
+   private final OnClickListener mCancelOnClickListener = new OnClickListener() 
+      {
+         public void onClick( View v )
+         {
+            stopService( speaker );
+         }
+      };
+      
+   private Intent speaker = new Intent( this, SpeakerService.class );
+   private static final String TAG = SpeakSummary.class.getName();
+   private AbsSpinner mSpinner;
+   private Uri mTrackUri;
 
    @Override
    protected void onCreate( Bundle load )
    {
       super.onCreate( load );
-      setContentView( R.layout.voiceover );
+      setContentView( R.layout.voiceover );     
+      Button okay = (Button) findViewById( R.id.voiceover_btn_okay );
+      okay.setOnClickListener( this.mOkayOnClickListener );
+      Button cancel = (Button) findViewById( R.id.voiceover_btn_cancel );
+      cancel.setOnClickListener( this.mCancelOnClickListener );
+      
       this.mTrackUri = this.getIntent().getData();
-
-      Spinner s = (Spinner) findViewById(R.id.voiceover_interval);
+      
+      mSpinner = (Spinner) findViewById(R.id.voiceover_interval);
       ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource( this, R.array.intervals, android.R.layout.simple_spinner_item );
       adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-      s.setAdapter(adapter);
-      
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
-      resolver.registerContentObserver( mTrackUri, false, this.mTrackObserver );
-
-      Intent checkIntent = new Intent();
-      checkIntent.setAction( TextToSpeech.Engine.ACTION_CHECK_TTS_DATA );
-      startActivityForResult( checkIntent, MY_DATA_CHECK_CODE );
-
-   }
-
-   protected void updateSummary()
-   {
-      // TODO Auto-generated method stub
-   }
-
-   protected void onActivityResult( int requestCode, int resultCode, Intent data )
-   {
-      if( requestCode == MY_DATA_CHECK_CODE )
-      {
-         if( resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS )
-         {
-            // success, create the TTS instance
-            mTts = new TextToSpeech( this, this );
-         }
-         else
-         {
-            // missing data, install it
-            Intent installIntent = new Intent();
-            installIntent.setAction( TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA );
-            startActivity( installIntent );
-         }
-      }
-   }
-
-   public void onInit( int status )
-   {
-      // TODO Auto-generated method stub
+      mSpinner.setAdapter(adapter);      
    }
 }

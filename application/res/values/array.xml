@@ -31,5 +31,12 @@
 		<item>15 minutes</item>
         <item>30 minutes</item>
 	</string-array>
+    
+    <integer-array name="intervals_values" translatable="false"> 
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+    </integer-array>
       
 </resources>
