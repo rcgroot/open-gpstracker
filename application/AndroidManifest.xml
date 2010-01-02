@@ -12,7 +12,10 @@
 
 		<uses-library android:name="com.google.android.maps" />
 
-		<activity android:label="@string/app_name" android:name=".viewer.LoggerMap">
+		<activity
+            android:label="@string/app_name" 
+            android:name=".viewer.LoggerMap" 
+            android:launchMode="singleTask">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
