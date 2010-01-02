@@ -531,21 +531,24 @@ public class LoggerMap extends MapActivity
    {
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor waypointsCursor = null ;
-      Location location = null;
       try
       {
          waypointsCursor = resolver.query
                ( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId+"/waypoints" )
-               , new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.TIME }
+               , new String[] { Waypoints.SPEED }
                , null
                , null
                , null );
          if( waypointsCursor.moveToLast() )
          {
-            location = new Location( this.getClass().getName() );
-            location.setLatitude( waypointsCursor.getDouble( 0 ) );
-            location.setLongitude( waypointsCursor.getDouble( 1 ) );
-            location.setTime( waypointsCursor.getLong( 2 ) );
+            String speed_unit = this.getResources().getString( R.string.speed_unitname );
+            TypedValue outValue = new TypedValue();
+            this.getResources().getValue( R.raw.conversion_from_mps, outValue, false ) ;
+            float conversion_from_mps =  outValue.getFloat();
+            double speed =  waypointsCursor.getDouble( 0 );
+            speed = speed *  conversion_from_mps;
+            String speedText = String.format( "%.0f", speed )+" "+speed_unit;
+            mAverageSpeedText.setText( speedText );
          }
       }
       finally
@@ -554,26 +557,6 @@ public class LoggerMap extends MapActivity
          {
             waypointsCursor.close();
          }
-      }
-      if( mLastLocation != null && location != null )
-      {
-         if( ( mLastLocation.distanceTo( location ) > MINIMUM_RL_DISTANCE 
-               && location.getTime() - mLastLocation.getTime() > MINIMUM_RL_TIME )  )
-         {
-            String speed_unit = this.getResources().getString( R.string.speed_unitname );
-            TypedValue outValue = new TypedValue();
-            this.getResources().getValue( R.raw.conversion_from_mps, outValue, false ) ;
-            float conversion_from_mps =  outValue.getFloat();
-            double speed = TrackingOverlay.calculateSpeedBetweenLocations( mLastLocation, location );
-            speed = speed *  conversion_from_mps;
-            String speedText = String.format( "%.0f", speed )+" "+speed_unit;
-            mAverageSpeedText.setText( speedText );
-            mLastLocation = location;
-         }
-      }
-      else
-      {
-         mLastLocation = location;
       }
    }
 
