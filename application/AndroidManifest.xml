@@ -36,8 +36,15 @@
 
 		<service android:enabled="true" android:name=".logger.GPSLoggerService">
 			<intent-filter android:label="GPS logger">
-				<action android:name="nl.sogeti.android.gpstrack.logger.GPSLoggerService"></action>
+				<action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
 			</intent-filter>
+		</service>
+		
+		<service android:enabled="true" android:name=".actions.SpeakerService">
+		  <intent-filter android:label="GPS update speech">
+		      <action android:name="nl.sogeti.android.gpstracker.intent.action.PREPARE"></action>
+		      <action android:name="nl.sogeti.android.gpstracker.intent.action.SPEAK"></action>
+		  </intent-filter>
 		</service>
 
 		<provider android:enabled="true" android:authorities="nl.sogeti.android.gpstracker"
