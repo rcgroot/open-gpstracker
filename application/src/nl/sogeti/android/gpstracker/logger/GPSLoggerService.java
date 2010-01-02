@@ -174,6 +174,22 @@ public class GPSLoggerService extends Service
       return mTrackId;
    }
 
+   /**
+    * (non-Javadoc)
+    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#stopLogging()
+    */
+   public synchronized void stopLogging()
+   {
+      PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+      this.locationManager.removeUpdates( this.mLocationListener );
+      if( this.mWakeLock != null )
+      {
+         this.mWakeLock.release();
+         this.mWakeLock = null ;
+      }
+      this.logging = false;
+   }
+
    private void requestLocationUpdates()
    {
       this.locationManager.removeUpdates( this.mLocationListener );
@@ -198,22 +214,6 @@ public class GPSLoggerService extends Service
             break;
       }
       
-   }
-
-   /**
-    * (non-Javadoc)
-    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#stopLogging()
-    */
-   public synchronized void stopLogging()
-   {
-      PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
-      this.locationManager.removeUpdates( this.mLocationListener );
-      if( this.mWakeLock != null )
-      {
-         this.mWakeLock.release();
-         this.mWakeLock = null ;
-      }
-      this.logging = false;
    }
 
    /**

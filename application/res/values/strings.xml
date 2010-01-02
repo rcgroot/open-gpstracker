@@ -55,7 +55,7 @@
     <string name="trackcoloring_title">The track color</string>
     <string name="trackcoloring_summary">The coloring used to draw the track.</string>
     <string name="showspeed_title">Display speed</string>
-    <string name="showspeed_summary">Show the average speed since the last waypoint.</string>
+    <string name="showspeed_summary">Show the speed from the last received GPS fix.</string>
     
     <string name="stat_maximumspeed">Maximum speed</string>
     <string name="stat_averagespeed">Average speed</string>    

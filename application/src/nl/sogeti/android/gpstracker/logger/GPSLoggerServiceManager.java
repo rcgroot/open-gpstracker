@@ -68,11 +68,12 @@ public class GPSLoggerServiceManager
    public GPSLoggerServiceManager(Context ctx)
    {
       this.mCtx = ctx;
-      connectToGPSLoggerService();
+      
    }
 
    public boolean isLogging()
    {
+      connectToGPSLoggerService();
       boolean logging = false;
       if ( this.mGPSLoggerRemote != null ) 
       { 
@@ -109,7 +110,7 @@ public class GPSLoggerServiceManager
       return -1;
    }
 
-   public void stopGPSLoggerService()
+   public void stopGPSLogging()
    {
       connectToGPSLoggerService();
       if ( this.mGPSLoggerRemote != null ) 
@@ -134,10 +135,9 @@ public class GPSLoggerServiceManager
     */
    public void disconnectFromGPSLoggerService()
    {
-      if( this.mServiceConnection != null )
+      if( this.mGPSLoggerRemote != null )
       {
          this.mCtx.unbindService( this.mServiceConnection );
-         this.mServiceConnection = null;
       }
    }
 
@@ -146,6 +146,9 @@ public class GPSLoggerServiceManager
     */
    public void connectToGPSLoggerService()
    {
-      this.mCtx.bindService( new Intent( GPSLoggerService.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
+      if( this.mGPSLoggerRemote == null )
+      {
+         this.mCtx.bindService( new Intent( GPSLoggerService.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
+      }
    }
 }

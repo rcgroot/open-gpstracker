@@ -60,6 +60,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -90,9 +91,7 @@ public class LoggerMap extends MapActivity
    private static final int MENU_TOGGLE   = 1;
    private static final int MENU_TRACKLIST = 5;
    private static final int MENU_VIEW = 7;
-   
    private static final String TAG = LoggerMap.class.getName();
-
    protected static final String DISABLEBLANKING = "disableblanking";
    protected static final String SHOWSPEED = "showspeed";
 
@@ -241,7 +240,7 @@ public class LoggerMap extends MapActivity
          case MENU_TOGGLE:
             if( this.mLoggerServiceManager.isLogging() ) 
             {
-               this.mLoggerServiceManager.stopGPSLoggerService();
+               this.mLoggerServiceManager.stopGPSLogging();
                updateBlankingBehavior();
                item.setTitle( R.string.menu_toggle_on );
             }
@@ -301,11 +300,18 @@ public class LoggerMap extends MapActivity
       super.onCreate( load );
 
       this.startService( new Intent( GPSLoggerService.SERVICENAME ) );
-      this.mLoggerServiceManager = new GPSLoggerServiceManager( (Context)this );
-      this.mLoggerServiceManager.connectToGPSLoggerService();
-
+      Object previousInstanceData = getLastNonConfigurationInstance();
+      if( previousInstanceData != null && previousInstanceData instanceof GPSLoggerServiceManager)
+      {
+         this.mLoggerServiceManager = (GPSLoggerServiceManager)previousInstanceData;
+      }
+      if( this.mLoggerServiceManager == null )
+      {
+         this.mLoggerServiceManager = new GPSLoggerServiceManager( (Context)this );
+         this.mLoggerServiceManager.connectToGPSLoggerService();
+      }
+      
       PreferenceManager.getDefaultSharedPreferences( this ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
-      updateBlankingBehavior();
       
       setContentView(R.layout.map);
       this.mMapView = (MapView) findViewById( R.id.myMapView );
@@ -327,28 +333,8 @@ public class LoggerMap extends MapActivity
       /* Collect the zoomcontrols and place them */
       this.mMapView.setBuiltInZoomControls( true );
       this.mMapController = this.mMapView.getController();
-
-      /* Initial display: Last logged track drawn and zoomed to current location */
-      if( load==null || !load.containsKey("track") )
-      {
-         moveToLastTrack();
-      }
-      if( load==null || !load.containsKey("zoom") )
-      {
-         this.mMapController.setZoom( LoggerMap.ZOOM_LEVEL );
-      }
-      if( load==null || !load.containsKey("e6lat") || !load.containsKey("e6long") )
-      {
-         GeoPoint point = getLastKnowGeopointLocation();
-         if( point.getLatitudeE6() != 0 && point.getLongitudeE6() != 0 )
-         {
-             this.mMapView.getController().animateTo( point );
-         }
-         else 
-         {
-            this.mMapController.setZoom( LoggerMap.ZOOM_LEVEL );
-         }
-      }
+      
+      onRestoreInstanceState( load ) ;
    }
 
    protected void onPause()
@@ -358,7 +344,6 @@ public class LoggerMap extends MapActivity
    }
    protected void onResume()
    {
-      this.mLoggerServiceManager.connectToGPSLoggerService();
       super.onResume();
       updateBlankingBehavior();
       updateSpeedbarVisibility();
@@ -372,6 +357,11 @@ public class LoggerMap extends MapActivity
    protected void onDestroy()
    {
       super.onDestroy();
+      if( this.mLoggerServiceManager != null )
+      {
+         this.mLoggerServiceManager.disconnectFromGPSLoggerService();
+      }
+      updateBlankingBehavior();
       PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
    }
 
@@ -383,26 +373,63 @@ public class LoggerMap extends MapActivity
          this.mTrackId = load.getLong( "track" );
          attempToMoveToTrack( this.mTrackId );
       }
+      else
+      {
+         moveToLastTrack();
+      }
+      
       if( load!=null && load.containsKey("zoom") )
       {
          this.mMapController.setZoom(  load.getInt("zoom") );
       }
+      else
+      {
+         this.mMapController.setZoom( LoggerMap.ZOOM_LEVEL );
+      }
+      
       if( load!=null && load.containsKey("e6lat") && load.containsKey("e6long") )
       {
-         GeoPoint lastPoint = new GeoPoint( load.getInt("e6lat"),  load.getInt("e6long") );
-         this.mMapView.getController().animateTo( lastPoint );
+         GeoPoint storedPoint = new GeoPoint( load.getInt("e6lat"),  load.getInt("e6long") );
+         this.mMapView.getController().animateTo( storedPoint );
+      }
+      else
+      {
+         GeoPoint lastPoint = getLastKnowGeopointLocation();
+         if( lastPoint.getLatitudeE6() != 0 && lastPoint.getLongitudeE6() != 0 )
+         {
+             this.mMapView.getController().animateTo( lastPoint );
+         }
+         else 
+         {
+            
+            
+            GeoPoint startPoint = new GeoPoint( 51985105, 5106132 ); 
+            this.mMapView.getController().animateTo( startPoint );
+         }
       }
    }
 
    @Override 
    public void onSaveInstanceState(Bundle save) 
    {
+      save.putLong("track", this.mTrackId );
+      save.putInt("zoom", this.mMapView.getZoomLevel() );
       GeoPoint point = this.mMapView.getMapCenter();
       save.putInt("e6lat", point.getLatitudeE6() );
       save.putInt("e6long", point.getLongitudeE6() );
-      save.putInt("zoom", this.mMapView.getZoomLevel() );
-      save.putLong("track", this.mTrackId );
       super.onSaveInstanceState(save); 
+   }
+   
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onRetainNonConfigurationInstance()
+    */
+   @Override
+   public Object onRetainNonConfigurationInstance()
+   {
+      Object nonConfigurationInstance = this.mLoggerServiceManager;
+      this.mLoggerServiceManager = null;
+      return nonConfigurationInstance;
    }
 
    /*
@@ -452,7 +479,7 @@ public class LoggerMap extends MapActivity
       {
          this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
       }
-      if( disableblanking && this.mLoggerServiceManager.isLogging() &&  !this.mWakeLock.isHeld() )
+      if( disableblanking && this.mLoggerServiceManager != null && this.mLoggerServiceManager.isLogging() &&  !this.mWakeLock.isHeld() )
       {
          this.mWakeLock.acquire();
       }
