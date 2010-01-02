@@ -66,9 +66,14 @@ public class MockGPSLoggerDriver implements Runnable
     */
    public MockGPSLoggerDriver(Context context, int route, int timeout)
    {
+      this();
       this.mTimeout = timeout;
       this.mRouteResource = route;// R.xml.denhaagdenbosch;
       this.mContext = context;
+   }
+   
+   public MockGPSLoggerDriver()
+   {
       this.sender = new TelnetPositionSender();
    }
 

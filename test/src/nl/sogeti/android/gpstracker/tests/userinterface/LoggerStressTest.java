@@ -79,14 +79,14 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
    public void testLapsAroundUtrecht() throws InterruptedException
    {    
       // Our data feeder to the emulator
-      MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.stukjesingelutrecht, 10 );
+      MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.rondjesingelutrecht, 10 );
 
       this.sendKeys( "T T T T" );
       this.sendKeys( "MENU DPAD_RIGHT T T E S T R O U T E ENTER");
       this.sendKeys("ENTER"); 
 
       // Start method tracing for Issue 18
-      Debug.startMethodTracing("testLapsAroundUtrecht");
+      //Debug.startMethodTracing("testLapsAroundUtrecht");
       if( this.mIntermediates != null )
       {
          this.mIntermediates.startTiming( true ) ;
@@ -99,7 +99,7 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
       {
          this.mIntermediates.finishTiming( true ) ;
       }
-      Debug.stopMethodTracing();
+      //Debug.stopMethodTracing();
    }
 
    public boolean isPerformanceOnly()
