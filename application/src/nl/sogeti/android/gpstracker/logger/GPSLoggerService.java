@@ -59,7 +59,7 @@ public class GPSLoggerService extends Service
    private static final String PRECISION = "precision";
    private static final String LOGATSTARTUP = "logatstartup";
    private static final String GPS_PROVIDER = LocationManager.GPS_PROVIDER;
-   public static final String SERVICENAME = "nl.sogeti.android.gpstrack.logger.GPSLoggerService";
+   public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
    private static final String TAG = GPSLoggerService.class.getName();
    
    private Context mContext;
