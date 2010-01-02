@@ -49,6 +49,7 @@ public class GPSLoggerServiceManager
    private static final String REMOTE_EXCEPTION = "REMOTE_EXCEPTION";
    private Context mCtx;
    private IGPSLoggerServiceRemote mGPSLoggerRemote;
+   private boolean connected = false;
    /**
     * Class for interacting with the main interface of the service.
     */
@@ -133,9 +134,9 @@ public class GPSLoggerServiceManager
    /**
     * Means by which an Activity lifecycle aware object hints about binding and unbinding
     */
-   public void disconnectFromGPSLoggerService()
+   synchronized public void disconnectFromGPSLoggerService()
    {
-      if( this.mGPSLoggerRemote != null )
+      if( connected )
       {
          this.mCtx.unbindService( this.mServiceConnection );
       }
@@ -144,10 +145,11 @@ public class GPSLoggerServiceManager
    /**
     * Means by which an Activity lifecycle aware object hints about binding and unbinding
     */
-   public void connectToGPSLoggerService()
+   synchronized public void connectToGPSLoggerService()
    {
-      if( this.mGPSLoggerRemote == null )
+      if( !connected )
       {
+         connected = true;
          this.mCtx.bindService( new Intent( GPSLoggerService.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
       }
    }
