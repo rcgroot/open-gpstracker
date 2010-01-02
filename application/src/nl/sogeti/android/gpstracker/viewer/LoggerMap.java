@@ -95,8 +95,6 @@ public class LoggerMap extends MapActivity
 
    protected static final String DISABLEBLANKING = "disableblanking";
    protected static final String SHOWSPEED = "showspeed";
-   private static final float MINIMUM_RL_DISTANCE = 50;
-   private static final float MINIMUM_RL_TIME = 10;
 
    private long mTrackId = -1;
    private MapView mMapView = null;
@@ -107,7 +105,6 @@ public class LoggerMap extends MapActivity
    private double mAverageSpeed = 33.33d/2d;
    private TextView[] mSpeedtexts = null;
    private TextView mAverageSpeedText = null;
-   private Location mLastLocation;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
    {
