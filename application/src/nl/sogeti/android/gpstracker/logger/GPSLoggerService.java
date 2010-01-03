@@ -111,6 +111,10 @@ public class GPSLoggerService extends Service
       {
          GPSLoggerService.this.stopLogging();
       }
+      public boolean isAlive() throws RemoteException
+      {
+         return true;
+      }
    };
 
    /**
