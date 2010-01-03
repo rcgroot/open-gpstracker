@@ -60,7 +60,6 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -84,7 +83,7 @@ import com.google.android.maps.Overlay;
  */
 public class LoggerMap extends MapActivity
 {   
-   private static final int ZOOM_LEVEL = 10;
+   private static final int ZOOM_LEVEL = 13;
    
    // MENU'S
    private static final int MENU_SETTINGS = 0;
@@ -376,7 +375,7 @@ public class LoggerMap extends MapActivity
       
       if( load!=null && load.containsKey("zoom") )
       {
-         this.mMapController.setZoom(  load.getInt("zoom") );
+         this.mMapController.setZoom( load.getInt("zoom") );
       }
       else
       {
