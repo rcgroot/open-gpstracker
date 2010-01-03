@@ -28,18 +28,19 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.util.Formatter;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.AlertDialog.Builder;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -66,44 +67,37 @@ public class TrackList extends ListActivity
    private static final int MENU_SHARE = 1;
    private static final int MENU_RENAME = 2;
    private static final int MENU_STATS = 3;
+   
    public static final int DIALOG_FILENAME = 0;
+   private static final int DIALOG_RENAME = 23;
+   private static final int DIALOG_DELETE = 24;
+
    private Cursor mTracksCursor;
    SimpleCursorAdapter mTrackAdapter;
    private EditText mTrackNameView;
+   private Uri dialogUri;
+   private String dialogCurrentName;
 
-   private class DeleteClickListener implements DialogInterface.OnClickListener 
+   private OnClickListener deleteClickListener = new DialogInterface.OnClickListener() 
    {
-      private Uri mUri;
-      public DeleteClickListener(Uri uri) 
-      {
-         this.mUri = uri;
-      }
-
       public void onClick(DialogInterface dialog, int which) 
       {
-         getContentResolver().delete(this.mUri, null, null);
+         getContentResolver().delete(dialogUri, null, null);
 
          TrackList.this.mTracksCursor.requery();
          TrackList.this.mTrackAdapter.notifyDataSetChanged();
       }
-   }
+   };
    
-   class RenameClickListener implements DialogInterface.OnClickListener 
+   private OnClickListener renameListener = new DialogInterface.OnClickListener()
    {
-      private Uri mUri;
-      public RenameClickListener(Uri uri) 
-      {
-         this.mUri = uri;
-      }
-      
       public void onClick( DialogInterface dialog, int which )
       {
          String trackName = mTrackNameView.getText().toString();
-         
          ContentValues values = new ContentValues();
          values.put( Tracks.NAME, trackName);
          getContentResolver().update(
-               mUri, 
+               dialogUri, 
                values, null, null );
          mTrackNameView = null;
       }
@@ -180,14 +174,9 @@ public class TrackList extends ListActivity
          case MENU_DETELE: 
          {
             // Get confirmation
-            Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
-            new AlertDialog.Builder(TrackList.this)
-            .setTitle(R.string.dialog_deletetitle)
-            .setIcon(android.R.drawable.ic_dialog_alert)
-            .setMessage(R.string.dialog_deleteconfirmation)
-            .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(android.R.string.ok, new DeleteClickListener(uri))
-            .show();
+            dialogUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
+            dialogCurrentName = cursor.getString( 1 );
+            showDialog( DIALOG_DELETE );
             handled = true;
             break;
          }
@@ -203,13 +192,9 @@ public class TrackList extends ListActivity
          }
          case MENU_RENAME: 
          {
-            Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
-            CharSequence currentName = cursor.getString( 1 );
-            LayoutInflater factory = LayoutInflater.from( this );
-            View view = factory.inflate( R.layout.namedialog, null );
-            mTrackNameView = (EditText) view.findViewById( R.id.nameField );
-            mTrackNameView.setText( currentName );
-            LoggerMap.createTrackTitleDialog( this, view, new RenameClickListener( uri ) ).show();
+            dialogUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
+            dialogCurrentName = cursor.getString( 1 );
+            showDialog( DIALOG_RENAME );
             handled = true;
             break;
          }
@@ -227,4 +212,72 @@ public class TrackList extends ListActivity
       }
       return handled;
    }
+
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onCreateDialog(int)
+    */
+   @Override
+   protected Dialog onCreateDialog( int id )
+   {
+      Log.d( TAG, "onCreateDialog() "+ id );
+      Dialog dialog = null;
+      Builder builder = null;
+      switch( id )
+      {
+         case DIALOG_RENAME:
+            LayoutInflater factory = LayoutInflater.from( this );
+            View view = factory.inflate( R.layout.namedialog, null );
+            mTrackNameView = (EditText) view.findViewById( R.id.nameField );
+            
+            builder = new AlertDialog.Builder( this )
+            .setTitle( R.string.dialog_routename_title )
+            .setMessage( R.string.dialog_routename_message )
+            .setIcon( android.R.drawable.ic_dialog_alert )
+            .setPositiveButton( R.string.btn_okay, renameListener )
+            .setNegativeButton( R.string.btn_cancel, null )
+            .setView( view );
+            dialog = builder.create();
+            return dialog;
+         case DIALOG_DELETE:
+            builder = new AlertDialog.Builder(TrackList.this)
+            .setTitle(R.string.dialog_deletetitle)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(android.R.string.ok, deleteClickListener );
+            dialog = builder.create();
+            String messageFormat = this.getResources().getString( R.string.dialog_deleteconfirmation );
+            String message = String.format( messageFormat, "" );
+            ((AlertDialog)dialog).setMessage( message );
+            return dialog;
+         default:
+            return super.onCreateDialog( id );
+      }
+   }
+   
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
+    */
+   @Override
+   protected void onPrepareDialog( int id, Dialog dialog )
+   {
+      Log.d( TAG, "onPrepareDialog() "+ id );
+      super.onPrepareDialog( id, dialog );
+      switch( id )
+      {
+         case DIALOG_RENAME:
+            mTrackNameView = (EditText) dialog.findViewById( R.id.nameField );
+            mTrackNameView.setText( dialogCurrentName );
+            mTrackNameView.setSelection( 0, dialogCurrentName.length() );
+            break;
+         case DIALOG_DELETE:
+            AlertDialog alert = (AlertDialog) dialog;
+            String messageFormat = this.getResources().getString( R.string.dialog_deleteconfirmation );
+            String message = String.format( messageFormat, dialogCurrentName );
+            alert.setMessage( message );
+            break;
+      }
+   }
+
 }
