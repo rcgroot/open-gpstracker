@@ -28,8 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.util.Formatter;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import android.app.AlertDialog;
@@ -220,7 +218,6 @@ public class TrackList extends ListActivity
    @Override
    protected Dialog onCreateDialog( int id )
    {
-      Log.d( TAG, "onCreateDialog() "+ id );
       Dialog dialog = null;
       Builder builder = null;
       switch( id )
@@ -262,7 +259,6 @@ public class TrackList extends ListActivity
    @Override
    protected void onPrepareDialog( int id, Dialog dialog )
    {
-      Log.d( TAG, "onPrepareDialog() "+ id );
       super.onPrepareDialog( id, dialog );
       switch( id )
       {
