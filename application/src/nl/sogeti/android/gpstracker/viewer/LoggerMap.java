@@ -37,7 +37,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.AlertDialog.Builder;
@@ -93,6 +92,9 @@ public class LoggerMap extends MapActivity
    private static final String TAG = LoggerMap.class.getName();
    protected static final String DISABLEBLANKING = "disableblanking";
    protected static final String SHOWSPEED = "showspeed";
+
+   private static final int DIALOG_TRACKNAME = 23;
+   private static final int DIALOG_NOTRACK = 24;
 
    private long mTrackId = -1;
    private MapView mMapView = null;
@@ -249,11 +251,7 @@ public class LoggerMap extends MapActivity
                attempToMoveToTrack( this.mTrackId );
                updateBlankingBehavior();
                item.setTitle( R.string.menu_toggle_off );
-               
-               LayoutInflater factory = LayoutInflater.from( this );
-               View view = factory.inflate( R.layout.namedialog, null );
-               mTrackNameView = (EditText) view.findViewById( R.id.nameField );
-               createTrackTitleDialog( this, view, mTrackNameDialogListener ).show();
+               showDialog( DIALOG_TRACKNAME );
             }
             updateBlankingBehavior();
             handled = true;
@@ -279,7 +277,7 @@ public class LoggerMap extends MapActivity
             }
             else
             {
-               createAlertNoTrack( this, mNoTrackDialogListener, null ).show();
+               showDialog( DIALOG_NOTRACK );
             }
             handled = true;
             break;
@@ -424,6 +422,43 @@ public class LoggerMap extends MapActivity
    {
       Object nonConfigurationInstance = this.mLoggerServiceManager;
       return nonConfigurationInstance;
+   }
+
+   
+
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onCreateDialog(int)
+    */
+   @Override
+   protected Dialog onCreateDialog( int id )
+   {
+      Dialog dialog = null;
+      Builder builder = new AlertDialog.Builder( this );
+      switch( id )
+      {
+         case DIALOG_TRACKNAME:
+            LayoutInflater factory = LayoutInflater.from( this );
+            View view = factory.inflate( R.layout.namedialog, null );
+            mTrackNameView = (EditText) view.findViewById( R.id.nameField );
+            builder.setTitle( R.string.dialog_routename_title )
+            .setMessage( R.string.dialog_routename_message )
+            .setIcon( android.R.drawable.ic_dialog_alert )
+            .setView( view )
+            .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener );
+            dialog = builder.create();
+            return dialog;
+         case DIALOG_NOTRACK:
+            builder.setTitle( R.string.dialog_notrack_title )
+            .setMessage(R.string.dialog_notrack_message )
+            .setIcon( android.R.drawable.ic_dialog_alert )
+            .setPositiveButton( R.string.btn_selecttrack, mNoTrackDialogListener )
+            .setNegativeButton( R.string.btn_cancel, null );
+            dialog = builder.create();
+            return dialog;
+         default:
+            return super.onCreateDialog( id );
+      }
    }
 
    /*
@@ -803,9 +838,9 @@ public class LoggerMap extends MapActivity
       return geoPoint;
    }
 
-   private int moveToLastTrack()
+   private void moveToLastTrack()
    {
-      int trackId = 0;
+      int trackId = -1;
       Cursor track = null;
       try 
       {
@@ -816,7 +851,8 @@ public class LoggerMap extends MapActivity
                null, null, null );
          if(track.moveToLast())
          {
-            attempToMoveToTrack( this.mTrackId );
+            trackId = track.getInt( 0 );
+            attempToMoveToTrack( trackId );
          }
       }
       finally 
@@ -826,35 +862,5 @@ public class LoggerMap extends MapActivity
             track.close();
          }
       }
-      return trackId;
-   }
-
-   public static Dialog createTrackTitleDialog( Activity ctx, View view, DialogInterface.OnClickListener positiveListener) 
-   {           
-
-      Builder builder = new AlertDialog.Builder( ctx )
-      .setTitle( R.string.dialog_routename_title )
-      .setMessage( R.string.dialog_routename_message )
-      .setIcon( android.R.drawable.ic_dialog_alert )
-      .setView( view )
-      .setPositiveButton(R.string.btn_okay, positiveListener);
-      
-      Dialog dialog = builder.create();
-      dialog.setOwnerActivity( ctx );
-      return dialog;
-   }
-
-   private static Dialog createAlertNoTrack( Activity ctx, DialogInterface.OnClickListener positiveListener, DialogInterface.OnClickListener negativeListener ) 
-   {
-      Builder builder = new AlertDialog.Builder( ctx )
-      .setTitle( R.string.dialog_notrack_title )
-      .setMessage(R.string.dialog_notrack_message )
-      .setIcon( android.R.drawable.ic_dialog_alert )
-      .setPositiveButton( R.string.btn_selecttrack, positiveListener )
-      .setNegativeButton( R.string.btn_cancel, negativeListener );
-      
-      Dialog dialog = builder.create();
-      dialog.setOwnerActivity( ctx );
-      return dialog;
    }
 }
