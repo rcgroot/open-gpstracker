@@ -246,7 +246,7 @@ public class LoggerMap extends MapActivity
             }
             else 
             {
-               this.mTrackId = this.mLoggerServiceManager.startGPSLoggerService(null);
+               this.mTrackId = this.mLoggerServiceManager.startGPSLogging(null);
                attempToMoveToTrack( this.mTrackId );
                updateBlankingBehavior();
                item.setTitle( R.string.menu_toggle_off );
@@ -298,17 +298,16 @@ public class LoggerMap extends MapActivity
    protected void onCreate( Bundle load )
    {
       super.onCreate( load );
-
       this.startService( new Intent( GPSLoggerService.SERVICENAME ) );
+      
       Object previousInstanceData = getLastNonConfigurationInstance();
       if( previousInstanceData != null && previousInstanceData instanceof GPSLoggerServiceManager)
       {
          this.mLoggerServiceManager = (GPSLoggerServiceManager)previousInstanceData;
       }
-      if( this.mLoggerServiceManager == null )
+      else
       {
          this.mLoggerServiceManager = new GPSLoggerServiceManager( (Context)this );
-         this.mLoggerServiceManager.connectToGPSLoggerService();
       }
       
       PreferenceManager.getDefaultSharedPreferences( this ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
@@ -356,13 +355,10 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onDestroy()
    {
-      super.onDestroy();
-      if( this.mLoggerServiceManager != null )
-      {
-         this.mLoggerServiceManager.disconnectFromGPSLoggerService();
-      }
+      this.mLoggerServiceManager.disconnectFromGPSLoggerService();
       updateBlankingBehavior();
       PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+      super.onDestroy();
    }
 
    @Override
@@ -428,7 +424,6 @@ public class LoggerMap extends MapActivity
    public Object onRetainNonConfigurationInstance()
    {
       Object nonConfigurationInstance = this.mLoggerServiceManager;
-      this.mLoggerServiceManager = null;
       return nonConfigurationInstance;
    }
 
@@ -479,7 +474,7 @@ public class LoggerMap extends MapActivity
       {
          this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
       }
-      if( disableblanking && this.mLoggerServiceManager != null && this.mLoggerServiceManager.isLogging() &&  !this.mWakeLock.isHeld() )
+      if( disableblanking && this.mLoggerServiceManager.isLogging() &&  !this.mWakeLock.isHeld() )
       {
          this.mWakeLock.acquire();
       }

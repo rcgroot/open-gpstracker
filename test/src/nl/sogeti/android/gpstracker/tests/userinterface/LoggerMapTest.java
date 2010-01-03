@@ -69,13 +69,10 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
       this.mMapView = (MapView) this.mLoggermap.findViewById( R.id.myMapView );
       this.mMapView.setSatellite( false );
       this.mLoggerServiceManager = new GPSLoggerServiceManager(this.mLoggermap);
-      this.mLoggerServiceManager.stopGPSLoggerService();
-   }  
+   }
 
    protected void tearDown() throws Exception
    {
-      this.mLoggerServiceManager.stopGPSLoggerService();
-      this.mLoggerServiceManager.disconnectFromGPSLoggerService();
       super.tearDown();
    }
 
@@ -86,7 +83,6 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
     * @throws InterruptedException 
     * 
     */
-   @FlakyTest
    @MediumTest
    public void testStartTracking() throws InterruptedException
    {
@@ -114,7 +110,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    {
       Assert.assertTrue( "No tracking at startup", !this.mLoggerServiceManager.isLogging() );
 
-      this.mLoggerServiceManager.startGPSLoggerService("testBackgroundTracking");
+      this.mLoggerServiceManager.startGPSLogging("testBackgroundTracking");
       Assert.assertTrue( "Tracking started", this.mLoggerServiceManager.isLogging() );
 
       //this.setUp();
