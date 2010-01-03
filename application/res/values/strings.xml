@@ -9,7 +9,7 @@
     <string name="dialog_filename_title">File name</string>
     <string name="dialog_filename_message">Please enter the name for a GPX file on the SDCard</string>
     <string name="dialog_deletetitle">Delete track</string>
-    <string name="dialog_deleteconfirmation">Please confirm the deletion of the track</string>
+    <string name="dialog_deleteconfirmation">Please confirm the deletion of the track %s</string>
     
     <string name="from">Tracked on: </string>
     <string name="ticker_saving">Saving: </string>

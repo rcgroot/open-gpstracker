@@ -9,7 +9,7 @@
     <string name="dialog_filename_title">檔案名</string>
     <string name="dialog_filename_message">請為 SD 卡上的 GPX 檔案輸入檔案名</string>
     <string name="dialog_deletetitle">移除路線</string>
-    <string name="dialog_deleteconfirmation">請確認此路線的移除操作</string>
+    <!-- <string name="dialog_deleteconfirmation">請確認此路線的移除操作</string>  -->
     
     <string name="from">記錄: </string>
     <string name="ticker_saving">儲存檔案: </string>
