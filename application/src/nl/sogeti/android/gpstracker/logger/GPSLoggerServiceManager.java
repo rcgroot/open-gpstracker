@@ -148,29 +148,20 @@ public class GPSLoggerServiceManager
             return true;
          case( DISCONNECTED ):
             connectToGPSLoggerService();
+            try
+            {
+               Thread.sleep( 500 );
+            }
+            catch (InterruptedException e)
+            {
+               Log.w( TAG, "Disrupted whilst waiting for connection to complete" );
+               return false;
+            }
             return verifyConnection();
          case( CONNECTING ):
-            try
-            {
-               Thread.sleep( 500 );
-            }
-            catch (InterruptedException e)
-            {
-               Log.w( TAG, "Disrupted whilst waiting for connection to complete" );
-               return false;
-            }
-            return verifyConnection();
+            return false;
          case( DISCONNECTING ):
-            try
-            {
-               Thread.sleep( 500 );
-            }
-            catch (InterruptedException e)
-            {
-               Log.w( TAG, "Disrupted whilst waiting for connection to complete" );
-               return false;
-            }
-            return verifyConnection();
+            return false;
          default:
             return false;
       }
