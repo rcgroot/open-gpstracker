@@ -28,8 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.logger;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -63,13 +68,14 @@ public class GPSLoggerService extends Service
    private static final String TAG = GPSLoggerService.class.getName();
    
    private Context mContext;
-   private LocationManager locationManager;
-   private boolean logging;
+   private LocationManager mLocationManager;
+   private NotificationManager mNoticationService;
+   private boolean mLogging;
    private PowerManager.WakeLock mWakeLock ;
    
    private long mTrackId = -1;
-   private long segmentId = -1 ;
-   private Location previousLocation;  
+   private long mSegmentId = -1 ;
+   private Location mPreviousLocation;  
    private int mAcceptableAccuracy = 20;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
@@ -79,6 +85,7 @@ public class GPSLoggerService extends Service
          if( key.equals( PRECISION ) )
          {
             requestLocationUpdates();
+            setupNotification();
          }
       }
    };
@@ -88,7 +95,6 @@ public class GPSLoggerService extends Service
       {
          if( isLocationAcceptable(location) )
          {
-//            Log.d( TAG, "Change loc: "+location );
             storeLocation(GPSLoggerService.this.mContext, location);
          }
       }
@@ -116,6 +122,9 @@ public class GPSLoggerService extends Service
          return true;
       }
    };
+   private int mPrecision;
+   private Notification mNotification;
+   private Intent mNotificationIntent;
 
    /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
@@ -125,7 +134,8 @@ public class GPSLoggerService extends Service
    {
       super.onCreate();
       this.mContext = getApplicationContext();
-      this.locationManager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+      this.mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
+      this.mNoticationService = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
       
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( LOGATSTARTUP, false );
 //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
@@ -174,8 +184,42 @@ public class GPSLoggerService extends Service
       PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
       this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, SERVICENAME);
       this.mWakeLock.acquire();
-      this.logging = true;
+      this.mLogging = true;
+
+      setupNotification();
+      
       return mTrackId;
+   }
+
+   private void setupNotification()
+   {
+      mNoticationService.cancel( R.layout.map );
+      
+      int icon = R.drawable.ic_maps_indicator_current_position;
+      CharSequence tickerText = this.getResources().getString( R.string.app_name );
+      long when = System.currentTimeMillis();         
+      
+      mNotification = new Notification(icon, tickerText, when);
+      mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
+      mNotificationIntent = new Intent(this, LoggerMap.class);
+      
+      updateNotification();
+   }
+   
+   private void updateNotification()
+   {
+      CharSequence contentTitle = this.getResources().getString( R.string.app_name );
+      
+      String precision = this.getResources().getStringArray( R.array.precision_choices )[mPrecision];
+      CharSequence contentText = this.getResources().getString( R.string.service_status, precision );
+      
+      mNotificationIntent.removeExtra( LoggerMap.EXTRA_TRACK_ID );
+      mNotificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );
+      Log.d( TAG, "Put extra track:"+mNotificationIntent.getLongExtra( LoggerMap.EXTRA_TRACK_ID, -1 ));  
+      
+      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, mNotificationIntent, 0);
+      mNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent); 
+      mNoticationService.notify( R.layout.map, mNotification );
    }
 
    /**
@@ -185,39 +229,39 @@ public class GPSLoggerService extends Service
    public synchronized void stopLogging()
    {
       PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
-      this.locationManager.removeUpdates( this.mLocationListener );
+      this.mLocationManager.removeUpdates( this.mLocationListener );
       if( this.mWakeLock != null )
       {
          this.mWakeLock.release();
          this.mWakeLock = null ;
       }
-      this.logging = false;
+      this.mLogging = false;
+      mNoticationService.cancel( R.layout.map );
    }
 
    private void requestLocationUpdates()
    {
-      this.locationManager.removeUpdates( this.mLocationListener );
-      int precision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( PRECISION, "1" ) ).intValue();
+      this.mLocationManager.removeUpdates( this.mLocationListener );
+      mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( PRECISION, "1" ) ).intValue();
       //Log.d( TAG, "requestLocationUpdates to precision "+precision );
-      switch( precision )
+      switch( mPrecision )
       {
-         case(0): // Coarse
-            this.mAcceptableAccuracy = 50;
-            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
+         case(0): // Fine
+            this.mAcceptableAccuracy = 10;
+            this.mLocationManager.requestLocationUpdates( GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
             break;
          case(1): // Normal
             this.mAcceptableAccuracy = 20;
-            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
+            this.mLocationManager.requestLocationUpdates( GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
             break;
-         case(2): // Fine
-            this.mAcceptableAccuracy = 10;
-            this.locationManager.requestLocationUpdates( GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
+         case(2): // Coarse
+            this.mAcceptableAccuracy = 50;
+            this.mLocationManager.requestLocationUpdates( GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
             break;
          default:
-            Log.e( TAG, "Unknown precision "+precision );
+            Log.e( TAG, "Unknown precision "+mPrecision );
             break;
       }
-      
    }
 
    /**
@@ -226,7 +270,7 @@ public class GPSLoggerService extends Service
     */
    public boolean isLogging()
    {
-      return this.logging;
+      return this.mLogging;
    }
 
    /**
@@ -239,10 +283,10 @@ public class GPSLoggerService extends Service
    public boolean isLocationAcceptable( Location proposedLocation )
    {
       boolean acceptable = true; 
-      if( previousLocation != null && proposedLocation.hasAccuracy() )
+      if( mPreviousLocation != null && proposedLocation.hasAccuracy() )
       {
          acceptable = proposedLocation.getAccuracy() < this.mAcceptableAccuracy 
-                        && proposedLocation.getAccuracy() < previousLocation.distanceTo( proposedLocation ) ;
+                        && proposedLocation.getAccuracy() < mPreviousLocation.distanceTo( proposedLocation ) ;
       }
       return acceptable;
    }
@@ -263,7 +307,7 @@ public class GPSLoggerService extends Service
    private void startNewSegment() 
    {
       Uri newSegment = this.mContext.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments" ), null ); 
-      segmentId = new Long(newSegment.getLastPathSegment()).longValue();
+      mSegmentId = new Long(newSegment.getLastPathSegment()).longValue();
    }
 
    /**
@@ -272,7 +316,7 @@ public class GPSLoggerService extends Service
     */
    public void storeLocation(Context context, Location location )
    {   
-      previousLocation = location;
+      mPreviousLocation = location;
       ContentValues args = new ContentValues();
       
       args.put( Waypoints.LATITUDE, new Double( location.getLatitude() ) );
@@ -296,6 +340,8 @@ public class GPSLoggerService extends Service
          args.put( Waypoints.BEARING, new Float( location.getBearing() ) );
       }
 
-      context.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+segmentId+"/waypoints" ), args );
+      Uri waypointInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+mSegmentId+"/waypoints" );
+      Log.d( TAG, "Going into the DB: "+waypointInsertUri.toString() );
+      context.getContentResolver().insert( waypointInsertUri, args );
    }
 }
