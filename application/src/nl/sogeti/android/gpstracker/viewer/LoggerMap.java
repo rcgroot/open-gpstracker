@@ -799,17 +799,24 @@ public class LoggerMap extends MapActivity
          ContentResolver resolver = this.getContentResolver();
          waypoint = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId + "/waypoints" ), new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,
                "max(" + Waypoints.TABLE+"."+Waypoints._ID + ")" }, null, null, null );
-         boolean exists = waypoint.moveToLast();
-         if( exists )
+         if( waypoint == null )
          {
-            int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
-            int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
-            lastPoint = new GeoPoint( microLatitude, microLongitude );
+            lastPoint = new GeoPoint( 0, 0 );
          }
-         else 
+         else
          {
-            Log.e(TAG, "There is NO waypoint for this given track id "+trackId);
-            lastPoint = new GeoPoint( 51985105, 5106132 );
+            boolean exists = waypoint.moveToLast();
+            if( exists )
+            {
+               int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
+               int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
+               lastPoint = new GeoPoint( microLatitude, microLongitude );
+            }
+            else 
+            {
+               Log.e(TAG, "There is NO waypoint for this given track id "+trackId);
+               lastPoint = new GeoPoint( 51985105, 5106132 );
+            }
          }
       }
       finally

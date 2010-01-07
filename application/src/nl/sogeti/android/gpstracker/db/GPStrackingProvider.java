@@ -312,7 +312,7 @@ public class GPStrackingProvider extends ContentProvider
             whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
             break;
          default:
-            Log.e( GPStrackingProvider.LOG_TAG, "Unable to come to an action in the query uri" + uri.toString() );
+            Log.e( GPStrackingProvider.LOG_TAG, "Unable to come to an action in the query uri: " + uri.toString() );
             return null;
       }
 
