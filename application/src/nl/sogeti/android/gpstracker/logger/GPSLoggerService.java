@@ -216,7 +216,7 @@ public class GPSLoggerService extends Service
       notificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );
       
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
-      mNotification.setLatestEventInfo(this, contentTitle, contentText+" for track "+mTrackId, contentIntent); 
+      mNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent); 
       mNoticationService.notify( R.layout.map, mNotification );
    }
 
