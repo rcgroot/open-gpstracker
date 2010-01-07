@@ -365,10 +365,8 @@ public class LoggerMap extends MapActivity
       if( newIntent.getExtras() != null )
       {
          long intentTrackId = newIntent.getExtras().getLong( EXTRA_TRACK_ID, -1 );
-         Set<String> foo = newIntent.getExtras().keySet();
          if( intentTrackId >= 0 )
          {
-            Log.d( TAG, "Intent says track: "+intentTrackId );
             moveToTrack( intentTrackId );
          }
       }
@@ -380,18 +378,15 @@ public class LoggerMap extends MapActivity
       long intentTrackId = this.getIntent().getLongExtra( EXTRA_TRACK_ID, -1 );
       if( intentTrackId >= 0 )
       {
-         Log.d( TAG, "Intent says track: "+intentTrackId );
          moveToTrack( intentTrackId );
       }
       else if( load != null && load.containsKey( "track" ) )
       {
          long loadTrackId = load.getLong( "track" );
-         Log.d( TAG, "Load says track: "+loadTrackId );
          moveToTrack( loadTrackId );
       }
       else 
       {
-         Log.d( TAG, "Nothing says track." );
          moveToLastTrack();
       }
 
@@ -425,7 +420,6 @@ public class LoggerMap extends MapActivity
             }
             else
             {
-
                GeoPoint startPoint = new GeoPoint( 51985105, 5106132 );
                this.mMapView.getController().animateTo( startPoint );
             }
@@ -815,7 +809,7 @@ public class LoggerMap extends MapActivity
          else 
          {
             Log.e(TAG, "There is NO waypoint for this given track id "+trackId);
-            lastPoint = new GeoPoint( 0, 0 );
+            lastPoint = new GeoPoint( 51985105, 5106132 );
          }
       }
       finally

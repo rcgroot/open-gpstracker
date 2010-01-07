@@ -214,7 +214,6 @@ public class GPSLoggerService extends Service
       
       Intent notificationIntent = new Intent(this, LoggerMap.class);
       notificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );
-      Log.d( TAG, "Put extra track:"+notificationIntent.getLongExtra( LoggerMap.EXTRA_TRACK_ID, -1 ));  
       
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText+" for track "+mTrackId, contentIntent); 
@@ -340,7 +339,6 @@ public class GPSLoggerService extends Service
       }
 
       Uri waypointInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+mSegmentId+"/waypoints" );
-      Log.d( TAG, "Going into the DB: "+waypointInsertUri.toString() );
       context.getContentResolver().insert( waypointInsertUri, args );
    }
 }
