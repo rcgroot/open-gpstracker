@@ -124,7 +124,6 @@ public class GPSLoggerService extends Service
    };
    private int mPrecision;
    private Notification mNotification;
-   private Intent mNotificationIntent;
 
    /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
@@ -213,11 +212,11 @@ public class GPSLoggerService extends Service
       String precision = this.getResources().getStringArray( R.array.precision_choices )[mPrecision];
       CharSequence contentText = this.getResources().getString( R.string.service_status, precision );
       
-      mNotificationIntent = new Intent(this, LoggerMap.class);
-      mNotificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );
-      Log.d( TAG, "Put extra track:"+mNotificationIntent.getLongExtra( LoggerMap.EXTRA_TRACK_ID, -1 ));  
+      Intent notificationIntent = new Intent(this, LoggerMap.class);
+      notificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );
+      Log.d( TAG, "Put extra track:"+notificationIntent.getLongExtra( LoggerMap.EXTRA_TRACK_ID, -1 ));  
       
-      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, mNotificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
+      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText+" for track "+mTrackId, contentIntent); 
       mNoticationService.notify( R.layout.map, mNotification );
    }
