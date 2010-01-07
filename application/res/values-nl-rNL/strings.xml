@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Open GPS Tracker</string>
+    <string name="service_status">Loggen met precisie: %s</string>
 	
 	<string name="dialog_routename_title">Naam</string>
     <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>
@@ -42,7 +43,9 @@
     <string name="email_body">Bijgevoegd is een route als GPS Exchange Format (GPX) bestand zoals beschreven op http://www.topografix.com/gpx.asp</string>
 
     <string name="opengpstracker_title">Open GPS Tracker</string>
-    <string name="opengpstracker_settings">Instellingen</string>   
+    <string name="opengpstracker_settings">Instellingen</string>
+    <string name="preference_display">Beeld instellingen</string>
+    <string name="preference_behavior">Gedrags instellingen</string>
     <string name="logatstartup">Log bij opstarten</string>
     <string name="logatstartup_summary">De applicatie begint direct met opnemen na het opstarten.</string>   
     <string name="disableblanking_title">Voorkom scherm uitzetten</string>
@@ -51,6 +54,8 @@
     <string name="precision_summary">De interval en frequentie van meten.</string>      
     <string name="trackcoloring_title">Route kleur</string>
     <string name="trackcoloring_summary">De kleur en tekenmethode van de route.</string>
+    <string name="showspeed_title">Toon GPS snelheid</string>
+    <string name="showspeed_summary">Toon de snelheid zoals van de laatste GPS bepaling.</string>
     
     <string name="stat_maximumspeed">Maximum snelheid</string>
     <string name="stat_averagespeed">Gemiddelde snelheid</string>    
@@ -59,6 +64,5 @@
     <string name="stat_starttime">Start tijd</string>    
     <string name="stat_trackname">Route naam</string>
     <string name="stat_waypoints">Aantal metingen</string>
-    
 
 </resources>
