@@ -622,8 +622,9 @@ public class TrackingOverlay extends Overlay
       return under && above && right && left;
    }
 
-   public void setTrackColoringMethod( int coloring )
+   public void setTrackColoringMethod( int coloring, double avgspeed )
    {
       this.mTrackColoringMethod = coloring;
+      this.mAvgSpeed = avgspeed;
    }
 }

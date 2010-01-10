@@ -104,7 +104,7 @@ public class LoggerMap extends MapActivity
    private WakeLock mWakeLock = null;
    private double mAverageSpeed = 33.33d / 2d;
    private TextView[] mSpeedtexts = null;
-   private TextView mAverageSpeedText = null;
+   private TextView mLastGPSSpeedText = null;
    
    private long mTrackId = -1;
    private long mLastSegment = -1 ;
@@ -122,8 +122,7 @@ public class LoggerMap extends MapActivity
                {
                   if( overlay instanceof TrackingOverlay )
                   {
-                     ( (TrackingOverlay) overlay ).setTrackColoringMethod( trackColoringMethod );
-
+                     ( (TrackingOverlay) overlay ).setTrackColoringMethod( trackColoringMethod, mAverageSpeed );
                   }
                }
             }
@@ -329,7 +328,7 @@ public class LoggerMap extends MapActivity
       TextView[] speeds = { (TextView) findViewById( R.id.speedview05 ), (TextView) findViewById( R.id.speedview04 ), (TextView) findViewById( R.id.speedview03 ),
             (TextView) findViewById( R.id.speedview02 ), (TextView) findViewById( R.id.speedview01 ), (TextView) findViewById( R.id.speedview00 ) };
       mSpeedtexts = speeds;
-      mAverageSpeedText = (TextView) findViewById( R.id.currentSpeed );
+      mLastGPSSpeedText = (TextView) findViewById( R.id.currentSpeed );
 
       /* Collect the zoomcontrols and place them */
       this.mMapView.setBuiltInZoomControls( true );
@@ -625,11 +624,11 @@ public class LoggerMap extends MapActivity
       boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.SHOWSPEED, false );
       if( showspeed )
       {
-         mAverageSpeedText.setVisibility( View.VISIBLE );
+         mLastGPSSpeedText.setVisibility( View.VISIBLE );
       }
       else
       {
-         mAverageSpeedText.setVisibility( View.INVISIBLE );
+         mLastGPSSpeedText.setVisibility( View.INVISIBLE );
       }
    }
 
@@ -650,7 +649,7 @@ public class LoggerMap extends MapActivity
             double speed = waypointsCursor.getDouble( 0 );
             speed = speed * conversion_from_mps;
             String speedText = String.format( "%.0f", speed ) + " " + speed_unit;
-            mAverageSpeedText.setText( speedText );
+            mLastGPSSpeedText.setText( speedText );
          }
       }
       finally
@@ -767,10 +766,12 @@ public class LoggerMap extends MapActivity
          if( track.moveToFirst() )
          {
             this.mTrackId = trackId;
-            updateTitleBar();
             resolver.unregisterContentObserver( this.mTrackObserver );
             resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
+
+            updateTitleBar();
             createTrackingDataOverlays();
+            updateSpeedbarVisibility();
          }
       }
       finally
