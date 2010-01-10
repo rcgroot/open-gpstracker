@@ -334,6 +334,7 @@ public class LoggerMap extends MapActivity
       if( this.mWakeLock != null && this.mWakeLock.isHeld() )
       {
          this.mWakeLock.release();
+         Log.w( TAG, "onPause(): Released lock to keep screen on!" );
       }
    }
 
@@ -352,8 +353,12 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onDestroy()
    {
+      if( this.mWakeLock != null && this.mWakeLock.isHeld() )
+      {
+         this.mWakeLock.release();
+         Log.w( TAG, "onDestroy(): Released lock to keep screen on!" );
+      }
       this.mLoggerServiceManager.disconnectFromGPSLoggerService();
-      updateBlankingBehavior();
       PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
       super.onDestroy();
    }
@@ -533,6 +538,7 @@ public class LoggerMap extends MapActivity
          if( this.mLoggerServiceManager.isLogging() && !this.mWakeLock.isHeld() )
          {
             this.mWakeLock.acquire();
+            Log.w( TAG, "Acquired lock to keep screen on!" );
          }
       }
    }
