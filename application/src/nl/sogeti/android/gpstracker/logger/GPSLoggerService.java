@@ -135,6 +135,7 @@ public class GPSLoggerService extends Service
       this.mContext = getApplicationContext();
       this.mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
       this.mNoticationService = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
+      mNoticationService.cancel( R.layout.map );
       
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( LOGATSTARTUP, false );
 //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );

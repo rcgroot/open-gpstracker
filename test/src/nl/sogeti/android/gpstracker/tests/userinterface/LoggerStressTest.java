@@ -66,7 +66,7 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
 
    protected void tearDown() throws Exception
    {
-      this.mLoggerServiceManager.disconnectFromGPSLoggerService();
+      this.mLoggerServiceManager.shutdown();
       super.tearDown();
    }
    

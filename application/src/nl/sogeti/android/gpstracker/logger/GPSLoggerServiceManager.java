@@ -49,6 +49,9 @@ public class GPSLoggerServiceManager
    private static final String REMOTE_EXCEPTION = "REMOTE_EXCEPTION";
    private Context mCtx;
    private IGPSLoggerServiceRemote mGPSLoggerRemote;
+   private final Object mStartLock = new Object();
+   private boolean mStarted = false;
+   
    /**
     * Class for interacting with the main interface of the service.
     */
@@ -58,139 +61,125 @@ public class GPSLoggerServiceManager
    public GPSLoggerServiceManager(Context ctx)
    {
       this.mCtx = ctx;
-      connectToGPSLoggerService();
    }
 
    public boolean isLogging()
    {
-      boolean logging = false;
-      if ( isConnected() ) 
-      { 
-         try
-         {
-            logging = this.mGPSLoggerRemote.isLogging();
-         }
-         catch (RemoteException e)
-         {
-            Log.e( TAG, "Could stat GPSLoggerService.", e );
-            logging = false;
-         }
-      }
-      else 
+      synchronized( mStartLock ) 
       {
-         Log.e( TAG, "No GPSLoggerRemote service connected to this manager on status" );
+         boolean logging = false;
+         if ( mStarted ) 
+         {
+            try
+            {
+               logging = this.mGPSLoggerRemote.isLogging();
+            }
+            catch (RemoteException e)
+            {
+               Log.e( TAG, "Could stat GPSLoggerService.", e );
+               logging = false;
+            }
+         }
+         else 
+         {
+            Log.e( TAG, "No GPSLoggerRemote service connected to this manager on status" );
+         }
+         return logging;
       }
-      return logging;
    }
 
    public long startGPSLogging(String name)
    {
-      if ( isConnected() ) 
-      { 
-         try
-         {
-            return this.mGPSLoggerRemote.startLogging();
+      synchronized( mStartLock ) 
+      {
+         if ( mStarted ) 
+         { 
+            try
+            {
+               return this.mGPSLoggerRemote.startLogging();
+            }
+            catch (RemoteException e)
+            {
+               Log.e( TAG, "Could not start GPSLoggerService.", e );
+            }
          }
-         catch (RemoteException e)
-         {
-            Log.e( TAG, "Could not start GPSLoggerService.", e );
-         }
+         return -1;
       }
-      return -1;
    }
 
    public void stopGPSLogging()
    {
-      connectToGPSLoggerService();
-      if ( isConnected() ) 
-      { 
-         try
-         {
-            this.mGPSLoggerRemote.stopLogging();
-         }
-         catch (RemoteException e)
-         {
-            Log.e( GPSLoggerServiceManager.REMOTE_EXCEPTION, "Could not stop GPSLoggerService.", e );
-         }
-      }
-      else 
+      synchronized( mStartLock ) 
       {
-         Log.e( TAG, "No GPSLoggerRemote service connected to this manager" );
+         if ( mStarted  ) 
+         { 
+            try
+            {
+               this.mGPSLoggerRemote.stopLogging();
+            }
+            catch (RemoteException e)
+            {
+               Log.e( GPSLoggerServiceManager.REMOTE_EXCEPTION, "Could not stop GPSLoggerService.", e );
+            }
+         }
+         else 
+         {
+            Log.e( TAG, "No GPSLoggerRemote service connected to this manager" );
+         }
       }
    }
 
    /**
     * Means by which an Activity lifecycle aware object hints about binding and unbinding
     */
-   public void disconnectFromGPSLoggerService()
-   {
-      Log.d( TAG, "disconnectFromGPSLoggerService()" );
-      if( isConnected() )
-      {
-         try
-         {
-            this.mCtx.unbindService( this.mServiceConnection );
-            this.mServiceConnection = null;
-         }
-         catch (IllegalArgumentException e) 
-         {
-            Log.e( TAG, "Failed to unbind a service, prehaps the service disapearded?", e );
-         }
-      }
-      else 
-      {
-         Log.w( TAG, "Attempting to disconnect whilst" );
-      }
-   }
-
-   /**
-    * Means by which an Activity lifecycle aware object hints about binding and unbinding
-    */
-   private void connectToGPSLoggerService()
+   public void startup()
    {
       Log.d( TAG, "connectToGPSLoggerService()" );
-      if( ! isConnected() )
+      if( !mStarted )
       {
-         this.mServiceConnection = new GPSLoggerServiceConnection();
+         this.mServiceConnection = new ServiceConnection()
+            {
+               public void onServiceConnected( ComponentName className, IBinder service )
+               {
+                  synchronized( mStartLock ) 
+                  {
+                     Log.d( TAG, "onServiceConnected()" );
+                     GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
+                     mStarted = true;
+                  }
+               }
+
+               public void onServiceDisconnected( ComponentName className )
+               {
+                  synchronized( mStartLock ) 
+                  {
+                     Log.d( TAG, "onServiceDisconnected()" );
+                     GPSLoggerServiceManager.this.mGPSLoggerRemote = null;
+                     mStarted = false;
+                  }
+               }
+            };
          this.mCtx.bindService( new Intent( GPSLoggerService.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
       }
-      else 
+      else
       {
          Log.w( TAG, "Attempting to connect whilst connected" );
       }
    }
 
-   private boolean isConnected()
+   /**
+    * Means by which an Activity lifecycle aware object hints about binding and unbinding
+    */
+   public void shutdown()
    {
-      if( this.mGPSLoggerRemote == null )
+      Log.d( TAG, "disconnectFromGPSLoggerService()" );
+      try
       {
-         return false;
+         this.mCtx.unbindService( this.mServiceConnection );
       }
-      else
+      catch (IllegalArgumentException e) 
       {
-         try
-         {
-            return mGPSLoggerRemote.isAlive();
-         }
-         catch (RemoteException e)
-         {
-            Log.w( TAG, "Failure during isAlive() ping to Service", e );
-            return false;
-         }
+         Log.e( TAG, "Failed to unbind a service, prehaps the service disapearded?", e );
       }
    }
-   
-   private class GPSLoggerServiceConnection implements ServiceConnection
-   {
-      public void onServiceConnected( ComponentName className, IBinder service )
-      {
-         Log.d( TAG, "onServiceConnected()" );
-         GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
-      }
-      public void onServiceDisconnected( ComponentName className )
-      {
-         Log.d( TAG, "onServiceDisconnected()" );
-         GPSLoggerServiceManager.this.mGPSLoggerRemote = null;
-      }
-   };
 }

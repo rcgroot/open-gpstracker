@@ -267,6 +267,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Cursor waypointsTwoCursor = this.mResolver.query( waypointsTwoUri, new String[] { Waypoints.SEGMENT }, null, null, null );
       Assert.assertEquals( "We should now have 2 waypoints", 2, waypointsTwoCursor.getCount() );
       Assert.assertTrue( "Working", waypointsTwoCursor.moveToFirst() );
+      waypointsTwoCursor.close();
    }
    
    @SmallTest

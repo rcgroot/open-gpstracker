@@ -308,6 +308,7 @@ public class LoggerMap extends MapActivity
       {
          this.mLoggerServiceManager = new GPSLoggerServiceManager( (Context) this );
       }
+      this.mLoggerServiceManager.startup();
 
       PreferenceManager.getDefaultSharedPreferences( this ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
@@ -358,7 +359,7 @@ public class LoggerMap extends MapActivity
          this.mWakeLock.release();
          Log.w( TAG, "onDestroy(): Released lock to keep screen on!" );
       }
-      this.mLoggerServiceManager.disconnectFromGPSLoggerService();
+      this.mLoggerServiceManager.shutdown();
       PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
       super.onDestroy();
    }
