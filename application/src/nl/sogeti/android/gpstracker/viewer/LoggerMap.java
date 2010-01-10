@@ -29,7 +29,6 @@
 package nl.sogeti.android.gpstracker.viewer;
 
 import java.util.List;
-import java.util.Set;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -98,7 +97,6 @@ public class LoggerMap extends MapActivity
    private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
 
-   private long mTrackId = -1;
    private MapView mMapView = null;
    private MapController mMapController = null;
    private GPSLoggerServiceManager mLoggerServiceManager;
@@ -107,6 +105,9 @@ public class LoggerMap extends MapActivity
    private double mAverageSpeed = 33.33d / 2d;
    private TextView[] mSpeedtexts = null;
    private TextView mAverageSpeedText = null;
+   
+   private long mTrackId = -1;
+   private long mLastSegment = -1 ;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
       {
@@ -142,8 +143,15 @@ public class LoggerMap extends MapActivity
          @Override
          public void onChange( boolean selfUpdate )
          {
-            LoggerMap.this.createTrackingDataOverlays();
-            LoggerMap.this.createSpeedDisplayNumbers();
+            if( !selfUpdate )
+            {
+               LoggerMap.this.createTrackingDataOverlays();
+               LoggerMap.this.createSpeedDisplayNumbers();
+            }
+            else
+            {
+               Log.d( TAG, "Skipping caused by self" );
+            }
          }
       };
 
@@ -165,6 +173,7 @@ public class LoggerMap extends MapActivity
             ContentValues values = new ContentValues();
             values.put( Tracks.NAME, trackName );
             getContentResolver().update( ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId ), values, null, null );
+            updateTitleBar();
          }
       };
 
@@ -342,6 +351,7 @@ public class LoggerMap extends MapActivity
    protected void onResume()
    {
       super.onResume();
+      updateTitleBar();
       updateBlankingBehavior();
       updateSpeedbarVisibility();
       updateSpeedDisplayVisibility();
@@ -526,6 +536,28 @@ public class LoggerMap extends MapActivity
       return true;
    }
 
+   private void updateTitleBar()
+   {
+      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      Cursor trackCursor = null;
+      try
+      {
+         trackCursor = resolver.query( ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId ), new String[] { Tracks.NAME }, null, null, null );
+         if( trackCursor.moveToLast() )
+         {
+            String trackName = trackCursor.getString( 0 );
+            this.setTitle( this.getString( R.string.app_name ) + ": " + trackName );
+         }
+      }
+      finally
+      {
+         if( trackCursor != null )
+         {
+            trackCursor.close();
+         }
+      }
+   }
+
    private void updateBlankingBehavior()
    {
       boolean disableblanking = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DISABLEBLANKING, false );
@@ -607,7 +639,8 @@ public class LoggerMap extends MapActivity
       Cursor waypointsCursor = null;
       try
       {
-         waypointsCursor = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/waypoints" ), new String[] { Waypoints.SPEED }, null, null, null );
+         Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/segments/"+mLastSegment+"/waypoints" );
+         waypointsCursor = resolver.query( lastSegmentUri, new String[] { Waypoints.SPEED }, null, null, null );
          if( waypointsCursor.moveToLast() )
          {
             String speed_unit = this.getResources().getString( R.string.speed_unitname );
@@ -644,24 +677,6 @@ public class LoggerMap extends MapActivity
       Cursor segments = null;
       int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
 
-      Cursor trackCursor = null;
-      try
-      {
-         trackCursor = resolver.query( ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId ), new String[] { Tracks.NAME }, null, null, null );
-         if( trackCursor.moveToLast() )
-         {
-            String name = trackCursor.getString( 0 );
-            drawToTrackName( name );
-         }
-      }
-      finally
-      {
-         if( trackCursor != null )
-         {
-            trackCursor.close();
-         }
-      }
-
       GeoPoint lastPoint = null;
       try
       {
@@ -684,6 +699,7 @@ public class LoggerMap extends MapActivity
                   segmentOverlay.addPlacement( TrackingOverlay.LAST_SEGMENT );
                   lastPoint = getLastTrackPoint( this.mTrackId );
                }
+               mLastSegment = segmentsId;
             }
             while (segments.moveToNext());
          }
@@ -699,10 +715,19 @@ public class LoggerMap extends MapActivity
       {
          Point out = new Point();
          this.mMapView.getProjection().toPixels( lastPoint, out );
-         if( out.x < this.mMapView.getWidth() / 4 || out.y < this.mMapView.getHeight() / 4 || out.x > ( this.mMapView.getWidth() / 4 ) * 3 || out.y > ( this.mMapView.getHeight() / 4 ) * 3 )
+         int height = this.mMapView.getHeight();
+         int width = this.mMapView.getWidth();
+         if( out.x < 0 || out.y < 0 || out.y > height || out.x > width )
          {
+            this.mMapView.clearAnimation();
+            this.mMapView.getController().setCenter( lastPoint );
+         }
+         else if( out.x < width / 4 || out.y < height / 4 || out.x > ( width / 4 ) * 3 || out.y > ( height / 4 ) * 3 )
+         {
+            this.mMapView.clearAnimation();
             this.mMapView.getController().animateTo( lastPoint );
          }
+         
       }
       this.mMapView.postInvalidate();
    }
@@ -742,7 +767,7 @@ public class LoggerMap extends MapActivity
          if( track.moveToFirst() )
          {
             this.mTrackId = trackId;
-            drawToTrackName( track.getString( 0 ) );
+            updateTitleBar();
             resolver.unregisterContentObserver( this.mTrackObserver );
             resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
             createTrackingDataOverlays();
@@ -755,14 +780,6 @@ public class LoggerMap extends MapActivity
             track.close();
          }
       }
-   }
-
-   /**
-    * Alter the view to display the title with track information
-    */
-   private void drawToTrackName( String trackName )
-   {
-      this.setTitle( this.getString( R.string.app_name ) + ": " + trackName );
    }
 
    /**

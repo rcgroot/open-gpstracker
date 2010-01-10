@@ -49,7 +49,7 @@ import android.util.Log;
  */
 public class MockGPSLoggerDriver implements Runnable
 {
-   private static final String TAG = MockGPSLoggerDriver.class.getName();
+   private static final String TAG = "MockGPSLoggerDriver";
    private boolean running = true;
    private int mTimeout;
    private Context mContext;

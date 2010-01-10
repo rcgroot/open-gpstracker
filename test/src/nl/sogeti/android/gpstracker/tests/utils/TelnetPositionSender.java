@@ -46,6 +46,7 @@ import android.util.Log;
  */
 public class TelnetPositionSender
 {
+   private static final String TAG = "TelnetPositionSender";
 
    private static final String TELNET_OK_FEEDBACK_MESSAGE = "OK\r\n";
    private static String HOST = "10.0.2.2";
@@ -129,7 +130,7 @@ public class TelnetPositionSender
    {
       createTelnetConnection();
 
-      Log.d(TelnetPositionSender.class.getCanonicalName(), "Sending command: "+telnetString);
+      Log.d( TAG, "Sending command: "+telnetString);
       
       byte[] sendArray = telnetString.getBytes();
 
