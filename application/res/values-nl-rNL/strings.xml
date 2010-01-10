@@ -57,7 +57,9 @@
     <string name="showspeed_title">Toon GPS snelheid</string>
     <string name="showspeed_summary">Toon de snelheid zoals van de laatste GPS bepaling.</string>
     
-    <string name="stat_maximumspeed">Maximum snelheid</string>
+    <string name="stat_maximumspeed">Maximale snelheid</string>
+    <string name="stat_maximumaltitude">Maximale hoogte</string>
+    <string name="stat_minimalaltitide">Minimale hoogte</string>
     <string name="stat_averagespeed">Gemiddelde snelheid</string>    
     <string name="stat_distance">Gemeten afstand</string>    
     <string name="stat_endtime">Laatste tijd</string>    
