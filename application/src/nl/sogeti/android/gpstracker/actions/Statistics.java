@@ -69,6 +69,8 @@ public class Statistics extends Activity
    private TextView trackname;
    private TextView maxSpeed;
    private TextView waypoints;
+   private TextView minAltitude;
+   private TextView maxAltitude;
    
    /** 
     * Called when the activity is first created. 
@@ -82,6 +84,8 @@ public class Statistics extends Activity
       this.mTrackUri = this.getIntent().getData() ;
       
       maxSpeed = (TextView)findViewById( R.id.stat_maximumspeed );
+      minAltitude = (TextView)findViewById( R.id.stat_minimalaltitide );
+      maxAltitude = (TextView)findViewById( R.id.stat_maximumaltitude );
       avgSpeed = (TextView)findViewById( R.id.stat_averagespeed );
       distance = (TextView)findViewById( R.id.stat_distance );
       starttime = (TextView)findViewById( R.id.stat_starttime );
@@ -99,6 +103,8 @@ public class Statistics extends Activity
    {
       String avgSpeedText = "Unknown";
       String maxSpeedText = "Unknown";
+      String maxAltitudeText = "Unknown";
+      String minAltitudeText = "Unknown";
       String tracknameText = "Unknown";
       long starttimeText = 0;
       long endtimeText = 0;
@@ -118,19 +124,22 @@ public class Statistics extends Activity
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       
       double maxSpeeddb = 0;
+      double maxalti = 0;
+      double minalti = 0;
       Cursor waypointsCursor = null ;
       try
       {
          waypointsCursor = resolver.query
                ( Uri.withAppendedPath( mTrackUri, "waypoints" )
-               , new String[] { "max("+Waypoints.TABLE+"."+Waypoints.SPEED+")" }
+               , new String[] { "max("+Waypoints.TABLE+"."+Waypoints.SPEED+")", "max("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")", "min("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")" }
                , null
                , null
                , null );
          if( waypointsCursor.moveToLast() )
          {
-            maxSpeeddb = waypointsCursor.getDouble( 0 );            
-            maxSpeeddb = maxSpeeddb *  conversion_from_mps;
+            maxSpeeddb =  waypointsCursor.getDouble( 0 ) *  conversion_from_mps;
+            maxalti = waypointsCursor.getDouble( 1 ) *  conversion_from_meter;
+            minalti = waypointsCursor.getDouble( 2 ) *  conversion_from_meter;
          }
       }
       finally
@@ -254,8 +263,13 @@ public class Statistics extends Activity
       avgSpeedText = String.format( "%.2f", avgSpeedfl )+" "+speed_unit;
       distanceText =  String.format( "%.2f", distanceTraveled * conversion_from_meter )+" "+distance_unit;
       maxSpeedText = String.format( "%.2f", maxSpeeddb )+" "+speed_unit;
+      minAltitudeText = String.format( "%.2f", minalti )+" "+distance_unit;
+      maxAltitudeText = String.format( "%.2f", maxalti )+" "+distance_unit;
+      
       
       maxSpeed.setText( maxSpeedText );
+      maxAltitude.setText( maxAltitudeText );
+      minAltitude.setText( minAltitudeText );
       avgSpeed.setText( avgSpeedText );
       distance.setText( distanceText );
       starttime.setText( Long.toString( starttimeText ) );
