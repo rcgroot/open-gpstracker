@@ -331,7 +331,10 @@ public class LoggerMap extends MapActivity
    protected void onPause()
    {
       super.onPause();
-      resumeBlanking();
+      if( this.mWakeLock != null && this.mWakeLock.isHeld() )
+      {
+         this.mWakeLock.release();
+      }
    }
 
    protected void onResume()
@@ -517,29 +520,20 @@ public class LoggerMap extends MapActivity
       return true;
    }
 
-   private void resumeBlanking()
-   {
-      if( mWakeLock != null && mWakeLock.isHeld() )
-      {
-         mWakeLock.release();
-      }
-   }
-
    private void updateBlankingBehavior()
    {
       boolean disableblanking = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DISABLEBLANKING, false );
-      PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
-      if( this.mWakeLock == null )
+      if( disableblanking )
       {
-         this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
-      }
-      if( disableblanking && this.mLoggerServiceManager.isLogging() && !this.mWakeLock.isHeld() )
-      {
-         this.mWakeLock.acquire();
-      }
-      else
-      {
-         resumeBlanking();
+         if( this.mWakeLock == null )
+         {
+            PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
+            this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
+         }
+         if( this.mLoggerServiceManager.isLogging() && !this.mWakeLock.isHeld() )
+         {
+            this.mWakeLock.acquire();
+         }
       }
    }
 
