@@ -65,7 +65,6 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
    {
       super.setUp();
       this.mLoggermap = getActivity();
-      this.mLoggerServiceManager = new GPSLoggerServiceManager( this.mLoggermap );
       this.mMapView = (MapView) this.mLoggermap.findViewById( nl.sogeti.android.gpstracker.R.id.myMapView );
       this.mSender = new MockGPSLoggerDriver();
    }

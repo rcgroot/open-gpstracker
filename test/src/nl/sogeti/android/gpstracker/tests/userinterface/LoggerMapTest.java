@@ -50,7 +50,6 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
    private LoggerMap mLoggermap;
    private MapView mMapView;
-   private GPSLoggerServiceManager mLoggerServiceManager;
 
    public LoggerMapTest()
    {
@@ -62,7 +61,6 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    {
       super.setUp();
       this.mLoggermap = getActivity();
-      this.mLoggerServiceManager = new GPSLoggerServiceManager(this.mLoggermap);
       this.mMapView = (MapView) this.mLoggermap.findViewById( R.id.myMapView );
       this.mMapView.setSatellite( false );
    }
@@ -82,19 +80,18 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    @MediumTest
    public void testStartTracking() throws InterruptedException
    {
-
-      this.mLoggerServiceManager.startup();
-      Assert.assertTrue( "No tracking at startup", !this.mLoggerServiceManager.isLogging() );
+      GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(  this.getInstrumentation().getContext() );
+      serviceManager.startup();
+      Assert.assertTrue( "No tracking at startup", !serviceManager.isLogging() );
 
       this.sendKeys( "MENU T" );
       this.sendKeys("T E S T R O U T E ENTER ENTER");
       Assert.assertTrue("Title contains the current route name", this.mLoggermap.getTitle().toString().contains( "testroute" ));
-      this.mLoggerServiceManager.startup();
-      Assert.assertTrue( "Tracking started", this.mLoggerServiceManager.isLogging() );
+      Assert.assertTrue( "Tracking started", serviceManager.isLogging() );
 
       this.sendKeys( "MENU T" );
-      Assert.assertTrue( "Tracking stoped", !this.mLoggerServiceManager.isLogging() );
-      this.mLoggerServiceManager.shutdown();
+      Assert.assertTrue( "Tracking stoped", !serviceManager.isLogging() );
+      serviceManager.shutdown();
    }
    
    /**
@@ -107,24 +104,26 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    @MediumTest
    public void testBackgroundTracking() throws Exception
    {
-      this.mLoggerServiceManager.startup();
-      Assert.assertTrue( "No tracking at startup", !this.mLoggerServiceManager.isLogging() );
-
-      this.mLoggerServiceManager.startGPSLogging("testBackgroundTracking");
-      Assert.assertTrue( "Tracking started", this.mLoggerServiceManager.isLogging() );
+      GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(  this.getInstrumentation().getContext() );
+      serviceManager.startup();
+      Assert.assertTrue( "No tracking at startup", !serviceManager.isLogging() );
+      
+      serviceManager.startGPSLogging("testBackgroundTracking");
+      Assert.assertTrue( "Tracking started", serviceManager.isLogging() );
 
       //this.setUp();
-      Assert.assertTrue( "Still continue tracking", this.mLoggerServiceManager.isLogging() );
+      Assert.assertTrue( "Still continue tracking", serviceManager.isLogging() );
 
       this.sendKeys( "MENU T" );     
-      Assert.assertTrue( "Tracking stopped", !this.mLoggerServiceManager.isLogging() );
+      Assert.assertTrue( "Tracking stopped", !serviceManager.isLogging() );
 
       //this.sendKeys( "HOME" );
-      Assert.assertTrue( "Tracking still stopped", !this.mLoggerServiceManager.isLogging() );
+      Assert.assertTrue( "Tracking still stopped", !serviceManager.isLogging() );
       //this.setUp();
-      Assert.assertTrue( "And still tracking is stopped", !this.mLoggerServiceManager.isLogging() );
-      this.mLoggerServiceManager.stopGPSLogging();
-      this.mLoggerServiceManager.shutdown();
+      Assert.assertTrue( "And still tracking is stopped", !serviceManager.isLogging() );
+      serviceManager.stopGPSLogging();
+      
+      serviceManager.shutdown();
    }    
 
    /**
@@ -134,9 +133,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
     */
    @MediumTest
    public void testMapKeyControls()
-   {
-      this.mLoggerServiceManager.startup();
-      
+   {     
       //1. Applicatie starten
       int startZoomlevel = this.mMapView.getZoomLevel();
 
@@ -152,8 +149,6 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
       this.sendKeys( "T T" );
       Assert.assertEquals("Not zoomed in", startZoomlevel, this.mMapView.getZoomLevel());
       this.sendKeys( "S" );
-
-      this.mLoggerServiceManager.shutdown();
    }
 
    /**
@@ -164,8 +159,6 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    @MediumTest
    public void testOrientationSwitch()
    {
-      this.mLoggerServiceManager.startup();
-      
       this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
       // Route historie openen
@@ -184,6 +177,5 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
 
       // Switch orientation
       this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-      this.mLoggerServiceManager.shutdown();
    }
 }

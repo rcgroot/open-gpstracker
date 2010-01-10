@@ -47,8 +47,6 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
 {
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
-   private LoggerMap mLoggermap;
-   private GPSLoggerServiceManager mLoggerServiceManager;
    private Intermediates mIntermediates;
 
    public LoggerStressTest()
@@ -60,13 +58,11 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
    protected void setUp() throws Exception 
    {
       super.setUp();
-      this.mLoggermap = getActivity();
-      this.mLoggerServiceManager = new GPSLoggerServiceManager(this.mLoggermap);
+      getActivity();
    }  
 
    protected void tearDown() throws Exception
    {
-      this.mLoggerServiceManager.shutdown();
       super.tearDown();
    }
    
@@ -82,11 +78,11 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
       MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.rondjesingelutrecht, 10 );
 
       this.sendKeys( "T T T T" );
-      this.sendKeys( "MENU DPAD_RIGHT T T E S T R O U T E ENTER");
-      this.sendKeys("ENTER"); 
+      this.sendKeys( "MENU DPAD_RIGHT T T E S T R O U T E ENTER" );
+      this.sendKeys("ENTER" ); 
 
       // Start method tracing for Issue 18
-      //Debug.startMethodTracing("testLapsAroundUtrecht");
+      Debug.startMethodTracing("rondjesingelutrecht" );
       if( this.mIntermediates != null )
       {
          this.mIntermediates.startTiming( true ) ;
@@ -99,7 +95,7 @@ public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap
       {
          this.mIntermediates.finishTiming( true ) ;
       }
-      //Debug.stopMethodTracing();
+      Debug.stopMethodTracing();
    }
 
    public boolean isPerformanceOnly()

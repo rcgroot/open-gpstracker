@@ -59,12 +59,10 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    {
       super.setUp();
       this.mLoggermap = getActivity();
-      this.mLoggerServiceManager = new GPSLoggerServiceManager(this.mLoggermap);
    }  
 
    protected void tearDown() throws Exception
    {
-      this.mLoggerServiceManager.shutdown();
       super.tearDown();
    }
    
