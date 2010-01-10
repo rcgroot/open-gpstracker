@@ -118,8 +118,12 @@ public class Statistics extends Activity
       this.getResources().getValue( R.raw.conversion_from_meter, outValue, false ) ;
       float conversion_from_meter = outValue.getFloat();
       
+      this.getResources().getValue( R.raw.conversion_from_meter_to_small, outValue, false ) ;
+      float conversion_from_meter_to_small = outValue.getFloat();
+      
       String speed_unit = this.getResources().getString( R.string.speed_unitname );
       String distance_unit = this.getResources().getString( R.string.distance_unitname );
+      String distance_smallunit = this.getResources().getString( R.string.distance_smallunitname );
       
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       
@@ -138,8 +142,8 @@ public class Statistics extends Activity
          if( waypointsCursor.moveToLast() )
          {
             maxSpeeddb =  waypointsCursor.getDouble( 0 ) *  conversion_from_mps;
-            maxalti = waypointsCursor.getDouble( 1 ) *  conversion_from_meter;
-            minalti = waypointsCursor.getDouble( 2 ) *  conversion_from_meter;
+            maxalti = waypointsCursor.getDouble( 1 ) *  conversion_from_meter_to_small;
+            minalti = waypointsCursor.getDouble( 2 ) *  conversion_from_meter_to_small;
          }
       }
       finally
@@ -263,8 +267,8 @@ public class Statistics extends Activity
       avgSpeedText = String.format( "%.2f", avgSpeedfl )+" "+speed_unit;
       distanceText =  String.format( "%.2f", distanceTraveled * conversion_from_meter )+" "+distance_unit;
       maxSpeedText = String.format( "%.2f", maxSpeeddb )+" "+speed_unit;
-      minAltitudeText = String.format( "%.2f", minalti )+" "+distance_unit;
-      maxAltitudeText = String.format( "%.2f", maxalti )+" "+distance_unit;
+      minAltitudeText = String.format( "%.1f", minalti )+" "+distance_smallunit;
+      maxAltitudeText = String.format( "%.1f", maxalti )+" "+distance_smallunit;
       
       
       maxSpeed.setText( maxSpeedText );
