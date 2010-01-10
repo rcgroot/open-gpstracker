@@ -196,7 +196,7 @@ public class GPSLoggerService extends Service
       mNoticationService.cancel( R.layout.map );
       
       int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = this.getResources().getString( R.string.app_name );
+      CharSequence tickerText = this.getResources().getString( R.string.menu_toggle_on );
       long when = System.currentTimeMillis();         
       
       mNotification = new Notification(icon, tickerText, when);
