@@ -215,6 +215,7 @@ public class GPSLoggerService extends Service
       {
          this.mLocationManager.removeUpdates( this.mLocationListener );
          this.mLoggingState = PAUSED;
+         updateWakeLock();
       }
    }
    
@@ -225,6 +226,7 @@ public class GPSLoggerService extends Service
          startNewSegment();
          requestLocationUpdates();
          this.mLoggingState = RUNNING;
+         updateWakeLock();
       }
    }
 
