@@ -135,7 +135,7 @@ public class Statistics extends Activity
       {
          waypointsCursor = resolver.query
                ( Uri.withAppendedPath( mTrackUri, "waypoints" )
-               , new String[] { "max("+Waypoints.TABLE+"."+Waypoints.SPEED+")", "max("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")", "min("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")" }
+               , new String[] { "max("+Waypoints.TABLE+"."+Waypoints.SPEED+")", "max("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")", "min("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")", "count("+Waypoints.TABLE+"."+Waypoints._ID+")" }
                , null
                , null
                , null );
@@ -144,26 +144,7 @@ public class Statistics extends Activity
             maxSpeeddb =  waypointsCursor.getDouble( 0 ) *  conversion_from_mps;
             maxalti = waypointsCursor.getDouble( 1 ) *  conversion_from_meter_to_small;
             minalti = waypointsCursor.getDouble( 2 ) *  conversion_from_meter_to_small;
-         }
-      }
-      finally
-      {
-         if( waypointsCursor != null )
-         {
-            waypointsCursor.close();
-         }
-      }
-      try
-      {
-         waypointsCursor = resolver.query
-               ( Uri.withAppendedPath( mTrackUri, "waypoints" )
-               , new String[] { "count("+Waypoints.TABLE+"."+Waypoints._ID+")" }
-               , null
-               , null
-               , null );
-         if( waypointsCursor.moveToLast() )
-         {
-            long avgSpeed = waypointsCursor.getLong(  0 );            
+            long avgSpeed = waypointsCursor.getLong(  3 );            
             waypointsText = avgSpeed+"";
          }
       }
@@ -174,6 +155,7 @@ public class Statistics extends Activity
             waypointsCursor.close();
          }
       }
+      
       Cursor trackCursor = null ;
       try
       {
