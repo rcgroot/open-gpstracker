@@ -72,12 +72,11 @@ public class GPSLoggerServiceManager
          {
             try
             {
-               logging = this.mGPSLoggerRemote.isLogging();
+               logging = ( this.mGPSLoggerRemote.loggingState() == GPSLoggerService.RUNNING );
             }
             catch (RemoteException e)
             {
                Log.e( TAG, "Could stat GPSLoggerService.", e );
-               logging = false;
             }
          }
          else 

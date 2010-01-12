@@ -2,8 +2,9 @@ package nl.sogeti.android.gpstracker.logger;
 
 interface IGPSLoggerServiceRemote {
 
-    boolean isAlive();
-	boolean isLogging();
+	int loggingState();
+    long startLogging();
+    void pauseLogging();
+    long resumeLogging();
 	void stopLogging();
-	long startLogging();
 }

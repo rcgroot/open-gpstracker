@@ -61,22 +61,28 @@ import android.util.Log;
  */
 public class GPSLoggerService extends Service 
 {  
+   public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
+   public static final int UNKNOWN = -1;
+   public static final int RUNNING = 1;
+   public static final int PAUSED = 2;
+   public static final int STOPPED = 3;
+   
    private static final String PRECISION = "precision";
    private static final String LOGATSTARTUP = "logatstartup";
    private static final String GPS_PROVIDER = LocationManager.GPS_PROVIDER;
-   public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
    private static final String TAG = GPSLoggerService.class.getName();
    
    private Context mContext;
    private LocationManager mLocationManager;
    private NotificationManager mNoticationService;
-   private boolean mLogging;
+   private int mLoggingState = UNKNOWN;
    private PowerManager.WakeLock mWakeLock ;
    
    private long mTrackId = -1;
    private long mSegmentId = -1 ;
    private Location mPreviousLocation;  
    private int mAcceptableAccuracy = 20;
+   
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
    {
@@ -104,23 +110,29 @@ public class GPSLoggerService extends Service
    };  
    private IBinder mBinder = new IGPSLoggerServiceRemote.Stub() 
    {
-      public boolean isLogging() throws RemoteException
+      public int loggingState() throws RemoteException
       {
-         return GPSLoggerService.this.isLogging();
+         return mLoggingState;
       }
       public long startLogging() throws RemoteException
       {
          GPSLoggerService.this.startLogging();
          return mTrackId;
+      }      
+      public void pauseLogging() throws RemoteException
+      {
+         GPSLoggerService.this.pauseLogging();
+      }
+      public long resumeLogging() throws RemoteException
+      {
+         GPSLoggerService.this.resumeLogging();
+         return mSegmentId;
       }
       public void stopLogging() throws RemoteException
       {
          GPSLoggerService.this.stopLogging();
       }
-      public boolean isAlive() throws RemoteException
-      {
-         return true;
-      }
+
    };
    private int mPrecision;
    private Notification mNotification;
@@ -174,21 +186,59 @@ public class GPSLoggerService extends Service
 
    /**
     * (non-Javadoc)
+    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#isLogging()
+    */
+   protected boolean isLogging()
+   {
+      return this.mLoggingState == RUNNING;
+   }
+
+   /**
+    * (non-Javadoc)
     * @see nl.sogeti.android.gpstracker.IGPSLoggerService#startLogging()
     */
-   public synchronized long startLogging()
+   protected synchronized long startLogging()
    {
       startNewTrack() ;
       requestLocationUpdates();
-      PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
-      PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
-      this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, SERVICENAME);
-      this.mWakeLock.acquire();
-      this.mLogging = true;
+      this.mLoggingState = RUNNING;
+      updateWakeLock();
 
       setupNotification();
       
       return mTrackId;
+   }
+
+   protected synchronized void pauseLogging()
+   {
+      if( this.mLoggingState == RUNNING )
+      {
+         this.mLocationManager.removeUpdates( this.mLocationListener );
+         this.mLoggingState = PAUSED;
+      }
+   }
+   
+   protected synchronized void resumeLogging()
+   {
+      if( this.mLoggingState == PAUSED )
+      {
+         startNewSegment();
+         requestLocationUpdates();
+         this.mLoggingState = RUNNING;
+      }
+   }
+
+   /**
+    * (non-Javadoc)
+    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#stopLogging()
+    */
+   protected synchronized void stopLogging()
+   {
+      PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+      this.mLocationManager.removeUpdates( this.mLocationListener );
+      this.mLoggingState = STOPPED;
+      updateWakeLock();
+      mNoticationService.cancel( R.layout.map );
    }
 
    private void setupNotification()
@@ -221,23 +271,6 @@ public class GPSLoggerService extends Service
       mNoticationService.notify( R.layout.map, mNotification );
    }
 
-   /**
-    * (non-Javadoc)
-    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#stopLogging()
-    */
-   public synchronized void stopLogging()
-   {
-      PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
-      this.mLocationManager.removeUpdates( this.mLocationListener );
-      if( this.mWakeLock != null )
-      {
-         this.mWakeLock.release();
-         this.mWakeLock = null ;
-      }
-      this.mLogging = false;
-      mNoticationService.cancel( R.layout.map );
-   }
-
    private void requestLocationUpdates()
    {
       this.mLocationManager.removeUpdates( this.mLocationListener );
@@ -263,13 +296,23 @@ public class GPSLoggerService extends Service
       }
    }
 
-   /**
-    * (non-Javadoc)
-    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#isLogging()
-    */
-   public boolean isLogging()
+   private void updateWakeLock()
    {
-      return this.mLogging;
+      if( this.mLoggingState == RUNNING )
+      {
+         PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
+         PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
+         this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, SERVICENAME);
+         this.mWakeLock.acquire();
+      }
+      else
+      {
+         if( this.mWakeLock != null )
+         {
+            this.mWakeLock.release();
+            this.mWakeLock = null ;
+         }
+      }
    }
 
    /**
