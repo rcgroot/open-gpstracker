@@ -108,6 +108,7 @@ public class LoggerMap extends MapActivity
    
    private long mTrackId = -1;
    private long mLastSegment = -1 ;
+   private long mLastWaypoint = -1;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
       {
@@ -144,6 +145,7 @@ public class LoggerMap extends MapActivity
          {
             if( !selfUpdate )
             {
+               Log.d( TAG, "Have drawn to segment "+mLastSegment+" with waypoint "+mLastWaypoint );
                LoggerMap.this.createTrackingDataOverlays();
                LoggerMap.this.createSpeedDisplayNumbers();
             }
@@ -424,7 +426,7 @@ public class LoggerMap extends MapActivity
       }
       else
       {
-         GeoPoint lastPoint = getLastTrackPoint( mTrackId );
+         GeoPoint lastPoint = getLastTrackPoint();
          if( lastPoint.getLatitudeE6() != 0 && lastPoint.getLongitudeE6() != 0 )
          {
             this.mMapView.getController().animateTo( lastPoint );
@@ -696,7 +698,7 @@ public class LoggerMap extends MapActivity
                if( segments.isLast() )
                {
                   segmentOverlay.addPlacement( TrackingOverlay.LAST_SEGMENT );
-                  lastPoint = getLastTrackPoint( this.mTrackId );
+                  lastPoint = getLastTrackPoint();
                }
                mLastSegment = segmentsId;
             }
@@ -766,6 +768,8 @@ public class LoggerMap extends MapActivity
          if( track.moveToFirst() )
          {
             this.mTrackId = trackId;
+            mLastSegment = -1;
+            mLastWaypoint = -1;
             resolver.unregisterContentObserver( this.mTrackObserver );
             resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
 
@@ -809,14 +813,14 @@ public class LoggerMap extends MapActivity
     * 
     * @param context
     */
-   private GeoPoint getLastTrackPoint( long trackId )
+   private GeoPoint getLastTrackPoint()
    {
       Cursor waypoint = null;
       GeoPoint lastPoint = null;
       try
       {
          ContentResolver resolver = this.getContentResolver();
-         waypoint = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId + "/waypoints" ), new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,
+         waypoint = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/waypoints" ), new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,
                "max(" + Waypoints.TABLE+"."+Waypoints._ID + ")" }, null, null, null );
          if( waypoint == null )
          {
@@ -830,10 +834,11 @@ public class LoggerMap extends MapActivity
                int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
                int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
                lastPoint = new GeoPoint( microLatitude, microLongitude );
+               mLastWaypoint = waypoint.getLong( 2 );
             }
             else 
             {
-               Log.e(TAG, "There is NO waypoint for this given track id "+trackId);
+               Log.e(TAG, "There is NO waypoint for this given track id "+mTrackId);
                lastPoint = new GeoPoint( 51985105, 5106132 );
             }
          }
