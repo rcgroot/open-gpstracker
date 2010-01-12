@@ -12,7 +12,9 @@
     <string name="dialog_deletetitle">Verwijder</string>
     <string name="dialog_deleteconfirmation">Bevestigd u alstublieft het verwijderen van %s</string>
     
+    <string name="dialog_tracking_title">Opnemen</string>
     <string name="from">Opgenomen op: </string>
+    <string name="no_tracks">Geen routes</string>
     <string name="ticker_saving">Opslaan: </string>
     <string name="ticker_stored">Opgeslagen: </string>
     <string name="ticker_failed">Kon niet opslaan: </string>
@@ -26,8 +28,11 @@
 	<string name="btn_selecttrack">Route selecteren</string>
 	
 	<string name="menu_settings">Instellingen</string>
-	<string name="menu_toggle_off">Stop opnemen</string>
-	<string name="menu_toggle_on">Start opnemen</string>
+    <string name="menu_tracking">Opnemen</string>
+	<string name="logcontrol_start">Start opnemen</string>
+    <string name="logcontrol_pause">Pauzeer opnemen</string>
+    <string name="logcontrol_resume">Vervolg opnemen</string>
+	<string name="logcontrol_stop">Stop opnemen</string>
 	<string name="menu_tracklist">Toon routes</string>
 	<string name="menu_shareTrack">Deel route</string>
     <string name="menu_showTrack">Toon statistieken </string>

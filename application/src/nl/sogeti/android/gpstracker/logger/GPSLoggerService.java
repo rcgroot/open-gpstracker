@@ -144,6 +144,7 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
+      this.mLoggingState = STOPPED;
       this.mContext = getApplicationContext();
       this.mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
       this.mNoticationService = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
@@ -186,7 +187,7 @@ public class GPSLoggerService extends Service
 
    /**
     * (non-Javadoc)
-    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#isLogging()
+    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#getLoggingState()
     */
    protected boolean isLogging()
    {

@@ -66,6 +66,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,7 +88,7 @@ public class LoggerMap extends MapActivity
 
    // MENU'S
    private static final int MENU_SETTINGS = 0;
-   private static final int MENU_TOGGLE = 1;
+   private static final int MENU_TRACKING = 1;
    private static final int MENU_TRACKLIST = 5;
    private static final int MENU_VIEW = 7;
    private static final String TAG = LoggerMap.class.getName();
@@ -96,6 +97,7 @@ public class LoggerMap extends MapActivity
 
    private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
+   private static final int DIALOG_LOGCONTROL = 26;
 
    private MapView mMapView = null;
    private MapController mMapController = null;
@@ -223,26 +225,11 @@ public class LoggerMap extends MapActivity
    {
       boolean result = super.onCreateOptionsMenu( menu );
 
-      menu.add( 0, MENU_TOGGLE, 0, R.string.menu_toggle_on ).setIcon( android.R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 't' );
+      menu.add( 0, MENU_TRACKING, 0, R.string.menu_tracking ).setIcon( android.R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 't' );
       menu.add( 0, MENU_TRACKLIST, 0, R.string.menu_tracklist ).setIcon( android.R.drawable.ic_menu_gallery ).setAlphabeticShortcut( 'l' );
       menu.add( 0, MENU_VIEW, 0, R.string.menu_showTrack ).setIcon( android.R.drawable.ic_menu_view ).setAlphabeticShortcut( 'e' );
       menu.add( 0, MENU_SETTINGS, 0, R.string.menu_settings ).setIcon( android.R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 's' );
       return result;
-   }
-
-   @Override
-   public boolean onPrepareOptionsMenu( Menu menu )
-   {
-      super.onPrepareOptionsMenu( menu );
-      if( this.mLoggerServiceManager.isLogging() )
-      {
-         menu.findItem( MENU_TOGGLE ).setTitle( R.string.menu_toggle_off );
-      }
-      else
-      {
-         menu.findItem( MENU_TOGGLE ).setTitle( R.string.menu_toggle_on );
-      }
-      return true;
    }
 
    @Override
@@ -251,21 +238,22 @@ public class LoggerMap extends MapActivity
       boolean handled = false;
       switch (item.getItemId())
       {
-         case MENU_TOGGLE:
-            if( this.mLoggerServiceManager.isLogging() )
-            {
-               this.mLoggerServiceManager.stopGPSLogging();
-               updateBlankingBehavior();
-               item.setTitle( R.string.menu_toggle_on );
-            }
-            else
-            {
-               long loggerTrackId = this.mLoggerServiceManager.startGPSLogging( null );
-               moveToTrack( loggerTrackId );
-               updateBlankingBehavior();
-               item.setTitle( R.string.menu_toggle_off );
-               showDialog( DIALOG_TRACKNAME );
-            }
+         case MENU_TRACKING:
+            showDialog( DIALOG_LOGCONTROL );
+//            if( this.mLoggerServiceManager.isLogging() )
+//            {
+//               this.mLoggerServiceManager.stopGPSLogging();
+//               updateBlankingBehavior();
+//               item.setTitle( R.string.menu_toggle_on );
+//            }
+//            else
+//            {
+//               long loggerTrackId = this.mLoggerServiceManager.startGPSLogging( null );
+//               moveToTrack( loggerTrackId );
+//               updateBlankingBehavior();
+//               item.setTitle( R.string.menu_toggle_off );
+//               showDialog( DIALOG_TRACKNAME );
+//            }
             updateBlankingBehavior();
             handled = true;
             break;
@@ -479,20 +467,25 @@ public class LoggerMap extends MapActivity
    protected Dialog onCreateDialog( int id )
    {
       Dialog dialog = null;
-      Builder builder = new AlertDialog.Builder( this );
+      LayoutInflater factory = null;
+      View view = null;
+      Builder builder = null;
       switch (id)
       {
          case DIALOG_TRACKNAME:
-            LayoutInflater factory = LayoutInflater.from( this );
-            View view = factory.inflate( R.layout.namedialog, null );
+            builder = new AlertDialog.Builder( this );
+            factory = LayoutInflater.from( this );
+            view = factory.inflate( R.layout.namedialog, null );
             mTrackNameView = (EditText) view.findViewById( R.id.nameField );
             builder.setTitle( R.string.dialog_routename_title )
             .setMessage( R.string.dialog_routename_message )
             .setIcon( android.R.drawable.ic_dialog_alert )
-            .setView( view ).setPositiveButton( R.string.btn_okay, mTrackNameDialogListener );
+            .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener )
+            .setView( view );
             dialog = builder.create();
             return dialog;
          case DIALOG_NOTRACK:
+            builder = new AlertDialog.Builder( this );
             builder.setTitle( R.string.dialog_notrack_title )
             .setMessage( R.string.dialog_notrack_message )
             .setIcon( android.R.drawable.ic_dialog_alert )
@@ -500,9 +493,64 @@ public class LoggerMap extends MapActivity
             .setNegativeButton( R.string.btn_cancel, null );
             dialog = builder.create();
             return dialog;
+         case DIALOG_LOGCONTROL:
+            builder = new AlertDialog.Builder( this );
+            factory = LayoutInflater.from( this );
+            view = factory.inflate( R.layout.logcontrol, null );
+            builder.setTitle( R.string.dialog_tracking_title )
+            .setIcon( android.R.drawable.ic_dialog_alert )
+            .setNegativeButton( R.string.btn_cancel, null )
+            .setView( view );
+            dialog = builder.create();
+            return dialog;
          default:
             return super.onCreateDialog( id );
       }
+   }
+   
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
+    */
+   @Override
+   protected void onPrepareDialog( int id, Dialog dialog )
+   {
+      int state = this.mLoggerServiceManager.getLoggingState();
+      switch (id)
+      {
+         case DIALOG_LOGCONTROL:
+            Button start = (Button) dialog.findViewById( R.id.logcontrol_start );
+            Button pause = (Button) dialog.findViewById( R.id.logcontrol_pause );
+            Button resume = (Button) dialog.findViewById( R.id.logcontrol_resume );
+            Button stop = (Button) dialog.findViewById( R.id.logcontrol_stop );
+            switch( state )
+            {
+               case GPSLoggerService.STOPPED:
+                  start.setEnabled( true );
+                  pause.setEnabled( false );
+                  resume.setEnabled( false );
+                  stop.setEnabled( false );
+                  break;
+               case GPSLoggerService.RUNNING:
+                  start.setEnabled( false );
+                  pause.setEnabled( true );
+                  resume.setEnabled( false );
+                  stop.setEnabled( true );
+                  break;
+               case GPSLoggerService.PAUSED:
+                  start.setEnabled( false );
+                  pause.setEnabled( false );
+                  resume.setEnabled( true );
+                  stop.setEnabled( true );
+                  break;
+               default:
+                  start.setEnabled( false );
+                  pause.setEnabled( false );
+                  resume.setEnabled( false );
+                  stop.setEnabled( false );
+            }
+      }
+      super.onPrepareDialog( id, dialog );
    }
 
    /*
@@ -569,7 +617,7 @@ public class LoggerMap extends MapActivity
             PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
             this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
          }
-         if( this.mLoggerServiceManager.isLogging() && !this.mWakeLock.isHeld() )
+         if( this.mLoggerServiceManager.getLoggingState() == GPSLoggerService.RUNNING && !this.mWakeLock.isHeld() )
          {
             this.mWakeLock.acquire();
             Log.w( TAG, "Acquired lock to keep screen on!" );

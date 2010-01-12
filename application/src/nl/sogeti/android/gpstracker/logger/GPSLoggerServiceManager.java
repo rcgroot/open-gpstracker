@@ -63,25 +63,18 @@ public class GPSLoggerServiceManager
       this.mCtx = ctx;
    }
 
-   public boolean isLogging()
+   public int getLoggingState()
    {
       synchronized( mStartLock ) 
       {
-         boolean logging = false;
-         if ( mStarted ) 
+         int logging = GPSLoggerService.UNKNOWN;
+         try
          {
-            try
-            {
-               logging = ( this.mGPSLoggerRemote.loggingState() == GPSLoggerService.RUNNING );
-            }
-            catch (RemoteException e)
-            {
-               Log.e( TAG, "Could stat GPSLoggerService.", e );
-            }
+            logging = this.mGPSLoggerRemote.loggingState();
          }
-         else 
+         catch (RemoteException e)
          {
-            Log.e( TAG, "No GPSLoggerRemote service connected to this manager on status" );
+            Log.e( TAG, "Could stat GPSLoggerService.", e );
          }
          return logging;
       }
