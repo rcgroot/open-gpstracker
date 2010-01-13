@@ -162,6 +162,7 @@ public class LoggerMap extends MapActivity
       {
          public void onClick( DialogInterface dialog, int which )
          {
+            Log.d( TAG, "mNoTrackDialogListener" + which);
             Intent tracklistIntent = new Intent( LoggerMap.this, TrackList.class );
             tracklistIntent.putExtra( Tracks._ID, LoggerMap.this.mTrackId );
             startActivityForResult( tracklistIntent, MENU_TRACKLIST );
@@ -180,6 +181,35 @@ public class LoggerMap extends MapActivity
          }
       };
 
+   View.OnClickListener mLoggingControlListener = new View.OnClickListener()
+      {
+         public void onClick( View v )
+         {
+            int id = v.getId();
+            switch( id )
+            {
+               case R.id.logcontrol_start:
+                  long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
+                  moveToTrack( loggerTrackId );
+                  showDialog( DIALOG_TRACKNAME );
+                  break;
+               case R.id.logcontrol_pause:
+                  mLoggerServiceManager.pauseGPSLogging();
+                  break;
+               case R.id.logcontrol_resume:
+                  mLoggerServiceManager.resumeGPSLogging();
+                  break;
+               case R.id.logcontrol_stop:
+                  mLoggerServiceManager.stopGPSLogging();
+                  break;
+               default:
+                  break;
+            }
+            updateBlankingBehavior();
+            dismissDialog( DIALOG_LOGCONTROL );
+         }
+      };
+      
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
    {
@@ -240,20 +270,6 @@ public class LoggerMap extends MapActivity
       {
          case MENU_TRACKING:
             showDialog( DIALOG_LOGCONTROL );
-//            if( this.mLoggerServiceManager.isLogging() )
-//            {
-//               this.mLoggerServiceManager.stopGPSLogging();
-//               updateBlankingBehavior();
-//               item.setTitle( R.string.menu_toggle_on );
-//            }
-//            else
-//            {
-//               long loggerTrackId = this.mLoggerServiceManager.startGPSLogging( null );
-//               moveToTrack( loggerTrackId );
-//               updateBlankingBehavior();
-//               item.setTitle( R.string.menu_toggle_off );
-//               showDialog( DIALOG_TRACKNAME );
-//            }
             updateBlankingBehavior();
             handled = true;
             break;
@@ -523,6 +539,10 @@ public class LoggerMap extends MapActivity
             Button pause = (Button) dialog.findViewById( R.id.logcontrol_pause );
             Button resume = (Button) dialog.findViewById( R.id.logcontrol_resume );
             Button stop = (Button) dialog.findViewById( R.id.logcontrol_stop );
+            start.setOnClickListener( mLoggingControlListener );
+            pause.setOnClickListener( mLoggingControlListener );
+            resume.setOnClickListener( mLoggingControlListener );
+            stop.setOnClickListener( mLoggingControlListener );
             switch( state )
             {
                case GPSLoggerService.STOPPED:

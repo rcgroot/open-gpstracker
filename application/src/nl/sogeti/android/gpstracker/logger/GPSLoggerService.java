@@ -206,7 +206,7 @@ public class GPSLoggerService extends Service
       updateWakeLock();
 
       setupNotification();
-      
+     
       return mTrackId;
    }
 
@@ -217,6 +217,7 @@ public class GPSLoggerService extends Service
          this.mLocationManager.removeUpdates( this.mLocationListener );
          this.mLoggingState = PAUSED;
          updateWakeLock();
+         updateNotification();
       }
    }
    
@@ -228,6 +229,7 @@ public class GPSLoggerService extends Service
          requestLocationUpdates();
          this.mLoggingState = RUNNING;
          updateWakeLock();
+         updateNotification();
       }
    }
 
@@ -249,12 +251,11 @@ public class GPSLoggerService extends Service
       mNoticationService.cancel( R.layout.map );
       
       int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = this.getResources().getString( R.string.menu_toggle_on );
+      CharSequence tickerText = this.getResources().getString( R.string.logcontrol_start );
       long when = System.currentTimeMillis();         
       
       mNotification = new Notification(icon, tickerText, when);
       mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-      
       
       updateNotification();
    }
@@ -264,7 +265,7 @@ public class GPSLoggerService extends Service
       CharSequence contentTitle = this.getResources().getString( R.string.app_name );
       
       String precision = this.getResources().getStringArray( R.array.precision_choices )[mPrecision];
-      CharSequence contentText = this.getResources().getString( R.string.service_status, precision );
+      CharSequence contentText = this.getResources().getString( R.string.service_status, mLoggingState );
       
       Intent notificationIntent = new Intent(this, LoggerMap.class);
       notificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );

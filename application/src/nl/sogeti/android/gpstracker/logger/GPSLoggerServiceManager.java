@@ -98,6 +98,43 @@ public class GPSLoggerServiceManager
          return -1;
       }
    }
+   
+   public void pauseGPSLogging()
+   {
+      synchronized( mStartLock ) 
+      {
+         if ( mStarted ) 
+         { 
+            try
+            {
+               this.mGPSLoggerRemote.pauseLogging();
+            }
+            catch (RemoteException e)
+            {
+               Log.e( TAG, "Could not start GPSLoggerService.", e );
+            }
+         }
+      }
+   }
+   
+   public long resumeGPSLogging()
+   {
+      synchronized( mStartLock ) 
+      {
+         if ( mStarted ) 
+         { 
+            try
+            {
+               return this.mGPSLoggerRemote.resumeLogging();
+            }
+            catch (RemoteException e)
+            {
+               Log.e( TAG, "Could not start GPSLoggerService.", e );
+            }
+         }
+         return -1;
+      }
+   }
 
    public void stopGPSLogging()
    {
