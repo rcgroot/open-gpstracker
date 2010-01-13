@@ -89,7 +89,7 @@ public class GPSLoggerService extends Service
    
    private Location mPreviousLocation;  
    private Notification mNotification;
-   private int mAcceptableAccuracy = -1;
+   private int mAcceptableAccuracy = 20;
 
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
