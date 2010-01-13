@@ -839,7 +839,7 @@ public class LoggerMap extends MapActivity
             mLastSegment = -1;
             mLastWaypoint = -1;
             resolver.unregisterContentObserver( this.mTrackObserver );
-            resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
+            resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
 
             updateTitleBar();
             createTrackingDataOverlays();

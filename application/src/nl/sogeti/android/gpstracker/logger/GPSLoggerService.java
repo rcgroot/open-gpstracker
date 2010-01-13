@@ -265,7 +265,7 @@ public class GPSLoggerService extends Service
       CharSequence contentTitle = this.getResources().getString( R.string.app_name );
       
       String precision = this.getResources().getStringArray( R.array.precision_choices )[mPrecision];
-      CharSequence contentText = this.getResources().getString( R.string.service_status, mLoggingState );
+      CharSequence contentText = this.getResources().getString( R.string.service_status, precision );
       
       Intent notificationIntent = new Intent(this, LoggerMap.class);
       notificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );

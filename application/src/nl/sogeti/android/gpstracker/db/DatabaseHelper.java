@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.db;
 
-import java.text.DateFormat;
 import java.util.Date;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -141,11 +140,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) ;
-      resolver.notifyChange( notifyUri, null );      
-      notifyUri = Uri.withAppendedPath( notifyUri, "segments/"+segmentId ) ;
-      resolver.notifyChange( notifyUri, null );    
-      notifyUri = Uri.withAppendedPath( notifyUri, "waypoints/"+waypointId ) ;
+      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"waypoints/"+waypointId );
       resolver.notifyChange( notifyUri, null );    
 
       return waypointId;
@@ -187,7 +182,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ String.valueOf( trackId ) } );
       
       ContentResolver resolver = this.mContext.getContentResolver();
-      resolver.notifyChange( Tracks.CONTENT_URI, null );
+      resolver.notifyChange( ContentUris.withAppendedId( Tracks.CONTENT_URI,  trackId), null );
       
       return affected ;
    }
