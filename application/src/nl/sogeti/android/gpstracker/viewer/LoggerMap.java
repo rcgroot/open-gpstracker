@@ -147,13 +147,13 @@ public class LoggerMap extends MapActivity
          {
             if( !selfUpdate )
             {
-               Log.d( TAG, "Have drawn to segment "+mLastSegment+" with waypoint "+mLastWaypoint );
+//               Log.d( TAG, "Have drawn to segment "+mLastSegment+" with waypoint "+mLastWaypoint );
                LoggerMap.this.createTrackingDataOverlays();
                LoggerMap.this.createSpeedDisplayNumbers();
             }
             else
             {
-               Log.d( TAG, "Skipping caused by self" );
+               Log.w( TAG, "Skipping caused by self" );
             }
          }
       };
@@ -162,7 +162,7 @@ public class LoggerMap extends MapActivity
       {
          public void onClick( DialogInterface dialog, int which )
          {
-            Log.d( TAG, "mNoTrackDialogListener" + which);
+//            Log.d( TAG, "mNoTrackDialogListener" + which);
             Intent tracklistIntent = new Intent( LoggerMap.this, TrackList.class );
             tracklistIntent.putExtra( Tracks._ID, LoggerMap.this.mTrackId );
             startActivityForResult( tracklistIntent, MENU_TRACKLIST );

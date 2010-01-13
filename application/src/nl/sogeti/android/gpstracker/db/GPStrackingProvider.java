@@ -230,7 +230,7 @@ public class GPStrackingProvider extends ContentProvider
                   trackId, 
                   segmentId, 
                   loc );
-            Log.d( TAG, "Have inserted to segment "+segmentId+" with waypoint "+waypointId );
+//            Log.d( TAG, "Have inserted to segment "+segmentId+" with waypoint "+waypointId );
             insertedUri = ContentUris.withAppendedId( uri, waypointId );
             break;
          case SEGMENTS:

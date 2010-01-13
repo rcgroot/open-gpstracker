@@ -178,7 +178,7 @@ public class GPSLoggerServiceManager
     */
    public void startup()
    {
-      Log.d( TAG, "connectToGPSLoggerService()" );
+//      Log.d( TAG, "connectToGPSLoggerService()" );
       if( !mStarted )
       {
          this.mServiceConnection = new ServiceConnection()
@@ -187,7 +187,7 @@ public class GPSLoggerServiceManager
                {
                   synchronized( mStartLock ) 
                   {
-                     Log.d( TAG, "onServiceConnected()" );
+//                     Log.d( TAG, "onServiceConnected()" );
                      GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
                      mStarted = true;
                   }
@@ -197,7 +197,7 @@ public class GPSLoggerServiceManager
                {
                   synchronized( mStartLock ) 
                   {
-                     Log.d( TAG, "onServiceDisconnected()" );
+//                     Log.d( TAG, "onServiceDisconnected()" );
                      GPSLoggerServiceManager.this.mGPSLoggerRemote = null;
                      mStarted = false;
                   }
@@ -216,7 +216,7 @@ public class GPSLoggerServiceManager
     */
    public void shutdown()
    {
-      Log.d( TAG, "disconnectFromGPSLoggerService()" );
+//      Log.d( TAG, "disconnectFromGPSLoggerService()" );
       try
       {
          this.mCtx.unbindService( this.mServiceConnection );
