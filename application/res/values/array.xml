@@ -1,21 +1,25 @@
 <resources>
+    <string-array name="state_choices">
+        <item>Active</item>
+        <item>Paused</item>
+        <item>Stopped</item>
+    </string-array>
     <string-array name="precision_choices">
         <item>Fine</item>
         <item>Normal</item>
         <item>Coarse</item>
-    </string-array>
-    <string-array name="precision_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-    
+    </string-array>   
     <string-array name="trackcoloring_choices">
         <item>Green</item>
         <item>Red</item>
         <item>Speed</item>
         <item>Average speed</item>
         <item>Waypoints</item>
+    </string-array>
+    <string-array name="precision_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
     </string-array>
     <string-array name="trackcoloring_values" translatable="false">
         <item>0</item>
@@ -24,19 +28,4 @@
         <item>3</item>
         <item>4</item>
     </string-array>  
-    
-	<string-array name="intervals"> 
-		<item>5 minutes</item>
-		<item>10 minutes</item>
-		<item>15 minutes</item>
-        <item>30 minutes</item>
-	</string-array>
-    
-    <integer-array name="intervals_values" translatable="false"> 
-        <item>5</item>
-        <item>10</item>
-        <item>15</item>
-        <item>30</item>
-    </integer-array>
-      
 </resources>

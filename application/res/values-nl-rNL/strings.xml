@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Open GPS Tracker</string>
-    <string name="service_status">Loggen met precisie: %s</string>
+    <string name="service_status">Loggen met precisie: %s (%s)</string>
 	
 	<string name="dialog_routename_title">Naam</string>
     <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>

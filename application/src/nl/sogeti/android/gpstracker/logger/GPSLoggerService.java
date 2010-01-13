@@ -41,6 +41,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.location.Location;
 import android.location.LocationListener;
@@ -61,6 +62,10 @@ import android.util.Log;
  */
 public class GPSLoggerService extends Service 
 {  
+   private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
+   private static final String SERVICESTATE_PRECISION = "SERVICESTATE_PRECISION";
+   private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
+   private static final String SERVICESTATE_TRACKID = "SERVICESTATE_TRACKID";
    public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
    public static final int UNKNOWN = -1;
    public static final int RUNNING = 1;
@@ -75,14 +80,17 @@ public class GPSLoggerService extends Service
    private Context mContext;
    private LocationManager mLocationManager;
    private NotificationManager mNoticationService;
-   private int mLoggingState = UNKNOWN;
    private PowerManager.WakeLock mWakeLock ;
    
    private long mTrackId = -1;
    private long mSegmentId = -1 ;
-   private Location mPreviousLocation;  
-   private int mAcceptableAccuracy = 20;
+   private int mPrecision;
+   private int mLoggingState = UNKNOWN;
    
+   private Location mPreviousLocation;  
+   private Notification mNotification;
+   private int mAcceptableAccuracy = -1;
+
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
    {
@@ -132,10 +140,7 @@ public class GPSLoggerService extends Service
       {
          GPSLoggerService.this.stopLogging();
       }
-
    };
-   private int mPrecision;
-   private Notification mNotification;
 
    /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
@@ -152,7 +157,8 @@ public class GPSLoggerService extends Service
       
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( LOGATSTARTUP, false );
 //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
-      if( startImmidiatly )
+      crashRestoreState();
+      if( startImmidiatly && this.mLoggingState == STOPPED )
       {
          startLogging();
          ContentValues values = new ContentValues();
@@ -175,6 +181,42 @@ public class GPSLoggerService extends Service
       super.onDestroy();
    }
 
+   private void crashProtectState()
+   {
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mContext );
+      Editor editor = preferences.edit();
+      editor.putLong( SERVICESTATE_TRACKID, mTrackId );
+      editor.putLong( SERVICESTATE_SEGMENTID, mSegmentId );
+      editor.putInt( SERVICESTATE_PRECISION, mPrecision );
+      editor.putInt( SERVICESTATE_STATE, mLoggingState );
+      editor.commit();
+   }
+   
+   private void crashRestoreState()
+   {
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mContext );
+      long previousState = preferences.getInt( SERVICESTATE_STATE, -1 );
+      if( previousState == RUNNING || previousState == PAUSED )
+      {
+         Log.w( TAG, "Recovering from a crash or kill and restoring state." );
+         setupNotification();
+         
+         mTrackId = preferences.getLong( SERVICESTATE_TRACKID, -1 );
+         mSegmentId = preferences.getLong( SERVICESTATE_SEGMENTID, -1 );
+         mPrecision = preferences.getInt( SERVICESTATE_PRECISION, -1 );
+         if( previousState == RUNNING )
+         {
+            mLoggingState = PAUSED;
+            resumeLogging();
+         }
+         else if( previousState == PAUSED )
+         {
+            mLoggingState = RUNNING;
+            pauseLogging();
+         }
+      }      
+   }
+   
    /**
     * (non-Javadoc)
     * @see android.app.Service#onBind(android.content.Intent)
@@ -206,7 +248,7 @@ public class GPSLoggerService extends Service
       updateWakeLock();
 
       setupNotification();
-     
+      crashProtectState();
       return mTrackId;
    }
 
@@ -218,6 +260,7 @@ public class GPSLoggerService extends Service
          this.mLoggingState = PAUSED;
          updateWakeLock();
          updateNotification();
+         crashProtectState();
       }
    }
    
@@ -230,6 +273,7 @@ public class GPSLoggerService extends Service
          this.mLoggingState = RUNNING;
          updateWakeLock();
          updateNotification();
+         crashProtectState();
       }
    }
 
@@ -244,6 +288,7 @@ public class GPSLoggerService extends Service
       this.mLoggingState = STOPPED;
       updateWakeLock();
       mNoticationService.cancel( R.layout.map );
+      crashProtectState();
    }
 
    private void setupNotification()

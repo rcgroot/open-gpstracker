@@ -1,4 +1,9 @@
 <resources>
+    <string-array name="state_choices">
+        <item>Actief</item>
+        <item>Paused</item>
+        <item>Gestopt</item>
+    </string-array>
     <string-array name="precision_choices">
         <item>Fijn</item>
         <item>Normaal</item>

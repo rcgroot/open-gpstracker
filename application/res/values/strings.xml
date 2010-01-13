@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Open GPS Tracker</string>
-	<string name="service_status">Logging with precision: %s</string>
+	<string name="service_status">Logging with precision: %s (%s)</string>
    
     <string name="dialog_tracking_title">Tracking control</string>
 	<string name="dialog_routename_title">Name track</string>
