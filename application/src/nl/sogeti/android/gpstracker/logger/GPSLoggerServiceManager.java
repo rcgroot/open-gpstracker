@@ -70,7 +70,10 @@ public class GPSLoggerServiceManager
          int logging = GPSLoggerService.UNKNOWN;
          try
          {
-            logging = this.mGPSLoggerRemote.loggingState();
+            if( this.mGPSLoggerRemote != null )
+            {
+               logging = this.mGPSLoggerRemote.loggingState();
+            }
          }
          catch (RemoteException e)
          {
@@ -88,7 +91,10 @@ public class GPSLoggerServiceManager
          { 
             try
             {
-               return this.mGPSLoggerRemote.startLogging();
+               if( this.mGPSLoggerRemote != null )
+               {
+                  return this.mGPSLoggerRemote.startLogging();
+               }
             }
             catch (RemoteException e)
             {
@@ -107,7 +113,10 @@ public class GPSLoggerServiceManager
          { 
             try
             {
-               this.mGPSLoggerRemote.pauseLogging();
+               if( this.mGPSLoggerRemote != null )
+               {
+                  this.mGPSLoggerRemote.pauseLogging();
+               }
             }
             catch (RemoteException e)
             {
@@ -125,7 +134,10 @@ public class GPSLoggerServiceManager
          { 
             try
             {
-               return this.mGPSLoggerRemote.resumeLogging();
+               if( this.mGPSLoggerRemote != null )
+               {
+                  return this.mGPSLoggerRemote.resumeLogging();
+               }
             }
             catch (RemoteException e)
             {
@@ -144,7 +156,10 @@ public class GPSLoggerServiceManager
          { 
             try
             {
-               this.mGPSLoggerRemote.stopLogging();
+               if( this.mGPSLoggerRemote != null )
+               {
+                  this.mGPSLoggerRemote.stopLogging();
+               }
             }
             catch (RemoteException e)
             {
