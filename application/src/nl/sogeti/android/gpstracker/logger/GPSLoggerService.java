@@ -68,7 +68,7 @@ public class GPSLoggerService extends Service
    private static final String SERVICESTATE_TRACKID = "SERVICESTATE_TRACKID";
    public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
    public static final int UNKNOWN = -1;
-   public static final int RUNNING = 1;
+   public static final int LOGGING = 1;
    public static final int PAUSED = 2;
    public static final int STOPPED = 3;
    
@@ -196,7 +196,7 @@ public class GPSLoggerService extends Service
    {
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mContext );
       long previousState = preferences.getInt( SERVICESTATE_STATE, -1 );
-      if( previousState == RUNNING || previousState == PAUSED )
+      if( previousState == LOGGING || previousState == PAUSED )
       {
          Log.w( TAG, "Recovering from a crash or kill and restoring state." );
          setupNotification();
@@ -204,14 +204,14 @@ public class GPSLoggerService extends Service
          mTrackId = preferences.getLong( SERVICESTATE_TRACKID, -1 );
          mSegmentId = preferences.getLong( SERVICESTATE_SEGMENTID, -1 );
          mPrecision = preferences.getInt( SERVICESTATE_PRECISION, -1 );
-         if( previousState == RUNNING )
+         if( previousState == LOGGING )
          {
             mLoggingState = PAUSED;
             resumeLogging();
          }
          else if( previousState == PAUSED )
          {
-            mLoggingState = RUNNING;
+            mLoggingState = LOGGING;
             pauseLogging();
          }
       }      
@@ -233,7 +233,7 @@ public class GPSLoggerService extends Service
     */
    protected boolean isLogging()
    {
-      return this.mLoggingState == RUNNING;
+      return this.mLoggingState == LOGGING;
    }
 
    /**
@@ -244,7 +244,7 @@ public class GPSLoggerService extends Service
    {
       startNewTrack() ;
       requestLocationUpdates();
-      this.mLoggingState = RUNNING;
+      this.mLoggingState = LOGGING;
       updateWakeLock();
 
       setupNotification();
@@ -254,7 +254,7 @@ public class GPSLoggerService extends Service
 
    protected synchronized void pauseLogging()
    {
-      if( this.mLoggingState == RUNNING )
+      if( this.mLoggingState == LOGGING )
       {
          this.mLocationManager.removeUpdates( this.mLocationListener );
          this.mLoggingState = PAUSED;
@@ -270,7 +270,7 @@ public class GPSLoggerService extends Service
       {
          startNewSegment();
          requestLocationUpdates();
-         this.mLoggingState = RUNNING;
+         this.mLoggingState = LOGGING;
          updateWakeLock();
          updateNotification();
          crashProtectState();
@@ -348,7 +348,7 @@ public class GPSLoggerService extends Service
 
    private void updateWakeLock()
    {
-      if( this.mLoggingState == RUNNING )
+      if( this.mLoggingState == LOGGING )
       {
          PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
          PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );

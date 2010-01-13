@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.tests.userinterface;
 
 import junit.framework.Assert;
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.content.pm.ActivityInfo;
@@ -82,15 +83,15 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    {
       GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(  this.getInstrumentation().getContext() );
       serviceManager.startup();
-      Assert.assertTrue( "No tracking at startup", !serviceManager.isLogging() );
+      Assert.assertEquals( "The service should not be logging", GPSLoggerService.STOPPED ,serviceManager.getLoggingState() );
 
       this.sendKeys( "MENU T" );
       this.sendKeys("T E S T R O U T E ENTER ENTER");
       Assert.assertTrue("Title contains the current route name", this.mLoggermap.getTitle().toString().contains( "testroute" ));
-      Assert.assertTrue( "Tracking started", serviceManager.isLogging() );
+      Assert.assertEquals( "The service should be logging", GPSLoggerService.LOGGING ,serviceManager.getLoggingState() );
 
       this.sendKeys( "MENU T" );
-      Assert.assertTrue( "Tracking stoped", !serviceManager.isLogging() );
+      Assert.assertEquals( "The service should not be logging", GPSLoggerService.STOPPED ,serviceManager.getLoggingState() );
       serviceManager.shutdown();
    }
    
@@ -106,21 +107,21 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    {
       GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(  this.getInstrumentation().getContext() );
       serviceManager.startup();
-      Assert.assertTrue( "No tracking at startup", !serviceManager.isLogging() );
+      Assert.assertEquals( "The service should not be logging", GPSLoggerService.STOPPED ,serviceManager.getLoggingState() );
       
       serviceManager.startGPSLogging("testBackgroundTracking");
-      Assert.assertTrue( "Tracking started", serviceManager.isLogging() );
+      Assert.assertEquals( "The service should be logging", GPSLoggerService.LOGGING ,serviceManager.getLoggingState() );
 
       //this.setUp();
-      Assert.assertTrue( "Still continue tracking", serviceManager.isLogging() );
+      Assert.assertEquals( "The service should be logging", GPSLoggerService.LOGGING ,serviceManager.getLoggingState() );
 
       this.sendKeys( "MENU T" );     
-      Assert.assertTrue( "Tracking stopped", !serviceManager.isLogging() );
+      Assert.assertEquals( "The service should not be logging", GPSLoggerService.STOPPED ,serviceManager.getLoggingState() );
 
       //this.sendKeys( "HOME" );
-      Assert.assertTrue( "Tracking still stopped", !serviceManager.isLogging() );
+      Assert.assertEquals( "The service should not be logging", GPSLoggerService.STOPPED ,serviceManager.getLoggingState() );
       //this.setUp();
-      Assert.assertTrue( "And still tracking is stopped", !serviceManager.isLogging() );
+      Assert.assertEquals( "The service should not be logging", GPSLoggerService.STOPPED ,serviceManager.getLoggingState() );
       serviceManager.stopGPSLogging();
       
       serviceManager.shutdown();

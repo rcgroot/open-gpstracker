@@ -130,7 +130,7 @@ public class TelnetPositionSender
    {
       createTelnetConnection();
 
-      Log.d( TAG, "Sending command: "+telnetString);
+      Log.v( TAG, "Sending command: "+telnetString);
       
       byte[] sendArray = telnetString.getBytes();
 

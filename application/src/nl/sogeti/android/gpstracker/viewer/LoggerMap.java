@@ -564,7 +564,7 @@ public class LoggerMap extends MapActivity
                   resume.setEnabled( false );
                   stop.setEnabled( false );
                   break;
-               case GPSLoggerService.RUNNING:
+               case GPSLoggerService.LOGGING:
                   start.setEnabled( false );
                   pause.setEnabled( true );
                   resume.setEnabled( false );
@@ -650,7 +650,7 @@ public class LoggerMap extends MapActivity
             PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
             this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
          }
-         if( this.mLoggerServiceManager.getLoggingState() == GPSLoggerService.RUNNING && !this.mWakeLock.isHeld() )
+         if( this.mLoggerServiceManager.getLoggingState() == GPSLoggerService.LOGGING && !this.mWakeLock.isHeld() )
          {
             this.mWakeLock.acquire();
             Log.w( TAG, "Acquired lock to keep screen on!" );
