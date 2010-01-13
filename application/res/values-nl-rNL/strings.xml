@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Open GPS Tracker</string>
+    <string name="service_start">Opstarten opname service</string>
     <string name="service_status">Loggen met precisie: %s (%s)</string>
 	
+	<string name="dialog_tracking_title">Opnemen</string>
 	<string name="dialog_routename_title">Naam</string>
     <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>
     <string name="dialog_notrack_title">Geen route gekozen</string>
@@ -12,7 +14,6 @@
     <string name="dialog_deletetitle">Verwijder</string>
     <string name="dialog_deleteconfirmation">Bevestigd u alstublieft het verwijderen van %s</string>
     
-    <string name="dialog_tracking_title">Opnemen</string>
     <string name="from">Opgenomen op: </string>
     <string name="no_tracks">Geen routes</string>
     <string name="ticker_saving">Opslaan: </string>
