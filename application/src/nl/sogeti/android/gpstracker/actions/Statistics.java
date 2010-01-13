@@ -92,13 +92,37 @@ public class Statistics extends Activity
       endtime = (TextView)findViewById( R.id.stat_endtime );
       trackname = (TextView)findViewById( R.id.stat_trackname );
       waypoints  = (TextView)findViewById( R.id.stat_waypoints );
-      
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
-      resolver.registerContentObserver( mTrackUri, true, this.mTrackObserver );
-      
+            
       drawTrackingStatistics();
    }
-   
+ 
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onPause()
+    */
+   @Override
+   protected void onPause()
+   {
+      super.onPause();
+      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      resolver.unregisterContentObserver( this.mTrackObserver );
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onResume()
+    */
+   @Override
+   protected void onResume()
+   {
+      super.onResume();
+      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      resolver.unregisterContentObserver( this.mTrackObserver );
+      resolver.registerContentObserver( mTrackUri, true, this.mTrackObserver );
+   }
+
+
+
    private void drawTrackingStatistics()
    {
       String avgSpeedText = "Unknown";

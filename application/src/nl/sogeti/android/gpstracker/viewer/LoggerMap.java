@@ -351,6 +351,11 @@ public class LoggerMap extends MapActivity
          this.mWakeLock.release();
          Log.w( TAG, "onPause(): Released lock to keep screen on!" );
       }
+      if( mTrackId > 0 )
+      {
+         ContentResolver resolver = this.getApplicationContext().getContentResolver();
+         resolver.unregisterContentObserver( this.mTrackObserver );
+      }
    }
 
    protected void onResume()
@@ -360,6 +365,14 @@ public class LoggerMap extends MapActivity
       updateBlankingBehavior();
       updateSpeedbarVisibility();
       updateSpeedDisplayVisibility();
+      if( mTrackId > 0 )
+      {
+         ContentResolver resolver = this.getApplicationContext().getContentResolver();
+         Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId );
+         resolver.unregisterContentObserver( this.mTrackObserver );
+         resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
+      }
+      
    }
 
    /*
