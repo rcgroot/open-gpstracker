@@ -94,7 +94,7 @@ public class Statistics extends Activity
       waypoints  = (TextView)findViewById( R.id.stat_waypoints );
       
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
-      resolver.registerContentObserver( mTrackUri, false, this.mTrackObserver );
+      resolver.registerContentObserver( mTrackUri, true, this.mTrackObserver );
       
       drawTrackingStatistics();
    }
