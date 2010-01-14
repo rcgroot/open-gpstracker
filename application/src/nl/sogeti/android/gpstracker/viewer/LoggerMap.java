@@ -625,7 +625,7 @@ public class LoggerMap extends MapActivity
       try
       {
          trackCursor = resolver.query( ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId ), new String[] { Tracks.NAME }, null, null, null );
-         if( trackCursor!= null && trackCursor.moveToLast() )
+         if( trackCursor != null && trackCursor.moveToLast() )
          {
             String trackName = trackCursor.getString( 0 );
             this.setTitle( this.getString( R.string.app_name ) + ": " + trackName );
@@ -723,7 +723,7 @@ public class LoggerMap extends MapActivity
       {
          Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/segments/"+mLastSegment+"/waypoints" );
          waypointsCursor = resolver.query( lastSegmentUri, new String[] { Waypoints.SPEED }, null, null, null );
-         if( waypointsCursor.moveToLast() )
+         if( waypointsCursor != null && waypointsCursor.moveToLast() )
          {
             String speed_unit = this.getResources().getString( R.string.speed_unitname );
             TypedValue outValue = new TypedValue();
@@ -764,7 +764,7 @@ public class LoggerMap extends MapActivity
       {
          Uri segmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/segments" );
          segments = resolver.query( segmentsUri, new String[] { Segments._ID }, null, null, null );
-         if( segments.moveToFirst() )
+         if( segments != null && segments.moveToFirst() )
          {
             do
             {
@@ -846,7 +846,7 @@ public class LoggerMap extends MapActivity
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
          Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId );
          track = resolver.query( trackUri, new String[] { Tracks.NAME }, null, null, null );
-         if( track.moveToFirst() )
+         if( track != null && track.moveToFirst() )
          {
             this.mTrackId = trackId;
             mLastSegment = -1;
@@ -901,27 +901,21 @@ public class LoggerMap extends MapActivity
       try
       {
          ContentResolver resolver = this.getContentResolver();
-         waypoint = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/waypoints" ), new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,
-               "max(" + Waypoints.TABLE+"."+Waypoints._ID + ")" }, null, null, null );
-         if( waypoint == null )
+         waypoint = resolver.query( Uri.withAppendedPath( 
+               Tracks.CONTENT_URI, mTrackId + "/waypoints" ), 
+               new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, "max(" + Waypoints.TABLE+"."+Waypoints._ID + ")" }, 
+               null, null, null );
+         if( waypoint != null && waypoint.moveToLast() )
          {
-            lastPoint = new GeoPoint( 0, 0 );
+            int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
+            int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
+            lastPoint = new GeoPoint( microLatitude, microLongitude );
+            mLastWaypoint = waypoint.getLong( 2 );
          }
-         else
+         else 
          {
-            boolean exists = waypoint.moveToLast();
-            if( exists )
-            {
-               int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
-               int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
-               lastPoint = new GeoPoint( microLatitude, microLongitude );
-               mLastWaypoint = waypoint.getLong( 2 );
-            }
-            else 
-            {
-               Log.e(TAG, "There is NO waypoint for this given track id "+mTrackId);
-               lastPoint = new GeoPoint( 51985105, 5106132 );
-            }
+            Log.e(TAG, "There is NO waypoint for this given track id "+mTrackId);
+            lastPoint = new GeoPoint( 51985105, 5106132 );
          }
       }
       finally
@@ -942,7 +936,7 @@ public class LoggerMap extends MapActivity
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
          track = resolver.query( Tracks.CONTENT_URI, new String[] { "max(" + Tracks._ID + ")", Tracks.NAME, }, null, null, null );
-         if( track.moveToLast() )
+         if( track != null && track.moveToLast() )
          {
             trackId = track.getInt( 0 );
             moveToTrack( trackId );
