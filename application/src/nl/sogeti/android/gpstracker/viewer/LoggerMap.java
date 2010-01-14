@@ -625,7 +625,7 @@ public class LoggerMap extends MapActivity
       try
       {
          trackCursor = resolver.query( ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId ), new String[] { Tracks.NAME }, null, null, null );
-         if( trackCursor.moveToLast() )
+         if( trackCursor!= null && trackCursor.moveToLast() )
          {
             String trackName = trackCursor.getString( 0 );
             this.setTitle( this.getString( R.string.app_name ) + ": " + trackName );
