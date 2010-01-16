@@ -126,7 +126,7 @@ public class GPSLoggerService extends Service
 
          public void onStatusChanged( String provider, int status, Bundle extras )
          {
-            Log.e( TAG, "onStatusChanged() " + provider );
+//            Log.e( TAG, "onStatusChanged() " + provider );
          }
       };
    private IBinder mBinder = new IGPSLoggerServiceRemote.Stub()
