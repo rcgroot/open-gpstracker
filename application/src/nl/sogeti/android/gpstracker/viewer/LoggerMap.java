@@ -444,25 +444,7 @@ public class LoggerMap extends MapActivity
       else
       {
          GeoPoint lastPoint = getLastTrackPoint();
-         if( lastPoint.getLatitudeE6() != 0 && lastPoint.getLongitudeE6() != 0 )
-         {
-            this.mMapView.getController().animateTo( lastPoint );
-         }
-         else
-         {
-            lastPoint = getLastKnowGeopointLocation();
-            if( lastPoint.getLatitudeE6() != 0 && lastPoint.getLongitudeE6() != 0 )
-            {
-               this.mMapView.getController().animateTo( lastPoint );
-            }
-            else
-            {
-               GeoPoint startPoint = new GeoPoint( 51985105, 5106132 );
-               this.mMapView.getController().animateTo( startPoint );
-            }
-         }
-         
-
+         this.mMapView.getController().animateTo( lastPoint );
       }
    }
 
@@ -876,14 +858,23 @@ public class LoggerMap extends MapActivity
     */
    private GeoPoint getLastKnowGeopointLocation()
    {
+      int microLatitude = 51985105 ;
+      int microLongitude = 5106132 ;
       LocationManager locationManager = (LocationManager) this.getApplication().getSystemService( Context.LOCATION_SERVICE );
-      Location location = locationManager.getLastKnownLocation( LocationManager.GPS_PROVIDER );
-      int microLatitude = 0;
-      int microLongitude = 0;
-      if( location != null )
+      Location locationFine = locationManager.getLastKnownLocation( LocationManager.GPS_PROVIDER );
+      if( locationFine != null )
       {
-         microLatitude = (int) ( location.getLatitude() * 1E6d );
-         microLongitude = (int) ( location.getLongitude() * 1E6d );
+         microLatitude = (int) ( locationFine.getLatitude() * 1E6d );
+         microLongitude = (int) ( locationFine.getLongitude() * 1E6d );
+      }
+      else
+      {
+         Location locationCoarse = locationManager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
+         if( locationCoarse != null )
+         {
+            microLatitude = (int) ( locationCoarse.getLatitude() * 1E6d );
+            microLongitude = (int) ( locationCoarse.getLongitude() * 1E6d );
+         }
       }
       GeoPoint geoPoint = new GeoPoint( microLatitude, microLongitude );
       return geoPoint;
@@ -914,8 +905,7 @@ public class LoggerMap extends MapActivity
          }
          else 
          {
-            Log.e(TAG, "There is NO waypoint for this given track id "+mTrackId);
-            lastPoint = new GeoPoint( 51985105, 5106132 );
+            lastPoint = getLastKnowGeopointLocation();
          }
       }
       finally
