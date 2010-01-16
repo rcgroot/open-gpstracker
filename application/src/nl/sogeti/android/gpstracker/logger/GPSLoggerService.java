@@ -53,6 +53,7 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * A system service as controlling the background logging of gps locations.
@@ -91,56 +92,72 @@ public class GPSLoggerService extends Service
    private Notification mNotification;
    private int mAcceptableAccuracy = 20;
 
-
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
-   {
-      public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
       {
-         if( key.equals( PRECISION ) )
+         public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
          {
-            requestLocationUpdates();
-            setupNotification();
+            if( key.equals( PRECISION ) )
+            {
+               requestLocationUpdates();
+               setupNotification();
+            }
          }
-      }
-   };
-   private LocationListener mLocationListener =  new LocationListener() 
-   {
-      public void onLocationChanged( Location location )
+      };
+   private LocationListener mLocationListener = new LocationListener()
       {
-         if( isLocationAcceptable(location) )
+         public void onLocationChanged( Location location )
          {
-            storeLocation(GPSLoggerService.this.mContext, location);
+            if( isLocationAcceptable( location ) )
+            {
+               storeLocation( GPSLoggerService.this.mContext, location );
+            }
          }
-      }
-      public void onProviderDisabled( String provider ){   }
-      public void onProviderEnabled( String provider ){ startNewSegment() ;  }
-      public void onStatusChanged( String provider, int status, Bundle extras ){ }
-   };  
-   private IBinder mBinder = new IGPSLoggerServiceRemote.Stub() 
-   {
-      public int loggingState() throws RemoteException
+
+         public void onProviderDisabled( String provider )
+         {
+            disabledGpsNotification();
+         }
+
+         public void onProviderEnabled( String provider )
+         {
+            enabledGpsNotification();
+            startNewSegment();
+         }
+
+         public void onStatusChanged( String provider, int status, Bundle extras )
+         {
+            Log.e( TAG, "onStatusChanged() " + provider );
+         }
+      };
+   private IBinder mBinder = new IGPSLoggerServiceRemote.Stub()
       {
-         return mLoggingState;
-      }
-      public long startLogging() throws RemoteException
-      {
-         GPSLoggerService.this.startLogging();
-         return mTrackId;
-      }      
-      public void pauseLogging() throws RemoteException
-      {
-         GPSLoggerService.this.pauseLogging();
-      }
-      public long resumeLogging() throws RemoteException
-      {
-         GPSLoggerService.this.resumeLogging();
-         return mSegmentId;
-      }
-      public void stopLogging() throws RemoteException
-      {
-         GPSLoggerService.this.stopLogging();
-      }
-   };
+         public int loggingState() throws RemoteException
+         {
+            return mLoggingState;
+         }
+
+         public long startLogging() throws RemoteException
+         {
+            GPSLoggerService.this.startLogging();
+            return mTrackId;
+         }
+
+         public void pauseLogging() throws RemoteException
+         {
+            GPSLoggerService.this.pauseLogging();
+         }
+
+         public long resumeLogging() throws RemoteException
+         {
+            GPSLoggerService.this.resumeLogging();
+            return mSegmentId;
+         }
+
+         public void stopLogging() throws RemoteException
+         {
+            GPSLoggerService.this.stopLogging();
+         }
+      };
 
    /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
@@ -319,6 +336,32 @@ public class GPSLoggerService extends Service
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent); 
       mNoticationService.notify( R.layout.map, mNotification );
+   }
+   
+   private void enabledGpsNotification()
+   {
+      mNoticationService.cancel( R.id.icon );
+      CharSequence text = mContext.getString( R.string.service_gpsenabled );
+      Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+      toast.show();
+   }
+   
+   private void disabledGpsNotification()
+   {
+      int icon = R.drawable.ic_maps_indicator_current_position;
+      CharSequence tickerText = this.getResources().getString( R.string.service_gpsdisabled );
+      long when = System.currentTimeMillis();       
+      Notification gpsNotification = new Notification(icon, tickerText, when);
+      gpsNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+      
+      CharSequence contentTitle = this.getResources().getString( R.string.app_name );
+      CharSequence contentText = this.getResources().getString( R.string.service_gpsdisabled );
+      Intent notificationIntent = new Intent(this, LoggerMap.class);
+      notificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );
+      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
+      gpsNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
+      
+      mNoticationService.notify( R.id.icon, gpsNotification );
    }
 
    private void requestLocationUpdates()

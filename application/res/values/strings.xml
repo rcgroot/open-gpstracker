@@ -3,6 +3,8 @@
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Activating logging service</string>
 	<string name="service_status">Logging with precision: %s (%s)</string>
+    <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
+    <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
    
     <string name="dialog_tracking_title">Tracking control</string>
 	<string name="dialog_routename_title">Name track</string>

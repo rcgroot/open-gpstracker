@@ -3,6 +3,8 @@
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Opstarten opname service</string>
     <string name="service_status">Loggen met precisie: %s (%s)</string>
+    <string name="service_gpsdisabled">GPS is uitgeschakeld, opnemen heeft geen effect.</string>
+    <string name="service_gpsenabled">GPS is ingeschakeld, opnemen gaat van start.</string>
 	
 	<string name="dialog_tracking_title">Opnemen</string>
 	<string name="dialog_routename_title">Naam</string>
