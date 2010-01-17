@@ -192,7 +192,18 @@ public class LoggerMap extends MapActivity
       {
          public void onClick( DialogInterface dialog, int which )
          {
-            Log.d( TAG, "Install OI About" );
+            Uri oiDownload = Uri.parse( "market://details?id=org.openintents.about" );
+            Intent oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
+            try
+            {
+               startActivity( oiAboutIntent );
+            }
+            catch (ActivityNotFoundException e) 
+            {
+               oiDownload = Uri.parse( "http://openintents.googlecode.com/files/AboutApp-1.0.0.apk" );
+               oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
+               startActivity( oiAboutIntent );
+            }
          }
       };
       
