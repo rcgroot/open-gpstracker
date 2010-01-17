@@ -241,7 +241,7 @@ public class TrackingOverlay extends Overlay
             break;
       }
       routePaint.setStyle( Paint.Style.STROKE );
-      routePaint.setStrokeWidth( 8 );
+      routePaint.setStrokeWidth( 6 );
       routePaint.setAntiAlias( true );
       canvas.drawPath( this.mPath, routePaint );
 

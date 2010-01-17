@@ -88,7 +88,7 @@ import com.google.android.maps.Overlay;
  */
 public class LoggerMap extends MapActivity
 {
-   private static final int ZOOM_LEVEL = 14;
+   private static final int ZOOM_LEVEL = 16;
    public static final String EXTRA_TRACK_ID = "nl.sogeti.android.gpstracker.intent.trackid";
 
    // MENU'S
