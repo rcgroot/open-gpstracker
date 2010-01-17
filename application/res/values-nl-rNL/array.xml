@@ -19,5 +19,9 @@
         <item>Gemiddelde snelheid</item>
         <item>Meetpunten</item>
     </string-array>
+
+    <string-array name="about_translators" translatable="false">
+        <item>René de Groot</item>
+    </string-array>
     
 </resources>
