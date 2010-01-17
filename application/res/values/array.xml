@@ -28,4 +28,22 @@
         <item>3</item>
         <item>4</item>
     </string-array>  
+
+    <string-array name="about_authors"><!-- Add your name here if you helped out -->
+        <item>René de Groot</item>
+    </string-array>
+    
+    <string-array name="about_documenters"><!-- Add your name here if you helped out -->
+        <item>René de Groot</item>
+    </string-array>
+    
+    <string-array name="about_translators"><!-- Add your name here if you helped out, but only in the arrays.xml for the localization that you helped to translate into! -->
+        <item>NetDragon Websoft Inc. http://www.nd.com.cn/</item>
+    </string-array>
+    
+    <string-array name="about_artists"><!-- Add your name here if you helped out -->
+        <item>Various icons: The Android Open Source Project</item>
+        <item></item>
+    </string-array>
+
 </resources>

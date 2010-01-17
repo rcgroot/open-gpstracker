@@ -15,6 +15,8 @@
     <string name="dialog_filename_message">Geeft u alstublieft een naam voor het GPX bestand op de SDCards</string>
     <string name="dialog_deletetitle">Verwijder</string>
     <string name="dialog_deleteconfirmation">Bevestigd u alstublieft het verwijderen van %s</string>
+    <string name="dialog_nooiabout">OI About nodig</string>
+    <string name="dialog_nooiabout_message">De applicatie \"OI About\" van het OpenIntents project is nodig om informatie te tonen.</string>
     
     <string name="from">Opgenomen op: </string>
     <string name="no_tracks">Geen routes</string>
@@ -29,6 +31,7 @@
     <string name="btn_cancel">Annuleren</string>
 	<string name="btn_save">Opslaan</string>
 	<string name="btn_selecttrack">Route selecteren</string>
+    <string name="btn_install">Installeren</string>
 	
 	<string name="menu_settings">Instellingen</string>
     <string name="menu_tracking">Opnemen</string>
@@ -42,6 +45,7 @@
 	<string name="menu_deleteTrack">Verwijder route</string>
     <string name="menu_renameTrack">Hernoem route</string>
     <string name="menu_statistics">Toon statistics</string>
+    <string name="menu_about">Info</string>
 
     <string name="chooser_title">Delen via?</string>
     <string name="receive_filewriter">Opslaan op SDcard</string>
@@ -74,5 +78,5 @@
     <string name="stat_starttime">Start tijd</string>    
     <string name="stat_trackname">Route naam</string>
     <string name="stat_waypoints">Aantal metingen</string>
-
+   
 </resources>

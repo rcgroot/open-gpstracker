@@ -37,9 +37,13 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
+
+import org.openintents.intents.AboutIntents;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.AlertDialog.Builder;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -61,6 +65,7 @@ import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -91,6 +96,7 @@ public class LoggerMap extends MapActivity
    private static final int MENU_TRACKING = 1;
    private static final int MENU_TRACKLIST = 5;
    private static final int MENU_VIEW = 7;
+   private static final int MENU_ITEM_ABOUT = 9;
    private static final String TAG = LoggerMap.class.getName();
    protected static final String DISABLEBLANKING = "disableblanking";
    protected static final String SHOWSPEED = "showspeed";
@@ -98,6 +104,7 @@ public class LoggerMap extends MapActivity
    private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_LOGCONTROL = 26;
+   private static final int DIALOG_INSTALL_ABOUT = 29;
 
    private MapView mMapView = null;
    private MapController mMapController = null;
@@ -181,6 +188,15 @@ public class LoggerMap extends MapActivity
          }
       };
 
+      DialogInterface.OnClickListener mOiAboutDialogListener = new DialogInterface.OnClickListener()
+      {
+         public void onClick( DialogInterface dialog, int which )
+         {
+            Log.d( TAG, "Install OI About" );
+         }
+      };
+      
+
    View.OnClickListener mLoggingControlListener = new View.OnClickListener()
       {
          public void onClick( View v )
@@ -210,100 +226,6 @@ public class LoggerMap extends MapActivity
          }
       };
       
-   @Override
-   public boolean onKeyDown( int keyCode, KeyEvent event )
-   {
-      Toast toast;
-      boolean propagate = true;
-      switch (keyCode)
-      {
-         case KeyEvent.KEYCODE_T:
-            propagate = this.mMapView.getController().zoomIn();
-            break;
-         case KeyEvent.KEYCODE_G:
-            propagate = this.mMapView.getController().zoomOut();
-            break;
-         case KeyEvent.KEYCODE_S:
-            this.mMapView.setSatellite( !this.mMapView.isSatellite() );
-            toast = Toast.makeText( this.getApplicationContext(), "Satellite: " + this.mMapView.isSatellite(), Toast.LENGTH_SHORT );
-            toast.show();
-            propagate = false;
-            break;
-         case KeyEvent.KEYCODE_A:
-            this.mMapView.setTraffic( !this.mMapView.isTraffic() );
-            toast = Toast.makeText( this.getApplicationContext(), "Traffic: " + this.mMapView.isTraffic(), Toast.LENGTH_SHORT );
-            toast.show();
-            propagate = false;
-            break;
-         case KeyEvent.KEYCODE_F:
-            moveToTrack( this.mTrackId - 1 );
-            propagate = false;
-            break;
-         case KeyEvent.KEYCODE_H:
-            moveToTrack( this.mTrackId + 1 );
-            propagate = false;
-            break;
-         default:
-            propagate = super.onKeyDown( keyCode, event );
-            break;
-      }
-      return propagate;
-   }
-
-   @Override
-   public boolean onCreateOptionsMenu( Menu menu )
-   {
-      boolean result = super.onCreateOptionsMenu( menu );
-
-      menu.add( 0, MENU_TRACKING, 0, R.string.menu_tracking ).setIcon( android.R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 't' );
-      menu.add( 0, MENU_TRACKLIST, 0, R.string.menu_tracklist ).setIcon( android.R.drawable.ic_menu_gallery ).setAlphabeticShortcut( 'l' );
-      menu.add( 0, MENU_VIEW, 0, R.string.menu_showTrack ).setIcon( android.R.drawable.ic_menu_view ).setAlphabeticShortcut( 'e' );
-      menu.add( 0, MENU_SETTINGS, 0, R.string.menu_settings ).setIcon( android.R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 's' );
-      return result;
-   }
-
-   @Override
-   public boolean onOptionsItemSelected( MenuItem item )
-   {
-      boolean handled = false;
-      switch (item.getItemId())
-      {
-         case MENU_TRACKING:
-            showDialog( DIALOG_LOGCONTROL );
-            updateBlankingBehavior();
-            handled = true;
-            break;
-         case MENU_SETTINGS:
-            Intent i = new Intent( this, SettingsDialog.class );
-            startActivity( i );
-            handled = true;
-            break;
-         case MENU_TRACKLIST:
-            Intent tracklistIntent = new Intent( this, TrackList.class );
-            tracklistIntent.putExtra( Tracks._ID, this.mTrackId );
-            startActivityForResult( tracklistIntent, MENU_TRACKLIST );
-            break;
-         case MENU_VIEW:
-            if( this.mTrackId >= 0 )
-            {
-               Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId );
-               Intent actionIntent = new Intent( Intent.ACTION_VIEW, uri );
-               startActivity( actionIntent );
-               handled = true;
-               break;
-            }
-            else
-            {
-               showDialog( DIALOG_NOTRACK );
-            }
-            handled = true;
-            break;
-         default:
-            handled = super.onOptionsItemSelected( item );
-      }
-      return handled;
-   }
-
    /**
     * Called when the activity is first created.
     */
@@ -410,7 +332,7 @@ public class LoggerMap extends MapActivity
    }
 
    @Override
-   public void onRestoreInstanceState( Bundle load )
+   protected void onRestoreInstanceState( Bundle load )
    {
       long intentTrackId = this.getIntent().getLongExtra( EXTRA_TRACK_ID, -1 );
       if( intentTrackId >= 0 )
@@ -449,7 +371,7 @@ public class LoggerMap extends MapActivity
    }
 
    @Override
-   public void onSaveInstanceState( Bundle save )
+   protected void onSaveInstanceState( Bundle save )
    {
       save.putLong( "track", this.mTrackId );
       save.putInt( "zoom", this.mMapView.getZoomLevel() );
@@ -468,6 +390,111 @@ public class LoggerMap extends MapActivity
    {
       Object nonConfigurationInstance = this.mLoggerServiceManager;
       return nonConfigurationInstance;
+   }
+
+   @Override
+   public boolean onKeyDown( int keyCode, KeyEvent event )
+   {
+      Toast toast;
+      boolean propagate = true;
+      switch (keyCode)
+      {
+         case KeyEvent.KEYCODE_T:
+            propagate = this.mMapView.getController().zoomIn();
+            break;
+         case KeyEvent.KEYCODE_G:
+            propagate = this.mMapView.getController().zoomOut();
+            break;
+         case KeyEvent.KEYCODE_S:
+            this.mMapView.setSatellite( !this.mMapView.isSatellite() );
+            toast = Toast.makeText( this.getApplicationContext(), "Satellite: " + this.mMapView.isSatellite(), Toast.LENGTH_SHORT );
+            toast.show();
+            propagate = false;
+            break;
+         case KeyEvent.KEYCODE_A:
+            this.mMapView.setTraffic( !this.mMapView.isTraffic() );
+            toast = Toast.makeText( this.getApplicationContext(), "Traffic: " + this.mMapView.isTraffic(), Toast.LENGTH_SHORT );
+            toast.show();
+            propagate = false;
+            break;
+         case KeyEvent.KEYCODE_F:
+            moveToTrack( this.mTrackId - 1 );
+            propagate = false;
+            break;
+         case KeyEvent.KEYCODE_H:
+            moveToTrack( this.mTrackId + 1 );
+            propagate = false;
+            break;
+         default:
+            propagate = super.onKeyDown( keyCode, event );
+            break;
+      }
+      return propagate;
+   }
+
+   @Override
+   public boolean onCreateOptionsMenu( Menu menu )
+   {
+      boolean result = super.onCreateOptionsMenu( menu );
+   
+      menu.add( ContextMenu.NONE, MENU_TRACKING, 0, R.string.menu_tracking ).setIcon( android.R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 't' );
+      menu.add( ContextMenu.NONE, MENU_TRACKLIST, 0, R.string.menu_tracklist ).setIcon( android.R.drawable.ic_menu_gallery ).setAlphabeticShortcut( 'l' );
+      menu.add( ContextMenu.NONE, MENU_VIEW, 0, R.string.menu_showTrack ).setIcon( android.R.drawable.ic_menu_view ).setAlphabeticShortcut( 'e' );
+      menu.add( ContextMenu.NONE, MENU_SETTINGS, 0, R.string.menu_settings ).setIcon( android.R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 's' );
+      menu.add( ContextMenu.NONE, MENU_ITEM_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( android.R.drawable.ic_menu_info_details );
+      return result;
+   }
+
+   @Override
+   public boolean onOptionsItemSelected( MenuItem item )
+   {
+      boolean handled = false;
+      switch (item.getItemId())
+      {
+         case MENU_TRACKING:
+            showDialog( DIALOG_LOGCONTROL );
+            updateBlankingBehavior();
+            handled = true;
+            break;
+         case MENU_SETTINGS:
+            Intent i = new Intent( this, SettingsDialog.class );
+            startActivity( i );
+            handled = true;
+            break;
+         case MENU_TRACKLIST:
+            Intent tracklistIntent = new Intent( this, TrackList.class );
+            tracklistIntent.putExtra( Tracks._ID, this.mTrackId );
+            startActivityForResult( tracklistIntent, MENU_TRACKLIST );
+            break;
+         case MENU_VIEW:
+            if( this.mTrackId >= 0 )
+            {
+               Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId );
+               Intent actionIntent = new Intent( Intent.ACTION_VIEW, uri );
+               startActivity( actionIntent );
+               handled = true;
+               break;
+            }
+            else
+            {
+               showDialog( DIALOG_NOTRACK );
+            }
+            handled = true;
+            break;
+         case MENU_ITEM_ABOUT:
+            Intent intent = new Intent( AboutIntents.ACTION_SHOW_ABOUT_DIALOG );
+            try
+            {
+               startActivityForResult( intent, MENU_ITEM_ABOUT );
+            }
+            catch (ActivityNotFoundException e) 
+            {
+               showDialog( DIALOG_INSTALL_ABOUT );
+            }
+         default:
+            handled = super.onOptionsItemSelected( item );
+      }
+      return handled;
    }
 
    /*
@@ -512,6 +539,15 @@ public class LoggerMap extends MapActivity
             .setIcon( android.R.drawable.ic_dialog_alert )
             .setNegativeButton( R.string.btn_cancel, null )
             .setView( view );
+            dialog = builder.create();
+            return dialog;
+         case DIALOG_INSTALL_ABOUT:
+            builder = new AlertDialog.Builder( this );
+            builder.setTitle( R.string.dialog_nooiabout)
+            .setMessage( R.string.dialog_nooiabout_message )
+            .setIcon( android.R.drawable.ic_dialog_alert )
+            .setPositiveButton( R.string.btn_install, mOiAboutDialogListener )
+            .setNegativeButton( R.string.btn_cancel, null );
             dialog = builder.create();
             return dialog;
          default:
@@ -578,12 +614,14 @@ public class LoggerMap extends MapActivity
       super.onActivityResult( requestCode, resultCode, data );
       if( resultCode != RESULT_CANCELED )
       {
-         Bundle extras = data.getExtras();
          switch (requestCode)
          {
             case MENU_TRACKLIST:
+               Bundle extras = data.getExtras();
                long trackId = extras.getLong( Tracks._ID );
                moveToTrack( trackId );
+               break;
+            case MENU_ITEM_ABOUT:
                break;
          }
       }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+   <string name="about_copyright">Copyright©2010 Sogeti Nederland B.V.</string> 
+   <string name="about_website_url">http://code.google.com/p/open-gpstracker/</string>
+   <string name="about_email">rcgroot@gmail.com</string>
+   <string name="about_website_label">Open GPS Tracker</string>
+   
+</resources>
