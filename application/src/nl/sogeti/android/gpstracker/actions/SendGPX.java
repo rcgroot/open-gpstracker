@@ -30,7 +30,7 @@ package nl.sogeti.android.gpstracker.actions;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ExportGPX.GpxCreationProgressListener;
-import nl.sogeti.android.gpstracker.actions.ExportGPX.GpxCreator;
+import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;
 import android.app.Notification;
@@ -70,7 +70,7 @@ public class SendGPX extends Activity
 
    protected void exportGPX( String chosenFileName )
    {
-      GpxCreator mGpxCreator = new ExportGPX.GpxCreator( this, getIntent(), chosenFileName, new ProgressListener() );
+      nl.sogeti.android.gpstracker.actions.utils.GpxCreator mGpxCreator = new nl.sogeti.android.gpstracker.actions.utils.GpxCreator( this, getIntent(), chosenFileName, new ProgressListener() );
       mGpxCreator.start();
       this.finish();
    }
