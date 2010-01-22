@@ -61,6 +61,12 @@ import android.widget.Toast;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
+/**
+ * ????
+ *
+ * @version $Id:$
+ * @author rene (c) Jan 22, 2010, Sogeti B.V.
+ */ 
 public class GPSLoggerService extends Service 
 {  
    private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
@@ -75,7 +81,6 @@ public class GPSLoggerService extends Service
    
    private static final String PRECISION = "precision";
    private static final String LOGATSTARTUP = "logatstartup";
-   private static final String GPS_PROVIDER = LocationManager.GPS_PROVIDER;
    private static final String TAG = GPSLoggerService.class.getName();
    
    private Context mContext;
@@ -90,6 +95,11 @@ public class GPSLoggerService extends Service
    
    private Location mPreviousLocation;  
    private Notification mNotification;
+   
+   
+   /**
+    * <code>mAcceptableAccuracy</code> indicates the maximum acceptable accuracy of a waypoint in meters.
+    */
    private int mAcceptableAccuracy = 20;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
@@ -373,15 +383,19 @@ public class GPSLoggerService extends Service
       {
          case(0): // Fine
             this.mAcceptableAccuracy = 10;
-            this.mLocationManager.requestLocationUpdates( GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
+            this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
             break;
          case(1): // Normal
             this.mAcceptableAccuracy = 20;
-            this.mLocationManager.requestLocationUpdates( GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
+            this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
             break;
          case(2): // Coarse
             this.mAcceptableAccuracy = 50;
-            this.mLocationManager.requestLocationUpdates( GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
+            this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
+            break;
+         case(3): // Gloabl
+            this.mAcceptableAccuracy = 500;
+            this.mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER , 300000l, 100F, this.mLocationListener );
             break;
          default:
             Log.e( TAG, "Unknown precision "+mPrecision );
