@@ -90,21 +90,25 @@ public class LoggerMap extends MapActivity
 {
    private static final int ZOOM_LEVEL = 16;
    public static final String EXTRA_TRACK_ID = "nl.sogeti.android.gpstracker.intent.trackid";
-
+   
+   protected static final String DISABLEBLANKING = "disableblanking";
+   protected static final String SHOWSPEED = "showspeed";
+   
    // MENU'S
    private static final int MENU_SETTINGS = 0;
    private static final int MENU_TRACKING = 1;
    private static final int MENU_TRACKLIST = 5;
-   private static final int MENU_VIEW = 7;
+   private static final int MENU_STATS = 7;
    private static final int MENU_ITEM_ABOUT = 9;
-   private static final String TAG = LoggerMap.class.getName();
-   protected static final String DISABLEBLANKING = "disableblanking";
-   protected static final String SHOWSPEED = "showspeed";
-
+   private static final int MENU_LAYERS = 31;
    private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_LOGCONTROL = 26;
    private static final int DIALOG_INSTALL_ABOUT = 29;
+   private static final String TAG = LoggerMap.class.getName();
+
+
+
 
    private MapView mMapView = null;
    private MapController mMapController = null;
@@ -448,11 +452,12 @@ public class LoggerMap extends MapActivity
    {
       boolean result = super.onCreateOptionsMenu( menu );
    
-      menu.add( ContextMenu.NONE, MENU_TRACKING, 0, R.string.menu_tracking ).setIcon( android.R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 't' );
-      menu.add( ContextMenu.NONE, MENU_TRACKLIST, 0, R.string.menu_tracklist ).setIcon( android.R.drawable.ic_menu_gallery ).setAlphabeticShortcut( 'l' );
-      menu.add( ContextMenu.NONE, MENU_VIEW, 0, R.string.menu_showTrack ).setIcon( android.R.drawable.ic_menu_view ).setAlphabeticShortcut( 'e' );
-      menu.add( ContextMenu.NONE, MENU_SETTINGS, 0, R.string.menu_settings ).setIcon( android.R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 's' );
-      menu.add( ContextMenu.NONE, MENU_ITEM_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( android.R.drawable.ic_menu_info_details );
+      menu.add( ContextMenu.NONE, MENU_TRACKING, ContextMenu.NONE, R.string.menu_tracking ).setIcon( R.drawable.ic_menu_movie).setAlphabeticShortcut( 't' );
+      menu.add( ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers ).setIcon( R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 'd' );
+      menu.add( ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_showTrack ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 's' );
+      menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'l' );
+      menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 's' );
+      menu.add( ContextMenu.NONE, MENU_ITEM_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'o' );
       return result;
    }
 
@@ -477,7 +482,7 @@ public class LoggerMap extends MapActivity
             tracklistIntent.putExtra( Tracks._ID, this.mTrackId );
             startActivityForResult( tracklistIntent, MENU_TRACKLIST );
             break;
-         case MENU_VIEW:
+         case MENU_STATS:
             if( this.mTrackId >= 0 )
             {
                Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId );
