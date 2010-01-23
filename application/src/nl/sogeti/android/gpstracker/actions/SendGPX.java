@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
+import java.io.File;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ExportGPX.GpxCreationProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
@@ -65,7 +67,7 @@ public class SendGPX extends Activity
    {
       setVisible( false );
       super.onCreate( savedInstanceState );
-      exportGPX( "track" );
+      exportGPX( "track_send" );
    }
 
    protected void exportGPX( String chosenFileName )

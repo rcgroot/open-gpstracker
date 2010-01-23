@@ -59,43 +59,71 @@ import android.widget.RemoteViews;
  */
 public class ExportGPX extends Activity
 {
-   private static final int PROGRESS_STEPS = 10;
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
    public static final String FILENAME = null;
    public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
    public static final String TAG = "ExportGPX";
+   
+   private static final int DIALOG_FILENAME = 11;
+   private static final int PROGRESS_STEPS = 10;
 
    private RemoteViews mContentView;
    private int barProgress = 0;
    private Notification mNotification;
    private NotificationManager mNotificationManager;
-   private OnClickListener negativeListener = new OnClickListener()
-      {
-         public void onClick( DialogInterface dialog, int which )
-         {
-            ExportGPX.this.finish();
-         }
-      };
-   private OnClickListener positiveListener = new OnClickListener()
-      {
-         public void onClick( DialogInterface dialog, int which )
-         {
-            ExportGPX.this.exportGPX( mFileNameView.getText().toString() );
-         }
-      };
    private EditText mFileNameView;
+   private OnClickListener mOnClickListener = new OnClickListener()
+      {
+         public void onClick( DialogInterface dialog, int which )
+         {
+            switch( which )
+            {
+               case Dialog.BUTTON_POSITIVE:
+                  ExportGPX.this.exportGPX( mFileNameView.getText().toString() );
+                  break;
+               case Dialog.BUTTON_NEGATIVE:
+                  ExportGPX.this.finish();
+                  break;
+            }
+         }
+      };
 
    @Override
    public void onCreate( Bundle savedInstanceState )
    {
       setVisible( false );
       super.onCreate( savedInstanceState );
+      showDialog( DIALOG_FILENAME );
+   }
 
-      LayoutInflater factory = LayoutInflater.from( this );
-      View view = factory.inflate( R.layout.filenamedialog, null );
-      mFileNameView = (EditText) view.findViewById( R.id.fileNameField );
-      createAlertFileName( view, positiveListener, negativeListener ).show();
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onCreateDialog(int)
+    */
+   @Override
+   protected Dialog onCreateDialog( int id )
+   {
+      Builder builder;
+      switch (id)
+      {
+         case DIALOG_FILENAME:
+            LayoutInflater factory = LayoutInflater.from( this );
+            View view = factory.inflate( R.layout.filenamedialog, null );
+            mFileNameView = (EditText) view.findViewById( R.id.fileNameField );
+            builder = new AlertDialog.Builder( this )
+               .setTitle( R.string.dialog_filename_title )
+               .setMessage( R.string.dialog_filename_message )
+               .setIcon( android.R.drawable.ic_dialog_alert )
+               .setView(view )
+               .setPositiveButton( R.string.btn_okay, mOnClickListener )
+               .setNegativeButton( R.string.btn_cancel, mOnClickListener );
+            Dialog dialog = builder.create();
+            dialog.setOwnerActivity( this );
+            return dialog;
+         default:
+            return super.onCreateDialog( id );
+      }
    }
 
    protected void exportGPX( String chosenFileName )
@@ -166,14 +194,6 @@ public class ExportGPX extends Activity
       }
    }
 
-   private Dialog createAlertFileName( View view, DialogInterface.OnClickListener positiveListener, DialogInterface.OnClickListener negativeListener )
-   {
-      Builder builder = new AlertDialog.Builder( this ).setTitle( R.string.dialog_filename_title ).setMessage( R.string.dialog_filename_message ).setIcon( android.R.drawable.ic_dialog_alert )
-            .setView( view ).setPositiveButton( R.string.btn_okay, positiveListener ).setNegativeButton( R.string.btn_cancel, negativeListener );
 
-      Dialog dialog = builder.create();
-      dialog.setOwnerActivity( this );
-      return dialog;
-   }
 
 }

@@ -13,6 +13,7 @@
 package nl.sogeti.android.gpstracker.actions.utils;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -56,6 +57,7 @@ public class GpxCreator extends Thread
       mIntent = intent;
       mProgressListener = listener;
    }
+   
    public void run()
    {
       Looper.prepare();
@@ -85,11 +87,19 @@ public class GpxCreator extends Thread
             }
          }
       }
-      if( !fileName.endsWith( ".gpx" ) )
+      
+      String filePath;
+      if( !( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) ) )
       {
+         filePath = Environment.getExternalStorageDirectory() +"/OpenGPSTracker/"+fileName;
          fileName = fileName + ".gpx";
       }
-      String filePath = Environment.getExternalStorageDirectory() +"/"+fileName;
+      else
+      {
+         filePath = Environment.getExternalStorageDirectory() +"/"+fileName.substring( 0, fileName.length()-4 );
+      }
+      new File( filePath ).mkdirs();
+      filePath = filePath+"/"+fileName;
    
       if( mProgressListener != null )
       {
@@ -164,7 +174,7 @@ public class GpxCreator extends Thread
          Looper.loop();
       }
    }
-   
+
    private String serializeTrack( Context context, XmlSerializer serializer, Uri trackUri ) throws IOException
    {
       ContentResolver resolver = context.getContentResolver();
