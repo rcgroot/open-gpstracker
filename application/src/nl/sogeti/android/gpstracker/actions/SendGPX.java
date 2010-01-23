@@ -31,7 +31,7 @@ package nl.sogeti.android.gpstracker.actions;
 import java.io.File;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ExportGPX.GpxCreationProgressListener;
+import nl.sogeti.android.gpstracker.actions.utils.GpxCreationProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;

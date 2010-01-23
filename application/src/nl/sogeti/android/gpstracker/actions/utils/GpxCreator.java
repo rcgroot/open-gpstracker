@@ -22,7 +22,6 @@ import java.util.Date;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ExportGPX;
-import nl.sogeti.android.gpstracker.actions.ExportGPX.GpxCreationProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;

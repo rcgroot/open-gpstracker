@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.actions;
 
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.GpxCreationProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
@@ -131,13 +132,6 @@ public class ExportGPX extends Activity
       GpxCreator mGpxCreator = new GpxCreator( this, getIntent(), chosenFileName, new ProgressListener() );
       mGpxCreator.start();
       this.finish();
-   }
-   
-   public interface GpxCreationProgressListener
-   {
-      public void startNotification( String fileName );
-      public void updateNotification(int progress, int goal);
-      public void endNotification( String fileName );
    }
    
    class ProgressListener implements GpxCreationProgressListener
