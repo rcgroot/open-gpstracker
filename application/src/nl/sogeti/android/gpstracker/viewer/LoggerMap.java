@@ -51,6 +51,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -72,9 +73,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -100,15 +104,19 @@ public class LoggerMap extends MapActivity
    private static final int MENU_TRACKLIST = 5;
    private static final int MENU_STATS = 7;
    private static final int MENU_ITEM_ABOUT = 9;
-   private static final int MENU_LAYERS = 31;
+   private static final int MENU_LAYERS = 11;
    private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_LOGCONTROL = 26;
    private static final int DIALOG_INSTALL_ABOUT = 29;
+   private static final int DIALOG_LAYERS = 31;
    private static final String TAG = LoggerMap.class.getName();
-
-
-
+   private static final String SATELLITE = "SATELLITE";
+   private static final String TRAFFIC = "TRAFFIC";
+   private static final String SPEED = "showspeed";
+   private static final String LOCATION = "LOCATION";
+   private static final String COMPASS = "COMPASS";
+   private static final String TRACKDIRECTION = "TRACKDIRECTION";
 
    private MapView mMapView = null;
    private MapController mMapController = null;
@@ -122,7 +130,40 @@ public class LoggerMap extends MapActivity
    private long mTrackId = -1;
    private long mLastSegment = -1 ;
    private long mLastWaypoint = -1;
-
+   private CheckBox mSatellite;
+   private CheckBox mTraffic;
+   private CheckBox mSpeed;
+   private CheckBox mCompass;
+   private CheckBox mLocation;
+   private CheckBox mTrackDirection;
+   private SharedPreferences mSharedPreferences;
+   private OnCheckedChangeListener mCheckedChangeListener = new OnCheckedChangeListener()
+   {
+      public void onCheckedChanged( CompoundButton buttonView, boolean isChecked )
+      {
+         int which = buttonView.getId();
+         switch( which )
+         {
+            case R.id.layer_satellite:
+               setSatelliteOverlay( isChecked );
+               break;
+            case R.id.layer_traffic:
+               setTrafficOverlay( isChecked );
+               break;
+            case R.id.layer_speed:
+               setSpeedOverlay( isChecked );
+               break;
+            case R.id.layer_compass:
+               break;
+            case R.id.layer_location:
+               break;
+            case R.id.layer_trackdirection:
+               break;
+            default:
+               break;
+         }
+      }
+   };
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
       {
          public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
@@ -261,13 +302,17 @@ public class LoggerMap extends MapActivity
       }
       this.mLoggerServiceManager.startup();
 
-      PreferenceManager.getDefaultSharedPreferences( this ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
+      mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
+      mSharedPreferences.registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
       setContentView( R.layout.map );
       this.mMapView = (MapView) findViewById( R.id.myMapView );
       this.mMapView.setClickable( true );
       this.mMapView.setStreetView( false );
-      this.mMapView.setSatellite( false );
+      
+      this.mMapView.setSatellite( mSharedPreferences.getBoolean( SATELLITE, false ) );
+      this.mMapView.setTraffic( mSharedPreferences.getBoolean( TRAFFIC, false ) );
+      
       TextView[] speeds = { (TextView) findViewById( R.id.speedview05 ), (TextView) findViewById( R.id.speedview04 ), (TextView) findViewById( R.id.speedview03 ),
             (TextView) findViewById( R.id.speedview02 ), (TextView) findViewById( R.id.speedview01 ), (TextView) findViewById( R.id.speedview00 ) };
       mSpeedtexts = speeds;
@@ -421,15 +466,11 @@ public class LoggerMap extends MapActivity
             propagate = this.mMapView.getController().zoomOut();
             break;
          case KeyEvent.KEYCODE_S:
-            this.mMapView.setSatellite( !this.mMapView.isSatellite() );
-            toast = Toast.makeText( this.getApplicationContext(), "Satellite: " + this.mMapView.isSatellite(), Toast.LENGTH_SHORT );
-            toast.show();
+            setSatelliteOverlay(!this.mMapView.isSatellite());
             propagate = false;
             break;
          case KeyEvent.KEYCODE_A:
-            this.mMapView.setTraffic( !this.mMapView.isTraffic() );
-            toast = Toast.makeText( this.getApplicationContext(), "Traffic: " + this.mMapView.isTraffic(), Toast.LENGTH_SHORT );
-            toast.show();
+            setTrafficOverlay(!this.mMapView.isTraffic());
             propagate = false;
             break;
          case KeyEvent.KEYCODE_F:
@@ -445,6 +486,29 @@ public class LoggerMap extends MapActivity
             break;
       }
       return propagate;
+   }
+
+   private void setTrafficOverlay(boolean b)
+   {
+      this.mMapView.setTraffic( b );
+      Editor editor = mSharedPreferences.edit();
+      editor.putBoolean( TRAFFIC, b );
+      editor.commit();
+   }
+
+   private void setSatelliteOverlay(boolean b)
+   {
+      this.mMapView.setSatellite( b );
+      Editor editor = mSharedPreferences.edit();
+      editor.putBoolean( SATELLITE, b );
+      editor.commit();
+   }
+   
+   private void setSpeedOverlay(boolean b)
+   {
+      Editor editor = mSharedPreferences.edit();
+      editor.putBoolean( SPEED, b );
+      editor.commit();
    }
 
    @Override
@@ -470,6 +534,10 @@ public class LoggerMap extends MapActivity
          case MENU_TRACKING:
             showDialog( DIALOG_LOGCONTROL );
             updateBlankingBehavior();
+            handled = true;
+            break;
+         case MENU_LAYERS:
+            showDialog( DIALOG_LAYERS );
             handled = true;
             break;
          case MENU_SETTINGS:
@@ -535,6 +603,28 @@ public class LoggerMap extends MapActivity
             .setMessage( R.string.dialog_routename_message )
             .setIcon( android.R.drawable.ic_dialog_alert )
             .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener )
+            .setView( view );
+            dialog = builder.create();
+            return dialog;
+         case DIALOG_LAYERS:
+            builder = new AlertDialog.Builder( this );
+            factory = LayoutInflater.from( this );
+            view = factory.inflate( R.layout.layerdialog, null );
+            mSatellite = (CheckBox) view.findViewById( R.id.layer_satellite );
+            mSatellite.setOnCheckedChangeListener( mCheckedChangeListener );
+            mTraffic = (CheckBox) view.findViewById( R.id.layer_traffic );
+            mTraffic.setOnCheckedChangeListener( mCheckedChangeListener );
+            mSpeed = (CheckBox) view.findViewById( R.id.layer_speed );
+            mSpeed.setOnCheckedChangeListener( mCheckedChangeListener );
+            mCompass = (CheckBox) view.findViewById( R.id.layer_compass );
+            mCompass.setOnCheckedChangeListener( mCheckedChangeListener );
+            mLocation = (CheckBox) view.findViewById( R.id.layer_location );
+            mLocation.setOnCheckedChangeListener( mCheckedChangeListener );
+            mTrackDirection = (CheckBox) view.findViewById( R.id.layer_trackdirection );
+            mTrackDirection.setOnCheckedChangeListener( mCheckedChangeListener );
+            builder.setTitle( R.string.dialog_layer_title )
+            .setIcon( android.R.drawable.ic_dialog_map )
+            .setPositiveButton( R.string.btn_okay, null )
             .setView( view );
             dialog = builder.create();
             return dialog;
@@ -616,6 +706,17 @@ public class LoggerMap extends MapActivity
                   resume.setEnabled( false );
                   stop.setEnabled( false );
             }
+            break;
+         case DIALOG_LAYERS:
+            mSatellite.setChecked( mSharedPreferences.getBoolean( SATELLITE, false ) );
+            mTraffic.setChecked( mSharedPreferences.getBoolean( TRAFFIC, false ) );
+            mSpeed.setChecked( mSharedPreferences.getBoolean( SPEED, false ) );
+            mCompass.setChecked( mSharedPreferences.getBoolean( COMPASS, false ) );
+            mLocation.setChecked( mSharedPreferences.getBoolean( LOCATION, false ) );
+            mTrackDirection.setChecked( mSharedPreferences.getBoolean( TRACKDIRECTION, false ) );
+            break;
+         default:
+            break;
       }
       super.onPrepareDialog( id, dialog );
    }

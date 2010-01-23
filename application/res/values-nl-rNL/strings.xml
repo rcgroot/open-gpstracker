@@ -17,7 +17,15 @@
     <string name="dialog_deleteconfirmation">Bevestigd u alstublieft het verwijderen van %s</string>
     <string name="dialog_nooiabout">OI About nodig</string>
     <string name="dialog_nooiabout_message">De applicatie \"OI About\" van het OpenIntents project is nodig om informatie te tonen.</string>
+    <string name="dialog_layer_title">Activeer overlays</string>
     
+    <string name="layer_satellite">Sataliet</string>
+    <string name="layer_traffic">Verkeer</string>
+    <string name="layer_speed">Snelheid</string>
+    <string name="layer_compass">Kompas</string>
+    <string name="layer_location">Mijn locatie</string>
+    <string name="layer_trackdirection">Route richting</string>
+        
     <string name="from">Opgenomen op: </string>
     <string name="no_tracks">Geen routes</string>
     <string name="ticker_saving">Opslaan: </string>
@@ -46,6 +54,7 @@
     <string name="menu_renameTrack">Hernoem route</string>
     <string name="menu_statistics">Toon statistics</string>
     <string name="menu_about">Info</string>
+    <string name="menu_showLayers">Lagen</string>
 
     <string name="chooser_title">Delen via?</string>
     <string name="receive_filewriter">Opslaan op SDcard</string>
@@ -78,5 +87,12 @@
     <string name="stat_starttime">Start tijd</string>    
     <string name="stat_trackname">Route naam</string>
     <string name="stat_waypoints">Aantal metingen</string>
+    
+<!-- ***************************
+   About information
+   ***************************-->
+   <string name="about_comments">Een applicatie die per GPS de tochten van je aparaat kan opnemen.</string>
+   <string name="about_activity_name_extended">Over %s</string>
+   <string name="no_information_available">Geen informatie beschikbaar.</string>
    
 </resources>

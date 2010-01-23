@@ -17,6 +17,14 @@
     <string name="dialog_deleteconfirmation">Please confirm the deletion of the track %s</string>
     <string name="dialog_nooiabout">OI About missing</string>
     <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
+    <string name="dialog_layer_title">Activate lagen</string>
+    
+    <string name="layer_satellite">Satellite</string>
+    <string name="layer_traffic">Traffic</string>
+    <string name="layer_speed">Speed</string>
+    <string name="layer_compass">Compass</string>
+    <string name="layer_location">My Location</string>
+    <string name="layer_trackdirection">Track direction</string>
     
     <string name="from">Tracked on: </string>
     <string name="no_tracks">No tracks</string>
@@ -46,7 +54,7 @@
     <string name="menu_renameTrack">Rename track</string>
     <string name="menu_statistics">Show statistics</string>
     <string name="menu_about">About</string>
-    <string name="menu_showLayers">Layers</string>
+    <string name="menu_showLayers">Overlays</string>
 
     <string name="chooser_title">How to share this track?</string>
 	<string name="receive_filewriter">Store to SDcard</string>
@@ -80,7 +88,7 @@
     <string name="stat_trackname">Track name</string>
     <string name="stat_waypoints">Number of waypoints</string>
     
-   <!-- ***************************
+<!-- ***************************
    About information
    ***************************-->
    <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
