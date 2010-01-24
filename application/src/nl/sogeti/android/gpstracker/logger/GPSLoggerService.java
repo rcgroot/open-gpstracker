@@ -82,6 +82,10 @@ public class GPSLoggerService extends Service
    private static final String PRECISION = "precision";
    private static final String LOGATSTARTUP = "logatstartup";
    private static final String TAG = GPSLoggerService.class.getName();
+   private static final int LOGGING_FINE = 0;
+   private static final int LOGGING_NORMAL = 1;
+   private static final int LOGGING_COARSE = 2;
+   private static final int LOGGING_GLOBAL = 3;
    
    private Context mContext;
    private LocationManager mLocationManager;
@@ -131,7 +135,10 @@ public class GPSLoggerService extends Service
          public void onProviderEnabled( String provider )
          {
             enabledGpsNotification();
-            startNewSegment();
+            if( mPrecision != LOGGING_GLOBAL )
+            {
+               startNewSegment();
+            }
          }
 
          public void onStatusChanged( String provider, int status, Bundle extras )
@@ -381,19 +388,19 @@ public class GPSLoggerService extends Service
       //Log.d( TAG, "requestLocationUpdates to precision "+precision );
       switch( mPrecision )
       {
-         case(0): // Fine
+         case( LOGGING_FINE ): // Fine
             this.mAcceptableAccuracy = 10;
             this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
             break;
-         case(1): // Normal
+         case( LOGGING_NORMAL ): // Normal
             this.mAcceptableAccuracy = 20;
             this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
             break;
-         case(2): // Coarse
+         case( LOGGING_COARSE ): // Coarse
             this.mAcceptableAccuracy = 50;
             this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
             break;
-         case(3): // Gloabl
+         case( LOGGING_GLOBAL ): // Global
             this.mAcceptableAccuracy = 1000;
             this.mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER , 300000l, 500F, this.mLocationListener );
             break;
