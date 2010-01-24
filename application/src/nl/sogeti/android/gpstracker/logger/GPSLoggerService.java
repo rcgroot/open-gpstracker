@@ -64,7 +64,7 @@ import android.widget.Toast;
 /**
  * ????
  *
- * @version $Id:$
+ * @version $Id$
  * @author rene (c) Jan 22, 2010, Sogeti B.V.
  */ 
 public class GPSLoggerService extends Service 
@@ -394,8 +394,8 @@ public class GPSLoggerService extends Service
             this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
             break;
          case(3): // Gloabl
-            this.mAcceptableAccuracy = 500;
-            this.mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER , 300000l, 100F, this.mLocationListener );
+            this.mAcceptableAccuracy = 1000;
+            this.mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER , 300000l, 500F, this.mLocationListener );
             break;
          default:
             Log.e( TAG, "Unknown precision "+mPrecision );
