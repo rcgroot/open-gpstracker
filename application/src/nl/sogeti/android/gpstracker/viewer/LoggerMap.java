@@ -354,7 +354,7 @@ public class LoggerMap extends MapActivity
          resolver.unregisterContentObserver( this.mTrackObserver );
          resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
       }
-      
+      createTrackingDataOverlays();
    }
 
    /*

@@ -70,37 +70,30 @@ public class TrackList extends ListActivity
    private static final int DIALOG_RENAME = 23;
    private static final int DIALOG_DELETE = 24;
 
-   private Cursor mTracksCursor;
-   SimpleCursorAdapter mTrackAdapter;
    private EditText mTrackNameView;
-   private Uri dialogUri;
-   private String dialogCurrentName;
+   private Uri mDialogUri;
+   private String mDialogCurrentName = "";
 
-   private OnClickListener deleteClickListener = new DialogInterface.OnClickListener() 
+   private OnClickListener mDeleteOnClickListener = new DialogInterface.OnClickListener() 
    {
       public void onClick(DialogInterface dialog, int which) 
       {
-         getContentResolver().delete(dialogUri, null, null);
-
-         TrackList.this.mTracksCursor.requery();
-         TrackList.this.mTrackAdapter.notifyDataSetChanged();
+         getContentResolver().delete( mDialogUri, null, null );
       }
    };
    
-   private OnClickListener renameListener = new DialogInterface.OnClickListener()
+   private OnClickListener mRenameOnClickListener = new DialogInterface.OnClickListener()
    {
       public void onClick( DialogInterface dialog, int which )
       {
+//         Log.d( TAG, "Context item selected: "+mDialogUri+" with name "+mDialogCurrentName );
+         
          String trackName = mTrackNameView.getText().toString();
          ContentValues values = new ContentValues();
          values.put( Tracks.NAME, trackName);
-         getContentResolver().update(
-               dialogUri, 
-               values, null, null );
-         mTrackNameView = null;
+         TrackList.this.getContentResolver().update( mDialogUri, values, null, null );
       }
-   } ;
-
+   };
 
    @Override
    protected void onCreate(Bundle savedInstanceState) 
@@ -108,7 +101,7 @@ public class TrackList extends ListActivity
       super.onCreate(savedInstanceState);
       this.setContentView(R.layout.tracklist);
 
-      this.mTracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null);
+      Cursor tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null);
       
       // Create an array to specify the fields we want to display in the list (only TITLE)
       // and an array of the fields we want to bind those fields to (in this case just text1)
@@ -116,12 +109,38 @@ public class TrackList extends ListActivity
       int[] toItems = new int[]{R.id.listitem_name, R.id.listitem_from};
 
       // Now create a simple cursor adapter and set it to display
-      this.mTrackAdapter = new SimpleCursorAdapter(this, R.layout.trackitem, this.mTracksCursor, fromColumns, toItems);
-      setListAdapter(this.mTrackAdapter);
+      SimpleCursorAdapter trackAdapter = new SimpleCursorAdapter(this, R.layout.trackitem, tracksCursor, fromColumns, toItems);
+      setListAdapter(trackAdapter);
 
       // Add the context menu (the long press thing)
       registerForContextMenu(getListView());
    }
+ 
+   /*
+    * (non-Javadoc)
+    * @see android.app.ListActivity#onRestoreInstanceState(android.os.Bundle)
+    */
+   @Override
+   protected void onRestoreInstanceState( Bundle state )
+   {
+      mDialogUri = state.getParcelable( "URI" );
+      mDialogCurrentName = state.getString( "NAME" );
+      super.onRestoreInstanceState( state );
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
+    */
+   @Override
+   protected void onSaveInstanceState( Bundle outState )
+   {
+      outState.putParcelable( "URI", mDialogUri );
+      outState.putString( "NAME", mDialogCurrentName );
+      super.onSaveInstanceState( outState );
+   }
+
+
 
    @Override
    protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -135,6 +154,7 @@ public class TrackList extends ListActivity
       finish();
    }
 
+   @Override
    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) 
    {
       if (menuInfo instanceof AdapterView.AdapterContextMenuInfo) 
@@ -167,22 +187,20 @@ public class TrackList extends ListActivity
       }
 
       Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+      mDialogUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
+      mDialogCurrentName = cursor.getString( 1 );
       switch (item.getItemId()) 
       {
          case MENU_DETELE: 
          {
-            // Get confirmation
-            dialogUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
-            dialogCurrentName = cursor.getString( 1 );
             showDialog( DIALOG_DELETE );
             handled = true;
             break;
          }
          case MENU_SHARE: 
          {           
-            Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
             Intent actionIntent = new Intent(Intent.ACTION_RUN);
-            actionIntent.setDataAndType( uri, Tracks.CONTENT_ITEM_TYPE );
+            actionIntent.setDataAndType( mDialogUri, Tracks.CONTENT_ITEM_TYPE );
             actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
             startActivity(Intent.createChooser(actionIntent, getString(R.string.chooser_title)));
             handled = true;
@@ -190,23 +208,20 @@ public class TrackList extends ListActivity
          }
          case MENU_RENAME: 
          {
-            dialogUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
-            dialogCurrentName = cursor.getString( 1 );
             showDialog( DIALOG_RENAME );
             handled = true;
             break;
          }
          case MENU_STATS:
          {
-            Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
-            Intent actionIntent = new Intent(Intent.ACTION_VIEW, uri );
+            Intent actionIntent = new Intent(Intent.ACTION_VIEW, mDialogUri );
             startActivity( actionIntent );
             handled = true;
             break;
          }
          default:
             handled = super.onContextItemSelected(item);
-         break;
+            break;
       }
       return handled;
    }
@@ -231,7 +246,7 @@ public class TrackList extends ListActivity
             .setTitle( R.string.dialog_routename_title )
             .setMessage( R.string.dialog_routename_message )
             .setIcon( android.R.drawable.ic_dialog_alert )
-            .setPositiveButton( R.string.btn_okay, renameListener )
+            .setPositiveButton( R.string.btn_okay, mRenameOnClickListener )
             .setNegativeButton( R.string.btn_cancel, null )
             .setView( view );
             dialog = builder.create();
@@ -241,7 +256,7 @@ public class TrackList extends ListActivity
             .setTitle(R.string.dialog_deletetitle)
             .setIcon(android.R.drawable.ic_dialog_alert)
             .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(android.R.string.ok, deleteClickListener );
+            .setPositiveButton(android.R.string.ok, mDeleteOnClickListener );
             dialog = builder.create();
             String messageFormat = this.getResources().getString( R.string.dialog_deleteconfirmation );
             String message = String.format( messageFormat, "" );
@@ -263,14 +278,13 @@ public class TrackList extends ListActivity
       switch( id )
       {
          case DIALOG_RENAME:
-            mTrackNameView = (EditText) dialog.findViewById( R.id.nameField );
-            mTrackNameView.setText( dialogCurrentName );
-            mTrackNameView.setSelection( 0, dialogCurrentName.length() );
+            mTrackNameView.setText( mDialogCurrentName );
+            mTrackNameView.setSelection( 0, mDialogCurrentName.length() );
             break;
          case DIALOG_DELETE:
             AlertDialog alert = (AlertDialog) dialog;
             String messageFormat = this.getResources().getString( R.string.dialog_deleteconfirmation );
-            String message = String.format( messageFormat, dialogCurrentName );
+            String message = String.format( messageFormat, mDialogCurrentName );
             alert.setMessage( message );
             break;
       }
