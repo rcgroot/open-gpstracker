@@ -76,6 +76,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -96,7 +97,6 @@ public class LoggerMap extends MapActivity
    public static final String EXTRA_TRACK_ID = "nl.sogeti.android.gpstracker.intent.trackid";
    
    protected static final String DISABLEBLANKING = "disableblanking";
-   protected static final String SHOWSPEED = "showspeed";
    
    // MENU'S
    private static final int MENU_SETTINGS = 0;
@@ -154,6 +154,7 @@ public class LoggerMap extends MapActivity
                setSpeedOverlay( isChecked );
                break;
             case R.id.layer_compass:
+               setCompassOverlay( isChecked );
                break;
             case R.id.layer_location:
                break;
@@ -185,9 +186,13 @@ public class LoggerMap extends MapActivity
             {
                updateBlankingBehavior();
             }
-            else if( key.equals( SHOWSPEED ) )
+            else if( key.equals( SPEED ) )
             {
                updateSpeedDisplayVisibility();
+            }
+            else if( key.equals( COMPASS ) )
+            {
+               updateCompassDisplayVisibility();
             }
          }
       };
@@ -281,6 +286,7 @@ public class LoggerMap extends MapActivity
             dismissDialog( DIALOG_LOGCONTROL );
          }
       };
+   private ImageView mCompassView;
       
    /**
     * Called when the activity is first created.
@@ -307,9 +313,10 @@ public class LoggerMap extends MapActivity
 
       setContentView( R.layout.map );
       this.mMapView = (MapView) findViewById( R.id.myMapView );
+      this.mMapController = this.mMapView.getController();
+      this.mMapView.setBuiltInZoomControls( true );
       this.mMapView.setClickable( true );
       this.mMapView.setStreetView( false );
-      
       this.mMapView.setSatellite( mSharedPreferences.getBoolean( SATELLITE, false ) );
       this.mMapView.setTraffic( mSharedPreferences.getBoolean( TRAFFIC, false ) );
       
@@ -317,10 +324,7 @@ public class LoggerMap extends MapActivity
             (TextView) findViewById( R.id.speedview02 ), (TextView) findViewById( R.id.speedview01 ), (TextView) findViewById( R.id.speedview00 ) };
       mSpeedtexts = speeds;
       mLastGPSSpeedText = (TextView) findViewById( R.id.currentSpeed );
-
-      /* Collect the zoomcontrols and place them */
-      this.mMapView.setBuiltInZoomControls( true );
-      this.mMapController = this.mMapView.getController();
+      mCompassView = (ImageView) findViewById( R.id.compassview );
 
       onRestoreInstanceState( load );
    }
@@ -347,6 +351,7 @@ public class LoggerMap extends MapActivity
       updateBlankingBehavior();
       updateSpeedbarVisibility();
       updateSpeedDisplayVisibility();
+      updateCompassDisplayVisibility();
       if( mTrackId > 0 )
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
@@ -510,7 +515,14 @@ public class LoggerMap extends MapActivity
       editor.putBoolean( SPEED, b );
       editor.commit();
    }
-
+   
+   private void setCompassOverlay(boolean b)
+   {
+      Editor editor = mSharedPreferences.edit();
+      editor.putBoolean( COMPASS, b );
+      editor.commit();
+   }
+   
    @Override
    public boolean onCreateOptionsMenu( Menu menu )
    {
@@ -841,7 +853,7 @@ public class LoggerMap extends MapActivity
 
    private void updateSpeedDisplayVisibility()
    {
-      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.SHOWSPEED, false );
+      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.SPEED, false );
       if( showspeed )
       {
          mLastGPSSpeedText.setVisibility( View.VISIBLE );
@@ -849,6 +861,19 @@ public class LoggerMap extends MapActivity
       else
       {
          mLastGPSSpeedText.setVisibility( View.INVISIBLE );
+      }
+   }
+   
+   private void updateCompassDisplayVisibility()
+   {
+      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.COMPASS, false );
+      if( showspeed )
+      {
+         mCompassView.setVisibility( View.VISIBLE );
+      }
+      else
+      {
+         mCompassView.setVisibility( View.INVISIBLE );
       }
    }
 
