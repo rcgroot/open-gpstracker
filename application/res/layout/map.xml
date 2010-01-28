@@ -31,14 +31,22 @@
 
    <ImageView
       android:id="@+id/compassview"
-      android:layout_centerHorizontal="true"
-      android:layout_alignParentTop="true"
-      android:layout_marginTop="20dp"
+      android:src="@drawable/compass_base"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:src="@drawable/compass_base"
+      android:layout_alignParentTop="true"
+      android:layout_centerInParent="true"
       android:visibility="invisible" />
-   />
+
+   <ImageView
+      android:id="@+id/needleview"
+      android:src="@drawable/compass_arrow"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentTop="true"
+      android:layout_centerInParent="true"
+      android:visibility="invisible" />
+
 
    <TextView
       android:id="@+id/speedview00"
@@ -129,4 +137,5 @@
       android:src="@drawable/speedindexbar"
       android:visibility="invisible" />
       
+
 </RelativeLayout>

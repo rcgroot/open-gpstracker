@@ -56,6 +56,10 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Point;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -72,6 +76,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -287,6 +293,31 @@ public class LoggerMap extends MapActivity
          }
       };
    private ImageView mCompassView;
+   private ImageView mNeedleView;
+   private float mDirection  = 0.0f;
+   private SensorEventListener mCompasslistener = new SensorEventListener()
+   {
+      public void onAccuracyChanged( Sensor sensor, int accuracy )
+      { }
+
+      public void onSensorChanged( SensorEvent event )
+      {
+         mDirection = event.values[0] / 359f ;
+         //TODO: Compensate for screen switch
+//         Log.d( TAG, "Sensor event: "+ event.values[0] + "with direction "+mDirection );
+      }
+   };
+   private android.view.animation.Interpolator mNeedleInterpolator = new Foo();
+   private SensorManager mSensorManager;
+   class Foo implements android.view.animation.Interpolator
+   {
+
+      public float getInterpolation( float input )
+      {
+         return mDirection;
+      }
+      
+   };
       
    /**
     * Called when the activity is first created.
@@ -325,6 +356,7 @@ public class LoggerMap extends MapActivity
       mSpeedtexts = speeds;
       mLastGPSSpeedText = (TextView) findViewById( R.id.currentSpeed );
       mCompassView = (ImageView) findViewById( R.id.compassview );
+      mNeedleView = (ImageView) findViewById( R.id.needleview );
 
       onRestoreInstanceState( load );
    }
@@ -341,6 +373,10 @@ public class LoggerMap extends MapActivity
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
          resolver.unregisterContentObserver( this.mTrackObserver );
+      }
+      if( mSensorManager != null )
+      {
+         mSensorManager.unregisterListener( mCompasslistener );
       }
    }
 
@@ -460,7 +496,6 @@ public class LoggerMap extends MapActivity
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
    {
-      Toast toast;
       boolean propagate = true;
       switch (keyCode)
       {
@@ -870,10 +905,24 @@ public class LoggerMap extends MapActivity
       if( showspeed )
       {
          mCompassView.setVisibility( View.VISIBLE );
+         mNeedleView.setVisibility( View.VISIBLE );
+         
+         mNeedleView.setAnimation( AnimationUtils.loadAnimation(this, R.anim.arrow_rotate ) );
+         mNeedleView.getAnimation().setInterpolator( mNeedleInterpolator );
+         mNeedleView.getAnimation().setRepeatCount( Animation.INFINITE );
+         mNeedleView.getAnimation().start();
+         mSensorManager = (SensorManager) getSystemService( Context.SENSOR_SERVICE );
+         mSensorManager.registerListener( mCompasslistener, mSensorManager.getDefaultSensor( Sensor.TYPE_ORIENTATION ), SensorManager.SENSOR_DELAY_NORMAL );
       }
       else
       {
+         if( mSensorManager != null)
+         {
+            mSensorManager.unregisterListener( mCompasslistener );
+            mNeedleView.clearAnimation();
+         }
          mCompassView.setVisibility( View.INVISIBLE );
+         mNeedleView.setVisibility( View.INVISIBLE );
       }
    }
 
