@@ -959,7 +959,7 @@ public class LoggerMap extends MapActivity
 
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null;
-      int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
+      int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "2" ) ).intValue();
 
       GeoPoint lastPoint = null;
       try
