@@ -53,6 +53,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ActivityInfo;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Point;
@@ -84,7 +85,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.google.android.maps.GeoPoint;
@@ -302,22 +302,20 @@ public class LoggerMap extends MapActivity
 
       public void onSensorChanged( SensorEvent event )
       {
-         mDirection = event.values[0] / 359f ;
-         //TODO: Compensate for screen switch
-//         Log.d( TAG, "Sensor event: "+ event.values[0] + "with direction "+mDirection );
+         Log.d( TAG, "onSensorChanged: "+event.values[0] );
+         mDirection = (360-event.values[0]) / 359f ;
       }
    };
-   private android.view.animation.Interpolator mNeedleInterpolator = new Foo();
-   private SensorManager mSensorManager;
-   class Foo implements android.view.animation.Interpolator
+   private android.view.animation.Interpolator mNeedleInterpolator = new android.view.animation.Interpolator()
    {
 
       public float getInterpolation( float input )
       {
          return mDirection;
       }
-      
    };
+   
+   private SensorManager mSensorManager;
       
    /**
     * Called when the activity is first created.
