@@ -159,7 +159,10 @@ public class Statistics extends Activity
       {
          waypointsCursor = resolver.query
                ( Uri.withAppendedPath( mTrackUri, "waypoints" )
-               , new String[] { "max("+Waypoints.TABLE+"."+Waypoints.SPEED+")", "max("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")", "min("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")", "count("+Waypoints.TABLE+"."+Waypoints._ID+")" }
+               , new String[] { "max  ("+Waypoints.TABLE+"."+Waypoints.SPEED   +")", 
+                                "max  ("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")", 
+                                "min  ("+Waypoints.TABLE+"."+Waypoints.ALTITUDE+")", 
+                                "count("+Waypoints.TABLE+"."+Waypoints._ID     +")" }
                , null
                , null
                , null );
@@ -207,6 +210,7 @@ public class Statistics extends Activity
       Location lastLocation = null;
       Location currentLocation = null;
       float distanceTraveled = 0f;
+      long duration = 1;
       try 
       {
          Uri segmentsUri = Uri.withAppendedPath( this.mTrackUri, "segments" );
@@ -236,17 +240,19 @@ public class Statistics extends Activity
                            starttimeText = waypoints.getLong( 1 );
                         }
                         currentLocation = new Location( this.getClass().getName() );
-                        endtimeText = waypoints.getLong( 1 );
+                        currentLocation.setTime( waypoints.getLong( 1 ) );
                         currentLocation.setLongitude( waypoints.getDouble( 2 ) );
                         currentLocation.setLatitude( waypoints.getDouble( 3 ) );
                         if( lastLocation != null )
                         {
                            distanceTraveled += lastLocation.distanceTo( currentLocation );
+                           duration += currentLocation.getTime() - lastLocation.getTime();
                         }
                         lastLocation = currentLocation;
                         
                      }
                      while( waypoints.moveToNext());
+                     endtimeText = lastLocation.getTime();
                   }
                }
                finally
@@ -269,7 +275,8 @@ public class Statistics extends Activity
          }
       }
             
-      float avgSpeedfl = (distanceTraveled * conversion_from_meter)/((endtimeText-starttimeText)/3600000f) ;
+      
+      float avgSpeedfl = (distanceTraveled * conversion_from_meter)/(duration/3600000f) ;
       avgSpeedText = String.format( "%.2f", avgSpeedfl )+" "+speed_unit;
       distanceText =  String.format( "%.2f", distanceTraveled * conversion_from_meter )+" "+distance_unit;
       maxSpeedText = String.format( "%.2f", maxSpeeddb )+" "+speed_unit;
