@@ -29,15 +29,5 @@
          android:id="@+id/layer_compass"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content" />
-      <CheckBox
-         android:text="@string/layer_location"
-         android:id="@+id/layer_location"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content" />
-      <CheckBox
-         android:text="@string/layer_trackdirection"
-         android:id="@+id/layer_trackdirection"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content" />
    </LinearLayout>
 </ScrollView>

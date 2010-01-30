@@ -129,8 +129,6 @@ public class LoggerMap extends MapActivity
    private CheckBox mTraffic;
    private CheckBox mSpeed;
    private CheckBox mCompass;
-   private CheckBox mLocation;
-   private CheckBox mTrackDirection;
    private EditText mTrackNameView;
    private TextView[] mSpeedtexts = null;
    private TextView mLastGPSSpeedText = null;
@@ -268,10 +266,6 @@ public class LoggerMap extends MapActivity
                break;
             case R.id.layer_compass:
                setCompassOverlay( isChecked );
-               break;
-            case R.id.layer_location:
-               break;
-            case R.id.layer_trackdirection:
                break;
             default:
                break;
@@ -656,10 +650,6 @@ public class LoggerMap extends MapActivity
             mSpeed.setOnCheckedChangeListener( mCheckedChangeListener );
             mCompass = (CheckBox) view.findViewById( R.id.layer_compass );
             mCompass.setOnCheckedChangeListener( mCheckedChangeListener );
-            mLocation = (CheckBox) view.findViewById( R.id.layer_location );
-            mLocation.setOnCheckedChangeListener( mCheckedChangeListener );
-            mTrackDirection = (CheckBox) view.findViewById( R.id.layer_trackdirection );
-            mTrackDirection.setOnCheckedChangeListener( mCheckedChangeListener );
             builder.setTitle( R.string.dialog_layer_title )
             .setIcon( android.R.drawable.ic_dialog_map )
             .setPositiveButton( R.string.btn_okay, null )
@@ -750,8 +740,6 @@ public class LoggerMap extends MapActivity
             mTraffic.setChecked( mSharedPreferences.getBoolean( TRAFFIC, false ) );
             mSpeed.setChecked( mSharedPreferences.getBoolean( SPEED, false ) );
             mCompass.setChecked( mSharedPreferences.getBoolean( COMPASS, false ) );
-            mLocation.setChecked( mSharedPreferences.getBoolean( LOCATION, false ) );
-            mTrackDirection.setChecked( mSharedPreferences.getBoolean( TRACKDIRECTION, false ) );
             break;
          default:
             break;

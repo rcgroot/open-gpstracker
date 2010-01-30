@@ -58,19 +58,6 @@
             android:title="@string/showcompass_title"
             android:summary="@string/showcompass_summary"
             android:defaultValue="false" 
-         />
-         <CheckBoxPreference
-            android:key="LOCATION"
-            android:title="@string/showlocation_title"
-            android:summary="@string/showlocation_summary"
-            android:defaultValue="false" 
-         />
-         <CheckBoxPreference
-            android:key="TRACKDIRECTION"
-            android:title="@string/showtrackdirection_title"
-            android:summary="@string/showtrackdirection_summary"
-            android:defaultValue="false" 
-         />
-         
+         />         
     </PreferenceCategory>
 </PreferenceScreen>
