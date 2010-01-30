@@ -239,7 +239,6 @@ public class LoggerMap extends MapActivity
 
       public void onSensorChanged( SensorEvent event )
       {
-         Log.d( TAG, "onSensorChanged: "+event.values[0] );
          mDirection = (360-event.values[0]) / 359f ;
       }
    };
