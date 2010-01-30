@@ -995,7 +995,7 @@ public class LoggerMap extends MapActivity
             segments.close();
          }
       }
-      if( lastPoint != null )
+      if( lastPoint != null && mLoggerServiceManager.getLoggingState() == GPSLoggerService.LOGGING )
       {
          Point out = new Point();
          this.mMapView.getProjection().toPixels( lastPoint, out );
@@ -1010,10 +1010,17 @@ public class LoggerMap extends MapActivity
          {
             this.mMapView.clearAnimation();
             this.mMapView.getController().animateTo( lastPoint );
+         }         
+         else
+         {
+            this.mMapView.postInvalidate();
          }
-         
       }
-      this.mMapView.postInvalidate();
+      else
+      {
+         this.mMapView.postInvalidate();
+      }
+      
    }
 
    /**
