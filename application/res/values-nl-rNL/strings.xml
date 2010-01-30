@@ -19,7 +19,7 @@
     <string name="dialog_nooiabout_message">De applicatie \"OI About\" van het OpenIntents project is nodig om informatie te tonen.</string>
     <string name="dialog_layer_title">Activeer overlays</string>
     
-    <string name="layer_satellite">Sataliet</string>
+    <string name="layer_satellite">Satelliet</string>
     <string name="layer_traffic">Verkeer</string>
     <string name="layer_speed">Snelheid</string>
     <string name="layer_compass">Kompas</string>
@@ -74,9 +74,19 @@
     <string name="precision_title">Meetprecisie</string>
     <string name="precision_summary">De interval en frequentie van meten.</string>      
     <string name="trackcoloring_title">Route kleur</string>
-    <string name="trackcoloring_summary">De kleur en tekenmethode van de route.</string>
-    <string name="showspeed_title">Toon GPS snelheid</string>
+    <string name="trackcoloring_summary">De kleur en tekenmethode van de route</string>
+    <string name="showsatellite_title">Satellietbeelden</string>
+    <string name="showsatellite_summary">Toon Google Maps satellietbeelden</string>
+    <string name="showtraffic_title">Verkeersinformatie</string>
+    <string name="showtraffic_summary">Toon Google Maps verkeersinformatie (geen Nederlandse helaas)</string>
+    <string name="showspeed_title">GPS snelheid</string>
     <string name="showspeed_summary">Toon de snelheid zoals van de laatste GPS bepaling.</string>
+    <string name="showcompass_title">Kompas</string>
+    <string name="showcompass_summary">Toon een kompas die het noorden aangeeft</string>
+    <string name="showlocation_title">Display </string>
+    <string name="showlocation_summary">Show </string>
+    <string name="showtrackdirection_title">Display </string>
+    <string name="showtrackdirection_summary">Show </string>
     
     <string name="stat_maximumspeed">Maximale snelheid</string>
     <string name="stat_maximumaltitude">Maximale hoogte</string>

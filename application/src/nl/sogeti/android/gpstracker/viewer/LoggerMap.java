@@ -120,8 +120,8 @@ public class LoggerMap extends MapActivity
    private static final String SATELLITE = "SATELLITE";
    private static final String TRAFFIC = "TRAFFIC";
    private static final String SPEED = "showspeed";
-   private static final String LOCATION = "LOCATION";
    private static final String COMPASS = "COMPASS";
+   private static final String LOCATION = "LOCATION";
    private static final String TRACKDIRECTION = "TRACKDIRECTION";
 
    private MapView mMapView = null;
