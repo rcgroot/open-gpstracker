@@ -11,7 +11,7 @@
             android:summary="@string/trackcoloring_summary"
             android:entries="@array/trackcoloring_choices"
             android:entryValues="@array/trackcoloring_values"
-            android:defaultValue="3"/>
+            android:defaultValue="2"/>
              />
         <CheckBoxPreference
             android:key="showspeed"
