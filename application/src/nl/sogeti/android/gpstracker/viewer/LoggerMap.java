@@ -125,25 +125,133 @@ public class LoggerMap extends MapActivity
    private static final String TRACKDIRECTION = "TRACKDIRECTION";
 
    private MapView mMapView = null;
-   private MapController mMapController = null;
-   private GPSLoggerServiceManager mLoggerServiceManager;
-   private EditText mTrackNameView;
-   private WakeLock mWakeLock = null;
-   private double mAverageSpeed = 33.33d / 2d;
-   private TextView[] mSpeedtexts = null;
-   private TextView mLastGPSSpeedText = null;
-   
-   private long mTrackId = -1;
-   private long mLastSegment = -1 ;
-   private long mLastWaypoint = -1;
    private CheckBox mSatellite;
    private CheckBox mTraffic;
    private CheckBox mSpeed;
    private CheckBox mCompass;
    private CheckBox mLocation;
    private CheckBox mTrackDirection;
+   private EditText mTrackNameView;
+   private TextView[] mSpeedtexts = null;
+   private TextView mLastGPSSpeedText = null;
+   private ImageView mCompassView;
+   private ImageView mNeedleView;
+   
+   private double mAverageSpeed = 33.33d / 2d;
+   private long mTrackId = -1;
+   private long mLastSegment = -1 ;
+   private long mLastWaypoint = -1;
+   private float mDirection  = 0.0f;
+
+   private WakeLock mWakeLock = null;
+   private MapController mMapController = null;
    private SharedPreferences mSharedPreferences;
-   private OnCheckedChangeListener mCheckedChangeListener = new OnCheckedChangeListener()
+   private SensorManager mSensorManager;
+   private GPSLoggerServiceManager mLoggerServiceManager;
+   
+   private final ContentObserver mTrackObserver = new ContentObserver( new Handler() )
+      {
+         @Override
+         public void onChange( boolean selfUpdate )
+         {
+            if( !selfUpdate )
+            {
+//               Log.d( TAG, "Have drawn to segment "+mLastSegment+" with waypoint "+mLastWaypoint );
+               LoggerMap.this.createTrackingDataOverlays();
+               LoggerMap.this.createSpeedDisplayNumbers();
+            }
+            else
+            {
+               Log.w( TAG, "Skipping caused by self" );
+            }
+         }
+      };
+   private final DialogInterface.OnClickListener mNoTrackDialogListener = new DialogInterface.OnClickListener()
+      {
+         public void onClick( DialogInterface dialog, int which )
+         {
+//            Log.d( TAG, "mNoTrackDialogListener" + which);
+            Intent tracklistIntent = new Intent( LoggerMap.this, TrackList.class );
+            tracklistIntent.putExtra( Tracks._ID, LoggerMap.this.mTrackId );
+            startActivityForResult( tracklistIntent, MENU_TRACKLIST );
+         }
+      };
+   private final DialogInterface.OnClickListener mTrackNameDialogListener = new DialogInterface.OnClickListener()
+      {
+         public void onClick( DialogInterface dialog, int which )
+         {
+            String trackName = mTrackNameView.getText().toString();
+            ContentValues values = new ContentValues();
+            values.put( Tracks.NAME, trackName );
+            getContentResolver().update( ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId ), values, null, null );
+            updateTitleBar();
+         }
+      };
+   private final DialogInterface.OnClickListener mOiAboutDialogListener = new DialogInterface.OnClickListener()
+      {
+         public void onClick( DialogInterface dialog, int which )
+         {
+            Uri oiDownload = Uri.parse( "market://details?id=org.openintents.about" );
+            Intent oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
+            try
+            {
+               startActivity( oiAboutIntent );
+            }
+            catch (ActivityNotFoundException e) 
+            {
+               oiDownload = Uri.parse( "http://openintents.googlecode.com/files/AboutApp-1.0.0.apk" );
+               oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
+               startActivity( oiAboutIntent );
+            }
+         }
+      };
+   private final View.OnClickListener mLoggingControlListener = new View.OnClickListener()      {
+         public void onClick( View v )
+         {
+            int id = v.getId();
+            switch( id )
+            {
+               case R.id.logcontrol_start:
+                  long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
+                  moveToTrack( loggerTrackId );
+                  showDialog( DIALOG_TRACKNAME );
+                  break;
+               case R.id.logcontrol_pause:
+                  mLoggerServiceManager.pauseGPSLogging();
+                  break;
+               case R.id.logcontrol_resume:
+                  mLoggerServiceManager.resumeGPSLogging();
+                  break;
+               case R.id.logcontrol_stop:
+                  mLoggerServiceManager.stopGPSLogging();
+                  break;
+               default:
+                  break;
+            }
+            updateBlankingBehavior();
+            dismissDialog( DIALOG_LOGCONTROL );
+         }
+      };
+   private final SensorEventListener mCompasslistener = new SensorEventListener()
+   {
+      public void onAccuracyChanged( Sensor sensor, int accuracy )
+      { }
+
+      public void onSensorChanged( SensorEvent event )
+      {
+         Log.d( TAG, "onSensorChanged: "+event.values[0] );
+         mDirection = (360-event.values[0]) / 359f ;
+      }
+   };
+   private final android.view.animation.Interpolator mNeedleInterpolator = new android.view.animation.Interpolator()
+   {
+
+      public float getInterpolation( float input )
+      {
+         return mDirection;
+      }
+   };
+   private final OnCheckedChangeListener mCheckedChangeListener = new OnCheckedChangeListener()
    {
       public void onCheckedChanged( CompoundButton buttonView, boolean isChecked )
       {
@@ -171,7 +279,7 @@ public class LoggerMap extends MapActivity
          }
       }
    };
-   private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
+   private final OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
       {
          public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
          {
@@ -203,120 +311,6 @@ public class LoggerMap extends MapActivity
          }
       };
 
-   private final ContentObserver mTrackObserver = new ContentObserver( new Handler() )
-      {
-         @Override
-         public void onChange( boolean selfUpdate )
-         {
-            if( !selfUpdate )
-            {
-//               Log.d( TAG, "Have drawn to segment "+mLastSegment+" with waypoint "+mLastWaypoint );
-               LoggerMap.this.createTrackingDataOverlays();
-               LoggerMap.this.createSpeedDisplayNumbers();
-            }
-            else
-            {
-               Log.w( TAG, "Skipping caused by self" );
-            }
-         }
-      };
-
-   private final DialogInterface.OnClickListener mNoTrackDialogListener = new DialogInterface.OnClickListener()
-      {
-         public void onClick( DialogInterface dialog, int which )
-         {
-//            Log.d( TAG, "mNoTrackDialogListener" + which);
-            Intent tracklistIntent = new Intent( LoggerMap.this, TrackList.class );
-            tracklistIntent.putExtra( Tracks._ID, LoggerMap.this.mTrackId );
-            startActivityForResult( tracklistIntent, MENU_TRACKLIST );
-         }
-      };
-
-   DialogInterface.OnClickListener mTrackNameDialogListener = new DialogInterface.OnClickListener()
-      {
-         public void onClick( DialogInterface dialog, int which )
-         {
-            String trackName = mTrackNameView.getText().toString();
-            ContentValues values = new ContentValues();
-            values.put( Tracks.NAME, trackName );
-            getContentResolver().update( ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId ), values, null, null );
-            updateTitleBar();
-         }
-      };
-
-      DialogInterface.OnClickListener mOiAboutDialogListener = new DialogInterface.OnClickListener()
-      {
-         public void onClick( DialogInterface dialog, int which )
-         {
-            Uri oiDownload = Uri.parse( "market://details?id=org.openintents.about" );
-            Intent oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
-            try
-            {
-               startActivity( oiAboutIntent );
-            }
-            catch (ActivityNotFoundException e) 
-            {
-               oiDownload = Uri.parse( "http://openintents.googlecode.com/files/AboutApp-1.0.0.apk" );
-               oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
-               startActivity( oiAboutIntent );
-            }
-         }
-      };
-      
-
-   View.OnClickListener mLoggingControlListener = new View.OnClickListener()
-      {
-         public void onClick( View v )
-         {
-            int id = v.getId();
-            switch( id )
-            {
-               case R.id.logcontrol_start:
-                  long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
-                  moveToTrack( loggerTrackId );
-                  showDialog( DIALOG_TRACKNAME );
-                  break;
-               case R.id.logcontrol_pause:
-                  mLoggerServiceManager.pauseGPSLogging();
-                  break;
-               case R.id.logcontrol_resume:
-                  mLoggerServiceManager.resumeGPSLogging();
-                  break;
-               case R.id.logcontrol_stop:
-                  mLoggerServiceManager.stopGPSLogging();
-                  break;
-               default:
-                  break;
-            }
-            updateBlankingBehavior();
-            dismissDialog( DIALOG_LOGCONTROL );
-         }
-      };
-   private ImageView mCompassView;
-   private ImageView mNeedleView;
-   private float mDirection  = 0.0f;
-   private SensorEventListener mCompasslistener = new SensorEventListener()
-   {
-      public void onAccuracyChanged( Sensor sensor, int accuracy )
-      { }
-
-      public void onSensorChanged( SensorEvent event )
-      {
-         Log.d( TAG, "onSensorChanged: "+event.values[0] );
-         mDirection = (360-event.values[0]) / 359f ;
-      }
-   };
-   private android.view.animation.Interpolator mNeedleInterpolator = new android.view.animation.Interpolator()
-   {
-
-      public float getInterpolation( float input )
-      {
-         return mDirection;
-      }
-   };
-   
-   private SensorManager mSensorManager;
-      
    /**
     * Called when the activity is first created.
     */
@@ -562,8 +556,8 @@ public class LoggerMap extends MapActivity
       boolean result = super.onCreateOptionsMenu( menu );
    
       menu.add( ContextMenu.NONE, MENU_TRACKING, ContextMenu.NONE, R.string.menu_tracking ).setIcon( R.drawable.ic_menu_movie).setAlphabeticShortcut( 't' );
-      menu.add( ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers ).setIcon( R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 'd' );
       menu.add( ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_showTrack ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 's' );
+      menu.add( ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers ).setIcon( R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 'd' );
       menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'l' );
       menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 's' );
       menu.add( ContextMenu.NONE, MENU_ITEM_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'o' );
