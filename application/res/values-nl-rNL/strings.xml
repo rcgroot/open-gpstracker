@@ -91,6 +91,7 @@
     <string name="stat_maximumspeed">Maximale snelheid</string>
     <string name="stat_maximumaltitude">Maximale hoogte</string>
     <string name="stat_minimalaltitide">Minimale hoogte</string>
+    <string name="stat_overallaveragespeed">Totaal gemiddelde snelheid</string>
     <string name="stat_averagespeed">Gemiddelde snelheid</string>    
     <string name="stat_distance">Gemeten afstand</string>    
     <string name="stat_endtime">Laatste tijd</string>    

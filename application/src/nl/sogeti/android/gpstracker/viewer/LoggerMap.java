@@ -307,6 +307,14 @@ public class LoggerMap extends MapActivity
             {
                updateCompassDisplayVisibility();
             }
+            else if( key.equals( TRAFFIC ) )
+            {
+               LoggerMap.this.mMapView.setTraffic( sharedPreferences.getBoolean( key, false ) );
+            }
+            else if( key.equals( SATELLITE ) )
+            {
+               LoggerMap.this.mMapView.setSatellite( sharedPreferences.getBoolean( key, false ) );
+            }
          }
       };
 
@@ -521,7 +529,6 @@ public class LoggerMap extends MapActivity
 
    private void setTrafficOverlay(boolean b)
    {
-      this.mMapView.setTraffic( b );
       Editor editor = mSharedPreferences.edit();
       editor.putBoolean( TRAFFIC, b );
       editor.commit();
@@ -529,7 +536,6 @@ public class LoggerMap extends MapActivity
 
    private void setSatelliteOverlay(boolean b)
    {
-      this.mMapView.setSatellite( b );
       Editor editor = mSharedPreferences.edit();
       editor.putBoolean( SATELLITE, b );
       editor.commit();

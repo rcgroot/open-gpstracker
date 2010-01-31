@@ -62,6 +62,7 @@ public class Statistics extends Activity
    };
    
    Uri mTrackUri = null;
+   private TextView overallavgSpeed;
    private TextView avgSpeed;
    private TextView distance;
    private TextView endtime;
@@ -86,6 +87,7 @@ public class Statistics extends Activity
       maxSpeed = (TextView)findViewById( R.id.stat_maximumspeed );
       minAltitude = (TextView)findViewById( R.id.stat_minimalaltitide );
       maxAltitude = (TextView)findViewById( R.id.stat_maximumaltitude );
+      overallavgSpeed = (TextView)findViewById( R.id.stat_overallaveragespeed );
       avgSpeed = (TextView)findViewById( R.id.stat_averagespeed );
       distance = (TextView)findViewById( R.id.stat_distance );
       starttime = (TextView)findViewById( R.id.stat_starttime );
@@ -125,6 +127,7 @@ public class Statistics extends Activity
 
    private void drawTrackingStatistics()
    {
+      String overallavgSpeedText = "Unknown";
       String avgSpeedText = "Unknown";
       String maxSpeedText = "Unknown";
       String maxAltitudeText = "Unknown";
@@ -211,6 +214,7 @@ public class Statistics extends Activity
       Location currentLocation = null;
       float distanceTraveled = 0f;
       long duration = 1;
+      long overallduration = 1;
       try 
       {
          Uri segmentsUri = Uri.withAppendedPath( this.mTrackUri, "segments" );
@@ -253,6 +257,7 @@ public class Statistics extends Activity
                      }
                      while( waypoints.moveToNext());
                      endtimeText = lastLocation.getTime();
+                     overallduration = endtimeText-starttimeText;
                   }
                }
                finally
@@ -275,9 +280,10 @@ public class Statistics extends Activity
          }
       }
             
-      
+      float overallavgSpeedfl = (distanceTraveled * conversion_from_meter)/(overallduration/3600000f) ;
       float avgSpeedfl = (distanceTraveled * conversion_from_meter)/(duration/3600000f) ;
       avgSpeedText = String.format( "%.2f", avgSpeedfl )+" "+speed_unit;
+      overallavgSpeedText = String.format( "%.2f", overallavgSpeedfl )+" "+speed_unit;
       distanceText =  String.format( "%.2f", distanceTraveled * conversion_from_meter )+" "+distance_unit;
       maxSpeedText = String.format( "%.2f", maxSpeeddb )+" "+speed_unit;
       minAltitudeText = String.format( "%.1f", minalti )+" "+distance_smallunit;
@@ -287,6 +293,7 @@ public class Statistics extends Activity
       maxSpeed.setText( maxSpeedText );
       maxAltitude.setText( maxAltitudeText );
       minAltitude.setText( minAltitudeText );
+      overallavgSpeed.setText( overallavgSpeedText );
       avgSpeed.setText( avgSpeedText );
       distance.setText( distanceText );
       starttime.setText( Long.toString( starttimeText ) );

@@ -2,11 +2,22 @@
    ==  NOTICE file corresponding to the section 4 d of                    ==
    ==  the Apache License, Version 2.0,                                   ==
    ==  in this case:                                                      ==
-   ==  ic_media_play.png                                                  ==
-   ==  ic_media_play_mirrored.png                                         ==
-   ==  icon.png                                                           ==
-   ==  stip.gif                                                           ==
-   ==  stip2.gif                                                          ==
+compass_arrow.png
+compass_base.png
+ic_maps_indicator_current_position.png
+ic_media_play_mirrored.png
+ic_media_play.png
+ic_menu_info_details.png
+ic_menu_mapmode.png
+ic_menu_movie.png
+ic_menu_picture.png
+ic_menu_preferences.png
+ic_menu_show_list.png
+ic_menu_view.png
+icon.png
+speedindexbar.png
+stip.gif
+stip2.gif                                                        ==
    ==  Copyright (c) 2005-2008, The Android Open Source Project           ==
    =========================================================================
 

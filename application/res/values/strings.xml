@@ -91,6 +91,7 @@
     <string name="stat_maximumspeed">Maximum speed</string>
     <string name="stat_maximumaltitude">Maximum altitude</string>
     <string name="stat_minimalaltitide">Minimum altitude</string>
+    <string name="stat_overallaveragespeed">Overall average speed</string>
     <string name="stat_averagespeed">Average speed</string>    
     <string name="stat_distance">Tracked distance</string>    
     <string name="stat_endtime">Last time</string>    

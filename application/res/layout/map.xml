@@ -10,14 +10,14 @@
       android:layout_height="fill_parent"
       android:enabled="true"
       android:clickable="true"
-      android:apiKey="0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw" />
+      android:apiKey="0bmdf4-ggC50pzCfGzq5ADyCoBsyRz0kUybFeUw" />
    <!--  Release         : 0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw -->
    <!--  Emulator        : 0bmdf4-ggC50pzCfGzq5ADyCoBsyRz0kUybFeUw -->
    <!--  Mac emulator    : 0bmdf4-ggC527Bi-Ac3W30MvwmhnL-5CBRo6Slg -->
 
    <TextView
       android:id="@+id/currentSpeed"
-      android:text="0 kph"
+      android:text="0 mph"
       android:textStyle="bold"
       android:textColor="#ff000000"
       android:textSize="12pt"
