@@ -850,10 +850,10 @@ public class LoggerMap extends MapActivity
          if( waypointsCursor != null && waypointsCursor.moveToLast() )
          {
             mAverageSpeed = waypointsCursor.getDouble( 0 );
-            if( mAverageSpeed == 0 )
-            {
-               mAverageSpeed = 33.33d / 2d;
-            }
+         }
+         if( mAverageSpeed < 5 )
+         {
+            mAverageSpeed = 33.33d / 2d;
          }
       }
       finally
