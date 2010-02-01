@@ -17,7 +17,7 @@
     <string name="dialog_deleteconfirmation">Please confirm the deletion of the track %s</string>
     <string name="dialog_nooiabout">OI About missing</string>
     <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
-    <string name="dialog_layer_title">Activate lagen</string>
+    <string name="dialog_layer_title">Activate overlays</string>
     
     <string name="layer_satellite">Satellite</string>
     <string name="layer_traffic">Traffic</string>
