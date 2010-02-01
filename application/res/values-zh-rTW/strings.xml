@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Open GPS Tracker</string>
-	
+    <string name="service_start">Activating logging service</string>
+	<string name="service_status">Logging with precision: %s (%s)</string>
+    <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
+    <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
+
+    <string name="dialog_tracking_title">Tracking control</string>
 	<string name="dialog_routename_title">命名路線</string>
     <string name="dialog_routename_message">請輸入此路線的名稱</string>
     <string name="dialog_notrack_title">沒有選擇路線</string>
@@ -9,9 +14,20 @@
     <string name="dialog_filename_title">檔案名</string>
     <string name="dialog_filename_message">請為 SD 卡上的 GPX 檔案輸入檔案名</string>
     <string name="dialog_deletetitle">移除路線</string>
-    <!-- <string name="dialog_deleteconfirmation">請確認此路線的移除操作</string>  -->
+    <string name="dialog_deleteconfirmation">請確認此路線的移除操作</string>
+    <string name="dialog_nooiabout">OI About missing</string>
+    <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
+    <string name="dialog_layer_title">Activate overlays</string>
     
+    <string name="layer_satellite">Satellite</string>
+    <string name="layer_traffic">Traffic</string>
+    <string name="layer_speed">Speed</string>
+    <string name="layer_compass">Compass</string>
+    <string name="layer_location">My Location</string>
+    <string name="layer_trackdirection">Track direction</string>
+        
     <string name="from">記錄: </string>
+    <string name="no_tracks">No tracks</string>
     <string name="ticker_saving">儲存檔案: </string>
     <string name="ticker_stored">存儲: </string>
     <string name="ticker_failed">無法儲存檔案路線: </string>
@@ -23,16 +39,23 @@
 	<string name="btn_cancel">取消</string>
 	<string name="btn_save">儲存檔案</string>
 	<string name="btn_selecttrack">選擇路線</string>
+    <string name="btn_install">Install</string>
 	
 	<string name="menu_settings">設定</string>
-	<string name="menu_toggle_off">停止跟蹤</string>
-	<string name="menu_toggle_on">開始跟蹤</string>
+    <string name="menu_tracking">Tracking</string>
+	<string name="logcontrol_start">Start tracking</string>
+    <string name="logcontrol_pause">Pause tracking</string>
+    <string name="logcontrol_resume">Resume tracking</string>
+	<string name="logcontrol_stop">Stop tracking</string>
 	<string name="menu_tracklist">列出路線</string>
 	<string name="menu_shareTrack">分享路線</string>
     <string name="menu_showTrack">顯示統計 </string>
 	<string name="menu_deleteTrack">移除路線</string>
     <string name="menu_renameTrack">更名路線</string>
     <string name="menu_statistics">顯示統計</string>
+    <string name="menu_about">About</string>
+    <string name="menu_showLayers">Overlays</string>
+    
 
     <string name="chooser_title">如何分享此路線?</string>
 	<string name="receive_filewriter">存儲到 SD 卡</string>
@@ -42,7 +65,9 @@
     <string name="email_body">附件是路線的 GPS 交換格式 (GPX) 檔案, 描述在 http://www.topografix.com/gpx.asp</string>
     
     <string name="opengpstracker_title">Open GPS Tracker</string>
-    <string name="opengpstracker_settings">設定</string>   
+    <string name="opengpstracker_settings">設定</string>
+    <string name="preference_display">Display settings</string>
+    <string name="preference_behavior">Run settings</string>
     <string name="logatstartup">在啟動時記錄</string>
     <string name="logatstartup_summary">在程式啟動後開始記錄。</string>   
     <string name="disableblanking_title">禁止關屏</string>
@@ -51,14 +76,35 @@
     <string name="precision_summary">GPS 記錄點之間的間隔大小。</string>      
     <string name="trackcoloring_title">路線色彩</string>
     <string name="trackcoloring_summary">繪製路線使用的色彩。</string>
+    <string name="showsatellite_title">Satellite images</string>
+    <string name="showsatellite_summary">Show the Google Maps satellite view</string>
+    <string name="showtraffic_title">Traffic</string>
+    <string name="showtraffic_summary">Show the Google Maps traffic information</string>
+    <string name="showspeed_title">GPS speed</string>
+    <string name="showspeed_summary">Show the speed from the last received GPS fix.</string>
+    <string name="showcompass_title">Compass</string>
+    <string name="showcompass_summary">Show a compass with a needle pointing north</string>
+    <string name="showlocation_title">Display </string>
+    <string name="showlocation_summary">Show </string>
+    <string name="showtrackdirection_title">Display </string>
+    <string name="showtrackdirection_summary">Show </string>
     
     <string name="stat_maximumspeed">最高速度</string>
+    <string name="stat_maximumaltitude">Maximum altitude</string>
+    <string name="stat_minimalaltitide">Minimum altitude</string>
+    <string name="stat_overallaveragespeed">Overall average speed</string>
     <string name="stat_averagespeed">平均速度</string>    
     <string name="stat_distance">路線距離</string>    
     <string name="stat_endtime">前次時間</string>    
     <string name="stat_starttime">開始時間</string>    
     <string name="stat_trackname">路線名稱</string>
     <string name="stat_waypoints">路點數量</string>
-    
+
+<!-- ***************************
+   About information
+   ***************************-->
+   <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
+   <string name="about_activity_name_extended">About %s</string>
+   <string name="no_information_available">No information available.</string>    
 
 </resources>
