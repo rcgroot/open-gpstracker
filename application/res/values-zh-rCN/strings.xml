@@ -24,7 +24,6 @@
     <string name="layer_speed">Speed</string>
     <string name="layer_compass">Compass</string>
     <string name="layer_location">My Location</string>
-    <string name="layer_trackdirection">Track direction</string>
 
     <string name="from">记录: </string>
     <string name="no_tracks">No tracks</string>

@@ -24,7 +24,6 @@
     <string name="layer_speed">Snelheid</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">Mijn locatie</string>
-    <string name="layer_trackdirection">Route richting</string>
         
     <string name="from">Opgenomen op: </string>
     <string name="no_tracks">Geen routes</string>

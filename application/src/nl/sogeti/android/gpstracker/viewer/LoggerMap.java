@@ -53,7 +53,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.ActivityInfo;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Point;
@@ -122,7 +121,6 @@ public class LoggerMap extends MapActivity
    private static final String SPEED = "showspeed";
    private static final String COMPASS = "COMPASS";
    private static final String LOCATION = "LOCATION";
-   private static final String TRACKDIRECTION = "TRACKDIRECTION";
 
    private MapView mMapView = null;
    private CheckBox mSatellite;
@@ -130,7 +128,6 @@ public class LoggerMap extends MapActivity
    private CheckBox mSpeed;
    private CheckBox mCompass;
    private CheckBox mLocation;
-   private CheckBox mTrackDirection;
    private EditText mTrackNameView;
    private TextView[] mSpeedtexts = null;
    private TextView mLastGPSSpeedText = null;
@@ -270,8 +267,6 @@ public class LoggerMap extends MapActivity
                setCompassOverlay( isChecked );
                break;
             case R.id.layer_location:
-               break;
-            case R.id.layer_trackdirection:
                break;
             default:
                break;
@@ -664,8 +659,6 @@ public class LoggerMap extends MapActivity
             mCompass.setOnCheckedChangeListener( mCheckedChangeListener );
             mLocation = (CheckBox) view.findViewById( R.id.layer_location );
             mLocation.setOnCheckedChangeListener( mCheckedChangeListener );
-            mTrackDirection = (CheckBox) view.findViewById( R.id.layer_trackdirection );
-            mTrackDirection.setOnCheckedChangeListener( mCheckedChangeListener );
             builder.setTitle( R.string.dialog_layer_title )
             .setIcon( android.R.drawable.ic_dialog_map )
             .setPositiveButton( R.string.btn_okay, null )
@@ -757,7 +750,6 @@ public class LoggerMap extends MapActivity
             mSpeed.setChecked( mSharedPreferences.getBoolean( SPEED, false ) );
             mCompass.setChecked( mSharedPreferences.getBoolean( COMPASS, false ) );
             mLocation.setChecked( mSharedPreferences.getBoolean( LOCATION, false ) );
-            mTrackDirection.setChecked( mSharedPreferences.getBoolean( TRACKDIRECTION, false ) );
             break;
          default:
             break;
