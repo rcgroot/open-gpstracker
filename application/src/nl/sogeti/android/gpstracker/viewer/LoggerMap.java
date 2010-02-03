@@ -120,7 +120,7 @@ public class LoggerMap extends MapActivity
    private static final String TRAFFIC = "TRAFFIC";
    private static final String SPEED = "showspeed";
    private static final String COMPASS = "COMPASS";
-   private static final String LOCATION = "LOCATION";
+   private static final String DIRECTION = "LOCATION";
 
    private MapView mMapView = null;
    private CheckBox mSatellite;
@@ -154,7 +154,7 @@ public class LoggerMap extends MapActivity
             if( !selfUpdate )
             {
 //               Log.d( TAG, "Have drawn to segment "+mLastSegment+" with waypoint "+mLastWaypoint );
-               LoggerMap.this.createTrackingDataOverlays();
+               LoggerMap.this.createDataOverlays();
                LoggerMap.this.createSpeedDisplayNumbers();
             }
             else
@@ -267,6 +267,7 @@ public class LoggerMap extends MapActivity
                setCompassOverlay( isChecked );
                break;
             case R.id.layer_location:
+               setLocationOverlay( isChecked );
                break;
             default:
                break;
@@ -309,6 +310,10 @@ public class LoggerMap extends MapActivity
             else if( key.equals( SATELLITE ) )
             {
                LoggerMap.this.mMapView.setSatellite( sharedPreferences.getBoolean( key, false ) );
+            }
+            else if( key.equals( DIRECTION ) )
+            {
+               updateDirectionDisplayVisibility();
             }
          }
       };
@@ -389,7 +394,7 @@ public class LoggerMap extends MapActivity
          resolver.unregisterContentObserver( this.mTrackObserver );
          resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
       }
-      createTrackingDataOverlays();
+      createDataOverlays();
    }
 
    /*
@@ -547,6 +552,13 @@ public class LoggerMap extends MapActivity
    {
       Editor editor = mSharedPreferences.edit();
       editor.putBoolean( COMPASS, b );
+      editor.commit();
+   }
+   
+   private void setLocationOverlay(boolean b)
+   {
+      Editor editor = mSharedPreferences.edit();
+      editor.putBoolean( DIRECTION, b );
       editor.commit();
    }
    
@@ -749,7 +761,7 @@ public class LoggerMap extends MapActivity
             mTraffic.setChecked( mSharedPreferences.getBoolean( TRAFFIC, false ) );
             mSpeed.setChecked( mSharedPreferences.getBoolean( SPEED, false ) );
             mCompass.setChecked( mSharedPreferences.getBoolean( COMPASS, false ) );
-            mLocation.setChecked( mSharedPreferences.getBoolean( LOCATION, false ) );
+            mLocation.setChecked( mSharedPreferences.getBoolean( DIRECTION, false ) );
             break;
          default:
             break;
@@ -888,6 +900,32 @@ public class LoggerMap extends MapActivity
       }
    }
    
+   private void updateDirectionDisplayVisibility()
+   {
+      boolean invalidate = false;
+      boolean showDirection = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DIRECTION, false );
+      List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
+      for (int i=0;i<overlays.size();i++)
+      {
+         if( overlays.get( i ) instanceof DirectionsOverlay )
+         {
+            overlays.remove( i );
+            invalidate = true;
+         }
+      }
+      if( showDirection )
+      {
+         Overlay directionOverlay = new DirectionsOverlay( this );
+         overlays.add( directionOverlay  );
+         invalidate = true;
+      }
+      if( invalidate )
+      {
+         this.mMapView.postInvalidate();
+      }
+         
+   }
+   
    private void updateCompassDisplayVisibility()
    {
       boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.COMPASS, false );
@@ -950,10 +988,12 @@ public class LoggerMap extends MapActivity
     * @param trackId
     * @see TrackingOverlay
     */
-   private void createTrackingDataOverlays()
+   private void createDataOverlays()
    {
       List<Overlay> overlays = this.mMapView.getOverlays();
       overlays.clear();
+      
+      updateDirectionDisplayVisibility();
 
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null;
@@ -1062,7 +1102,7 @@ public class LoggerMap extends MapActivity
             resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
 
             updateTitleBar();
-            createTrackingDataOverlays();
+            createDataOverlays();
             updateSpeedbarVisibility();
          }
       }

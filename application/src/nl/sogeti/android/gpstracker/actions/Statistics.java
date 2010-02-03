@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -83,6 +84,9 @@ public class Statistics extends Activity
       super.onCreate( load );
       setContentView( R.layout.statistics );
       this.mTrackUri = this.getIntent().getData() ;
+      
+      GraphCanvas graph = (GraphCanvas) findViewById( R.id.graph_canvas );
+      graph.setUri( mTrackUri );
       
       maxSpeed = (TextView)findViewById( R.id.stat_maximumspeed );
       minAltitude = (TextView)findViewById( R.id.stat_minimalaltitide );
