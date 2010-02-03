@@ -39,26 +39,32 @@ public class GraphCanvas extends View
       super(context, attrs, defStyle);
       mContext = context;
    }
-
+   
    @Override
-   protected void onDraw( Canvas canvas )
+   protected void onSizeChanged( int w, int h, int oldw, int oldh )
    {
-      super.onDraw(canvas);
-      if( mRenderBuffer == null || mRenderBuffer.getWidth() != canvas.getWidth() || mRenderBuffer.getHeight() != canvas.getHeight() )
+      super.onSizeChanged( w, h, oldw, oldh );
+      
+      if( mRenderBuffer == null || mRenderBuffer.getWidth() != w || mRenderBuffer.getHeight() != h )
       {
-         int mHeight = canvas.getHeight();
-         int mWidth = canvas.getWidth();
-         mRenderBuffer = Bitmap.createBitmap( mWidth, mHeight, Config.ARGB_8888 );
+         mRenderBuffer = Bitmap.createBitmap( w, h, Config.ARGB_8888 );
          mRenderCanvas = new Canvas( mRenderBuffer );
       }
       else
       {
          mRenderBuffer.eraseColor( Color.TRANSPARENT );
       }
+   }
+
+   @Override
+   protected void onDraw( Canvas canvas )
+   {
+      super.onDraw(canvas);
+
       Log.d( TAG, "Draw"+canvas.getWidth()+"x"+canvas.getHeight() );
-      //drawSingleGraphOnBuffer( canvas, new String[] { Waypoints.TIME, Waypoints.SPEED } );
-      drawSingleGraphOnBuffer( canvas, new String[] { Waypoints.TIME, Waypoints.LATITUDE } );
-      //canvas.drawBitmap( mRenderBuffer, 0, 0, null );
+      drawSingleGraphOnBuffer( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.SPEED } );
+      //drawSingleGraphOnBuffer( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.LATITUDE } ); // has more numbers in the emulator
+      canvas.drawBitmap( mRenderBuffer, 0, 0, null );
    }
    
    public void setUri( Uri uri )
@@ -145,6 +151,13 @@ public class GraphCanvas extends View
          }
       }      
       canvas.drawPath( mPath, routePaint );
+      
+      Paint red = new Paint();
+      red.setColor( Color.RED );
+      canvas.drawCircle( 5, 5, 10, red );
+      canvas.drawCircle( canvas.getWidth()-5, 5, 10, red );
+      canvas.drawCircle( 5, canvas.getHeight()-5, 10, red );
+      canvas.drawCircle( canvas.getWidth()-5, canvas.getHeight()-5, 10, red );
    }
 
 }

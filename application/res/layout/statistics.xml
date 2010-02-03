@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     android:layout_width="fill_parent"
-     android:layout_height="fill_parent"
-     android:orientation="vertical"
-   >
    <TableLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"   
       android:id="@+id/TableLayout01"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
@@ -151,10 +146,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
       </TableRow>
-   </TableLayout>
-   <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
         android:id="@+id/graph_canvas" 
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
-        android:gravity="bottom|fill"/>
-</LinearLayout>
+      />
+   </TableLayout>
