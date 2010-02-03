@@ -70,13 +70,6 @@
             android:title="@string/showlocation_title"
             android:summary="@string/showlocation_summary"
             android:defaultValue="false" 
-         />
-         <CheckBoxPreference
-            android:key="TRACKDIRECTION"
-            android:title="@string/showtrackdirection_title"
-            android:summary="@string/showtrackdirection_summary"
-            android:defaultValue="false" 
-         />
-         
+         />        
     </PreferenceCategory>
 </PreferenceScreen>
