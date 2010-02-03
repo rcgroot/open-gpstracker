@@ -12,6 +12,12 @@
             android:entryValues="@array/precision_values"
             android:defaultValue="1"/>
         <CheckBoxPreference
+            android:key="speedsanitycheck"
+            android:title="@string/speedsanitycheck_title"
+            android:summary="@string/speedsanitycheck_summary"
+            android:defaultValue="true" 
+            />
+        <CheckBoxPreference
             android:key="disableblanking"
             android:title="@string/disableblanking_title"
             android:summary="@string/disableblanking_summary"

@@ -69,6 +69,12 @@ import android.widget.Toast;
  */ 
 public class GPSLoggerService extends Service 
 {  
+
+   /**
+    * <code>MAX_REASONABLE_SPEED</code> is about 250 kilometer per hour or 155 mile per hour.
+    */
+   private static final int MAX_REASONABLE_SPEED = 70;
+   
    private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
    private static final String SERVICESTATE_PRECISION = "SERVICESTATE_PRECISION";
    private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
@@ -443,6 +449,13 @@ public class GPSLoggerService extends Service
       {
          acceptable = proposedLocation.getAccuracy() < this.mAcceptableAccuracy 
                         && proposedLocation.getAccuracy() < mPreviousLocation.distanceTo( proposedLocation ) ;
+      }
+      if( PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( "speedsanitycheck", false ))
+      {
+         if( proposedLocation.hasSpeed() )
+         {
+            acceptable = proposedLocation.getSpeed() < MAX_REASONABLE_SPEED;
+         }
       }
       return acceptable;
    }
