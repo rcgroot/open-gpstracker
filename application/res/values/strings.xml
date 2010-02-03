@@ -84,8 +84,8 @@
     <string name="showcompass_summary">Show a compass with a needle pointing north</string>
     <string name="speedsanitycheck_title">Speed sanity check </string>
     <string name="speedsanitycheck_summary">Only accept reasonable GPS speeds</string>
-    <string name="showlocation_title">Display </string>
-    <string name="showlocation_summary">Show </string>
+    <string name="showlocation_title">My location </string>
+    <string name="showlocation_summary">Show my location and orientation on the map</string>
 
     <string name="stat_maximumspeed">Maximum speed</string>
     <string name="stat_maximumaltitude">Maximum altitude</string>

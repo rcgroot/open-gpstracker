@@ -84,8 +84,9 @@
     <string name="showcompass_summary">Toon een kompas die het noorden aangeeft</string>
     <string name="speedsanitycheck_title">Snelheids normalisatie</string>
     <string name="speedsanitycheck_summary">Accepteer alleen redelijke GPS snelheden</string>
-    <string name="showlocation_title">Display </string>
-    <string name="showlocation_summary">Show </string>
+    <string name="showlocation_title">Mijn lockatie </string>
+    <string name="showlocation_summary">Toon mijn location and orientatie op de kaart</string>
+
     
     <string name="stat_maximumspeed">Maximale snelheid</string>
     <string name="stat_maximumaltitude">Maximale hoogte</string>
