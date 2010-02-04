@@ -125,7 +125,7 @@ public class GPSLoggerService extends Service
             } 
             else if( key.equals( SPEEDSANITYCHECK ) )
             {
-               speedSanityCheck = sharedPreferences.getBoolean( SPEEDSANITYCHECK, false );
+               speedSanityCheck = sharedPreferences.getBoolean( SPEEDSANITYCHECK, true );
             }
          }
       };
@@ -201,7 +201,9 @@ public class GPSLoggerService extends Service
       this.mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
       this.mNoticationService = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
       mNoticationService.cancel( R.layout.map );
-      
+            
+      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this.mContext );
+      speedSanityCheck = sharedPreferences.getBoolean( SPEEDSANITYCHECK, true );
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( LOGATSTARTUP, false );
 //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
       crashRestoreState();
