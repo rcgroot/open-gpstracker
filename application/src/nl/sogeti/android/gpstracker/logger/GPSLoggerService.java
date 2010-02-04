@@ -454,7 +454,7 @@ public class GPSLoggerService extends Service
       {
          if( proposedLocation.hasSpeed() )
          {
-            acceptable = proposedLocation.getSpeed() < MAX_REASONABLE_SPEED;
+            acceptable = acceptable && proposedLocation.getSpeed() < MAX_REASONABLE_SPEED;
          }
       }
       return acceptable;
