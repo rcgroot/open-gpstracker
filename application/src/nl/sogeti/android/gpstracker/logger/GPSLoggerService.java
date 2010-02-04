@@ -70,21 +70,12 @@ import android.widget.Toast;
 public class GPSLoggerService extends Service 
 {  
 
+
    /**
     * <code>MAX_REASONABLE_SPEED</code> is about 250 kilometer per hour or 155 mile per hour.
     */
    private static final int MAX_REASONABLE_SPEED = 70;
-   
-   private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
-   private static final String SERVICESTATE_PRECISION = "SERVICESTATE_PRECISION";
-   private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
-   private static final String SERVICESTATE_TRACKID = "SERVICESTATE_TRACKID";
-   public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
-   public static final int UNKNOWN = -1;
-   public static final int LOGGING = 1;
-   public static final int PAUSED = 2;
-   public static final int STOPPED = 3;
-   
+   private static final String SPEEDSANITYCHECK = "speedsanitycheck";
    private static final String PRECISION = "precision";
    private static final String LOGATSTARTUP = "logatstartup";
    private static final String TAG = GPSLoggerService.class.getName();
@@ -92,12 +83,23 @@ public class GPSLoggerService extends Service
    private static final int LOGGING_NORMAL = 1;
    private static final int LOGGING_COARSE = 2;
    private static final int LOGGING_GLOBAL = 3;
+   private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
+   private static final String SERVICESTATE_PRECISION = "SERVICESTATE_PRECISION";
+   private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
+   private static final String SERVICESTATE_TRACKID = "SERVICESTATE_TRACKID";
    
+   public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
+   public static final int UNKNOWN = -1;
+   public static final int LOGGING = 1;
+   public static final int PAUSED = 2;
+   public static final int STOPPED = 3;
+
    private Context mContext;
    private LocationManager mLocationManager;
    private NotificationManager mNoticationService;
    private PowerManager.WakeLock mWakeLock ;
    
+   private boolean speedSanityCheck;
    private long mTrackId = -1;
    private long mSegmentId = -1 ;
    private int mPrecision;
@@ -120,6 +122,10 @@ public class GPSLoggerService extends Service
             {
                requestLocationUpdates();
                setupNotification();
+            } 
+            else if( key.equals( SPEEDSANITYCHECK ) )
+            {
+               speedSanityCheck = sharedPreferences.getBoolean( SPEEDSANITYCHECK, false );
             }
          }
       };
@@ -445,15 +451,24 @@ public class GPSLoggerService extends Service
     */
    public Location locationFilter( Location proposedLocation )
    {
-      if( mPreviousLocation != null && proposedLocation.hasAccuracy() && 
-            proposedLocation.getAccuracy() < this.mAcceptableAccuracy && 
-            proposedLocation.getAccuracy() < mPreviousLocation.distanceTo( proposedLocation ) )
+      boolean hasAccuracy = proposedLocation.hasAccuracy();
+      float accuracy = proposedLocation.getAccuracy();
+      // Do not log a waypoint which is more inaccurate then is configured to be acceptable
+      if(   hasAccuracy && 
+            accuracy < this.mAcceptableAccuracy )
       {
-         proposedLocation = null;
+         return null;
       }
-      if( proposedLocation.hasSpeed() && 
+      // Do not log a waypoint which might be on any side of the previous waypoint
+      if(   hasAccuracy &&
+            mPreviousLocation != null &&
+            accuracy < mPreviousLocation.distanceTo( proposedLocation ) )
+      {
+         return null;
+      }
+      if(   proposedLocation.hasSpeed() && 
             proposedLocation.getSpeed() < MAX_REASONABLE_SPEED && 
-            PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( "speedsanitycheck", false ) )
+            speedSanityCheck )
       {
          proposedLocation.removeSpeed();
       }
