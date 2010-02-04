@@ -42,6 +42,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.TypedValue;
+import android.view.View;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 /**
@@ -97,8 +100,8 @@ public class Statistics extends Activity
       starttime = (TextView)findViewById( R.id.stat_starttime );
       endtime = (TextView)findViewById( R.id.stat_endtime );
       trackname = (TextView)findViewById( R.id.stat_trackname );
-      waypoints  = (TextView)findViewById( R.id.stat_waypoints );
-            
+      waypoints  = (TextView)findViewById( R.id.stat_waypoints );     
+      
       drawTrackingStatistics();
    }
  
