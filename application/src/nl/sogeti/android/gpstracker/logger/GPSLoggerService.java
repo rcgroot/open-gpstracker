@@ -127,7 +127,8 @@ public class GPSLoggerService extends Service
       {
          public void onLocationChanged( Location location )
          {
-            if( isLocationAcceptable( location ) )
+            location = locationFilter( location );
+            if( location != null)
             {
                storeLocation( GPSLoggerService.this.mContext, location );
             }
@@ -440,24 +441,23 @@ public class GPSLoggerService extends Service
     * filter those out.
     * 
     * @param proposedLocation
-    * @return if the location is accurate enough
+    * @return either the (cleaned) original or null when unacceptable 
     */
-   public boolean isLocationAcceptable( Location proposedLocation )
+   public Location locationFilter( Location proposedLocation )
    {
-      boolean acceptable = true; 
-      if( mPreviousLocation != null && proposedLocation.hasAccuracy() )
+      if( mPreviousLocation != null && proposedLocation.hasAccuracy() && 
+            proposedLocation.getAccuracy() < this.mAcceptableAccuracy && 
+            proposedLocation.getAccuracy() < mPreviousLocation.distanceTo( proposedLocation ) )
       {
-         acceptable = proposedLocation.getAccuracy() < this.mAcceptableAccuracy 
-                        && proposedLocation.getAccuracy() < mPreviousLocation.distanceTo( proposedLocation ) ;
+         proposedLocation = null;
       }
-      if( PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( "speedsanitycheck", false ))
+      if( proposedLocation.hasSpeed() && 
+            proposedLocation.getSpeed() < MAX_REASONABLE_SPEED && 
+            PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( "speedsanitycheck", false ) )
       {
-         if( proposedLocation.hasSpeed() )
-         {
-            acceptable = acceptable && proposedLocation.getSpeed() < MAX_REASONABLE_SPEED;
-         }
+         proposedLocation.removeSpeed();
       }
-      return acceptable;
+      return proposedLocation;
    }
 
    /**
