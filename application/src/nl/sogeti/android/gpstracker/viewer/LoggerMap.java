@@ -37,6 +37,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
+import nl.sogeti.android.gpstracker.util.UnitsI18n;
 
 import org.openintents.intents.AboutIntents;
 
@@ -130,7 +131,7 @@ public class LoggerMap extends MapActivity
    private CheckBox mLocation;
    private EditText mTrackNameView;
    private TextView[] mSpeedtexts = null;
-   private TextView mLastGPSSpeedText = null;
+   private TextView mLastGPSSpeedView = null;
    private ImageView mCompassView;
    private ImageView mNeedleView;
    
@@ -140,6 +141,7 @@ public class LoggerMap extends MapActivity
    private long mLastWaypoint = -1;
    private float mDirection  = 0.0f;
 
+   private UnitsI18n mUnits;
    private WakeLock mWakeLock = null;
    private MapController mMapController = null;
    private SharedPreferences mSharedPreferences;
@@ -338,6 +340,8 @@ public class LoggerMap extends MapActivity
       }
       this.mLoggerServiceManager.startup();
 
+      mUnits = new UnitsI18n( this );
+      
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
       mSharedPreferences.registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
@@ -353,7 +357,7 @@ public class LoggerMap extends MapActivity
       TextView[] speeds = { (TextView) findViewById( R.id.speedview05 ), (TextView) findViewById( R.id.speedview04 ), (TextView) findViewById( R.id.speedview03 ),
             (TextView) findViewById( R.id.speedview02 ), (TextView) findViewById( R.id.speedview01 ), (TextView) findViewById( R.id.speedview00 ) };
       mSpeedtexts = speeds;
-      mLastGPSSpeedText = (TextView) findViewById( R.id.currentSpeed );
+      mLastGPSSpeedView = (TextView) findViewById( R.id.currentSpeed );
       mCompassView = (ImageView) findViewById( R.id.compassview );
       mNeedleView = (ImageView) findViewById( R.id.needleview );
 
@@ -892,11 +896,11 @@ public class LoggerMap extends MapActivity
       boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.SPEED, false );
       if( showspeed )
       {
-         mLastGPSSpeedText.setVisibility( View.VISIBLE );
+         mLastGPSSpeedView.setVisibility( View.VISIBLE );
       }
       else
       {
-         mLastGPSSpeedText.setVisibility( View.INVISIBLE );
+         mLastGPSSpeedView.setVisibility( View.INVISIBLE );
       }
    }
    
@@ -963,14 +967,10 @@ public class LoggerMap extends MapActivity
          waypointsCursor = resolver.query( lastSegmentUri, new String[] { Waypoints.SPEED }, null, null, null );
          if( waypointsCursor != null && waypointsCursor.moveToLast() )
          {
-            String speed_unit = this.getResources().getString( R.string.speed_unitname );
-            TypedValue outValue = new TypedValue();
-            this.getResources().getValue( R.raw.conversion_from_mps, outValue, false );
-            float conversion_from_mps = outValue.getFloat();
             double speed = waypointsCursor.getDouble( 0 );
-            speed = speed * conversion_from_mps;
-            String speedText = String.format( "%.0f", speed ) + " " + speed_unit;
-            mLastGPSSpeedText.setText( speedText );
+            speed = mUnits.conversionFromMetersPerSecond( speed ) ;
+            String speedText = String.format( "%.0f %s", speed, mUnits.getSpeedUnit() ) ;
+            mLastGPSSpeedView.setText( speedText );
          }
       }
       finally
@@ -1066,17 +1066,13 @@ public class LoggerMap extends MapActivity
     */
    private void drawSpeedTexts( double avgSpeed )
    {
-      TypedValue outValue = new TypedValue();
-      this.getResources().getValue( R.raw.conversion_from_mps, outValue, false );
-      float conversion_from_mps = outValue.getFloat();
-      String unit = this.getResources().getString( R.string.speed_unitname );
-
-      avgSpeed = avgSpeed * conversion_from_mps;
+      avgSpeed = mUnits.conversionFromMetersPerSecond( avgSpeed );
       for (int i = 0; i < mSpeedtexts.length; i++)
       {
          mSpeedtexts[i].setVisibility( View.VISIBLE );
          int speed = (int) ( ( avgSpeed * 2d ) / 5d ) * i;
-         mSpeedtexts[i].setText( speed + unit );
+         String speedText = String.format( "%.0f %s", speed, mUnits.getSpeedUnit() ) ;
+         mSpeedtexts[i].setText( speedText );
       }
    }
 

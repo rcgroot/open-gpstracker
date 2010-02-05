@@ -33,6 +33,7 @@ import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.database.ContentObserver;
@@ -66,16 +67,18 @@ public class Statistics extends Activity
    };
    
    Uri mTrackUri = null;
-   private TextView overallavgSpeed;
-   private TextView avgSpeed;
-   private TextView distance;
-   private TextView endtime;
-   private TextView starttime;
-   private TextView trackname;
-   private TextView maxSpeed;
-   private TextView waypoints;
-   private TextView minAltitude;
-   private TextView maxAltitude;
+   private TextView overallavgSpeedView;
+   private TextView avgSpeedView;
+   private TextView distanceView;
+   private TextView endtimeView;
+   private TextView starttimeView;
+   private TextView tracknameView;
+   private TextView maxSpeedView;
+   private TextView waypointsView;
+   private TextView minAltitudeView;
+   private TextView maxAltitudeView;
+
+   private UnitsI18n mUnits;
    
    /** 
     * Called when the activity is first created. 
@@ -85,22 +88,23 @@ public class Statistics extends Activity
    protected void onCreate( Bundle load )
    {
       super.onCreate( load );
+      mUnits = new UnitsI18n( this );
       setContentView( R.layout.statistics );
       this.mTrackUri = this.getIntent().getData() ;
       
       GraphCanvas graph = (GraphCanvas) findViewById( R.id.graph_canvas );
       graph.setUri( mTrackUri );
       
-      maxSpeed = (TextView)findViewById( R.id.stat_maximumspeed );
-      minAltitude = (TextView)findViewById( R.id.stat_minimalaltitide );
-      maxAltitude = (TextView)findViewById( R.id.stat_maximumaltitude );
-      overallavgSpeed = (TextView)findViewById( R.id.stat_overallaveragespeed );
-      avgSpeed = (TextView)findViewById( R.id.stat_averagespeed );
-      distance = (TextView)findViewById( R.id.stat_distance );
-      starttime = (TextView)findViewById( R.id.stat_starttime );
-      endtime = (TextView)findViewById( R.id.stat_endtime );
-      trackname = (TextView)findViewById( R.id.stat_trackname );
-      waypoints  = (TextView)findViewById( R.id.stat_waypoints );     
+      maxSpeedView = (TextView)findViewById( R.id.stat_maximumspeed );
+      minAltitudeView = (TextView)findViewById( R.id.stat_minimalaltitide );
+      maxAltitudeView = (TextView)findViewById( R.id.stat_maximumaltitude );
+      overallavgSpeedView = (TextView)findViewById( R.id.stat_overallaveragespeed );
+      avgSpeedView = (TextView)findViewById( R.id.stat_averagespeed );
+      distanceView = (TextView)findViewById( R.id.stat_distance );
+      starttimeView = (TextView)findViewById( R.id.stat_starttime );
+      endtimeView = (TextView)findViewById( R.id.stat_endtime );
+      tracknameView = (TextView)findViewById( R.id.stat_trackname );
+      waypointsView  = (TextView)findViewById( R.id.stat_waypoints );     
       
       drawTrackingStatistics();
    }
@@ -140,30 +144,19 @@ public class Statistics extends Activity
       String maxAltitudeText = "Unknown";
       String minAltitudeText = "Unknown";
       String tracknameText = "Unknown";
-      long starttimeText = 0;
-      long endtimeText = 0;
       String waypointsText = "Unknown";
       String distanceText = "Unknown";
-      
-      TypedValue outValue = new TypedValue();
-      this.getResources().getValue( R.raw.conversion_from_mps, outValue, false ) ;
-      float conversion_from_mps =  outValue.getFloat();
-      
-      this.getResources().getValue( R.raw.conversion_from_meter, outValue, false ) ;
-      float conversion_from_meter = outValue.getFloat();
-      
-      this.getResources().getValue( R.raw.conversion_from_meter_to_small, outValue, false ) ;
-      float conversion_from_meter_to_small = outValue.getFloat();
-      
-      String speed_unit = this.getResources().getString( R.string.speed_unitname );
-      String distance_unit = this.getResources().getString( R.string.distance_unitname );
-      String distance_smallunit = this.getResources().getString( R.string.distance_smallunitname );
-      
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
-      
+      long starttimeText = 0;
+      long endtimeText = 0;
       double maxSpeeddb = 0;
-      double maxalti = 0;
-      double minalti = 0;
+      double maxAltitude = 0;
+      double minAltitude = 0;
+      double distanceTraveled = 0f;
+      long duration = 1;
+      long overallduration = 1;
+     
+      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+
       Cursor waypointsCursor = null ;
       try
       {
@@ -178,11 +171,11 @@ public class Statistics extends Activity
                , null );
          if( waypointsCursor.moveToLast() )
          {
-            maxSpeeddb =  waypointsCursor.getDouble( 0 ) *  conversion_from_mps;
-            maxalti = waypointsCursor.getDouble( 1 ) *  conversion_from_meter_to_small;
-            minalti = waypointsCursor.getDouble( 2 ) *  conversion_from_meter_to_small;
-            long avgSpeed = waypointsCursor.getLong(  3 );            
-            waypointsText = avgSpeed+"";
+            maxSpeeddb = mUnits.conversionFromMetersPerSecond( waypointsCursor.getDouble( 0 ) );
+            maxAltitude = mUnits.conversionFromMeterToSmall( waypointsCursor.getDouble( 1 ) );
+            minAltitude = mUnits.conversionFromMeterToSmall( waypointsCursor.getDouble( 2 ) );
+            long nrWaypoints = waypointsCursor.getLong(  3 );            
+            waypointsText = nrWaypoints+"";
          }
       }
       finally
@@ -192,7 +185,6 @@ public class Statistics extends Activity
             waypointsCursor.close();
          }
       }
-      
       Cursor trackCursor = null ;
       try
       {
@@ -214,14 +206,9 @@ public class Statistics extends Activity
             trackCursor.close();
          }
       }
-      
-      
       Cursor segments = null;
       Location lastLocation = null;
       Location currentLocation = null;
-      float distanceTraveled = 0f;
-      long duration = 1;
-      long overallduration = 1;
       try 
       {
          Uri segmentsUri = Uri.withAppendedPath( this.mTrackUri, "segments" );
@@ -287,26 +274,26 @@ public class Statistics extends Activity
          }
       }
             
-      float overallavgSpeedfl = (distanceTraveled * conversion_from_meter)/(overallduration/3600000f) ;
-      float avgSpeedfl = (distanceTraveled * conversion_from_meter)/(duration/3600000f) ;
-      avgSpeedText = String.format( "%.2f", avgSpeedfl )+" "+speed_unit;
-      overallavgSpeedText = String.format( "%.2f", overallavgSpeedfl )+" "+speed_unit;
-      distanceText =  String.format( "%.2f", distanceTraveled * conversion_from_meter )+" "+distance_unit;
-      maxSpeedText = String.format( "%.2f", maxSpeeddb )+" "+speed_unit;
-      minAltitudeText = String.format( "%.1f", minalti )+" "+distance_smallunit;
-      maxAltitudeText = String.format( "%.1f", maxalti )+" "+distance_smallunit;
+      double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, overallduration );
+      double avgSpeedfl        = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, duration );
+      distanceTraveled         = mUnits.conversionFromMeter( distanceTraveled );
+      avgSpeedText        = String.format( "%.2f %s", avgSpeedfl, mUnits.getSpeedUnit() );
+      overallavgSpeedText = String.format( "%.2f %s", overallavgSpeedfl,  mUnits.getSpeedUnit() );
+      distanceText        = String.format( "%.2f %s", distanceTraveled, mUnits.getDistanceUnit() );
+      maxSpeedText        = String.format( "%.2f %s", maxSpeeddb, mUnits.getSpeedUnit() );
+      minAltitudeText     = String.format( "%.1f %s", minAltitude, mUnits.getDistanceSmallUnit() );
+      maxAltitudeText     = String.format( "%.1f %s", maxAltitude, mUnits.getDistanceSmallUnit() );
       
-      
-      maxSpeed.setText( maxSpeedText );
-      maxAltitude.setText( maxAltitudeText );
-      minAltitude.setText( minAltitudeText );
-      overallavgSpeed.setText( overallavgSpeedText );
-      avgSpeed.setText( avgSpeedText );
-      distance.setText( distanceText );
-      starttime.setText( Long.toString( starttimeText ) );
-      endtime.setText( Long.toString( endtimeText ) );
-      trackname.setText( tracknameText );
-      waypoints.setText( waypointsText );
+      maxSpeedView.setText( maxSpeedText );
+      maxAltitudeView.setText( maxAltitudeText );
+      minAltitudeView.setText( minAltitudeText );
+      overallavgSpeedView.setText( overallavgSpeedText );
+      avgSpeedView.setText( avgSpeedText );
+      distanceView.setText( distanceText );
+      starttimeView.setText( Long.toString( starttimeText ) );
+      endtimeView.setText( Long.toString( endtimeText ) );
+      tracknameView.setText( tracknameText );
+      waypointsView.setText( waypointsText );
    }
 
 }
