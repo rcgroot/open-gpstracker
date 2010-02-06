@@ -274,6 +274,8 @@ public class Statistics extends Activity
             segments.close();
          }
       }
+      
+      graphView.setData( mTrackUri, starttime, endtime, distanceTraveled, mUnits );
             
       double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, overallduration );
       double avgSpeedfl        = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, duration );
@@ -295,9 +297,6 @@ public class Statistics extends Activity
       endtimeView.setText( Long.toString( endtime ) );
       tracknameView.setText( tracknameText );
       waypointsView.setText( waypointsText );
-      
-
-      graphView.setData( mTrackUri, starttime, endtime, mUnits );
    }
 
 }
