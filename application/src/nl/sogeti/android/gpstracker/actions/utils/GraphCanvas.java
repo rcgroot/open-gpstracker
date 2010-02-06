@@ -96,20 +96,20 @@ public class GraphCanvas extends View
       switch( mGraphType )
       {
          case( TIMESPEEDGRAPH ):
-            drawTimeAxisGraphOnCanvas( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.SPEED } );
-            drawSpeeds( mRenderCanvas, mHeight, mMinAxis, mMaxAxis );
+            drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.SPEED } );
+            drawSpeeds();
             break;
          case( DISTANCESPEEDGRAPH ):
-            drawDistanceAxisGraphOnCanvas( mRenderCanvas, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.SPEED } );
-            drawSpeeds( mRenderCanvas, mHeight, mMinAxis, mMaxAxis );
+            drawDistanceAxisGraphOnCanvas(  new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.SPEED } );
+            drawSpeeds();
             break;
          case( TIMEALTITUDEGRAPH ):
-            drawTimeAxisGraphOnCanvas( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.ALTITUDE } );
-            drawAltitudes( mRenderCanvas, mHeight, mMinAxis, mMaxAxis );
+            drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.ALTITUDE } );
+            drawAltitudes();
             break;
          case( DISTANCEALTITUDEGRAPH ):
-            drawDistanceAxisGraphOnCanvas( mRenderCanvas, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE } );
-            drawAltitudes( mRenderCanvas, mHeight, mMinAxis, mMaxAxis );
+            drawDistanceAxisGraphOnCanvas( new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE } );
+            drawAltitudes();
             break;
          default:
             break;
@@ -117,15 +117,15 @@ public class GraphCanvas extends View
       canvas.drawBitmap( mRenderBuffer, 0, 0, null );
    }
       
-   private void drawDistanceAxisGraphOnCanvas( Canvas canvas, String[] params )
+   private void drawDistanceAxisGraphOnCanvas( String[] params )
    {
       ContentResolver resolver = mContext.getApplicationContext().getContentResolver();
       Uri segmentsUri = Uri.withAppendedPath( mUri, "/segments" );
       Uri waypointsUri = null;
       Cursor segments = null;
       Cursor waypoints = null;
-      int width = canvas.getWidth()-5;
-      mHeight = canvas.getHeight()-10;
+      int width = mRenderCanvas.getWidth()-5;
+      mHeight = mRenderCanvas.getHeight()-10;
       double[][] values ;
       int[][] valueDepth;
       double maxValue = 1;
@@ -212,18 +212,18 @@ public class GraphCanvas extends View
       mMinAxis = 4 * (int)(minValue / 4);
       mMaxAxis = 4 + 4 * (int)(maxValue / 4);
       
-      drawGraph( canvas, width, mHeight, values, valueDepth, mMinAxis, mMaxAxis );      
+      drawGraph( mRenderCanvas, width, values, valueDepth );      
    }
    
-   private void drawTimeAxisGraphOnCanvas( Canvas canvas, String[] params )
+   private void drawTimeAxisGraphOnCanvas( String[] params )
    {
       ContentResolver resolver = mContext.getApplicationContext().getContentResolver();
       Uri segmentsUri = Uri.withAppendedPath( mUri, "/segments" );
       Uri waypointsUri = null;
       Cursor segments = null;
       Cursor waypoints = null;
-      int width = canvas.getWidth()-5;
-      int height = canvas.getHeight()-10;
+      int width = mRenderCanvas.getWidth()-5;
+      mHeight = mRenderCanvas.getHeight()-10;
       long duration = mEndTime - mStartTime;
       double[][] values ;
       int[][] valueDepth;
@@ -302,33 +302,33 @@ public class GraphCanvas extends View
             }
          }
       }
-      int minAxis = 4 * (int)(minValue / 4);
-      int maxAxis = 4 + 4 * (int)(maxValue / 4);
+      mMinAxis = 4 * (int)(minValue / 4);
+      mMaxAxis = 4 + 4 * (int)(maxValue / 4);
       
-      drawGraph( canvas, width, height, values, valueDepth, minAxis, maxAxis );
+      drawGraph( mRenderCanvas, width, values, valueDepth );
    }
 
-   private void drawSpeeds( Canvas canvas, int height, int minAxis, int maxAxis )
+   private void drawSpeeds()
    {
       Paint white = new Paint();
       white.setColor( Color.WHITE );
       white.setAntiAlias( true );
-      canvas.drawText( String.format( "%d %s", minAxis, mUnits.getSpeedUnit() )  , 8,  height, white );
-      canvas.drawText( String.format( "%d %s", (maxAxis+minAxis)/2, mUnits.getSpeedUnit() ) , 8,  5+height/2, white );
-      canvas.drawText( String.format( "%d %s", maxAxis, mUnits.getSpeedUnit() ), 8,  15, white );
+      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getSpeedUnit() )  , 8,  mHeight, white );
+      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getSpeedUnit() ) , 8,  5+mHeight/2, white );
+      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getSpeedUnit() ), 8,  15, white );
    }
    
-   private void drawAltitudes( Canvas canvas, int height, int minAxis, int maxAxis )
+   private void drawAltitudes()
    {
       Paint white = new Paint();
       white.setColor( Color.WHITE );
       white.setAntiAlias( true );
-      canvas.drawText( String.format( "%d %s", minAxis, mUnits.getDistanceSmallUnit() )  , 8,  height, white );
-      canvas.drawText( String.format( "%d %s", (maxAxis+minAxis)/2, mUnits.getDistanceSmallUnit() ) , 8,  5+height/2, white );
-      canvas.drawText( String.format( "%d %s", maxAxis, mUnits.getDistanceSmallUnit() ), 8,  15, white );
+      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getDistanceSmallUnit() )  , 8,  mHeight, white );
+      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getDistanceSmallUnit() ) , 8,  5+mHeight/2, white );
+      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getDistanceSmallUnit() ), 8,  15, white );
    }
    
-   private void drawGraph( Canvas canvas, int width, int height, double[][] values, int[][] valueDepth, int minAxis, int maxAxis )
+   private void drawGraph( Canvas canvas, int width, double[][] values, int[][] valueDepth )
    {
       // Matrix
       Paint ltgrey = new Paint();
@@ -337,14 +337,14 @@ public class GraphCanvas extends View
       // Horizontals
       ltgrey.setPathEffect( new DashPathEffect( new float[]{2,4}, 0 ) );
       canvas.drawLine( 5, 5           , 5+width, 5           , ltgrey );
-      canvas.drawLine( 5, 5+height/4  , 5+width, 5+height/4  , ltgrey );
-      canvas.drawLine( 5, 5+height/2  , 5+width, 5+height/2  , ltgrey );
-      canvas.drawLine( 5, 5+height/4*3, 5+width, 5+height/4*3, ltgrey );
+      canvas.drawLine( 5, 5+mHeight/4  , 5+width, 5+mHeight/4  , ltgrey );
+      canvas.drawLine( 5, 5+mHeight/2  , 5+width, 5+mHeight/2  , ltgrey );
+      canvas.drawLine( 5, 5+mHeight/4*3, 5+width, 5+mHeight/4*3, ltgrey );
       // Verticals
-      canvas.drawLine( 5+width/4  , 5, 5+width/4  , 5+height, ltgrey );
-      canvas.drawLine( 5+width/2  , 5, 5+width/2  , 5+height, ltgrey );
-      canvas.drawLine( 5+width/4*3, 5, 5+width/4*3, 5+height, ltgrey );
-      canvas.drawLine( 5+width-1   , 5, 5+width-1 , 5+height, ltgrey );
+      canvas.drawLine( 5+width/4  , 5, 5+width/4  , 5+mHeight, ltgrey );
+      canvas.drawLine( 5+width/2  , 5, 5+width/2  , 5+mHeight, ltgrey );
+      canvas.drawLine( 5+width/4*3, 5, 5+width/4*3, 5+mHeight, ltgrey );
+      canvas.drawLine( 5+width-1   , 5, 5+width-1 , 5+mHeight, ltgrey );
       
       // The line
       Paint routePaint = new Paint();
@@ -362,10 +362,10 @@ public class GraphCanvas extends View
          {
             start++;
          }
-         mPath.moveTo( (float)start+5, 5f+ (float) ( height - ( ( values[p][start]-minAxis )*height ) / ( maxAxis-minAxis ) ) );
+         mPath.moveTo( (float)start+5, 5f+ (float) ( mHeight - ( ( values[p][start]-mMinAxis )*mHeight ) / ( mMaxAxis-mMinAxis ) ) );
          for( int x=start;x<values[p].length;x++)
          {
-            double y =   height - ( ( values[p][x]-minAxis )*height ) / ( maxAxis-minAxis ) ;
+            double y =   mHeight - ( ( values[p][x]-mMinAxis )*mHeight ) / ( mMaxAxis-mMinAxis ) ;
             if( valueDepth[p][x] > 0 )
             {
                mPath.lineTo( (float)x+5, (float) y+5 );
@@ -378,8 +378,8 @@ public class GraphCanvas extends View
       Paint dkgrey = new Paint();
       dkgrey.setColor( Color.DKGRAY );
       dkgrey.setStrokeWidth( 2 );
-      canvas.drawLine( 5, 5       , 5      , 5+height, dkgrey );
-      canvas.drawLine( 5, 5+height, 5+width, 5+height, dkgrey );
+      canvas.drawLine( 5, 5       , 5       , 5+mHeight, dkgrey );
+      canvas.drawLine( 5, 5+mHeight, 5+width, 5+mHeight, dkgrey );
    }
 
 }
