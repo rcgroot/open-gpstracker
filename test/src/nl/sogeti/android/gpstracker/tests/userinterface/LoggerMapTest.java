@@ -85,12 +85,12 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
       serviceManager.startup();
       Assert.assertEquals( "The service should not be logging", GPSLoggerService.STOPPED ,serviceManager.getLoggingState() );
 
-      this.sendKeys( "MENU T" );
+      this.sendKeys( "MENU T DPAD_DOWN ENTER" );
       this.sendKeys("T E S T R O U T E ENTER ENTER");
       Assert.assertTrue("Title contains the current route name", this.mLoggermap.getTitle().toString().contains( "testroute" ));
       Assert.assertEquals( "The service should be logging", GPSLoggerService.LOGGING ,serviceManager.getLoggingState() );
 
-      this.sendKeys( "MENU T" );
+      this.sendKeys( "MENU T DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_CENTER" );
       Assert.assertEquals( "The service should not be logging", GPSLoggerService.STOPPED ,serviceManager.getLoggingState() );
       serviceManager.shutdown();
    }
@@ -115,7 +115,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
       //this.setUp();
       Assert.assertEquals( "The service should be logging", GPSLoggerService.LOGGING ,serviceManager.getLoggingState() );
 
-      this.sendKeys( "MENU T" );     
+      this.sendKeys( "MENU T DPAD_DOWN ENTER" );     
       Assert.assertEquals( "The service should not be logging", GPSLoggerService.STOPPED ,serviceManager.getLoggingState() );
 
       //this.sendKeys( "HOME" );

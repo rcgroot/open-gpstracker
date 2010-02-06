@@ -91,7 +91,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       service.storeLocation( this.getContext(), reference );
       
       this.mLocation.setAccuracy( 50f );
-      Assert.assertFalse( "An unacceptable fix", service.isLocationAcceptable( this.mLocation ) );
+      Assert.assertNull( "An unacceptable fix", service.locationFilter( this.mLocation ) );
    }
    
    @SmallTest
@@ -105,7 +105,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       service.storeLocation( this.getContext(), reference );
       
       this.mLocation.setAccuracy( 9f );
-      Assert.assertTrue( "An acceptable fix", service.isLocationAcceptable( this.mLocation ) );
+      Assert.assertNotNull( "An acceptable fix", service.locationFilter( this.mLocation ) );
    }
 
    @SmallTest
@@ -119,7 +119,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       service.storeLocation( this.getContext(), reference );
       
       this.mLocation.setAccuracy( 19f );
-      Assert.assertFalse( "An acceptable fix", service.isLocationAcceptable( this.mLocation ) );
+      Assert.assertNotNull( "An acceptable fix", service.locationFilter( this.mLocation ) );
    }
 
 }
