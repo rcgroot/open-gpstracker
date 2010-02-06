@@ -28,25 +28,35 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
+import org.openintents.intents.AboutIntents;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
+import nl.sogeti.android.gpstracker.logger.SettingsDialog;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.AlertDialog.Builder;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -61,7 +71,9 @@ import android.widget.TextView;
 public class Statistics extends Activity
 {
    
-   protected static final int DIALOG_GRAPHTYPE = 0;
+   private static final int DIALOG_GRAPHTYPE = 3;
+   private static final int MENU_GRAPHTYPE = 11;
+   private static final int MENU_TRACKLIST = 12;
 
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
    {
@@ -131,22 +143,23 @@ public class Statistics extends Activity
       super.onCreate( load );
       mUnits = new UnitsI18n( this );
       setContentView( R.layout.statistics );
-      this.mTrackUri = this.getIntent().getData() ;
       
       mGraphView = (GraphCanvas) findViewById( R.id.graph_canvas );
       mGraphView.setOnClickListener( mGraphOnClickListener  );
       
-      maxSpeedView = (TextView)findViewById( R.id.stat_maximumspeed );
-      minAltitudeView = (TextView)findViewById( R.id.stat_minimalaltitide );
-      maxAltitudeView = (TextView)findViewById( R.id.stat_maximumaltitude );
+      maxSpeedView        = (TextView)findViewById( R.id.stat_maximumspeed );
+      minAltitudeView     = (TextView)findViewById( R.id.stat_minimalaltitide );
+      maxAltitudeView     = (TextView)findViewById( R.id.stat_maximumaltitude );
       overallavgSpeedView = (TextView)findViewById( R.id.stat_overallaveragespeed );
-      avgSpeedView = (TextView)findViewById( R.id.stat_averagespeed );
-      distanceView = (TextView)findViewById( R.id.stat_distance );
-      starttimeView = (TextView)findViewById( R.id.stat_starttime );
-      endtimeView = (TextView)findViewById( R.id.stat_endtime );
-      tracknameView = (TextView)findViewById( R.id.stat_trackname );
-      waypointsView  = (TextView)findViewById( R.id.stat_waypoints );     
+      avgSpeedView        = (TextView)findViewById( R.id.stat_averagespeed );
+      distanceView        = (TextView)findViewById( R.id.stat_distance );
+      starttimeView       = (TextView)findViewById( R.id.stat_starttime );
+      endtimeView         = (TextView)findViewById( R.id.stat_endtime );
+      tracknameView       = (TextView)findViewById( R.id.stat_trackname );
+      waypointsView       = (TextView)findViewById( R.id.stat_waypoints );     
       
+
+      mTrackUri = this.getIntent().getData() ;
       drawTrackingStatistics();
    }
  
@@ -175,6 +188,58 @@ public class Statistics extends Activity
       resolver.registerContentObserver( mTrackUri, true, this.mTrackObserver );
    }
 
+   @Override
+   public boolean onCreateOptionsMenu( Menu menu )
+   {
+      boolean result = super.onCreateOptionsMenu( menu );
+      menu.add( ContextMenu.NONE, MENU_GRAPHTYPE, ContextMenu.NONE, R.string.menu_graphtype ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 't' );
+      menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'l' );
+      return result;
+   }
+   
+   @Override
+   public boolean onOptionsItemSelected( MenuItem item )
+   {
+      boolean handled = false;
+      switch (item.getItemId())
+      {
+         case MENU_GRAPHTYPE:
+            showDialog( DIALOG_GRAPHTYPE );
+            handled = true;
+            break;
+         case MENU_TRACKLIST:
+            Intent tracklistIntent = new Intent( this, TrackList.class );
+            tracklistIntent.putExtra( Tracks._ID, mTrackUri.getLastPathSegment() );
+            startActivityForResult( tracklistIntent, MENU_TRACKLIST );
+            break;
+         default:
+            handled = super.onOptionsItemSelected( item );
+      }
+      return handled;
+   }
+   
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+    */
+   @Override
+   protected void onActivityResult( int requestCode, int resultCode, Intent data )
+   {
+      super.onActivityResult( requestCode, resultCode, data );
+      if( resultCode != RESULT_CANCELED )
+      {
+         switch (requestCode)
+         {
+            case MENU_TRACKLIST:
+               Bundle extras = data.getExtras();
+               long trackId = extras.getLong( Tracks._ID );
+               mTrackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, "/"+trackId );
+               drawTrackingStatistics();
+               break;
+         }
+      }
+   }
+   
    /*
     * (non-Javadoc)
     * @see android.app.Activity#onCreateDialog(int)

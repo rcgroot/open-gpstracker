@@ -55,6 +55,7 @@
     <string name="menu_statistics">Toon statistics</string>
     <string name="menu_about">Info</string>
     <string name="menu_showLayers">Lagen</string>
+    <string name="menu_graphtype">Grafiek soort</string>
     <string name="graphtype_timespeed">Snelheid tegen tijd</string>
     <string name="graphtype_timealtitude">Hoogte tegen tijd</string>
     <string name="graphtype_distancespeed">Snelheid tegen afstand</string>

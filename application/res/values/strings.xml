@@ -55,6 +55,7 @@
     <string name="menu_statistics">Show statistics</string>
     <string name="menu_about">About</string>
     <string name="menu_showLayers">Overlays</string>
+    <string name="menu_graphtype">Graph type</string>
     <string name="graphtype_timespeed">Speed against time</string>
     <string name="graphtype_timealtitude">Altitude against time</string>
     <string name="graphtype_distancespeed">Speed against distance</string>

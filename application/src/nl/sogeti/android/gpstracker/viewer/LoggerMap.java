@@ -107,7 +107,7 @@ public class LoggerMap extends MapActivity
    // MENU'S
    private static final int MENU_SETTINGS = 0;
    private static final int MENU_TRACKING = 1;
-   private static final int MENU_TRACKLIST = 5;
+   public static final int MENU_TRACKLIST = 5;
    private static final int MENU_STATS = 7;
    private static final int MENU_ITEM_ABOUT = 9;
    private static final int MENU_LAYERS = 11;
