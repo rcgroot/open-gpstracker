@@ -28,12 +28,15 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
+import com.google.android.maps.GeoPoint;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -68,6 +71,7 @@ public class Statistics extends Activity
    private static final int DIALOG_GRAPHTYPE = 3;
    private static final int MENU_GRAPHTYPE = 11;
    private static final int MENU_TRACKLIST = 12;
+   private static final String GRAPH_TYPE = "GRAPH_TYPE";
 
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
    {
@@ -128,7 +132,6 @@ public class Statistics extends Activity
                break;
          }
          dismissDialog( DIALOG_GRAPHTYPE );
-         
       }
    };
    
@@ -160,6 +163,23 @@ public class Statistics extends Activity
 
       mTrackUri = this.getIntent().getData() ;
       drawTrackingStatistics();
+   }
+   
+   @Override
+   protected void onRestoreInstanceState( Bundle load )
+   {
+      super.onRestoreInstanceState( load );
+      if( load != null && load.containsKey( GRAPH_TYPE ) )
+      {
+         mGraphView.setType( load.getInt( GRAPH_TYPE ) );
+      }
+   }
+
+   @Override
+   protected void onSaveInstanceState( Bundle save )
+   {
+      super.onSaveInstanceState( save );
+      save.putLong( GRAPH_TYPE, mGraphView.getType() );;
    }
  
    /*

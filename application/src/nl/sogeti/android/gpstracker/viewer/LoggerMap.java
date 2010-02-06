@@ -438,6 +438,7 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onRestoreInstanceState( Bundle load )
    {
+      super.onRestoreInstanceState( load );
       long intentTrackId = this.getIntent().getLongExtra( EXTRA_TRACK_ID, -1 );
       if( intentTrackId >= 0 )
       {
@@ -477,12 +478,12 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onSaveInstanceState( Bundle save )
    {
+      super.onSaveInstanceState( save );
       save.putLong( "track", this.mTrackId );
       save.putInt( "zoom", this.mMapView.getZoomLevel() );
       GeoPoint point = this.mMapView.getMapCenter();
       save.putInt( "e6lat", point.getLatitudeE6() );
       save.putInt( "e6long", point.getLongitudeE6() );
-      super.onSaveInstanceState( save );
    }
 
    /*

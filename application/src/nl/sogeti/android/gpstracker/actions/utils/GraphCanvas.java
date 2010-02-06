@@ -95,6 +95,11 @@ public class GraphCanvas extends View
       }
    }
    
+   public long getType()
+   {
+      return mGraphType;
+   }
+
    @Override
    protected void onSizeChanged( int w, int h, int oldw, int oldh )
    {
