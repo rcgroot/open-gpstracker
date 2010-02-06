@@ -49,7 +49,6 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;

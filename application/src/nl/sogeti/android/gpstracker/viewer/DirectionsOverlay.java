@@ -36,9 +36,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Bitmap.Config;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
@@ -47,7 +44,7 @@ import com.google.android.maps.Projection;
 /**
  * Draws the current location and some relative directions on the map
  * 
- * @version $Id:$
+ * @version $Id$
  * @author rene (c) Feb 2, 2010, Sogeti B.V.
  */
 public class DirectionsOverlay extends Overlay

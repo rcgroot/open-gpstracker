@@ -28,15 +28,12 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import com.google.android.maps.GeoPoint;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -50,7 +47,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;

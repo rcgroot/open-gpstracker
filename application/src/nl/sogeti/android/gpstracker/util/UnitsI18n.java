@@ -31,7 +31,6 @@ package nl.sogeti.android.gpstracker.util;
 
 import nl.sogeti.android.gpstracker.R;
 import android.content.Context;
-import android.util.Log;
 import android.util.TypedValue;
 
 /**

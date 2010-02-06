@@ -28,11 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import java.io.File;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreationProgressListener;
-import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;
 import android.app.Notification;
@@ -42,7 +39,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 /**

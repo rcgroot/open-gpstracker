@@ -33,8 +33,6 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreationProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
-
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -187,7 +185,4 @@ public class ExportGPX extends Activity
          mNotificationManager.cancel( R.layout.savenotificationprogress );
       }
    }
-
-
-
 }

@@ -33,7 +33,6 @@ import java.util.List;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
