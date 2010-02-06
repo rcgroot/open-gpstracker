@@ -58,22 +58,23 @@ public class GraphCanvas extends View
       mContext = context;
    }
    
-   public void setType( int graphType)
-   {
-      if( mGraphType != graphType )
-      {
-         mGraphType = graphType;
-         postInvalidate();
-      }
-   }
-   
    public void setData( Uri uri, long startTime, long endTime, double distance, UnitsI18n units )
-   {
+   {     
       mUri = uri;
       mStartTime = startTime;
       mEndTime = endTime;
       mDistance = distance;
       mUnits = units;
+      renderGraph();
+   }
+   
+   public void setType( int graphType)
+   {
+      if( mGraphType != graphType )
+      {
+         mGraphType = graphType;
+         renderGraph();
+      }
    }
    
    @Override
@@ -85,6 +86,7 @@ public class GraphCanvas extends View
       {
          mRenderBuffer = Bitmap.createBitmap( w, h, Config.ARGB_8888 );
          mRenderCanvas = new Canvas( mRenderBuffer );
+         renderGraph();
       }
    }
 
@@ -92,29 +94,38 @@ public class GraphCanvas extends View
    protected void onDraw( Canvas canvas )
    {
       super.onDraw(canvas);
-      mRenderBuffer.eraseColor( Color.TRANSPARENT );
-      switch( mGraphType )
-      {
-         case( TIMESPEEDGRAPH ):
-            drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.SPEED } );
-            drawSpeeds();
-            break;
-         case( DISTANCESPEEDGRAPH ):
-            drawDistanceAxisGraphOnCanvas(  new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.SPEED } );
-            drawSpeeds();
-            break;
-         case( TIMEALTITUDEGRAPH ):
-            drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.ALTITUDE } );
-            drawAltitudes();
-            break;
-         case( DISTANCEALTITUDEGRAPH ):
-            drawDistanceAxisGraphOnCanvas( new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE } );
-            drawAltitudes();
-            break;
-         default:
-            break;
-      }
       canvas.drawBitmap( mRenderBuffer, 0, 0, null );
+   }
+
+   private void renderGraph()
+   {
+      Log.d( TAG, "renderGraph() on "+mRenderBuffer );
+      if( mRenderBuffer != null )
+      {
+         mRenderBuffer.eraseColor( Color.TRANSPARENT );
+         switch( mGraphType )
+         {
+            case( TIMESPEEDGRAPH ):
+               drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.SPEED } );
+               drawSpeeds();
+               break;
+            case( DISTANCESPEEDGRAPH ):
+               drawDistanceAxisGraphOnCanvas(  new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.SPEED } );
+               drawSpeeds();
+               break;
+            case( TIMEALTITUDEGRAPH ):
+               drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.ALTITUDE } );
+               drawAltitudes();
+               break;
+            case( DISTANCEALTITUDEGRAPH ):
+               drawDistanceAxisGraphOnCanvas( new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE } );
+               drawAltitudes();
+               break;
+            default:
+               break;
+         }
+      }
+      postInvalidate();
    }
       
    private void drawDistanceAxisGraphOnCanvas( String[] params )
