@@ -39,6 +39,9 @@ public class GraphCanvas extends View
    private int mHeight;
    private int mMinAxis;
    private int mMaxAxis;
+   private double mMinAlititude;
+   private double mMaxAlititude;
+   private double mMaxSpeed;
    
    public GraphCanvas(Context context)
    {
@@ -58,13 +61,28 @@ public class GraphCanvas extends View
       mContext = context;
    }
    
-   public void setData( Uri uri, long startTime, long endTime, double distance, UnitsI18n units )
-   {     
-      mUri = uri;
-      mStartTime = startTime;
-      mEndTime = endTime;
-      mDistance = distance;
-      mUnits = units;
+   /**
+    * Set the dataset for which to draw data. Also provide hints and helpers.
+    * 
+    * @param uri
+    * @param startTime
+    * @param endTime
+    * @param distance
+    * @param minAlititude
+    * @param maxAlititude
+    * @param maxSpeed
+    * @param units
+    */
+   public void setData( Uri uri, long startTime, long endTime, double distance, double minAlititude, double maxAlititude, double maxSpeed, UnitsI18n units )
+   { 
+      mMinAlititude = minAlititude;
+      mMaxAlititude = maxAlititude;
+      mMaxSpeed     = maxSpeed;
+      mUri          = uri;
+      mStartTime    = startTime;
+      mEndTime      = endTime;
+      mDistance     = distance;
+      mUnits        = units;
       renderGraph();
    }
    
@@ -106,18 +124,22 @@ public class GraphCanvas extends View
          switch( mGraphType )
          {
             case( TIMESPEEDGRAPH ):
+               setupSpeedAxis();
                drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.SPEED } );
                drawSpeeds();
                break;
             case( DISTANCESPEEDGRAPH ):
+               setupSpeedAxis();
                drawDistanceAxisGraphOnCanvas(  new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.SPEED } );
                drawSpeeds();
                break;
             case( TIMEALTITUDEGRAPH ):
+               setupAltitudeAxis();
                drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.ALTITUDE } );
                drawAltitudes();
                break;
             case( DISTANCEALTITUDEGRAPH ):
+               setupAltitudeAxis();
                drawDistanceAxisGraphOnCanvas( new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE } );
                drawAltitudes();
                break;
@@ -128,6 +150,18 @@ public class GraphCanvas extends View
       postInvalidate();
    }
       
+   private void setupAltitudeAxis()
+   {
+      mMinAxis = 4 *     (int)mUnits.conversionFromMeterToSmall(mMinAlititude / 4) ;
+      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMeterToSmall(mMaxAlititude / 4) ;
+   }
+
+   private void setupSpeedAxis()
+   {
+      mMinAxis = 0;
+      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMetersPerSecond( mMaxSpeed / 4);
+   }
+
    private void drawDistanceAxisGraphOnCanvas( String[] params )
    {
       ContentResolver resolver = mContext.getApplicationContext().getContentResolver();
@@ -139,8 +173,6 @@ public class GraphCanvas extends View
       mHeight = mRenderCanvas.getHeight()-10;
       double[][] values ;
       int[][] valueDepth;
-      double maxValue = 1;
-      double minValue = 0;
       double distance = 0;
       try 
       {
@@ -213,16 +245,9 @@ public class GraphCanvas extends View
             if( valueDepth[p][x] > 0 )
             {
                values[p][x] = translateValue( values[p][x] );               
-               if( values[p][x] > maxValue )
-               {
-                  maxValue = values[p][x];
-               }
             }
          }
       }
-      mMinAxis = 4 * (int)(minValue / 4);
-      mMaxAxis = 4 + 4 * (int)(maxValue / 4);
-      
       drawGraph( width, values, valueDepth );      
    }
    
@@ -238,8 +263,6 @@ public class GraphCanvas extends View
       long duration = mEndTime - mStartTime;
       double[][] values ;
       int[][] valueDepth;
-      double maxValue = 1;
-      double minValue = 0;
       try 
       {
          segments = resolver.query( 
@@ -301,21 +324,10 @@ public class GraphCanvas extends View
          {
             if( valueDepth[p][x] > 0 )
             {
-               values[p][x] = translateValue( values[p][x] );               
-               if( values[p][x] > maxValue )
-               {
-                  maxValue = values[p][x];
-               }
-               if( values[p][x] < minValue )
-               {
-                  minValue = values[p][x];
-               }
+               values[p][x] = translateValue( values[p][x] );
             }
          }
-      }
-      mMinAxis = 4 * (int)(minValue / 4);
-      mMaxAxis = 4 + 4 * (int)(maxValue / 4);
-      
+      }      
       drawGraph( width, values, valueDepth );
    }
 

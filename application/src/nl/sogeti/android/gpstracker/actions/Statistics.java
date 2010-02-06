@@ -28,24 +28,18 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import org.openintents.intents.AboutIntents;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.logger.SettingsDialog;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.AlertDialog.Builder;
-import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -77,14 +71,19 @@ public class Statistics extends Activity
 
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
    {
+
       @Override
       public void onChange(boolean selfUpdate) 
       {
-         Statistics.this.drawTrackingStatistics();
+         if( !calculating  )
+         {
+            Statistics.this.drawTrackingStatistics();
+         }
       }
    };
    
-   Uri mTrackUri = null;
+   private Uri mTrackUri = null;
+   private boolean calculating;
    private TextView overallavgSpeedView;
    private TextView avgSpeedView;
    private TextView distanceView;
@@ -294,6 +293,7 @@ public class Statistics extends Activity
    
    private void drawTrackingStatistics()
    {
+      calculating = true;
       String overallavgSpeedText = "Unknown";
       String avgSpeedText = "Unknown";
       String maxSpeedText = "Unknown";
@@ -327,9 +327,9 @@ public class Statistics extends Activity
                , null );
          if( waypointsCursor.moveToLast() )
          {
-            maxSpeeddb = mUnits.conversionFromMetersPerSecond( waypointsCursor.getDouble( 0 ) );
-            maxAltitude = mUnits.conversionFromMeterToSmall( waypointsCursor.getDouble( 1 ) );
-            minAltitude = mUnits.conversionFromMeterToSmall( waypointsCursor.getDouble( 2 ) );
+            maxSpeeddb  = waypointsCursor.getDouble( 0 );
+            maxAltitude = waypointsCursor.getDouble( 1 );
+            minAltitude = waypointsCursor.getDouble( 2 );
             long nrWaypoints = waypointsCursor.getLong(  3 );            
             waypointsText = nrWaypoints+"";
          }
@@ -430,8 +430,11 @@ public class Statistics extends Activity
          }
       }
       
-      mGraphView.setData( mTrackUri, starttime, endtime, distanceTraveled, mUnits );
-            
+      mGraphView.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
+      
+      maxSpeeddb = mUnits.conversionFromMetersPerSecond( maxSpeeddb );
+      maxAltitude = mUnits.conversionFromMeterToSmall  ( maxAltitude );
+      minAltitude = mUnits.conversionFromMeterToSmall  ( minAltitude );
       double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, overallduration );
       double avgSpeedfl        = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, duration );
       distanceTraveled         = mUnits.conversionFromMeter( distanceTraveled );
@@ -452,6 +455,8 @@ public class Statistics extends Activity
       endtimeView.setText( Long.toString( endtime ) );
       tracknameView.setText( tracknameText );
       waypointsView.setText( waypointsText );
+      
+      calculating = false;
    }
 
 }
