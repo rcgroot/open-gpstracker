@@ -1070,7 +1070,7 @@ public class LoggerMap extends MapActivity
       for (int i = 0; i < mSpeedtexts.length; i++)
       {
          mSpeedtexts[i].setVisibility( View.VISIBLE );
-         int speed = (int) ( ( avgSpeed * 2d ) / 5d ) * i;
+         double speed = ( ( avgSpeed * 2d ) / 5d ) * i;
          String speedText = String.format( "%.0f %s", speed, mUnits.getSpeedUnit() ) ;
          mSpeedtexts[i].setText( speedText );
       }

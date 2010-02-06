@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.util;
 
 import nl.sogeti.android.gpstracker.R;
 import android.content.Context;
+import android.util.Log;
 import android.util.TypedValue;
 
 /**
@@ -51,6 +52,7 @@ public class UnitsI18n
    private String distance_smallunit;
    
    public static final String UNIT_PREF = "UNITS";
+   private static final String TAG = "UnitsI18n";
    
    public UnitsI18n(Context ctx)
    {
@@ -72,8 +74,8 @@ public class UnitsI18n
    
    public double conversionFromMeterAndMiliseconds( double meters, long miliseconds )
    {
-      float hours = miliseconds/3600000f;
-      return conversionFromMetersPerSecond( meters / hours  );
+      float seconds = miliseconds/1000f;
+      return conversionFromMetersPerSecond( meters / seconds  );
    }
    
    public double conversionFromMetersPerSecond( double mps )

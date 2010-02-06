@@ -1,6 +1,8 @@
 package nl.sogeti.android.gpstracker.actions.utils;
 
+import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -14,15 +16,24 @@ import android.graphics.Path;
 import android.graphics.Bitmap.Config;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 public class GraphCanvas extends View
 {
    private static final String TAG = "GraphCanvas";
+   private static final int TIMESPEEDGRAPH = 0;
+   private static final int DISTANCESPEEDGRAPH = 1;
+   private static final int TIMEALTITUDEGRAPH = 2;
+   private static final int DISTANCEALTITUDEGRAPH = 3;
    private Uri mUri;
    private Bitmap mRenderBuffer;
    private Canvas mRenderCanvas;
    private Context mContext;
+   private UnitsI18n mUnits;
+   private int graphType = TIMESPEEDGRAPH;
+   private long mEndTime;
+   private long mStartTime;
    
    public GraphCanvas(Context context)
    {
@@ -60,86 +71,131 @@ public class GraphCanvas extends View
    protected void onDraw( Canvas canvas )
    {
       super.onDraw(canvas);
-
-//      Log.d( TAG, "Draw"+canvas.getWidth()+"x"+canvas.getHeight() );
-      drawSingleGraphOnBuffer( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.SPEED } );
-      //drawSingleGraphOnBuffer( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.ALTITUDE } );
-      //drawSingleGraphOnBuffer( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.LATITUDE } ); // has more numbers in the emulator
+      switch( graphType )
+      {
+         case( TIMESPEEDGRAPH ):
+            //drawSpeedGraphOnCanvas( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.LATITUDE } );
+            drawSpeedGraphOnCanvas( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.SPEED } );
+            break;
+         case( DISTANCESPEEDGRAPH ):
+            break;
+         case( TIMEALTITUDEGRAPH ):
+            break;
+         case( DISTANCEALTITUDEGRAPH ):
+            break;
+         default:
+            drawSpeedGraphOnCanvas( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.SPEED } );
+            break;
+      }
       canvas.drawBitmap( mRenderBuffer, 0, 0, null );
    }
    
-   public void setUri( Uri uri )
+   public void setData( Uri uri, long startTime, long endTime, UnitsI18n units )
    {
       mUri = uri;
-      this.postInvalidate();
+      mStartTime = startTime;
+      mEndTime = endTime;
+      mUnits = units;
    }
    
-   private void drawSingleGraphOnBuffer( Canvas canvas, String[] params )
+   private void drawSpeedGraphOnCanvas( Canvas canvas, String[] params )
    {
       ContentResolver resolver = mContext.getApplicationContext().getContentResolver();
-      Uri waypointsUri = Uri.withAppendedPath( mUri, "/waypoints" );
+      Uri segmentsUri = Uri.withAppendedPath( mUri, "/segments" );
+      Uri waypointsUri = null;
+      Cursor segments = null;
       Cursor waypoints = null;
       int width = canvas.getWidth()-5;
       int height = canvas.getHeight()-10;
-      double[] values = new double[width];
-      int[] valueDepth = new int[width];
-      int maxValue = Integer.MIN_VALUE;
-      int minValue = Integer.MAX_VALUE;
+      long duration = mEndTime - mStartTime;
+      double[][] values ;
+      int[][] valueDepth;
+      double maxValue = 1;
+      double minValue = 0;
       try 
       {
-         
-         
-         waypoints = resolver.query( 
-               waypointsUri, 
-               params, 
+         segments = resolver.query( 
+               segmentsUri, 
+               new String[]{ Segments._ID }, 
                null, null, null );
-         if( waypoints.moveToLast() )
+         values = new double[segments.getCount()][width];
+         valueDepth = new int[segments.getCount()][width];
+         if( segments.moveToFirst() )
          {
-            long mEndTime = waypoints.getLong( 0 );
-            waypoints.moveToFirst();
-            long mStartTime = waypoints.getLong( 0 );
-            long duration = mEndTime - mStartTime;
-            do 
+            do
             {
-               long time = waypoints.getLong( 0 );
-               double speed = waypoints.getDouble( 1 );
-               int i = (int) ((time-mStartTime)*(width-1) / duration);
-               valueDepth[i]++;
-               values[i] = values[i]+((speed-values[i])/valueDepth[i]);
+               int p = segments.getPosition();
+               long segmentId = segments.getLong( 0 );
+               waypointsUri = Uri.withAppendedPath( segmentsUri, segmentId+"/waypoints" );
+               try
+               {
+                  waypoints = resolver.query( 
+                     waypointsUri, 
+                     params, 
+                     null, null, null );
+                  if( waypoints.moveToFirst() )
+                  {
+                     do 
+                     {
+                        long time = waypoints.getLong( 0 );
+                        double value = waypoints.getDouble( 1 );
+                        if( value > 1 )
+                        {
+                           int i = (int) ((time-mStartTime)*(width-1) / duration);
+                           valueDepth[p][i]++;
+                           values[p][i] = values[p][i]+((value-values[p][i])/valueDepth[p][i]);
+                        }
+                     }
+                     while( waypoints.moveToNext() );
+                  }
+               }
+               finally
+               {
+                  if( waypoints != null )
+                  {
+                     waypoints.close();
+                  }
+               }
             }
-            while( waypoints.moveToNext() );
+            while( segments.moveToNext() );
          }
       }
       finally
       {
-         if( waypoints != null )
+         if( segments != null )
          {
-            waypoints.close();
+            segments.close();
          }
       }
-      
-      for( int x=0;x<values.length;x++)
+      for( int p=0;p<values.length;p++)
       {
-         if( valueDepth[x] > 0 )
+         for( int x=0;x<values[p].length;x++)
          {
-            if( values[x] > maxValue )
+            if( valueDepth[p][x] > 0 )
             {
-               maxValue = (int) values[x];
-            }
-            if( values[x] < minValue )
-            {
-               minValue = (int) values[x];
+               if( values[p][x] > maxValue )
+               {
+                  maxValue = values[p][x];
+               }            
             }
          }
       }
-      minValue = 4 * (minValue / 4);
-      maxValue = 4 * (maxValue / 4) + 4;
-//      Paint red = new Paint();
-//      red.setColor(  Color.RED );
-//      canvas.drawCircle( 5, 5, 5, red );
-//      canvas.drawCircle( canvas.getWidth()-5, 5, 5, red );
-//      canvas.drawCircle( 5, canvas.getHeight()-5, 5, red );
-//      canvas.drawCircle( canvas.getWidth()-5, canvas.getHeight()-5, 5, red );
+      minValue = mUnits.conversionFromMetersPerSecond( minValue );
+      maxValue = mUnits.conversionFromMetersPerSecond( maxValue );
+      int minAxis = 4 * (int)(minValue / 4);
+      int maxAxis = 4 + 4 * (int)(maxValue / 4);
+//      Log.d( TAG, String.format( "Found a scope of (%.2f,%.2f) and will axis at (%d,%d)", minValue, maxValue, minAxis, maxAxis ) );
+      
+      for( int p=0;p<values.length;p++)
+      {
+         for( int x=0;x<values[p].length;x++)
+         {
+            if( valueDepth[p][x] > 0 )
+            {
+               values[p][x] = mUnits.conversionFromMetersPerSecond( values[p][x] );
+            }
+         }
+      }
       
       Paint grey = new Paint();
       grey.setColor( Color.LTGRAY );
@@ -164,16 +220,25 @@ public class GraphCanvas extends View
       routePaint.setColor(Color.GREEN);
       Path mPath;
       mPath = new Path();
-      mPath.moveTo( 5f, 5f+ (float) ( height - ((values[0]-minValue)*height)/(maxValue-minValue) ) );
-      for( int x=0;x<values.length;x++)
+      for( int p=0;p<values.length;p++)
       {
-         double y = height - ((values[x]-minValue)*height)/(maxValue-minValue) ;
-         if( valueDepth[x] > 0 )
+         int start = 0;
+         while( valueDepth[p][start] == 0 && start < values[p].length-1 )
          {
-//            Log.d( TAG, "Path to ("+x+","+y+")");
-            mPath.lineTo( (float)x+5, (float) y+5 );
+            start++;
          }
-      }      
+         mPath.moveTo( (float)start+5, 5f+ (float) ( height - ( ( values[p][start]-minAxis )*height ) / ( maxAxis-minAxis ) ) );
+         for( int x=start;x<values[p].length;x++)
+         {
+            double y =   height - ( ( values[p][x]-minAxis )*height ) / ( maxAxis-minAxis ) ;
+            
+            if( valueDepth[p][x] > 0 )
+            {
+   //            Log.d( TAG, String.format( "Point (%d,%.1f) will be (%d,%.1f) on cavas height %d",x,values[x],x,y,height) );
+               mPath.lineTo( (float)x+5, (float) y+5 );
+            }
+         }
+      }
       canvas.drawPath( mPath, routePaint );
       
       grey = new Paint();
@@ -182,12 +247,13 @@ public class GraphCanvas extends View
       canvas.drawLine( 5, 5       , 5      , 5+height, grey );
       canvas.drawLine( 5, 5+height, 5+width, 5+height, grey );
       
+      
       Paint white = new Paint();
       white.setColor( Color.WHITE );
       white.setAntiAlias( true );
-      canvas.drawText( ""+minValue  , 8,  height, white );
-      canvas.drawText( ""+(maxValue+minValue)/2 , 8,  5+height/2, white );
-      canvas.drawText( ""+maxValue, 8,  15, white );
+      canvas.drawText( String.format( "%d %s", minAxis, mUnits.getSpeedUnit() )  , 8,  height, white );
+      canvas.drawText( String.format( "%d %s", (maxAxis+minAxis)/2, mUnits.getSpeedUnit() ) , 8,  5+height/2, white );
+      canvas.drawText( String.format( "%d %s", maxAxis, mUnits.getSpeedUnit() ), 8,  15, white );
    }
 
 }

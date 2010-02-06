@@ -79,6 +79,8 @@ public class Statistics extends Activity
    private TextView maxAltitudeView;
 
    private UnitsI18n mUnits;
+
+   private GraphCanvas graphView;
    
    /** 
     * Called when the activity is first created. 
@@ -92,8 +94,7 @@ public class Statistics extends Activity
       setContentView( R.layout.statistics );
       this.mTrackUri = this.getIntent().getData() ;
       
-      GraphCanvas graph = (GraphCanvas) findViewById( R.id.graph_canvas );
-      graph.setUri( mTrackUri );
+      graphView = (GraphCanvas) findViewById( R.id.graph_canvas );
       
       maxSpeedView = (TextView)findViewById( R.id.stat_maximumspeed );
       minAltitudeView = (TextView)findViewById( R.id.stat_minimalaltitide );
@@ -146,8 +147,8 @@ public class Statistics extends Activity
       String tracknameText = "Unknown";
       String waypointsText = "Unknown";
       String distanceText = "Unknown";
-      long starttimeText = 0;
-      long endtimeText = 0;
+      long starttime = 0;
+      long endtime = 0;
       double maxSpeeddb = 0;
       double maxAltitude = 0;
       double minAltitude = 0;
@@ -233,9 +234,9 @@ public class Statistics extends Activity
                   {
                      do 
                      {
-                        if( starttimeText == 0 )
+                        if( starttime == 0 )
                         {
-                           starttimeText = waypoints.getLong( 1 );
+                           starttime = waypoints.getLong( 1 );
                         }
                         currentLocation = new Location( this.getClass().getName() );
                         currentLocation.setTime( waypoints.getLong( 1 ) );
@@ -250,8 +251,8 @@ public class Statistics extends Activity
                         
                      }
                      while( waypoints.moveToNext());
-                     endtimeText = lastLocation.getTime();
-                     overallduration = endtimeText-starttimeText;
+                     endtime = lastLocation.getTime();
+                     overallduration = endtime-starttime;
                   }
                }
                finally
@@ -281,8 +282,8 @@ public class Statistics extends Activity
       overallavgSpeedText = String.format( "%.2f %s", overallavgSpeedfl,  mUnits.getSpeedUnit() );
       distanceText        = String.format( "%.2f %s", distanceTraveled, mUnits.getDistanceUnit() );
       maxSpeedText        = String.format( "%.2f %s", maxSpeeddb, mUnits.getSpeedUnit() );
-      minAltitudeText     = String.format( "%.1f %s", minAltitude, mUnits.getDistanceSmallUnit() );
-      maxAltitudeText     = String.format( "%.1f %s", maxAltitude, mUnits.getDistanceSmallUnit() );
+      minAltitudeText     = String.format( "%.0f %s", minAltitude, mUnits.getDistanceSmallUnit() );
+      maxAltitudeText     = String.format( "%.0f %s", maxAltitude, mUnits.getDistanceSmallUnit() );
       
       maxSpeedView.setText( maxSpeedText );
       maxAltitudeView.setText( maxAltitudeText );
@@ -290,10 +291,13 @@ public class Statistics extends Activity
       overallavgSpeedView.setText( overallavgSpeedText );
       avgSpeedView.setText( avgSpeedText );
       distanceView.setText( distanceText );
-      starttimeView.setText( Long.toString( starttimeText ) );
-      endtimeView.setText( Long.toString( endtimeText ) );
+      starttimeView.setText( Long.toString( starttime ) );
+      endtimeView.setText( Long.toString( endtime ) );
       tracknameView.setText( tracknameText );
       waypointsView.setText( waypointsText );
+      
+
+      graphView.setData( mTrackUri, starttime, endtime, mUnits );
    }
 
 }
