@@ -18,6 +18,7 @@
     <string name="dialog_nooiabout">OI About nodig</string>
     <string name="dialog_nooiabout_message">De applicatie \"OI About\" van het OpenIntents project is nodig om informatie te tonen.</string>
     <string name="dialog_layer_title">Activeer overlays</string>
+    <string name="dialog_graphtype_title">Grafiek soort</string>
     
     <string name="layer_satellite">Satelliet</string>
     <string name="layer_traffic">Verkeer</string>
@@ -54,6 +55,10 @@
     <string name="menu_statistics">Toon statistics</string>
     <string name="menu_about">Info</string>
     <string name="menu_showLayers">Lagen</string>
+    <string name="graphtype_timespeed">Snelheid tegen tijd</string>
+    <string name="graphtype_timealtitude">Hoogte tegen tijd</string>
+    <string name="graphtype_distancespeed">Snelheid tegen afstand</string>
+    <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
 
     <string name="chooser_title">Delen via?</string>
     <string name="receive_filewriter">Opslaan op SDcard</string>

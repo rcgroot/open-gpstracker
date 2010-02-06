@@ -33,8 +33,12 @@ import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.AlertDialog.Builder;
 import android.content.ContentResolver;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -42,10 +46,10 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -57,6 +61,8 @@ import android.widget.TextView;
 public class Statistics extends Activity
 {
    
+   protected static final int DIALOG_GRAPHTYPE = 0;
+
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
    {
       @Override
@@ -79,8 +85,41 @@ public class Statistics extends Activity
    private TextView maxAltitudeView;
 
    private UnitsI18n mUnits;
+   private GraphCanvas mGraphView;
 
-   private GraphCanvas graphView;
+   private OnClickListener mGraphOnClickListener = new OnClickListener()
+   {
+      public void onClick( View v )
+      {
+         showDialog( DIALOG_GRAPHTYPE );
+      }
+   };
+
+   private OnClickListener mGraphControlListener = new View.OnClickListener()      {
+      public void onClick( View v )
+      {
+         int id = v.getId();
+         switch( id )
+         {
+            case R.id.graphtype_distancealtitude:
+               mGraphView.setType( GraphCanvas.DISTANCEALTITUDEGRAPH );
+               break;
+            case R.id.graphtype_distancespeed:
+               mGraphView.setType( GraphCanvas.DISTANCESPEEDGRAPH );
+               break;
+            case R.id.graphtype_timealtitude:
+               mGraphView.setType( GraphCanvas.TIMEALTITUDEGRAPH );
+               break;
+            case R.id.graphtype_timespeed:
+               mGraphView.setType( GraphCanvas.TIMESPEEDGRAPH );
+               break;
+            default:
+               break;
+         }
+         dismissDialog( DIALOG_GRAPHTYPE );
+         
+      }
+   };
    
    /** 
     * Called when the activity is first created. 
@@ -94,7 +133,8 @@ public class Statistics extends Activity
       setContentView( R.layout.statistics );
       this.mTrackUri = this.getIntent().getData() ;
       
-      graphView = (GraphCanvas) findViewById( R.id.graph_canvas );
+      mGraphView = (GraphCanvas) findViewById( R.id.graph_canvas );
+      mGraphView.setOnClickListener( mGraphOnClickListener  );
       
       maxSpeedView = (TextView)findViewById( R.id.stat_maximumspeed );
       minAltitudeView = (TextView)findViewById( R.id.stat_minimalaltitide );
@@ -135,8 +175,58 @@ public class Statistics extends Activity
       resolver.registerContentObserver( mTrackUri, true, this.mTrackObserver );
    }
 
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onCreateDialog(int)
+    */
+   @Override
+   protected Dialog onCreateDialog( int id )
+   {
+      Dialog dialog = null;
+      LayoutInflater factory = null;
+      View view = null;
+      Builder builder = null;
+      switch (id)
+      {
+         case DIALOG_GRAPHTYPE:
+            builder = new AlertDialog.Builder( this );
+            factory = LayoutInflater.from( this );
+            view = factory.inflate( R.layout.graphtype, null );
+            builder.setTitle( R.string.dialog_graphtype_title )
+            .setIcon( android.R.drawable.ic_dialog_alert )
+            .setNegativeButton( R.string.btn_cancel, null )
+            .setView( view );
+            dialog = builder.create();
+            return dialog;
+         default:
+            return super.onCreateDialog( id );
+      }
+   }
 
-
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
+    */
+   @Override
+   protected void onPrepareDialog( int id, Dialog dialog )
+   {
+      switch (id)
+      {
+         case DIALOG_GRAPHTYPE:
+            Button speedtime = (Button) dialog.findViewById( R.id.graphtype_timespeed );
+            Button speeddistance = (Button) dialog.findViewById( R.id.graphtype_distancespeed );
+            Button altitudetime = (Button) dialog.findViewById( R.id.graphtype_timealtitude );
+            Button altitudedistance = (Button) dialog.findViewById( R.id.graphtype_distancealtitude );
+            speedtime.setOnClickListener( mGraphControlListener );
+            speeddistance.setOnClickListener( mGraphControlListener );
+            altitudetime.setOnClickListener( mGraphControlListener );
+            altitudedistance.setOnClickListener( mGraphControlListener );
+         default:
+            break;
+      }
+      super.onPrepareDialog( id, dialog );
+   }
+   
    private void drawTrackingStatistics()
    {
       String overallavgSpeedText = "Unknown";
@@ -275,7 +365,7 @@ public class Statistics extends Activity
          }
       }
       
-      graphView.setData( mTrackUri, starttime, endtime, distanceTraveled, mUnits );
+      mGraphView.setData( mTrackUri, starttime, endtime, distanceTraveled, mUnits );
             
       double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, overallduration );
       double avgSpeedfl        = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, duration );

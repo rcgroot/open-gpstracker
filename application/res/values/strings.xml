@@ -18,6 +18,7 @@
     <string name="dialog_nooiabout">OI About missing</string>
     <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
     <string name="dialog_layer_title">Activate overlays</string>
+    <string name="dialog_graphtype_title">Graph type</string>
     
     <string name="layer_satellite">Satellite</string>
     <string name="layer_traffic">Traffic</string>
@@ -54,6 +55,10 @@
     <string name="menu_statistics">Show statistics</string>
     <string name="menu_about">About</string>
     <string name="menu_showLayers">Overlays</string>
+    <string name="graphtype_timespeed">Speed against time</string>
+    <string name="graphtype_timealtitude">Altitude against time</string>
+    <string name="graphtype_distancespeed">Speed against distance</string>
+    <string name="graphtype_distancealtitude">Altitude against distance</string>
 
     <string name="chooser_title">How to share this track?</string>
 	<string name="receive_filewriter">Store to SDcard</string>

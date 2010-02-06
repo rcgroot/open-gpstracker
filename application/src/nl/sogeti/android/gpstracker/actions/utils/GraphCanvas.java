@@ -23,16 +23,16 @@ import android.view.View;
 public class GraphCanvas extends View
 {
    private static final String TAG = "GraphCanvas";
-   private static final int TIMESPEEDGRAPH = 0;
-   private static final int DISTANCESPEEDGRAPH = 1;
-   private static final int TIMEALTITUDEGRAPH = 2;
-   private static final int DISTANCEALTITUDEGRAPH = 3;
+   public static final int TIMESPEEDGRAPH = 0;
+   public static final int DISTANCESPEEDGRAPH = 1;
+   public static final int TIMEALTITUDEGRAPH = 2;
+   public static final int DISTANCEALTITUDEGRAPH = 3;
    private Uri mUri;
    private Bitmap mRenderBuffer;
    private Canvas mRenderCanvas;
    private Context mContext;
    private UnitsI18n mUnits;
-   private int graphType = DISTANCESPEEDGRAPH;
+   private int mGraphType = TIMESPEEDGRAPH;
    private long mEndTime;
    private long mStartTime;
    private double mDistance;
@@ -55,6 +55,15 @@ public class GraphCanvas extends View
       mContext = context;
    }
    
+   public void setType( int graphType)
+   {
+      if( mGraphType != graphType )
+      {
+         mGraphType = graphType;
+         postInvalidate();
+      }
+   }
+   
    public void setData( Uri uri, long startTime, long endTime, double distance, UnitsI18n units )
    {
       mUri = uri;
@@ -74,17 +83,14 @@ public class GraphCanvas extends View
          mRenderBuffer = Bitmap.createBitmap( w, h, Config.ARGB_8888 );
          mRenderCanvas = new Canvas( mRenderBuffer );
       }
-      else
-      {
-         mRenderBuffer.eraseColor( Color.TRANSPARENT );
-      }
    }
 
    @Override
    protected void onDraw( Canvas canvas )
    {
       super.onDraw(canvas);
-      switch( graphType )
+      mRenderBuffer.eraseColor( Color.TRANSPARENT );
+      switch( mGraphType )
       {
          case( TIMESPEEDGRAPH ):
             drawTimeAxisGraphOnCanvas( mRenderCanvas, new String[] { Waypoints.TIME, Waypoints.SPEED } );
@@ -158,7 +164,6 @@ public class GraphCanvas extends View
                         if( value > 1 )
                         {
                            int i = (int) ((distance)*(width-1) / mDistance);
-//                           Log.d( TAG, String.format( "Found bucket %d with value %.1f", i, value ));
                            valueDepth[p][i]++;
                            values[p][i] = values[p][i]+((value-values[p][i])/valueDepth[p][i]);
                         }
