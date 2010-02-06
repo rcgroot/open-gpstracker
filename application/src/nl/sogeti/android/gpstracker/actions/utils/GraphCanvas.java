@@ -173,45 +173,46 @@ public class GraphCanvas extends View
          {
             if( valueDepth[p][x] > 0 )
             {
+               values[p][x] = mUnits.conversionFromMetersPerSecond( values[p][x] );               
                if( values[p][x] > maxValue )
                {
                   maxValue = values[p][x];
-               }            
+               }
             }
          }
       }
-      minValue = mUnits.conversionFromMetersPerSecond( minValue );
-      maxValue = mUnits.conversionFromMetersPerSecond( maxValue );
       int minAxis = 4 * (int)(minValue / 4);
       int maxAxis = 4 + 4 * (int)(maxValue / 4);
-//      Log.d( TAG, String.format( "Found a scope of (%.2f,%.2f) and will axis at (%d,%d)", minValue, maxValue, minAxis, maxAxis ) );
       
-      for( int p=0;p<values.length;p++)
-      {
-         for( int x=0;x<values[p].length;x++)
-         {
-            if( valueDepth[p][x] > 0 )
-            {
-               values[p][x] = mUnits.conversionFromMetersPerSecond( values[p][x] );
-            }
-         }
-      }
+      drawGraph( canvas, width, height, values, valueDepth, minAxis, maxAxis );
       
-      Paint grey = new Paint();
-      grey.setColor( Color.LTGRAY );
-      grey.setStrokeWidth( 1 );
+      Paint white = new Paint();
+      white.setColor( Color.WHITE );
+      white.setAntiAlias( true );
+      canvas.drawText( String.format( "%d %s", minAxis, mUnits.getSpeedUnit() )  , 8,  height, white );
+      canvas.drawText( String.format( "%d %s", (maxAxis+minAxis)/2, mUnits.getSpeedUnit() ) , 8,  5+height/2, white );
+      canvas.drawText( String.format( "%d %s", maxAxis, mUnits.getSpeedUnit() ), 8,  15, white );
+   }
+   
+   private void drawGraph( Canvas canvas, int width, int height, double[][] values, int[][] valueDepth, int minAxis, int maxAxis )
+   {
+      // Matrix
+      Paint ltgrey = new Paint();
+      ltgrey.setColor( Color.LTGRAY );
+      ltgrey.setStrokeWidth( 1 );
       // Horizontals
-      grey.setPathEffect( new DashPathEffect( new float[]{2,4}, 0 ) );
-      canvas.drawLine( 5, 5           , 5+width, 5           , grey );
-      canvas.drawLine( 5, 5+height/4  , 5+width, 5+height/4  , grey );
-      canvas.drawLine( 5, 5+height/2  , 5+width, 5+height/2  , grey );
-      canvas.drawLine( 5, 5+height/4*3, 5+width, 5+height/4*3, grey );
+      ltgrey.setPathEffect( new DashPathEffect( new float[]{2,4}, 0 ) );
+      canvas.drawLine( 5, 5           , 5+width, 5           , ltgrey );
+      canvas.drawLine( 5, 5+height/4  , 5+width, 5+height/4  , ltgrey );
+      canvas.drawLine( 5, 5+height/2  , 5+width, 5+height/2  , ltgrey );
+      canvas.drawLine( 5, 5+height/4*3, 5+width, 5+height/4*3, ltgrey );
       // Verticals
-      canvas.drawLine( 5+width/4  , 5, 5+width/4  , 5+height, grey );
-      canvas.drawLine( 5+width/2  , 5, 5+width/2  , 5+height, grey );
-      canvas.drawLine( 5+width/4*3, 5, 5+width/4*3, 5+height, grey );
-      canvas.drawLine( 5+width-1   , 5, 5+width-1 , 5+height, grey );
+      canvas.drawLine( 5+width/4  , 5, 5+width/4  , 5+height, ltgrey );
+      canvas.drawLine( 5+width/2  , 5, 5+width/2  , 5+height, ltgrey );
+      canvas.drawLine( 5+width/4*3, 5, 5+width/4*3, 5+height, ltgrey );
+      canvas.drawLine( 5+width-1   , 5, 5+width-1 , 5+height, ltgrey );
       
+      // The line
       Paint routePaint = new Paint();
       routePaint.setPathEffect( new CornerPathEffect( 8 ) );
       routePaint.setStyle( Paint.Style.STROKE );
@@ -234,26 +235,18 @@ public class GraphCanvas extends View
             
             if( valueDepth[p][x] > 0 )
             {
-   //            Log.d( TAG, String.format( "Point (%d,%.1f) will be (%d,%.1f) on cavas height %d",x,values[x],x,y,height) );
                mPath.lineTo( (float)x+5, (float) y+5 );
             }
          }
       }
       canvas.drawPath( mPath, routePaint );
       
-      grey = new Paint();
-      grey.setColor( Color.DKGRAY );
-      grey.setStrokeWidth( 2 );
-      canvas.drawLine( 5, 5       , 5      , 5+height, grey );
-      canvas.drawLine( 5, 5+height, 5+width, 5+height, grey );
-      
-      
-      Paint white = new Paint();
-      white.setColor( Color.WHITE );
-      white.setAntiAlias( true );
-      canvas.drawText( String.format( "%d %s", minAxis, mUnits.getSpeedUnit() )  , 8,  height, white );
-      canvas.drawText( String.format( "%d %s", (maxAxis+minAxis)/2, mUnits.getSpeedUnit() ) , 8,  5+height/2, white );
-      canvas.drawText( String.format( "%d %s", maxAxis, mUnits.getSpeedUnit() ), 8,  15, white );
+      // Axis's
+      Paint dkgrey = new Paint();
+      dkgrey.setColor( Color.DKGRAY );
+      dkgrey.setStrokeWidth( 2 );
+      canvas.drawLine( 5, 5       , 5      , 5+height, dkgrey );
+      canvas.drawLine( 5, 5+height, 5+width, 5+height, dkgrey );
    }
 
 }
