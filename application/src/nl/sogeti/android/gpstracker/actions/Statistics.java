@@ -50,6 +50,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -73,6 +74,7 @@ public class Statistics extends Activity
    private static final int MENU_TRACKLIST = 12;
    private static final String GRAPH_TYPE = "GRAPH_TYPE";
    private static final String TRACKURI = "TRACKURI";
+   private static final String TAG = null;
 
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
    {
@@ -161,8 +163,14 @@ public class Statistics extends Activity
       tracknameView       = (TextView)findViewById( R.id.stat_trackname );
       waypointsView       = (TextView)findViewById( R.id.stat_waypoints );     
       
-
-      mTrackUri = this.getIntent().getData() ;
+      if( load != null && load.containsKey( TRACKURI ) )
+      {
+         mTrackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, load.getString( TRACKURI ) ) ;
+      }
+      else
+      {
+         mTrackUri = this.getIntent().getData() ;
+      }
       drawTrackingStatistics();
    }
    
@@ -179,7 +187,7 @@ public class Statistics extends Activity
       }
       if( load != null && load.containsKey( TRACKURI ) )
       {
-         mTrackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+load.getLong( TRACKURI ) ) ;
+         mTrackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, load.getString( TRACKURI ) ) ;
       }
    }
    @Override
@@ -187,7 +195,7 @@ public class Statistics extends Activity
    {
       super.onSaveInstanceState( save );
       save.putInt( GRAPH_TYPE, mGraphView.getType() );
-      save.putLong( TRACKURI, Long.valueOf( mTrackUri.getLastPathSegment() ).longValue() );
+      save.putString( TRACKURI, mTrackUri.getLastPathSegment() );
    }
  
    /*
