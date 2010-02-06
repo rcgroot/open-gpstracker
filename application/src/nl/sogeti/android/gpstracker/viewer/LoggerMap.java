@@ -438,7 +438,10 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onRestoreInstanceState( Bundle load )
    {
-      super.onRestoreInstanceState( load );
+      if( load != null )
+      {
+         super.onRestoreInstanceState( load );
+      }
       long intentTrackId = this.getIntent().getLongExtra( EXTRA_TRACK_ID, -1 );
       if( intentTrackId >= 0 )
       {

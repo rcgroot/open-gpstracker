@@ -95,7 +95,7 @@ public class GraphCanvas extends View
       }
    }
    
-   public long getType()
+   public int getType()
    {
       return mGraphType;
    }

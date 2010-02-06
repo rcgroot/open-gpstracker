@@ -72,6 +72,7 @@ public class Statistics extends Activity
    private static final int MENU_GRAPHTYPE = 11;
    private static final int MENU_TRACKLIST = 12;
    private static final String GRAPH_TYPE = "GRAPH_TYPE";
+   private static final String TRACKURI = "TRACKURI";
 
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
    {
@@ -168,18 +169,25 @@ public class Statistics extends Activity
    @Override
    protected void onRestoreInstanceState( Bundle load )
    {
-      super.onRestoreInstanceState( load );
+      if( load != null )
+      {
+         super.onRestoreInstanceState( load );
+      }
       if( load != null && load.containsKey( GRAPH_TYPE ) )
       {
          mGraphView.setType( load.getInt( GRAPH_TYPE ) );
       }
+      if( load != null && load.containsKey( TRACKURI ) )
+      {
+         mTrackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, ""+load.getLong( TRACKURI ) ) ;
+      }
    }
-
    @Override
    protected void onSaveInstanceState( Bundle save )
    {
       super.onSaveInstanceState( save );
-      save.putLong( GRAPH_TYPE, mGraphView.getType() );;
+      save.putInt( GRAPH_TYPE, mGraphView.getType() );
+      save.putLong( TRACKURI, Long.valueOf( mTrackUri.getLastPathSegment() ).longValue() );
    }
  
    /*
