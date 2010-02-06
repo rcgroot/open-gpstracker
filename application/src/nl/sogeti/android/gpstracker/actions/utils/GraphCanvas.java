@@ -212,7 +212,7 @@ public class GraphCanvas extends View
          {
             if( valueDepth[p][x] > 0 )
             {
-               values[p][x] = mUnits.conversionFromMetersPerSecond( values[p][x] );               
+               values[p][x] = translateValue( values[p][x] );               
                if( values[p][x] > maxValue )
                {
                   maxValue = values[p][x];
@@ -223,7 +223,7 @@ public class GraphCanvas extends View
       mMinAxis = 4 * (int)(minValue / 4);
       mMaxAxis = 4 + 4 * (int)(maxValue / 4);
       
-      drawGraph( mRenderCanvas, width, values, valueDepth );      
+      drawGraph( width, values, valueDepth );      
    }
    
    private void drawTimeAxisGraphOnCanvas( String[] params )
@@ -301,7 +301,7 @@ public class GraphCanvas extends View
          {
             if( valueDepth[p][x] > 0 )
             {
-               values[p][x] = mUnits.conversionFromMetersPerSecond( values[p][x] );               
+               values[p][x] = translateValue( values[p][x] );               
                if( values[p][x] > maxValue )
                {
                   maxValue = values[p][x];
@@ -316,7 +316,7 @@ public class GraphCanvas extends View
       mMinAxis = 4 * (int)(minValue / 4);
       mMaxAxis = 4 + 4 * (int)(maxValue / 4);
       
-      drawGraph( mRenderCanvas, width, values, valueDepth );
+      drawGraph( width, values, valueDepth );
    }
 
    private void drawSpeeds()
@@ -338,8 +338,26 @@ public class GraphCanvas extends View
       mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getDistanceSmallUnit() ) , 8,  5+mHeight/2, white );
       mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getDistanceSmallUnit() ), 8,  15, white );
    }
+   private double translateValue( double val )
+   {
+      switch( mGraphType )
+      {
+         case( TIMESPEEDGRAPH ):
+         case( DISTANCESPEEDGRAPH ):
+            val = mUnits.conversionFromMetersPerSecond( val );
+            break;
+         case( TIMEALTITUDEGRAPH ):
+         case( DISTANCEALTITUDEGRAPH ):
+            val = mUnits.conversionFromMeterToSmall( val );
+            break;
+         default:
+            break;
+      }
+      return val;
+
+   }
    
-   private void drawGraph( Canvas canvas, int width, double[][] values, int[][] valueDepth )
+   private void drawGraph( int width, double[][] values, int[][] valueDepth )
    {
       // Matrix
       Paint ltgrey = new Paint();
@@ -347,15 +365,15 @@ public class GraphCanvas extends View
       ltgrey.setStrokeWidth( 1 );
       // Horizontals
       ltgrey.setPathEffect( new DashPathEffect( new float[]{2,4}, 0 ) );
-      canvas.drawLine( 5, 5           , 5+width, 5           , ltgrey );
-      canvas.drawLine( 5, 5+mHeight/4  , 5+width, 5+mHeight/4  , ltgrey );
-      canvas.drawLine( 5, 5+mHeight/2  , 5+width, 5+mHeight/2  , ltgrey );
-      canvas.drawLine( 5, 5+mHeight/4*3, 5+width, 5+mHeight/4*3, ltgrey );
+      mRenderCanvas.drawLine( 5, 5           , 5+width, 5           , ltgrey );
+      mRenderCanvas.drawLine( 5, 5+mHeight/4  , 5+width, 5+mHeight/4  , ltgrey );
+      mRenderCanvas.drawLine( 5, 5+mHeight/2  , 5+width, 5+mHeight/2  , ltgrey );
+      mRenderCanvas.drawLine( 5, 5+mHeight/4*3, 5+width, 5+mHeight/4*3, ltgrey );
       // Verticals
-      canvas.drawLine( 5+width/4  , 5, 5+width/4  , 5+mHeight, ltgrey );
-      canvas.drawLine( 5+width/2  , 5, 5+width/2  , 5+mHeight, ltgrey );
-      canvas.drawLine( 5+width/4*3, 5, 5+width/4*3, 5+mHeight, ltgrey );
-      canvas.drawLine( 5+width-1   , 5, 5+width-1 , 5+mHeight, ltgrey );
+      mRenderCanvas.drawLine( 5+width/4  , 5, 5+width/4  , 5+mHeight, ltgrey );
+      mRenderCanvas.drawLine( 5+width/2  , 5, 5+width/2  , 5+mHeight, ltgrey );
+      mRenderCanvas.drawLine( 5+width/4*3, 5, 5+width/4*3, 5+mHeight, ltgrey );
+      mRenderCanvas.drawLine( 5+width-1   , 5, 5+width-1 , 5+mHeight, ltgrey );
       
       // The line
       Paint routePaint = new Paint();
@@ -383,14 +401,14 @@ public class GraphCanvas extends View
             }
          }
       }
-      canvas.drawPath( mPath, routePaint );
+      mRenderCanvas.drawPath( mPath, routePaint );
       
       // Axis's
       Paint dkgrey = new Paint();
       dkgrey.setColor( Color.DKGRAY );
       dkgrey.setStrokeWidth( 2 );
-      canvas.drawLine( 5, 5       , 5       , 5+mHeight, dkgrey );
-      canvas.drawLine( 5, 5+mHeight, 5+width, 5+mHeight, dkgrey );
+      mRenderCanvas.drawLine( 5, 5       , 5       , 5+mHeight, dkgrey );
+      mRenderCanvas.drawLine( 5, 5+mHeight, 5+width, 5+mHeight, dkgrey );
    }
 
 }
