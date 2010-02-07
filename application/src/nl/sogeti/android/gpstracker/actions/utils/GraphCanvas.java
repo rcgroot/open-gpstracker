@@ -126,7 +126,7 @@ public class GraphCanvas extends View
 
    private void renderGraph()
    {
-      Log.d( TAG, "renderGraph() on "+mRenderBuffer );
+//      Log.d( TAG, "renderGraph() on "+mRenderBuffer );
       if( mRenderBuffer != null )
       {
          mRenderBuffer.eraseColor( Color.TRANSPARENT );
