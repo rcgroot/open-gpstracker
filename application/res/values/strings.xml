@@ -96,13 +96,13 @@
     <string name="stat_maximumspeed">Maximum speed</string>
     <string name="stat_maximumaltitude">Maximum altitude</string>
     <string name="stat_minimalaltitide">Minimum altitude</string>
-    <string name="stat_overallaveragespeed">Overall average speed</string>
+    <string name="stat_overallaveragespeed">Travel speed</string>
     <string name="stat_averagespeed">Average speed</string>    
     <string name="stat_distance">Tracked distance</string>    
     <string name="stat_endtime">Last time</string>    
     <string name="stat_starttime">Start time</string>    
     <string name="stat_trackname">Track name</string>
-    <string name="stat_waypoints">Number of waypoints</string>
+    <string name="stat_waypoints">Waypoints</string>
     
 <!-- ***************************
    About information

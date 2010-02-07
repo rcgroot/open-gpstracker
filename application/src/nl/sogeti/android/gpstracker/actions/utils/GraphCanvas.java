@@ -1,5 +1,8 @@
 package nl.sogeti.android.gpstracker.actions.utils;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
@@ -37,6 +40,7 @@ public class GraphCanvas extends View
    private long mStartTime;
    private double mDistance;
    private int mHeight;
+   private int mWidth;
    private int mMinAxis;
    private int mMaxAxis;
    private double mMinAlititude;
@@ -131,22 +135,26 @@ public class GraphCanvas extends View
             case( TIMESPEEDGRAPH ):
                setupSpeedAxis();
                drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.SPEED } );
-               drawSpeeds();
+               drawSpeedsTexts();
+               drawTimeTexts();
                break;
             case( DISTANCESPEEDGRAPH ):
                setupSpeedAxis();
                drawDistanceAxisGraphOnCanvas(  new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.SPEED } );
-               drawSpeeds();
+               drawSpeedsTexts();
+               drawDistanceTexts();
                break;
             case( TIMEALTITUDEGRAPH ):
                setupAltitudeAxis();
                drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.ALTITUDE } );
-               drawAltitudes();
+               drawAltitudesTexts();
+               drawTimeTexts();
                break;
             case( DISTANCEALTITUDEGRAPH ):
                setupAltitudeAxis();
                drawDistanceAxisGraphOnCanvas( new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE } );
-               drawAltitudes();
+               drawAltitudesTexts();
+               drawDistanceTexts();
                break;
             default:
                break;
@@ -155,18 +163,6 @@ public class GraphCanvas extends View
       postInvalidate();
    }
       
-   private void setupAltitudeAxis()
-   {
-      mMinAxis = 4 *     (int)mUnits.conversionFromMeterToSmall(mMinAlititude / 4) ;
-      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMeterToSmall(mMaxAlititude / 4) ;
-   }
-
-   private void setupSpeedAxis()
-   {
-      mMinAxis = 0;
-      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMetersPerSecond( mMaxSpeed / 4);
-   }
-
    private void drawDistanceAxisGraphOnCanvas( String[] params )
    {
       ContentResolver resolver = mContext.getApplicationContext().getContentResolver();
@@ -174,7 +170,7 @@ public class GraphCanvas extends View
       Uri waypointsUri = null;
       Cursor segments = null;
       Cursor waypoints = null;
-      int width = mRenderCanvas.getWidth()-5;
+      mWidth = mRenderCanvas.getWidth()-5;
       mHeight = mRenderCanvas.getHeight()-10;
       double[][] values ;
       int[][] valueDepth;
@@ -185,8 +181,8 @@ public class GraphCanvas extends View
                segmentsUri, 
                new String[]{ Segments._ID }, 
                null, null, null );
-         values = new double[segments.getCount()][width];
-         valueDepth = new int[segments.getCount()][width];
+         values = new double[segments.getCount()][mWidth];
+         valueDepth = new int[segments.getCount()][mWidth];
          if( segments.moveToFirst() )
          {
             do
@@ -217,7 +213,7 @@ public class GraphCanvas extends View
                         double value = waypoints.getDouble( 2 );
                         if( value > 1 )
                         {
-                           int i = (int) ((distance)*(width-1) / mDistance);
+                           int i = (int) ((distance)*(mWidth-1) / mDistance);
                            valueDepth[p][i]++;
                            values[p][i] = values[p][i]+((value-values[p][i])/valueDepth[p][i]);
                         }
@@ -253,7 +249,7 @@ public class GraphCanvas extends View
             }
          }
       }
-      drawGraph( width, values, valueDepth );      
+      drawGraph( values, valueDepth );      
    }
    
    private void drawTimeAxisGraphOnCanvas( String[] params )
@@ -263,7 +259,7 @@ public class GraphCanvas extends View
       Uri waypointsUri = null;
       Cursor segments = null;
       Cursor waypoints = null;
-      int width = mRenderCanvas.getWidth()-5;
+      mWidth = mRenderCanvas.getWidth()-5;
       mHeight = mRenderCanvas.getHeight()-10;
       long duration = mEndTime - mStartTime;
       double[][] values ;
@@ -274,8 +270,8 @@ public class GraphCanvas extends View
                segmentsUri, 
                new String[]{ Segments._ID }, 
                null, null, null );
-         values = new double[segments.getCount()][width];
-         valueDepth = new int[segments.getCount()][width];
+         values = new double[segments.getCount()][mWidth];
+         valueDepth = new int[segments.getCount()][mWidth];
          if( segments.moveToFirst() )
          {
             do
@@ -297,7 +293,7 @@ public class GraphCanvas extends View
                         double value = waypoints.getDouble( 1 );
                         if( value > 1 )
                         {
-                           int i = (int) ((time-mStartTime)*(width-1) / duration);
+                           int i = (int) ((time-mStartTime)*(mWidth-1) / duration);
                            valueDepth[p][i]++;
                            values[p][i] = values[p][i]+((value-values[p][i])/valueDepth[p][i]);
                         }
@@ -333,20 +329,22 @@ public class GraphCanvas extends View
             }
          }
       }      
-      drawGraph( width, values, valueDepth );
+      drawGraph( values, valueDepth );
    }
 
-   private void drawSpeeds()
+   private void setupAltitudeAxis()
    {
-      Paint white = new Paint();
-      white.setColor( Color.WHITE );
-      white.setAntiAlias( true );
-      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getSpeedUnit() )  , 8,  mHeight, white );
-      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getSpeedUnit() ) , 8,  5+mHeight/2, white );
-      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getSpeedUnit() ), 8,  15, white );
+      mMinAxis = 4 *     (int)mUnits.conversionFromMeterToSmall(mMinAlititude / 4) ;
+      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMeterToSmall(mMaxAlititude / 4) ;
    }
-   
-   private void drawAltitudes()
+
+   private void setupSpeedAxis()
+   {
+      mMinAxis = 0;
+      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMetersPerSecond( mMaxSpeed / 4);
+   }
+
+   private void drawAltitudesTexts()
    {
       Paint white = new Paint();
       white.setColor( Color.WHITE );
@@ -355,6 +353,50 @@ public class GraphCanvas extends View
       mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getDistanceSmallUnit() ) , 8,  5+mHeight/2, white );
       mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getDistanceSmallUnit() ), 8,  15, white );
    }
+
+   private void drawSpeedsTexts()
+   {
+      Paint white = new Paint();
+      white.setColor( Color.WHITE );
+      white.setAntiAlias( true );
+      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getSpeedUnit() )              , 8,  mHeight, white );
+      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getSpeedUnit() ) , 8,  3+mHeight/2, white );
+      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getSpeedUnit() )              , 8,  7+white.getTextSize(), white );
+   }
+   
+   private void drawTimeTexts()
+   {
+      DateFormat timeInstance = DateFormat.getTimeInstance( DateFormat.SHORT );
+      String start = timeInstance.format( new Date( mStartTime ) );
+      String half  = timeInstance.format( new Date( (mEndTime+mStartTime)/2 ) );
+      String end   = timeInstance.format( new Date( mEndTime ) );
+      
+      Paint white = new Paint();
+      white.setColor( Color.WHITE );
+      white.setAntiAlias( true );
+      white.setTextAlign( Paint.Align.CENTER );
+      
+      Path yAxis;
+      yAxis = new Path();
+      yAxis.moveTo( 5, 5+mHeight/2 );
+      yAxis.lineTo( 5, 5 );
+      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, white.getTextSize(), white );
+      yAxis = new Path();
+      yAxis.moveTo( 5+mWidth/2  , 5+mHeight/2 );
+      yAxis.lineTo( 5+mWidth/2  , 5 );
+      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, white );
+      yAxis = new Path();
+      yAxis.moveTo( 5+mWidth-1  , 5+mHeight/2  );
+      yAxis.lineTo( 5+mWidth-1  , 5 );
+      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, white );
+   }
+   
+   private void drawDistanceTexts()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
    private double translateValue( double val )
    {
       switch( mGraphType )
@@ -374,7 +416,7 @@ public class GraphCanvas extends View
 
    }
    
-   private void drawGraph( int width, double[][] values, int[][] valueDepth )
+   private void drawGraph( double[][] values, int[][] valueDepth )
    {
       // Matrix
       Paint ltgrey = new Paint();
@@ -382,15 +424,15 @@ public class GraphCanvas extends View
       ltgrey.setStrokeWidth( 1 );
       // Horizontals
       ltgrey.setPathEffect( new DashPathEffect( new float[]{2,4}, 0 ) );
-      mRenderCanvas.drawLine( 5, 5           , 5+width, 5           , ltgrey );
-      mRenderCanvas.drawLine( 5, 5+mHeight/4  , 5+width, 5+mHeight/4  , ltgrey );
-      mRenderCanvas.drawLine( 5, 5+mHeight/2  , 5+width, 5+mHeight/2  , ltgrey );
-      mRenderCanvas.drawLine( 5, 5+mHeight/4*3, 5+width, 5+mHeight/4*3, ltgrey );
+      mRenderCanvas.drawLine( 5, 5            , 5+mWidth, 5            , ltgrey ); // top
+      mRenderCanvas.drawLine( 5, 5+mHeight/4  , 5+mWidth, 5+mHeight/4  , ltgrey ); // 2nd
+      mRenderCanvas.drawLine( 5, 5+mHeight/2  , 5+mWidth, 5+mHeight/2  , ltgrey ); // middle
+      mRenderCanvas.drawLine( 5, 5+mHeight/4*3, 5+mWidth, 5+mHeight/4*3, ltgrey ); // 3rd
       // Verticals
-      mRenderCanvas.drawLine( 5+width/4  , 5, 5+width/4  , 5+mHeight, ltgrey );
-      mRenderCanvas.drawLine( 5+width/2  , 5, 5+width/2  , 5+mHeight, ltgrey );
-      mRenderCanvas.drawLine( 5+width/4*3, 5, 5+width/4*3, 5+mHeight, ltgrey );
-      mRenderCanvas.drawLine( 5+width-1   , 5, 5+width-1 , 5+mHeight, ltgrey );
+      mRenderCanvas.drawLine( 5+mWidth/4  , 5, 5+mWidth/4  , 5+mHeight, ltgrey ); // 2nd
+      mRenderCanvas.drawLine( 5+mWidth/2  , 5, 5+mWidth/2  , 5+mHeight, ltgrey ); // middle
+      mRenderCanvas.drawLine( 5+mWidth/4*3, 5, 5+mWidth/4*3, 5+mHeight, ltgrey ); // 3rd
+      mRenderCanvas.drawLine( 5+mWidth-1  , 5, 5+mWidth-1  , 5+mHeight, ltgrey ); // right
       
       // The line
       Paint routePaint = new Paint();
@@ -425,7 +467,7 @@ public class GraphCanvas extends View
       dkgrey.setColor( Color.DKGRAY );
       dkgrey.setStrokeWidth( 2 );
       mRenderCanvas.drawLine( 5, 5       , 5       , 5+mHeight, dkgrey );
-      mRenderCanvas.drawLine( 5, 5+mHeight, 5+width, 5+mHeight, dkgrey );
+      mRenderCanvas.drawLine( 5, 5+mHeight, 5+mWidth, 5+mHeight, dkgrey );
    }
 
 }
