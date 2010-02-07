@@ -16,16 +16,7 @@
          android:layout_height="wrap_content"
          android:gravity="left"
       >
-         <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-         >
-            <TextView
-               android:text="@string/stat_trackname"
-               android:paddingRight="15dp" />
-            <TextView
-               android:id="@+id/stat_trackname" />
-         </TableRow>
+
          <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,6 +46,16 @@
                android:paddingRight="15dp" />
             <TextView
                android:id="@+id/stat_averagespeed" />
+         </TableRow>
+         <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+         >
+            <TextView
+               android:text="@string/stat_maximumspeed"
+               android:paddingRight="15dp" />
+            <TextView
+               android:id="@+id/stat_maximumspeed" />
          </TableRow>
          <TableRow
             android:layout_width="wrap_content"
@@ -100,10 +101,10 @@
             android:layout_height="wrap_content"
          >
             <TextView
-               android:text="@string/stat_maximumspeed"
+               android:text="@string/stat_minimalaltitide"
                android:paddingRight="15dp" />
             <TextView
-               android:id="@+id/stat_maximumspeed" />
+               android:id="@+id/stat_minimalaltitide" />
          </TableRow>
          <TableRow
             android:layout_width="wrap_content"
@@ -114,16 +115,6 @@
                android:paddingRight="15dp" />
             <TextView
                android:id="@+id/stat_maximumaltitude" />
-         </TableRow>
-         <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-         >
-            <TextView
-               android:text="@string/stat_minimalaltitide"
-               android:paddingRight="15dp" />
-            <TextView
-               android:id="@+id/stat_minimalaltitide" />
          </TableRow>
       </TableLayout>
 

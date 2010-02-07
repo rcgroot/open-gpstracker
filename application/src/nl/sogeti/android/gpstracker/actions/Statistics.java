@@ -92,7 +92,6 @@ public class Statistics extends Activity
    private TextView distanceView;
    private TextView endtimeView;
    private TextView starttimeView;
-   private TextView tracknameView;
    private TextView maxSpeedView;
    private TextView waypointsView;
    private TextView minAltitudeView;
@@ -156,7 +155,6 @@ public class Statistics extends Activity
       distanceView        = (TextView)findViewById( R.id.stat_distance );
       starttimeView       = (TextView)findViewById( R.id.stat_starttime );
       endtimeView         = (TextView)findViewById( R.id.stat_endtime );
-      tracknameView       = (TextView)findViewById( R.id.stat_trackname );
       waypointsView       = (TextView)findViewById( R.id.stat_waypoints );     
       
       if( load != null && load.containsKey( TRACKURI ) )
@@ -485,7 +483,8 @@ public class Statistics extends Activity
       distanceView.setText( distanceText );
       starttimeView.setText( Long.toString( starttime ) );
       endtimeView.setText( Long.toString( endtime ) );
-      tracknameView.setText( tracknameText );
+      String titleFormat = getString( R.string.stat_title );
+      setTitle( String.format( titleFormat, tracknameText ) );
       waypointsView.setText( waypointsText );
       
       calculating = false;

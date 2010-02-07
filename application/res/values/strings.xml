@@ -49,7 +49,6 @@
 	<string name="logcontrol_stop">Stop tracking</string>
 	<string name="menu_tracklist">List tracks</string>
 	<string name="menu_shareTrack">Share track</string>
-    <string name="menu_showTrack">Show statistics </string>
 	<string name="menu_deleteTrack">Delete track</string>
     <string name="menu_renameTrack">Rename track</string>
     <string name="menu_statistics">Show statistics</string>
@@ -93,6 +92,7 @@
     <string name="showlocation_title">My location </string>
     <string name="showlocation_summary">Show my location and orientation on the map</string>
 
+    <string name="stat_title">Statistics - %s</string>
     <string name="stat_maximumspeed">Maximum speed</string>
     <string name="stat_maximumaltitude">Maximum altitude</string>
     <string name="stat_minimalaltitide">Minimum altitude</string>

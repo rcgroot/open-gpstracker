@@ -48,7 +48,6 @@
 	<string name="logcontrol_stop">Stop tracking</string>
 	<string name="menu_tracklist">列出路线</string>
 	<string name="menu_shareTrack">分享路线</string>
-    <string name="menu_showTrack">显示统计 </string>
 	<string name="menu_deleteTrack">删除路线</string>
     <string name="menu_renameTrack">重命名路线</string>
     <string name="menu_statistics">显示统计</string>

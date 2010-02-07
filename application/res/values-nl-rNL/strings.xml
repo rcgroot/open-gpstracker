@@ -49,7 +49,6 @@
 	<string name="logcontrol_stop">Stop opnemen</string>
 	<string name="menu_tracklist">Toon routes</string>
 	<string name="menu_shareTrack">Deel route</string>
-    <string name="menu_showTrack">Toon statistieken </string>
 	<string name="menu_deleteTrack">Verwijder route</string>
     <string name="menu_renameTrack">Hernoem route</string>
     <string name="menu_statistics">Toon statistics</string>
@@ -93,7 +92,7 @@
     <string name="showlocation_title">Mijn locatie </string>
     <string name="showlocation_summary">Toon mijn locatie and orientatie op de kaart</string>
 
-    
+    <string name="stat_title">Statestieken - %s</string>
     <string name="stat_maximumspeed">Maximale snelheid</string>
     <string name="stat_maximumaltitude">Maximale hoogte</string>
     <string name="stat_minimalaltitide">Minimale hoogte</string>
