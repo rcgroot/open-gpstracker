@@ -23,7 +23,7 @@
          >
             <TextView
                android:text="@string/stat_distance"
-               android:paddingRight="15dp" />
+               android:paddingRight="10dp" />
             <TextView
                android:id="@+id/stat_distance" />
          </TableRow>
@@ -33,7 +33,7 @@
          >
             <TextView
                android:text="@string/stat_overallaveragespeed"
-               android:paddingRight="15dp" />
+               android:paddingRight="10dp" />
             <TextView
                android:id="@+id/stat_overallaveragespeed" />
          </TableRow>
@@ -43,7 +43,7 @@
          >
             <TextView
                android:text="@string/stat_averagespeed"
-               android:paddingRight="15dp" />
+               android:paddingRight="10dp" />
             <TextView
                android:id="@+id/stat_averagespeed" />
          </TableRow>
@@ -53,7 +53,7 @@
          >
             <TextView
                android:text="@string/stat_maximumspeed"
-               android:paddingRight="15dp" />
+               android:paddingRight="10dp" />
             <TextView
                android:id="@+id/stat_maximumspeed" />
          </TableRow>
@@ -63,7 +63,7 @@
          >
             <TextView
                android:text="@string/stat_waypoints"
-               android:paddingRight="15dp" />
+               android:paddingRight="10dp" />
             <TextView
                android:id="@+id/stat_waypoints" />
          </TableRow>
@@ -74,7 +74,7 @@
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
          android:gravity="right"
-         android:paddingLeft="15dp"
+         android:paddingLeft="10dp"
       >
          <TableRow
             android:layout_width="wrap_content"
@@ -82,7 +82,7 @@
          >
             <TextView
                android:text="@string/stat_starttime"
-               android:paddingRight="15dp" />
+               android:paddingRight="10dp" />
             <DateView
                android:id="@+id/stat_starttime" />
          </TableRow>
@@ -92,7 +92,7 @@
          >
             <TextView
                android:text="@string/stat_endtime"
-               android:paddingRight="15dp" />
+               android:paddingRight="10dp" />
             <DateView
                android:id="@+id/stat_endtime" />
          </TableRow>
@@ -102,7 +102,7 @@
          >
             <TextView
                android:text="@string/stat_minimalaltitide"
-               android:paddingRight="15dp" />
+               android:paddingRight="10dp" />
             <TextView
                android:id="@+id/stat_minimalaltitide" />
          </TableRow>
@@ -112,7 +112,7 @@
          >
             <TextView
                android:text="@string/stat_maximumaltitude"
-               android:paddingRight="15dp" />
+               android:paddingRight="10dp" />
             <TextView
                android:id="@+id/stat_maximumaltitude" />
          </TableRow>
