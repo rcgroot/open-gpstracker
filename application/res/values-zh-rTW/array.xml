@@ -1,16 +1,16 @@
 <resources>
 
     <string-array name="state_choices">
-        <item>Active</item>
-        <item>Paused</item>
-        <item>Stopped</item>
+        <item>執行</item>
+        <item>已暫停</item>
+        <item>已停止</item>
     </string-array>
     
     <string-array name="precision_choices">
         <item>極好</item>
         <item>正常</item>
         <item>粗糙</item>
-        <item>Global</item>
+        <item>全球</item>
     </string-array>
     
     <string-array name="trackcoloring_choices">
@@ -19,7 +19,7 @@
         <item>速度</item>
         <item>平均速度</item>
         <item>路點</item>
-    </string-array>  
+    </string-array>
 
     <string-array name="about_translators">
         <item>NetDragon Websoft Inc. http://www.nd.com.cn/</item>

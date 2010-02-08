@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">Open GPS Tracker</string>
-    <string name="service_start">Activating logging service</string>
-	<string name="service_status">Logging with precision: %s (%s)</string>
-    <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
-    <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
+	<string name="app_name">打开 GPS 跟踪器</string>
+    <string name="service_start">启动日志服务中</string>
+	<string name="service_status">日志精确度: %s (%s)</string>
+    <string name="service_gpsdisabled">GPS 已禁用，日志无效。</string>
+    <string name="service_gpsenabled">GPS 已启用, 开始记录。</string>
     
-    <string name="dialog_tracking_title">Tracking control</string>
+    <string name="dialog_tracking_title">跟踪控制</string>
 	<string name="dialog_routename_title">命名路线</string>
     <string name="dialog_routename_message">请输入此路线的名称</string>
     <string name="dialog_notrack_title">没有选择路线</string>
@@ -15,18 +15,19 @@
     <string name="dialog_filename_message">请为 SD 卡上的 GPX 文件输入文件名</string>
     <string name="dialog_deletetitle">删除路线</string>
     <string name="dialog_deleteconfirmation">请确认此路线的删除操作</string>
-    <string name="dialog_nooiabout">OI About missing</string>
-    <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
-    <string name="dialog_layer_title">Activate overlays</string>
+    <string name="dialog_nooiabout">缺少 OI About</string>
+    <string name="dialog_nooiabout_message">需要来自 OpenIntents 项目的\"OI About\"程序来显示关于信息。</string>
+    <string name="dialog_layer_title">启动覆盖</string>
+    <string name="dialog_graphtype_title">Grafiek soort</string>
     
-    <string name="layer_satellite">Satellite</string>
-    <string name="layer_traffic">Traffic</string>
-    <string name="layer_speed">Speed</string>
-    <string name="layer_compass">Compass</string>
-    <string name="layer_location">My Location</string>
+    <string name="layer_satellite">卫星</string>
+    <string name="layer_traffic">交通</string>
+    <string name="layer_speed">速度</string>
+    <string name="layer_compass">指南针</string>
+    <string name="layer_location">我的位置</string>
 
     <string name="from">记录: </string>
-    <string name="no_tracks">No tracks</string>
+    <string name="no_tracks">无轨迹</string>
     <string name="ticker_saving">保存: </string>
     <string name="ticker_stored">存储: </string>
     <string name="ticker_failed">无法保存路线: </string>
@@ -38,33 +39,38 @@
 	<string name="btn_cancel">取消</string>
 	<string name="btn_save">保存</string>
 	<string name="btn_selecttrack">选择路线</string>
-	<string name="btn_install">Install</string>
+	<string name="btn_install">安装</string>
 	
 	<string name="menu_settings">设置</string>
-    <string name="menu_tracking">Tracking</string>
-	<string name="logcontrol_start">Start tracking</string>
-    <string name="logcontrol_pause">Pause tracking</string>
-    <string name="logcontrol_resume">Resume tracking</string>
-	<string name="logcontrol_stop">Stop tracking</string>
+    <string name="menu_tracking">跟踪</string>
+	<string name="logcontrol_start">开始跟踪</string>
+    <string name="logcontrol_pause">暂停跟踪</string>
+    <string name="logcontrol_resume">恢复跟踪</string>
+	<string name="logcontrol_stop">停止跟踪</string>
 	<string name="menu_tracklist">列出路线</string>
 	<string name="menu_shareTrack">分享路线</string>
 	<string name="menu_deleteTrack">删除路线</string>
     <string name="menu_renameTrack">重命名路线</string>
     <string name="menu_statistics">显示统计</string>
-    <string name="menu_about">About</string>
-    <string name="menu_showLayers">Overlays</string>
+    <string name="menu_about">关于</string>
+    <string name="menu_showLayers">覆盖</string>
+    <string name="menu_graphtype">Grafiek soort</string>
+    <string name="graphtype_timespeed">Snelheid tegen tijd</string>
+    <string name="graphtype_timealtitude">Hoogte tegen tijd</string>
+    <string name="graphtype_distancespeed">Snelheid tegen afstand</string>
+    <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
 
     <string name="chooser_title">如何分享此路线?</string>
 	<string name="receive_filewriter">存储到 SD 卡</string>
     <string name="receive_gpxsender">发送 GPX 文件</string>
-    <string name="email_chooser">选择 email 程序</string>
-    <string name="email_subject">Open GPS Tracker - Trackdata</string>
+    <string name="email_chooser">选择电子邮件程序</string>
+    <string name="email_subject">打开 GPS 跟踪器 - 跟踪数据</string>
     <string name="email_body">附件是路线的 GPS 交换格式 (GPX) 文件, 描述在 http://www.topografix.com/gpx.asp</string>
     
-    <string name="opengpstracker_title">Open GPS Tracker</string>
+    <string name="opengpstracker_title">打开 GPS 跟踪器</string>
     <string name="opengpstracker_settings">设置</string>
-    <string name="preference_display">Display settings</string>
-    <string name="preference_behavior">Run settings</string>
+    <string name="preference_display">显示设置</string>
+    <string name="preference_behavior">运行设置</string>
     <string name="logatstartup">在启动时记录</string>
     <string name="logatstartup_summary">在程序启动后开始记录。</string>   
     <string name="disableblanking_title">禁止关屏</string>
@@ -73,23 +79,24 @@
     <string name="precision_summary">GPS 记录点之间的间隔大小。</string>      
     <string name="trackcoloring_title">路线颜色</string>
     <string name="trackcoloring_summary">绘制路线使用的颜色。</string>
-    <string name="showsatellite_title">Satellite images</string>
-    <string name="showsatellite_summary">Show the Google Maps satellite view</string>
-    <string name="showtraffic_title">Traffic</string>
-    <string name="showtraffic_summary">Show the Google Maps traffic information</string>
-    <string name="showspeed_title">GPS speed</string>
-    <string name="showspeed_summary">Show the speed from the last received GPS fix.</string>
-    <string name="showcompass_title">Compass</string>
-    <string name="showcompass_summary">Show a compass with a needle pointing north</string>
-    <string name="showlocation_title">Display </string>
-    <string name="showlocation_summary">Show </string>
-    <string name="showtrackdirection_title">Display </string>
-    <string name="showtrackdirection_summary">Show </string>
-    
+    <string name="showsatellite_title">卫星图像</string>
+    <string name="showsatellite_summary">显示谷歌地图卫星视图</string>
+    <string name="showtraffic_title">交通</string>
+    <string name="showtraffic_summary">显示谷歌地图交通信息</string>
+    <string name="showspeed_title">GPS 速度</string>
+    <string name="showspeed_summary">显示来自最后收到的 GPS 固定的速度。</string>
+    <string name="showcompass_title">指南针</string>
+    <string name="showcompass_summary">显示指针指向北的指南针</string>
+    <string name="speedsanitycheck_title">Snelheids normalisatie</string>
+    <string name="speedsanitycheck_summary">Accepteer alleen redelijke GPS snelheden</string>
+    <string name="showlocation_title">Mijn locatie </string>
+    <string name="showlocation_summary">Toon mijn locatie and orientatie op de kaart</string>
+
+    <string name="stat_title">Statistieken - %s</string>    
     <string name="stat_maximumspeed">最高速度</string>
-    <string name="stat_maximumaltitude">Maximum altitude</string>
-    <string name="stat_minimalaltitide">Minimum altitude</string>
-    <string name="stat_overallaveragespeed">Overall average speed</string>
+    <string name="stat_maximumaltitude">最高海拔</string>
+    <string name="stat_minimalaltitide">最低海拔</string>
+    <string name="stat_overallaveragespeed">总平均速度</string>
     <string name="stat_averagespeed">平均速度</string>    
     <string name="stat_distance">路线距离</string>    
     <string name="stat_endtime">上次时间</string>    
@@ -100,8 +107,8 @@
 <!-- ***************************
    About information
    ***************************-->
-   <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
-   <string name="about_activity_name_extended">About %s</string>
-   <string name="no_information_available">No information available.</string>
+   <string name="about_comments">通过 GPS, 程序可以记录你设备的移动。</string>
+   <string name="about_activity_name_extended">关于 %s</string>
+   <string name="no_information_available">没有可用的信息。</string>
    
 </resources>
