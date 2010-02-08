@@ -18,7 +18,7 @@
     <string name="dialog_nooiabout">缺少 OI About</string>
     <string name="dialog_nooiabout_message">需要来自 OpenIntents 项目的\"OI About\"程序来显示关于信息。</string>
     <string name="dialog_layer_title">启动覆盖</string>
-    <string name="dialog_graphtype_title">Grafiek soort</string>
+    <string name="dialog_graphtype_title">Graph type</string>
     
     <string name="layer_satellite">卫星</string>
     <string name="layer_traffic">交通</string>
@@ -54,11 +54,11 @@
     <string name="menu_statistics">显示统计</string>
     <string name="menu_about">关于</string>
     <string name="menu_showLayers">覆盖</string>
-    <string name="menu_graphtype">Grafiek soort</string>
-    <string name="graphtype_timespeed">Snelheid tegen tijd</string>
-    <string name="graphtype_timealtitude">Hoogte tegen tijd</string>
-    <string name="graphtype_distancespeed">Snelheid tegen afstand</string>
-    <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
+    <string name="menu_graphtype">Graph type</string>
+    <string name="graphtype_timespeed">Speed against time</string>
+    <string name="graphtype_timealtitude">Altitude against time</string>
+    <string name="graphtype_distancespeed">Speed against distance</string>
+    <string name="graphtype_distancealtitude">Altitude against distance</string>
 
     <string name="chooser_title">如何分享此路线?</string>
 	<string name="receive_filewriter">存储到 SD 卡</string>
@@ -87,12 +87,12 @@
     <string name="showspeed_summary">显示来自最后收到的 GPS 固定的速度。</string>
     <string name="showcompass_title">指南针</string>
     <string name="showcompass_summary">显示指针指向北的指南针</string>
-    <string name="speedsanitycheck_title">Snelheids normalisatie</string>
-    <string name="speedsanitycheck_summary">Accepteer alleen redelijke GPS snelheden</string>
-    <string name="showlocation_title">Mijn locatie </string>
-    <string name="showlocation_summary">Toon mijn locatie and orientatie op de kaart</string>
+    <string name="speedsanitycheck_title">Speed sanity check </string>
+    <string name="speedsanitycheck_summary">Only accept reasonable GPS speeds</string>
+    <string name="showlocation_title">My location </string>
+    <string name="showlocation_summary">Show my location and orientation on the map</string>
 
-    <string name="stat_title">Statistieken - %s</string>    
+    <string name="stat_title">Statistics - %s</string>
     <string name="stat_maximumspeed">最高速度</string>
     <string name="stat_maximumaltitude">最高海拔</string>
     <string name="stat_minimalaltitide">最低海拔</string>

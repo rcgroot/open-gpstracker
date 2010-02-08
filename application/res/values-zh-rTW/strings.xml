@@ -54,11 +54,11 @@
     <string name="menu_statistics">顯示統計</string>
     <string name="menu_about">關於</string>
     <string name="menu_showLayers">覆寫</string>
-    <string name="menu_graphtype">Grafiek soort</string>
-    <string name="graphtype_timespeed">Snelheid tegen tijd</string>
-    <string name="graphtype_timealtitude">Hoogte tegen tijd</string>
-    <string name="graphtype_distancespeed">Snelheid tegen afstand</string>
-    <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
+    <string name="menu_graphtype">Graph type</string>
+    <string name="graphtype_timespeed">Speed against time</string>
+    <string name="graphtype_timealtitude">Altitude against time</string>
+    <string name="graphtype_distancespeed">Speed against distance</string>
+    <string name="graphtype_distancealtitude">Altitude against distance</string>
 
     <string name="chooser_title">如何分享此路線?</string>
 	<string name="receive_filewriter">存儲到 SD 卡</string>
@@ -87,12 +87,12 @@
     <string name="showspeed_summary">顯示來自最後收到的 GPS 固定的速度。</string>
     <string name="showcompass_title">指南針</string>
     <string name="showcompass_summary">顯示指針指向北的指南針</string>
-    <string name="speedsanitycheck_title">Snelheids normalisatie</string>
-    <string name="speedsanitycheck_summary">Accepteer alleen redelijke GPS snelheden</string>
-    <string name="showlocation_title">Mijn locatie </string>
-    <string name="showlocation_summary">Toon mijn locatie and orientatie op de kaart</string>
-    
-    <string name="stat_title">Statistieken - %s</string>
+    <string name="speedsanitycheck_title">Speed sanity check </string>
+    <string name="speedsanitycheck_summary">Only accept reasonable GPS speeds</string>
+    <string name="showlocation_title">My location </string>
+    <string name="showlocation_summary">Show my location and orientation on the map</string>
+
+    <string name="stat_title">Statistics - %s</string>
     <string name="stat_maximumspeed">最高速度</string>
     <string name="stat_maximumaltitude">最高海拔</string>
     <string name="stat_minimalaltitide">最低海拔</string>
