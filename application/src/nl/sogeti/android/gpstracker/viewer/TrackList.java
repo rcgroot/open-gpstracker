@@ -60,7 +60,7 @@ import android.widget.TextView;
  */
 public class TrackList extends ListActivity
 {
-   private static final String TAG = "nl.sogeti.android.gpstracker.viewer.TrackList";
+   private static final String TAG = "TrackList";
    private static final int MENU_DETELE = 0;
    private static final int MENU_SHARE = 1;
    private static final int MENU_RENAME = 2;

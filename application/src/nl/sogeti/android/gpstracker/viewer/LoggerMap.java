@@ -37,6 +37,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
+import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 
 import org.openintents.intents.AboutIntents;
@@ -100,10 +101,6 @@ import com.google.android.maps.Overlay;
 public class LoggerMap extends MapActivity
 {
    private static final int ZOOM_LEVEL = 16;
-   public static final String EXTRA_TRACK_ID = "nl.sogeti.android.gpstracker.intent.trackid";
-   
-   protected static final String DISABLEBLANKING = "disableblanking";
-   
    // MENU'S
    private static final int MENU_SETTINGS = 0;
    private static final int MENU_TRACKING = 1;
@@ -117,12 +114,6 @@ public class LoggerMap extends MapActivity
    private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
    private static final String TAG = LoggerMap.class.getName();
-   private static final String SATELLITE = "SATELLITE";
-   private static final String TRAFFIC = "TRAFFIC";
-   private static final String SPEED = "showspeed";
-   private static final String COMPASS = "COMPASS";
-   private static final String DIRECTION = "LOCATION";
-
    private MapView mMapView = null;
    private MyLocationOverlay mMylocation;
    private CheckBox mSatellite;
@@ -290,9 +281,9 @@ public class LoggerMap extends MapActivity
       {
          public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
          {
-            if( key.equals( TrackingOverlay.TRACKCOLORING ) )
+            if( key.equals( Constants.TRACKCOLORING ) )
             {
-               int trackColoringMethod = new Integer( sharedPreferences.getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
+               int trackColoringMethod = new Integer( sharedPreferences.getString( Constants.TRACKCOLORING, "3" ) ).intValue();
                updateSpeedbarVisibility();
                List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
                for (Overlay overlay : overlays)
@@ -303,27 +294,27 @@ public class LoggerMap extends MapActivity
                   }
                }
             }
-            else if( key.equals( LoggerMap.DISABLEBLANKING ) )
+            else if( key.equals( Constants.DISABLEBLANKING ) )
             {
                updateBlankingBehavior();
             }
-            else if( key.equals( SPEED ) )
+            else if( key.equals( Constants.SPEED ) )
             {
                updateSpeedDisplayVisibility();
             }
-            else if( key.equals( COMPASS ) )
+            else if( key.equals( Constants.COMPASS ) )
             {
                updateCompassDisplayVisibility();
             }
-            else if( key.equals( TRAFFIC ) )
+            else if( key.equals( Constants.TRAFFIC ) )
             {
                LoggerMap.this.mMapView.setTraffic( sharedPreferences.getBoolean( key, false ) );
             }
-            else if( key.equals( SATELLITE ) )
+            else if( key.equals( Constants.SATELLITE ) )
             {
                LoggerMap.this.mMapView.setSatellite( sharedPreferences.getBoolean( key, false ) );
             }
-            else if( key.equals( DIRECTION ) )
+            else if( key.equals( Constants.DIRECTION ) )
             {
                updateDirectionDisplayVisibility();
             }
@@ -362,8 +353,8 @@ public class LoggerMap extends MapActivity
       mMapView.setBuiltInZoomControls( true );
       mMapView.setClickable( true );
       mMapView.setStreetView( false );
-      mMapView.setSatellite( mSharedPreferences.getBoolean( SATELLITE, false ) );
-      mMapView.setTraffic( mSharedPreferences.getBoolean( TRAFFIC, false ) );
+      mMapView.setSatellite( mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
+      mMapView.setTraffic( mSharedPreferences.getBoolean( Constants.TRAFFIC, false ) );
       
       TextView[] speeds = { (TextView) findViewById( R.id.speedview05 ), (TextView) findViewById( R.id.speedview04 ), (TextView) findViewById( R.id.speedview03 ),
             (TextView) findViewById( R.id.speedview02 ), (TextView) findViewById( R.id.speedview01 ), (TextView) findViewById( R.id.speedview00 ) };
@@ -424,9 +415,9 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onDestroy()
    {
-      if( this.mWakeLock != null && this.mWakeLock.isHeld() )
+      if( mWakeLock != null && mWakeLock.isHeld() )
       {
-         this.mWakeLock.release();
+         mWakeLock.release();
          Log.w( TAG, "onDestroy(): Released lock to keep screen on!" );
       }
       this.mLoggerServiceManager.shutdown();
@@ -443,7 +434,7 @@ public class LoggerMap extends MapActivity
    {
       if( newIntent.getExtras() != null )
       {
-         long intentTrackId = newIntent.getExtras().getLong( EXTRA_TRACK_ID, -1 );
+         long intentTrackId = newIntent.getExtras().getLong( Constants.EXTRA_TRACK_ID, -1 );
          if( intentTrackId >= 0 )
          {
             moveToTrack( intentTrackId );
@@ -458,7 +449,7 @@ public class LoggerMap extends MapActivity
       {
          super.onRestoreInstanceState( load );
       }
-      long intentTrackId = this.getIntent().getLongExtra( EXTRA_TRACK_ID, -1 );
+      long intentTrackId = this.getIntent().getLongExtra( Constants.EXTRA_TRACK_ID, -1 );
       if( intentTrackId >= 0 )
       {
          moveToTrack( intentTrackId );
@@ -554,35 +545,35 @@ public class LoggerMap extends MapActivity
    private void setTrafficOverlay(boolean b)
    {
       Editor editor = mSharedPreferences.edit();
-      editor.putBoolean( TRAFFIC, b );
+      editor.putBoolean( Constants.TRAFFIC, b );
       editor.commit();
    }
 
    private void setSatelliteOverlay(boolean b)
    {
       Editor editor = mSharedPreferences.edit();
-      editor.putBoolean( SATELLITE, b );
+      editor.putBoolean( Constants.SATELLITE, b );
       editor.commit();
    }
    
    private void setSpeedOverlay(boolean b)
    {
       Editor editor = mSharedPreferences.edit();
-      editor.putBoolean( SPEED, b );
+      editor.putBoolean( Constants.SPEED, b );
       editor.commit();
    }
    
    private void setCompassOverlay(boolean b)
    {
       Editor editor = mSharedPreferences.edit();
-      editor.putBoolean( COMPASS, b );
+      editor.putBoolean( Constants.COMPASS, b );
       editor.commit();
    }
    
    private void setLocationOverlay(boolean b)
    {
       Editor editor = mSharedPreferences.edit();
-      editor.putBoolean( DIRECTION, b );
+      editor.putBoolean( Constants.DIRECTION, b );
       editor.commit();
    }
    
@@ -781,11 +772,11 @@ public class LoggerMap extends MapActivity
             }
             break;
          case DIALOG_LAYERS:
-            mSatellite.setChecked( mSharedPreferences.getBoolean( SATELLITE, false ) );
-            mTraffic.setChecked( mSharedPreferences.getBoolean( TRAFFIC, false ) );
-            mSpeed.setChecked( mSharedPreferences.getBoolean( SPEED, false ) );
-            mCompass.setChecked( mSharedPreferences.getBoolean( COMPASS, false ) );
-            mLocation.setChecked( mSharedPreferences.getBoolean( DIRECTION, false ) );
+            mSatellite.setChecked( mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
+            mTraffic.setChecked( mSharedPreferences.getBoolean( Constants.TRAFFIC, false ) );
+            mSpeed.setChecked( mSharedPreferences.getBoolean( Constants.SPEED, false ) );
+            mCompass.setChecked( mSharedPreferences.getBoolean( Constants.COMPASS, false ) );
+            mLocation.setChecked( mSharedPreferences.getBoolean( Constants.DIRECTION, false ) );
             break;
          default:
             break;
@@ -851,17 +842,17 @@ public class LoggerMap extends MapActivity
 
    private void updateBlankingBehavior()
    {
-      boolean disableblanking = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DISABLEBLANKING, false );
+      boolean disableblanking = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( Constants.DISABLEBLANKING, false );
       if( disableblanking )
       {
-         if( this.mWakeLock == null )
+         if( mWakeLock == null )
          {
             PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
-            this.mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
+            mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
          }
-         if( this.mLoggerServiceManager.getLoggingState() == GPSLoggerService.LOGGING && !this.mWakeLock.isHeld() )
+         if( this.mLoggerServiceManager.getLoggingState() == GPSLoggerService.LOGGING && !mWakeLock.isHeld() )
          {
-            this.mWakeLock.acquire();
+            mWakeLock.acquire();
             Log.w( TAG, "Acquired lock to keep screen on!" );
          }
       }
@@ -869,7 +860,7 @@ public class LoggerMap extends MapActivity
 
    private void updateSpeedbarVisibility()
    {
-      int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "3" ) ).intValue();
+      int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.TRACKCOLORING, "3" ) ).intValue();
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor waypointsCursor = null;
       try
@@ -913,7 +904,7 @@ public class LoggerMap extends MapActivity
 
    private void updateSpeedDisplayVisibility()
    {
-      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.SPEED, false );
+      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( Constants.SPEED, false );
       if( showspeed )
       {
          mLastGPSSpeedView.setVisibility( View.VISIBLE );
@@ -926,7 +917,7 @@ public class LoggerMap extends MapActivity
    
    private void updateDirectionDisplayVisibility()
    {
-      boolean showDirection = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DIRECTION, false );
+      boolean showDirection = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( Constants.DIRECTION, false );
       if( showDirection )
       {
          mMylocation.enableMyLocation();
@@ -949,7 +940,7 @@ public class LoggerMap extends MapActivity
    
    private void updateCompassDisplayVisibility()
    {
-      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.COMPASS, false );
+      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( Constants.COMPASS, false );
       if( showspeed )
       {
          mCompassView.setVisibility( View.VISIBLE );
@@ -1014,7 +1005,7 @@ public class LoggerMap extends MapActivity
 
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null;
-      int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( TrackingOverlay.TRACKCOLORING, "2" ) ).intValue();
+      int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.TRACKCOLORING, "2" ) ).intValue();
 
       GeoPoint lastPoint = null;
       try

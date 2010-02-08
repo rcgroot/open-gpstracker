@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.logger;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -363,7 +364,7 @@ public class GPSLoggerService extends Service
       CharSequence contentText = this.getResources().getString( R.string.service_status, precision, state );
       
       Intent notificationIntent = new Intent(this, LoggerMap.class);
-      notificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );
+      notificationIntent.putExtra( Constants.EXTRA_TRACK_ID, mTrackId );
       
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent); 
@@ -389,7 +390,7 @@ public class GPSLoggerService extends Service
       CharSequence contentTitle = this.getResources().getString( R.string.app_name );
       CharSequence contentText = this.getResources().getString( R.string.service_gpsdisabled );
       Intent notificationIntent = new Intent(this, LoggerMap.class);
-      notificationIntent.putExtra( LoggerMap.EXTRA_TRACK_ID, mTrackId );
+      notificationIntent.putExtra( Constants.EXTRA_TRACK_ID, mTrackId );
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       gpsNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
       

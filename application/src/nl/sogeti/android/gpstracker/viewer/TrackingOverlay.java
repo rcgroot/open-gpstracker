@@ -74,7 +74,6 @@ public class TrackingOverlay extends Overlay
    public static final int DRAW_MEASURED = 2;
    public static final int DRAW_CALCULATED = 3;
    public static final int DRAW_DOTS = 4;
-   public static final String TRACKCOLORING = "trackcoloring";
    private static final float MINIMUM_RL_DISTANCE = 25;
    private static final float MINIMUM_RL_TIME = 5;
    private static final float MINIMUM_PX_DISTANCE = 5;
