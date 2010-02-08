@@ -25,7 +25,7 @@
     <string name="layer_speed">Snelheid</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">Mijn locatie</string>
-        
+    
     <string name="from">Opgenomen op: </string>
     <string name="no_tracks">Geen routes</string>
     <string name="ticker_saving">Opslaan: </string>
@@ -34,7 +34,7 @@
     <string name="error_filename"> reden: Fout in de bestandsnaam</string>
     <string name="error_buildxml"> reden: Fout tijdens bouwen XML</string>
     <string name="error_writesdcard"> reden: Fout tijdens schrijven naar de SDcard</string>
-        
+    
 	<string name="btn_okay">OK</string>
     <string name="btn_cancel">Annuleren</string>
 	<string name="btn_save">Opslaan</string>
@@ -51,7 +51,7 @@
 	<string name="menu_shareTrack">Deel route</string>
 	<string name="menu_deleteTrack">Verwijder route</string>
     <string name="menu_renameTrack">Hernoem route</string>
-    <string name="menu_statistics">Toon statistics</string>
+    <string name="menu_statistics">Toon statistieken</string>
     <string name="menu_about">Info</string>
     <string name="menu_showLayers">Lagen</string>
     <string name="menu_graphtype">Grafiek soort</string>
@@ -92,7 +92,7 @@
     <string name="showlocation_title">Mijn locatie </string>
     <string name="showlocation_summary">Toon mijn locatie and orientatie op de kaart</string>
 
-    <string name="stat_title">Statestieken - %s</string>
+    <string name="stat_title">Statistieken - %s</string>
     <string name="stat_maximumspeed">Maximale snelheid</string>
     <string name="stat_maximumaltitude">Maximale hoogte</string>
     <string name="stat_minimalaltitide">Minimale hoogte</string>
