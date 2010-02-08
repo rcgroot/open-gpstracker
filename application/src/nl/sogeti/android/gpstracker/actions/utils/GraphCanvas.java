@@ -393,8 +393,28 @@ public class GraphCanvas extends View
    
    private void drawDistanceTexts()
    {
-      // TODO Auto-generated method stub
+      String start = String.format( "%.0f %s", mUnits.conversionFromMeter( 0 ), mUnits.getDistanceUnit() ) ;
+      String half  = String.format( "%.0f %s", mUnits.conversionFromMeter( mDistance/2), mUnits.getDistanceUnit() ) ;
+      String end   = String.format( "%.0f %s", mUnits.conversionFromMeter( mDistance), mUnits.getDistanceUnit() ) ;
       
+      Paint white = new Paint();
+      white.setColor( Color.WHITE );
+      white.setAntiAlias( true );
+      white.setTextAlign( Paint.Align.CENTER );
+      
+      Path yAxis;
+      yAxis = new Path();
+      yAxis.moveTo( 5, 5+mHeight/2 );
+      yAxis.lineTo( 5, 5 );
+      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, white.getTextSize(), white );
+      yAxis = new Path();
+      yAxis.moveTo( 5+mWidth/2  , 5+mHeight/2 );
+      yAxis.lineTo( 5+mWidth/2  , 5 );
+      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, white );
+      yAxis = new Path();
+      yAxis.moveTo( 5+mWidth-1  , 5+mHeight/2  );
+      yAxis.lineTo( 5+mWidth-1  , 5 );
+      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, white );
    }
 
    private double translateValue( double val )
