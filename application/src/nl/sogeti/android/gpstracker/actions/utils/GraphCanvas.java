@@ -46,6 +46,10 @@ public class GraphCanvas extends View
    private double mMinAlititude;
    private double mMaxAlititude;
    private double mMaxSpeed;
+   private double mDistanceDrawn;
+   private long mStartTimeDrawn;
+   private long mEndTimeDrawn;
+   private boolean calculating;
    
    public GraphCanvas(Context context)
    {
@@ -79,15 +83,30 @@ public class GraphCanvas extends View
     */
    public void setData( Uri uri, long startTime, long endTime, double distance, double minAlititude, double maxAlititude, double maxSpeed, UnitsI18n units )
    { 
+      boolean rerender = false;
+      if( uri.equals( mUri ) )
+      {
+         double distanceDrawnPercentage = mDistanceDrawn / mDistance;
+         double duractionDrawnPercentage = (double)((1d+mEndTimeDrawn-mStartTimeDrawn) / (1d+mEndTime-mStartTime));
+         rerender = distanceDrawnPercentage < 0.99d || duractionDrawnPercentage < 0.99d;
+      }
+      else
+      {
+         rerender = true;
+      }
+      
+      mUri          = uri;
+      mUnits        = units;
       mMinAlititude = minAlititude;
       mMaxAlititude = maxAlititude;
       mMaxSpeed     = maxSpeed;
-      mUri          = uri;
       mStartTime    = startTime;
       mEndTime      = endTime;
       mDistance     = distance;
-      mUnits        = units;
-      renderGraph();
+      if( rerender && !calculating )
+      {
+         renderGraph();
+      }
    }
    
    public void setType( int graphType)
@@ -126,7 +145,9 @@ public class GraphCanvas extends View
 
    private void renderGraph()
    {
-//      Log.d( TAG, "renderGraph() on "+mRenderBuffer );
+//      Log.d( TAG, "renderGraph() type "+mGraphType+" on "+mRenderBuffer );
+      
+      calculating = true;
       if( mRenderBuffer != null )
       {
          mRenderBuffer.eraseColor( Color.TRANSPARENT );
@@ -159,8 +180,14 @@ public class GraphCanvas extends View
             default:
                break;
          }
+         mDistanceDrawn = mDistance;
+         mStartTimeDrawn = mStartTime;
+         mEndTimeDrawn = mEndTime;
+
+         calculating = false;
+         
+         postInvalidate();
       }
-      postInvalidate();
    }
       
    private void drawDistanceAxisGraphOnCanvas( String[] params )
