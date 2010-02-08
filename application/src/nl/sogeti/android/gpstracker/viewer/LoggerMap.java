@@ -930,6 +930,7 @@ public class LoggerMap extends MapActivity
       if( showDirection )
       {
          mMylocation.enableMyLocation();
+         this.mMapView.postInvalidate();
 //         mDirectionView.setAnimation( AnimationUtils.loadAnimation(this, R.anim.arrow_rotate ) );
 //         mDirectionView.getAnimation().setInterpolator( mDirectionInterpolator );
 //         mDirectionView.getAnimation().setRepeatCount( Animation.INFINITE );
@@ -941,6 +942,7 @@ public class LoggerMap extends MapActivity
       else
       {
          mMylocation.disableMyLocation();
+         this.mMapView.postInvalidate();
 //         mDirectionView.setVisibility( View.INVISIBLE );
       }
    }
