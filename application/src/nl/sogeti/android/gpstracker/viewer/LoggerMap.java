@@ -90,6 +90,7 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 
 /**
@@ -123,6 +124,7 @@ public class LoggerMap extends MapActivity
    private static final String DIRECTION = "LOCATION";
 
    private MapView mMapView = null;
+   private MyLocationOverlay mMylocation;
    private CheckBox mSatellite;
    private CheckBox mTraffic;
    private CheckBox mSpeed;
@@ -133,6 +135,7 @@ public class LoggerMap extends MapActivity
    private TextView mLastGPSSpeedView = null;
    private ImageView mCompassView;
    private ImageView mNeedleView;
+//   private ImageView mDirectionView;
    
    private double mAverageSpeed = 33.33d / 2d;
    private long mTrackId = -1;
@@ -237,10 +240,18 @@ public class LoggerMap extends MapActivity
 
       public void onSensorChanged( SensorEvent event )
       {
-         mDirection = (360-event.values[0]) / 359f ;
+         mDirection = event.values[0];
       }
    };
    private final android.view.animation.Interpolator mNeedleInterpolator = new android.view.animation.Interpolator()
+   {
+
+      public float getInterpolation( float input )
+      {
+         return  (360-mDirection) / 359f ;
+      }
+   };
+   private final android.view.animation.Interpolator mDirectionInterpolator = new android.view.animation.Interpolator()
    {
 
       public float getInterpolation( float input )
@@ -345,13 +356,14 @@ public class LoggerMap extends MapActivity
       mSharedPreferences.registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
       setContentView( R.layout.map );
-      this.mMapView = (MapView) findViewById( R.id.myMapView );
-      this.mMapController = this.mMapView.getController();
-      this.mMapView.setBuiltInZoomControls( true );
-      this.mMapView.setClickable( true );
-      this.mMapView.setStreetView( false );
-      this.mMapView.setSatellite( mSharedPreferences.getBoolean( SATELLITE, false ) );
-      this.mMapView.setTraffic( mSharedPreferences.getBoolean( TRAFFIC, false ) );
+      mMapView = (MapView) findViewById( R.id.myMapView );
+      mMylocation = new MyLocationOverlay( this, mMapView ) ;
+      mMapController = this.mMapView.getController();
+      mMapView.setBuiltInZoomControls( true );
+      mMapView.setClickable( true );
+      mMapView.setStreetView( false );
+      mMapView.setSatellite( mSharedPreferences.getBoolean( SATELLITE, false ) );
+      mMapView.setTraffic( mSharedPreferences.getBoolean( TRAFFIC, false ) );
       
       TextView[] speeds = { (TextView) findViewById( R.id.speedview05 ), (TextView) findViewById( R.id.speedview04 ), (TextView) findViewById( R.id.speedview03 ),
             (TextView) findViewById( R.id.speedview02 ), (TextView) findViewById( R.id.speedview01 ), (TextView) findViewById( R.id.speedview00 ) };
@@ -359,7 +371,8 @@ public class LoggerMap extends MapActivity
       mLastGPSSpeedView = (TextView) findViewById( R.id.currentSpeed );
       mCompassView = (ImageView) findViewById( R.id.compassview );
       mNeedleView = (ImageView) findViewById( R.id.needleview );
-
+//      mDirectionView  = (ImageView) findViewById( R.id.directionview );
+      
       onRestoreInstanceState( load );
    }
 
@@ -380,6 +393,8 @@ public class LoggerMap extends MapActivity
       {
          mSensorManager.unregisterListener( mCompasslistener );
       }
+      mMylocation.disableMyLocation();
+      mMylocation.disableCompass();
    }
 
    protected void onResume()
@@ -390,6 +405,8 @@ public class LoggerMap extends MapActivity
       updateSpeedbarVisibility();
       updateSpeedDisplayVisibility();
       updateCompassDisplayVisibility();
+      updateDirectionDisplayVisibility();
+      
       if( mTrackId > 0 )
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
@@ -909,28 +926,23 @@ public class LoggerMap extends MapActivity
    
    private void updateDirectionDisplayVisibility()
    {
-      boolean invalidate = false;
       boolean showDirection = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( LoggerMap.DIRECTION, false );
-      List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
-      for (int i=0;i<overlays.size();i++)
-      {
-         if( overlays.get( i ) instanceof DirectionsOverlay )
-         {
-            overlays.remove( i );
-            invalidate = true;
-         }
-      }
       if( showDirection )
       {
-         Overlay directionOverlay = new DirectionsOverlay( this );
-         overlays.add( directionOverlay  );
-         invalidate = true;
+         mMylocation.enableMyLocation();
+//         mDirectionView.setAnimation( AnimationUtils.loadAnimation(this, R.anim.arrow_rotate ) );
+//         mDirectionView.getAnimation().setInterpolator( mDirectionInterpolator );
+//         mDirectionView.getAnimation().setRepeatCount( Animation.INFINITE );
+//         mDirectionView.getAnimation().start();
+//         mSensorManager = (SensorManager) getSystemService( Context.SENSOR_SERVICE );
+//         mSensorManager.registerListener( mCompasslistener, mSensorManager.getDefaultSensor( Sensor.TYPE_ORIENTATION ), SensorManager.SENSOR_DELAY_NORMAL );
+//         mDirectionView.setVisibility( View.VISIBLE );
       }
-      if( invalidate )
+      else
       {
-         this.mMapView.postInvalidate();
+         mMylocation.disableMyLocation();
+//         mDirectionView.setVisibility( View.INVISIBLE );
       }
-         
    }
    
    private void updateCompassDisplayVisibility()
@@ -995,7 +1007,7 @@ public class LoggerMap extends MapActivity
    {
       List<Overlay> overlays = this.mMapView.getOverlays();
       overlays.clear();
-      
+      overlays.add( mMylocation );
       updateDirectionDisplayVisibility();
 
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
