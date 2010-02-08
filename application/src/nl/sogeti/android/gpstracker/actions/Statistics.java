@@ -68,6 +68,7 @@ public class Statistics extends Activity
    private static final int DIALOG_GRAPHTYPE = 3;
    private static final int MENU_GRAPHTYPE = 11;
    private static final int MENU_TRACKLIST = 12;
+   private static final int MENU_SHARE = 41;
    private static final String GRAPH_TYPE = "GRAPH_TYPE";
    private static final String TRACKURI = "TRACKURI";
    private static final String TAG = null;
@@ -221,8 +222,9 @@ public class Statistics extends Activity
    public boolean onCreateOptionsMenu( Menu menu )
    {
       boolean result = super.onCreateOptionsMenu( menu );
-      menu.add( ContextMenu.NONE, MENU_GRAPHTYPE, ContextMenu.NONE, R.string.menu_graphtype ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 't' );
-      menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'l' );
+      menu.add( ContextMenu.NONE, MENU_GRAPHTYPE, ContextMenu.NONE, R.string.menu_graphtype  ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 't' );
+      menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist  ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'l' );
+      menu.add( ContextMenu.NONE, MENU_SHARE    , ContextMenu.NONE, R.string.menu_shareTrack ).setIcon( R.drawable.ic_menu_share ).setAlphabeticShortcut( 's' );
       return result;
    }
    
@@ -240,6 +242,13 @@ public class Statistics extends Activity
             Intent tracklistIntent = new Intent( this, TrackList.class );
             tracklistIntent.putExtra( Tracks._ID, mTrackUri.getLastPathSegment() );
             startActivityForResult( tracklistIntent, MENU_TRACKLIST );
+            break;
+         case MENU_SHARE:
+            Intent actionIntent = new Intent(Intent.ACTION_RUN);
+            actionIntent.setDataAndType( mTrackUri, Tracks.CONTENT_ITEM_TYPE );
+            actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
+            startActivity(Intent.createChooser(actionIntent, getString(R.string.chooser_title)));
+            handled = true;
             break;
          default:
             handled = super.onOptionsItemSelected( item );
