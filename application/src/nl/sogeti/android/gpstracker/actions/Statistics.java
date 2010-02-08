@@ -217,7 +217,7 @@ public class Statistics extends Activity
       resolver.unregisterContentObserver( this.mTrackObserver );
       resolver.registerContentObserver( mTrackUri, true, this.mTrackObserver );
    }
-
+  
    @Override
    public boolean onCreateOptionsMenu( Menu menu )
    {
@@ -498,5 +498,4 @@ public class Statistics extends Activity
       
       calculating = false;
    }
-
 }

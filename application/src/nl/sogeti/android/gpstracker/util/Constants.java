@@ -11,5 +11,12 @@ public class Constants
    public static final String COMPASS = "COMPASS";
    public static final String DIRECTION = "LOCATION";
    public static final String TRACKCOLORING = "trackcoloring";
+   public static final int UNKNOWN = -1;
+   public static final int LOGGING = 1;
+   public static final int PAUSED = 2;
+   public static final int STOPPED = 3;
+   public static final String SPEEDSANITYCHECK = "speedsanitycheck";
+   public static final String PRECISION = "precision";
+   public static final String LOGATSTARTUP = "logatstartup";
 
 }

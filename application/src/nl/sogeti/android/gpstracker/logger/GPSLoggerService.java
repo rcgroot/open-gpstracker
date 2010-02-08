@@ -76,9 +76,6 @@ public class GPSLoggerService extends Service
     * <code>MAX_REASONABLE_SPEED</code> is about 250 kilometer per hour or 155 mile per hour.
     */
    private static final int MAX_REASONABLE_SPEED = 70;
-   private static final String SPEEDSANITYCHECK = "speedsanitycheck";
-   private static final String PRECISION = "precision";
-   private static final String LOGATSTARTUP = "logatstartup";
    private static final String TAG = GPSLoggerService.class.getName();
    private static final int LOGGING_FINE = 0;
    private static final int LOGGING_NORMAL = 1;
@@ -89,12 +86,7 @@ public class GPSLoggerService extends Service
    private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
    private static final String SERVICESTATE_TRACKID = "SERVICESTATE_TRACKID";
    
-   public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
-   public static final int UNKNOWN = -1;
-   public static final int LOGGING = 1;
-   public static final int PAUSED = 2;
-   public static final int STOPPED = 3;
-
+   public static final String SERVICENAME = "GPSLoggerService";
    private Context mContext;
    private LocationManager mLocationManager;
    private NotificationManager mNoticationService;
@@ -104,7 +96,7 @@ public class GPSLoggerService extends Service
    private long mTrackId = -1;
    private long mSegmentId = -1 ;
    private int mPrecision;
-   private int mLoggingState = UNKNOWN;
+   private int mLoggingState = Constants.UNKNOWN;
    
    private Location mPreviousLocation;  
    private Notification mNotification;
@@ -119,14 +111,14 @@ public class GPSLoggerService extends Service
       {
          public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
          {
-            if( key.equals( PRECISION ) )
+            if( key.equals( Constants.PRECISION ) )
             {
                requestLocationUpdates();
                setupNotification();
             } 
-            else if( key.equals( SPEEDSANITYCHECK ) )
+            else if( key.equals( Constants.SPEEDSANITYCHECK ) )
             {
-               speedSanityCheck = sharedPreferences.getBoolean( SPEEDSANITYCHECK, true );
+               speedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
             }
          }
       };
@@ -197,18 +189,18 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
-      this.mLoggingState = STOPPED;
+      this.mLoggingState = Constants.STOPPED;
       this.mContext = getApplicationContext();
       this.mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
       this.mNoticationService = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
       mNoticationService.cancel( R.layout.map );
             
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this.mContext );
-      speedSanityCheck = sharedPreferences.getBoolean( SPEEDSANITYCHECK, true );
-      boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( LOGATSTARTUP, false );
+      speedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
+      boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( Constants.LOGATSTARTUP, false );
 //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
       crashRestoreState();
-      if( startImmidiatly && this.mLoggingState == STOPPED )
+      if( startImmidiatly && this.mLoggingState == Constants.STOPPED )
       {
          startLogging();
          ContentValues values = new ContentValues();
@@ -246,7 +238,7 @@ public class GPSLoggerService extends Service
    {
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mContext );
       long previousState = preferences.getInt( SERVICESTATE_STATE, -1 );
-      if( previousState == LOGGING || previousState == PAUSED )
+      if( previousState == Constants.LOGGING || previousState == Constants.PAUSED )
       {
          Log.w( TAG, "Recovering from a crash or kill and restoring state." );
          setupNotification();
@@ -254,14 +246,14 @@ public class GPSLoggerService extends Service
          mTrackId = preferences.getLong( SERVICESTATE_TRACKID, -1 );
          mSegmentId = preferences.getLong( SERVICESTATE_SEGMENTID, -1 );
          mPrecision = preferences.getInt( SERVICESTATE_PRECISION, -1 );
-         if( previousState == LOGGING )
+         if( previousState == Constants.LOGGING )
          {
-            mLoggingState = PAUSED;
+            mLoggingState = Constants.PAUSED;
             resumeLogging();
          }
-         else if( previousState == PAUSED )
+         else if( previousState == Constants.PAUSED )
          {
-            mLoggingState = LOGGING;
+            mLoggingState = Constants.LOGGING;
             pauseLogging();
          }
       }      
@@ -283,7 +275,7 @@ public class GPSLoggerService extends Service
     */
    protected boolean isLogging()
    {
-      return this.mLoggingState == LOGGING;
+      return this.mLoggingState == Constants.LOGGING;
    }
 
    /**
@@ -294,7 +286,7 @@ public class GPSLoggerService extends Service
    {
       startNewTrack() ;
       requestLocationUpdates();
-      this.mLoggingState = LOGGING;
+      this.mLoggingState = Constants.LOGGING;
       updateWakeLock();
 
       setupNotification();
@@ -304,10 +296,10 @@ public class GPSLoggerService extends Service
 
    protected synchronized void pauseLogging()
    {
-      if( this.mLoggingState == LOGGING )
+      if( this.mLoggingState == Constants.LOGGING )
       {
          this.mLocationManager.removeUpdates( this.mLocationListener );
-         this.mLoggingState = PAUSED;
+         this.mLoggingState = Constants.PAUSED;
          updateWakeLock();
          updateNotification();
          crashProtectState();
@@ -316,11 +308,11 @@ public class GPSLoggerService extends Service
    
    protected synchronized void resumeLogging()
    {
-      if( this.mLoggingState == PAUSED )
+      if( this.mLoggingState == Constants.PAUSED )
       {
          startNewSegment();
          requestLocationUpdates();
-         this.mLoggingState = LOGGING;
+         this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
          updateNotification();
          crashProtectState();
@@ -335,7 +327,7 @@ public class GPSLoggerService extends Service
    {
       PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
       this.mLocationManager.removeUpdates( this.mLocationListener );
-      this.mLoggingState = STOPPED;
+      this.mLoggingState = Constants.STOPPED;
       updateWakeLock();
       mNoticationService.cancel( R.layout.map );
       crashProtectState();
@@ -400,7 +392,7 @@ public class GPSLoggerService extends Service
    private void requestLocationUpdates()
    {
       this.mLocationManager.removeUpdates( this.mLocationListener );
-      mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( PRECISION, "1" ) ).intValue();
+      mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( Constants.PRECISION, "1" ) ).intValue();
       //Log.d( TAG, "requestLocationUpdates to precision "+precision );
       switch( mPrecision )
       {
@@ -428,7 +420,7 @@ public class GPSLoggerService extends Service
 
    private void updateWakeLock()
    {
-      if( this.mLoggingState == LOGGING )
+      if( this.mLoggingState == Constants.LOGGING )
       {
          PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
          PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );

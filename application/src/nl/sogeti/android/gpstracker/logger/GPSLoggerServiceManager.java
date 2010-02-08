@@ -28,6 +28,7 @@
  */
 package nl.sogeti.android.gpstracker.logger;
 
+import nl.sogeti.android.gpstracker.util.Constants;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -67,7 +68,7 @@ public class GPSLoggerServiceManager
    {
       synchronized( mStartLock ) 
       {
-         int logging = GPSLoggerService.UNKNOWN;
+         int logging = Constants.UNKNOWN;
          try
          {
             if( this.mGPSLoggerRemote != null )

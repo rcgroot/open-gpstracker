@@ -415,12 +415,12 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onDestroy()
    {
+      this.mLoggerServiceManager.shutdown();
       if( mWakeLock != null && mWakeLock.isHeld() )
       {
          mWakeLock.release();
          Log.w( TAG, "onDestroy(): Released lock to keep screen on!" );
       }
-      this.mLoggerServiceManager.shutdown();
       PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
       super.onDestroy();
    }
@@ -746,19 +746,19 @@ public class LoggerMap extends MapActivity
             stop.setOnClickListener( mLoggingControlListener );
             switch( state )
             {
-               case GPSLoggerService.STOPPED:
+               case Constants.STOPPED:
                   start.setEnabled( true );
                   pause.setEnabled( false );
                   resume.setEnabled( false );
                   stop.setEnabled( false );
                   break;
-               case GPSLoggerService.LOGGING:
+               case Constants.LOGGING:
                   start.setEnabled( false );
                   pause.setEnabled( true );
                   resume.setEnabled( false );
                   stop.setEnabled( true );
                   break;
-               case GPSLoggerService.PAUSED:
+               case Constants.PAUSED:
                   start.setEnabled( false );
                   pause.setEnabled( false );
                   resume.setEnabled( true );
@@ -850,7 +850,7 @@ public class LoggerMap extends MapActivity
             PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
             mWakeLock = pm.newWakeLock( PowerManager.SCREEN_DIM_WAKE_LOCK, TAG );
          }
-         if( this.mLoggerServiceManager.getLoggingState() == GPSLoggerService.LOGGING && !mWakeLock.isHeld() )
+         if( mLoggerServiceManager.getLoggingState() == Constants.LOGGING && !mWakeLock.isHeld() )
          {
             mWakeLock.acquire();
             Log.w( TAG, "Acquired lock to keep screen on!" );
@@ -1041,7 +1041,7 @@ public class LoggerMap extends MapActivity
             segments.close();
          }
       }
-      if( lastPoint != null && mLoggerServiceManager.getLoggingState() == GPSLoggerService.LOGGING )
+      if( lastPoint != null && mLoggerServiceManager.getLoggingState() == Constants.LOGGING )
       {
          Point out = new Point();
          this.mMapView.getProjection().toPixels( lastPoint, out );
