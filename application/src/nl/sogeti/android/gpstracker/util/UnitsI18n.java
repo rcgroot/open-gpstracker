@@ -29,8 +29,12 @@
 
 package nl.sogeti.android.gpstracker.util;
 
+import java.util.Locale;
+
 import nl.sogeti.android.gpstracker.R;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.util.TypedValue;
 
 /**
@@ -56,19 +60,53 @@ public class UnitsI18n
    public UnitsI18n(Context ctx)
    {
       mContext = ctx;
+      Resources resources = mContext.getResources();      
+      init( resources );
+   }
+   
+   private void setToImperial()
+   {
+      Resources resources = mContext.getResources();
+      Configuration config = resources.getConfiguration();
+      Locale oldLocale = config.locale;
+      config.locale = Locale.US;
+      resources.updateConfiguration( config, resources.getDisplayMetrics() );
+      init( resources );
+      config.locale = oldLocale;
+      resources.updateConfiguration( config, resources.getDisplayMetrics() );
+   }
+   private void setToMetric()
+   {
+      Resources resources = mContext.getResources();
+      Configuration config = resources.getConfiguration();
+      Locale oldLocale = config.locale;
+      config.locale = new Locale("nl", "NL");
+      resources.updateConfiguration( config, resources.getDisplayMetrics() );
+      init( resources );
+      config.locale = oldLocale;
+      resources.updateConfiguration( config, resources.getDisplayMetrics() );
+   }
+   private void setToDefault()
+   {
+      Resources resources = mContext.getResources();
+      init( resources );
+   }
+   
+   private void init( Resources resources )
+   {
       TypedValue outValue = new TypedValue();
-      mContext.getResources().getValue( R.raw.conversion_from_mps, outValue, false ) ;
+      resources.getValue( R.raw.conversion_from_mps, outValue, false ) ;
       conversion_from_mps =  outValue.getFloat();
       
-      mContext.getResources().getValue( R.raw.conversion_from_meter, outValue, false ) ;
+      resources.getValue( R.raw.conversion_from_meter, outValue, false ) ;
       conversion_from_meter = outValue.getFloat();
       
-      mContext.getResources().getValue( R.raw.conversion_from_meter_to_small, outValue, false ) ;
+      resources.getValue( R.raw.conversion_from_meter_to_small, outValue, false ) ;
       conversion_from_meter_to_small = outValue.getFloat();
       
-      speed_unit = mContext.getResources().getString( R.string.speed_unitname );
-      distance_unit = mContext.getResources().getString( R.string.distance_unitname );
-      distance_smallunit = mContext.getResources().getString( R.string.distance_smallunitname );
+      speed_unit = resources.getString( R.string.speed_unitname );
+      distance_unit = resources.getString( R.string.distance_unitname );
+      distance_smallunit = resources.getString( R.string.distance_smallunitname );
    }
    
    public double conversionFromMeterAndMiliseconds( double meters, long miliseconds )
