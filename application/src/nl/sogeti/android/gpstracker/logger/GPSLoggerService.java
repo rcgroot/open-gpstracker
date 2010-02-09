@@ -489,18 +489,18 @@ public class GPSLoggerService extends Service
          mWeakLocations.clear();
          proposedLocation.removeSpeed();
       }
-      Log.d( TAG, "At least we got something"+proposedLocation );
+//      Log.d( TAG, "At least we got something"+proposedLocation );
       mWeakLocations.clear();
       return proposedLocation;
    }
 
    private Location collectLeastBad()
    {
-      Log.d( TAG, "From the worst choose the least one "+mWeakLocations.size() );
+//      Log.d( TAG, "From the worst choose the least one "+mWeakLocations.size() );
       Location best = mWeakLocations.lastElement();
       for( Location whimp: mWeakLocations )
       {
-         Log.d( TAG, "From the worst choose the least one "+whimp.getAccuracy() );
+//         Log.d( TAG, "From the worst choose the least one "+whimp.getAccuracy() );
          if( whimp.hasAccuracy() && best.hasAccuracy() && whimp.getAccuracy() < best.getAccuracy())
          {
             best = whimp;
@@ -513,7 +513,7 @@ public class GPSLoggerService extends Service
             }
          }
       }
-      Log.d( TAG, "From the worst the best: "+best.getAccuracy() );
+//      Log.d( TAG, "From the worst the best: "+best.getAccuracy() );
       mWeakLocations.clear();
       return best;
    }
