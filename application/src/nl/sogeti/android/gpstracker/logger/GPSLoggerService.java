@@ -86,7 +86,6 @@ public class GPSLoggerService extends Service
    private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
    private static final String SERVICESTATE_TRACKID = "SERVICESTATE_TRACKID";
    
-   public static final String SERVICENAME = "GPSLoggerService";
    private Context mContext;
    private LocationManager mLocationManager;
    private NotificationManager mNoticationService;
@@ -96,7 +95,7 @@ public class GPSLoggerService extends Service
    private long mTrackId = -1;
    private long mSegmentId = -1 ;
    private int mPrecision;
-   private int mLoggingState = Constants.UNKNOWN;
+   private int mLoggingState = Constants.STOPPED;
    
    private Location mPreviousLocation;  
    private Notification mNotification;
@@ -146,10 +145,9 @@ public class GPSLoggerService extends Service
                startNewSegment();
             }
          }
-
          public void onStatusChanged( String provider, int status, Bundle extras )
          {
-//            Log.e( TAG, "onStatusChanged() " + provider );
+               Log.w( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
          }
       };
    private IBinder mBinder = new IGPSLoggerServiceRemote.Stub()
@@ -189,10 +187,10 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
-      this.mLoggingState = Constants.STOPPED;
-      this.mContext = getApplicationContext();
-      this.mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
-      this.mNoticationService = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
+      mLoggingState = Constants.STOPPED;
+      mContext = getApplicationContext();
+      mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
+      mNoticationService = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
       mNoticationService.cancel( R.layout.map );
             
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this.mContext );
@@ -200,7 +198,7 @@ public class GPSLoggerService extends Service
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( Constants.LOGATSTARTUP, false );
 //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
       crashRestoreState();
-      if( startImmidiatly && this.mLoggingState == Constants.STOPPED )
+      if( startImmidiatly && mLoggingState == Constants.STOPPED )
       {
          startLogging();
          ContentValues values = new ContentValues();
@@ -237,7 +235,7 @@ public class GPSLoggerService extends Service
    private void crashRestoreState()
    {
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mContext );
-      long previousState = preferences.getInt( SERVICESTATE_STATE, -1 );
+      long previousState = preferences.getInt( SERVICESTATE_STATE, Constants.STOPPED );
       if( previousState == Constants.LOGGING || previousState == Constants.PAUSED )
       {
          Log.w( TAG, "Recovering from a crash or kill and restoring state." );
@@ -424,7 +422,7 @@ public class GPSLoggerService extends Service
       {
          PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
          PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
-         this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, SERVICENAME);
+         this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG );
          this.mWakeLock.acquire();
       }
       else

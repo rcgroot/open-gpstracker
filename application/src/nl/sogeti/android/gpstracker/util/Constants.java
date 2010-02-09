@@ -2,7 +2,6 @@ package nl.sogeti.android.gpstracker.util;
 
 public class Constants
 {
-
    public static final String DISABLEBLANKING = "disableblanking";
    public static final String EXTRA_TRACK_ID = "nl.sogeti.android.gpstracker.intent.trackid";
    public static final String SATELLITE = "SATELLITE";
@@ -18,5 +17,6 @@ public class Constants
    public static final String SPEEDSANITYCHECK = "speedsanitycheck";
    public static final String PRECISION = "precision";
    public static final String LOGATSTARTUP = "logatstartup";
+   public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
 
 }

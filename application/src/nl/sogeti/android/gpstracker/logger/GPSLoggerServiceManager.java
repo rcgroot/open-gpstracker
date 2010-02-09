@@ -74,6 +74,11 @@ public class GPSLoggerServiceManager
             if( this.mGPSLoggerRemote != null )
             {
                logging = this.mGPSLoggerRemote.loggingState();
+               Log.e( TAG, "mGPSLoggerRemote tells state to be "+logging );
+            }
+            else
+            {
+               Log.w( TAG, "Remote interface to logging service not found. Started: "+mStarted );
             }
          }
          catch (RemoteException e)
@@ -193,7 +198,6 @@ public class GPSLoggerServiceManager
                      mStarted = true;
                   }
                }
-
                public void onServiceDisconnected( ComponentName className )
                {
                   synchronized( mStartLock ) 
@@ -204,7 +208,7 @@ public class GPSLoggerServiceManager
                   }
                }
             };
-         this.mCtx.bindService( new Intent( GPSLoggerService.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
+         this.mCtx.bindService( new Intent( Constants.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
       }
       else
       {

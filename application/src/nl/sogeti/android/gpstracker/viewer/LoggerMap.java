@@ -34,7 +34,6 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -113,7 +112,7 @@ public class LoggerMap extends MapActivity
    private static final int DIALOG_LOGCONTROL = 26;
    private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
-   private static final String TAG = LoggerMap.class.getName();
+   private static final String TAG = "LoggerMap";
    private MapView mMapView = null;
    private MyLocationOverlay mMylocation;
    private CheckBox mSatellite;
@@ -328,18 +327,18 @@ public class LoggerMap extends MapActivity
    protected void onCreate( Bundle load )
    {
       super.onCreate( load );
-      this.startService( new Intent( GPSLoggerService.SERVICENAME ) );
+      this.startService( new Intent( Constants.SERVICENAME ) );
 
       Object previousInstanceData = getLastNonConfigurationInstance();
       if( previousInstanceData != null && previousInstanceData instanceof GPSLoggerServiceManager )
       {
-         this.mLoggerServiceManager = (GPSLoggerServiceManager) previousInstanceData;
+         mLoggerServiceManager = (GPSLoggerServiceManager) previousInstanceData;
       }
       else
       {
-         this.mLoggerServiceManager = new GPSLoggerServiceManager( (Context) this );
+         mLoggerServiceManager = new GPSLoggerServiceManager( (Context) this );
       }
-      this.mLoggerServiceManager.startup();
+      mLoggerServiceManager.startup();
 
       mUnits = new UnitsI18n( this );
       
@@ -732,7 +731,7 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onPrepareDialog( int id, Dialog dialog )
    {
-      int state = this.mLoggerServiceManager.getLoggingState();
+      int state = mLoggerServiceManager.getLoggingState();
       switch (id)
       {
          case DIALOG_LOGCONTROL:
@@ -765,10 +764,12 @@ public class LoggerMap extends MapActivity
                   stop.setEnabled( true );
                   break;
                default:
-                  start.setEnabled( false );
-                  pause.setEnabled( false );
-                  resume.setEnabled( false );
-                  stop.setEnabled( false );
+                  Log.e( TAG, String.format( "State %d of logging, enabling and hope for the best....", state ) );
+                  start.setEnabled( true );
+                  pause.setEnabled( true );
+                  resume.setEnabled( true );
+                  stop.setEnabled( true );
+                  break;
             }
             break;
          case DIALOG_LAYERS:
