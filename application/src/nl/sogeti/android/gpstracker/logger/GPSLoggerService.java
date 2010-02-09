@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.logger;
 
+import java.util.Vector;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -91,7 +93,7 @@ public class GPSLoggerService extends Service
    private NotificationManager mNoticationService;
    private PowerManager.WakeLock mWakeLock ;
    
-   private boolean speedSanityCheck;
+   private boolean mSpeedSanityCheck;
    private long mTrackId = -1;
    private long mSegmentId = -1 ;
    private int mPrecision;
@@ -100,11 +102,12 @@ public class GPSLoggerService extends Service
    private Location mPreviousLocation;  
    private Notification mNotification;
    
+   private Vector<Location> mWeakLocations;
    
    /**
     * <code>mAcceptableAccuracy</code> indicates the maximum acceptable accuracy of a waypoint in meters.
     */
-   private int mAcceptableAccuracy = 20;
+   private float mMaxAcceptableAccuracy  = 20;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
       {
@@ -117,7 +120,7 @@ public class GPSLoggerService extends Service
             } 
             else if( key.equals( Constants.SPEEDSANITYCHECK ) )
             {
-               speedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
+               mSpeedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
             }
          }
       };
@@ -187,6 +190,7 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
+      mWeakLocations = new Vector<Location>(3);
       mLoggingState = Constants.STOPPED;
       mContext = getApplicationContext();
       mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
@@ -194,7 +198,7 @@ public class GPSLoggerService extends Service
       mNoticationService.cancel( R.layout.map );
             
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this.mContext );
-      speedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
+      mSpeedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( Constants.LOGATSTARTUP, false );
 //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
       crashRestoreState();
@@ -395,20 +399,20 @@ public class GPSLoggerService extends Service
       switch( mPrecision )
       {
          case( LOGGING_FINE ): // Fine
-            this.mAcceptableAccuracy = 10;
-            this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
+            mMaxAcceptableAccuracy  = 10f;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
             break;
          case( LOGGING_NORMAL ): // Normal
-            this.mAcceptableAccuracy = 20;
-            this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
+            mMaxAcceptableAccuracy  = 20f;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
             break;
          case( LOGGING_COARSE ): // Coarse
-            this.mAcceptableAccuracy = 50;
-            this.mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
+            mMaxAcceptableAccuracy  = 50f;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
             break;
          case( LOGGING_GLOBAL ): // Global
-            this.mAcceptableAccuracy = 1000;
-            this.mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER , 300000l, 500F, this.mLocationListener );
+            mMaxAcceptableAccuracy  = 1000f;
+            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER , 300000l, 500F, this.mLocationListener );
             break;
          default:
             Log.e( TAG, "Unknown precision "+mPrecision );
@@ -448,24 +452,70 @@ public class GPSLoggerService extends Service
       float accuracy = proposedLocation.getAccuracy();
       // Do not log a waypoint which is more inaccurate then is configured to be acceptable
       if(   hasAccuracy && 
-            accuracy < this.mAcceptableAccuracy )
+            accuracy > mMaxAcceptableAccuracy  )
       {
-         return null;
+         Log.w( TAG, String.format("A weak location was recieved, lots of inaccuracy... (%f more then max %f)", accuracy, mMaxAcceptableAccuracy   ) );
+         mWeakLocations.add( proposedLocation );
+         if( mWeakLocations.size() < 3 )
+         {
+            return null;
+         }
+         else
+         {
+            return collectLeastBad();
+         }
       }
       // Do not log a waypoint which might be on any side of the previous waypoint
       if(   hasAccuracy &&
             mPreviousLocation != null &&
-            accuracy < mPreviousLocation.distanceTo( proposedLocation ) )
+            accuracy > mPreviousLocation.distanceTo( proposedLocation ) )
       {
-         return null;
+         Log.w( TAG, String.format("A weak location was recieved, not quite clear from the previous waypoint... (%f more then max %f)", accuracy, mPreviousLocation.distanceTo( proposedLocation ) ) );
+         mWeakLocations.add( proposedLocation );
+         if( mWeakLocations.size() < 3 )
+         {
+            return null;
+         }
+         else
+         {
+            return collectLeastBad();
+         }
       }
-      if(   proposedLocation.hasSpeed() && 
-            proposedLocation.getSpeed() < MAX_REASONABLE_SPEED && 
-            speedSanityCheck )
+      if(mSpeedSanityCheck &&
+            proposedLocation.hasSpeed() && 
+            proposedLocation.getSpeed() < MAX_REASONABLE_SPEED )
       {
+         Log.w( TAG, "A strange location was recieved, a really high speed, prob wrong...");
+         mWeakLocations.clear();
          proposedLocation.removeSpeed();
       }
+      Log.d( TAG, "At least we got something"+proposedLocation );
+      mWeakLocations.clear();
       return proposedLocation;
+   }
+
+   private Location collectLeastBad()
+   {
+      Log.d( TAG, "From the worst choose the least one "+mWeakLocations.size() );
+      Location best = mWeakLocations.lastElement();
+      for( Location whimp: mWeakLocations )
+      {
+         Log.d( TAG, "From the worst choose the least one "+whimp.getAccuracy() );
+         if( whimp.hasAccuracy() && best.hasAccuracy() && whimp.getAccuracy() < best.getAccuracy())
+         {
+            best = whimp;
+         }
+         else
+         {
+            if( whimp.hasAccuracy() && !best.hasAccuracy() )
+            {
+               best = whimp;
+            }
+         }
+      }
+      Log.d( TAG, "From the worst the best: "+best.getAccuracy() );
+      mWeakLocations.clear();
+      return best;
    }
 
    /**
