@@ -63,8 +63,8 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner
       suite.addTestSuite( GPStrackingProviderTest.class );
       suite.addTestSuite( MockGPSLoggerServiceTest.class );
       suite.addTestSuite( GPSLoggerServiceTest.class );
-      suite.addTestSuite( ExportGPXTest.class );
-      suite.addTestSuite( LoggerMapTest.class );
+      //suite.addTestSuite( ExportGPXTest.class );
+      //suite.addTestSuite( LoggerMapTest.class );
       
       //suite.addTestSuite( OpenGPSTrackerDemo.class );   // The demo recorded for youtube
       //suite.addTestSuite( LoggerMapStressTest.class ); // The stress test of the tracking

@@ -157,9 +157,10 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       GPSLoggerService service = this.getService();
       
       Location reference = new Location( this.mLocation );
+      reference.setLatitude( reference.getLatitude()+0.0001d );
       reference.setSpeed( 419f );
-      this.mLocation.setAccuracy( 9f );
-      service.storeLocation( this.getContext(), reference );
+      reference.setAccuracy( 9f );
+      service.storeLocation( this.getContext(), this.mLocation );
       
       Location sane = service.locationFilter( reference );
       Assert.assertFalse( "No speed anymore", sane.hasSpeed() );
@@ -173,9 +174,10 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       GPSLoggerService service = this.getService();
       
       Location reference = new Location( this.mLocation );
+      reference.setLatitude( reference.getLatitude()+0.0001d );
       reference.setSpeed( 4f );
-      this.mLocation.setAccuracy( 9f );
-      service.storeLocation( this.getContext(), reference );
+      reference.setAccuracy( 9f );
+      service.storeLocation( this.getContext(), this.mLocation );
       
       Location sane = service.locationFilter( reference );
       Assert.assertTrue( "No speed anymore", sane.hasSpeed() );

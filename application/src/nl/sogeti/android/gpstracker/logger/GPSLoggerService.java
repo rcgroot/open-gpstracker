@@ -78,7 +78,7 @@ public class GPSLoggerService extends Service
     * <code>MAX_REASONABLE_SPEED</code> is about 250 kilometer per hour or 155 mile per hour.
     */
    private static final int MAX_REASONABLE_SPEED = 70;
-   private static final String TAG = GPSLoggerService.class.getName();
+   private static final String TAG = "GPSLoggerService";
    private static final int LOGGING_FINE = 0;
    private static final int LOGGING_NORMAL = 1;
    private static final int LOGGING_COARSE = 2;
@@ -450,6 +450,8 @@ public class GPSLoggerService extends Service
    {
       boolean hasAccuracy = proposedLocation.hasAccuracy();
       float accuracy = proposedLocation.getAccuracy();
+      
+      
       // Do not log a waypoint which is more inaccurate then is configured to be acceptable
       if(   hasAccuracy && 
             accuracy > mMaxAcceptableAccuracy  )
@@ -465,6 +467,8 @@ public class GPSLoggerService extends Service
             return collectLeastBad();
          }
       }
+      
+      
       // Do not log a waypoint which might be on any side of the previous waypoint
       if(   hasAccuracy &&
             mPreviousLocation != null &&
@@ -481,26 +485,24 @@ public class GPSLoggerService extends Service
             return collectLeastBad();
          }
       }
+      
+      // The log we have appears fine enough, just to remove the speed if it is weird (common on at least G1 GPS)
       if(mSpeedSanityCheck &&
             proposedLocation.hasSpeed() && 
-            proposedLocation.getSpeed() < MAX_REASONABLE_SPEED )
+            proposedLocation.getSpeed() > MAX_REASONABLE_SPEED )
       {
          Log.w( TAG, "A strange location was recieved, a really high speed, prob wrong...");
-         mWeakLocations.clear();
          proposedLocation.removeSpeed();
       }
-//      Log.d( TAG, "At least we got something"+proposedLocation );
       mWeakLocations.clear();
       return proposedLocation;
    }
 
    private Location collectLeastBad()
    {
-//      Log.d( TAG, "From the worst choose the least one "+mWeakLocations.size() );
       Location best = mWeakLocations.lastElement();
       for( Location whimp: mWeakLocations )
       {
-//         Log.d( TAG, "From the worst choose the least one "+whimp.getAccuracy() );
          if( whimp.hasAccuracy() && best.hasAccuracy() && whimp.getAccuracy() < best.getAccuracy())
          {
             best = whimp;
@@ -513,7 +515,6 @@ public class GPSLoggerService extends Service
             }
          }
       }
-//      Log.d( TAG, "From the worst the best: "+best.getAccuracy() );
       mWeakLocations.clear();
       return best;
    }

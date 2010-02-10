@@ -74,7 +74,7 @@ public class GPSLoggerServiceManager
             if( this.mGPSLoggerRemote != null )
             {
                logging = this.mGPSLoggerRemote.loggingState();
-               Log.e( TAG, "mGPSLoggerRemote tells state to be "+logging );
+//               Log.d( TAG, "mGPSLoggerRemote tells state to be "+logging );
             }
             else
             {
