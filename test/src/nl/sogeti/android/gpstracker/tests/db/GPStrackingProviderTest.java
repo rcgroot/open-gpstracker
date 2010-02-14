@@ -351,7 +351,32 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       location.setTime( waypointCursor.getLong( 0 ) );
       Assert.assertEquals( "Time should remain unchanged", msTime, location.getTime() );
       waypointCursor.close();
-      
    }
    
+   /**
+    * Insert a waypoint with a time and expect that same time to return 
+    */
+   @SmallTest
+   public void testInsertHighPrecisionAndExportHighPrecision()
+   {
+      double lon = 5.123456789d;
+      double lat = 51.123456789d;
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.LONGITUDE, new Double( lon ) );
+      wp.put( Waypoints.LATITUDE, new Double( lat ) );
+      wp.put( Waypoints.TIME, new Long( 1234567890000l ));
+
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments"), null );
+      Uri waypointUri = this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
+
+      Cursor waypointCursor = this.mResolver.query( waypointUri, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE }, null, null, null );
+      waypointCursor.moveToFirst();
+      Assert.assertEquals( "Longitude",lon, waypointCursor.getDouble( 0 ) );
+      Assert.assertEquals( "Latitude",lat, waypointCursor.getDouble( 1 ) );
+      Assert.assertEquals( "Longitude string", "5.123456789", Double.toString( waypointCursor.getDouble( 0 ) ) );
+      Assert.assertEquals( "Latitude string", "51.123456789", Double.toString( waypointCursor.getDouble( 1 ) ) );
+
+      waypointCursor.close();
+   }
 }

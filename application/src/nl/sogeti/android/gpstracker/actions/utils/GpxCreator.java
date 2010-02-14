@@ -261,11 +261,11 @@ public class GpxCreator extends Thread
    
                serializer.text( "\n" );
                serializer.startTag( "", "trkpt" );
-               serializer.attribute( null, "lat", waypointsCursor.getString( 1 ) );
-               serializer.attribute( null, "lon", waypointsCursor.getString( 0 ) );
+               serializer.attribute( null, "lat", Double.toString( waypointsCursor.getDouble( 1 ) ) );
+               serializer.attribute( null, "lon", Double.toString( waypointsCursor.getDouble( 0 ) ) );
                serializer.text( "\n" );
                serializer.startTag( "", "ele" );
-               serializer.text( waypointsCursor.getString( 3 ) );
+               serializer.text( Double.toString( waypointsCursor.getDouble( 3 ) ) );
                serializer.endTag( "", "ele" );
                serializer.text( "\n" );
                serializer.startTag( "", "time" );
