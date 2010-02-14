@@ -77,7 +77,7 @@
     <string name="disableblanking_summary">Keeps the screen on during tracking.</string>       
     <string name="precision_title">Logging precision</string>
     <string name="precision_summary">The size of interval between GPS fixes.</string>      
-    <string name="trackcoloring_title">The track color</string>
+    <string name="trackcoloring_title">Track color</string>
     <string name="trackcoloring_summary">The coloring used to draw the track.</string>
     <string name="showsatellite_title">Satellite images</string>
     <string name="showsatellite_summary">Show the Google Maps satellite view</string>
@@ -91,6 +91,8 @@
     <string name="speedsanitycheck_summary">Only accept reasonable GPS speeds</string>
     <string name="showlocation_title">My location </string>
     <string name="showlocation_summary">Show my location and orientation on the map</string>
+    <string name="units_title">Units</string>
+    <string name="units_summary">Determine if metric or imperial units are used</string>
 
     <string name="stat_title">Statistics - %s</string>
     <string name="stat_maximumspeed">Maximum speed</string>

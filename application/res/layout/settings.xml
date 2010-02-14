@@ -41,6 +41,15 @@
             android:defaultValue="2"/>
         />
         
+       <ListPreference
+            android:key="units"
+            android:title="@string/units_title"
+            android:summary="@string/units_summary"
+            android:entries="@array/units_choices"
+            android:entryValues="@array/units_values"
+            android:defaultValue="0"/>
+        />
+        
         <CheckBoxPreference
             android:key="SATELLITE"
             android:title="@string/showsatellite_title"

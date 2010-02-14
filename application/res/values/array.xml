@@ -21,6 +21,12 @@
         <item>Waypoints</item>
     </string-array>
     
+    <string-array name="units_choices">
+        <item>Device locale</item>
+        <item>Imperial (miles)</item>
+        <item>Metric (meters)</item>
+    </string-array>
+    
     <string-array name="precision_values" translatable="false">
         <item>0</item>
         <item>1</item>
@@ -35,6 +41,12 @@
         <item>3</item>
         <item>4</item>
     </string-array>  
+
+    <string-array name="units_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 
     <string-array name="about_authors" translatable="false">
         <item>René de Groot</item>

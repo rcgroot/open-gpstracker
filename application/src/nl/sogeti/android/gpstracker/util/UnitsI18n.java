@@ -64,8 +64,8 @@ public class UnitsI18n
          if( key.equals( Constants.UNITS ) )
          {
             initBasedOnPreferences( sharedPreferences );
+            mListener.onUnitsChange();
          }
-         
       }
    };
    
@@ -81,7 +81,7 @@ public class UnitsI18n
    
    private void initBasedOnPreferences( SharedPreferences sharedPreferences )
    {
-      int units = sharedPreferences.getInt( Constants.UNITS, Constants.UNITS_DEFAULT );
+      int units = Integer.parseInt( sharedPreferences.getString( Constants.UNITS, Integer.toString( Constants.UNITS_DEFAULT ) ) );
       switch( units )
       {
          case( Constants.UNITS_DEFAULT ):
@@ -103,7 +103,6 @@ public class UnitsI18n
    {
       Resources resources = mContext.getResources();
       init( resources );
-      mListener.onUnitsChange();
    }
    private void setToMetric()
    {
@@ -115,7 +114,6 @@ public class UnitsI18n
       init( resources );
       config.locale = oldLocale;
       resources.updateConfiguration( config, resources.getDisplayMetrics() );
-      mListener.onUnitsChange();
    }
    private void setToImperial()
    {
@@ -127,7 +125,6 @@ public class UnitsI18n
       init( resources );
       config.locale = oldLocale;
       resources.updateConfiguration( config, resources.getDisplayMetrics() );
-      mListener.onUnitsChange();
    }
    
    /**
