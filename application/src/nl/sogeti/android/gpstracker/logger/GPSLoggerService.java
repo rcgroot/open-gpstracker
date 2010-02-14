@@ -46,9 +46,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.location.GpsSatellite;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.GpsStatus.Listener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -90,7 +93,7 @@ public class GPSLoggerService extends Service
    
    private Context mContext;
    private LocationManager mLocationManager;
-   private NotificationManager mNoticationService;
+   private NotificationManager mNoticationManager;
    private PowerManager.WakeLock mWakeLock ;
    
    private boolean mSpeedSanityCheck;
@@ -108,6 +111,7 @@ public class GPSLoggerService extends Service
     * <code>mAcceptableAccuracy</code> indicates the maximum acceptable accuracy of a waypoint in meters.
     */
    private float mMaxAcceptableAccuracy  = 20;
+   private int mSatellites = 0;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
       {
@@ -153,6 +157,27 @@ public class GPSLoggerService extends Service
                Log.w( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
          }
       };
+   private Listener mStatusListener = new GpsStatus.Listener()
+      {
+         public synchronized void onGpsStatusChanged( int event )
+         {
+            switch( event )
+            {
+               case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
+                  GpsStatus status = mLocationManager.getGpsStatus( null );
+                  mSatellites = 0;
+                  Iterable<GpsSatellite> list = status.getSatellites();
+                  for( GpsSatellite satellite : list )
+                  {
+                     mSatellites++;
+                  }
+                  updateNotification();
+                  break;
+               default:
+                  break;
+            }
+         }
+      };
    private IBinder mBinder = new IGPSLoggerServiceRemote.Stub()
       {
          public int loggingState() throws RemoteException
@@ -182,7 +207,6 @@ public class GPSLoggerService extends Service
             GPSLoggerService.this.stopLogging();
          }
       };
-
    /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
     */
@@ -194,8 +218,8 @@ public class GPSLoggerService extends Service
       mLoggingState = Constants.STOPPED;
       mContext = getApplicationContext();
       mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
-      mNoticationService = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
-      mNoticationService.cancel( R.layout.map );
+      mNoticationManager = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
+      mNoticationManager.cancel( R.layout.map );
             
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this.mContext );
       mSpeedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
@@ -288,6 +312,7 @@ public class GPSLoggerService extends Service
    {
       startNewTrack() ;
       requestLocationUpdates();
+      this.mLocationManager.addGpsStatusListener( this.mStatusListener );
       this.mLoggingState = Constants.LOGGING;
       updateWakeLock();
 
@@ -300,6 +325,7 @@ public class GPSLoggerService extends Service
    {
       if( this.mLoggingState == Constants.LOGGING )
       {
+         this.mLocationManager.removeGpsStatusListener( this.mStatusListener );
          this.mLocationManager.removeUpdates( this.mLocationListener );
          this.mLoggingState = Constants.PAUSED;
          updateWakeLock();
@@ -314,6 +340,7 @@ public class GPSLoggerService extends Service
       {
          startNewSegment();
          requestLocationUpdates();
+         this.mLocationManager.addGpsStatusListener( this.mStatusListener );
          this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
          updateNotification();
@@ -328,16 +355,17 @@ public class GPSLoggerService extends Service
    protected synchronized void stopLogging()
    {
       PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+      this.mLocationManager.removeGpsStatusListener( this.mStatusListener );
       this.mLocationManager.removeUpdates( this.mLocationListener );
       this.mLoggingState = Constants.STOPPED;
       updateWakeLock();
-      mNoticationService.cancel( R.layout.map );
+      mNoticationManager.cancel( R.layout.map );
       crashProtectState();
    }
 
    private void setupNotification()
    {
-      mNoticationService.cancel( R.layout.map );
+      mNoticationManager.cancel( R.layout.map );
       
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = this.getResources().getString( R.string.service_start );
@@ -355,19 +383,20 @@ public class GPSLoggerService extends Service
       
       String precision = this.getResources().getStringArray( R.array.precision_choices )[mPrecision];
       String state = this.getResources().getStringArray( R.array.state_choices )[mLoggingState-1];
-      CharSequence contentText = this.getResources().getString( R.string.service_status, precision, state );
+      CharSequence contentText = this.getResources().getString( R.string.service_status, precision, state, mSatellites );
       
       Intent notificationIntent = new Intent(this, LoggerMap.class);
       notificationIntent.putExtra( Constants.EXTRA_TRACK_ID, mTrackId );
       
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent); 
-      mNoticationService.notify( R.layout.map, mNotification );
+      
+      mNoticationManager.notify( R.layout.map, mNotification );
    }
    
    private void enabledGpsNotification()
    {
-      mNoticationService.cancel( R.id.icon );
+      mNoticationManager.cancel( R.id.icon );
       CharSequence text = mContext.getString( R.string.service_gpsenabled );
       Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
       toast.show();
@@ -388,7 +417,7 @@ public class GPSLoggerService extends Service
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       gpsNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
       
-      mNoticationService.notify( R.id.icon, gpsNotification );
+      mNoticationManager.notify( R.id.icon, gpsNotification );
    }
 
    private void requestLocationUpdates()
