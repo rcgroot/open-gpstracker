@@ -91,8 +91,8 @@
     <string name="speedsanitycheck_summary">Accepteer alleen redelijke GPS snelheden</string>
     <string name="showlocation_title">Mijn locatie </string>
     <string name="showlocation_summary">Toon mijn locatie and orientatie op de kaart</string>
-    <string name="units_title">Units</string>
-    <string name="units_summary">Determine if metric or imperial units are used</string>
+    <string name="units_title">Eenheden</string>
+    <string name="units_summary">Worden Engelse of internationale maten getoond</string>
 
     <string name="stat_title">Statistieken - %s</string>
     <string name="stat_maximumspeed">Maximale snelheid</string>
