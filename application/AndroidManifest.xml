@@ -2,8 +2,8 @@
 <manifest 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     package="nl.sogeti.android.gpstracker"
-	android:versionCode="16" 
-	android:versionName="0.9.12">
+	android:versionCode="17" 
+	android:versionName="0.9.13">
 
     <uses-sdk android:minSdkVersion="3"/>
 
