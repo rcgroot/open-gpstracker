@@ -383,8 +383,16 @@ public class GPSLoggerService extends Service
       
       String precision = this.getResources().getStringArray( R.array.precision_choices )[mPrecision];
       String state = this.getResources().getStringArray( R.array.state_choices )[mLoggingState-1];
-      CharSequence contentText = this.getResources().getString( R.string.service_status, precision, state, mSatellites );
-      
+      CharSequence contentText;
+      switch( mPrecision )
+      {
+         case( LOGGING_GLOBAL ):
+            contentText = this.getResources().getString( R.string.service_networkstatus, precision, state );
+            break;
+         default:
+            contentText = this.getResources().getString( R.string.service_gpsstatus, precision, state, mSatellites );
+            break;
+      }
       Intent notificationIntent = new Intent(this, LoggerMap.class);
       notificationIntent.putExtra( Constants.EXTRA_TRACK_ID, mTrackId );
       
