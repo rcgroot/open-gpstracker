@@ -33,8 +33,11 @@ import java.util.Locale;
 
 import nl.sogeti.android.gpstracker.R;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.preference.PreferenceManager;
 import android.util.TypedValue;
 
 /**
@@ -53,27 +56,54 @@ public class UnitsI18n
    private String speed_unit;
    private String distance_unit;
    private String distance_smallunit;
+   private UnitsChangeListener mListener;
+   private OnSharedPreferenceChangeListener preferenceListener = new OnSharedPreferenceChangeListener()
+   {
+      public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
+      {
+         if( key.equals( Constants.UNITS ) )
+         {
+            initBasedOnPreferences( sharedPreferences );
+         }
+         
+      }
+   };
    
-   public static final String UNIT_PREF = "UNITS";
    private static final String TAG = "UnitsI18n";
    
-   public UnitsI18n(Context ctx)
+   public UnitsI18n( Context ctx, UnitsChangeListener listener )
    {
       mContext = ctx;
-      Resources resources = mContext.getResources();      
-      init( resources );
+      mListener =  listener ;
+      initBasedOnPreferences( PreferenceManager.getDefaultSharedPreferences( mContext ) );
+      PreferenceManager.getDefaultSharedPreferences( mContext ).registerOnSharedPreferenceChangeListener( preferenceListener  );
    }
    
-   private void setToImperial()
+   private void initBasedOnPreferences( SharedPreferences sharedPreferences )
+   {
+      int units = sharedPreferences.getInt( Constants.UNITS, Constants.UNITS_DEFAULT );
+      switch( units )
+      {
+         case( Constants.UNITS_DEFAULT ):
+            setToDefault();
+            break;
+         case( Constants.UNITS_IMPERIAL ):
+            setToImperial();
+            break;
+         case( Constants.UNITS_METRIC ):
+            setToMetric();
+            break;
+         default:
+            setToDefault();
+            break;
+      }
+   }
+   
+   private void setToDefault()
    {
       Resources resources = mContext.getResources();
-      Configuration config = resources.getConfiguration();
-      Locale oldLocale = config.locale;
-      config.locale = Locale.US;
-      resources.updateConfiguration( config, resources.getDisplayMetrics() );
       init( resources );
-      config.locale = oldLocale;
-      resources.updateConfiguration( config, resources.getDisplayMetrics() );
+      mListener.onUnitsChange();
    }
    private void setToMetric()
    {
@@ -85,13 +115,26 @@ public class UnitsI18n
       init( resources );
       config.locale = oldLocale;
       resources.updateConfiguration( config, resources.getDisplayMetrics() );
+      mListener.onUnitsChange();
    }
-   private void setToDefault()
+   private void setToImperial()
    {
       Resources resources = mContext.getResources();
+      Configuration config = resources.getConfiguration();
+      Locale oldLocale = config.locale;
+      config.locale = Locale.US;
+      resources.updateConfiguration( config, resources.getDisplayMetrics() );
       init( resources );
+      config.locale = oldLocale;
+      resources.updateConfiguration( config, resources.getDisplayMetrics() );
+      mListener.onUnitsChange();
    }
    
+   /**
+    * Based on a given Locale prefetch the units conversions and names.
+    * 
+    * @param resources Resources initialized with a Locale
+    */
    private void init( Resources resources )
    {
       TypedValue outValue = new TypedValue();
@@ -138,5 +181,20 @@ public class UnitsI18n
    public String getDistanceSmallUnit()
    {
       return distance_smallunit;
+   }
+   
+   /**
+    * 
+    * Interface definition for a callback to be invoked when the preference for units changed.  
+    *
+    * @version $Id:$
+    * @author rene (c) Feb 14, 2010, Sogeti B.V.
+    */
+   public interface UnitsChangeListener
+   {
+      /**
+       * Called when the unit data has changed.
+       */
+      void onUnitsChange();
    }
 }

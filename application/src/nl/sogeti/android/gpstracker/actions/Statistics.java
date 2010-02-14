@@ -142,7 +142,13 @@ public class Statistics extends Activity
    protected void onCreate( Bundle load )
    {
       super.onCreate( load );
-      mUnits = new UnitsI18n( this );
+      mUnits = new UnitsI18n( this, new UnitsI18n.UnitsChangeListener()
+         {
+            public void onUnitsChange()
+            {
+               drawTrackingStatistics();
+            }
+         });
       setContentView( R.layout.statistics );
       
       mGraphView = (GraphCanvas) findViewById( R.id.graph_canvas );

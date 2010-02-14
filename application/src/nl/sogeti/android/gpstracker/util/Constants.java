@@ -18,5 +18,9 @@ public class Constants
    public static final String PRECISION = "precision";
    public static final String LOGATSTARTUP = "logatstartup";
    public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
+   public static final String UNITS = "units";
+   public static final int UNITS_DEFAULT = 0;
+   public static final int UNITS_IMPERIAL = 1;
+   public static final int UNITS_METRIC = 2;
 
 }

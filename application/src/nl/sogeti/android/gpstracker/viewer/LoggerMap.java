@@ -340,8 +340,15 @@ public class LoggerMap extends MapActivity
       }
       mLoggerServiceManager.startup();
 
-      mUnits = new UnitsI18n( this );
-      
+      mUnits = new UnitsI18n( this, new UnitsI18n.UnitsChangeListener()
+         {
+            public void onUnitsChange()
+            {
+               createSpeedDisplayNumbers();
+               updateSpeedbarVisibility();
+            }
+         } );
+
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
       mSharedPreferences.registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
