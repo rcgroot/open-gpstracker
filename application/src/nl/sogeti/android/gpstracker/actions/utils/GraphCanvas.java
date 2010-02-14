@@ -190,6 +190,10 @@ public class GraphCanvas extends View
       }
    }
       
+   /**
+    * TODO
+    * @param params
+    */
    private void drawDistanceAxisGraphOnCanvas( String[] params )
    {
       ContentResolver resolver = mContext.getApplicationContext().getContentResolver();
@@ -214,7 +218,7 @@ public class GraphCanvas extends View
          {
             do
             {
-               int p = segments.getPosition();
+               int segment = segments.getPosition();
                long segmentId = segments.getLong( 0 );
                waypointsUri = Uri.withAppendedPath( segmentsUri, segmentId+"/waypoints" );
                try
@@ -238,11 +242,14 @@ public class GraphCanvas extends View
                         }
                         lastLocation = currentLocation;
                         double value = waypoints.getDouble( 2 );
-                        if( value > 1 )
+                        if( value > 1 && segment < values.length )
                         {
-                           int i = (int) ((distance)*(mWidth-1) / mDistance);
-                           valueDepth[p][i]++;
-                           values[p][i] = values[p][i]+((value-values[p][i])/valueDepth[p][i]);
+                           int x = (int) ((distance)*(mWidth-1) / mDistance);
+                           if( x < valueDepth[segment].length )
+                           {
+                              valueDepth[segment][x]++;
+                              values[segment][x] = values[segment][x]+((value-values[segment][x])/valueDepth[segment][x]);
+                           }
                         }
                      }
                      while( waypoints.moveToNext() );
@@ -266,13 +273,13 @@ public class GraphCanvas extends View
             segments.close();
          }
       }
-      for( int p=0;p<values.length;p++)
+      for( int segment=0;segment<values.length;segment++)
       {
-         for( int x=0;x<values[p].length;x++)
+         for( int x=0;x<values[segment].length;x++)
          {
-            if( valueDepth[p][x] > 0 )
+            if( valueDepth[segment][x] > 0 )
             {
-               values[p][x] = translateValue( values[p][x] );               
+               values[segment][x] = translateValue( values[segment][x] );               
             }
          }
       }
@@ -303,7 +310,7 @@ public class GraphCanvas extends View
          {
             do
             {
-               int p = segments.getPosition();
+               int segment = segments.getPosition();
                long segmentId = segments.getLong( 0 );
                waypointsUri = Uri.withAppendedPath( segmentsUri, segmentId+"/waypoints" );
                try
@@ -318,11 +325,14 @@ public class GraphCanvas extends View
                      {
                         long time = waypoints.getLong( 0 );
                         double value = waypoints.getDouble( 1 );
-                        if( value > 1 )
+                        if( value > 1 && segment < values.length )
                         {
-                           int i = (int) ((time-mStartTime)*(mWidth-1) / duration);
-                           valueDepth[p][i]++;
-                           values[p][i] = values[p][i]+((value-values[p][i])/valueDepth[p][i]);
+                           int x = (int) ((time-mStartTime)*(mWidth-1) / duration);
+                           if( x < valueDepth[segment].length )
+                           {
+                              valueDepth[segment][x]++;
+                              values[segment][x] = values[segment][x]+((value-values[segment][x])/valueDepth[segment][x]);
+                           }
                         }
                      }
                      while( waypoints.moveToNext() );
