@@ -3,7 +3,7 @@
 	<string name="app_name">開啟舊檔 GPS 跟蹤器</string>
     <string name="service_start">啟動日誌服務中</string>
 	<string name="service_gpsstatus">日誌精確度: %s (%s with %d satellites)</string>
-    <string name="service_networkstatus">Logging: %s (cell tower and wifi)</string>
+    <string name="service_networkstatus">Logging: %s (%s with cell tower and wifi)</string>
     <string name="service_gpsdisabled">GPS 已禁用，日誌無效。</string>
     <string name="service_gpsenabled">GPS 已啟用, 開始記錄。</string>
     
@@ -19,7 +19,7 @@
     <string name="dialog_nooiabout">缺少 OI About</string>
     <string name="dialog_nooiabout_message">需要來自 OpenIntents 項目的\"OI About\"程式來顯示關於資訊。</string>
     <string name="dialog_layer_title">啟動覆寫</string>
-    <string name="dialog_graphtype_title">Grafiek soort</string>
+    <string name="dialog_graphtype_title">Graph type</string>
     
     <string name="layer_satellite">衛星</string>
     <string name="layer_traffic">交通</string>

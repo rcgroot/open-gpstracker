@@ -3,7 +3,7 @@
 	<string name="app_name">打开 GPS 跟踪器</string>
     <string name="service_start">启动日志服务中</string>
 	<string name="service_gpsstatus">日志精确度: %s (%s with %d satellites)</string>
-    <string name="service_networkstatus">Logging: %s (cell tower and wifi)</string>
+    <string name="service_networkstatus">Logging: %s (%s with cell tower and wifi)</string>
     <string name="service_gpsdisabled">GPS 已禁用，日志无效。</string>
     <string name="service_gpsenabled">GPS 已启用, 开始记录。</string>
     

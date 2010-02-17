@@ -387,10 +387,10 @@ public class GPSLoggerService extends Service
       switch( mPrecision )
       {
          case( LOGGING_GLOBAL ):
-            contentText = this.getResources().getString( R.string.service_networkstatus, precision, state );
+            contentText = this.getResources().getString( R.string.service_networkstatus, state, precision );
             break;
          default:
-            contentText = this.getResources().getString( R.string.service_gpsstatus, precision, state, mSatellites );
+            contentText = this.getResources().getString( R.string.service_gpsstatus, state, precision, mSatellites );
             break;
       }
       Intent notificationIntent = new Intent(this, LoggerMap.class);

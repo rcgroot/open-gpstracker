@@ -3,7 +3,7 @@
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Activating logging service</string>
 	<string name="service_gpsstatus">Logging: %s (%s with %d satellites)</string>
-    <string name="service_networkstatus">Logging: %s (cell tower and wifi)</string>
+    <string name="service_networkstatus">Logging: %s (%s with cell tower and wifi)</string>
     <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
     <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
     
