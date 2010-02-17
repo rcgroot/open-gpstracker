@@ -238,14 +238,6 @@ public class LoggerMap extends MapActivity
 
       public float getInterpolation( float input )
       {
-         return  (360-mDirection) / 359f ;
-      }
-   };
-   private final android.view.animation.Interpolator mDirectionInterpolator = new android.view.animation.Interpolator()
-   {
-
-      public float getInterpolation( float input )
-      {
          return mDirection;
       }
    };
@@ -427,7 +419,11 @@ public class LoggerMap extends MapActivity
          mWakeLock.release();
          Log.w( TAG, "onDestroy(): Released lock to keep screen on!" );
       }
-      PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+      mSharedPreferences.unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+      if( mLoggerServiceManager.getLoggingState() == Constants.STOPPED )
+      {
+         stopService( new Intent( Constants.SERVICENAME ) );
+      }
       super.onDestroy();
    }
 
@@ -850,7 +846,7 @@ public class LoggerMap extends MapActivity
 
    private void updateBlankingBehavior()
    {
-      boolean disableblanking = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( Constants.DISABLEBLANKING, false );
+      boolean disableblanking = mSharedPreferences.getBoolean( Constants.DISABLEBLANKING, false );
       if( disableblanking )
       {
          if( mWakeLock == null )
@@ -868,7 +864,7 @@ public class LoggerMap extends MapActivity
 
    private void updateSpeedbarVisibility()
    {
-      int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.TRACKCOLORING, "3" ) ).intValue();
+      int trackColoringMethod = new Integer( mSharedPreferences.getString( Constants.TRACKCOLORING, "3" ) ).intValue();
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor waypointsCursor = null;
       try
@@ -912,7 +908,7 @@ public class LoggerMap extends MapActivity
 
    private void updateSpeedDisplayVisibility()
    {
-      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( Constants.SPEED, false );
+      boolean showspeed = mSharedPreferences.getBoolean( Constants.SPEED, false );
       if( showspeed )
       {
          mLastGPSSpeedView.setVisibility( View.VISIBLE );
@@ -925,7 +921,7 @@ public class LoggerMap extends MapActivity
    
    private void updateDirectionDisplayVisibility()
    {
-      boolean showDirection = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( Constants.DIRECTION, false );
+      boolean showDirection = mSharedPreferences.getBoolean( Constants.DIRECTION, false );
       if( showDirection )
       {
          mMylocation.enableMyLocation();
@@ -948,7 +944,7 @@ public class LoggerMap extends MapActivity
    
    private void updateCompassDisplayVisibility()
    {
-      boolean showspeed = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( Constants.COMPASS, false );
+      boolean showspeed = mSharedPreferences.getBoolean( Constants.COMPASS, false );
       if( showspeed )
       {
          mCompassView.setVisibility( View.VISIBLE );
@@ -1013,7 +1009,7 @@ public class LoggerMap extends MapActivity
 
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null;
-      int trackColoringMethod = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.TRACKCOLORING, "2" ) ).intValue();
+      int trackColoringMethod = new Integer( mSharedPreferences.getString( Constants.TRACKCOLORING, "2" ) ).intValue();
 
       GeoPoint lastPoint = null;
       try
