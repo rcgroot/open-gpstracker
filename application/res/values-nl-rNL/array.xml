@@ -2,7 +2,7 @@
 
     <string-array name="state_choices">
         <item>Actief</item>
-        <item>Paused</item>
+        <item>Pause</item>
         <item>Gestopt</item>
     </string-array>
     
