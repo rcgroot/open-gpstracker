@@ -8,7 +8,7 @@ public class Constants
    public static final String TRAFFIC = "TRAFFIC";
    public static final String SPEED = "showspeed";
    public static final String COMPASS = "COMPASS";
-   public static final String DIRECTION = "LOCATION";
+   public static final String LOCATION = "LOCATION";
    public static final String TRACKCOLORING = "trackcoloring";
    public static final int UNKNOWN = -1;
    public static final int LOGGING = 1;

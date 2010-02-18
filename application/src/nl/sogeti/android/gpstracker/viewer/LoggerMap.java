@@ -283,6 +283,10 @@ public class LoggerMap extends MapActivity
             else if( key.equals( Constants.SATELLITE ) )
             {
                LoggerMap.this.mMapView.setSatellite( sharedPreferences.getBoolean( key, false ) );
+            } 
+            else if( key.equals( Constants.LOCATION ))
+            {
+               updateLocationDisplayVisibility();
             }
          }
       };
@@ -362,6 +366,7 @@ public class LoggerMap extends MapActivity
       updateSpeedbarVisibility();
       updateSpeedDisplayVisibility();
       updateCompassDisplayVisibility();
+      updateLocationDisplayVisibility();
       
       if( mTrackId > 0 )
       {
@@ -542,7 +547,7 @@ public class LoggerMap extends MapActivity
    private void setLocationOverlay(boolean b)
    {
       Editor editor = mSharedPreferences.edit();
-      editor.putBoolean( Constants.DIRECTION, b );
+      editor.putBoolean( Constants.LOCATION, b );
       editor.commit();
    }
    
@@ -747,7 +752,7 @@ public class LoggerMap extends MapActivity
             mTraffic.setChecked( mSharedPreferences.getBoolean( Constants.TRAFFIC, false ) );
             mSpeed.setChecked( mSharedPreferences.getBoolean( Constants.SPEED, false ) );
             mCompass.setChecked( mSharedPreferences.getBoolean( Constants.COMPASS, false ) );
-            mLocation.setChecked( mSharedPreferences.getBoolean( Constants.DIRECTION, false ) );
+            mLocation.setChecked( mSharedPreferences.getBoolean( Constants.LOCATION, false ) );
             break;
          default:
             break;
@@ -898,6 +903,20 @@ public class LoggerMap extends MapActivity
          mMylocation.disableCompass();
       }
    }
+   
+   private void updateLocationDisplayVisibility()
+   {
+      boolean location = mSharedPreferences.getBoolean( Constants.LOCATION, false );
+      if( location )
+      {
+         mMylocation.enableMyLocation();
+      }
+      else
+      {
+         mMylocation.disableMyLocation();
+      }
+   }
+
 
    protected void createSpeedDisplayNumbers()
    {
