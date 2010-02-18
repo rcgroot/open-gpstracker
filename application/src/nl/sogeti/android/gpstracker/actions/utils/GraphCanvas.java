@@ -205,7 +205,7 @@ public class GraphCanvas extends View
       mHeight = mRenderCanvas.getHeight()-10;
       double[][] values ;
       int[][] valueDepth;
-      double distance = 0;
+      double distance = 1;
       try 
       {
          segments = resolver.query( 
@@ -295,7 +295,7 @@ public class GraphCanvas extends View
       Cursor waypoints = null;
       mWidth = mRenderCanvas.getWidth()-5;
       mHeight = mRenderCanvas.getHeight()-10;
-      long duration = mEndTime - mStartTime;
+      long duration = 1+mEndTime - mStartTime;
       double[][] values ;
       int[][] valueDepth;
       try 
