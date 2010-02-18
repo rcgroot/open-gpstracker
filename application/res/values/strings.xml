@@ -91,7 +91,7 @@
     <string name="speedsanitycheck_title">Speed sanity check </string>
     <string name="speedsanitycheck_summary">Only accept reasonable GPS speeds</string>
     <string name="showlocation_title">My location </string>
-    <string name="showlocation_summary">Show my location and orientation on the map</string>
+    <string name="showlocation_summary">Show my location on the map</string>
     <string name="units_title">Units</string>
     <string name="units_summary">Determine if metric or imperial units are used</string>
 
