@@ -49,6 +49,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -155,7 +156,13 @@ public class TrackingOverlay extends Overlay
          {
             if( mRenderBuffer == null || mRenderBuffer.getWidth() != canvas.getWidth() || mRenderBuffer.getHeight() != canvas.getHeight() )
             {
-//               Log.d( TAG, "Fresh buffers" );
+               if( mRenderBuffer != null )
+               {
+                  Log.d( TAG, String.format(  "Fresh buffers from (%d,%d) to (%d,%d)", mRenderBuffer.getWidth(), mRenderBuffer.getHeight(), canvas.getWidth(), canvas.getHeight() ) );
+                  mRenderBuffer.recycle();
+                  mRenderBuffer = null;
+               }
+               mRenderCanvas = null;
                mRenderBuffer = Bitmap.createBitmap( canvas.getWidth(), canvas.getHeight(), Config.ARGB_8888 );
                mRenderCanvas = new Canvas( mRenderBuffer );
             }

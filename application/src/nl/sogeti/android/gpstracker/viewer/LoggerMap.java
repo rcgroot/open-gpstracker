@@ -123,9 +123,6 @@ public class LoggerMap extends MapActivity
    private EditText mTrackNameView;
    private TextView[] mSpeedtexts = null;
    private TextView mLastGPSSpeedView = null;
-   private ImageView mCompassView;
-   private ImageView mNeedleView;
-//   private ImageView mDirectionView;
    
    private double mAverageSpeed = 33.33d / 2d;
    private long mTrackId = -1;
@@ -223,24 +220,6 @@ public class LoggerMap extends MapActivity
             dismissDialog( DIALOG_LOGCONTROL );
          }
       };
-   private final SensorEventListener mCompasslistener = new SensorEventListener()
-   {
-      public void onAccuracyChanged( Sensor sensor, int accuracy )
-      { }
-
-      public void onSensorChanged( SensorEvent event )
-      {
-         mDirection = event.values[0];
-      }
-   };
-   private final android.view.animation.Interpolator mNeedleInterpolator = new android.view.animation.Interpolator()
-   {
-
-      public float getInterpolation( float input )
-      {
-         return mDirection;
-      }
-   };
    private final OnCheckedChangeListener mCheckedChangeListener = new OnCheckedChangeListener()
    {
       public void onCheckedChanged( CompoundButton buttonView, boolean isChecked )
@@ -305,10 +284,6 @@ public class LoggerMap extends MapActivity
             {
                LoggerMap.this.mMapView.setSatellite( sharedPreferences.getBoolean( key, false ) );
             }
-            else if( key.equals( Constants.DIRECTION ) )
-            {
-               updateDirectionDisplayVisibility();
-            }
          }
       };
 
@@ -358,9 +333,6 @@ public class LoggerMap extends MapActivity
             (TextView) findViewById( R.id.speedview02 ), (TextView) findViewById( R.id.speedview01 ), (TextView) findViewById( R.id.speedview00 ) };
       mSpeedtexts = speeds;
       mLastGPSSpeedView = (TextView) findViewById( R.id.currentSpeed );
-      mCompassView = (ImageView) findViewById( R.id.compassview );
-      mNeedleView = (ImageView) findViewById( R.id.needleview );
-//      mDirectionView  = (ImageView) findViewById( R.id.directionview );
       
       onRestoreInstanceState( load );
    }
@@ -378,10 +350,6 @@ public class LoggerMap extends MapActivity
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
          resolver.unregisterContentObserver( this.mTrackObserver );
       }
-      if( mSensorManager != null )
-      {
-         mSensorManager.unregisterListener( mCompasslistener );
-      }
       mMylocation.disableMyLocation();
       mMylocation.disableCompass();
    }
@@ -394,7 +362,6 @@ public class LoggerMap extends MapActivity
       updateSpeedbarVisibility();
       updateSpeedDisplayVisibility();
       updateCompassDisplayVisibility();
-      updateDirectionDisplayVisibility();
       
       if( mTrackId > 0 )
       {
@@ -919,53 +886,16 @@ public class LoggerMap extends MapActivity
       }
    }
    
-   private void updateDirectionDisplayVisibility()
-   {
-      boolean showDirection = mSharedPreferences.getBoolean( Constants.DIRECTION, false );
-      if( showDirection )
-      {
-         mMylocation.enableMyLocation();
-         this.mMapView.postInvalidate();
-//         mDirectionView.setAnimation( AnimationUtils.loadAnimation(this, R.anim.arrow_rotate ) );
-//         mDirectionView.getAnimation().setInterpolator( mDirectionInterpolator );
-//         mDirectionView.getAnimation().setRepeatCount( Animation.INFINITE );
-//         mDirectionView.getAnimation().start();
-//         mSensorManager = (SensorManager) getSystemService( Context.SENSOR_SERVICE );
-//         mSensorManager.registerListener( mCompasslistener, mSensorManager.getDefaultSensor( Sensor.TYPE_ORIENTATION ), SensorManager.SENSOR_DELAY_NORMAL );
-//         mDirectionView.setVisibility( View.VISIBLE );
-      }
-      else
-      {
-         mMylocation.disableMyLocation();
-         this.mMapView.postInvalidate();
-//         mDirectionView.setVisibility( View.INVISIBLE );
-      }
-   }
-   
    private void updateCompassDisplayVisibility()
    {
-      boolean showspeed = mSharedPreferences.getBoolean( Constants.COMPASS, false );
-      if( showspeed )
+      boolean compass = mSharedPreferences.getBoolean( Constants.COMPASS, false );
+      if( compass )
       {
-         mCompassView.setVisibility( View.VISIBLE );
-         mNeedleView.setVisibility( View.VISIBLE );
-         
-         mNeedleView.setAnimation( AnimationUtils.loadAnimation(this, R.anim.arrow_rotate ) );
-         mNeedleView.getAnimation().setInterpolator( mNeedleInterpolator );
-         mNeedleView.getAnimation().setRepeatCount( Animation.INFINITE );
-         mNeedleView.getAnimation().start();
-         mSensorManager = (SensorManager) getSystemService( Context.SENSOR_SERVICE );
-         mSensorManager.registerListener( mCompasslistener, mSensorManager.getDefaultSensor( Sensor.TYPE_ORIENTATION ), SensorManager.SENSOR_DELAY_NORMAL );
+         mMylocation.enableCompass();
       }
       else
       {
-         if( mSensorManager != null)
-         {
-            mSensorManager.unregisterListener( mCompasslistener );
-            mNeedleView.clearAnimation();
-         }
-         mCompassView.setVisibility( View.INVISIBLE );
-         mNeedleView.setVisibility( View.INVISIBLE );
+         mMylocation.disableCompass();
       }
    }
 
@@ -1005,7 +935,6 @@ public class LoggerMap extends MapActivity
       List<Overlay> overlays = this.mMapView.getOverlays();
       overlays.clear();
       overlays.add( mMylocation );
-      updateDirectionDisplayVisibility();
 
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null;
