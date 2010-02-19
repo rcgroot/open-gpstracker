@@ -75,7 +75,7 @@
                 <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
             <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-        </activity>
+        </activity> 
 
 		<activity android:label="@string/receive_filewriter" android:name=".actions.ExportGPX">
 			<intent-filter>
@@ -95,6 +95,8 @@
 		
 	</application>
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.INTERNET" />
