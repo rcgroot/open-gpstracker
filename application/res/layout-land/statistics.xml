@@ -83,7 +83,7 @@
             <TextView
                android:text="@string/stat_starttime"
                android:paddingRight="10dp" />
-            <nl.sogeti.android.gpstracker.utils.DateView
+            <nl.sogeti.android.gpstracker.util.DateView
                android:id="@+id/stat_starttime" />
          </TableRow>
          <TableRow
@@ -93,7 +93,7 @@
             <TextView
                android:text="@string/stat_endtime"
                android:paddingRight="10dp" />
-            <nl.sogeti.android.gpstracker.utils.DateView
+            <nl.sogeti.android.gpstracker.util.DateView
                android:id="@+id/stat_endtime" />
          </TableRow>
          <TableRow
