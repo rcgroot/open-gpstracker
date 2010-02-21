@@ -15,11 +15,10 @@
             android:text="@string/from">
         </TextView>
 		
-		<nl.sogeti.android.gpstracker.utils.DateView 
+		<nl.sogeti.android.gpstracker.util.DateView 
 		    android:layout_height="wrap_content"
 			android:layout_width="wrap_content" 
-			android:id="@+id/listitem_from">
-		</nl.sogeti.android.gpstracker.utils.DateView>
+			android:id="@+id/listitem_from" />
 		
 	</TableRow>
 </LinearLayout>

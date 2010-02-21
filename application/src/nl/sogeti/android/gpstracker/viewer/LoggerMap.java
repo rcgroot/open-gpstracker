@@ -877,6 +877,7 @@ public class LoggerMap extends MapActivity
       if( showspeed )
       {
          mLastGPSSpeedView.setVisibility( View.VISIBLE );
+         mLastGPSSpeedView.setText( "" );
       }
       else
       {

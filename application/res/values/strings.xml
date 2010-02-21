@@ -107,6 +107,11 @@
     <string name="stat_trackname">Track name</string>
     <string name="stat_waypoints">Waypoints</string>
     
+    
+    <string name="track_list">Tracks</string>
+    <string name="search_label">Tracks</string>
+    <string name="search_description">Open GPS Tracker track names</string>
+    <string name="search_hint">search_hint Search tracks</string>
 <!-- ***************************
    About information
    ***************************-->

@@ -10,8 +10,12 @@
          android:normalScreens="true"
          android:smallScreens="true" />
          
-	<application android:icon="@drawable/icon" android:label="@string/app_name"
-		android:description="@string/app_name" android:allowClearUserData="true" android:debuggable="false">
+	<application 
+      android:icon="@drawable/icon" 
+      android:label="@string/app_name"
+      android:description="@string/app_name" 
+      android:allowClearUserData="true" 
+      android:debuggable="false">
       <meta-data
          android:name="org.openintents.metadata.COMMENTS"
          android:value="@string/about_comments" />
@@ -42,7 +46,9 @@
       <meta-data
          android:name="org.openintents.metadata.EMAIL"
          android:value="@string/about_email" />
-
+      <meta-data 
+           android:name="android.app.default_searchable"
+           android:value=".viewer.TrackList" />
 
 		<uses-library android:name="com.google.android.maps" />
 
@@ -55,10 +61,23 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		
-		<activity android:label="@string/menu_tracklist" android:name=".viewer.TrackList"/>
-		
-        <activity android:label="@string/menu_settings" android:name=".logger.SettingsDialog"/>
+		        
+         <activity 
+            android:label="@string/menu_settings" 
+            android:name=".logger.SettingsDialog"/>
+
+         <activity
+            android:label="@string/track_list" 
+            android:name=".viewer.TrackList"
+            android:launchMode="singleTop" >
+            <intent-filter>
+               <action android:name="android.intent.action.SEARCH" />
+               <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data
+               android:name="android.app.searchable"
+               android:resource="@xml/searchable" />
+         </activity>
 
 		<service android:enabled="true" android:name=".logger.GPSLoggerService">
 			<intent-filter android:label="GPS logger">
@@ -66,8 +85,14 @@
 			</intent-filter>
 		</service>
 
-		<provider android:enabled="true" android:authorities="nl.sogeti.android.gpstracker"
-			android:name=".db.GPStrackingProvider" android:permission="android.permission.ACCESS_FINE_LOCATION">
+		<provider 
+            android:enabled="true" 
+            android:authorities="nl.sogeti.android.gpstracker"
+			android:name=".db.GPStrackingProvider" 
+            android:permission="android.permission.ACCESS_FINE_LOCATION" >
+            <path-permission android:path="/search_suggest_query"
+                android:readPermission="android.permission.GLOBAL_SEARCH" />
+
 		</provider>
       
         <activity android:label="@string/menu_statistics" android:name=".actions.Statistics">
@@ -78,7 +103,6 @@
                 <data android:host="nl.sogeti.android.gpstracker" />
                 <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
-            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
         </activity> 
 
 		<activity android:label="@string/receive_filewriter" android:name=".actions.ExportGPX">
@@ -97,7 +121,7 @@
             </intent-filter>
         </activity>
 		
-	</application>
+</application>
 
    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

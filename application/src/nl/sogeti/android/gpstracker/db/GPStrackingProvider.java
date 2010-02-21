@@ -33,6 +33,7 @@ import java.util.List;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -96,8 +97,18 @@ public class GPStrackingProvider extends ContentProvider
    private static final int SEGMENT_ID = 4;
    private static final int WAYPOINTS = 7;
    private static final int WAYPOINT_ID = 6;
-
+   private static final int SEARCH_SUGGEST_ID = 9;
+   
    private static final String TAG = "OGT.GPStrackingProvider";
+   private static final String[] SUGGEST_PROJECTION = 
+      new String[] 
+        { 
+            Tracks._ID, 
+            Tracks.NAME+" as "+SearchManager.SUGGEST_COLUMN_TEXT_1,
+            "datetime("+Tracks.CREATION_TIME+"/1000, 'unixepoch') as "+SearchManager.SUGGEST_COLUMN_TEXT_2,
+            Tracks._ID+" as "+SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID
+            
+        };
 
    private static UriMatcher sURIMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 
@@ -114,6 +125,9 @@ public class GPStrackingProvider extends ContentProvider
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#", GPStrackingProvider.SEGMENT_ID );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints", GPStrackingProvider.WAYPOINTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#", GPStrackingProvider.WAYPOINT_ID );
+      
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "search_suggest_query", GPStrackingProvider.SEARCH_SUGGEST_ID );
+
    }
 
    private DatabaseHelper mDbHelper;
@@ -279,6 +293,7 @@ public class GPStrackingProvider extends ContentProvider
 
       String tableName = null;
       String whereclause = null;
+      String sortorder = null;
       List<String> pathSegments = uri.getPathSegments();
       switch (match)
       {
@@ -311,6 +326,21 @@ public class GPStrackingProvider extends ContentProvider
             tableName = Waypoints.TABLE + " INNER JOIN " + Segments.TABLE + " ON "+ Segments.TABLE+"."+Segments._ID +"=="+ Waypoints.SEGMENT;
             whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
             break;
+         case SEARCH_SUGGEST_ID:
+            tableName = Tracks.TABLE;
+
+            if( selectionArgs[0] == null || selectionArgs[0].equals( "" ) )
+            {
+               selection = null;
+               selectionArgs = null;
+               sortorder = Tracks.CREATION_TIME+" desc";
+            }
+            else
+            {
+               selectionArgs[0] = "%" +selectionArgs[0]+ "%";
+            }
+            projection = SUGGEST_PROJECTION;
+            break;
          default:
             Log.e( GPStrackingProvider.LOG_TAG, "Unable to come to an action in the query uri: " + uri.toString() );
             return null;
@@ -333,7 +363,7 @@ public class GPStrackingProvider extends ContentProvider
 
       // Make the query.
       SQLiteDatabase mDb = this.mDbHelper.getWritableDatabase();
-      Cursor c = qBuilder.query( mDb, projection, selection, selectionArgs, null, null, null );
+      Cursor c = qBuilder.query( mDb, projection, selection, selectionArgs, null, null, sortorder  );
       c.setNotificationUri( getContext().getContentResolver(), uri );
       return c;
    }
