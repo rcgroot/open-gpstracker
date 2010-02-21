@@ -169,7 +169,10 @@ public class GPSLoggerService extends Service
                   Iterable<GpsSatellite> list = status.getSatellites();
                   for( GpsSatellite satellite : list )
                   {
-                     mSatellites++;
+                     if( satellite.usedInFix() )
+                     {
+                        mSatellites++;
+                     }
                   }
                   updateNotification();
                   break;

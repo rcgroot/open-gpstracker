@@ -69,6 +69,7 @@ public class UnitsI18n
       }
    };
    
+   @SuppressWarnings("unused")
    private static final String TAG = "UnitsI18n";
    
    public UnitsI18n( Context ctx, UnitsChangeListener listener )

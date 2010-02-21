@@ -20,11 +20,11 @@ import android.graphics.Bitmap.Config;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 public class GraphCanvas extends View
 {
+   @SuppressWarnings("unused")
    private static final String TAG = "GraphCanvas";
    public static final int TIMESPEEDGRAPH = 0;
    public static final int DISTANCESPEEDGRAPH = 1;

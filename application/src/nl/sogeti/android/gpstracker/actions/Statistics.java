@@ -71,7 +71,8 @@ public class Statistics extends Activity
    private static final int MENU_SHARE = 41;
    private static final String GRAPH_TYPE = "GRAPH_TYPE";
    private static final String TRACKURI = "TRACKURI";
-   private static final String TAG = null;
+   @SuppressWarnings("unused")
+   private static final String TAG = "Statistics";
 
    private final ContentObserver mTrackObserver = new ContentObserver(new Handler()) 
    {

@@ -57,10 +57,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Point;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -76,13 +72,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
@@ -127,14 +120,11 @@ public class LoggerMap extends MapActivity
    private double mAverageSpeed = 33.33d / 2d;
    private long mTrackId = -1;
    private long mLastSegment = -1 ;
-   private long mLastWaypoint = -1;
-   private float mDirection  = 0.0f;
 
    private UnitsI18n mUnits;
    private WakeLock mWakeLock = null;
    private MapController mMapController = null;
    private SharedPreferences mSharedPreferences;
-   private SensorManager mSensorManager;
    private GPSLoggerServiceManager mLoggerServiceManager;
    
    private final ContentObserver mTrackObserver = new ContentObserver( new Handler() )
@@ -1053,7 +1043,6 @@ public class LoggerMap extends MapActivity
          {
             this.mTrackId = trackId;
             mLastSegment = -1;
-            mLastWaypoint = -1;
             resolver.unregisterContentObserver( this.mTrackObserver );
             resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
 
@@ -1127,7 +1116,6 @@ public class LoggerMap extends MapActivity
             int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
             int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
             lastPoint = new GeoPoint( microLatitude, microLongitude );
-            mLastWaypoint = waypoint.getLong( 2 );
          }
          if( lastPoint == null || lastPoint.getLatitudeE6() == 0 || lastPoint.getLongitudeE6() == 0 )
          {
