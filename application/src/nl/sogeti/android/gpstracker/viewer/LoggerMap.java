@@ -191,7 +191,7 @@ public class LoggerMap extends MapActivity
             {
                case R.id.logcontrol_start:
                   long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
-                  moveToTrack( loggerTrackId );
+                  moveToTrack( loggerTrackId, true );
                   showDialog( DIALOG_TRACKNAME );
                   break;
                case R.id.logcontrol_pause:
@@ -401,7 +401,7 @@ public class LoggerMap extends MapActivity
          long intentTrackId = newIntent.getExtras().getLong( Constants.EXTRA_TRACK_ID, -1 );
          if( intentTrackId >= 0 )
          {
-            moveToTrack( intentTrackId );
+            moveToTrack( intentTrackId, true );
          }
       }
    }
@@ -416,12 +416,12 @@ public class LoggerMap extends MapActivity
       long intentTrackId = this.getIntent().getLongExtra( Constants.EXTRA_TRACK_ID, -1 );
       if( intentTrackId >= 0 )
       {
-         moveToTrack( intentTrackId );
+         moveToTrack( intentTrackId, false );
       }
       else if( load != null && load.containsKey( "track" ) )
       {
          long loadTrackId = load.getLong( "track" );
-         moveToTrack( loadTrackId );
+         moveToTrack( loadTrackId, false );
       }
       else 
       {
@@ -492,11 +492,11 @@ public class LoggerMap extends MapActivity
             propagate = false;
             break;
          case KeyEvent.KEYCODE_F:
-            moveToTrack( this.mTrackId - 1 );
+            moveToTrack( this.mTrackId - 1, true );
             propagate = false;
             break;
          case KeyEvent.KEYCODE_H:
-            moveToTrack( this.mTrackId + 1 );
+            moveToTrack( this.mTrackId + 1, true );
             propagate = false;
             break;
          default:
@@ -765,7 +765,7 @@ public class LoggerMap extends MapActivity
             case MENU_TRACKLIST:
                Bundle extras = data.getExtras();
                long trackId = extras.getLong( Tracks._ID );
-               moveToTrack( trackId );
+               moveToTrack( trackId, true );
                break;
             case MENU_ITEM_ABOUT:
                break;
@@ -1030,8 +1030,9 @@ public class LoggerMap extends MapActivity
     * Alter this to set a new track as current.
     * 
     * @param trackId
+    * @param center center on the end of the track
     */
-   private void moveToTrack( long trackId )
+   private void moveToTrack( long trackId, boolean center )
    {
       Cursor track = null;
       try
@@ -1049,6 +1050,12 @@ public class LoggerMap extends MapActivity
             updateTitleBar();
             createDataOverlays();
             updateSpeedbarVisibility();
+            
+            if( center )
+            {
+               GeoPoint lastPoint = getLastTrackPoint();
+               this.mMapView.getController().animateTo( lastPoint );
+            }
          }
       }
       finally
@@ -1143,7 +1150,7 @@ public class LoggerMap extends MapActivity
          if( track != null && track.moveToLast() )
          {
             trackId = track.getInt( 0 );
-            moveToTrack( trackId );
+            moveToTrack( trackId, false );
          }
       }
       finally
