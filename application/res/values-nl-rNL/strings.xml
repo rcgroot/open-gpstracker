@@ -28,7 +28,7 @@
     <string name="layer_location">Mijn locatie</string>
     
     <string name="from">Opgenomen op: </string>
-    <string name="no_tracks">Geen routes</string>
+    <string name="no_tracks">Geen routes opgeslagen</string>
     <string name="ticker_saving">Opslaan: </string>
     <string name="ticker_stored">Opgeslagen: </string>
     <string name="ticker_failed">Kon niet opslaan: </string>
