@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package android.view;
+package nl.sogeti.android.gpstracker.util;
 
 import java.text.DateFormat;
 import java.util.Date;
