@@ -46,7 +46,7 @@ import android.util.Log;
  */
 public class GPSLoggerServiceManager
 {
-   private static final String TAG = "GPSLoggerServiceManager";
+   private static final String TAG = "OGT.GPSLoggerServiceManager";
    private static final String REMOTE_EXCEPTION = "REMOTE_EXCEPTION";
    private Context mCtx;
    private IGPSLoggerServiceRemote mGPSLoggerRemote;

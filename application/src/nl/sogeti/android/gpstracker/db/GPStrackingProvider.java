@@ -97,7 +97,7 @@ public class GPStrackingProvider extends ContentProvider
    private static final int WAYPOINTS = 7;
    private static final int WAYPOINT_ID = 6;
 
-   private static final String TAG = "GPStrackingProvider";
+   private static final String TAG = "OGT.GPStrackingProvider";
 
    private static UriMatcher sURIMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 

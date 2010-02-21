@@ -48,6 +48,7 @@ public class GpxCreator extends Thread
 
    private int mProgress = 0;
    private int mGoal = 0;
+   private String TAG = "OGT.GpxCreator";
    
    public GpxCreator(Context context, Intent intent, String chosenFileName, GpxCreationProgressListener listener)
    {
@@ -145,21 +146,21 @@ public class GpxCreator extends Thread
       }
       catch (IllegalArgumentException e)
       {
-         Log.e( ExportGPX.TAG, "Unable to save " + e );
+         Log.e( TAG , "Unable to save " + e );
          CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + filePath+"\""  + mContext.getString( R.string.error_filename );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch (IllegalStateException e)
       {
-         Log.e( ExportGPX.TAG, "Unable to save " + e );
+         Log.e( TAG, "Unable to save " + e );
          CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + filePath+"\""  + mContext.getString( R.string.error_buildxml );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch (IOException e)
       {
-         Log.e( ExportGPX.TAG, "Unable to save " + e );
+         Log.e( TAG, "Unable to save " + e );
          CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + filePath+"\""  + mContext.getString( R.string.error_writesdcard );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();

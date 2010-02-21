@@ -81,7 +81,7 @@ public class GPSLoggerService extends Service
     * <code>MAX_REASONABLE_SPEED</code> is about 250 kilometer per hour or 155 mile per hour.
     */
    private static final int MAX_REASONABLE_SPEED = 70;
-   private static final String TAG = "GPSLoggerService";
+   private static final String TAG = "OGT.GPSLoggerService";
    private static final int LOGGING_FINE = 0;
    private static final int LOGGING_NORMAL = 1;
    private static final int LOGGING_COARSE = 2;

@@ -105,7 +105,7 @@ public class LoggerMap extends MapActivity
    private static final int DIALOG_LOGCONTROL = 26;
    private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
-   private static final String TAG = "LoggerMap";
+   private static final String TAG = "OGT.LoggerMap";
    private MapView mMapView = null;
    private MyLocationOverlay mMylocation;
    private CheckBox mSatellite;

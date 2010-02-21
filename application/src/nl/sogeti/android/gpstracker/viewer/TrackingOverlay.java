@@ -68,7 +68,7 @@ public class TrackingOverlay extends Overlay
    public static final int MIDDLE_SEGMENT = 0;
    public static final int FIRST_SEGMENT = 1;
    public static final int LAST_SEGMENT = 2;
-   public static final String TAG = TrackingOverlay.class.getName();
+   public static final String TAG = "OGT.TrackingOverlay";
 
    public static final int DRAW_GREEN = 0;
    public static final int DRAW_RED = 1;
@@ -158,7 +158,7 @@ public class TrackingOverlay extends Overlay
             {
                if( mRenderBuffer != null )
                {
-                  Log.d( TAG, String.format(  "Fresh buffers from (%d,%d) to (%d,%d)", mRenderBuffer.getWidth(), mRenderBuffer.getHeight(), canvas.getWidth(), canvas.getHeight() ) );
+//                  Log.d( TAG, String.format(  "Fresh buffers from (%d,%d) to (%d,%d)", mRenderBuffer.getWidth(), mRenderBuffer.getHeight(), canvas.getWidth(), canvas.getHeight() ) );
                   mRenderBuffer.recycle();
                   mRenderBuffer = null;
                }

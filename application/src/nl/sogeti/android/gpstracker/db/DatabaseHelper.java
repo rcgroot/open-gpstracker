@@ -54,7 +54,7 @@ import android.util.Log;
 class DatabaseHelper extends SQLiteOpenHelper
 {
    private Context mContext;
-   private final static String TAG = "nl.sogeti.android.gpstracker.db.DatabaseHelper";
+   private final static String TAG = "OGT.DatabaseHelper";
 
    public DatabaseHelper(Context context)
    {
