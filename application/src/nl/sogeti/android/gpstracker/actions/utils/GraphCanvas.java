@@ -191,7 +191,7 @@ public class GraphCanvas extends View
    }
       
    /**
-    * TODO
+    * 
     * @param params
     */
    private void drawDistanceAxisGraphOnCanvas( String[] params )
