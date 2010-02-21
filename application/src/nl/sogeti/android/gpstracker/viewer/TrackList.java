@@ -30,14 +30,18 @@ package nl.sogeti.android.gpstracker.viewer;
 
 import java.util.Set;
 
+import org.openintents.intents.AboutIntents;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.logger.SettingsDialog;
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.SearchManager;
 import android.app.AlertDialog.Builder;
+import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -49,6 +53,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -72,6 +77,7 @@ public class TrackList extends ListActivity
    public static final int DIALOG_FILENAME = 0;
    private static final int DIALOG_RENAME = 23;
    private static final int DIALOG_DELETE = 24;
+   private static final int MENU_SEARCH = 0;
 
    private EditText mTrackNameView;
    private Uri mDialogUri;
@@ -114,30 +120,6 @@ public class TrackList extends ListActivity
       displayIntent( newIntent );
    }
 
-   private void displayIntent( Intent intent )
-   {
-      final String queryAction = intent.getAction();
-      Cursor tracksCursor = null;
-      if( Intent.ACTION_SEARCH.equals( queryAction ) )
-      {
-         tracksCursor = doSearchWithIntent( intent );
-      }
-      else if( Intent.ACTION_VIEW.equals( queryAction ) )
-      {
-         long trackId = Long.parseLong( Uri.parse(  intent.getDataString() ).getLastPathSegment() );
-         Intent notificationIntent = new Intent(this, LoggerMap.class);
-         Intent trackIntent = notificationIntent;
-         trackIntent.putExtra( Constants.EXTRA_TRACK_ID, trackId );
-         startActivity( trackIntent );
-      }
-      else
-      {
-         tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
-      }
-
-      displayCursor( tracksCursor );
-   }
-
    /*
     * (non-Javadoc)
     * @see android.app.ListActivity#onRestoreInstanceState(android.os.Bundle)
@@ -160,6 +142,31 @@ public class TrackList extends ListActivity
       outState.putParcelable( "URI", mDialogUri );
       outState.putString( "NAME", mDialogCurrentName );
       super.onSaveInstanceState( outState );
+   }
+   
+   @Override
+   public boolean onCreateOptionsMenu( Menu menu )
+   {
+      boolean result = super.onCreateOptionsMenu( menu );
+   
+      menu.add( ContextMenu.NONE, MENU_SEARCH, ContextMenu.NONE, android.R.string.search_go ).setIcon( android.R.drawable.ic_search_category_default).setAlphabeticShortcut( SearchManager.MENU_KEY );
+      return result;
+   }
+   
+   @Override
+   public boolean onOptionsItemSelected( MenuItem item )
+   {
+      boolean handled = false;
+      switch (item.getItemId())
+      {
+         case MENU_SEARCH:
+            onSearchRequested();
+            handled = true;
+            break;
+         default:
+            handled = super.onOptionsItemSelected( item );
+      }
+      return handled;
    }
 
    @Override
@@ -302,6 +309,30 @@ public class TrackList extends ListActivity
             alert.setMessage( message );
             break;
       }
+   }
+
+   private void displayIntent( Intent intent )
+   {
+      final String queryAction = intent.getAction();
+      Cursor tracksCursor = null;
+      if( Intent.ACTION_SEARCH.equals( queryAction ) )
+      {
+         tracksCursor = doSearchWithIntent( intent );
+      }
+      else if( Intent.ACTION_VIEW.equals( queryAction ) )
+      {
+         long trackId = Long.parseLong( Uri.parse(  intent.getDataString() ).getLastPathSegment() );
+         Intent notificationIntent = new Intent(this, LoggerMap.class);
+         Intent trackIntent = notificationIntent;
+         trackIntent.putExtra( Constants.EXTRA_TRACK_ID, trackId );
+         startActivity( trackIntent );
+      }
+      else
+      {
+         tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
+      }
+   
+      displayCursor( tracksCursor );
    }
 
    private void displayCursor( Cursor tracksCursor )
