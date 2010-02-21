@@ -280,6 +280,15 @@ public class LoggerMap extends MapActivity
             }
          }
       };
+   private UnitsI18n.UnitsChangeListener mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
+      {
+         public void onUnitsChange()
+         {
+            createSpeedDisplayNumbers();
+            updateSpeedbarVisibility();
+         }
+      }; 
+   
 
    /**
     * Called when the activity is first created.
@@ -301,14 +310,8 @@ public class LoggerMap extends MapActivity
       }
       mLoggerServiceManager.startup();
 
-      mUnits = new UnitsI18n( this, new UnitsI18n.UnitsChangeListener()
-         {
-            public void onUnitsChange()
-            {
-               createSpeedDisplayNumbers();
-               updateSpeedbarVisibility();
-            }
-         } );
+
+      mUnits = new UnitsI18n( this, mUnitsChangeListener );
 
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
       mSharedPreferences.registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
