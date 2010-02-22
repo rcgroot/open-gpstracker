@@ -107,10 +107,10 @@
     <string name="stat_trackname">Route naam</string>
     <string name="stat_waypoints">Metingen</string>
     
-    <string name="app_search">Routes</string>
+    <string name="track_list">Routes</string>
     <string name="search_label">Routes</string>
     <string name="search_description">Open GPS Tracker route namen</string>
-    <string name="search_hint">Zoeken routes</string>
+    <string name="search_hint">Zoek routes</string>
     
 <!-- ***************************
    About information
