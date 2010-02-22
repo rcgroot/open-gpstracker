@@ -44,6 +44,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.location.Location;
 import android.net.Uri;
+import android.provider.LiveFolders;
 import android.util.Log;
 
 /**
@@ -98,17 +99,26 @@ public class GPStrackingProvider extends ContentProvider
    private static final int WAYPOINTS = 7;
    private static final int WAYPOINT_ID = 6;
    private static final int SEARCH_SUGGEST_ID = 9;
+   private static final int LIVE_FOLDERS = 10;
    
    private static final String TAG = "OGT.GPStrackingProvider";
    private static final String[] SUGGEST_PROJECTION = 
       new String[] 
         { 
             Tracks._ID, 
-            Tracks.NAME+" as "+SearchManager.SUGGEST_COLUMN_TEXT_1,
+            Tracks.NAME+" AS "+SearchManager.SUGGEST_COLUMN_TEXT_1,
             "datetime("+Tracks.CREATION_TIME+"/1000, 'unixepoch') as "+SearchManager.SUGGEST_COLUMN_TEXT_2,
-            Tracks._ID+" as "+SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID
+            Tracks._ID+" AS "+SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID
             
         };
+   private static final String[] LIVE_PROJECTION = 
+      new String[] 
+        {
+            Tracks._ID+" AS "+LiveFolders._ID,
+            Tracks.NAME+" AS "+ LiveFolders.NAME,
+            "datetime("+Tracks.CREATION_TIME+"/1000, 'unixepoch') as "+LiveFolders.DESCRIPTION
+        };
+
 
    private static UriMatcher sURIMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 
@@ -126,6 +136,7 @@ public class GPStrackingProvider extends ContentProvider
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints", GPStrackingProvider.WAYPOINTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#", GPStrackingProvider.WAYPOINT_ID );
       
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "live_folders/tracks", GPStrackingProvider.LIVE_FOLDERS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "search_suggest_query", GPStrackingProvider.SEARCH_SUGGEST_ID );
 
    }
@@ -328,7 +339,6 @@ public class GPStrackingProvider extends ContentProvider
             break;
          case SEARCH_SUGGEST_ID:
             tableName = Tracks.TABLE;
-
             if( selectionArgs[0] == null || selectionArgs[0].equals( "" ) )
             {
                selection = null;
@@ -340,6 +350,10 @@ public class GPStrackingProvider extends ContentProvider
                selectionArgs[0] = "%" +selectionArgs[0]+ "%";
             }
             projection = SUGGEST_PROJECTION;
+            break;
+         case LIVE_FOLDERS:
+            tableName = Tracks.TABLE;
+            projection = LIVE_PROJECTION;
             break;
          default:
             Log.e( GPStrackingProvider.LOG_TAG, "Unable to come to an action in the query uri: " + uri.toString() );

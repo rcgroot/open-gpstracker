@@ -9,6 +9,13 @@
          android:largeScreens="true"
          android:normalScreens="true"
          android:smallScreens="true" />
+
+   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+   <uses-permission android:name="android.permission.INTERNET" />
+   <uses-permission android:name="android.permission.WAKE_LOCK" />
+   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+   <uses-permission android:name="android.permission.READ_PHONE_STATE" />
          
 	<application 
       android:icon="@drawable/icon" 
@@ -60,6 +67,13 @@
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
+            <intent-filter android:label="Show track on map">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:host="nl.sogeti.android.gpstracker" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
+            </intent-filter>
 		</activity>
 		        
          <activity 
@@ -79,6 +93,16 @@
                android:resource="@xml/searchable" />
          </activity>
 
+         <activity
+             android:name=".viewer.TracksLiveFolder"
+             android:label="@string/track_list"
+             android:icon="@drawable/icon" >
+             <intent-filter>
+                 <action android:name="android.intent.action.CREATE_LIVE_FOLDER" />
+                 <category android:name="android.intent.category.DEFAULT" />
+             </intent-filter>
+         </activity>
+
 		<service android:enabled="true" android:name=".logger.GPSLoggerService">
 			<intent-filter android:label="GPS logger">
 				<action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
@@ -88,21 +112,13 @@
 		<provider 
             android:enabled="true" 
             android:authorities="nl.sogeti.android.gpstracker"
-			android:name=".db.GPStrackingProvider" 
-            android:permission="android.permission.ACCESS_FINE_LOCATION" >
+			android:name=".db.GPStrackingProvider" >
+<!--             android:permission="android.permission.ACCESS_FINE_LOCATION" >  -->
             <path-permission android:path="/search_suggest_query"
                 android:readPermission="android.permission.GLOBAL_SEARCH" />
-
 		</provider>
       
         <activity android:label="@string/menu_statistics" android:name=".actions.Statistics">
-            <intent-filter android:label="Show track statistics">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="content" />
-                <data android:host="nl.sogeti.android.gpstracker" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
-            </intent-filter>
         </activity> 
 
 		<activity android:label="@string/receive_filewriter" android:name=".actions.ExportGPX">
@@ -112,22 +128,16 @@
 				<data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
 			</intent-filter>
 		</activity>
-		
-        <activity android:label="@string/receive_gpxsender" android:name=".actions.SendGPX">
-            <intent-filter>
-                <action android:name="android.intent.action.RUN" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
-            </intent-filter>
-        </activity>
-		
-</application>
 
-   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-   <uses-permission android:name="android.permission.INTERNET" />
-   <uses-permission android:name="android.permission.WAKE_LOCK" />
-   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-   <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-   
+         <activity
+            android:label="@string/receive_gpxsender"
+            android:name=".actions.SendGPX" >
+            <intent-filter>
+               <action android:name="android.intent.action.RUN" />
+               <category android:name="android.intent.category.DEFAULT" />
+               <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
+            </intent-filter>
+         </activity>
+		
+    </application>
 </manifest>

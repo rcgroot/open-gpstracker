@@ -185,7 +185,6 @@ public class TrackList extends ListActivity
       ComponentName caller = this.getCallingActivity();
       if( caller != null )
       {
-
          setResult( RESULT_OK, intent );
          finish();
       }

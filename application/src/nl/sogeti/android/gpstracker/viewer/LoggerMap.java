@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.viewer;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -407,6 +408,11 @@ public class LoggerMap extends MapActivity
             moveToTrack( intentTrackId, true );
          }
       }
+      Uri data = newIntent.getData();
+      if( data != null )
+      {
+         moveToTrack( Long.parseLong( data.getLastPathSegment() ), true );
+      }
    }
 
    @Override
@@ -416,10 +422,16 @@ public class LoggerMap extends MapActivity
       {
          super.onRestoreInstanceState( load );
       }
+      
       long intentTrackId = this.getIntent().getLongExtra( Constants.EXTRA_TRACK_ID, -1 );
       if( intentTrackId >= 0 )
       {
          moveToTrack( intentTrackId, false );
+      }
+      Uri data = this.getIntent().getData();
+      if( data != null )
+      {
+         moveToTrack( Long.parseLong( data.getLastPathSegment() ), true );
       }
       else if( load != null && load.containsKey( "track" ) )
       {
@@ -587,7 +599,8 @@ public class LoggerMap extends MapActivity
             if( this.mTrackId >= 0 )
             {
                Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId );
-               Intent actionIntent = new Intent( Intent.ACTION_VIEW, uri );
+               Intent actionIntent = new Intent( this, Statistics.class );
+               actionIntent.setData( uri );
                startActivity( actionIntent );
                handled = true;
                break;
