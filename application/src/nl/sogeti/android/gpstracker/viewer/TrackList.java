@@ -42,6 +42,7 @@ import android.app.ListActivity;
 import android.app.SearchManager;
 import android.app.AlertDialog.Builder;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -173,13 +174,26 @@ public class TrackList extends ListActivity
    protected void onListItemClick( ListView l, View v, int position, long id )
    {
       super.onListItemClick( l, v, position, id );
+      
 
-      Intent mIntent = new Intent();
       Bundle bundle = new Bundle();
-      bundle.putLong( Tracks._ID, id );
-      mIntent.putExtras( bundle );
-      setResult( RESULT_OK, mIntent );
-      finish();
+      bundle.putLong( Constants.EXTRA_TRACK_ID, id );
+      
+      Intent intent = new Intent();
+      intent.putExtras( bundle );
+      
+      ComponentName caller = this.getCallingActivity();
+      if( caller != null )
+      {
+
+         setResult( RESULT_OK, intent );
+         finish();
+      }
+      else
+      {
+         intent.setClass( this, LoggerMap.class );
+         startActivity( intent );
+      }
    }
 
    @Override

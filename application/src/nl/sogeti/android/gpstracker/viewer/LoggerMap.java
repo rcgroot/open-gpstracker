@@ -767,7 +767,7 @@ public class LoggerMap extends MapActivity
          {
             case MENU_TRACKLIST:
                Bundle extras = data.getExtras();
-               long trackId = extras.getLong( Tracks._ID );
+               long trackId = extras.getLong( Constants.EXTRA_TRACK_ID );
                moveToTrack( trackId, true );
                break;
             case MENU_ITEM_ABOUT:
