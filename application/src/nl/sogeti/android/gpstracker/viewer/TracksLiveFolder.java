@@ -14,6 +14,7 @@ public class TracksLiveFolder extends Activity
    @Override
    protected void onCreate( Bundle savedInstanceState )
    {
+      this.setVisible( false );
       super.onCreate( savedInstanceState );
 
       final Intent intent = getIntent();
