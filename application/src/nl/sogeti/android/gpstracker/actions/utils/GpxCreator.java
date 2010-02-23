@@ -25,6 +25,7 @@ import nl.sogeti.android.gpstracker.actions.ExportGPX;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.Constants;
 
 import org.xmlpull.v1.XmlSerializer;
 
@@ -91,7 +92,7 @@ public class GpxCreator extends Thread
       String filePath;
       if( !( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) ) )
       {
-         filePath = Environment.getExternalStorageDirectory() +"/OpenGPSTracker/"+fileName;
+         filePath = Environment.getExternalStorageDirectory() +Constants.EXTERNAL_DIR+fileName;
          fileName = fileName + ".gpx";
       }
       else

@@ -1,5 +1,7 @@
 package nl.sogeti.android.gpstracker.util;
 
+import android.os.Environment;
+
 public class Constants
 {
    public static final String DISABLEBLANKING = "disableblanking";
@@ -22,5 +24,7 @@ public class Constants
    public static final int UNITS_DEFAULT = 0;
    public static final int UNITS_IMPERIAL = 1;
    public static final int UNITS_METRIC = 2;
-
+   public static final String EXTERNAL_DIR = "/OpenGPSTracker/";
+   public static final String TMPICTUREFILE_PATH = EXTERNAL_DIR+"NotePictureTmp.jpg";
+   
 }
