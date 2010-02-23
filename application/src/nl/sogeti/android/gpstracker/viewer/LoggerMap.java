@@ -72,6 +72,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -95,12 +96,17 @@ public class LoggerMap extends MapActivity
 {
    private static final int ZOOM_LEVEL = 16;
    // MENU'S
-   private static final int MENU_SETTINGS = 0;
+   private static final int MENU_SETTINGS = 2;
    private static final int MENU_TRACKING = 1;
    public static final int MENU_TRACKLIST = 5;
    private static final int MENU_STATS = 7;
    private static final int MENU_ITEM_ABOUT = 9;
    private static final int MENU_LAYERS = 11;
+   private static final int MENU_NOTE = 12;
+   private static final int MENU_NAME = 13;
+   private static final int MENU_PICTURE = 14;
+   private static final int MENU_TEXT = 15;
+   private static final int MENU_SPEECH = 16;
    private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_LOGCONTROL = 26;
@@ -561,11 +567,19 @@ public class LoggerMap extends MapActivity
    {
       boolean result = super.onCreateOptionsMenu( menu );
    
-      menu.add( ContextMenu.NONE, MENU_TRACKING, ContextMenu.NONE, R.string.menu_tracking ).setIcon( R.drawable.ic_menu_movie).setAlphabeticShortcut( 'T' );
-      menu.add( ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_statistics ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 'S' );
-      menu.add( ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers ).setIcon( R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 'L' );
-      menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
-      menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
+      menu.add( ContextMenu.NONE, MENU_TRACKING,   ContextMenu.NONE, R.string.menu_tracking ).setIcon( R.drawable.ic_menu_movie).setAlphabeticShortcut( 'T' );
+      menu.add( ContextMenu.NONE, MENU_STATS,      ContextMenu.NONE, R.string.menu_statistics ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 'S' );
+      menu.add( ContextMenu.NONE, MENU_LAYERS,     ContextMenu.NONE, R.string.menu_showLayers ).setIcon( R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 'L' );
+      
+      SubMenu notemenu = menu.addSubMenu(           ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote ).setIcon( R.drawable.ic_menu_myplaces );
+      notemenu.add( ContextMenu.NONE, MENU_NAME,    ContextMenu.NONE, R.string.menu_notename );
+      notemenu.add( ContextMenu.NONE, MENU_PICTURE, ContextMenu.NONE, R.string.menu_notepicture );
+      notemenu.add( ContextMenu.NONE, MENU_TEXT,    ContextMenu.NONE, R.string.menu_notetext );
+      notemenu.add( ContextMenu.NONE, MENU_SPEECH,  ContextMenu.NONE, R.string.menu_notespeech );
+      
+      
+      menu.add( ContextMenu.NONE, MENU_SETTINGS,   ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
+      menu.add( ContextMenu.NONE, MENU_TRACKLIST,  ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
       menu.add( ContextMenu.NONE, MENU_ITEM_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
       return result;
    }

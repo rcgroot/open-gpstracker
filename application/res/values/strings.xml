@@ -56,6 +56,12 @@
     <string name="menu_about">About</string>
     <string name="menu_showLayers">Overlays</string>
     <string name="menu_graphtype">Graph type</string>
+    <string name="menu_insertnote">Make note</string>
+    <string name="menu_notename">Name</string>
+    <string name="menu_notepicture">Picture</string>
+    <string name="menu_notetext">Text</string>
+    <string name="menu_notespeech">Speech</string>
+    <string name="menu_notevideo">Video</string>
     <string name="graphtype_timespeed">Speed against time</string>
     <string name="graphtype_timealtitude">Altitude against time</string>
     <string name="graphtype_distancespeed">Speed against distance</string>
