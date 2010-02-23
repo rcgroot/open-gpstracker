@@ -100,17 +100,18 @@ public class LoggerMap extends MapActivity
 {
    private static final int ZOOM_LEVEL = 16;
    // MENU'S
-   private static final int MENU_SETTINGS = 2;
-   private static final int MENU_TRACKING = 1;
-   public static final int MENU_TRACKLIST = 5;
-   private static final int MENU_STATS = 7;
-   private static final int MENU_ITEM_ABOUT = 9;
-   private static final int MENU_LAYERS = 11;
-   private static final int MENU_NOTE = 12;
-   private static final int MENU_NAME = 13;
-   private static final int MENU_PICTURE = 14;
-   private static final int MENU_TEXT = 15;
-   private static final int MENU_SPEECH = 16;
+   private static final int MENU_SETTINGS = 1;
+   private static final int MENU_TRACKING = 2;
+   private static final int MENU_TRACKLIST = 3;
+   private static final int MENU_STATS = 4;
+   private static final int MENU_ABOUT = 5;
+   private static final int MENU_LAYERS = 6;
+   private static final int MENU_NOTE = 7;
+   private static final int MENU_NAME = 8;
+   private static final int MENU_PICTURE = 9;
+   private static final int MENU_TEXT = 10;
+   private static final int MENU_SPEECH = 11;
+   private static final int MENU_VIDEO = 12;
    private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_LOGCONTROL = 26;
@@ -580,10 +581,11 @@ public class LoggerMap extends MapActivity
       notemenu.add( ContextMenu.NONE, MENU_PICTURE, ContextMenu.NONE, R.string.menu_notepicture );
       notemenu.add( ContextMenu.NONE, MENU_TEXT, ContextMenu.NONE, R.string.menu_notetext );
       notemenu.add( ContextMenu.NONE, MENU_SPEECH, ContextMenu.NONE, R.string.menu_notespeech );
+      notemenu.add( ContextMenu.NONE, MENU_VIDEO, ContextMenu.NONE, R.string.menu_notevideo );
 
       menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
       menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
-      menu.add( ContextMenu.NONE, MENU_ITEM_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
+      menu.add( ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
       return result;
    }
 
@@ -628,22 +630,28 @@ public class LoggerMap extends MapActivity
             }
             handled = true;
             break;
-         case MENU_ITEM_ABOUT:
+         case MENU_ABOUT:
             Intent intent = new Intent( AboutIntents.ACTION_SHOW_ABOUT_DIALOG );
             try
             {
-               startActivityForResult( intent, MENU_ITEM_ABOUT );
+               startActivityForResult( intent, MENU_ABOUT );
             }
             catch (ActivityNotFoundException e)
             {
                showDialog( DIALOG_INSTALL_ABOUT );
             }
+            break;
          case MENU_PICTURE:
-            takePicture();
+            addPicture();
+            handled = true;
+            break;
+         case MENU_VIDEO:
+            addVideo();
             handled = true;
             break;
          default:
             handled = super.onOptionsItemSelected( item );
+            break;
       }
       return handled;
    }
@@ -783,6 +791,7 @@ public class LoggerMap extends MapActivity
       if( resultCode != RESULT_CANCELED )
       {
          String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+         File file;
          switch (requestCode)
          {
             case MENU_TRACKLIST:
@@ -790,11 +799,11 @@ public class LoggerMap extends MapActivity
                long trackId = extras.getLong( Constants.EXTRA_TRACK_ID );
                moveToTrack( trackId, true );
                break;
-            case MENU_ITEM_ABOUT:
+            case MENU_ABOUT:
                break;
             case MENU_PICTURE:
-               File file = new File( sdcard + Constants.TMPICTUREFILE_PATH );
-               String newName = String.format( "Track_%d_Segment_%d_Waypoint_%d.jpg", mTrackId, mLastSegment, mLastWaypoint );
+               file = new File( sdcard + Constants.TMPICTUREFILE_PATH );
+               String newName = String.format( "Image_Track_%d_Segment_%d_Waypoint_%d.jpg", mTrackId, mLastSegment, mLastWaypoint );
                File newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.renameTo( newFile );
                Log.d( TAG, "Picture stored at: " + file );
@@ -808,11 +817,16 @@ public class LoggerMap extends MapActivity
                   e.printStackTrace();
                }
                break;
-            //File file = new File( Environment.getExternalStorageDirectory() +Constants.EXTERNAL_DIR+filename);
-            /*
-             * try { Uri.parse(android.provider.MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), null, null)); } catch (FileNotFoundException e) { e.printStackTrace();
-             * }(
-             */
+            case MENU_VIDEO:
+               file = new File( sdcard + Constants.TMPICTUREFILE_PATH );
+               newName = String.format( "Video_Track_%d_Segment_%d_Waypoint_%d.jpg", mTrackId, mLastSegment, mLastWaypoint );
+               newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
+               file.renameTo( newFile );
+               Log.d( TAG, "Video stored at: " + file );
+               break;
+            default:
+               Log.e( TAG, "Returned form unknow activity: "+requestCode );
+               break;
          }
       }
    }
@@ -1208,12 +1222,26 @@ public class LoggerMap extends MapActivity
    /***
     * Collecting additional data
     */
-   private void takePicture()
+   private void addPicture()
    {
       Intent i = new Intent( android.provider.MediaStore.ACTION_IMAGE_CAPTURE );
       File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.TMPICTUREFILE_PATH );
       Log.d( TAG, "Picture requested at: " + file );
       i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
+      i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
       startActivityForResult( i, MENU_PICTURE );
+   }
+   
+   /***
+    * Collecting additional data
+    */
+   private void addVideo()
+   {
+      Intent i = new Intent( android.provider.MediaStore.ACTION_VIDEO_CAPTURE );
+      File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.TMPICTUREFILE_PATH );
+      Log.d( TAG, "Video requested at: " + file );
+      i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
+      i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
+      startActivityForResult( i, MENU_VIDEO );
    }
 }
