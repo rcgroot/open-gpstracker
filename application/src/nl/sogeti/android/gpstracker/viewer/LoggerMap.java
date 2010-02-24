@@ -819,7 +819,7 @@ public class LoggerMap extends MapActivity
                break;
             case MENU_VIDEO:
                file = new File( sdcard + Constants.TMPICTUREFILE_PATH );
-               newName = String.format( "Video_Track_%d_Segment_%d_Waypoint_%d.jpg", mTrackId, mLastSegment, mLastWaypoint );
+               newName = String.format( "Video_Track_%d_Segment_%d_Waypoint_%d.3gp", mTrackId, mLastSegment, mLastWaypoint );
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.renameTo( newFile );
                Log.d( TAG, "Video stored at: " + file );
