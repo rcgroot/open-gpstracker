@@ -31,7 +31,6 @@ package nl.sogeti.android.gpstracker.viewer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.Set;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
