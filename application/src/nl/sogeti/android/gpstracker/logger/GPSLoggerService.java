@@ -341,7 +341,11 @@ public class GPSLoggerService extends Service
    {
       if( this.mLoggingState == Constants.PAUSED )
       {
-         startNewSegment();
+
+         if( mPrecision != LOGGING_GLOBAL )
+         {
+            startNewSegment();
+         }
          requestLocationUpdates();
          this.mLocationManager.addGpsStatusListener( this.mStatusListener );
          this.mLoggingState = Constants.LOGGING;
