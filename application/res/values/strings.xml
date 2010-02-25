@@ -20,6 +20,10 @@
     <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
     <string name="dialog_layer_title">Activate overlays</string>
     <string name="dialog_graphtype_title">Graph type</string>
+    <string name="dialog_notetexttitle">Text note</string>
+    <string name="dialog_notetext_message">Enter a text note for the current location</string>
+    <string name="dialog_notenametitle">Mark</string>
+    <string name="dialog_notename_message">Enter the name of this location</string>
     
     <string name="layer_satellite">Satellite</string>
     <string name="layer_traffic">Traffic</string>
@@ -41,6 +45,7 @@
 	<string name="btn_save">Save</string>
 	<string name="btn_selecttrack">Select track</string>
     <string name="btn_install">Install</string>
+    <string name="btn_skip">Skip</string>
 	
 	<string name="menu_settings">Settings</string>
     <string name="menu_tracking">Tracking</string>
@@ -57,7 +62,7 @@
     <string name="menu_showLayers">Overlays</string>
     <string name="menu_graphtype">Graph type</string>
     <string name="menu_insertnote">Make note</string>
-    <string name="menu_notename">Set Name</string>
+    <string name="menu_notename">Mark with a name</string>
     <string name="menu_notepicture">Take Picture</string>
     <string name="menu_notetext">Write Text</string>
     <string name="menu_notespeech">Record Speech</string>

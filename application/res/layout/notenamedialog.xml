@@ -1,0 +1,17 @@
+<LinearLayout
+   android:id="@+id/LinearLayout01"
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   android:orientation="vertical"
+   android:layout_width="fill_parent"
+   android:layout_height="wrap_content"
+>
+
+   <EditText
+      android:clickable="true"
+      android:singleLine="true"
+      android:id="@+id/notenameField"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+   ></EditText>
+
+</LinearLayout>

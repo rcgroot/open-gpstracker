@@ -70,6 +70,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -110,13 +111,15 @@ public class LoggerMap extends MapActivity
    private static final int MENU_NAME = 8;
    private static final int MENU_PICTURE = 9;
    private static final int MENU_TEXT = 10;
-   private static final int MENU_SPEECH = 11;
+   private static final int MENU_VOICE = 11;
    private static final int MENU_VIDEO = 12;
    private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_LOGCONTROL = 26;
    private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
+   private static final int DIALOG_TEXT = 32;
+   private static final int DIALOG_NAME = 33;
    private static final String TAG = "OGT.LoggerMap";
    private MapView mMapView = null;
    private MyLocationOverlay mMylocation;
@@ -579,9 +582,9 @@ public class LoggerMap extends MapActivity
       SubMenu notemenu = menu.addSubMenu( ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote ).setIcon( R.drawable.ic_menu_myplaces );
       notemenu.add( ContextMenu.NONE, MENU_NAME, ContextMenu.NONE, R.string.menu_notename );
       notemenu.add( ContextMenu.NONE, MENU_PICTURE, ContextMenu.NONE, R.string.menu_notepicture );
-      notemenu.add( ContextMenu.NONE, MENU_TEXT, ContextMenu.NONE, R.string.menu_notetext );
-      notemenu.add( ContextMenu.NONE, MENU_SPEECH, ContextMenu.NONE, R.string.menu_notespeech );
       notemenu.add( ContextMenu.NONE, MENU_VIDEO, ContextMenu.NONE, R.string.menu_notevideo );
+      notemenu.add( ContextMenu.NONE, MENU_TEXT, ContextMenu.NONE, R.string.menu_notetext );
+      notemenu.add( ContextMenu.NONE, MENU_VOICE, ContextMenu.NONE, R.string.menu_notespeech );
 
       menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
       menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
@@ -649,6 +652,18 @@ public class LoggerMap extends MapActivity
             addVideo();
             handled = true;
             break;
+         case MENU_VOICE:
+            addVoice();
+            handled = true;
+            break;
+         case MENU_TEXT:
+            showDialog( DIALOG_TEXT );
+            handled = true;
+            break;
+         case MENU_NAME:
+            addMediaUriToTrack( null );
+            handled = true;
+            break;
          default:
             handled = super.onOptionsItemSelected( item );
             break;
@@ -674,8 +689,12 @@ public class LoggerMap extends MapActivity
             factory = LayoutInflater.from( this );
             view = factory.inflate( R.layout.namedialog, null );
             mTrackNameView = (EditText) view.findViewById( R.id.nameField );
-            builder.setTitle( R.string.dialog_routename_title ).setMessage( R.string.dialog_routename_message ).setIcon( android.R.drawable.ic_dialog_alert ).setPositiveButton( R.string.btn_okay,
-                  mTrackNameDialogListener ).setView( view );
+            builder
+               .setTitle( R.string.dialog_routename_title )
+               .setMessage( R.string.dialog_routename_message )
+               .setIcon( android.R.drawable.ic_dialog_alert )
+               .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener )
+               .setView( view );
             dialog = builder.create();
             return dialog;
          case DIALOG_LAYERS:
@@ -692,26 +711,69 @@ public class LoggerMap extends MapActivity
             mCompass.setOnCheckedChangeListener( mCheckedChangeListener );
             mLocation = (CheckBox) view.findViewById( R.id.layer_location );
             mLocation.setOnCheckedChangeListener( mCheckedChangeListener );
-            builder.setTitle( R.string.dialog_layer_title ).setIcon( android.R.drawable.ic_dialog_map ).setPositiveButton( R.string.btn_okay, null ).setView( view );
+            builder
+               .setTitle( R.string.dialog_layer_title )
+               .setIcon( android.R.drawable.ic_dialog_map )
+               .setPositiveButton( R.string.btn_okay, null )
+               .setView( view );
             dialog = builder.create();
             return dialog;
          case DIALOG_NOTRACK:
             builder = new AlertDialog.Builder( this );
-            builder.setTitle( R.string.dialog_notrack_title ).setMessage( R.string.dialog_notrack_message ).setIcon( android.R.drawable.ic_dialog_alert ).setPositiveButton( R.string.btn_selecttrack,
-                  mNoTrackDialogListener ).setNegativeButton( R.string.btn_cancel, null );
+            builder
+               .setTitle( R.string.dialog_notrack_title )
+               .setMessage( R.string.dialog_notrack_message )
+               .setIcon( android.R.drawable.ic_dialog_alert )
+               .setPositiveButton( R.string.btn_selecttrack, mNoTrackDialogListener )
+               .setNegativeButton( R.string.btn_cancel, null );
             dialog = builder.create();
             return dialog;
          case DIALOG_LOGCONTROL:
             builder = new AlertDialog.Builder( this );
             factory = LayoutInflater.from( this );
             view = factory.inflate( R.layout.logcontrol, null );
-            builder.setTitle( R.string.dialog_tracking_title ).setIcon( android.R.drawable.ic_dialog_alert ).setNegativeButton( R.string.btn_cancel, null ).setView( view );
+            builder  
+               .setTitle( R.string.dialog_tracking_title )
+               .setIcon( android.R.drawable.ic_dialog_alert )
+               .setNegativeButton( R.string.btn_cancel, null )
+               .setView( view );
             dialog = builder.create();
             return dialog;
          case DIALOG_INSTALL_ABOUT:
             builder = new AlertDialog.Builder( this );
-            builder.setTitle( R.string.dialog_nooiabout ).setMessage( R.string.dialog_nooiabout_message ).setIcon( android.R.drawable.ic_dialog_alert ).setPositiveButton( R.string.btn_install,
-                  mOiAboutDialogListener ).setNegativeButton( R.string.btn_cancel, null );
+            builder
+               .setTitle( R.string.dialog_nooiabout )
+               .setMessage( R.string.dialog_nooiabout_message )
+               .setIcon( android.R.drawable.ic_dialog_alert )
+               .setPositiveButton( R.string.btn_install, mOiAboutDialogListener )
+               .setNegativeButton( R.string.btn_cancel, null );
+            dialog = builder.create();
+            return dialog;
+         case DIALOG_TEXT:
+            builder = new AlertDialog.Builder( this );
+            factory = LayoutInflater.from( this );
+            view = factory.inflate( R.layout.notetextdialog, null );
+            builder
+               .setTitle( R.string.dialog_notetexttitle )
+               .setMessage( R.string.dialog_notetext_message )
+               .setIcon( android.R.drawable.ic_dialog_map )
+               .setPositiveButton( R.string.btn_okay, null )
+               .setNegativeButton( R.string.btn_cancel, null )
+               .setView( view );
+            dialog = builder.create();
+            return dialog;
+         case DIALOG_NAME:
+            builder = new AlertDialog.Builder( this );
+            factory = LayoutInflater.from( this );
+            view = factory.inflate( R.layout.notenamedialog, null );
+            builder
+               .setTitle( R.string.dialog_notenametitle )
+               .setMessage( R.string.dialog_notename_message )
+               .setIcon( android.R.drawable.ic_dialog_map )
+               .setPositiveButton( R.string.btn_okay, null )
+               .setNeutralButton( R.string.btn_cancel, null )
+               .setNegativeButton( R.string.btn_skip, null )
+               .setView( view );
             dialog = builder.create();
             return dialog;
          default:
@@ -792,6 +854,7 @@ public class LoggerMap extends MapActivity
       {
          String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
          File file;
+         Uri uri;
          switch (requestCode)
          {
             case MENU_TRACKLIST:
@@ -806,6 +869,7 @@ public class LoggerMap extends MapActivity
                String newName = String.format( "Image_Track_%d_Segment_%d_Waypoint_%d.jpg", mTrackId, mLastSegment, mLastWaypoint );
                File newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.renameTo( newFile );
+               addMediaUriToTrack( Uri.fromFile( file ) );
                Log.d( TAG, "Picture stored at: " + file );
                try
                {
@@ -822,10 +886,16 @@ public class LoggerMap extends MapActivity
                newName = String.format( "Video_Track_%d_Segment_%d_Waypoint_%d.3gp", mTrackId, mLastSegment, mLastWaypoint );
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.renameTo( newFile );
+               addMediaUriToTrack( Uri.fromFile( file ) );
                Log.d( TAG, "Video stored at: " + file );
                break;
+            case MENU_VOICE:
+               uri = Uri.parse( data.getDataString() );
+               addMediaUriToTrack(  uri );
+               Log.d( TAG, "Voice stored at: " + uri );
+               break;
             default:
-               Log.e( TAG, "Returned form unknow activity: "+requestCode );
+               Log.e( TAG, "Returned form unknow activity: " + requestCode );
                break;
          }
       }
@@ -1231,7 +1301,7 @@ public class LoggerMap extends MapActivity
       i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
       startActivityForResult( i, MENU_PICTURE );
    }
-   
+
    /***
     * Collecting additional data
     */
@@ -1244,4 +1314,20 @@ public class LoggerMap extends MapActivity
       i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
       startActivityForResult( i, MENU_VIDEO );
    }
+
+   private void addVoice()
+   {
+      Intent intent = new Intent( Media.RECORD_SOUND_ACTION );
+      startActivityForResult( intent, MENU_VOICE );
+   }
+
+   private void addMediaUriToTrack( Uri storedMedia )
+   {
+      showDialog( DIALOG_NAME );
+         //TODO
+   }
+
+   /**
+    * 
+    */
 }
