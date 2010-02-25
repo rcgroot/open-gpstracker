@@ -69,13 +69,12 @@ import android.widget.Toast;
  */
 /**
  * ????
- *
+ * 
  * @version $Id$
  * @author rene (c) Jan 22, 2010, Sogeti B.V.
- */ 
-public class GPSLoggerService extends Service 
-{  
-
+ */
+public class GPSLoggerService extends Service
+{
 
    /**
     * <code>MAX_REASONABLE_SPEED</code> is about 250 kilometer per hour or 155 mile per hour.
@@ -90,27 +89,27 @@ public class GPSLoggerService extends Service
    private static final String SERVICESTATE_PRECISION = "SERVICESTATE_PRECISION";
    private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
    private static final String SERVICESTATE_TRACKID = "SERVICESTATE_TRACKID";
-   
+
    private Context mContext;
    private LocationManager mLocationManager;
    private NotificationManager mNoticationManager;
-   private PowerManager.WakeLock mWakeLock ;
-   
+   private PowerManager.WakeLock mWakeLock;
+
    private boolean mSpeedSanityCheck;
    private long mTrackId = -1;
-   private long mSegmentId = -1 ;
+   private long mSegmentId = -1;
    private int mPrecision;
    private int mLoggingState = Constants.STOPPED;
-   
-   private Location mPreviousLocation;  
+
+   private Location mPreviousLocation;
    private Notification mNotification;
-   
+
    private Vector<Location> mWeakLocations;
-   
+
    /**
     * <code>mAcceptableAccuracy</code> indicates the maximum acceptable accuracy of a waypoint in meters.
     */
-   private float mMaxAcceptableAccuracy  = 20;
+   private float mMaxAcceptableAccuracy = 20;
    private int mSatellites = 0;
 
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
@@ -121,7 +120,7 @@ public class GPSLoggerService extends Service
             {
                requestLocationUpdates();
                setupNotification();
-            } 
+            }
             else if( key.equals( Constants.SPEEDSANITYCHECK ) )
             {
                mSpeedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
@@ -133,7 +132,7 @@ public class GPSLoggerService extends Service
          public void onLocationChanged( Location location )
          {
             location = locationFilter( location );
-            if( location != null)
+            if( location != null )
             {
                storeLocation( GPSLoggerService.this.mContext, location );
             }
@@ -152,22 +151,23 @@ public class GPSLoggerService extends Service
                startNewSegment();
             }
          }
+
          public void onStatusChanged( String provider, int status, Bundle extras )
          {
-               Log.w( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
+            Log.w( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
          }
       };
    private Listener mStatusListener = new GpsStatus.Listener()
       {
          public synchronized void onGpsStatusChanged( int event )
          {
-            switch( event )
+            switch (event)
             {
                case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                   GpsStatus status = mLocationManager.getGpsStatus( null );
                   mSatellites = 0;
                   Iterable<GpsSatellite> list = status.getSatellites();
-                  for( GpsSatellite satellite : list )
+                  for (GpsSatellite satellite : list)
                   {
                      if( satellite.usedInFix() )
                      {
@@ -210,6 +210,7 @@ public class GPSLoggerService extends Service
             GPSLoggerService.this.stopLogging();
          }
       };
+
    /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
     */
@@ -217,32 +218,30 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
-      mWeakLocations = new Vector<Location>(3);
+      mWeakLocations = new Vector<Location>( 3 );
       mLoggingState = Constants.STOPPED;
       mContext = getApplicationContext();
       mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
       mNoticationManager = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
       mNoticationManager.cancel( R.layout.map );
-            
+
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this.mContext );
       mSpeedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( Constants.LOGATSTARTUP, false );
-//      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
+      //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
       crashRestoreState();
       if( startImmidiatly && mLoggingState == Constants.STOPPED )
       {
          startLogging();
          ContentValues values = new ContentValues();
-         values.put( Tracks.NAME, "Recorded at startup");
-         getContentResolver().update(
-               ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ), 
-               values, null, null );
+         values.put( Tracks.NAME, "Recorded at startup" );
+         getContentResolver().update( ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ), values, null, null );
       }
    }
 
    /**
-    * 
     * (non-Javadoc)
+    * 
     * @see android.app.Service#onDestroy()
     */
    @Override
@@ -262,7 +261,7 @@ public class GPSLoggerService extends Service
       editor.putInt( SERVICESTATE_STATE, mLoggingState );
       editor.commit();
    }
-   
+
    private void crashRestoreState()
    {
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mContext );
@@ -271,7 +270,7 @@ public class GPSLoggerService extends Service
       {
          Log.w( TAG, "Recovering from a crash or kill and restoring state." );
          setupNotification();
-         
+
          mTrackId = preferences.getLong( SERVICESTATE_TRACKID, -1 );
          mSegmentId = preferences.getLong( SERVICESTATE_SEGMENTID, -1 );
          mPrecision = preferences.getInt( SERVICESTATE_PRECISION, -1 );
@@ -285,21 +284,23 @@ public class GPSLoggerService extends Service
             mLoggingState = Constants.LOGGING;
             pauseLogging();
          }
-      }      
+      }
    }
-   
+
    /**
     * (non-Javadoc)
+    * 
     * @see android.app.Service#onBind(android.content.Intent)
     */
    @Override
-   public IBinder onBind(Intent intent) 
+   public IBinder onBind( Intent intent )
    {
       return this.mBinder;
    }
 
    /**
     * (non-Javadoc)
+    * 
     * @see nl.sogeti.android.gpstracker.IGPSLoggerService#getLoggingState()
     */
    protected boolean isLogging()
@@ -309,11 +310,12 @@ public class GPSLoggerService extends Service
 
    /**
     * (non-Javadoc)
+    * 
     * @see nl.sogeti.android.gpstracker.IGPSLoggerService#startLogging()
     */
    protected synchronized long startLogging()
    {
-      startNewTrack() ;
+      startNewTrack();
       requestLocationUpdates();
       this.mLocationManager.addGpsStatusListener( this.mStatusListener );
       this.mLoggingState = Constants.LOGGING;
@@ -331,12 +333,13 @@ public class GPSLoggerService extends Service
          this.mLocationManager.removeGpsStatusListener( this.mStatusListener );
          this.mLocationManager.removeUpdates( this.mLocationListener );
          this.mLoggingState = Constants.PAUSED;
+         this.mPreviousLocation = null;
          updateWakeLock();
          updateNotification();
          crashProtectState();
       }
    }
-   
+
    protected synchronized void resumeLogging()
    {
       if( this.mLoggingState == Constants.PAUSED )
@@ -357,6 +360,7 @@ public class GPSLoggerService extends Service
 
    /**
     * (non-Javadoc)
+    * 
     * @see nl.sogeti.android.gpstracker.IGPSLoggerService#stopLogging()
     */
    protected synchronized void stopLogging()
@@ -373,42 +377,42 @@ public class GPSLoggerService extends Service
    private void setupNotification()
    {
       mNoticationManager.cancel( R.layout.map );
-      
+
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = this.getResources().getString( R.string.service_start );
-      long when = System.currentTimeMillis();         
-      
-      mNotification = new Notification(icon, tickerText, when);
+      long when = System.currentTimeMillis();
+
+      mNotification = new Notification( icon, tickerText, when );
       mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-      
+
       updateNotification();
    }
-   
+
    private void updateNotification()
    {
       CharSequence contentTitle = this.getResources().getString( R.string.app_name );
-      
+
       String precision = this.getResources().getStringArray( R.array.precision_choices )[mPrecision];
-      String state = this.getResources().getStringArray( R.array.state_choices )[mLoggingState-1];
+      String state = this.getResources().getStringArray( R.array.state_choices )[mLoggingState - 1];
       CharSequence contentText;
-      switch( mPrecision )
+      switch (mPrecision)
       {
-         case( LOGGING_GLOBAL ):
+         case ( LOGGING_GLOBAL ):
             contentText = this.getResources().getString( R.string.service_networkstatus, state, precision );
             break;
          default:
             contentText = this.getResources().getString( R.string.service_gpsstatus, state, precision, mSatellites );
             break;
       }
-      Intent notificationIntent = new Intent(this, LoggerMap.class);
+      Intent notificationIntent = new Intent( this, LoggerMap.class );
       notificationIntent.putExtra( Constants.EXTRA_TRACK_ID, mTrackId );
-      
-      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
-      mNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent); 
-      
+
+      PendingIntent contentIntent = PendingIntent.getActivity( this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK );
+      mNotification.setLatestEventInfo( this, contentTitle, contentText, contentIntent );
+
       mNoticationManager.notify( R.layout.map, mNotification );
    }
-   
+
    private void enabledGpsNotification()
    {
       mNoticationManager.cancel( R.id.icon );
@@ -416,22 +420,22 @@ public class GPSLoggerService extends Service
       Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
       toast.show();
    }
-   
+
    private void disabledGpsNotification()
    {
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = this.getResources().getString( R.string.service_gpsdisabled );
-      long when = System.currentTimeMillis();       
-      Notification gpsNotification = new Notification(icon, tickerText, when);
+      long when = System.currentTimeMillis();
+      Notification gpsNotification = new Notification( icon, tickerText, when );
       gpsNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-      
+
       CharSequence contentTitle = this.getResources().getString( R.string.app_name );
       CharSequence contentText = this.getResources().getString( R.string.service_gpsdisabled );
-      Intent notificationIntent = new Intent(this, LoggerMap.class);
+      Intent notificationIntent = new Intent( this, LoggerMap.class );
       notificationIntent.putExtra( Constants.EXTRA_TRACK_ID, mTrackId );
-      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
-      gpsNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
-      
+      PendingIntent contentIntent = PendingIntent.getActivity( this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK );
+      gpsNotification.setLatestEventInfo( this, contentTitle, contentText, contentIntent );
+
       mNoticationManager.notify( R.id.icon, gpsNotification );
    }
 
@@ -440,26 +444,26 @@ public class GPSLoggerService extends Service
       this.mLocationManager.removeUpdates( this.mLocationListener );
       mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( Constants.PRECISION, "1" ) ).intValue();
       //Log.d( TAG, "requestLocationUpdates to precision "+precision );
-      switch( mPrecision )
+      switch (mPrecision)
       {
-         case( LOGGING_FINE ): // Fine
-            mMaxAcceptableAccuracy  = 10f;
+         case ( LOGGING_FINE ): // Fine
+            mMaxAcceptableAccuracy = 10f;
             mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
             break;
-         case( LOGGING_NORMAL ): // Normal
-            mMaxAcceptableAccuracy  = 20f;
+         case ( LOGGING_NORMAL ): // Normal
+            mMaxAcceptableAccuracy = 20f;
             mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
             break;
-         case( LOGGING_COARSE ): // Coarse
-            mMaxAcceptableAccuracy  = 50f;
+         case ( LOGGING_COARSE ): // Coarse
+            mMaxAcceptableAccuracy = 50f;
             mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
             break;
-         case( LOGGING_GLOBAL ): // Global
-            mMaxAcceptableAccuracy  = 1000f;
-            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER , 300000l, 500F, this.mLocationListener );
+         case ( LOGGING_GLOBAL ): // Global
+            mMaxAcceptableAccuracy = 1000f;
+            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 300000l, 500F, this.mLocationListener );
             break;
          default:
-            Log.e( TAG, "Unknown precision "+mPrecision );
+            Log.e( TAG, "Unknown precision " + mPrecision );
             break;
       }
    }
@@ -470,7 +474,7 @@ public class GPSLoggerService extends Service
       {
          PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
          PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
-         this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG );
+         this.mWakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, TAG );
          this.mWakeLock.acquire();
       }
       else
@@ -478,29 +482,26 @@ public class GPSLoggerService extends Service
          if( this.mWakeLock != null )
          {
             this.mWakeLock.release();
-            this.mWakeLock = null ;
+            this.mWakeLock = null;
          }
       }
    }
 
    /**
-    * Some GPS waypoints received are of to low a quality for tracking use. Here we 
-    * filter those out.
+    * Some GPS waypoints received are of to low a quality for tracking use. Here we filter those out.
     * 
     * @param proposedLocation
-    * @return either the (cleaned) original or null when unacceptable 
+    * @return either the (cleaned) original or null when unacceptable
     */
    public Location locationFilter( Location proposedLocation )
    {
       boolean hasAccuracy = proposedLocation.hasAccuracy();
       float accuracy = proposedLocation.getAccuracy();
-      
-      
+
       // Do not log a waypoint which is more inaccurate then is configured to be acceptable
-      if(   hasAccuracy && 
-            accuracy > mMaxAcceptableAccuracy  )
+      if( hasAccuracy && accuracy > mMaxAcceptableAccuracy )
       {
-         Log.w( TAG, String.format("A weak location was recieved, lots of inaccuracy... (%f more then max %f)", accuracy, mMaxAcceptableAccuracy   ) );
+         Log.w( TAG, String.format( "A weak location was recieved, lots of inaccuracy... (%f more then max %f)", accuracy, mMaxAcceptableAccuracy ) );
          mWeakLocations.add( proposedLocation );
          if( mWeakLocations.size() < 3 )
          {
@@ -511,14 +512,11 @@ public class GPSLoggerService extends Service
             return collectLeastBad();
          }
       }
-      
-      
+
       // Do not log a waypoint which might be on any side of the previous waypoint
-      if(   hasAccuracy &&
-            mPreviousLocation != null &&
-            accuracy > mPreviousLocation.distanceTo( proposedLocation ) )
+      if( hasAccuracy && mPreviousLocation != null && accuracy > mPreviousLocation.distanceTo( proposedLocation ) )
       {
-         Log.w( TAG, String.format("A weak location was recieved, not quite clear from the previous waypoint... (%f more then max %f)", accuracy, mPreviousLocation.distanceTo( proposedLocation ) ) );
+         Log.w( TAG, String.format( "A weak location was recieved, not quite clear from the previous waypoint... (%f more then max %f)", accuracy, mPreviousLocation.distanceTo( proposedLocation ) ) );
          mWeakLocations.add( proposedLocation );
          if( mWeakLocations.size() < 3 )
          {
@@ -529,25 +527,42 @@ public class GPSLoggerService extends Service
             return collectLeastBad();
          }
       }
-      
-      // The log we have appears fine enough, just to remove the speed if it is weird (common on at least G1 GPS)
-      if(mSpeedSanityCheck &&
-            proposedLocation.hasSpeed() && 
-            proposedLocation.getSpeed() > MAX_REASONABLE_SPEED )
+
+      if( mPrecision == LOGGING_GLOBAL && this.mPreviousLocation != null )
       {
-         Log.w( TAG, "A strange location was recieved, a really high speed, prob wrong...");
-         proposedLocation.removeSpeed();
+         // To avoid near instant teleportation on network location or glitches cause continent hopping
+         float meters = proposedLocation.distanceTo( mPreviousLocation );
+         long seconds = ( proposedLocation.getTime() - mPreviousLocation.getTime() ) / 1000L;
+         if( meters/seconds > MAX_REASONABLE_SPEED )
+         {
+            // To fast a location change to be likely
+            return null;
+         }
+         else
+         {
+            mWeakLocations.clear();
+            return proposedLocation;
+         }
       }
-      mWeakLocations.clear();
-      return proposedLocation;
+      else
+      {
+         // The log we have appears fine enough, just to remove the speed if it is weird (common on at least G1 GPS)
+         if( mSpeedSanityCheck && proposedLocation.hasSpeed() && proposedLocation.getSpeed() > MAX_REASONABLE_SPEED )
+         {
+            Log.w( TAG, "A strange location was recieved, a really high speed, prob wrong..." );
+            proposedLocation.removeSpeed();
+         }
+         mWeakLocations.clear();
+         return proposedLocation;
+      }
    }
 
    private Location collectLeastBad()
    {
       Location best = mWeakLocations.lastElement();
-      for( Location whimp: mWeakLocations )
+      for (Location whimp : mWeakLocations)
       {
-         if( whimp.hasAccuracy() && best.hasAccuracy() && whimp.getAccuracy() < best.getAccuracy())
+         if( whimp.hasAccuracy() && best.hasAccuracy() && whimp.getAccuracy() < best.getAccuracy() )
          {
             best = whimp;
          }
@@ -566,38 +581,39 @@ public class GPSLoggerService extends Service
    /**
     * Trigged by events that start a new track
     */
-   private void startNewTrack() 
+   private void startNewTrack()
    {
       Uri newTrack = this.mContext.getContentResolver().insert( Tracks.CONTENT_URI, null );
-      mTrackId =  new Long(newTrack.getLastPathSegment()).longValue();
-      startNewSegment() ;
+      mTrackId = new Long( newTrack.getLastPathSegment() ).longValue();
+      startNewSegment();
    }
 
    /**
     * Trigged by events that start a new segment
     */
-   private void startNewSegment() 
+   private void startNewSegment()
    {
-      Uri newSegment = this.mContext.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments" ), null ); 
-      mSegmentId = new Long(newSegment.getLastPathSegment()).longValue();
+      Uri newSegment = this.mContext.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments" ), null );
+      mSegmentId = new Long( newSegment.getLastPathSegment() ).longValue();
    }
 
    /**
     * Use the ContentResolver mechanism to store a received location
+    * 
     * @param location
     */
-   public void storeLocation(Context context, Location location )
-   {   
+   public void storeLocation( Context context, Location location )
+   {
       mPreviousLocation = location;
       ContentValues args = new ContentValues();
-      
+
       args.put( Waypoints.LATITUDE, new Double( location.getLatitude() ) );
       args.put( Waypoints.LONGITUDE, new Double( location.getLongitude() ) );
       args.put( Waypoints.SPEED, new Float( location.getSpeed() ) );
       args.put( Waypoints.TIME, new Long( System.currentTimeMillis() ) );
-      
-//      Log.d( TAG, "Location based time sent to ContentProvider"+  DateFormat.getInstance().format(new Date( args.getAsLong( Waypoints.TIME ) ) ) );
-      
+
+      //      Log.d( TAG, "Location based time sent to ContentProvider"+  DateFormat.getInstance().format(new Date( args.getAsLong( Waypoints.TIME ) ) ) );
+
       if( location.hasAccuracy() )
       {
          args.put( Waypoints.ACCURACY, new Float( location.getAccuracy() ) );
@@ -605,14 +621,14 @@ public class GPSLoggerService extends Service
       if( location.hasAltitude() )
       {
          args.put( Waypoints.ALTITUDE, new Double( location.getAltitude() ) );
-         
+
       }
       if( location.hasBearing() )
       {
          args.put( Waypoints.BEARING, new Float( location.getBearing() ) );
       }
 
-      Uri waypointInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+mSegmentId+"/waypoints" );
+      Uri waypointInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints" );
       context.getContentResolver().insert( waypointInsertUri, args );
    }
 }
