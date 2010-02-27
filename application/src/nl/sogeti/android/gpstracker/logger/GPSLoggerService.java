@@ -607,7 +607,7 @@ public class GPSLoggerService extends Service
    protected void storeMediaUri( Uri mediaUri )
    {
       Log.d( TAG, "Retrieved MediaUri to store on track: "+mediaUri );
-      Location last = mLocationManager.getLastKnownLocation( LocationManager.GPS_PROVIDER );
+      Location last = mPreviousLocation ;
       if( last == null )
       {
          last = mLocationManager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
