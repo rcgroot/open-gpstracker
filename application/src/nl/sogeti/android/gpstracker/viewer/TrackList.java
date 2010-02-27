@@ -28,20 +28,14 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.util.Set;
-
-import org.openintents.intents.AboutIntents;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.logger.SettingsDialog;
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.SearchManager;
 import android.app.AlertDialog.Builder;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;

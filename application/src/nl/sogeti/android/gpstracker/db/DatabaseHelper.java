@@ -30,7 +30,6 @@ package nl.sogeti.android.gpstracker.db;
 
 import java.util.Date;
 
-import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.MediaColumns;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;

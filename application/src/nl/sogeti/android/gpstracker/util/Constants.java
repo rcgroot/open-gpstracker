@@ -2,7 +2,6 @@ package nl.sogeti.android.gpstracker.util;
 
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import android.net.Uri;
-import android.os.Environment;
 
 public class Constants
 {

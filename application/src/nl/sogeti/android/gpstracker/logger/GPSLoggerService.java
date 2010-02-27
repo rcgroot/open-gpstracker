@@ -608,16 +608,21 @@ public class GPSLoggerService extends Service
    {
       Log.d( TAG, "Retrieved MediaUri to store on track: "+mediaUri );
       Location last = mPreviousLocation ;
-      if( last == null )
-      {
-         last = mLocationManager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
-      }
-      if( last == null || mTrackId < 0 || mSegmentId < 0 || mWaypointId < 0 )
+      if( mTrackId < 0 || mSegmentId < 0 )
       {
          Log.e( TAG, "No location or track available to store this under" );
          return;
       }
-      storeLocation( last );
+      if( last == null || mWaypointId < 0)
+      {
+         last = mLocationManager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
+         storeLocation( last );
+      }
+      if( last == null || mWaypointId < 0)
+      {
+         Log.e( TAG, "No location or track available to store this under" );
+         return;
+      }
       Uri mediaInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints/" + mWaypointId+"/media" );
       ContentValues args = new ContentValues();
       args.put( Media.URI, mediaUri.toString() );
