@@ -349,6 +349,21 @@ public class GPStrackingProvider extends ContentProvider
             tableName = Waypoints.TABLE + " INNER JOIN " + Segments.TABLE + " ON "+ Segments.TABLE+"."+Segments._ID +"=="+ Waypoints.SEGMENT;
             whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
             break;
+         case TRACK_MEDIA:
+            tableName = Media.TABLE;
+            whereclause = Media.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
+            break;
+         case SEGMENT_MEDIA:
+            tableName = Media.TABLE;
+            whereclause = Media.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue()
+            + " and " + Media.SEGMENT + " = " + new Long( pathSegments.get( 3 ) ).longValue();
+            break;
+         case WAYPOINT_MEDIA:
+            tableName = Media.TABLE;
+            whereclause = Media.TRACK  + " = " + new Long( pathSegments.get( 1 ) ).longValue()
+            + " and " + Media.SEGMENT  + " = " + new Long( pathSegments.get( 3 ) ).longValue()
+            + " and " + Media.WAYPOINT + " = " + new Long( pathSegments.get( 5 ) ).longValue();
+            break;
          case SEARCH_SUGGEST_ID:
             tableName = Tracks.TABLE;
             if( selectionArgs[0] == null || selectionArgs[0].equals( "" ) )
