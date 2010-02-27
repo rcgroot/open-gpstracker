@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.db;
 
 import java.util.Date;
 
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.MediaColumns;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
@@ -61,7 +62,6 @@ class DatabaseHelper extends SQLiteOpenHelper
    {
       super( context, GPStracking.DATABASE_NAME, null, GPStracking.DATABASE_VERSION );
       this.mContext = context;
-
    }
 
    /*
@@ -74,6 +74,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       db.execSQL( Waypoints.CREATE_STATEMENT );
       db.execSQL( Segments.CREATE_STATMENT );
       db.execSQL( Tracks.CREATE_STATEMENT );
+      db.execSQL( Media.CREATE_STATEMENT );
    }
 
    /**
@@ -86,7 +87,7 @@ class DatabaseHelper extends SQLiteOpenHelper
    @Override
    public void onUpgrade( SQLiteDatabase db, int current, int targetVersion )
    {
-      // Log.d( TAG, "Upgrading db from "+current+" to "+targetVersion );
+      Log.d( TAG, "Upgrading db from "+current+" to "+targetVersion );
       if( current <= 5 )                      // From 1-5 to 6 (these before are the same before) 
       {
          current = 6;
@@ -103,7 +104,11 @@ class DatabaseHelper extends SQLiteOpenHelper
          }
          current = 8;
       }
-      
+      if( current == 8)                     // From 8 to 9 ( media Uri data ) 
+      {
+         db.execSQL( Media.CREATE_STATEMENT );
+         current = 9;
+      }
    }
 
    /**
@@ -164,7 +169,7 @@ class DatabaseHelper extends SQLiteOpenHelper
 
       Log.d( TAG, "Media stored in the datebase: "+mediaUri );
 
-      //sqldb.insert( Media.TABLE, null, args );
+      sqldb.insert( Media.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/media" );

@@ -926,7 +926,7 @@ public class LoggerMap extends MapActivity
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.getParentFile().mkdirs();
                file.renameTo( newFile );
-               this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( file ) );
+               this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( newFile ) );
                break;
             case MENU_VIDEO:
                file = new File( sdcard + Constants.TMPICTUREFILE_PATH );               
@@ -935,7 +935,7 @@ public class LoggerMap extends MapActivity
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.getParentFile().mkdirs();
                file.renameTo( newFile );
-               this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( file ) );
+               this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( newFile ) );
                break;
             case MENU_VOICE:
                uri = Uri.parse( data.getDataString() );

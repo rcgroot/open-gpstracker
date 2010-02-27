@@ -46,7 +46,7 @@ public final class GPStracking
    /** The name of the database file */
    static final String DATABASE_NAME = "GPSLOG.db";
    /** The version of the database schema */
-   static final int DATABASE_VERSION = 8;
+   static final int DATABASE_VERSION = 9;
 
    /**
     * This table contains tracks.
