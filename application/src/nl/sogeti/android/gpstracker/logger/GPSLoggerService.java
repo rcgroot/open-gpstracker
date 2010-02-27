@@ -209,6 +209,12 @@ public class GPSLoggerService extends Service
          {
             GPSLoggerService.this.stopLogging();
          }
+
+         public Uri storeMediaUri( Uri mediaUri ) throws RemoteException
+         {
+            GPSLoggerService.this.storeMediaUri( mediaUri );
+            return null;
+         }
       };
 
    /**
@@ -595,6 +601,12 @@ public class GPSLoggerService extends Service
    {
       Uri newSegment = this.mContext.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments" ), null );
       mSegmentId = new Long( newSegment.getLastPathSegment() ).longValue();
+   }
+
+   protected void storeMediaUri( Uri mediaUri )
+   {
+      // TODO Auto-generated method stub
+      Log.d( TAG, "Retrieved MediaUri to store on track: "+mediaUri );
    }
 
    /**

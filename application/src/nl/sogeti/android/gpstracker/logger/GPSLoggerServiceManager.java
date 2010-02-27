@@ -33,14 +33,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
 /**
- * 
  * Class to interact with the service that tracks and logs the locations
- *
+ * 
  * @version $Id$
  * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */
@@ -52,12 +52,11 @@ public class GPSLoggerServiceManager
    private IGPSLoggerServiceRemote mGPSLoggerRemote;
    private final Object mStartLock = new Object();
    private boolean mStarted = false;
-   
+
    /**
     * Class for interacting with the main interface of the service.
     */
    private ServiceConnection mServiceConnection = null;
-
 
    public GPSLoggerServiceManager(Context ctx)
    {
@@ -66,7 +65,7 @@ public class GPSLoggerServiceManager
 
    public int getLoggingState()
    {
-      synchronized( mStartLock ) 
+      synchronized (mStartLock)
       {
          int logging = Constants.UNKNOWN;
          try
@@ -74,11 +73,11 @@ public class GPSLoggerServiceManager
             if( this.mGPSLoggerRemote != null )
             {
                logging = this.mGPSLoggerRemote.loggingState();
-//               Log.d( TAG, "mGPSLoggerRemote tells state to be "+logging );
+               //               Log.d( TAG, "mGPSLoggerRemote tells state to be "+logging );
             }
             else
             {
-               Log.w( TAG, "Remote interface to logging service not found. Started: "+mStarted );
+               Log.w( TAG, "Remote interface to logging service not found. Started: " + mStarted );
             }
          }
          catch (RemoteException e)
@@ -89,12 +88,12 @@ public class GPSLoggerServiceManager
       }
    }
 
-   public long startGPSLogging(String name)
+   public long startGPSLogging( String name )
    {
-      synchronized( mStartLock ) 
+      synchronized (mStartLock)
       {
-         if ( mStarted ) 
-         { 
+         if( mStarted )
+         {
             try
             {
                if( this.mGPSLoggerRemote != null )
@@ -110,13 +109,13 @@ public class GPSLoggerServiceManager
          return -1;
       }
    }
-   
+
    public void pauseGPSLogging()
    {
-      synchronized( mStartLock ) 
+      synchronized (mStartLock)
       {
-         if ( mStarted ) 
-         { 
+         if( mStarted )
+         {
             try
             {
                if( this.mGPSLoggerRemote != null )
@@ -131,13 +130,13 @@ public class GPSLoggerServiceManager
          }
       }
    }
-   
+
    public long resumeGPSLogging()
    {
-      synchronized( mStartLock ) 
+      synchronized (mStartLock)
       {
-         if ( mStarted ) 
-         { 
+         if( mStarted )
+         {
             try
             {
                if( this.mGPSLoggerRemote != null )
@@ -156,10 +155,10 @@ public class GPSLoggerServiceManager
 
    public void stopGPSLogging()
    {
-      synchronized( mStartLock ) 
+      synchronized (mStartLock)
       {
-         if ( mStarted  ) 
-         { 
+         if( mStarted )
+         {
             try
             {
                if( this.mGPSLoggerRemote != null )
@@ -172,7 +171,32 @@ public class GPSLoggerServiceManager
                Log.e( GPSLoggerServiceManager.REMOTE_EXCEPTION, "Could not stop GPSLoggerService.", e );
             }
          }
-         else 
+         else
+         {
+            Log.e( TAG, "No GPSLoggerRemote service connected to this manager" );
+         }
+      }
+   }
+
+   public void storeMediaUri( Uri mediaUri )
+   {
+      synchronized (mStartLock)
+      {
+         if( mStarted )
+         {
+            try
+            {
+               if( this.mGPSLoggerRemote != null )
+               {
+                  this.mGPSLoggerRemote.storeMediaUri( mediaUri );
+               }
+            }
+            catch (RemoteException e)
+            {
+               Log.e( GPSLoggerServiceManager.REMOTE_EXCEPTION, "Could not send media to GPSLoggerService.", e );
+            }
+         }
+         else
          {
             Log.e( TAG, "No GPSLoggerRemote service connected to this manager" );
          }
@@ -184,25 +208,26 @@ public class GPSLoggerServiceManager
     */
    public void startup()
    {
-//      Log.d( TAG, "connectToGPSLoggerService()" );
+      //      Log.d( TAG, "connectToGPSLoggerService()" );
       if( !mStarted )
       {
          this.mServiceConnection = new ServiceConnection()
             {
                public void onServiceConnected( ComponentName className, IBinder service )
                {
-                  synchronized( mStartLock ) 
+                  synchronized (mStartLock)
                   {
-//                     Log.d( TAG, "onServiceConnected()" );
+                     //                     Log.d( TAG, "onServiceConnected()" );
                      GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
                      mStarted = true;
                   }
                }
+
                public void onServiceDisconnected( ComponentName className )
                {
-                  synchronized( mStartLock ) 
+                  synchronized (mStartLock)
                   {
-//                     Log.d( TAG, "onServiceDisconnected()" );
+                     //                     Log.d( TAG, "onServiceDisconnected()" );
                      GPSLoggerServiceManager.this.mGPSLoggerRemote = null;
                      mStarted = false;
                   }
@@ -221,12 +246,12 @@ public class GPSLoggerServiceManager
     */
    public void shutdown()
    {
-//      Log.d( TAG, "disconnectFromGPSLoggerService()" );
+      //      Log.d( TAG, "disconnectFromGPSLoggerService()" );
       try
       {
          this.mCtx.unbindService( this.mServiceConnection );
       }
-      catch (IllegalArgumentException e) 
+      catch (IllegalArgumentException e)
       {
          Log.e( TAG, "Failed to unbind a service, prehaps the service disapearded?", e );
       }

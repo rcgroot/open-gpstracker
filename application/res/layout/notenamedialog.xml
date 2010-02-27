@@ -9,7 +9,7 @@
    <EditText
       android:clickable="true"
       android:singleLine="true"
-      android:id="@+id/notenameField"
+      android:id="@+id/notename"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
    ></EditText>

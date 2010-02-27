@@ -30,6 +30,9 @@ package nl.sogeti.android.gpstracker.viewer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
@@ -55,6 +58,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
@@ -83,6 +87,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.google.android.maps.GeoPoint;
@@ -135,6 +140,7 @@ public class LoggerMap extends MapActivity
    private long mTrackId = -1;
    private long mLastSegment = -1;
 
+   private long mLastWaypoint;
    private UnitsI18n mUnits;
    private WakeLock mWakeLock = null;
    private MapController mMapController = null;
@@ -303,8 +309,56 @@ public class LoggerMap extends MapActivity
             updateSpeedbarVisibility();
          }
       };
-   private long mLastWaypoint;
+   private OnClickListener mNoteTextDialogListener = new DialogInterface.OnClickListener()
+   {
 
+      public void onClick( DialogInterface dialog, int which )
+      {
+         String noteText = mNoteTextView.getText().toString();
+         Calendar c = Calendar.getInstance();
+         String newName = String.format( "Textnote_%tY-%tm-%td_%tH%tM%tS.txt", c, c, c, c, c, c );
+         String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+         File file = new File( sdcard + Constants.EXTERNAL_DIR + newName );
+         FileWriter filewriter = null;
+         try
+         {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            filewriter = new FileWriter( file );
+            filewriter.append( noteText );
+            filewriter.flush();
+         }
+         catch (IOException e)
+         {
+            Log.e( TAG, "Note storing failed", e );
+            CharSequence text = e.getLocalizedMessage();
+            Toast toast = Toast.makeText( LoggerMap.this.getApplicationContext(), text, Toast.LENGTH_LONG );
+            toast.show();
+         }
+         finally
+         {
+            if( filewriter!=null){ try { filewriter.close(); } catch (IOException e){ /* */ } }
+         }
+
+         
+         LoggerMap.this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( file ) );
+      }
+      
+   };
+   private OnClickListener mNoteNameDialogListener = new DialogInterface.OnClickListener()
+   {
+
+      public void onClick( DialogInterface dialog, int which )
+      {
+         String name = mNoteNameView.getText().toString();
+         Uri media = Uri.withAppendedPath( Constants.NAME_URI, Uri.encode( name ) );
+         LoggerMap.this.mLoggerServiceManager.storeMediaUri( media );
+      }
+      
+   };
+   private EditText mNoteNameView;
+   private EditText mNoteTextView;
+ 
    /**
     * Called when the activity is first created.
     */
@@ -580,10 +634,10 @@ public class LoggerMap extends MapActivity
 
       SubMenu notemenu = menu.addSubMenu( ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote ).setIcon( R.drawable.ic_menu_myplaces );
       notemenu.add( ContextMenu.NONE, MENU_NAME, ContextMenu.NONE, R.string.menu_notename );
-      notemenu.add( ContextMenu.NONE, MENU_PICTURE, ContextMenu.NONE, R.string.menu_notepicture );
-      notemenu.add( ContextMenu.NONE, MENU_VIDEO, ContextMenu.NONE, R.string.menu_notevideo );
       notemenu.add( ContextMenu.NONE, MENU_TEXT, ContextMenu.NONE, R.string.menu_notetext );
       notemenu.add( ContextMenu.NONE, MENU_VOICE, ContextMenu.NONE, R.string.menu_notespeech );
+      notemenu.add( ContextMenu.NONE, MENU_PICTURE, ContextMenu.NONE, R.string.menu_notepicture );
+      notemenu.add( ContextMenu.NONE, MENU_VIDEO, ContextMenu.NONE, R.string.menu_notevideo );
 
       menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
       menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
@@ -660,7 +714,7 @@ public class LoggerMap extends MapActivity
             handled = true;
             break;
          case MENU_NAME:
-            addMediaUriToTrack( null );
+            showDialog( DIALOG_NAME );
             handled = true;
             break;
          default:
@@ -752,11 +806,12 @@ public class LoggerMap extends MapActivity
             builder = new AlertDialog.Builder( this );
             factory = LayoutInflater.from( this );
             view = factory.inflate( R.layout.notetextdialog, null );
+            mNoteTextView = (EditText) view.findViewById( R.id.notetext );
             builder
                .setTitle( R.string.dialog_notetexttitle )
                .setMessage( R.string.dialog_notetext_message )
                .setIcon( android.R.drawable.ic_dialog_map )
-               .setPositiveButton( R.string.btn_okay, null )
+               .setPositiveButton( R.string.btn_okay, mNoteTextDialogListener )
                .setNegativeButton( R.string.btn_cancel, null )
                .setView( view );
             dialog = builder.create();
@@ -765,13 +820,13 @@ public class LoggerMap extends MapActivity
             builder = new AlertDialog.Builder( this );
             factory = LayoutInflater.from( this );
             view = factory.inflate( R.layout.notenamedialog, null );
+            mNoteNameView = (EditText) view.findViewById( R.id.notename );
             builder
                .setTitle( R.string.dialog_notenametitle )
                .setMessage( R.string.dialog_notename_message )
                .setIcon( android.R.drawable.ic_dialog_map )
-               .setPositiveButton( R.string.btn_okay, null )
-               .setNeutralButton( R.string.btn_cancel, null )
-               .setNegativeButton( R.string.btn_skip, null )
+               .setPositiveButton( R.string.btn_okay, mNoteNameDialogListener )
+               .setNegativeButton( R.string.btn_cancel, null )
                .setView( view );
             dialog = builder.create();
             return dialog;
@@ -854,6 +909,8 @@ public class LoggerMap extends MapActivity
          String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
          File file;
          Uri uri;
+         File newFile;
+         String newName;
          switch (requestCode)
          {
             case MENU_TRACKLIST:
@@ -865,32 +922,26 @@ public class LoggerMap extends MapActivity
                break;
             case MENU_PICTURE:
                file = new File( sdcard + Constants.TMPICTUREFILE_PATH );
-               String newName = String.format( "Image_Track_%d_Segment_%d_Waypoint_%d.jpg", mTrackId, mLastSegment, mLastWaypoint );
-               File newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
+               Calendar c = Calendar.getInstance();
+               newName =  String.format( "Imagenote_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c );
+               newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
+               file.getParentFile().mkdirs();
                file.renameTo( newFile );
-               addMediaUriToTrack( Uri.fromFile( file ) );
-               Log.d( TAG, "Picture stored at: " + file );
-               try
-               {
-                  android.provider.MediaStore.Images.Media.insertImage( getContentResolver(), newFile.getAbsolutePath(), null, null );
-               }
-               catch (FileNotFoundException e)
-               {
-                  Log.e( TAG, "Storing failed", e );
-                  e.printStackTrace();
-               }
+               this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( file ) );
                break;
             case MENU_VIDEO:
-               file = new File( sdcard + Constants.TMPICTUREFILE_PATH );
-               newName = String.format( "Video_Track_%d_Segment_%d_Waypoint_%d.3gp", mTrackId, mLastSegment, mLastWaypoint );
+               file = new File( sdcard + Constants.TMPICTUREFILE_PATH );               
+               c = Calendar.getInstance();
+               newName =  String.format( "Videonote_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c );
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
+               file.getParentFile().mkdirs();
                file.renameTo( newFile );
-               addMediaUriToTrack( Uri.fromFile( file ) );
-               Log.d( TAG, "Video stored at: " + file );
+               this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( file ) );
                break;
             case MENU_VOICE:
                uri = Uri.parse( data.getDataString() );
-               addMediaUriToTrack(  uri );
+               
+               this.mLoggerServiceManager.storeMediaUri(  uri );
                Log.d( TAG, "Voice stored at: " + uri );
                break;
             default:
@@ -1319,14 +1370,4 @@ public class LoggerMap extends MapActivity
       Intent intent = new Intent( Media.RECORD_SOUND_ACTION );
       startActivityForResult( intent, MENU_VOICE );
    }
-
-   private void addMediaUriToTrack( Uri storedMedia )
-   {
-      showDialog( DIALOG_NAME );
-         //TODO
-   }
-
-   /**
-    * 
-    */
 }

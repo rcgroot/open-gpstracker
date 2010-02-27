@@ -1,5 +1,7 @@
 package nl.sogeti.android.gpstracker.logger;
 
+import android.net.Uri;
+
 interface IGPSLoggerServiceRemote {
 
 	int loggingState();
@@ -7,4 +9,5 @@ interface IGPSLoggerServiceRemote {
     void pauseLogging();
     long resumeLogging();
 	void stopLogging();
+	Uri storeMediaUri(in Uri mediaUri);
 }
