@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.logger;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -98,6 +99,7 @@ public class GPSLoggerService extends Service
    private boolean mSpeedSanityCheck;
    private long mTrackId = -1;
    private long mSegmentId = -1;
+   private long mWaypointId = -1;
    private int mPrecision;
    private int mLoggingState = Constants.STOPPED;
 
@@ -134,7 +136,7 @@ public class GPSLoggerService extends Service
             location = locationFilter( location );
             if( location != null )
             {
-               storeLocation( GPSLoggerService.this.mContext, location );
+               storeLocation( location );
             }
          }
 
@@ -216,7 +218,6 @@ public class GPSLoggerService extends Service
             return null;
          }
       };
-
    /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
     */
@@ -605,8 +606,22 @@ public class GPSLoggerService extends Service
 
    protected void storeMediaUri( Uri mediaUri )
    {
-      // TODO Auto-generated method stub
       Log.d( TAG, "Retrieved MediaUri to store on track: "+mediaUri );
+      Location last = mLocationManager.getLastKnownLocation( LocationManager.GPS_PROVIDER );
+      if( last == null )
+      {
+         last = mLocationManager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
+      }
+      if( last == null || mTrackId < 0 || mSegmentId < 0 || mWaypointId < 0 )
+      {
+         Log.e( TAG, "No location or track available to store this under" );
+         return;
+      }
+      storeLocation( last );
+      Uri mediaInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints/" + mWaypointId+"/media" );
+      ContentValues args = new ContentValues();
+      args.put( Media.URI, mediaUri.toString() );
+      mContext.getContentResolver().insert( mediaInsertUri, args );
    }
 
    /**
@@ -614,7 +629,7 @@ public class GPSLoggerService extends Service
     * 
     * @param location
     */
-   public void storeLocation( Context context, Location location )
+   public void storeLocation( Location location )
    {
       mPreviousLocation = location;
       ContentValues args = new ContentValues();
@@ -623,9 +638,7 @@ public class GPSLoggerService extends Service
       args.put( Waypoints.LONGITUDE, new Double( location.getLongitude() ) );
       args.put( Waypoints.SPEED, new Float( location.getSpeed() ) );
       args.put( Waypoints.TIME, new Long( System.currentTimeMillis() ) );
-
       //      Log.d( TAG, "Location based time sent to ContentProvider"+  DateFormat.getInstance().format(new Date( args.getAsLong( Waypoints.TIME ) ) ) );
-
       if( location.hasAccuracy() )
       {
          args.put( Waypoints.ACCURACY, new Float( location.getAccuracy() ) );
@@ -641,6 +654,7 @@ public class GPSLoggerService extends Service
       }
 
       Uri waypointInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints" );
-      context.getContentResolver().insert( waypointInsertUri, args );
+      Uri inserted = mContext.getContentResolver().insert( waypointInsertUri, args );
+      mWaypointId = Long.parseLong( inserted.getLastPathSegment() );
    }
 }

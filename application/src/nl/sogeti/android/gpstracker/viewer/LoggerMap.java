@@ -940,9 +940,7 @@ public class LoggerMap extends MapActivity
                break;
             case MENU_VOICE:
                uri = Uri.parse( data.getDataString() );
-               
                this.mLoggerServiceManager.storeMediaUri(  uri );
-               Log.d( TAG, "Voice stored at: " + uri );
                break;
             default:
                Log.e( TAG, "Returned form unknow activity: " + requestCode );

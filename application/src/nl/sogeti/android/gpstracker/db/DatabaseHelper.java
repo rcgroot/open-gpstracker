@@ -30,6 +30,8 @@ package nl.sogeti.android.gpstracker.db;
 
 import java.util.Date;
 
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.db.GPStracking.MediaColumns;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;
@@ -140,12 +142,36 @@ class DatabaseHelper extends SQLiteOpenHelper
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"waypoints/"+waypointId );
-      resolver.notifyChange( notifyUri, null );    
+      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId );
+      resolver.notifyChange( notifyUri, null );
 
       return waypointId;
    }
    
+   void insertMedia( long trackId, long segmentId, long waypointId, String mediaUri )
+   {
+      if( trackId < 0 || segmentId < 0 || waypointId < 0 )
+      {
+         throw new IllegalArgumentException( "Track, segments and waypoint may not the less then 0." );
+      }
+      SQLiteDatabase sqldb = getWritableDatabase();
+      
+      ContentValues args = new ContentValues();
+      args.put( MediaColumns.TRACK, trackId );
+      args.put( MediaColumns.SEGMENT, segmentId );
+      args.put( MediaColumns.WAYPOINT, waypointId );
+      args.put( MediaColumns.URI, mediaUri );
+      
+
+      Log.d( TAG, "Media stored in the datebase: "+mediaUri );
+
+      //sqldb.insert( Media.TABLE, null, args );
+
+      ContentResolver resolver = this.mContext.getContentResolver();
+      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/media" );
+      resolver.notifyChange( notifyUri, null );
+   }
+
    /**
     * Deletes a single track and all underlying segments and waypoints
     * 

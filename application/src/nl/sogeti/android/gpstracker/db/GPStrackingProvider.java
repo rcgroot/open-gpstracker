@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.db;
 
 import java.util.List;
 
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -88,20 +89,21 @@ import android.util.Log;
 public class GPStrackingProvider extends ContentProvider
 {
 
-   private static final String LOG_TAG = GPStrackingProvider.class.getName();
+   private static final String TAG = "OGT.GPStrackingProvider";
 
    /* Action types as numbers for using the UriMatcher */
    private static final int TRACKS = 1;
-   private static final int TRACK_ID = 2;
-   private static final int TRACK_WAYPOINTS = 3;
-   private static final int SEGMENTS = 8;
-   private static final int SEGMENT_ID = 4;
-   private static final int WAYPOINTS = 7;
-   private static final int WAYPOINT_ID = 6;
-   private static final int SEARCH_SUGGEST_ID = 9;
-   private static final int LIVE_FOLDERS = 10;
-   
-   private static final String TAG = "OGT.GPStrackingProvider";
+   private static final int TRACK_ID = 2;   
+   private static final int TRACK_MEDIA = 3;
+   private static final int TRACK_WAYPOINTS = 4;
+   private static final int SEGMENTS = 5;
+   private static final int SEGMENT_ID = 6;
+   private static final int SEGMENT_MEDIA = 7;
+   private static final int WAYPOINTS = 8;
+   private static final int WAYPOINT_ID = 9;
+   private static final int WAYPOINT_MEDIA = 10;
+   private static final int SEARCH_SUGGEST_ID = 11;
+   private static final int LIVE_FOLDERS = 12;
    private static final String[] SUGGEST_PROJECTION = 
       new String[] 
         { 
@@ -119,7 +121,6 @@ public class GPStrackingProvider extends ContentProvider
             "datetime("+Tracks.CREATION_TIME+"/1000, 'unixepoch') as "+LiveFolders.DESCRIPTION
         };
 
-
    private static UriMatcher sURIMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 
    /**
@@ -130,11 +131,14 @@ public class GPStrackingProvider extends ContentProvider
       GPStrackingProvider.sURIMatcher = new UriMatcher( UriMatcher.NO_MATCH );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks", GPStrackingProvider.TRACKS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#", GPStrackingProvider.TRACK_ID );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/media", GPStrackingProvider.TRACK_MEDIA );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/waypoints", GPStrackingProvider.TRACK_WAYPOINTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments", GPStrackingProvider.SEGMENTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#", GPStrackingProvider.SEGMENT_ID );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/media", GPStrackingProvider.SEGMENT_MEDIA );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints", GPStrackingProvider.WAYPOINTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#", GPStrackingProvider.WAYPOINT_ID );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#/media", GPStrackingProvider.WAYPOINT_MEDIA );
       
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "live_folders/tracks", GPStrackingProvider.LIVE_FOLDERS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "search_suggest_query", GPStrackingProvider.SEARCH_SUGGEST_ID );
@@ -257,6 +261,14 @@ public class GPStrackingProvider extends ContentProvider
 //            Log.d( TAG, "Have inserted to segment "+segmentId+" with waypoint "+waypointId );
             insertedUri = ContentUris.withAppendedId( uri, waypointId );
             break;
+         case WAYPOINT_MEDIA:
+            pathSegments = uri.getPathSegments();
+            trackId = Integer.parseInt( pathSegments.get( 1 ) );
+            segmentId = Integer.parseInt( pathSegments.get( 3 ) );
+            waypointId = Integer.parseInt( pathSegments.get( 5 ) );
+            String mediaUri = values.getAsString( Media.URI );
+            this.mDbHelper.insertMedia( trackId, segmentId, waypointId, mediaUri );
+            break;
          case SEGMENTS:
             pathSegments = uri.getPathSegments();
             trackId = Integer.parseInt( pathSegments.get( 1 ) );
@@ -269,7 +281,7 @@ public class GPStrackingProvider extends ContentProvider
             insertedUri = ContentUris.withAppendedId( uri, trackId );
             break;
          default:
-            Log.e( GPStrackingProvider.LOG_TAG, "Unable to match the URI:" + uri.toString() );
+            Log.e( GPStrackingProvider.TAG, "Unable to match the insert URI: " + uri.toString() );
             insertedUri =  null;
             break;
       }
@@ -356,7 +368,7 @@ public class GPStrackingProvider extends ContentProvider
             projection = LIVE_PROJECTION;
             break;
          default:
-            Log.e( GPStrackingProvider.LOG_TAG, "Unable to come to an action in the query uri: " + uri.toString() );
+            Log.e( GPStrackingProvider.TAG, "Unable to come to an action in the query uri: " + uri.toString() );
             return null;
       }
 
@@ -408,7 +420,7 @@ public class GPStrackingProvider extends ContentProvider
             notifyUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) ;
             break;
          default:
-            Log.e( GPStrackingProvider.LOG_TAG, "Unable to come to an action in the query uri" + uri.toString() );
+            Log.e( GPStrackingProvider.TAG, "Unable to come to an action in the query uri" + uri.toString() );
             return -1;
       }
       

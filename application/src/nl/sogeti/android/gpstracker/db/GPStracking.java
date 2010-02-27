@@ -125,7 +125,30 @@ public final class GPStracking
             "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.ALTITUDE+ " " + WaypointsColumns.ALTITUDE_TYPE +";",
             "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.BEARING + " " + WaypointsColumns.BEARING_TYPE +";"
          };
-      		
+   }
+   
+   /**
+    * This table contains media URI's.
+    * 
+    * @author rene
+    */
+   public static final class Media extends MediaColumns implements android.provider.BaseColumns
+   {
+
+      /** The MIME type of a CONTENT_URI subdirectory of a single media entry. */
+      public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.nl.sogeti.android.media";
+      /** The MIME type of CONTENT_URI providing a directory of media entry. */
+      public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.media";
+      
+      /** The name of this table */
+      public static final String TABLE = "media";
+      static final String CREATE_STATEMENT = "CREATE TABLE " + Media.TABLE + 
+      "(" + " " + BaseColumns._ID + " " + MediaColumns._ID_TYPE + 
+      "," + " " + MediaColumns.TRACK + " " + MediaColumns.TRACK_TYPE + 
+      "," + " " + MediaColumns.SEGMENT + " " + MediaColumns.SEGMENT_TYPE + 
+      "," + " " + MediaColumns.WAYPOINT + " " + MediaColumns.WAYPOINT_TYPE + 
+      "," + " " + MediaColumns.URI + " " + MediaColumns.URI_TYPE + 
+      ");";
    }
    
    /**
@@ -138,7 +161,7 @@ public final class GPStracking
       /** The end time */
       public static final String NAME = "name";
       public static final String CREATION_TIME = "creationtime";
-      static final String CREATION_TIME_TYPE = "INTEGER NOT NULL";;
+      static final String CREATION_TIME_TYPE = "INTEGER NOT NULL";
       static final String NAME_TYPE = "TEXT";
       static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
    }
@@ -191,5 +214,23 @@ public final class GPStracking
       static final String BEARING_TYPE = "REAL";
       static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
    }
-
+   
+   /**
+    * Columns from the meia table.
+    * 
+    * @author rene
+    */
+   public static class MediaColumns
+   {
+      /** The track _id to which this segment belongs */
+      public static final String TRACK = "track";     
+      static final String TRACK_TYPE = "INTEGER NOT NULL";
+      public static final String SEGMENT = "segment";     
+      static final String SEGMENT_TYPE = "INTEGER NOT NULL";
+      public static final String WAYPOINT = "waypoint";     
+      static final String WAYPOINT_TYPE = "INTEGER NOT NULL";
+      public static final String URI = "uri";     
+      static final String URI_TYPE = "TEXT";
+      static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
+   }
 }
