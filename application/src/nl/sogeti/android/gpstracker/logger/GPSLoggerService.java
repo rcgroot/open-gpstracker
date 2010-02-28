@@ -412,7 +412,7 @@ public class GPSLoggerService extends Service
             break;
       }
       Intent notificationIntent = new Intent( this, LoggerMap.class );
-      notificationIntent.putExtra( Constants.EXTRA_TRACK_ID, mTrackId );
+      notificationIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ) );
 
       PendingIntent contentIntent = PendingIntent.getActivity( this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK );
       mNotification.setLatestEventInfo( this, contentTitle, contentText, contentIntent );
@@ -439,7 +439,7 @@ public class GPSLoggerService extends Service
       CharSequence contentTitle = this.getResources().getString( R.string.app_name );
       CharSequence contentText = this.getResources().getString( R.string.service_gpsdisabled );
       Intent notificationIntent = new Intent( this, LoggerMap.class );
-      notificationIntent.putExtra( Constants.EXTRA_TRACK_ID, mTrackId );
+      notificationIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ) );
       PendingIntent contentIntent = PendingIntent.getActivity( this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK );
       gpsNotification.setLatestEventInfo( this, contentTitle, contentText, contentIntent );
 

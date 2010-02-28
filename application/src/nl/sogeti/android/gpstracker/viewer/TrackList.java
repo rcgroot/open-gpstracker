@@ -322,21 +322,21 @@ public class TrackList extends ListActivity
       Cursor tracksCursor = null;
       if( Intent.ACTION_SEARCH.equals( queryAction ) )
       {
+         // Got to SEARCH a query for tracks, make a list
          tracksCursor = doSearchWithIntent( intent );
       }
       else if( Intent.ACTION_VIEW.equals( queryAction ) )
       {
-         long trackId = Long.parseLong( Uri.parse( intent.getDataString() ).getLastPathSegment() );
+         // Got to VIEW a single track, instead had it of to the LoggerMap
          Intent notificationIntent = new Intent( this, LoggerMap.class );
-         Intent trackIntent = notificationIntent;
-         trackIntent.putExtra( Constants.EXTRA_TRACK_ID, trackId );
-         startActivity( trackIntent );
+         notificationIntent.setData( intent.getData() );
+         startActivity( notificationIntent );
       }
       else
       {
+         // Got to nothing, make a list of everything
          tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
       }
-
       displayCursor( tracksCursor );
    }
 

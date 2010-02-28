@@ -466,14 +466,6 @@ public class LoggerMap extends MapActivity
    @Override
    public void onNewIntent( Intent newIntent )
    {
-      if( newIntent.getExtras() != null )
-      {
-         long intentTrackId = newIntent.getExtras().getLong( Constants.EXTRA_TRACK_ID, -1 );
-         if( intentTrackId >= 0 )
-         {
-            moveToTrack( intentTrackId, true );
-         }
-      }
       Uri data = newIntent.getData();
       if( data != null )
       {
@@ -488,8 +480,7 @@ public class LoggerMap extends MapActivity
       {
          super.onRestoreInstanceState( load );
       }
-
-      long intentTrackId = this.getIntent().getLongExtra( Constants.EXTRA_TRACK_ID, -1 );
+      long intentTrackId = Long.parseLong( this.getIntent().getData().getLastPathSegment() );
       if( intentTrackId >= 0 )
       {
          moveToTrack( intentTrackId, false );
