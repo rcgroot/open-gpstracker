@@ -478,26 +478,26 @@ public class LoggerMap extends MapActivity
    {
       if( load != null )
       {
+//         Log.d( TAG, "Restoring the prevoious map " );
          super.onRestoreInstanceState( load );
-      }
-      long intentTrackId = Long.parseLong( this.getIntent().getData().getLastPathSegment() );
-      if( intentTrackId >= 0 )
-      {
-         moveToTrack( intentTrackId, false );
-      }
+      }    
       Uri data = this.getIntent().getData();
-      if( data != null )
-      {
-         moveToTrack( Long.parseLong( data.getLastPathSegment() ), true );
-      }
-      else if( load != null && load.containsKey( "track" ) )
+      if( load != null && load.containsKey( "track" ) ) // 1st track from a previous instance of this activity
       {
          long loadTrackId = load.getLong( "track" );
+//         Log.d( TAG, "Moving to restored track "+loadTrackId );
          moveToTrack( loadTrackId, false );
       }
-      else
+      else if( data != null )                           // 2nd track ordered to make
       {
-         moveToLastTrack();
+         long loadTrackId = Long.parseLong( data.getLastPathSegment() );
+//         Log.d( TAG, "Moving to intented track "+loadTrackId );
+         moveToTrack( loadTrackId, true );
+      }
+      else 
+      {
+//         Log.d( TAG, "Moving to last track " );
+         moveToLastTrack();                             // 3rd just try the last track
       }
 
       if( load != null && load.containsKey( "zoom" ) )
@@ -1315,7 +1315,7 @@ public class LoggerMap extends MapActivity
          if( track != null && track.moveToLast() )
          {
             trackId = track.getInt( 0 );
-            moveToTrack( trackId, false );
+            moveToTrack( trackId, true );
          }
       }
       finally
