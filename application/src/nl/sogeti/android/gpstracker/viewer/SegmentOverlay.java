@@ -29,8 +29,10 @@
 package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.Constants;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -331,6 +333,7 @@ public class SegmentOverlay extends Overlay
             do
             {
                Long waypointId = mediaCursor.getLong( 0 );
+               Uri mediaUri = Uri.parse( mediaCursor.getString( 1 ) );
                Cursor waypointCursor = null;
                try
                {
@@ -345,8 +348,37 @@ public class SegmentOverlay extends Overlay
                      GeoPoint point = new GeoPoint( microLatitude, microLongitude );
 
                      setScreenPoint( point );
-                     Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.media );
-                     canvas.drawBitmap( bitmap, mScreenPoint.x - 12, mScreenPoint.y - 20, new Paint() );
+                     int drawable = 0 ;
+                     if( mediaUri.getScheme().equals( "file" ) )
+                     {
+                        if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
+                        {
+                           drawable = R.drawable.media_film;
+                        }
+                        else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
+                        {
+                           drawable = R.drawable.media_camera;
+                        }
+                        else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
+                        {
+                           drawable = R.drawable.media_notepad;
+                        }
+                     }
+                     else if( mediaUri.getScheme().equals( "content" ) )
+                     {
+                        if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY+".string" ) )
+                        {
+                           drawable = R.drawable.media_mark;
+                        }
+                        else if( mediaUri.getAuthority().equals( "media" ) )
+                        {
+                           drawable = R.drawable.media_speech;
+                        }
+                     }
+                     Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
+                     int left = (bitmap.getWidth()*3)/7;
+                     int up =   (bitmap.getHeight()*6)/7;
+                     canvas.drawBitmap( bitmap, mScreenPoint.x-left, mScreenPoint.y-up, new Paint() );
                   }
                }
                finally
