@@ -900,9 +900,9 @@ public class LoggerMap extends MapActivity
     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
     */
    @Override
-   protected void onActivityResult( int requestCode, int resultCode, Intent data )
+   protected void onActivityResult( int requestCode, int resultCode, Intent intent )
    {
-      super.onActivityResult( requestCode, resultCode, data );
+      super.onActivityResult( requestCode, resultCode, intent );
       if( resultCode != RESULT_CANCELED )
       {
          String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -913,8 +913,8 @@ public class LoggerMap extends MapActivity
          switch (requestCode)
          {
             case MENU_TRACKLIST:
-               Bundle extras = data.getExtras();
-               long trackId = extras.getLong( Constants.EXTRA_TRACK_ID );
+               Uri trackUri = intent.getData();
+               long trackId = Long.parseLong( trackUri.getLastPathSegment() );
                moveToTrack( trackId, true );
                break;
             case MENU_ABOUT:
@@ -938,7 +938,7 @@ public class LoggerMap extends MapActivity
                this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( newFile ) );
                break;
             case MENU_VOICE:
-               uri = Uri.parse( data.getDataString() );
+               uri = Uri.parse( intent.getDataString() );
                this.mLoggerServiceManager.storeMediaUri(  uri );
                break;
             default:

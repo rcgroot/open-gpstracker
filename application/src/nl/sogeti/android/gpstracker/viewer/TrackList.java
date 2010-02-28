@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.net.URI;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -138,21 +140,21 @@ public class TrackList extends ListActivity
       outState.putString( "NAME", mDialogCurrentName );
       super.onSaveInstanceState( outState );
    }
-   
+
    @Override
    public boolean onCreateOptionsMenu( Menu menu )
    {
       boolean result = super.onCreateOptionsMenu( menu );
-   
-      menu.add( ContextMenu.NONE, MENU_SEARCH, ContextMenu.NONE, android.R.string.search_go ).setIcon( android.R.drawable.ic_search_category_default).setAlphabeticShortcut( SearchManager.MENU_KEY );
+
+      menu.add( ContextMenu.NONE, MENU_SEARCH, ContextMenu.NONE, android.R.string.search_go ).setIcon( android.R.drawable.ic_search_category_default ).setAlphabeticShortcut( SearchManager.MENU_KEY );
       return result;
    }
-   
+
    @Override
    public boolean onOptionsItemSelected( MenuItem item )
    {
       boolean handled = false;
-      switch (item.getItemId())
+      switch( item.getItemId() )
       {
          case MENU_SEARCH:
             onSearchRequested();
@@ -168,13 +170,9 @@ public class TrackList extends ListActivity
    protected void onListItemClick( ListView l, View v, int position, long id )
    {
       super.onListItemClick( l, v, position, id );
-      
 
-      Bundle bundle = new Bundle();
-      bundle.putLong( Constants.EXTRA_TRACK_ID, id );
-      
       Intent intent = new Intent();
-      intent.putExtras( bundle );
+      intent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, id ) );
       
       ComponentName caller = this.getCallingActivity();
       if( caller != null )
@@ -216,7 +214,7 @@ public class TrackList extends ListActivity
       {
          info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
       }
-      catch (ClassCastException e)
+      catch( ClassCastException e )
       {
          Log.e( TAG, "Bad menuInfo", e );
          return handled;
@@ -225,7 +223,7 @@ public class TrackList extends ListActivity
       Cursor cursor = (Cursor) getListAdapter().getItem( info.position );
       mDialogUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
       mDialogCurrentName = cursor.getString( 1 );
-      switch (item.getItemId())
+      switch( item.getItemId() )
       {
          case MENU_DETELE:
          {
@@ -271,7 +269,7 @@ public class TrackList extends ListActivity
    {
       Dialog dialog = null;
       Builder builder = null;
-      switch (id)
+      switch( id )
       {
          case DIALOG_RENAME:
             LayoutInflater factory = LayoutInflater.from( this );
@@ -303,7 +301,7 @@ public class TrackList extends ListActivity
    protected void onPrepareDialog( int id, Dialog dialog )
    {
       super.onPrepareDialog( id, dialog );
-      switch (id)
+      switch( id )
       {
          case DIALOG_RENAME:
             mTrackNameView.setText( mDialogCurrentName );
@@ -328,8 +326,8 @@ public class TrackList extends ListActivity
       }
       else if( Intent.ACTION_VIEW.equals( queryAction ) )
       {
-         long trackId = Long.parseLong( Uri.parse(  intent.getDataString() ).getLastPathSegment() );
-         Intent notificationIntent = new Intent(this, LoggerMap.class);
+         long trackId = Long.parseLong( Uri.parse( intent.getDataString() ).getLastPathSegment() );
+         Intent notificationIntent = new Intent( this, LoggerMap.class );
          Intent trackIntent = notificationIntent;
          trackIntent.putExtra( Constants.EXTRA_TRACK_ID, trackId );
          startActivity( trackIntent );
@@ -338,7 +336,7 @@ public class TrackList extends ListActivity
       {
          tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
       }
-   
+
       displayCursor( tracksCursor );
    }
 

@@ -268,17 +268,15 @@ public class Statistics extends Activity
     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
     */
    @Override
-   protected void onActivityResult( int requestCode, int resultCode, Intent data )
+   protected void onActivityResult( int requestCode, int resultCode, Intent intent )
    {
-      super.onActivityResult( requestCode, resultCode, data );
+      super.onActivityResult( requestCode, resultCode, intent );
       if( resultCode != RESULT_CANCELED )
       {
          switch (requestCode)
          {
             case MENU_TRACKLIST:
-               Bundle extras = data.getExtras();
-               long trackId = extras.getLong( Tracks._ID );
-               mTrackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, "/"+trackId );
+               mTrackUri = intent.getData();
                drawTrackingStatistics();
                break;
          }
