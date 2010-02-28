@@ -57,7 +57,8 @@
     </string-array>
 
     <string-array name="about_artists" translatable="false">
-        <item>Various icons: The Android Open Source Project</item>
+        <item>Program icons: The Android Open Source Project</item>
+        <item>Bubbles icons: ICONS etc. MySiteMyWay</item>
     </string-array>
 
     <string-array name="about_translators" translatable="false">
