@@ -61,7 +61,7 @@ import com.google.android.maps.Projection;
  * @version $Id$
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */
-public class TrackingOverlay extends Overlay
+public class SegmentOverlay extends Overlay
 {
 
    public static final int MIDDLE_SEGMENT = 0;
@@ -83,7 +83,7 @@ public class TrackingOverlay extends Overlay
    private Context mContext;
    private Projection mProjection;
 
-   private int mPlacement = TrackingOverlay.MIDDLE_SEGMENT;
+   private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
    private Uri mSegmentUri;
    private double mAvgSpeed;
    private GeoPoint mTopLeft;
@@ -115,7 +115,7 @@ public class TrackingOverlay extends Overlay
     * @param avgSpeed
     * @param mapView
     */
-   public TrackingOverlay(Context cxt, Uri segmentUri, int color, double avgSpeed, MapView mapView)
+   public SegmentOverlay(Context cxt, Uri segmentUri, int color, double avgSpeed, MapView mapView)
    {
       super();
       this.mContext = cxt;
@@ -195,7 +195,7 @@ public class TrackingOverlay extends Overlay
     * @param canvas
     * @param mapView
     * @param shadow
-    * @see TrackingOverlay#draw(Canvas, MapView, boolean)
+    * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
    private void drawDots( Canvas canvas, MapView mapView )
    {
@@ -210,7 +210,7 @@ public class TrackingOverlay extends Overlay
     * @param canvas
     * @param mapView
     * @param shadow
-    * @see TrackingOverlay#draw(Canvas, MapView, boolean)
+    * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
    public void drawPath( Canvas canvas, MapView mapView )
    {
@@ -276,9 +276,9 @@ public class TrackingOverlay extends Overlay
    /**
     * Set the mPlace to the specified value.
     * 
-    * @see TrackingOverlay.FIRST
-    * @see TrackingOverlay.MIDDLE
-    * @see TrackingOverlay.LAST
+    * @see SegmentOverlay.FIRST
+    * @see SegmentOverlay.MIDDLE
+    * @see SegmentOverlay.LAST
     * @param place The placement of this segment in the line.
     */
    public void addPlacement( int place )

@@ -268,9 +268,9 @@ public class LoggerMap extends MapActivity
                List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
                for (Overlay overlay : overlays)
                {
-                  if( overlay instanceof TrackingOverlay )
+                  if( overlay instanceof SegmentOverlay )
                   {
-                     ( (TrackingOverlay) overlay ).setTrackColoringMethod( trackColoringMethod, mAverageSpeed );
+                     ( (SegmentOverlay) overlay ).setTrackColoringMethod( trackColoringMethod, mAverageSpeed );
                   }
                }
             }
@@ -1024,7 +1024,7 @@ public class LoggerMap extends MapActivity
          }
       }
       View speedbar = findViewById( R.id.speedbar );
-      if( trackColoringMethod == TrackingOverlay.DRAW_MEASURED || trackColoringMethod == TrackingOverlay.DRAW_CALCULATED )
+      if( trackColoringMethod == SegmentOverlay.DRAW_MEASURED || trackColoringMethod == SegmentOverlay.DRAW_CALCULATED )
       {
          drawSpeedTexts( mAverageSpeed );
          speedbar.setVisibility( View.VISIBLE );
@@ -1112,7 +1112,7 @@ public class LoggerMap extends MapActivity
     * For the current track identifier the route of that track is drawn by adding a OverLay for each segments in the track
     * 
     * @param trackId
-    * @see TrackingOverlay
+    * @see SegmentOverlay
     */
    private void createDataOverlays()
    {
@@ -1135,15 +1135,15 @@ public class LoggerMap extends MapActivity
             {
                long segmentsId = segments.getLong( 0 );
                Uri segmentUri = Uri.withAppendedPath( segmentsUri, segmentsId + "/waypoints" );
-               TrackingOverlay segmentOverlay = new TrackingOverlay( (Context) this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView );
+               SegmentOverlay segmentOverlay = new SegmentOverlay( (Context) this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView );
                overlays.add( segmentOverlay );
                if( segments.isFirst() )
                {
-                  segmentOverlay.addPlacement( TrackingOverlay.FIRST_SEGMENT );
+                  segmentOverlay.addPlacement( SegmentOverlay.FIRST_SEGMENT );
                }
                if( segments.isLast() )
                {
-                  segmentOverlay.addPlacement( TrackingOverlay.LAST_SEGMENT );
+                  segmentOverlay.addPlacement( SegmentOverlay.LAST_SEGMENT );
                   lastPoint = getLastTrackPoint();
                }
                mLastSegment = segmentsId;
