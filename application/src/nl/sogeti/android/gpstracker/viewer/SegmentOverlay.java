@@ -346,39 +346,42 @@ public class SegmentOverlay extends Overlay
                      int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
                      int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
                      GeoPoint point = new GeoPoint( microLatitude, microLongitude );
-
-                     setScreenPoint( point );
-                     int drawable = 0 ;
-                     if( mediaUri.getScheme().equals( "file" ) )
+                     
+                     if( isOnScreen( point ))
                      {
-                        if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
+                        setScreenPoint( point );
+                        int drawable = 0;
+                        if( mediaUri.getScheme().equals( "file" ) )
                         {
-                           drawable = R.drawable.media_film;
+                           if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
+                           {
+                              drawable = R.drawable.media_film;
+                           }
+                           else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
+                           {
+                              drawable = R.drawable.media_camera;
+                           }
+                           else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
+                           {
+                              drawable = R.drawable.media_notepad;
+                           }
                         }
-                        else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
+                        else if( mediaUri.getScheme().equals( "content" ) )
                         {
-                           drawable = R.drawable.media_camera;
+                           if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+                           {
+                              drawable = R.drawable.media_mark;
+                           }
+                           else if( mediaUri.getAuthority().equals( "media" ) )
+                           {
+                              drawable = R.drawable.media_speech;
+                           }
                         }
-                        else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
-                        {
-                           drawable = R.drawable.media_notepad;
-                        }
+                        Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
+                        int left = ( bitmap.getWidth() * 3 ) / 7;
+                        int up = ( bitmap.getHeight() * 6 ) / 7;
+                        canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
                      }
-                     else if( mediaUri.getScheme().equals( "content" ) )
-                     {
-                        if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY+".string" ) )
-                        {
-                           drawable = R.drawable.media_mark;
-                        }
-                        else if( mediaUri.getAuthority().equals( "media" ) )
-                        {
-                           drawable = R.drawable.media_speech;
-                        }
-                     }
-                     Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
-                     int left = (bitmap.getWidth()*3)/7;
-                     int up =   (bitmap.getHeight()*6)/7;
-                     canvas.drawBitmap( bitmap, mScreenPoint.x-left, mScreenPoint.y-up, new Paint() );
                   }
                }
                finally
