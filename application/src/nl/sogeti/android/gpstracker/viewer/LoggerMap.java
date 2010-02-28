@@ -1125,7 +1125,7 @@ public class LoggerMap extends MapActivity
             do
             {
                long segmentsId = segments.getLong( 0 );
-               Uri segmentUri = Uri.withAppendedPath( segmentsUri, segmentsId + "/waypoints" );
+               Uri segmentUri = ContentUris.withAppendedId( segmentsUri, segmentsId );
                SegmentOverlay segmentOverlay = new SegmentOverlay( (Context) this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView );
                overlays.add( segmentOverlay );
                if( segments.isFirst() )

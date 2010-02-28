@@ -29,8 +29,10 @@
 package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -49,6 +51,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -84,7 +87,8 @@ public class SegmentOverlay extends Overlay
    private Projection mProjection;
 
    private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
-   private Uri mSegmentUri;
+   private Uri mWaypointsUri;
+   private Uri mMediaUri;
    private double mAvgSpeed;
    private GeoPoint mTopLeft;
    private GeoPoint mBottumRight;
@@ -125,7 +129,9 @@ public class SegmentOverlay extends Overlay
       this.mTrackColoringMethod = color;
       this.mAvgSpeed = avgSpeed;
       this.mResolver = mContext.getApplicationContext().getContentResolver();
-      this.mSegmentUri = segmentUri;
+      this.mMediaUri = Uri.withAppendedPath( segmentUri, "media" );
+      this.mWaypointsUri = Uri.withAppendedPath( segmentUri, "waypoints" );
+      ;
    }
 
    @Override
@@ -176,13 +182,15 @@ public class SegmentOverlay extends Overlay
                case ( DRAW_RED ):
                case ( DRAW_GREEN ):
                   mRenderedColoringMethod = mTrackColoringMethod;
-                  drawPath( mRenderCanvas, mapView );
+                  drawPath( mRenderCanvas );
                   break;
                case ( DRAW_DOTS ):
                   mRenderedColoringMethod = mTrackColoringMethod;
-                  drawDots( mRenderCanvas, mapView );
+                  drawDots( mRenderCanvas );
                   break;
             }
+            drawStartStopCircles( mRenderCanvas );
+            drawMedia( mRenderCanvas );
             canvas.drawBitmap( mRenderBuffer, 0, 0, null );
          }
       }
@@ -195,93 +203,10 @@ public class SegmentOverlay extends Overlay
     * @param shadow
     * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
-   private void drawDots( Canvas canvas, MapView mapView )
+   private void drawDots( Canvas canvas )
    {
       this.mPath = null;
 
-      transformSegmentToCanvasDots( canvas );
-
-      drawStartStopCircles( canvas );
-   }
-
-   /**
-    * @param canvas
-    * @param mapView
-    * @param shadow
-    * @see SegmentOverlay#draw(Canvas, MapView, boolean)
-    */
-   public void drawPath( Canvas canvas, MapView mapView )
-   {
-      if( this.mPath == null )
-      {
-         this.mPath = new Path();
-      }
-      else
-      {
-         this.mPath.rewind();
-      }
-      this.mShader = null;
-
-      transformSegmentToPath();
-
-      Paint routePaint = new Paint();
-      routePaint.setPathEffect( new CornerPathEffect( 10 ) );
-      switch( mTrackColoringMethod )
-      {
-         case ( DRAW_CALCULATED ):
-         case ( DRAW_MEASURED ):
-            routePaint.setShader( this.mShader );
-            break;
-         case ( DRAW_RED ):
-            routePaint.setColor( Color.RED );
-            break;
-         case ( DRAW_GREEN ):
-            routePaint.setColor( Color.GREEN );
-            break;
-         default:
-            routePaint.setColor( Color.YELLOW );
-            break;
-      }
-      routePaint.setStyle( Paint.Style.STROKE );
-      routePaint.setStrokeWidth( 6 );
-      routePaint.setAntiAlias( true );
-      canvas.drawPath( this.mPath, routePaint );
-
-      drawStartStopCircles( canvas );
-   }
-
-   private void drawStartStopCircles( Canvas canvas )
-   {
-      Bitmap bitmap;
-      if( ( this.mPlacement == FIRST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mStartPoint != null )
-      {
-         setScreenPoint( this.mStartPoint );
-         bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
-         canvas.drawBitmap( bitmap, mScreenPoint.x - 8, mScreenPoint.y - 8, new Paint() );
-      }
-      if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
-      {
-         setScreenPoint( this.mEndPoint );
-         bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip );
-         canvas.drawBitmap( bitmap, mScreenPoint.x - 5, mScreenPoint.y - 5, new Paint() );
-      }
-   }
-
-   /**
-    * Set the mPlace to the specified value.
-    * 
-    * @see SegmentOverlay.FIRST
-    * @see SegmentOverlay.MIDDLE
-    * @see SegmentOverlay.LAST
-    * @param place The placement of this segment in the line.
-    */
-   public void addPlacement( int place )
-   {
-      this.mPlacement += place;
-   }
-
-   private void transformSegmentToCanvasDots( Canvas canvas )
-   {
       GeoPoint geoPoint;
       mCalculatedPoints = 0;
       calculateStepSize();
@@ -289,7 +214,7 @@ public class SegmentOverlay extends Overlay
 
       try
       {
-         mSegmentCursor = this.mResolver.query( this.mSegmentUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
+         mSegmentCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
          if( mSegmentCursor.moveToFirst() )
          {
             // Start point of the segments, possible a dot
@@ -331,8 +256,131 @@ public class SegmentOverlay extends Overlay
             mSegmentCursor.close();
          }
       }
+   }
 
-      //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints );
+   /**
+    * @param canvas
+    * @param mapView
+    * @param shadow
+    * @see SegmentOverlay#draw(Canvas, MapView, boolean)
+    */
+   public void drawPath( Canvas canvas )
+   {
+      if( this.mPath == null )
+      {
+         this.mPath = new Path();
+      }
+      else
+      {
+         this.mPath.rewind();
+      }
+      this.mShader = null;
+
+      transformSegmentToPath();
+
+      Paint routePaint = new Paint();
+      routePaint.setPathEffect( new CornerPathEffect( 10 ) );
+      switch( mTrackColoringMethod )
+      {
+         case ( DRAW_CALCULATED ):
+         case ( DRAW_MEASURED ):
+            routePaint.setShader( this.mShader );
+            break;
+         case ( DRAW_RED ):
+            routePaint.setColor( Color.RED );
+            break;
+         case ( DRAW_GREEN ):
+            routePaint.setColor( Color.GREEN );
+            break;
+         default:
+            routePaint.setColor( Color.YELLOW );
+            break;
+      }
+      routePaint.setStyle( Paint.Style.STROKE );
+      routePaint.setStrokeWidth( 6 );
+      routePaint.setAntiAlias( true );
+      canvas.drawPath( this.mPath, routePaint );
+   }
+
+   private void drawStartStopCircles( Canvas canvas )
+   {
+      Bitmap bitmap;
+      if( ( this.mPlacement == FIRST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mStartPoint != null )
+      {
+         setScreenPoint( this.mStartPoint );
+         bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
+         canvas.drawBitmap( bitmap, mScreenPoint.x - 8, mScreenPoint.y - 8, new Paint() );
+      }
+      if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
+      {
+         setScreenPoint( this.mEndPoint );
+         bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip );
+         canvas.drawBitmap( bitmap, mScreenPoint.x - 5, mScreenPoint.y - 5, new Paint() );
+      }
+   }
+
+   private void drawMedia( Canvas canvas )
+   {
+      Cursor mediaCursor = null;
+      try
+      {
+         Log.d( TAG, "Searching for media on " + this.mMediaUri );
+         mediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );
+         if( mediaCursor.moveToFirst() )
+         {
+            do
+            {
+               Long waypointId = mediaCursor.getLong( 0 );
+               Cursor waypointCursor = null;
+               try
+               {
+                  Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, waypointId );
+                  Log.d( TAG, "Searching for media waypoint on " + mediaWaypoint );
+                  waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
+                  
+                  if( waypointCursor.moveToFirst() )
+                  {
+                     int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
+                     int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
+                     GeoPoint point = new GeoPoint( microLatitude, microLongitude );
+
+                     setScreenPoint( point );
+                     Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.media );
+                     canvas.drawBitmap( bitmap, mScreenPoint.x - 12, mScreenPoint.y - 20, new Paint() );
+                  }
+               }
+               finally
+               {
+                  if( waypointCursor != null )
+                  {
+                     waypointCursor.close();
+                  }
+               }
+
+            }
+            while( mediaCursor.moveToNext() );
+         }
+      }
+      finally
+      {
+         if( mediaCursor != null )
+         {
+            mediaCursor.close();
+         }
+      }
+   }
+
+   /**
+    * Set the mPlace to the specified value.
+    * 
+    * @see SegmentOverlay.FIRST
+    * @see SegmentOverlay.MIDDLE
+    * @see SegmentOverlay.LAST
+    * @param place The placement of this segment in the line.
+    */
+   public void addPlacement( int place )
+   {
+      this.mPlacement += place;
    }
 
    /**
@@ -353,7 +401,7 @@ public class SegmentOverlay extends Overlay
       int moves = 0;
       try
       {
-         mSegmentCursor = this.mResolver.query( this.mSegmentUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+         mSegmentCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
          if( mSegmentCursor.moveToFirst() )
          {
             // Start point of the segments, possible a dot
@@ -502,8 +550,8 @@ public class SegmentOverlay extends Overlay
    }
 
    /**
-    * Move the cursor to the next waypoint based on the stepsize 
-    *
+    * Move the cursor to the next waypoint based on the stepsize
+    * 
     * @param trackCursor
     * @return
     */
@@ -513,14 +561,14 @@ public class SegmentOverlay extends Overlay
       while( mSegmentCursor.moveToNext() )
       {
          mStep++;
-         
-//         evalPoint = extractGeoPoint( trackCursor );
-//         if( !isOnScreen( evalPoint ) )
-//         {
-//            //               Log.d(TAG, "first out screen "+trackCursor.getPosition() );
-//            return true;
-//         }
-         
+
+         //         evalPoint = extractGeoPoint( trackCursor );
+         //         if( !isOnScreen( evalPoint ) )
+         //         {
+         //            //               Log.d(TAG, "first out screen "+trackCursor.getPosition() );
+         //            return true;
+         //         }
+
          if( isFullStepTaken() )
          {
             return true;
@@ -563,16 +611,14 @@ public class SegmentOverlay extends Overlay
    }
 
    /**
-    * If a segment contains more then 500 waypoints and is zoomed out more then twice then some waypoints 
-    * will not be used to render the line, this speeding things along.
-    * 
+    * If a segment contains more then 500 waypoints and is zoomed out more then twice then some waypoints will not be used to render the line, this speeding things along.
     */
    private void calculateStepSize()
    {
       Cursor segmentCursor = null;
       try
       {
-         segmentCursor = this.mResolver.query( this.mSegmentUri, new String[] { "count(" + Waypoints._ID + ")" }, null, null, null );
+         segmentCursor = this.mResolver.query( this.mWaypointsUri, new String[] { "count(" + Waypoints._ID + ")" }, null, null, null );
          segmentCursor.moveToFirst();
          long points = segmentCursor.getLong( 0 );
          if( points < 500 )
@@ -600,7 +646,7 @@ public class SegmentOverlay extends Overlay
          {
             segmentCursor.close();
          }
-         
+
       }
       //      Log.d( TAG, "Setting stepSize "+stepSize+" on a zoom of "+zoomLevel+"/"+maxZoomLevel );
    }
@@ -627,7 +673,6 @@ public class SegmentOverlay extends Overlay
    }
 
    /**
-    * 
     * For the given trackcursor returns the GeoPoint
     * 
     * @param trackCursor
@@ -665,7 +710,7 @@ public class SegmentOverlay extends Overlay
       }
    }
 
-   private static int extendPoint( int x1, int x2 )
+   public static int extendPoint( int x1, int x2 )
    {
       int diff = x2 - x1;
       int next = x2 + diff;
