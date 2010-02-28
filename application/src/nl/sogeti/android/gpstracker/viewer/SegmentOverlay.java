@@ -99,12 +99,14 @@ public class SegmentOverlay extends Overlay
    private int mCalculatedPoints;
    private Point mPrevScreenPoint;
    private Point mScreenPoint;
-   private int stepSize = 1;
-   private int step = 0;
+   private boolean mLastOnscreen;
+   private int mStepSize = 1;
+   private int mStep = 0;
    private MapView mMapView;
    private Location location;
    private Location prevLocation;
    private int mRenderedColoringMethod;
+   private Cursor mSegmentCursor;
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -132,7 +134,7 @@ public class SegmentOverlay extends Overlay
       super.draw( canvas, mapView, shadow );
       if( shadow )
       {
-//         Log.d( TAG, "No shadows to draw" );
+         //         Log.d( TAG, "No shadows to draw" );
       }
       else
       {
@@ -141,14 +143,10 @@ public class SegmentOverlay extends Overlay
          GeoPoint oldBottumRight = mBottumRight;
          mTopLeft = mProjection.fromPixels( 0, 0 );
          mBottumRight = mProjection.fromPixels( canvas.getWidth(), canvas.getHeight() );
-         if( oldTopLeft != null 
-               && oldBottumRight != null 
-               && mRenderBuffer != null 
-               && mTopLeft.equals( oldTopLeft ) 
-               && mBottumRight.equals( oldBottumRight ) 
+         if( oldTopLeft != null && oldBottumRight != null && mRenderBuffer != null && mTopLeft.equals( oldTopLeft ) && mBottumRight.equals( oldBottumRight )
                && mRenderedColoringMethod == mTrackColoringMethod )
          {
-//            Log.d( TAG, "Same as the previous one" );
+            //            Log.d( TAG, "Same as the previous one" );
             canvas.drawBitmap( mRenderBuffer, 0, 0, null );
          }
          else
@@ -157,7 +155,7 @@ public class SegmentOverlay extends Overlay
             {
                if( mRenderBuffer != null )
                {
-//                  Log.d( TAG, String.format(  "Fresh buffers from (%d,%d) to (%d,%d)", mRenderBuffer.getWidth(), mRenderBuffer.getHeight(), canvas.getWidth(), canvas.getHeight() ) );
+                  //                  Log.d( TAG, String.format(  "Fresh buffers from (%d,%d) to (%d,%d)", mRenderBuffer.getWidth(), mRenderBuffer.getHeight(), canvas.getWidth(), canvas.getHeight() ) );
                   mRenderBuffer.recycle();
                   mRenderBuffer = null;
                }
@@ -171,7 +169,7 @@ public class SegmentOverlay extends Overlay
             }
             this.mScreenPoint = new Point();
             this.mPrevScreenPoint = new Point();
-            switch (mTrackColoringMethod)
+            switch( mTrackColoringMethod )
             {
                case ( DRAW_CALCULATED ):
                case ( DRAW_MEASURED ):
@@ -200,7 +198,7 @@ public class SegmentOverlay extends Overlay
    private void drawDots( Canvas canvas, MapView mapView )
    {
       this.mPath = null;
-      
+
       transformSegmentToCanvasDots( canvas );
 
       drawStartStopCircles( canvas );
@@ -228,7 +226,7 @@ public class SegmentOverlay extends Overlay
 
       Paint routePaint = new Paint();
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
-      switch (mTrackColoringMethod)
+      switch( mTrackColoringMethod )
       {
          case ( DRAW_CALCULATED ):
          case ( DRAW_MEASURED ):
@@ -257,19 +255,15 @@ public class SegmentOverlay extends Overlay
       Bitmap bitmap;
       if( ( this.mPlacement == FIRST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mStartPoint != null )
       {
-         Point out = new Point();
-         mProjection.toPixels( this.mStartPoint, out );
-         mCalculatedPoints++;
+         setScreenPoint( this.mStartPoint );
          bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
-         canvas.drawBitmap( bitmap, out.x - 8, out.y - 8, new Paint() );
+         canvas.drawBitmap( bitmap, mScreenPoint.x - 8, mScreenPoint.y - 8, new Paint() );
       }
       if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
       {
-         Point out = new Point();
-         mProjection.toPixels( this.mEndPoint, out );
-         mCalculatedPoints++;
+         setScreenPoint( this.mEndPoint );
          bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip );
-         canvas.drawBitmap( bitmap, out.x - 5, out.y - 5, new Paint() );
+         canvas.drawBitmap( bitmap, mScreenPoint.x - 5, mScreenPoint.y - 5, new Paint() );
       }
    }
 
@@ -288,19 +282,18 @@ public class SegmentOverlay extends Overlay
 
    private void transformSegmentToCanvasDots( Canvas canvas )
    {
-      Cursor segmentCursor = null;
       GeoPoint geoPoint;
       mCalculatedPoints = 0;
-      setStepSize();
-      step = 0;
+      calculateStepSize();
+      mStep = 0;
 
       try
       {
-         segmentCursor = this.mResolver.query( this.mSegmentUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
-         if( segmentCursor.moveToFirst() )
+         mSegmentCursor = this.mResolver.query( this.mSegmentUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
+         if( mSegmentCursor.moveToFirst() )
          {
             // Start point of the segments, possible a dot
-            this.mStartPoint = extractGeoPoint( segmentCursor );
+            this.mStartPoint = extractGeoPoint();
             moveToGeoPoint( this.mStartPoint );
 
             Paint radiusPaint = new Paint();
@@ -309,15 +302,14 @@ public class SegmentOverlay extends Overlay
 
             do
             {
-               geoPoint = extractGeoPoint( segmentCursor );
-               mProjection.toPixels( geoPoint, this.mScreenPoint );
-               mCalculatedPoints++;
+               geoPoint = extractGeoPoint();
+               setScreenPoint( geoPoint );
                float distance = (float) distanceInPoints( this.mPrevScreenPoint, this.mScreenPoint );
                if( distance > MINIMUM_PX_DISTANCE )
                {
                   Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
                   canvas.drawBitmap( bitmap, this.mScreenPoint.x - 8, this.mScreenPoint.y - 8, new Paint() );
-                  float radius = mProjection.metersToEquatorPixels( segmentCursor.getFloat( 2 ) );
+                  float radius = mProjection.metersToEquatorPixels( mSegmentCursor.getFloat( 2 ) );
                   if( radius > 8f )
                   {
                      canvas.drawCircle( this.mScreenPoint.x, this.mScreenPoint.y, radius, radiusPaint );
@@ -326,17 +318,17 @@ public class SegmentOverlay extends Overlay
                   this.mPrevScreenPoint.y = this.mScreenPoint.y;
                }
             }
-            while (moveToNextWayPoint( segmentCursor ));
+            while( moveToNextWayPoint() );
 
             // End point of the segments, possible a dot
-            this.mEndPoint = extractGeoPoint( segmentCursor );
+            this.mEndPoint = extractGeoPoint();
          }
       }
       finally
       {
-         if( segmentCursor != null )
+         if( mSegmentCursor != null )
          {
-            segmentCursor.close();
+            mSegmentCursor.close();
          }
       }
 
@@ -352,47 +344,46 @@ public class SegmentOverlay extends Overlay
     */
    private void transformSegmentToPath()
    {
-      Cursor segmentCursor = null;
       GeoPoint geoPoint;
       mCalculatedPoints = 0;
-      setStepSize();
-      step = 0;
+      calculateStepSize();
+      mStep = 0;
       this.prevLocation = null;
 
       int moves = 0;
       try
       {
-         segmentCursor = this.mResolver.query( this.mSegmentUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
-         if( segmentCursor.moveToFirst() )
+         mSegmentCursor = this.mResolver.query( this.mSegmentUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+         if( mSegmentCursor.moveToFirst() )
          {
             // Start point of the segments, possible a dot
-            this.mStartPoint = extractGeoPoint( segmentCursor );
+            this.mStartPoint = extractGeoPoint();
             this.location = new Location( this.getClass().getName() );
-            this.location.setLatitude( segmentCursor.getDouble( 0 ) );
-            this.location.setLongitude( segmentCursor.getDouble( 1 ) );
-            this.location.setTime( segmentCursor.getLong( 3 ) );
+            this.location.setLatitude( mSegmentCursor.getDouble( 0 ) );
+            this.location.setLongitude( mSegmentCursor.getDouble( 1 ) );
+            this.location.setTime( mSegmentCursor.getLong( 3 ) );
             moveToGeoPoint( this.mStartPoint );
 
             do
             {
                //               Log.d(TAG, "Moving the loop of: moveToNextWayPoint() at cursor position: "+trackCursor.getPosition() ) ;
-               geoPoint = extractGeoPoint( segmentCursor );
+               geoPoint = extractGeoPoint();
                double speed = -1d;
-               switch (mTrackColoringMethod)
+               switch( mTrackColoringMethod )
                {
                   case DRAW_GREEN:
                   case DRAW_RED:
                      lineToGeoPoint( geoPoint, speed );
                      break;
                   case DRAW_MEASURED:
-                     lineToGeoPoint( geoPoint, segmentCursor.getDouble( 2 ) );
+                     lineToGeoPoint( geoPoint, mSegmentCursor.getDouble( 2 ) );
                      break;
                   case DRAW_CALCULATED:
                      this.location = new Location( this.getClass().getName() );
-                     this.location.setLatitude( segmentCursor.getDouble( 0 ) );
-                     this.location.setLongitude( segmentCursor.getDouble( 1 ) );
-                     this.location.setTime( segmentCursor.getLong( 3 ) );
-                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME ) || segmentCursor.isLast() )
+                     this.location.setLatitude( mSegmentCursor.getDouble( 0 ) );
+                     this.location.setLongitude( mSegmentCursor.getDouble( 1 ) );
+                     this.location.setTime( mSegmentCursor.getLong( 3 ) );
+                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME ) || mSegmentCursor.isLast() )
                      {
                         speed = calculateSpeedBetweenLocations( this.prevLocation, this.location );
                         lineToGeoPoint( geoPoint, speed );
@@ -408,53 +399,26 @@ public class SegmentOverlay extends Overlay
                }
                moves++;
             }
-            while (moveToNextWayPoint( segmentCursor ));
+            while( moveToNextWayPoint() );
 
             // End point of the segments, possible a dot
-            this.mEndPoint = extractGeoPoint( segmentCursor );
+            this.mEndPoint = extractGeoPoint();
 
          }
       }
       finally
       {
-         if( segmentCursor != null )
+         if( mSegmentCursor != null )
          {
-            segmentCursor.close();
+            mSegmentCursor.close();
          }
       }
       //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
 
-   /**
-    * 
-    * @param startLocation
-    * @param endLocation
-    * @return speed in m/s between 2 locations
-    */
-   public static double calculateSpeedBetweenLocations( Location startLocation, Location endLocation )
-   {
-      double speed = -1d;
-      if( startLocation != null && endLocation != null )
-      {
-         float distance = startLocation.distanceTo( endLocation );
-         float seconds = ( endLocation.getTime() - startLocation.getTime() ) / 1000f;
-         speed = distance / seconds;
-         //         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
-      }
-      if( speed > 0 )
-      {
-         return speed;
-      }
-      else
-      {
-         return -1d;
-      }
-   }
-
    private void moveToGeoPoint( GeoPoint geoPoint )
    {
-      this.mProjection.toPixels( geoPoint, this.mScreenPoint );
-      mCalculatedPoints++;
+      setScreenPoint( geoPoint );
 
       if( this.mPath != null )
       {
@@ -469,8 +433,7 @@ public class SegmentOverlay extends Overlay
    {
 
       //      Log.d( TAG, "Drawing line to " + geoPoint + " with speed " + speed );
-      this.mProjection.toPixels( geoPoint, this.mScreenPoint );
-      mCalculatedPoints++;
+      setScreenPoint( geoPoint );
 
       //      Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
       //      this.mCanvas.drawBitmap( bitmap, this.mScreenPoint.x - 8, this.mScreenPoint.y - 8, new Paint() );
@@ -514,128 +477,140 @@ public class SegmentOverlay extends Overlay
       this.mPath.lineTo( this.mScreenPoint.x, this.mScreenPoint.y );
    }
 
-   public static int extendPoint( int x1, int x2 )
+   private void setScreenPoint( GeoPoint geoPoint )
    {
-      int diff = x2 - x1;
-      int next = x2 + diff;
-      return next;
+      this.mProjection.toPixels( geoPoint, this.mScreenPoint );
+      mCalculatedPoints++;
    }
 
-   public static double distanceInPoints( Point start, Point end )
+   private boolean moveToNextWayPoint()
    {
-      int x = Math.abs( end.x - start.x );
-      int y = Math.abs( end.y - start.y );
-      return (double) Math.sqrt( x * x + y * y );
-   }
-
-   private boolean moveToNextWayPoint( Cursor trackCursor )
-   {
-      if( trackCursor.isLast() )
+      if( mSegmentCursor.isLast() )
       {
          return false;
       }
-      boolean onScreen = isOnScreen( extractGeoPoint( trackCursor ) );
-      if( onScreen )
+      //boolean onScreen = isOnScreen( extractGeoPoint( trackCursor ) );
+      if( mLastOnscreen )
       {
-         return moveToNextOnScreenWaypoint( trackCursor );
+         return moveToNextOnScreenWaypoint();
       }
       else
       {
-         return moveToNextOffScreenWaypoint( trackCursor );
+         mLastOnscreen = false;
+         return moveToNextOffScreenWaypoint();
       }
    }
 
-   private boolean moveToNextOnScreenWaypoint( Cursor trackCursor )
+   /**
+    * Move the cursor to the next waypoint based on the stepsize 
+    *
+    * @param trackCursor
+    * @return
+    */
+   private boolean moveToNextOnScreenWaypoint()
    {
       GeoPoint evalPoint;
-      while (trackCursor.moveToNext())
+      while( mSegmentCursor.moveToNext() )
       {
-         step++;
-         evalPoint = extractGeoPoint( trackCursor );
-
-         if( !isOnScreen( evalPoint ) )
-         {
-            //               Log.d(TAG, "first out screen "+trackCursor.getPosition() );
-            return true;
-         }
-         if( isGoodDrawable() )
+         mStep++;
+         
+//         evalPoint = extractGeoPoint( trackCursor );
+//         if( !isOnScreen( evalPoint ) )
+//         {
+//            //               Log.d(TAG, "first out screen "+trackCursor.getPosition() );
+//            return true;
+//         }
+         
+         if( isFullStepTaken() )
          {
             return true;
          }
       }
-      return trackCursor.moveToLast();
+      // No full step can be taken, the last waypoint of the segment might be on screen.
+      mSegmentCursor.moveToLast();
+      evalPoint = extractGeoPoint();
+      return isOnScreen( evalPoint );
    }
 
-   private boolean moveToNextOffScreenWaypoint( Cursor trackCursor )
+   private boolean moveToNextOffScreenWaypoint()
    {
-      GeoPoint lastPoint = extractGeoPoint( trackCursor );
-      while (trackCursor.moveToNext())
+      GeoPoint lastPoint = extractGeoPoint();
+      while( mSegmentCursor.moveToNext() )
       {
-         step++;
-         if( trackCursor.isLast() )
+         mStep++;
+         if( mSegmentCursor.isLast() )
          {
             //               Log.d(TAG, "last off screen "+trackCursor.getPosition() );
             return true;
          }
 
-         GeoPoint evalPoint = extractGeoPoint( trackCursor );
+         GeoPoint evalPoint = extractGeoPoint();
          if( isOnScreen( evalPoint ) )
          {
+            mLastOnscreen = true;
             moveToGeoPoint( lastPoint );
             //               Log.d(TAG, "first in screen "+trackCursor.getPosition() );
             return true;
          }
          lastPoint = evalPoint;
       }
-      return trackCursor.moveToLast();
+      return mSegmentCursor.moveToLast();
    }
 
-   private GeoPoint extractGeoPoint( Cursor trackCursor )
+   private boolean isFullStepTaken()
    {
-      int microLatitude = (int) ( trackCursor.getDouble( 0 ) * 1E6d );
-      int microLongitude = (int) ( trackCursor.getDouble( 1 ) * 1E6d );
-      return new GeoPoint( microLatitude, microLongitude );
+      return mStep % mStepSize == 0;
    }
 
-   private boolean isGoodDrawable()
+   /**
+    * If a segment contains more then 500 waypoints and is zoomed out more then twice then some waypoints 
+    * will not be used to render the line, this speeding things along.
+    * 
+    */
+   private void calculateStepSize()
    {
-      return step % stepSize == 0;
-   }
-
-   private void setStepSize()
-   {
-      int zoomLevel = mMapView.getZoomLevel();
-      int maxZoomLevel = mMapView.getMaxZoomLevel();
-      if( zoomLevel >= maxZoomLevel - 1 )
+      Cursor segmentCursor = null;
+      try
       {
-         stepSize = 1;
-      }
-      else
-      {
-         Cursor segmentCursor = null;
-         try
+         segmentCursor = this.mResolver.query( this.mSegmentUri, new String[] { "count(" + Waypoints._ID + ")" }, null, null, null );
+         segmentCursor.moveToFirst();
+         long points = segmentCursor.getLong( 0 );
+         if( points < 500 )
          {
-            segmentCursor = this.mResolver.query( this.mSegmentUri, new String[] { "count("+Waypoints._ID+")" }, null, null, null );
-            segmentCursor.moveToFirst();
-            long points = segmentCursor.getLong( 0 );
-            if( points < 500 )
+
+            mStepSize = 1;
+         }
+         else
+         {
+            int zoomLevel = mMapView.getZoomLevel();
+            int maxZoomLevel = mMapView.getMaxZoomLevel();
+            if( zoomLevel >= maxZoomLevel - 2 )
             {
-               
-               stepSize = 1;
+               mStepSize = 1;
             }
             else
             {
-               stepSize = ( maxZoomLevel - zoomLevel );
+               mStepSize = ( maxZoomLevel - zoomLevel );
             }
          }
-         finally
+      }
+      finally
+      {
+         if( segmentCursor != null )
          {
-            if( segmentCursor!= null ){ segmentCursor.close(); }
+            segmentCursor.close();
          }
+         
       }
       //      Log.d( TAG, "Setting stepSize "+stepSize+" on a zoom of "+zoomLevel+"/"+maxZoomLevel );
    }
 
+   /**
+    * Is a given GeoPoint in the current projection of the map.
+    * 
+    * @param eval
+    * @return
+    */
    private boolean isOnScreen( GeoPoint eval )
    {
       boolean under = this.mTopLeft.getLatitudeE6() > eval.getLatitudeE6();
@@ -649,5 +624,58 @@ public class SegmentOverlay extends Overlay
    {
       this.mTrackColoringMethod = coloring;
       this.mAvgSpeed = avgspeed;
+   }
+
+   /**
+    * 
+    * For the given trackcursor returns the GeoPoint
+    * 
+    * @param trackCursor
+    * @return
+    */
+   private GeoPoint extractGeoPoint()
+   {
+      int microLatitude = (int) ( mSegmentCursor.getDouble( 0 ) * 1E6d );
+      int microLongitude = (int) ( mSegmentCursor.getDouble( 1 ) * 1E6d );
+      return new GeoPoint( microLatitude, microLongitude );
+   }
+
+   /**
+    * @param startLocation
+    * @param endLocation
+    * @return speed in m/s between 2 locations
+    */
+   private static double calculateSpeedBetweenLocations( Location startLocation, Location endLocation )
+   {
+      double speed = -1d;
+      if( startLocation != null && endLocation != null )
+      {
+         float distance = startLocation.distanceTo( endLocation );
+         float seconds = ( endLocation.getTime() - startLocation.getTime() ) / 1000f;
+         speed = distance / seconds;
+         //         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
+      }
+      if( speed > 0 )
+      {
+         return speed;
+      }
+      else
+      {
+         return -1d;
+      }
+   }
+
+   private static int extendPoint( int x1, int x2 )
+   {
+      int diff = x2 - x1;
+      int next = x2 + diff;
+      return next;
+   }
+
+   private static double distanceInPoints( Point start, Point end )
+   {
+      int x = Math.abs( end.x - start.x );
+      int y = Math.abs( end.y - start.y );
+      return (double) Math.sqrt( x * x + y * y );
    }
 }
