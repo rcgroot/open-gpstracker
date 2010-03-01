@@ -32,7 +32,6 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.util.Constants;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -66,7 +65,7 @@ import com.google.android.maps.Projection;
  * @version $Id$
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */
-public class SegmentOverlay extends Overlay
+public class SegmentOverlay extends Overlay implements Overlay.Snappable
 {
 
    public static final int MIDDLE_SEGMENT = 0;
@@ -113,6 +112,7 @@ public class SegmentOverlay extends Overlay
    private Location prevLocation;
    private int mRenderedColoringMethod;
    private Cursor mSegmentCursor;
+   private Point[][] snappers = new Point[20][20];
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -326,7 +326,7 @@ public class SegmentOverlay extends Overlay
       Cursor mediaCursor = null;
       try
       {
-         Log.d( TAG, "Searching for media on " + this.mMediaUri );
+//         Log.d( TAG, "Searching for media on " + this.mMediaUri );
          mediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );
          if( mediaCursor.moveToFirst() )
          {
@@ -338,7 +338,7 @@ public class SegmentOverlay extends Overlay
                try
                {
                   Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, waypointId );
-                  Log.d( TAG, "Searching for media waypoint on " + mediaWaypoint );
+//                  Log.d( TAG, "Searching for media waypoint on " + mediaWaypoint );
                   waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
                   
                   if( waypointCursor.moveToFirst() )
@@ -381,6 +381,11 @@ public class SegmentOverlay extends Overlay
                         int left = ( bitmap.getWidth() * 3 ) / 7;
                         int up = ( bitmap.getHeight() * 6 ) / 7;
                         canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
+                        
+                        int xbox = ( mScreenPoint.x * 20 ) / this.mRenderCanvas.getWidth();
+                        int ybox = ( mScreenPoint.y * 20 ) / this.mRenderCanvas.getHeight();
+                        snappers[xbox][ybox] = new Point( mScreenPoint );
+                        Log.d( TAG, String.format( " Added snap to point (%d,%d)",xbox,ybox ) );
                      }
                   }
                }
@@ -757,5 +762,21 @@ public class SegmentOverlay extends Overlay
       int x = Math.abs( end.x - start.x );
       int y = Math.abs( end.y - start.y );
       return (double) Math.sqrt( x * x + y * y );
+   }
+
+   public boolean onSnapToItem( int x, int y, Point snapPoint, MapView mapView )
+   {
+      int xbox = ( x * 20 ) / this.mRenderCanvas.getWidth();
+      int ybox = ( y * 20 ) / this.mRenderCanvas.getHeight();
+
+      Log.d( TAG, String.format( " Shall I snap to point (%d,%d)",x,y ) );
+      Log.d( TAG, String.format( " Shall I snap to box (%d,%d)",xbox,ybox ) );
+      if( snappers[xbox][ybox] != null )
+      {
+         snapPoint.x = snappers[xbox][ybox].x;
+         snapPoint.y = snappers[xbox][ybox].y;
+         return true;
+      }
+      return false;
    }
 }
