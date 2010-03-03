@@ -35,6 +35,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -52,7 +53,9 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
+import android.sax.StartElementListener;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -112,7 +115,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    private Location prevLocation;
    private int mRenderedColoringMethod;
    private Cursor mSegmentCursor;
-   private Point[][] snappers = new Point[20][20];
+   private Uri[][] onscreenUri = new Uri[20][20];
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -135,7 +138,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       this.mWaypointsUri = Uri.withAppendedPath( segmentUri, "waypoints" );
       ;
    }
-
+   
    @Override
    public void draw( Canvas canvas, MapView mapView, boolean shadow )
    {
@@ -266,7 +269,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
     * @param shadow
     * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
-   public void drawPath( Canvas canvas )
+   private void drawPath( Canvas canvas )
    {
       if( this.mPath == null )
       {
@@ -384,8 +387,8 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
                         
                         int xbox = ( mScreenPoint.x * 20 ) / this.mRenderCanvas.getWidth();
                         int ybox = ( mScreenPoint.y * 20 ) / this.mRenderCanvas.getHeight();
-                        snappers[xbox][ybox] = new Point( mScreenPoint );
-                        Log.d( TAG, String.format( " Added snap to point (%d,%d)",xbox,ybox ) );
+                        onscreenUri[xbox][ybox] = mediaUri;
+//                        Log.d( TAG, String.format( " Added snap to point (%d,%d)",xbox,ybox ) );
                      }
                   }
                }
@@ -764,19 +767,83 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       return (double) Math.sqrt( x * x + y * y );
    }
 
-   public boolean onSnapToItem( int x, int y, Point snapPoint, MapView mapView )
+   private boolean handleMediaTap( GeoPoint geoPoint, Point point, Uri mediaUri )
+   {
+      if( mediaUri.getScheme().equals( "file" ) )
+      {
+         Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+         if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
+         {
+            intent.setDataAndType( mediaUri, "video/3gpp" );
+            mContext.startActivity(intent); 
+            return true;
+         }
+         else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
+         {
+            intent.setDataAndType( mediaUri, "image/jpeg" );
+            mContext.startActivity(intent); 
+            return true;
+         }
+         else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
+         {
+            intent.setDataAndType( mediaUri, "text/plain" );
+            mContext.startActivity(intent); 
+            return true;
+         }
+      }
+      else if( mediaUri.getScheme().equals( "content" ) )
+      {
+         if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+         {
+            String text = mediaUri.getLastPathSegment();
+            Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+            toast.show();
+            return true;
+         }
+         else if( mediaUri.getAuthority().equals( "media" ) )
+         {
+            mContext.startActivity( new Intent( Intent.ACTION_VIEW, mediaUri ) );
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see com.google.android.maps.Overlay#onTap(com.google.android.maps.GeoPoint, com.google.android.maps.MapView)
+    */
+   @Override
+   public boolean onTap( GeoPoint geoPoint, MapView mapView )
+   {
+      Point point = new Point();
+
+//      Log.d( TAG, "You tapped me at "+geoPoint );
+      mapView.getProjection().toPixels( geoPoint, point );
+      int xbox = ( point.x * 20 ) / this.mRenderCanvas.getWidth();
+      int ybox = ( point.y * 20 ) / this.mRenderCanvas.getHeight();
+      if( onscreenUri[xbox][ybox] != null )
+      {
+         return handleMediaTap( geoPoint, point, onscreenUri[xbox][ybox]);
+      }
+      else
+      {
+         return super.onTap( geoPoint, mapView );
+      }
+   }
+
+   public boolean onSnapToItem( int x, int y, Point point, MapView mapView )
    {
       int xbox = ( x * 20 ) / this.mRenderCanvas.getWidth();
       int ybox = ( y * 20 ) / this.mRenderCanvas.getHeight();
-
-      Log.d( TAG, String.format( " Shall I snap to point (%d,%d)",x,y ) );
-      Log.d( TAG, String.format( " Shall I snap to box (%d,%d)",xbox,ybox ) );
-      if( snappers[xbox][ybox] != null )
+      if( onscreenUri[xbox][ybox] != null )
       {
-         snapPoint.x = snappers[xbox][ybox].x;
-         snapPoint.y = snappers[xbox][ybox].y;
+         point.x = x;
+         point.y = y;
          return true;
       }
       return false;
    }
+   
+   
 }
