@@ -202,7 +202,7 @@ public class SegmentOverlay extends Overlay
                drawPath( canvas );
                break;
             case ( DRAW_DOTS ):
-               if( mPath == null )
+               if( mDotPath == null )
                {
                   calculateDots();                  
                }
@@ -211,22 +211,20 @@ public class SegmentOverlay extends Overlay
          }
          drawStartStopCircles( canvas );
          drawMedia( canvas );
-
       }
-
    }
-
 
    private void drawDots( Canvas canvas)
    {
-      Paint radiusPaint = new Paint();
+      Paint dotpaint = new Paint();
+      Paint radiusPaint =  new Paint();
       radiusPaint.setColor( Color.YELLOW );
       radiusPaint.setAlpha( 100 );
       
       for( DotVO dotVO : mDotPath )
       {
          Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
-         canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, new Paint() );
+         canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
          if( dotVO.radius > 8f )
          {
             canvas.drawCircle( dotVO.x, dotVO.y, dotVO.radius, radiusPaint );
