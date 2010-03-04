@@ -195,9 +195,17 @@ public class SegmentOverlay extends Overlay
             case ( DRAW_MEASURED ):
             case ( DRAW_RED ):
             case ( DRAW_GREEN ):
+               if( mPath == null )
+               {
+                  calculatePath();                  
+               }
                drawPath( canvas );
                break;
             case ( DRAW_DOTS ):
+               if( mPath == null )
+               {
+                  calculateDots();                  
+               }
                drawDots( canvas );
                break;
          }
