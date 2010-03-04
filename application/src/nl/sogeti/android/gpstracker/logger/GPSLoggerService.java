@@ -606,7 +606,7 @@ public class GPSLoggerService extends Service
 
    protected void storeMediaUri( Uri mediaUri )
    {
-      Log.d( TAG, "Retrieved MediaUri to store on track: "+mediaUri );
+//      Log.d( TAG, "Retrieved MediaUri to store on track: "+mediaUri );
       Location last = mPreviousLocation ;
       if( mTrackId < 0 || mSegmentId < 0 )
       {

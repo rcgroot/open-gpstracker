@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
@@ -158,6 +157,26 @@ public class LoggerMap extends MapActivity
                //               Log.d( TAG, "Have drawn to segment "+mLastSegment+" with waypoint "+mLastWaypoint );
                LoggerMap.this.updateDataOverlays();
                LoggerMap.this.createSpeedDisplayNumbers();
+            }
+            else
+            {
+               Log.w( TAG, "Skipping caused by self" );
+            }
+         }
+      };
+   private final ContentObserver mSegmentObserver = new ContentObserver( new Handler() )
+      {
+         @Override
+         public void onChange( boolean selfUpdate )
+         {
+            if( !selfUpdate )
+            {
+               List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
+               Overlay overlay = overlays.get( overlays.size()-1 );
+               if( overlay instanceof SegmentOverlay )
+               {
+                  ( (SegmentOverlay) overlay ).calculatePath();
+               }
             }
             else
             {
@@ -1166,6 +1185,11 @@ public class LoggerMap extends MapActivity
             this.mMapView.getController().animateTo( lastPoint );
          }
       }
+      
+
+      Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+mLastSegment+"/waypoints" );
+      resolver.unregisterContentObserver( this.mSegmentObserver );
+      resolver.registerContentObserver( lastSegmentUri, false, this.mSegmentObserver );
    }
    
    private void updateDataOverlays()
@@ -1193,7 +1217,6 @@ public class LoggerMap extends MapActivity
          else
          {
             createDataOverlays();
-            this.mMapView.postInvalidate();
          }
       }
       finally
@@ -1213,17 +1236,13 @@ public class LoggerMap extends MapActivity
             
             this.mMapView.clearAnimation();
             this.mMapView.getController().setCenter( lastPoint );
-            Log.d( TAG, "mMapView.setCenter()" );
+//            Log.d( TAG, "mMapView.setCenter()" );
          }
          else if( out.x < width / 4 || out.y < height / 4 || out.x > ( width / 4 ) * 3 || out.y > ( height / 4 ) * 3 )
          {
             this.mMapView.clearAnimation();
             this.mMapView.getController().animateTo( lastPoint );
-            Log.d( TAG, "mMapView.animateTo()" );
-         }
-         else
-         {
-            this.mMapView.postInvalidate();
+//            Log.d( TAG, "mMapView.animateTo()" );
          }
       }
    }
@@ -1263,10 +1282,11 @@ public class LoggerMap extends MapActivity
             this.mTrackId = trackId;
             mLastSegment = -1;
             resolver.unregisterContentObserver( this.mTrackObserver );
-            resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
+            resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
+            this.mMapView.getOverlays().clear();
 
             updateTitleBar();
-            createDataOverlays();
+            updateDataOverlays();
             updateSpeedbarVisibility();
 
             if( center )
@@ -1386,7 +1406,7 @@ public class LoggerMap extends MapActivity
    {
       Intent i = new Intent( android.provider.MediaStore.ACTION_IMAGE_CAPTURE );
       File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.TMPICTUREFILE_PATH );
-      Log.d( TAG, "Picture requested at: " + file );
+//      Log.d( TAG, "Picture requested at: " + file );
       i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
       i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
       startActivityForResult( i, MENU_PICTURE );
@@ -1399,7 +1419,7 @@ public class LoggerMap extends MapActivity
    {
       Intent i = new Intent( android.provider.MediaStore.ACTION_VIDEO_CAPTURE );
       File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.TMPICTUREFILE_PATH );
-      Log.d( TAG, "Video requested at: " + file );
+//      Log.d( TAG, "Video requested at: " + file );
       i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
       i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
       startActivityForResult( i, MENU_VIDEO );

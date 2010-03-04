@@ -87,7 +87,7 @@ class DatabaseHelper extends SQLiteOpenHelper
    @Override
    public void onUpgrade( SQLiteDatabase db, int current, int targetVersion )
    {
-      Log.d( TAG, "Upgrading db from "+current+" to "+targetVersion );
+      Log.i( TAG, "Upgrading db from "+current+" to "+targetVersion );
       if( current <= 5 )                      // From 1-5 to 6 (these before are the same before) 
       {
          current = 6;
@@ -146,8 +146,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId );
-      resolver.notifyChange( notifyUri, null );
+      resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints" ), null );
 
       return waypointId;
    }
@@ -167,13 +166,14 @@ class DatabaseHelper extends SQLiteOpenHelper
       args.put( MediaColumns.URI, mediaUri );
       
 
-      Log.d( TAG, "Media stored in the datebase: "+mediaUri );
+//      Log.d( TAG, "Media stored in the datebase: "+mediaUri );
 
       sqldb.insert( Media.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/media" );
       resolver.notifyChange( notifyUri, null );
+      resolver.notifyChange( Media.CONTENT_URI, null );
    }
 
    /**
@@ -212,6 +212,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ String.valueOf( trackId ) } );
       
       ContentResolver resolver = this.mContext.getContentResolver();
+      resolver.notifyChange( Tracks.CONTENT_URI, null );
       resolver.notifyChange( ContentUris.withAppendedId( Tracks.CONTENT_URI,  trackId), null );
       
       return affected ;
@@ -233,6 +234,7 @@ class DatabaseHelper extends SQLiteOpenHelper
 
       ContentResolver resolver = this.mContext.getContentResolver();
       resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId ), null );
+      resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" ), null );
       
       return affected ;
    }
@@ -252,8 +254,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       long trackId = sqldb.insert( Tracks.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) ;
-      resolver.notifyChange( notifyUri, null );
+      resolver.notifyChange( Tracks.CONTENT_URI, null );
 
       return trackId;
    }
@@ -271,8 +272,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       long segmentId = sqldb.insert( Segments.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri =  Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId );
-      resolver.notifyChange( notifyUri, null );
+      resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" ), null );
 
       return segmentId;
    }

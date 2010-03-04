@@ -149,6 +149,7 @@ public final class GPStracking
       "," + " " + MediaColumns.WAYPOINT + " " + MediaColumns.WAYPOINT_TYPE + 
       "," + " " + MediaColumns.URI + " " + MediaColumns.URI_TYPE + 
       ");";
+      public static final Uri CONTENT_URI = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + Media.TABLE );
    }
    
    /**
