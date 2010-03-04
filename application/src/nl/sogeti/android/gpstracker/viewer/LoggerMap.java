@@ -1165,14 +1165,6 @@ public class LoggerMap extends MapActivity
             this.mMapView.clearAnimation();
             this.mMapView.getController().animateTo( lastPoint );
          }
-         else
-         {
-            this.mMapView.postInvalidate();
-         }
-      }
-      else
-      {
-         this.mMapView.postInvalidate();
       }
    }
    
@@ -1196,12 +1188,12 @@ public class LoggerMap extends MapActivity
          segmentsCursor = resolver.query( segmentsUri, new String[] { Segments._ID }, null, null, null );
          if( segmentsCursor != null && segmentsCursor.getCount() == segmentOverlaysCount )
          {
-            Log.d( TAG, "Alignment of segments" );
+//            Log.d( TAG, "Alignment of segments" );
          }
          else
          {
-            Log.d( TAG, "RECREATE segments" );
             createDataOverlays();
+            this.mMapView.postInvalidate();
          }
       }
       finally
@@ -1218,22 +1210,21 @@ public class LoggerMap extends MapActivity
          int width = this.mMapView.getWidth();
          if( out.x < 0 || out.y < 0 || out.y > height || out.x > width )
          {
+            
             this.mMapView.clearAnimation();
             this.mMapView.getController().setCenter( lastPoint );
+            Log.d( TAG, "mMapView.setCenter()" );
          }
          else if( out.x < width / 4 || out.y < height / 4 || out.x > ( width / 4 ) * 3 || out.y > ( height / 4 ) * 3 )
          {
             this.mMapView.clearAnimation();
             this.mMapView.getController().animateTo( lastPoint );
+            Log.d( TAG, "mMapView.animateTo()" );
          }
          else
          {
             this.mMapView.postInvalidate();
          }
-      }
-      else
-      {
-         this.mMapView.postInvalidate();
       }
    }
    

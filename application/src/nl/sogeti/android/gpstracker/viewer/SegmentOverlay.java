@@ -69,7 +69,7 @@ import com.google.android.maps.Projection;
  * @version $Id$
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */
-public class SegmentOverlay extends Overlay implements Overlay.Snappable
+public class SegmentOverlay extends Overlay
 {
 
    public static final int MIDDLE_SEGMENT = 0;
@@ -98,8 +98,6 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    private GeoPoint mTopLeft;
    private GeoPoint mBottumRight;
 
-   private Canvas mRenderCanvas;
-   private Bitmap mRenderBuffer;
    private Path mPath;
    private Shader mShader;
 
@@ -114,8 +112,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    private MapView mMapView;
    private Location location;
    private Location prevLocation;
-   private int mRenderedColoringMethod;
-   private Cursor mSegmentCursor;
+   private Cursor mWaypointsCursor;
    private Uri[][] onscreenUri = new Uri[20][20];
    private Uri mSegmentUri;
    private HashMap<Uri, MediaVO> mediaCache;
@@ -144,46 +141,31 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
 
       calculateStepSize();
    }
-   
+
    @Override
    public void draw( Canvas canvas, MapView mapView, boolean shadow )
    {
       super.draw( canvas, mapView, shadow );
       if( shadow )
       {
-         //         Log.d( TAG, "No shadows to draw" );
+//         Log.d( TAG, "No shadows to draw" );
       }
       else
       {
+         mProjection = mapView.getProjection();
          mProjection = mapView.getProjection();
          GeoPoint oldTopLeft = mTopLeft;
          GeoPoint oldBottumRight = mBottumRight;
          mTopLeft = mProjection.fromPixels( 0, 0 );
          mBottumRight = mProjection.fromPixels( canvas.getWidth(), canvas.getHeight() );
-         if( oldTopLeft != null && oldBottumRight != null && mRenderBuffer != null && mTopLeft.equals( oldTopLeft ) && mBottumRight.equals( oldBottumRight )
-               && mRenderedColoringMethod == mTrackColoringMethod )
+         
+         if( oldTopLeft == null || oldBottumRight == null || 
+               mTopLeft.getLatitudeE6()/1000 != oldTopLeft.getLatitudeE6()/1000 ||
+               mTopLeft.getLongitudeE6()/1000 != oldTopLeft.getLongitudeE6()/1000 || 
+               mBottumRight.getLatitudeE6()/1000 != oldBottumRight.getLatitudeE6()/1000 ||
+               mBottumRight.getLongitudeE6()/1000 != oldBottumRight.getLongitudeE6()/1000 
+               )
          {
-            //            Log.d( TAG, "Same as the previous one" );
-            canvas.drawBitmap( mRenderBuffer, 0, 0, null );
-         }
-         else
-         {
-            if( mRenderBuffer == null || mRenderBuffer.getWidth() != canvas.getWidth() || mRenderBuffer.getHeight() != canvas.getHeight() )
-            {
-               if( mRenderBuffer != null )
-               {
-                  //                  Log.d( TAG, String.format(  "Fresh buffers from (%d,%d) to (%d,%d)", mRenderBuffer.getWidth(), mRenderBuffer.getHeight(), canvas.getWidth(), canvas.getHeight() ) );
-                  mRenderBuffer.recycle();
-                  mRenderBuffer = null;
-               }
-               mRenderCanvas = null;
-               mRenderBuffer = Bitmap.createBitmap( canvas.getWidth(), canvas.getHeight(), Config.ARGB_8888 );
-               mRenderCanvas = new Canvas( mRenderBuffer );
-            }
-            else
-            {
-               mRenderBuffer.eraseColor( Color.TRANSPARENT );
-            }
             this.mScreenPoint = new Point();
             this.mPrevScreenPoint = new Point();
             switch( mTrackColoringMethod )
@@ -192,18 +174,27 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
                case ( DRAW_MEASURED ):
                case ( DRAW_RED ):
                case ( DRAW_GREEN ):
-                  mRenderedColoringMethod = mTrackColoringMethod;
-                  drawPath( mRenderCanvas );
+                  calculatePath();
                   break;
                case ( DRAW_DOTS ):
-                  mRenderedColoringMethod = mTrackColoringMethod;
-                  drawDots( mRenderCanvas );
                   break;
             }
-            drawStartStopCircles( mRenderCanvas );
-            drawMedia( mRenderCanvas );
-            canvas.drawBitmap( mRenderBuffer, 0, 0, null );
          }
+         switch( mTrackColoringMethod )
+         {
+            case ( DRAW_CALCULATED ):
+            case ( DRAW_MEASURED ):
+            case ( DRAW_RED ):
+            case ( DRAW_GREEN ):
+               drawPath( canvas );
+               break;
+            case ( DRAW_DOTS ):
+               drawDots( canvas );
+               break;
+         }
+         drawStartStopCircles( canvas );
+         drawMedia( canvas );
+         
       }
 
    }
@@ -224,8 +215,8 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
 
       try
       {
-         mSegmentCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
-         if( mSegmentCursor.moveToFirst() )
+         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
+         if( mWaypointsCursor.moveToFirst() )
          {
             // Start point of the segments, possible a dot
             this.mStartPoint = extractGeoPoint();
@@ -244,7 +235,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
                {
                   Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
                   canvas.drawBitmap( bitmap, this.mScreenPoint.x - 8, this.mScreenPoint.y - 8, new Paint() );
-                  float radius = mProjection.metersToEquatorPixels( mSegmentCursor.getFloat( 2 ) );
+                  float radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
                   if( radius > 8f )
                   {
                      canvas.drawCircle( this.mScreenPoint.x, this.mScreenPoint.y, radius, radiusPaint );
@@ -261,20 +252,14 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       }
       finally
       {
-         if( mSegmentCursor != null )
+         if( mWaypointsCursor != null )
          {
-            mSegmentCursor.close();
+            mWaypointsCursor.close();
          }
       }
    }
-
-   /**
-    * @param canvas
-    * @param mapView
-    * @param shadow
-    * @see SegmentOverlay#draw(Canvas, MapView, boolean)
-    */
-   private void drawPath( Canvas canvas )
+   
+   private void calculatePath()
    {
       if( this.mPath == null )
       {
@@ -287,7 +272,16 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       this.mShader = null;
 
       transformSegmentToPath();
+   }
 
+   /**
+    * @param canvas
+    * @param mapView
+    * @param shadow
+    * @see SegmentOverlay#draw(Canvas, MapView, boolean)
+    */
+   private void drawPath( Canvas canvas )
+   {
       Paint routePaint = new Paint();
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
       switch( mTrackColoringMethod )
@@ -334,7 +328,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       Cursor mediaCursor = null;
       try
       {
-//         Log.d( TAG, "Searching for media on " + this.mMediaUri );
+         //         Log.d( TAG, "Searching for media on " + this.mMediaUri );
          mediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );
          if( mediaCursor.moveToFirst() )
          {
@@ -357,11 +351,11 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
          }
       }
    }
-   
+
    private void drawSingleMedia( Canvas canvas, Uri mediaWaypoint, Uri mediaUri )
    {
       MediaVO media = null;
-      if( mediaCache.containsKey( mediaWaypoint ))
+      if( mediaCache.containsKey( mediaWaypoint ) )
       {
          media = mediaCache.get( mediaWaypoint );
       }
@@ -373,7 +367,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
          try
          {
             waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
-            if( waypointCursor !=null && waypointCursor.moveToFirst() )
+            if( waypointCursor != null && waypointCursor.moveToFirst() )
             {
                int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
                int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
@@ -389,7 +383,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
             }
          }
       }
-      if( isOnScreen( media.geopoint ))
+      if( isOnScreen( media.geopoint ) )
       {
          setScreenPoint( media.geopoint );
          int drawable = 0;
@@ -423,9 +417,9 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
          int left = ( bitmap.getWidth() * 3 ) / 7;
          int up = ( bitmap.getHeight() * 6 ) / 7;
          canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
-         
-         int xbox = ( mScreenPoint.x * 20 ) / this.mRenderCanvas.getWidth();
-         int ybox = ( mScreenPoint.y * 20 ) / this.mRenderCanvas.getHeight();
+
+         int xbox = ( mScreenPoint.x * 20 ) / canvas.getWidth();
+         int ybox = ( mScreenPoint.y * 20 ) / canvas.getHeight();
          onscreenUri[xbox][ybox] = media.uri;
       }
    }
@@ -442,11 +436,12 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    {
       this.mPlacement += place;
    }
-   
+
    public boolean isLast()
    {
       return ( mPlacement >= LAST_SEGMENT );
    }
+
    public long getSegmentId()
    {
       return Long.parseLong( mSegmentUri.getLastPathSegment() );
@@ -469,15 +464,15 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       int moves = 0;
       try
       {
-         mSegmentCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
-         if( mSegmentCursor.moveToFirst() )
+         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+         if( mWaypointsCursor.moveToFirst() )
          {
             // Start point of the segments, possible a dot
             this.mStartPoint = extractGeoPoint();
             this.location = new Location( this.getClass().getName() );
-            this.location.setLatitude( mSegmentCursor.getDouble( 0 ) );
-            this.location.setLongitude( mSegmentCursor.getDouble( 1 ) );
-            this.location.setTime( mSegmentCursor.getLong( 3 ) );
+            this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+            this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+            this.location.setTime( mWaypointsCursor.getLong( 3 ) );
             moveToGeoPoint( this.mStartPoint );
 
             do
@@ -492,14 +487,15 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
                      lineToGeoPoint( geoPoint, speed );
                      break;
                   case DRAW_MEASURED:
-                     lineToGeoPoint( geoPoint, mSegmentCursor.getDouble( 2 ) );
+                     lineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
                      break;
                   case DRAW_CALCULATED:
                      this.location = new Location( this.getClass().getName() );
-                     this.location.setLatitude( mSegmentCursor.getDouble( 0 ) );
-                     this.location.setLongitude( mSegmentCursor.getDouble( 1 ) );
-                     this.location.setTime( mSegmentCursor.getLong( 3 ) );
-                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME ) || mSegmentCursor.isLast() )
+                     this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+                     this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+                     this.location.setTime( mWaypointsCursor.getLong( 3 ) );
+                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME )
+                           || mWaypointsCursor.isLast() )
                      {
                         speed = calculateSpeedBetweenLocations( this.prevLocation, this.location );
                         lineToGeoPoint( geoPoint, speed );
@@ -524,9 +520,9 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       }
       finally
       {
-         if( mSegmentCursor != null )
+         if( mWaypointsCursor != null )
          {
-            mSegmentCursor.close();
+            mWaypointsCursor.close();
          }
       }
       //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
@@ -601,7 +597,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
 
    private boolean moveToNextWayPoint()
    {
-      if( mSegmentCursor.isLast() )
+      if( mWaypointsCursor.isLast() )
       {
          return false;
       }
@@ -626,7 +622,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    private boolean moveToNextOnScreenWaypoint()
    {
       GeoPoint evalPoint;
-      while( mSegmentCursor.moveToNext() )
+      while( mWaypointsCursor.moveToNext() )
       {
          mStep++;
 
@@ -643,7 +639,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
          }
       }
       // No full step can be taken, the last waypoint of the segment might be on screen.
-      mSegmentCursor.moveToLast();
+      mWaypointsCursor.moveToLast();
       evalPoint = extractGeoPoint();
       return isOnScreen( evalPoint );
    }
@@ -651,10 +647,10 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    private boolean moveToNextOffScreenWaypoint()
    {
       GeoPoint lastPoint = extractGeoPoint();
-      while( mSegmentCursor.moveToNext() )
+      while( mWaypointsCursor.move( mStepSize ) )
       {
          mStep++;
-         if( mSegmentCursor.isLast() )
+         if( mWaypointsCursor.isLast() )
          {
             //               Log.d(TAG, "last off screen "+trackCursor.getPosition() );
             return true;
@@ -670,7 +666,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
          }
          lastPoint = evalPoint;
       }
-      return mSegmentCursor.moveToLast();
+      return mWaypointsCursor.moveToLast();
    }
 
    private boolean isFullStepTaken()
@@ -748,8 +744,8 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
     */
    private GeoPoint extractGeoPoint()
    {
-      int microLatitude = (int) ( mSegmentCursor.getDouble( 0 ) * 1E6d );
-      int microLongitude = (int) ( mSegmentCursor.getDouble( 1 ) * 1E6d );
+      int microLatitude = (int) ( mWaypointsCursor.getDouble( 0 ) * 1E6d );
+      int microLongitude = (int) ( mWaypointsCursor.getDouble( 1 ) * 1E6d );
       return new GeoPoint( microLatitude, microLongitude );
    }
 
@@ -796,23 +792,23 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    {
       if( mediaUri.getScheme().equals( "file" ) )
       {
-         Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+         Intent intent = new Intent( android.content.Intent.ACTION_VIEW );
          if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
          {
             intent.setDataAndType( mediaUri, "video/3gpp" );
-            mContext.startActivity(intent); 
+            mContext.startActivity( intent );
             return true;
          }
          else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
          {
             intent.setDataAndType( mediaUri, "image/jpeg" );
-            mContext.startActivity(intent); 
+            mContext.startActivity( intent );
             return true;
          }
          else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
          {
             intent.setDataAndType( mediaUri, "text/plain" );
-            mContext.startActivity(intent); 
+            mContext.startActivity( intent );
             return true;
          }
       }
@@ -843,13 +839,11 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    {
       Point point = new Point();
 
-//      Log.d( TAG, "You tapped me at "+geoPoint );
+      //      Log.d( TAG, "You tapped me at "+geoPoint );
       mapView.getProjection().toPixels( geoPoint, point );
-      int xbox = ( point.x * 20 ) / this.mRenderCanvas.getWidth();
-      int ybox = ( point.y * 20 ) / this.mRenderCanvas.getHeight();
-      if( onscreenUri[xbox][ybox] != null )
+      if( onscreenUri[1][1] != null )
       {
-         return handleMediaTap( geoPoint, point, onscreenUri[xbox][ybox]);
+         return handleMediaTap( geoPoint, point, onscreenUri[1][1] );
       }
       else
       {
@@ -857,24 +851,10 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       }
    }
 
-   public boolean onSnapToItem( int x, int y, Point point, MapView mapView )
-   {
-      int xbox = ( x * 20 ) / this.mRenderCanvas.getWidth();
-      int ybox = ( y * 20 ) / this.mRenderCanvas.getHeight();
-      if( onscreenUri[xbox][ybox] != null )
-      {
-         point.x = x;
-         point.y = y;
-         return true;
-      }
-      return false;
-   }
-
    private static class MediaVO
    {
       public Uri uri;
       public GeoPoint geopoint;
    }
-   
-   
+
 }

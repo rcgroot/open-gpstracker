@@ -11,7 +11,7 @@
       android:id="@+id/notetext"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:maxLines="6"
+      android:lines="6"
       android:singleLine="false"
       android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
    ></EditText>
