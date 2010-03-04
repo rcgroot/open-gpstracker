@@ -116,6 +116,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    private int mRenderedColoringMethod;
    private Cursor mSegmentCursor;
    private Uri[][] onscreenUri = new Uri[20][20];
+   private Uri mSegmentUri;
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -134,9 +135,11 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       this.mTrackColoringMethod = color;
       this.mAvgSpeed = avgSpeed;
       this.mResolver = mContext.getApplicationContext().getContentResolver();
-      this.mMediaUri = Uri.withAppendedPath( segmentUri, "media" );
-      this.mWaypointsUri = Uri.withAppendedPath( segmentUri, "waypoints" );
-      ;
+      this.mSegmentUri = segmentUri;
+      this.mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
+      this.mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
+
+      calculateStepSize();
    }
    
    @Override
@@ -214,7 +217,6 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
 
       GeoPoint geoPoint;
       mCalculatedPoints = 0;
-      calculateStepSize();
       mStep = 0;
 
       try
@@ -337,68 +339,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
             {
                Long waypointId = mediaCursor.getLong( 0 );
                Uri mediaUri = Uri.parse( mediaCursor.getString( 1 ) );
-               Cursor waypointCursor = null;
-               try
-               {
-                  Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, waypointId );
-//                  Log.d( TAG, "Searching for media waypoint on " + mediaWaypoint );
-                  waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
-                  
-                  if( waypointCursor.moveToFirst() )
-                  {
-                     int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
-                     int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
-                     GeoPoint point = new GeoPoint( microLatitude, microLongitude );
-                     
-                     if( isOnScreen( point ))
-                     {
-                        setScreenPoint( point );
-                        int drawable = 0;
-                        if( mediaUri.getScheme().equals( "file" ) )
-                        {
-                           if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
-                           {
-                              drawable = R.drawable.media_film;
-                           }
-                           else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
-                           {
-                              drawable = R.drawable.media_camera;
-                           }
-                           else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
-                           {
-                              drawable = R.drawable.media_notepad;
-                           }
-                        }
-                        else if( mediaUri.getScheme().equals( "content" ) )
-                        {
-                           if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
-                           {
-                              drawable = R.drawable.media_mark;
-                           }
-                           else if( mediaUri.getAuthority().equals( "media" ) )
-                           {
-                              drawable = R.drawable.media_speech;
-                           }
-                        }
-                        Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
-                        int left = ( bitmap.getWidth() * 3 ) / 7;
-                        int up = ( bitmap.getHeight() * 6 ) / 7;
-                        canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
-                        
-                        int xbox = ( mScreenPoint.x * 20 ) / this.mRenderCanvas.getWidth();
-                        int ybox = ( mScreenPoint.y * 20 ) / this.mRenderCanvas.getHeight();
-                        onscreenUri[xbox][ybox] = mediaUri;
-//                        Log.d( TAG, String.format( " Added snap to point (%d,%d)",xbox,ybox ) );
-                     }
-                  }
-               }
-               finally
-               {
-                  if( waypointCursor != null )
-                  {
-                     waypointCursor.close();
-                  }
-               }
+               drawSingleMedia( canvas, waypointId, mediaUri );
 
             }
             while( mediaCursor.moveToNext() );
@@ -409,6 +350,72 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
          if( mediaCursor != null )
          {
             mediaCursor.close();
+         }
+      }
+   }
+
+   private void drawSingleMedia( Canvas canvas, Long waypointId, Uri mediaUri )
+   {
+      Cursor waypointCursor = null;
+      try
+      {
+         Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, waypointId );
+//                  Log.d( TAG, "Searching for media waypoint on " + mediaWaypoint );
+         waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
+         
+         if( waypointCursor !=null && waypointCursor.moveToFirst() )
+         {
+            int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
+            int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
+            GeoPoint point = new GeoPoint( microLatitude, microLongitude );
+            
+            if( isOnScreen( point ))
+            {
+               setScreenPoint( point );
+               int drawable = 0;
+               if( mediaUri.getScheme().equals( "file" ) )
+               {
+                  if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
+                  {
+                     drawable = R.drawable.media_film;
+                  }
+                  else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
+                  {
+                     drawable = R.drawable.media_camera;
+                  }
+                  else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
+                  {
+                     drawable = R.drawable.media_notepad;
+                  }
+               }
+               else if( mediaUri.getScheme().equals( "content" ) )
+               {
+                  if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+                  {
+                     drawable = R.drawable.media_mark;
+                  }
+                  else if( mediaUri.getAuthority().equals( "media" ) )
+                  {
+                     drawable = R.drawable.media_speech;
+                  }
+               }
+               Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
+               int left = ( bitmap.getWidth() * 3 ) / 7;
+               int up = ( bitmap.getHeight() * 6 ) / 7;
+               canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
+               
+               int xbox = ( mScreenPoint.x * 20 ) / this.mRenderCanvas.getWidth();
+               int ybox = ( mScreenPoint.y * 20 ) / this.mRenderCanvas.getHeight();
+               onscreenUri[xbox][ybox] = mediaUri;
+//                        Log.d( TAG, String.format( " Added snap to point (%d,%d)",xbox,ybox ) );
+            }
+         }
+      }
+      finally
+      {
+         if( waypointCursor != null )
+         {
+            waypointCursor.close();
          }
       }
    }
@@ -425,6 +432,15 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    {
       this.mPlacement += place;
    }
+   
+   public boolean isLast()
+   {
+      return ( mPlacement >= LAST_SEGMENT );
+   }
+   public long getSegmentId()
+   {
+      return Long.parseLong( mSegmentUri.getLastPathSegment() );
+   }
 
    /**
     * Convert the cursor from the GPSTracking provider into Points on the Path
@@ -437,7 +453,6 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    {
       GeoPoint geoPoint;
       mCalculatedPoints = 0;
-      calculateStepSize();
       mStep = 0;
       this.prevLocation = null;
 

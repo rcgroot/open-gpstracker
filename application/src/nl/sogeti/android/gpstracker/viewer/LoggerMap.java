@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
@@ -134,11 +135,12 @@ public class LoggerMap extends MapActivity
    private EditText mTrackNameView;
    private TextView[] mSpeedtexts = null;
    private TextView mLastGPSSpeedView = null;
+   private EditText mNoteNameView;
+   private EditText mNoteTextView;
 
    private double mAverageSpeed = 33.33d / 2d;
    private long mTrackId = -1;
    private long mLastSegment = -1;
-
    private long mLastWaypoint;
    private UnitsI18n mUnits;
    private WakeLock mWakeLock = null;
@@ -154,7 +156,7 @@ public class LoggerMap extends MapActivity
             if( !selfUpdate )
             {
                //               Log.d( TAG, "Have drawn to segment "+mLastSegment+" with waypoint "+mLastWaypoint );
-               LoggerMap.this.createDataOverlays();
+               LoggerMap.this.updateDataOverlays();
                LoggerMap.this.createSpeedDisplayNumbers();
             }
             else
@@ -300,7 +302,7 @@ public class LoggerMap extends MapActivity
             }
          }
       };
-   private UnitsI18n.UnitsChangeListener mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
+   private final UnitsI18n.UnitsChangeListener mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
       {
          public void onUnitsChange()
          {
@@ -308,7 +310,7 @@ public class LoggerMap extends MapActivity
             updateSpeedbarVisibility();
          }
       };
-   private OnClickListener mNoteTextDialogListener = new DialogInterface.OnClickListener()
+   private final OnClickListener mNoteTextDialogListener = new DialogInterface.OnClickListener()
    {
 
       public void onClick( DialogInterface dialog, int which )
@@ -344,7 +346,7 @@ public class LoggerMap extends MapActivity
       }
       
    };
-   private OnClickListener mNoteNameDialogListener = new DialogInterface.OnClickListener()
+   private final OnClickListener mNoteNameDialogListener = new DialogInterface.OnClickListener()
    {
 
       public void onClick( DialogInterface dialog, int which )
@@ -355,8 +357,6 @@ public class LoggerMap extends MapActivity
       }
       
    };
-   private EditText mNoteNameView;
-   private EditText mNoteTextView;
  
    /**
     * Called when the activity is first created.
@@ -435,7 +435,7 @@ public class LoggerMap extends MapActivity
          resolver.unregisterContentObserver( this.mTrackObserver );
          resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
       }
-      createDataOverlays();
+      updateDataOverlays();
    }
 
    /*
@@ -1174,8 +1174,69 @@ public class LoggerMap extends MapActivity
       {
          this.mMapView.postInvalidate();
       }
-
    }
+   
+   private void updateDataOverlays()
+   {
+      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      Uri segmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/segments" );
+      Cursor segmentsCursor = null;
+      List<Overlay> overlays = this.mMapView.getOverlays();
+      int segmentOverlaysCount = 0;
+      
+      for( Overlay overlay : overlays )
+      {
+         if( overlay instanceof SegmentOverlay )
+         {
+            segmentOverlaysCount++;
+         }
+      }
+      try
+      {
+         segmentsCursor = resolver.query( segmentsUri, new String[] { Segments._ID }, null, null, null );
+         if( segmentsCursor != null && segmentsCursor.getCount() == segmentOverlaysCount )
+         {
+            Log.d( TAG, "Alignment of segments" );
+         }
+         else
+         {
+            Log.d( TAG, "RECREATE segments" );
+            createDataOverlays();
+         }
+      }
+      finally
+      {
+         if( segmentsCursor != null ) { segmentsCursor.close(); }
+      }
+
+      if( mLoggerServiceManager.getLoggingState() == Constants.LOGGING )
+      {
+         GeoPoint lastPoint =  getLastTrackPoint();
+         Point out = new Point();
+         this.mMapView.getProjection().toPixels( lastPoint, out );
+         int height = this.mMapView.getHeight();
+         int width = this.mMapView.getWidth();
+         if( out.x < 0 || out.y < 0 || out.y > height || out.x > width )
+         {
+            this.mMapView.clearAnimation();
+            this.mMapView.getController().setCenter( lastPoint );
+         }
+         else if( out.x < width / 4 || out.y < height / 4 || out.x > ( width / 4 ) * 3 || out.y > ( height / 4 ) * 3 )
+         {
+            this.mMapView.clearAnimation();
+            this.mMapView.getController().animateTo( lastPoint );
+         }
+         else
+         {
+            this.mMapView.postInvalidate();
+         }
+      }
+      else
+      {
+         this.mMapView.postInvalidate();
+      }
+   }
+   
 
    /**
     * @param avgSpeed avgSpeed in m/s
