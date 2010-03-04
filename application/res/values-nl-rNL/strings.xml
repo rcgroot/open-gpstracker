@@ -15,7 +15,7 @@
     <string name="dialog_filename_title">Bestandsnaam</string>
     <string name="dialog_filename_message">Geeft u alstublieft een naam voor het GPX bestand op de SDCards</string>
     <string name="dialog_deletetitle">Verwijder</string>
-    <string name="dialog_deleteconfirmation">Bevestigd u alstublieft het verwijderen van %s</string>
+    <string name="dialog_deleteconfirmation">Bevestigt u alstublieft het verwijderen van %s</string>
     <string name="dialog_nooiabout">OI About nodig</string>
     <string name="dialog_nooiabout_message">De applicatie \"OI About\" van het OpenIntents project is nodig om informatie te tonen.</string>
     <string name="dialog_layer_title">Activeer overlays</string>
