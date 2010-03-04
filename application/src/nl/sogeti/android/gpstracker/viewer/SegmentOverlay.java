@@ -29,6 +29,8 @@
 package nl.sogeti.android.gpstracker.viewer;
 
 import java.util.HashMap;
+import java.util.Stack;
+import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
@@ -50,12 +52,10 @@ import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.RadialGradient;
 import android.graphics.Shader;
-import android.graphics.Bitmap.Config;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
@@ -98,6 +98,7 @@ public class SegmentOverlay extends Overlay
    private GeoPoint mTopLeft;
    private GeoPoint mBottumRight;
 
+   private Vector<DotVO> mDotPath;
    private Path mPath;
    private Shader mShader;
 
@@ -184,6 +185,7 @@ public class SegmentOverlay extends Overlay
                   calculatePath();
                   break;
                case ( DRAW_DOTS ):
+                  calculateDots();
                   break;
             }
          }
@@ -206,55 +208,75 @@ public class SegmentOverlay extends Overlay
 
    }
 
+
+   private void drawDots( Canvas canvas)
+   {
+      Paint radiusPaint = new Paint();
+      radiusPaint.setColor( Color.YELLOW );
+      radiusPaint.setAlpha( 100 );
+      
+      for( DotVO dotVO : mDotPath )
+      {
+         Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
+         canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, new Paint() );
+         if( dotVO.radius > 8f )
+         {
+            canvas.drawCircle( dotVO.x, dotVO.y, dotVO.radius, radiusPaint );
+         }
+      }
+   }
    /**
     * @param canvas
     * @param mapView
     * @param shadow
     * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
-   private void drawDots( Canvas canvas )
+   private void calculateDots()
    {
-      this.mPath = null;
-
-      GeoPoint geoPoint;
+      mPath = null;
+      if( mDotPath == null )
+      {
+         mDotPath = new Vector<DotVO>();
+      }
+      else
+      {
+         mDotPath.clear();
+      }
       mCalculatedPoints = 0;
       mStep = 0;
-
+           
       try
       {
          mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
          if( mWaypointsCursor.moveToFirst() )
          {
-            // Start point of the segments, possible a dot
-            this.mStartPoint = extractGeoPoint();
-            moveToGeoPoint( this.mStartPoint );
-
-            Paint radiusPaint = new Paint();
-            radiusPaint.setColor( Color.YELLOW );
-            radiusPaint.setAlpha( 100 );
-
+            GeoPoint geoPoint;
             do
             {
                geoPoint = extractGeoPoint();
                setScreenPoint( geoPoint );
+               
                float distance = (float) distanceInPoints( this.mPrevScreenPoint, this.mScreenPoint );
                if( distance > MINIMUM_PX_DISTANCE )
                {
-                  Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
-                  canvas.drawBitmap( bitmap, this.mScreenPoint.x - 8, this.mScreenPoint.y - 8, new Paint() );
-                  float radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
-                  if( radius > 8f )
-                  {
-                     canvas.drawCircle( this.mScreenPoint.x, this.mScreenPoint.y, radius, radiusPaint );
-                  }
+                  DotVO dotVO = new DotVO();
+                  dotVO.x = this.mScreenPoint.x;
+                  dotVO.y = this.mScreenPoint.y;
+                  dotVO.radius =  mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) ); 
+                  mDotPath.add( dotVO );
+                  
                   this.mPrevScreenPoint.x = this.mScreenPoint.x;
                   this.mPrevScreenPoint.y = this.mScreenPoint.y;
                }
             }
             while( moveToNextWayPoint() );
-
-            // End point of the segments, possible a dot
+            
             this.mEndPoint = extractGeoPoint();
+            DotVO pointVO = new DotVO();
+            pointVO.x = this.mScreenPoint.x;
+            pointVO.y = this.mScreenPoint.y;
+            pointVO.radius =  mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) ); 
+            mDotPath.add( pointVO );
          }
       }
       finally
@@ -268,6 +290,7 @@ public class SegmentOverlay extends Overlay
 
    private void calculatePath()
    {
+      mDotPath = null;
       if( this.mPath == null )
       {
          this.mPath = new Path();
@@ -715,9 +738,8 @@ public class SegmentOverlay extends Overlay
    }
 
    /**
-    * For the given trackcursor returns the GeoPoint
+    * For the current waypoint cursor returns the GeoPoint
     * 
-    * @param trackCursor
     * @return
     */
    private GeoPoint extractGeoPoint()
@@ -833,6 +855,13 @@ public class SegmentOverlay extends Overlay
    {
       public Uri uri;
       public GeoPoint geopoint;
+   }
+   
+   private static class DotVO
+   {
+      public int x;
+      public int y;
+      public float radius;
    }
 
 }
