@@ -116,6 +116,7 @@ public class SegmentOverlay extends Overlay
    private Uri[][] onscreenUri = new Uri[20][20];
    private Uri mSegmentUri;
    private HashMap<Uri, MediaVO> mediaCache;
+   private int mWaypointCount;
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -139,7 +140,16 @@ public class SegmentOverlay extends Overlay
       this.mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
       this.mediaCache = new HashMap<Uri, MediaVO>();
 
-      calculateStepSize();
+      Cursor waypointsCursor = null;
+      try
+      {
+         waypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints._ID }, null, null, null );
+         mWaypointCount = waypointsCursor.getCount();
+      }
+      finally
+      {
+         waypointsCursor.close();
+      }
    }
 
    @Override
@@ -148,7 +158,7 @@ public class SegmentOverlay extends Overlay
       super.draw( canvas, mapView, shadow );
       if( shadow )
       {
-//         Log.d( TAG, "No shadows to draw" );
+         //         Log.d( TAG, "No shadows to draw" );
       }
       else
       {
@@ -158,13 +168,10 @@ public class SegmentOverlay extends Overlay
          GeoPoint oldBottumRight = mBottumRight;
          mTopLeft = mProjection.fromPixels( 0, 0 );
          mBottumRight = mProjection.fromPixels( canvas.getWidth(), canvas.getHeight() );
-         
-         if( oldTopLeft == null || oldBottumRight == null || 
-               mTopLeft.getLatitudeE6()/1000 != oldTopLeft.getLatitudeE6()/1000 ||
-               mTopLeft.getLongitudeE6()/1000 != oldTopLeft.getLongitudeE6()/1000 || 
-               mBottumRight.getLatitudeE6()/1000 != oldBottumRight.getLatitudeE6()/1000 ||
-               mBottumRight.getLongitudeE6()/1000 != oldBottumRight.getLongitudeE6()/1000 
-               )
+
+         if( oldTopLeft == null || oldBottumRight == null || mTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100
+               || mTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100 || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100
+               || mBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
          {
             this.mScreenPoint = new Point();
             this.mPrevScreenPoint = new Point();
@@ -194,7 +201,7 @@ public class SegmentOverlay extends Overlay
          }
          drawStartStopCircles( canvas );
          drawMedia( canvas );
-         
+
       }
 
    }
@@ -258,7 +265,7 @@ public class SegmentOverlay extends Overlay
          }
       }
    }
-   
+
    private void calculatePath()
    {
       if( this.mPath == null )
@@ -271,7 +278,77 @@ public class SegmentOverlay extends Overlay
       }
       this.mShader = null;
 
-      transformSegmentToPath();
+      GeoPoint geoPoint;
+      mCalculatedPoints = 0;
+      mStep = 0;
+      this.prevLocation = null;
+      int moves = 0;
+      calculateStepSize();
+
+      try
+      {
+         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+         if( mWaypointsCursor.moveToFirst() )
+         {
+            // Start point of the segments, possible a dot
+            this.mStartPoint = extractGeoPoint();
+            this.location = new Location( this.getClass().getName() );
+            this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+            this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+            this.location.setTime( mWaypointsCursor.getLong( 3 ) );
+            moveToGeoPoint( this.mStartPoint );
+
+            do
+            {
+               //               Log.d(TAG, "Moving the loop of: moveToNextWayPoint() at cursor position: "+trackCursor.getPosition() ) ;
+               geoPoint = extractGeoPoint();
+               double speed = -1d;
+               switch( mTrackColoringMethod )
+               {
+                  case DRAW_GREEN:
+                  case DRAW_RED:
+                     lineToGeoPoint( geoPoint, speed );
+                     break;
+                  case DRAW_MEASURED:
+                     lineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
+                     break;
+                  case DRAW_CALCULATED:
+                     this.location = new Location( this.getClass().getName() );
+                     this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+                     this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+                     this.location.setTime( mWaypointsCursor.getLong( 3 ) );
+                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME )
+                           || mWaypointsCursor.isLast() )
+                     {
+                        speed = calculateSpeedBetweenLocations( this.prevLocation, this.location );
+                        lineToGeoPoint( geoPoint, speed );
+                     }
+                     else
+                     {
+                        lineToGeoPoint( geoPoint, -1d );
+                     }
+                     break;
+                  default:
+                     lineToGeoPoint( geoPoint, speed );
+                     break;
+               }
+               moves++;
+            }
+            while( moveToNextWayPoint() );
+
+            // End point of the segments, possible a dot
+            this.mEndPoint = extractGeoPoint();
+
+         }
+      }
+      finally
+      {
+         if( mWaypointsCursor != null )
+         {
+            mWaypointsCursor.close();
+         }
+      }
+      //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
 
    /**
@@ -447,87 +524,6 @@ public class SegmentOverlay extends Overlay
       return Long.parseLong( mSegmentUri.getLastPathSegment() );
    }
 
-   /**
-    * Convert the cursor from the GPSTracking provider into Points on the Path
-    * 
-    * @see Cursor Cursor used as input
-    * @see Point Point used as transformation target
-    * @see Path Path used as drawable line
-    */
-   private void transformSegmentToPath()
-   {
-      GeoPoint geoPoint;
-      mCalculatedPoints = 0;
-      mStep = 0;
-      this.prevLocation = null;
-
-      int moves = 0;
-      try
-      {
-         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
-         if( mWaypointsCursor.moveToFirst() )
-         {
-            // Start point of the segments, possible a dot
-            this.mStartPoint = extractGeoPoint();
-            this.location = new Location( this.getClass().getName() );
-            this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
-            this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
-            this.location.setTime( mWaypointsCursor.getLong( 3 ) );
-            moveToGeoPoint( this.mStartPoint );
-
-            do
-            {
-               //               Log.d(TAG, "Moving the loop of: moveToNextWayPoint() at cursor position: "+trackCursor.getPosition() ) ;
-               geoPoint = extractGeoPoint();
-               double speed = -1d;
-               switch( mTrackColoringMethod )
-               {
-                  case DRAW_GREEN:
-                  case DRAW_RED:
-                     lineToGeoPoint( geoPoint, speed );
-                     break;
-                  case DRAW_MEASURED:
-                     lineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
-                     break;
-                  case DRAW_CALCULATED:
-                     this.location = new Location( this.getClass().getName() );
-                     this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
-                     this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
-                     this.location.setTime( mWaypointsCursor.getLong( 3 ) );
-                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME )
-                           || mWaypointsCursor.isLast() )
-                     {
-                        speed = calculateSpeedBetweenLocations( this.prevLocation, this.location );
-                        lineToGeoPoint( geoPoint, speed );
-                     }
-                     else
-                     {
-                        lineToGeoPoint( geoPoint, -1d );
-                     }
-                     break;
-                  default:
-                     lineToGeoPoint( geoPoint, speed );
-                     break;
-               }
-               moves++;
-            }
-            while( moveToNextWayPoint() );
-
-            // End point of the segments, possible a dot
-            this.mEndPoint = extractGeoPoint();
-
-         }
-      }
-      finally
-      {
-         if( mWaypointsCursor != null )
-         {
-            mWaypointsCursor.close();
-         }
-      }
-      //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
-   }
-
    private void moveToGeoPoint( GeoPoint geoPoint )
    {
       setScreenPoint( geoPoint );
@@ -647,9 +643,8 @@ public class SegmentOverlay extends Overlay
    private boolean moveToNextOffScreenWaypoint()
    {
       GeoPoint lastPoint = extractGeoPoint();
-      while( mWaypointsCursor.move( mStepSize ) )
+      while( mWaypointsCursor.move( mStepSize * 2 ) )
       {
-         mStep++;
          if( mWaypointsCursor.isLast() )
          {
             //               Log.d(TAG, "last off screen "+trackCursor.getPosition() );
@@ -679,40 +674,23 @@ public class SegmentOverlay extends Overlay
     */
    private void calculateStepSize()
    {
-      Cursor segmentCursor = null;
-      try
+      if( mWaypointCount < 100 )
       {
-         segmentCursor = this.mResolver.query( this.mWaypointsUri, new String[] { "count(" + Waypoints._ID + ")" }, null, null, null );
-         segmentCursor.moveToFirst();
-         long points = segmentCursor.getLong( 0 );
-         if( points < 500 )
+         mStepSize = 1;
+      }
+      else
+      {
+         int zoomLevel = mMapView.getZoomLevel();
+         int maxZoomLevel = mMapView.getMaxZoomLevel();
+         if( zoomLevel >= maxZoomLevel - 2 )
          {
-
             mStepSize = 1;
          }
          else
          {
-            int zoomLevel = mMapView.getZoomLevel();
-            int maxZoomLevel = mMapView.getMaxZoomLevel();
-            if( zoomLevel >= maxZoomLevel - 2 )
-            {
-               mStepSize = 1;
-            }
-            else
-            {
-               mStepSize = ( maxZoomLevel - zoomLevel );
-            }
+            mStepSize = 2*( maxZoomLevel - zoomLevel );
          }
       }
-      finally
-      {
-         if( segmentCursor != null )
-         {
-            segmentCursor.close();
-         }
-
-      }
-      //      Log.d( TAG, "Setting stepSize "+stepSize+" on a zoom of "+zoomLevel+"/"+maxZoomLevel );
    }
 
    /**
