@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.util.HashMap;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -53,7 +55,6 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
-import android.sax.StartElementListener;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -117,6 +118,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
    private Cursor mSegmentCursor;
    private Uri[][] onscreenUri = new Uri[20][20];
    private Uri mSegmentUri;
+   private HashMap<Uri, MediaVO> mediaCache;
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -138,6 +140,7 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
       this.mSegmentUri = segmentUri;
       this.mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       this.mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
+      this.mediaCache = new HashMap<Uri, MediaVO>();
 
       calculateStepSize();
    }
@@ -339,7 +342,8 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
             {
                Long waypointId = mediaCursor.getLong( 0 );
                Uri mediaUri = Uri.parse( mediaCursor.getString( 1 ) );
-               drawSingleMedia( canvas, waypointId, mediaUri );
+               Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, waypointId );
+               drawSingleMedia( canvas, mediaWaypoint, mediaUri );
 
             }
             while( mediaCursor.moveToNext() );
@@ -353,70 +357,76 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
          }
       }
    }
-
-   private void drawSingleMedia( Canvas canvas, Long waypointId, Uri mediaUri )
+   
+   private void drawSingleMedia( Canvas canvas, Uri mediaWaypoint, Uri mediaUri )
    {
-      Cursor waypointCursor = null;
-      try
+      MediaVO media = null;
+      if( mediaCache.containsKey( mediaWaypoint ))
       {
-         Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, waypointId );
-//                  Log.d( TAG, "Searching for media waypoint on " + mediaWaypoint );
-         waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
-         
-         if( waypointCursor !=null && waypointCursor.moveToFirst() )
+         media = mediaCache.get( mediaWaypoint );
+      }
+      else
+      {
+         media = new MediaVO();
+         mediaCache.put( mediaWaypoint, media );
+         Cursor waypointCursor = null;
+         try
          {
-            int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
-            int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
-            GeoPoint point = new GeoPoint( microLatitude, microLongitude );
-            
-            if( isOnScreen( point ))
+            waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
+            if( waypointCursor !=null && waypointCursor.moveToFirst() )
             {
-               setScreenPoint( point );
-               int drawable = 0;
-               if( mediaUri.getScheme().equals( "file" ) )
-               {
-                  if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
-                  {
-                     drawable = R.drawable.media_film;
-                  }
-                  else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
-                  {
-                     drawable = R.drawable.media_camera;
-                  }
-                  else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
-                  {
-                     drawable = R.drawable.media_notepad;
-                  }
-               }
-               else if( mediaUri.getScheme().equals( "content" ) )
-               {
-                  if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
-                  {
-                     drawable = R.drawable.media_mark;
-                  }
-                  else if( mediaUri.getAuthority().equals( "media" ) )
-                  {
-                     drawable = R.drawable.media_speech;
-                  }
-               }
-               Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
-               int left = ( bitmap.getWidth() * 3 ) / 7;
-               int up = ( bitmap.getHeight() * 6 ) / 7;
-               canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
-               
-               int xbox = ( mScreenPoint.x * 20 ) / this.mRenderCanvas.getWidth();
-               int ybox = ( mScreenPoint.y * 20 ) / this.mRenderCanvas.getHeight();
-               onscreenUri[xbox][ybox] = mediaUri;
-//                        Log.d( TAG, String.format( " Added snap to point (%d,%d)",xbox,ybox ) );
+               int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
+               int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
+               media.geopoint = new GeoPoint( microLatitude, microLongitude );
+               media.uri = mediaUri;
+            }
+         }
+         finally
+         {
+            if( waypointCursor != null )
+            {
+               waypointCursor.close();
             }
          }
       }
-      finally
+      if( isOnScreen( media.geopoint ))
       {
-         if( waypointCursor != null )
+         setScreenPoint( media.geopoint );
+         int drawable = 0;
+         if( media.uri.getScheme().equals( "file" ) )
          {
-            waypointCursor.close();
+            if( media.uri.getLastPathSegment().endsWith( "3gp" ) )
+            {
+               drawable = R.drawable.media_film;
+            }
+            else if( media.uri.getLastPathSegment().endsWith( "jpg" ) )
+            {
+               drawable = R.drawable.media_camera;
+            }
+            else if( media.uri.getLastPathSegment().endsWith( "txt" ) )
+            {
+               drawable = R.drawable.media_notepad;
+            }
          }
+         else if( media.uri.getScheme().equals( "content" ) )
+         {
+            if( media.uri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+            {
+               drawable = R.drawable.media_mark;
+            }
+            else if( media.uri.getAuthority().equals( "media" ) )
+            {
+               drawable = R.drawable.media_speech;
+            }
+         }
+         Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
+         int left = ( bitmap.getWidth() * 3 ) / 7;
+         int up = ( bitmap.getHeight() * 6 ) / 7;
+         canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
+         
+         int xbox = ( mScreenPoint.x * 20 ) / this.mRenderCanvas.getWidth();
+         int ybox = ( mScreenPoint.y * 20 ) / this.mRenderCanvas.getHeight();
+         onscreenUri[xbox][ybox] = media.uri;
       }
    }
 
@@ -858,6 +868,12 @@ public class SegmentOverlay extends Overlay implements Overlay.Snappable
          return true;
       }
       return false;
+   }
+
+   private static class MediaVO
+   {
+      public Uri uri;
+      public GeoPoint geopoint;
    }
    
    
