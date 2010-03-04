@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.viewer;
 import java.net.URI;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.app.AlertDialog;
@@ -248,7 +249,8 @@ public class TrackList extends ListActivity
          }
          case MENU_STATS:
          {
-            Intent actionIntent = new Intent( Intent.ACTION_VIEW, mDialogUri );
+            Intent actionIntent = new Intent( this, Statistics.class );
+            actionIntent.setData( mDialogUri );
             startActivity( actionIntent );
             handled = true;
             break;
