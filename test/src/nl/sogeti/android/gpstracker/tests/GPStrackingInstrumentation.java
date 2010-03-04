@@ -29,12 +29,9 @@
 package nl.sogeti.android.gpstracker.tests;
 
 import junit.framework.TestSuite;
-import nl.sogeti.android.gpstracker.tests.actions.ExportGPXTest;
 import nl.sogeti.android.gpstracker.tests.db.GPStrackingProviderTest;
 import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerServiceTest;
 import nl.sogeti.android.gpstracker.tests.logger.GPSLoggerServiceTest;
-import nl.sogeti.android.gpstracker.tests.userinterface.LoggerMapTest;
-import nl.sogeti.android.gpstracker.tests.userinterface.OpenGPSTrackerDemo;
 import android.test.InstrumentationTestRunner;
 import android.test.InstrumentationTestSuite;
 

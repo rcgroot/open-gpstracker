@@ -90,7 +90,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters
-      service.storeLocation( this.getContext(), reference );
+      service.storeLocation( reference );
       
       this.mLocation.setAccuracy( 50f );
       Assert.assertNull( "An unacceptable fix", service.locationFilter( this.mLocation ) );
@@ -104,7 +104,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters
-      service.storeLocation( this.getContext(), reference );
+      service.storeLocation( reference );
       
       this.mLocation.setAccuracy( 9f );
       Location returned = service.locationFilter( this.mLocation ) ;
@@ -119,7 +119,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.0001d ); // About 11 meters
-      service.storeLocation( this.getContext(), reference );
+      service.storeLocation( reference );
       
       this.mLocation.setAccuracy( 9f );
       Assert.assertNotNull( "An acceptable fix", service.locationFilter( this.mLocation ) );
@@ -160,7 +160,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       reference.setLatitude( reference.getLatitude()+0.0001d );
       reference.setSpeed( 419f );
       reference.setAccuracy( 9f );
-      service.storeLocation( this.getContext(), this.mLocation );
+      service.storeLocation( this.mLocation );
       
       Location sane = service.locationFilter( reference );
       Assert.assertFalse( "No speed anymore", sane.hasSpeed() );
@@ -177,7 +177,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       reference.setLatitude( reference.getLatitude()+0.0001d );
       reference.setSpeed( 4f );
       reference.setAccuracy( 9f );
-      service.storeLocation( this.getContext(), this.mLocation );
+      service.storeLocation( this.mLocation );
       
       Location sane = service.locationFilter( reference );
       Assert.assertTrue( "No speed anymore", sane.hasSpeed() );

@@ -26,9 +26,11 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.tests.userinterface;
+package nl.sogeti.android.gpstracker.tests.perf;
 
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.tests.R;
+import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.os.Debug;
 import android.test.ActivityInstrumentationTestCase2;
@@ -38,18 +40,16 @@ import android.test.suitebuilder.annotation.LargeTest;
 /**
  * Goal is to feed as the LoggerMap as many points as possible to give it a good workout.
  *
- * @version $Id: LoggerMapStressTest.java 47 2009-05-17 19:15:00Z rcgroot $
+ * @version $Id$
  * @author rene (c) Mar 15, 2009, Sogeti B.V.
  */
-public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> implements PerformanceTestCase
+public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap> implements PerformanceTestCase
 {
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
-   private LoggerMap mLoggermap;
-   private GPSLoggerServiceManager mLoggerServiceManager;
    private Intermediates mIntermediates;
 
-   public MapStressTest()
+   public LoggerStressTest()
    {
       super( PACKAGE, CLASS );
    }
@@ -58,7 +58,7 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    protected void setUp() throws Exception 
    {
       super.setUp();
-      this.mLoggermap = getActivity();
+      getActivity();
    }  
 
    protected void tearDown() throws Exception
@@ -67,33 +67,30 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    }
    
    /**
-    * Open the first track in the list and scroll around 
-    * forcing redraws during a perf test
+    * Just pours a lot of tracking actions at the application
     * 
     * @throws InterruptedException
     */
    @LargeTest
-   public void testBrowseFirstTrack() throws InterruptedException
+   public void testLapsAroundUtrecht() throws InterruptedException
    {    
-      final int duration = 10;
-      int seconds = 0;
-      String[] timeActions = {"T", "T", "T", "T","G", "T", "T", "T", "T","G", "G", "G", "T", "T", "T", "T","G", "G", "G"};
-      
-      this.sendKeys( "MENU L" );
-      this.sendKeys( "DPAD_RIGHT ENTER");
-      this.sendKeys("ENTER");      
+      // Our data feeder to the emulator
+      MockGPSLoggerDriver service = new MockGPSLoggerDriver( getInstrumentation().getContext(), R.xml.rondjesingelutrecht, 10 );
+
+      this.sendKeys( "T T T T" );
+      this.sendKeys( "MENU DPAD_RIGHT T T E S T R O U T E ENTER" );
+      this.sendKeys("ENTER" ); 
+
       // Start method tracing for Issue 18
-      Debug.startMethodTracing("testBrowseFirstTrack");
+      Debug.startMethodTracing("rondjesingelutrecht" );
       if( this.mIntermediates != null )
       {
          this.mIntermediates.startTiming( true ) ;
       }
-      while( seconds < duration )
-      {
-         Thread.sleep( 1 * 1000 );
-         this.sendKeys( timeActions[seconds] );
-         seconds++;
-      }
+
+      service.run();
+
+      // Start method tracing for Issue 18
       if( this.mIntermediates != null )
       {
          this.mIntermediates.finishTiming( true ) ;
@@ -111,5 +108,4 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
       this.mIntermediates = intermediates;
       return 1;
    }
-
 }
