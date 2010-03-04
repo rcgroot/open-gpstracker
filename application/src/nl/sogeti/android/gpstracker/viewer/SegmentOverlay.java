@@ -28,8 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.util.HashMap;
-import java.util.Stack;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
@@ -99,6 +97,7 @@ public class SegmentOverlay extends Overlay
    private GeoPoint mBottumRight;
 
    private Vector<DotVO> mDotPath;
+   private Vector<MediaVO> mMediaPath;
    private Path mPath;
    private Shader mShader;
 
@@ -116,7 +115,6 @@ public class SegmentOverlay extends Overlay
    private Cursor mWaypointsCursor;
    private Uri[][] onscreenUri = new Uri[20][20];
    private Uri mSegmentUri;
-   private HashMap<Uri, MediaVO> mediaCache;
    private int mWaypointCount;
 
    /**
@@ -139,7 +137,6 @@ public class SegmentOverlay extends Overlay
       this.mSegmentUri = segmentUri;
       this.mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       this.mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
-      this.mediaCache = new HashMap<Uri, MediaVO>();
 
       Cursor waypointsCursor = null;
       try
@@ -164,15 +161,13 @@ public class SegmentOverlay extends Overlay
       else
       {
          mProjection = mapView.getProjection();
-         mProjection = mapView.getProjection();
          GeoPoint oldTopLeft = mTopLeft;
          GeoPoint oldBottumRight = mBottumRight;
          mTopLeft = mProjection.fromPixels( 0, 0 );
          mBottumRight = mProjection.fromPixels( canvas.getWidth(), canvas.getHeight() );
 
-         if( oldTopLeft == null || oldBottumRight == null || mTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100
-               || mTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100 || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100
-               || mBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
+         if( oldTopLeft == null || oldBottumRight == null || mTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 || mTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
+               || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 || mBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
          {
             this.mScreenPoint = new Point();
             this.mPrevScreenPoint = new Point();
@@ -197,47 +192,34 @@ public class SegmentOverlay extends Overlay
             case ( DRAW_GREEN ):
                if( mPath == null )
                {
-                  calculatePath();                  
+                  calculatePath();
                }
                drawPath( canvas );
                break;
             case ( DRAW_DOTS ):
                if( mDotPath == null )
                {
-                  calculateDots();                  
+                  calculateDots();
                }
                drawDots( canvas );
                break;
          }
          drawStartStopCircles( canvas );
+         if( mMediaPath == null )
+         {
+            calculateMedia();
+         }
          drawMedia( canvas );
       }
    }
 
-   private void drawDots( Canvas canvas)
-   {
-      Paint dotpaint = new Paint();
-      Paint radiusPaint =  new Paint();
-      radiusPaint.setColor( Color.YELLOW );
-      radiusPaint.setAlpha( 100 );
-      
-      for( DotVO dotVO : mDotPath )
-      {
-         Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
-         canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
-         if( dotVO.radius > 8f )
-         {
-            canvas.drawCircle( dotVO.x, dotVO.y, dotVO.radius, radiusPaint );
-         }
-      }
-   }
    /**
     * @param canvas
     * @param mapView
     * @param shadow
     * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
-   private void calculateDots()
+   public synchronized void calculateDots()
    {
       mPath = null;
       if( mDotPath == null )
@@ -250,38 +232,38 @@ public class SegmentOverlay extends Overlay
       }
       mCalculatedPoints = 0;
       mStep = 0;
-           
+
       try
       {
          mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
-         if( mWaypointsCursor.moveToFirst() )
+         if( mProjection != null && mWaypointsCursor.moveToFirst() )
          {
             GeoPoint geoPoint;
             do
             {
                geoPoint = extractGeoPoint();
                setScreenPoint( geoPoint );
-               
+
                float distance = (float) distanceInPoints( this.mPrevScreenPoint, this.mScreenPoint );
                if( distance > MINIMUM_PX_DISTANCE )
                {
                   DotVO dotVO = new DotVO();
                   dotVO.x = this.mScreenPoint.x;
                   dotVO.y = this.mScreenPoint.y;
-                  dotVO.radius =  mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) ); 
+                  dotVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
                   mDotPath.add( dotVO );
-                  
+
                   this.mPrevScreenPoint.x = this.mScreenPoint.x;
                   this.mPrevScreenPoint.y = this.mScreenPoint.y;
                }
             }
             while( moveToNextWayPoint() );
-            
+
             this.mEndPoint = extractGeoPoint();
             DotVO pointVO = new DotVO();
             pointVO.x = this.mScreenPoint.x;
             pointVO.y = this.mScreenPoint.y;
-            pointVO.radius =  mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) ); 
+            pointVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
             mDotPath.add( pointVO );
          }
       }
@@ -294,7 +276,25 @@ public class SegmentOverlay extends Overlay
       }
    }
 
-   private void calculatePath()
+   private synchronized void drawDots( Canvas canvas )
+   {
+      Paint dotpaint = new Paint();
+      Paint radiusPaint = new Paint();
+      radiusPaint.setColor( Color.YELLOW );
+      radiusPaint.setAlpha( 100 );
+
+      for( DotVO dotVO : mDotPath )
+      {
+         Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
+         canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
+         if( dotVO.radius > 8f )
+         {
+            canvas.drawCircle( dotVO.x, dotVO.y, dotVO.radius, radiusPaint );
+         }
+      }
+   }
+
+   public synchronized void calculatePath()
    {
       mDotPath = null;
       if( this.mPath == null )
@@ -317,7 +317,7 @@ public class SegmentOverlay extends Overlay
       try
       {
          mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
-         if( mWaypointsCursor.moveToFirst() )
+         if( mProjection != null && mWaypointsCursor.moveToFirst() )
          {
             // Start point of the segments, possible a dot
             this.mStartPoint = extractGeoPoint();
@@ -386,7 +386,7 @@ public class SegmentOverlay extends Overlay
     * @param shadow
     * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
-   private void drawPath( Canvas canvas )
+   private synchronized void drawPath( Canvas canvas )
    {
       Paint routePaint = new Paint();
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
@@ -412,6 +412,108 @@ public class SegmentOverlay extends Overlay
       canvas.drawPath( this.mPath, routePaint );
    }
 
+   public synchronized void calculateMedia()
+   {
+      if( mMediaPath == null )
+      {
+         mMediaPath = new Vector<MediaVO>();
+      }
+      else
+      {
+         mMediaPath.clear();
+      }
+      Cursor mediaCursor = null;
+      try
+      {
+         //         Log.d( TAG, "Searching for media on " + this.mMediaUri );
+         mediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );
+         if( mProjection != null && mediaCursor.moveToFirst() )
+         {
+            do
+            {
+               MediaVO mediaVO = new MediaVO();
+               mediaVO.waypointId = mediaCursor.getLong( 0 );
+               mediaVO.uri = Uri.parse( mediaCursor.getString( 1 ) );
+
+               Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, mediaVO.waypointId );
+               Cursor waypointCursor = null;
+               try
+               {
+                  waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
+                  if( waypointCursor != null && waypointCursor.moveToFirst() )
+                  {
+                     int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
+                     int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
+                     mediaVO.geopoint = new GeoPoint( microLatitude, microLongitude );
+                  }
+               }
+               finally
+               {
+                  if( waypointCursor != null )
+                  {
+                     waypointCursor.close();
+                  }
+               }
+               mMediaPath.add( mediaVO );
+            }
+            while( mediaCursor.moveToNext() );
+         }
+      }
+      finally
+      {
+         if( mediaCursor != null )
+         {
+            mediaCursor.close();
+         }
+      }
+   }
+
+   private synchronized void drawMedia( Canvas canvas )
+   {
+      for( MediaVO mediaVO : mMediaPath )
+      {
+         if( isOnScreen( mediaVO.geopoint ) )
+         {
+            setScreenPoint( mediaVO.geopoint );
+            int drawable = 0;
+            if( mediaVO.uri.getScheme().equals( "file" ) )
+            {
+               if( mediaVO.uri.getLastPathSegment().endsWith( "3gp" ) )
+               {
+                  drawable = R.drawable.media_film;
+               }
+               else if( mediaVO.uri.getLastPathSegment().endsWith( "jpg" ) )
+               {
+                  drawable = R.drawable.media_camera;
+               }
+               else if( mediaVO.uri.getLastPathSegment().endsWith( "txt" ) )
+               {
+                  drawable = R.drawable.media_notepad;
+               }
+            }
+            else if( mediaVO.uri.getScheme().equals( "content" ) )
+            {
+               if( mediaVO.uri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+               {
+                  drawable = R.drawable.media_mark;
+               }
+               else if( mediaVO.uri.getAuthority().equals( "media" ) )
+               {
+                  drawable = R.drawable.media_speech;
+               }
+            }
+            Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
+            int left = ( bitmap.getWidth() * 3 ) / 7;
+            int up = ( bitmap.getHeight() * 6 ) / 7;
+            canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
+
+            int xbox = ( mScreenPoint.x * 20 ) / canvas.getWidth();
+            int ybox = ( mScreenPoint.y * 20 ) / canvas.getHeight();
+            onscreenUri[xbox][ybox] = mediaVO.uri;
+         }
+      }
+   }
+
    private void drawStartStopCircles( Canvas canvas )
    {
       Bitmap bitmap;
@@ -426,107 +528,6 @@ public class SegmentOverlay extends Overlay
          setScreenPoint( this.mEndPoint );
          bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip );
          canvas.drawBitmap( bitmap, mScreenPoint.x - 5, mScreenPoint.y - 5, new Paint() );
-      }
-   }
-
-   private void drawMedia( Canvas canvas )
-   {
-      Cursor mediaCursor = null;
-      try
-      {
-         //         Log.d( TAG, "Searching for media on " + this.mMediaUri );
-         mediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );
-         if( mediaCursor.moveToFirst() )
-         {
-            do
-            {
-               Long waypointId = mediaCursor.getLong( 0 );
-               Uri mediaUri = Uri.parse( mediaCursor.getString( 1 ) );
-               Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, waypointId );
-               drawSingleMedia( canvas, mediaWaypoint, mediaUri );
-
-            }
-            while( mediaCursor.moveToNext() );
-         }
-      }
-      finally
-      {
-         if( mediaCursor != null )
-         {
-            mediaCursor.close();
-         }
-      }
-   }
-
-   private void drawSingleMedia( Canvas canvas, Uri mediaWaypoint, Uri mediaUri )
-   {
-      MediaVO media = null;
-      if( mediaCache.containsKey( mediaWaypoint ) )
-      {
-         media = mediaCache.get( mediaWaypoint );
-      }
-      else
-      {
-         media = new MediaVO();
-         mediaCache.put( mediaWaypoint, media );
-         Cursor waypointCursor = null;
-         try
-         {
-            waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
-            if( waypointCursor != null && waypointCursor.moveToFirst() )
-            {
-               int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
-               int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
-               media.geopoint = new GeoPoint( microLatitude, microLongitude );
-               media.uri = mediaUri;
-            }
-         }
-         finally
-         {
-            if( waypointCursor != null )
-            {
-               waypointCursor.close();
-            }
-         }
-      }
-      if( isOnScreen( media.geopoint ) )
-      {
-         setScreenPoint( media.geopoint );
-         int drawable = 0;
-         if( media.uri.getScheme().equals( "file" ) )
-         {
-            if( media.uri.getLastPathSegment().endsWith( "3gp" ) )
-            {
-               drawable = R.drawable.media_film;
-            }
-            else if( media.uri.getLastPathSegment().endsWith( "jpg" ) )
-            {
-               drawable = R.drawable.media_camera;
-            }
-            else if( media.uri.getLastPathSegment().endsWith( "txt" ) )
-            {
-               drawable = R.drawable.media_notepad;
-            }
-         }
-         else if( media.uri.getScheme().equals( "content" ) )
-         {
-            if( media.uri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
-            {
-               drawable = R.drawable.media_mark;
-            }
-            else if( media.uri.getAuthority().equals( "media" ) )
-            {
-               drawable = R.drawable.media_speech;
-            }
-         }
-         Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
-         int left = ( bitmap.getWidth() * 3 ) / 7;
-         int up = ( bitmap.getHeight() * 6 ) / 7;
-         canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
-
-         int xbox = ( mScreenPoint.x * 20 ) / canvas.getWidth();
-         int ybox = ( mScreenPoint.y * 20 ) / canvas.getHeight();
-         onscreenUri[xbox][ybox] = media.uri;
       }
    }
 
@@ -717,7 +718,7 @@ public class SegmentOverlay extends Overlay
          }
          else
          {
-            mStepSize = 2*( maxZoomLevel - zoomLevel );
+            mStepSize = 2 * ( maxZoomLevel - zoomLevel );
          }
       }
    }
@@ -861,8 +862,9 @@ public class SegmentOverlay extends Overlay
    {
       public Uri uri;
       public GeoPoint geopoint;
+      public long waypointId;
    }
-   
+
    private static class DotVO
    {
       public int x;
