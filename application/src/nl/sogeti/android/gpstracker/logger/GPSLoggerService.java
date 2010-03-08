@@ -607,6 +607,7 @@ public class GPSLoggerService extends Service
     */
    private void startNewSegment()
    {
+      this.mPreviousLocation = null;
       Uri newSegment = this.mContext.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments" ), null );
       mSegmentId = new Long( newSegment.getLastPathSegment() ).longValue();
    }
@@ -614,20 +615,9 @@ public class GPSLoggerService extends Service
    protected void storeMediaUri( Uri mediaUri )
    {
 //      Log.d( TAG, "Retrieved MediaUri to store on track: "+mediaUri );
-      Location last = mPreviousLocation ;
-      if( mTrackId < 0 || mSegmentId < 0 )
+      if( mTrackId < 0 || mSegmentId < 0 || mWaypointId < 0)
       {
-         Log.e( TAG, "No location or track available to store this under" );
-         return;
-      }
-      if( last == null || mWaypointId < 0)
-      {
-         last = mLocationManager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
-         storeLocation( last );
-      }
-      if( last == null || mWaypointId < 0)
-      {
-         Log.e( TAG, "No location or track available to store this under" );
+         Log.e( TAG, "No logging done under which to store the track" );
          return;
       }
       Uri mediaInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints/" + mWaypointId+"/media" );
