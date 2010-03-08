@@ -171,18 +171,7 @@ public class SegmentOverlay extends Overlay
          {
             this.mScreenPoint = new Point();
             this.mPrevScreenPoint = new Point();
-            switch( mTrackColoringMethod )
-            {
-               case ( DRAW_CALCULATED ):
-               case ( DRAW_MEASURED ):
-               case ( DRAW_RED ):
-               case ( DRAW_GREEN ):
-                  calculatePath();
-                  break;
-               case ( DRAW_DOTS ):
-                  calculateDots();
-                  break;
-            }
+            calculateTrack();
          }
          switch( mTrackColoringMethod )
          {
@@ -213,13 +202,29 @@ public class SegmentOverlay extends Overlay
       }
    }
 
+   public void calculateTrack()
+   {
+      switch( mTrackColoringMethod )
+      {
+         case ( DRAW_CALCULATED ):
+         case ( DRAW_MEASURED ):
+         case ( DRAW_RED ):
+         case ( DRAW_GREEN ):
+            calculatePath();
+            break;
+         case ( DRAW_DOTS ):
+            calculateDots();
+            break;
+      }
+   }
+
    /**
     * @param canvas
     * @param mapView
     * @param shadow
     * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
-   public synchronized void calculateDots()
+   private synchronized void calculateDots()
    {
       mPath = null;
       if( mDotPath == null )
@@ -294,7 +299,7 @@ public class SegmentOverlay extends Overlay
       }
    }
 
-   public synchronized void calculatePath()
+   private synchronized void calculatePath()
    {
       mDotPath = null;
       if( this.mPath == null )

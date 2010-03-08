@@ -36,6 +36,7 @@ import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -72,7 +73,6 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -140,7 +140,7 @@ public class LoggerMap extends MapActivity
    private double mAverageSpeed = 33.33d / 2d;
    private long mTrackId = -1;
    private long mLastSegment = -1;
-   private long mLastWaypoint;
+   private long mLastWaypoint = -1;
    private UnitsI18n mUnits;
    private WakeLock mWakeLock = null;
    private MapController mMapController = null;
@@ -172,10 +172,36 @@ public class LoggerMap extends MapActivity
             if( !selfUpdate )
             {
                List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
-               Overlay overlay = overlays.get( overlays.size()-1 );
-               if( overlay instanceof SegmentOverlay )
+               if( overlays.size() > 1 )
                {
-                  ( (SegmentOverlay) overlay ).calculatePath();
+                  Overlay overlay = overlays.get( overlays.size()-1 );
+                  if( overlay instanceof SegmentOverlay )
+                  {
+                     ( (SegmentOverlay) overlay ).calculateTrack();
+                  }
+               }
+            }
+            else
+            {
+               Log.w( TAG, "Skipping caused by self" );
+            }
+         }
+      };
+   private final ContentObserver mMediaObserver = new ContentObserver( new Handler() )
+      {
+         @Override
+         public void onChange( boolean selfUpdate )
+         {
+            if( !selfUpdate )
+            {
+               List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
+               if( overlays.size() > 1 )
+               {
+                  Overlay overlay = overlays.get( overlays.size()-1 );
+                  if( overlay instanceof SegmentOverlay )
+                  {
+                     ( (SegmentOverlay) overlay ).calculateMedia();
+                  }
                }
             }
             else
@@ -432,6 +458,8 @@ public class LoggerMap extends MapActivity
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
          resolver.unregisterContentObserver( this.mTrackObserver );
+         resolver.unregisterContentObserver( this.mMediaObserver );
+         resolver.unregisterContentObserver( this.mSegmentObserver );
       }
       mMylocation.disableMyLocation();
       mMylocation.disableCompass();
@@ -447,12 +475,15 @@ public class LoggerMap extends MapActivity
       updateCompassDisplayVisibility();
       updateLocationDisplayVisibility();
 
-      if( mTrackId > 0 )
+      if( mTrackId >= 0 )
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
          Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId );
+         Uri mediaUri = ContentUris.withAppendedId( Media.CONTENT_URI, mTrackId );
          resolver.unregisterContentObserver( this.mTrackObserver );
+         resolver.unregisterContentObserver( this.mMediaObserver );
          resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
+         resolver.registerContentObserver( mediaUri, true, this.mMediaObserver );
       }
       updateDataOverlays();
    }
@@ -652,6 +683,19 @@ public class LoggerMap extends MapActivity
       menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
       menu.add( ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
       return result;
+   }
+   
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
+    */
+   @Override
+   public boolean onPrepareOptionsMenu( Menu menu )
+   {
+      MenuItem notemenu = menu.getItem( 3 );
+      boolean enabled = mTrackId >= 0 && mLastSegment >= 0 && mLastWaypoint >= 0 && mLoggerServiceManager.getLoggingState() == Constants.LOGGING;
+      notemenu.setEnabled( enabled );
+      return super.onPrepareOptionsMenu( menu );
    }
 
    @Override
@@ -1185,8 +1229,6 @@ public class LoggerMap extends MapActivity
             this.mMapView.getController().animateTo( lastPoint );
          }
       }
-      
-
       Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+mLastSegment+"/waypoints" );
       resolver.unregisterContentObserver( this.mSegmentObserver );
       resolver.registerContentObserver( lastSegmentUri, false, this.mSegmentObserver );
@@ -1276,13 +1318,17 @@ public class LoggerMap extends MapActivity
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
          Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId );
+         Uri mediaUri = ContentUris.withAppendedId( Media.CONTENT_URI, trackId );
          track = resolver.query( trackUri, new String[] { Tracks.NAME }, null, null, null );
          if( track != null && track.moveToFirst() )
          {
             this.mTrackId = trackId;
             mLastSegment = -1;
+            mLastWaypoint = -1;
             resolver.unregisterContentObserver( this.mTrackObserver );
+            resolver.unregisterContentObserver( this.mMediaObserver );
             resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
+            resolver.registerContentObserver( mediaUri, false, this.mMediaObserver );
             this.mMapView.getOverlays().clear();
 
             updateTitleBar();
@@ -1359,11 +1405,14 @@ public class LoggerMap extends MapActivity
             int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
             int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
             lastPoint = new GeoPoint( microLatitude, microLongitude );
-            mLastWaypoint = waypoint.getLong( 2 );
          }
          if( lastPoint == null || lastPoint.getLatitudeE6() == 0 || lastPoint.getLongitudeE6() == 0 )
          {
             lastPoint = getLastKnowGeopointLocation();
+         }
+         else
+         {
+            mLastWaypoint = waypoint.getLong( 2 );
          }
       }
       finally
@@ -1427,7 +1476,7 @@ public class LoggerMap extends MapActivity
 
    private void addVoice()
    {
-      Intent intent = new Intent( Media.RECORD_SOUND_ACTION );
+      Intent intent = new Intent( android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION );
       startActivityForResult( intent, MENU_VOICE );
    }
 }
