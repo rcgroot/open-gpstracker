@@ -102,6 +102,7 @@ public class GPSLoggerService extends Service
    private long mWaypointId = -1;
    private int mPrecision;
    private int mLoggingState = Constants.STOPPED;
+   private boolean mStartNextSegment;
 
    private Location mPreviousLocation;
    private Notification mNotification;
@@ -136,21 +137,26 @@ public class GPSLoggerService extends Service
             location = locationFilter( location );
             if( location != null )
             {
+               if( mStartNextSegment )
+               {
+                  mStartNextSegment = false;
+                  startNewSegment();
+               }
                storeLocation( location );
             }
          }
 
          public void onProviderDisabled( String provider )
          {
-            disabledGpsNotification();
+            disabledProviderNotification();
          }
 
          public void onProviderEnabled( String provider )
          {
-            enabledGpsNotification();
+            enabledProviderNotification();
             if( mPrecision != LOGGING_GLOBAL )
             {
-               startNewSegment();
+               mStartNextSegment = true;
             }
          }
 
@@ -227,6 +233,7 @@ public class GPSLoggerService extends Service
       super.onCreate();
       mWeakLocations = new Vector<Location>( 3 );
       mLoggingState = Constants.STOPPED;
+      mStartNextSegment = false;
       mContext = getApplicationContext();
       mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
       mNoticationManager = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
@@ -354,7 +361,7 @@ public class GPSLoggerService extends Service
 
          if( mPrecision != LOGGING_GLOBAL )
          {
-            startNewSegment();
+            mStartNextSegment = true;
          }
          requestLocationUpdates();
          this.mLocationManager.addGpsStatusListener( this.mStatusListener );
@@ -420,7 +427,7 @@ public class GPSLoggerService extends Service
       mNoticationManager.notify( R.layout.map, mNotification );
    }
 
-   private void enabledGpsNotification()
+   private void enabledProviderNotification()
    {
       mNoticationManager.cancel( R.id.icon );
       CharSequence text = mContext.getString( R.string.service_gpsenabled );
@@ -428,7 +435,7 @@ public class GPSLoggerService extends Service
       toast.show();
    }
 
-   private void disabledGpsNotification()
+   private void disabledProviderNotification()
    {
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = this.getResources().getString( R.string.service_gpsdisabled );
