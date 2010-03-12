@@ -379,4 +379,31 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
 
       waypointCursor.close();
    }
+   
+   /**
+    * GPX export precision is too low, so it creates weird walking tracks in Google Earth
+    * http://code.google.com/p/open-gpstracker/issues/detail?id=81
+    */
+   public void testInsertLargeNegativeAndExportHighPrecision()
+   {
+      double lon = 37.8657d;
+      double lat = -122.305d;
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.LONGITUDE, new Double( lon ) );
+      wp.put( Waypoints.LATITUDE, new Double( lat ) );
+      wp.put( Waypoints.TIME, new Long( 1234567890000l ));
+
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments"), null );
+      Uri waypointUri = this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
+
+      Cursor waypointCursor = this.mResolver.query( waypointUri, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE }, null, null, null );
+      waypointCursor.moveToFirst();
+      Assert.assertEquals( "Longitude",lon, waypointCursor.getDouble( 0 ) );
+      Assert.assertEquals( "Latitude",lat, waypointCursor.getDouble( 1 ) );
+      Assert.assertEquals( "Longitude string", "37.8657", Double.toString( waypointCursor.getDouble( 0 ) ) );
+      Assert.assertEquals( "Latitude string", "-122.305", Double.toString( waypointCursor.getDouble( 1 ) ) );
+
+      waypointCursor.close();
+   }
 }
