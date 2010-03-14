@@ -87,6 +87,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
    {
       startService( new Intent( Constants.SERVICENAME ) );
       GPSLoggerService service = this.getService();
+      service.startLogging();
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters
@@ -94,6 +95,8 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       this.mLocation.setAccuracy( 50f );
       Assert.assertNull( "An unacceptable fix", service.locationFilter( this.mLocation ) );
+      
+      service.stopLogging();
    }
    
    @SmallTest
@@ -101,14 +104,16 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
    {
       startService( new Intent( Constants.SERVICENAME ) );
       GPSLoggerService service = this.getService();
+      service.startLogging();
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters
       service.storeLocation( reference );
-      
       this.mLocation.setAccuracy( 9f );
       Location returned = service.locationFilter( this.mLocation ) ;
       Assert.assertNotNull( "An acceptable fix", returned );
+      
+      service.stopLogging();
    }
 
    @SmallTest
@@ -116,6 +121,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
    {
       startService( new Intent( Constants.SERVICENAME ) );
       GPSLoggerService service = this.getService();
+      service.startLogging();
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.0001d ); // About 11 meters
@@ -123,6 +129,8 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       this.mLocation.setAccuracy( 9f );
       Assert.assertNotNull( "An acceptable fix", service.locationFilter( this.mLocation ) );
+      
+      service.stopLogging();
    }
    
    @SmallTest
@@ -155,6 +163,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
    {
       startService( new Intent( Constants.SERVICENAME ) );
       GPSLoggerService service = this.getService();
+      service.startLogging();
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.0001d );
@@ -165,6 +174,8 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       Location sane = service.locationFilter( reference );
       Assert.assertFalse( "No speed anymore", sane.hasSpeed() );
       Assert.assertSame( "Still the same", reference, sane );
+      
+      service.stopLogging();
    }
    
    @SmallTest
@@ -172,6 +183,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
    {
       startService( new Intent( Constants.SERVICENAME ) );
       GPSLoggerService service = this.getService();
+      service.startLogging();
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.0001d );
@@ -182,6 +194,8 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       Location sane = service.locationFilter( reference );
       Assert.assertTrue( "No speed anymore", sane.hasSpeed() );
       Assert.assertSame( "Still the same", reference, sane );
+      
+      service.stopLogging();
    }
 }
    

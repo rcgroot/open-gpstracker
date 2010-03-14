@@ -34,6 +34,7 @@ import android.os.Debug;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.PerformanceTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.util.Log;
 
 /**
  * Goal is to feed as the LoggerMap as many points as possible to give it a good workout.
@@ -45,6 +46,7 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
 {
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
+   private static final String TAG = "OGT.MapStressTest";
    private LoggerMap mLoggermap;
    private GPSLoggerServiceManager mLoggerServiceManager;
    private Intermediates mIntermediates;
@@ -75,30 +77,27 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    @LargeTest
    public void testBrowseFirstTrack() throws InterruptedException
    {    
-      final int duration = 10;
-      int seconds = 0;
-      String[] timeActions = {"T", "T", "T", "T","G", "T", "T", "T", "T","G", "G", "G", "T", "T", "T", "T","G", "G", "G"};
+      int actions = 0;
+      String[] timeActions = {"G T T T","G","G","T","G","T","G G T"};
       
-      this.sendKeys( "MENU L" );
-      this.sendKeys( "DPAD_RIGHT ENTER");
-      this.sendKeys("ENTER");      
       // Start method tracing for Issue 18
       Debug.startMethodTracing("testBrowseFirstTrack");
       if( this.mIntermediates != null )
       {
          this.mIntermediates.startTiming( true ) ;
       }
-      while( seconds < duration )
+      while( actions < timeActions.length )
       {
-         Thread.sleep( 1 * 1000 );
-         this.sendKeys( timeActions[seconds] );
-         seconds++;
+         this.sendKeys( timeActions[actions] );
+         actions++;
+         Thread.sleep( 500L );
       }
       if( this.mIntermediates != null )
       {
          this.mIntermediates.finishTiming( true ) ;
       }
       Debug.stopMethodTracing();
+      Log.d( TAG, "Completed actions: "+ actions );
    }
 
    public boolean isPerformanceOnly()

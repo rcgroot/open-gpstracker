@@ -151,7 +151,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       return waypointId;
    }
    
-   void insertMedia( long trackId, long segmentId, long waypointId, String mediaUri )
+   long insertMedia( long trackId, long segmentId, long waypointId, String mediaUri )
    {
       if( trackId < 0 || segmentId < 0 || waypointId < 0 )
       {
@@ -168,13 +168,15 @@ class DatabaseHelper extends SQLiteOpenHelper
 
 //      Log.d( TAG, "Media stored in the datebase: "+mediaUri );
 
-      sqldb.insert( Media.TABLE, null, args );
+      long mediaId = sqldb.insert( Media.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/media" );
       resolver.notifyChange( notifyUri, null );
       resolver.notifyChange( ContentUris.withAppendedId( Media.CONTENT_URI, trackId ), null );
       Log.d( TAG, "Notify: "+ContentUris.withAppendedId( Media.CONTENT_URI, trackId ).toString() );
+      
+      return mediaId;
    }
 
    /**
@@ -210,6 +212,7 @@ class DatabaseHelper extends SQLiteOpenHelper
             cursor.close();
          }
       }
+      
       affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ String.valueOf( trackId ) } );
       
       ContentResolver resolver = this.mContext.getContentResolver();
@@ -219,6 +222,55 @@ class DatabaseHelper extends SQLiteOpenHelper
       return affected ;
    }
    
+   /**
+    * 
+    * TODO
+    * @param mediaId
+    * @return
+    */
+   int deleteMedia( long mediaId )
+   {
+      SQLiteDatabase sqldb = getWritableDatabase();
+
+      Cursor cursor = null;
+      long trackId = -1;
+      long segmentId = -1;
+      long waypointId = -1;
+      try 
+      {
+         cursor  = sqldb.query( Media.TABLE, new String[] { Media.TRACK, Media.SEGMENT, Media.WAYPOINT }, Media._ID + "= ?", new String[]{ String.valueOf( mediaId ) }, null, null, null, null );
+         if (cursor.moveToFirst())
+         {
+            trackId = cursor.getLong( 0 ) ;
+            segmentId = cursor.getLong( 0 ) ;
+            waypointId = cursor.getLong( 0 ) ;
+         }
+         else 
+         {
+            Log.e(TAG, "Did not find the last active segment");
+         }
+      }
+      finally
+      {
+         if( cursor!= null )
+         {
+            cursor.close();
+         }
+      }
+      
+      int affected = sqldb.delete( Media.TABLE, Media._ID+"= ?", new String[]{ String.valueOf( mediaId ) } );
+      
+      ContentResolver resolver = this.mContext.getContentResolver();
+      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/media" );
+      resolver.notifyChange( notifyUri, null );
+      notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/media" );
+      resolver.notifyChange( notifyUri, null );
+      notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/media" );
+      resolver.notifyChange( notifyUri, null );
+      resolver.notifyChange( ContentUris.withAppendedId( Media.CONTENT_URI,  mediaId ), null );
+      
+      return affected ;
+   }
    
    /**
     * Delete a segment and all member waypoints
@@ -231,7 +283,14 @@ class DatabaseHelper extends SQLiteOpenHelper
    int deleteSegment(SQLiteDatabase sqldb, long trackId, long segmentId)
    {
       int affected = sqldb.delete( Segments.TABLE, Segments._ID +"= ?", new String[]{ String.valueOf( segmentId ) }  ) ;
+      
+      // Delete all waypoints from segments
       affected += sqldb.delete( Waypoints.TABLE, Waypoints.SEGMENT+"= ?", new String[]{ String.valueOf( segmentId ) } );
+      // Delete all media from segment
+      affected += sqldb.delete( 
+            Media.TABLE, 
+            Media.TRACK + "= ? AND "+ Media.SEGMENT + "= ?" , 
+            new String[]{ String.valueOf( trackId ), String.valueOf( segmentId ) } );
 
       ContentResolver resolver = this.mContext.getContentResolver();
       resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId ), null );

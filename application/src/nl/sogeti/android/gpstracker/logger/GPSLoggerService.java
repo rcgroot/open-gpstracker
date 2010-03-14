@@ -337,7 +337,7 @@ public class GPSLoggerService extends Service
     * 
     * @see nl.sogeti.android.gpstracker.IGPSLoggerService#startLogging()
     */
-   protected synchronized long startLogging()
+   public synchronized long startLogging()
    {
       startNewTrack();
       requestLocationUpdates();
@@ -350,7 +350,7 @@ public class GPSLoggerService extends Service
       return mTrackId;
    }
 
-   protected synchronized void pauseLogging()
+   public synchronized void pauseLogging()
    {
       if( this.mLoggingState == Constants.LOGGING )
       {
@@ -364,7 +364,7 @@ public class GPSLoggerService extends Service
       }
    }
 
-   protected synchronized void resumeLogging()
+   public synchronized void resumeLogging()
    {
       if( this.mLoggingState == Constants.PAUSED )
       {
@@ -387,7 +387,7 @@ public class GPSLoggerService extends Service
     * 
     * @see nl.sogeti.android.gpstracker.IGPSLoggerService#stopLogging()
     */
-   protected synchronized void stopLogging()
+   public synchronized void stopLogging()
    {
       PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
       this.mLocationManager.removeGpsStatusListener( this.mStatusListener );
@@ -645,6 +645,11 @@ public class GPSLoggerService extends Service
     */
    public void storeLocation( Location location )
    {
+      if( !isLogging() )
+      {
+         Log.e( TAG, String.format( "Not logging but storing location %s, prepare to fail", location.toString() ) );
+      }
+      
       mPreviousLocation = location;
       ContentValues args = new ContentValues();
 

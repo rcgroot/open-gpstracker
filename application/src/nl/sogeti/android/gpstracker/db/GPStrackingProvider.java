@@ -104,6 +104,8 @@ public class GPStrackingProvider extends ContentProvider
    private static final int WAYPOINT_MEDIA = 10;
    private static final int SEARCH_SUGGEST_ID = 11;
    private static final int LIVE_FOLDERS = 12;
+   private static final int MEDIA = 13;
+   private static final int MEDIA_ID = 14;   
    private static final String[] SUGGEST_PROJECTION = 
       new String[] 
         { 
@@ -139,6 +141,8 @@ public class GPStrackingProvider extends ContentProvider
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints", GPStrackingProvider.WAYPOINTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#", GPStrackingProvider.WAYPOINT_ID );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#/media", GPStrackingProvider.WAYPOINT_MEDIA );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "media", GPStrackingProvider.MEDIA );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "media/#", GPStrackingProvider.MEDIA_ID );
       
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "live_folders/tracks", GPStrackingProvider.LIVE_FOLDERS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "search_suggest_query", GPStrackingProvider.SEARCH_SUGGEST_ID );
@@ -160,6 +164,9 @@ public class GPStrackingProvider extends ContentProvider
       {
          case GPStrackingProvider.TRACK_ID:
             affected = this.mDbHelper.deleteTrack( new Long( uri.getLastPathSegment() ).longValue() );
+            break;
+         case GPStrackingProvider.MEDIA_ID:
+            affected = this.mDbHelper.deleteMedia( new Long( uri.getLastPathSegment() ).longValue() );
             break;
          default:
             affected = 0;
@@ -215,6 +222,7 @@ public class GPStrackingProvider extends ContentProvider
       long trackId;
       long segmentId;
       long waypointId = -1;
+      long mediaId;
       switch (match)
       {
          case WAYPOINTS:
@@ -267,7 +275,8 @@ public class GPStrackingProvider extends ContentProvider
             segmentId = Integer.parseInt( pathSegments.get( 3 ) );
             waypointId = Integer.parseInt( pathSegments.get( 5 ) );
             String mediaUri = values.getAsString( Media.URI );
-            this.mDbHelper.insertMedia( trackId, segmentId, waypointId, mediaUri );
+            mediaId = this.mDbHelper.insertMedia( trackId, segmentId, waypointId, mediaUri );
+            insertedUri = ContentUris.withAppendedId( Media.CONTENT_URI, mediaId );
             break;
          case SEGMENTS:
             pathSegments = uri.getPathSegments();
@@ -348,6 +357,13 @@ public class GPStrackingProvider extends ContentProvider
          case TRACK_WAYPOINTS:
             tableName = Waypoints.TABLE + " INNER JOIN " + Segments.TABLE + " ON "+ Segments.TABLE+"."+Segments._ID +"=="+ Waypoints.SEGMENT;
             whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
+            break;
+         case GPStrackingProvider.MEDIA:
+            tableName = Media.TABLE;
+            break;
+         case GPStrackingProvider.MEDIA_ID:
+            tableName = Media.TABLE;
+            whereclause = Media._ID + " = " + new Long( pathSegments.get( 1 ) ).longValue();
             break;
          case TRACK_MEDIA:
             tableName = Media.TABLE;
