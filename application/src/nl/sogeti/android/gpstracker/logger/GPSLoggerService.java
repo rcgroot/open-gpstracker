@@ -223,6 +223,11 @@ public class GPSLoggerService extends Service
             GPSLoggerService.this.storeMediaUri( mediaUri );
             return null;
          }
+
+         public boolean isMediaPrepared() throws RemoteException
+         {
+            return GPSLoggerService.this.isMediaPrepared();
+         }
       };
    /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
@@ -320,6 +325,11 @@ public class GPSLoggerService extends Service
    protected boolean isLogging()
    {
       return this.mLoggingState == Constants.LOGGING;
+   }
+   
+   protected boolean isMediaPrepared()
+   {
+      return !( mTrackId < 0 || mSegmentId < 0 || mWaypointId < 0 );
    }
 
    /**
@@ -615,15 +625,17 @@ public class GPSLoggerService extends Service
    protected void storeMediaUri( Uri mediaUri )
    {
 //      Log.d( TAG, "Retrieved MediaUri to store on track: "+mediaUri );
-      if( mTrackId < 0 || mSegmentId < 0 || mWaypointId < 0)
+      if( isMediaPrepared() )
+      {
+         Uri mediaInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints/" + mWaypointId+"/media" );
+         ContentValues args = new ContentValues();
+         args.put( Media.URI, mediaUri.toString() );
+         mContext.getContentResolver().insert( mediaInsertUri, args );
+      }
+      else
       {
          Log.e( TAG, "No logging done under which to store the track" );
-         return;
       }
-      Uri mediaInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints/" + mWaypointId+"/media" );
-      ContentValues args = new ContentValues();
-      args.put( Media.URI, mediaUri.toString() );
-      mContext.getContentResolver().insert( mediaInsertUri, args );
    }
 
    /**

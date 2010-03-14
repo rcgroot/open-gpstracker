@@ -38,6 +38,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -54,6 +55,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
@@ -73,7 +75,7 @@ public class SegmentOverlay extends Overlay
    public static final int MIDDLE_SEGMENT = 0;
    public static final int FIRST_SEGMENT = 1;
    public static final int LAST_SEGMENT = 2;
-   public static final String TAG = "OGT.TrackingOverlay";
+   public static final String TAG = "OGT.SegmentOverlay";
 
    public static final int DRAW_GREEN = 0;
    public static final int DRAW_RED = 1;
@@ -440,6 +442,8 @@ public class SegmentOverlay extends Overlay
                mediaVO.waypointId = mediaCursor.getLong( 0 );
                mediaVO.uri = Uri.parse( mediaCursor.getString( 1 ) );
 
+//               Log.d( TAG, mediaVO.uri.toString() );
+               
                Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, mediaVO.waypointId );
                Cursor waypointCursor = null;
                try
@@ -800,7 +804,7 @@ public class SegmentOverlay extends Overlay
       return (double) Math.sqrt( x * x + y * y );
    }
 
-   private boolean handleMediaTap( GeoPoint geoPoint, Point point, Uri mediaUri )
+   private boolean handleMediaTap( Uri mediaUri )
    {
       if( mediaUri.getScheme().equals( "file" ) )
       {
@@ -849,18 +853,31 @@ public class SegmentOverlay extends Overlay
    @Override
    public boolean onTap( GeoPoint geoPoint, MapView mapView )
    {
-      Point point = new Point();
+      MediaVO tappedMedia = null;
+      float minScreendistance = Float.MAX_VALUE;
+      
+      float[] distance = new float[1];
+      for(MediaVO media : mMediaPath )
+      {
+         double startLat = geoPoint.getLatitudeE6()/1E6d;
+         double startLon = geoPoint.getLongitudeE6()/1E6d;
+         double endLat = media.geopoint.getLatitudeE6()/1E6d;
+         double endLon = media.geopoint.getLongitudeE6()/1E6d;
+         Location.distanceBetween( startLat, startLon, endLat, endLon, distance  );
+         float screendistance = mapView.getProjection().metersToEquatorPixels( distance[0] ) * Resources.getSystem().getDisplayMetrics().density;
+         if( minScreendistance > screendistance )
+         {
+            minScreendistance = screendistance;
+            tappedMedia = media;
+         }
 
-      //      Log.d( TAG, "You tapped me at "+geoPoint );
-      mapView.getProjection().toPixels( geoPoint, point );
-      if( onscreenUri[1][1] != null )
-      {
-         return handleMediaTap( geoPoint, point, onscreenUri[1][1] );
       }
-      else
+      if(  minScreendistance < 15 )
       {
-         return super.onTap( geoPoint, mapView );
+         Log.d( TAG, String.format( "Tapped at a distance of %f which is %f on screen", distance[0], minScreendistance ) );
+         return handleMediaTap( tappedMedia.uri );
       }
+      return super.onTap( geoPoint, mapView );
    }
 
    private static class MediaVO

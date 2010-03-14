@@ -147,66 +147,61 @@ public class LoggerMap extends MapActivity
    private SharedPreferences mSharedPreferences;
    private GPSLoggerServiceManager mLoggerServiceManager;
 
-   private final ContentObserver mTrackObserver = new ContentObserver( new Handler() )
+   private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
          @Override
          public void onChange( boolean selfUpdate )
          {
             if( !selfUpdate )
             {
-               //               Log.d( TAG, "Have drawn to segment "+mLastSegment+" with waypoint "+mLastWaypoint );
+//               Log.d( TAG, "mTrackSegmentsObserver "+ mTrackId );
                LoggerMap.this.updateDataOverlays();
+            }
+            else
+            {
+               Log.d( TAG, "mTrackSegmentsObserver skipping change on "+ mLastSegment );
+            }
+         }
+      };
+   private final ContentObserver mSegmentWaypointsObserver = new ContentObserver( new Handler() )
+      {
+         @Override
+         public void onChange( boolean selfUpdate )
+         {
+            if( !selfUpdate  )
+            {
+//               Log.d( TAG, "mSegmentWaypointsObserver "+ mLastSegment );
                LoggerMap.this.createSpeedDisplayNumbers();
+               if( mLastSegmentOverlay != null )
+               {
+                  moveActiveViewWindow();
+                  mLastSegmentOverlay.calculateTrack();
+                  mMapView.postInvalidate();
+               }
             }
             else
             {
-               Log.w( TAG, "Skipping caused by self" );
+               Log.d( TAG, "mSegmentWaypointsObserver skipping change on "+ mLastSegment );
             }
          }
       };
-   private final ContentObserver mSegmentObserver = new ContentObserver( new Handler() )
+   private final ContentObserver mTrackMediasObserver = new ContentObserver( new Handler() )
       {
          @Override
          public void onChange( boolean selfUpdate )
          {
             if( !selfUpdate )
             {
-               List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
-               if( overlays.size() > 1 )
+//               Log.d( TAG, "mTrackMediasObserver "+ mTrackId );
+               if( mLastSegmentOverlay != null )
                {
-                  Overlay overlay = overlays.get( overlays.size()-1 );
-                  if( overlay instanceof SegmentOverlay )
-                  {
-                     ( (SegmentOverlay) overlay ).calculateTrack();
-                  }
+                  mLastSegmentOverlay.calculateMedia();
+                  mMapView.postInvalidate();
                }
             }
             else
             {
-               Log.w( TAG, "Skipping caused by self" );
-            }
-         }
-      };
-   private final ContentObserver mMediaObserver = new ContentObserver( new Handler() )
-      {
-         @Override
-         public void onChange( boolean selfUpdate )
-         {
-            if( !selfUpdate )
-            {
-               List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
-               if( overlays.size() > 1 )
-               {
-                  Overlay overlay = overlays.get( overlays.size()-1 );
-                  if( overlay instanceof SegmentOverlay )
-                  {
-                     ( (SegmentOverlay) overlay ).calculateMedia();
-                  }
-               }
-            }
-            else
-            {
-               Log.w( TAG, "Skipping caused by self" );
+               Log.d( TAG, "mTrackMediasObserver skipping change on "+ mLastSegment );
             }
          }
       };
@@ -402,6 +397,7 @@ public class LoggerMap extends MapActivity
       }
       
    };
+   private SegmentOverlay mLastSegmentOverlay;
  
    /**
     * Called when the activity is first created.
@@ -409,6 +405,7 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onCreate( Bundle load )
    {
+      Log.d( TAG, "onCreate()" );
       super.onCreate( load );
       this.startService( new Intent( Constants.SERVICENAME ) );
 
@@ -448,6 +445,7 @@ public class LoggerMap extends MapActivity
 
    protected void onPause()
    {
+      Log.d( TAG, "onPause()" );
       super.onPause();
       if( this.mWakeLock != null && this.mWakeLock.isHeld() )
       {
@@ -457,9 +455,9 @@ public class LoggerMap extends MapActivity
       if( mTrackId > 0 )
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
-         resolver.unregisterContentObserver( this.mTrackObserver );
-         resolver.unregisterContentObserver( this.mMediaObserver );
-         resolver.unregisterContentObserver( this.mSegmentObserver );
+         resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
+         resolver.unregisterContentObserver( this.mSegmentWaypointsObserver );
+         resolver.unregisterContentObserver( this.mTrackMediasObserver );
       }
       mMylocation.disableMyLocation();
       mMylocation.disableCompass();
@@ -467,6 +465,7 @@ public class LoggerMap extends MapActivity
 
    protected void onResume()
    {
+      Log.d( TAG, "onResume" );
       super.onResume();
       updateTitleBar();
       updateBlankingBehavior();
@@ -478,12 +477,16 @@ public class LoggerMap extends MapActivity
       if( mTrackId >= 0 )
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
-         Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId );
+         Uri trackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments" );
+         Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+mLastSegment+"/waypoints" );
          Uri mediaUri = ContentUris.withAppendedId( Media.CONTENT_URI, mTrackId );
-         resolver.unregisterContentObserver( this.mTrackObserver );
-         resolver.unregisterContentObserver( this.mMediaObserver );
-         resolver.registerContentObserver( trackUri, true, this.mTrackObserver );
-         resolver.registerContentObserver( mediaUri, true, this.mMediaObserver );
+
+         resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
+         resolver.unregisterContentObserver( this.mSegmentWaypointsObserver );
+         resolver.unregisterContentObserver( this.mTrackMediasObserver );
+         resolver.registerContentObserver( trackUri,       false, this.mTrackSegmentsObserver );
+         resolver.registerContentObserver( lastSegmentUri, true, this.mSegmentWaypointsObserver );
+         resolver.registerContentObserver( mediaUri,       true, this.mTrackMediasObserver );
       }
       updateDataOverlays();
    }
@@ -495,6 +498,7 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onDestroy()
    {
+      Log.d( TAG, "onDestroy" );
       this.mLoggerServiceManager.shutdown();
       if( mWakeLock != null && mWakeLock.isHeld() )
       {
@@ -516,6 +520,7 @@ public class LoggerMap extends MapActivity
    @Override
    public void onNewIntent( Intent newIntent )
    {
+      Log.d( TAG, "onNewIntent" );
       Uri data = newIntent.getData();
       if( data != null )
       {
@@ -693,8 +698,7 @@ public class LoggerMap extends MapActivity
    public boolean onPrepareOptionsMenu( Menu menu )
    {
       MenuItem notemenu = menu.getItem( 3 );
-      boolean enabled = mTrackId >= 0 && mLastSegment >= 0 && mLastWaypoint >= 0 && mLoggerServiceManager.getLoggingState() == Constants.LOGGING;
-      notemenu.setEnabled( enabled );
+      notemenu.setEnabled( mLoggerServiceManager.isMediaPrepared() );
       return super.onPrepareOptionsMenu( menu );
    }
 
@@ -981,6 +985,8 @@ public class LoggerMap extends MapActivity
                file.getParentFile().mkdirs();
                file.renameTo( newFile );
                this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( newFile ) );
+               mLastSegmentOverlay.calculateMedia();
+               mMapView.postInvalidate();
                break;
             case MENU_VIDEO:
                file = new File( sdcard + Constants.TMPICTUREFILE_PATH );               
@@ -990,10 +996,14 @@ public class LoggerMap extends MapActivity
                file.getParentFile().mkdirs();
                file.renameTo( newFile );
                this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( newFile ) );
+               mLastSegmentOverlay.calculateMedia();
+               mMapView.postInvalidate();
                break;
             case MENU_VOICE:
                uri = Uri.parse( intent.getDataString() );
                this.mLoggerServiceManager.storeMediaUri(  uri );
+               mLastSegmentOverlay.calculateMedia();
+               mMapView.postInvalidate();
                break;
             default:
                Log.e( TAG, "Returned form unknow activity: " + requestCode );
@@ -1170,6 +1180,7 @@ public class LoggerMap extends MapActivity
     */
    private void createDataOverlays()
    {
+      mLastSegmentOverlay = null;
       List<Overlay> overlays = this.mMapView.getOverlays();
       overlays.clear();
       overlays.add( mMylocation );
@@ -1191,6 +1202,7 @@ public class LoggerMap extends MapActivity
                Uri segmentUri = ContentUris.withAppendedId( segmentsUri, segmentsId );
                SegmentOverlay segmentOverlay = new SegmentOverlay( (Context) this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView );
                overlays.add( segmentOverlay );
+               mLastSegmentOverlay = segmentOverlay;
                if( segments.isFirst() )
                {
                   segmentOverlay.addPlacement( SegmentOverlay.FIRST_SEGMENT );
@@ -1212,26 +1224,12 @@ public class LoggerMap extends MapActivity
             segments.close();
          }
       }
-      if( lastPoint != null && mLoggerServiceManager.getLoggingState() == Constants.LOGGING )
-      {
-         Point out = new Point();
-         this.mMapView.getProjection().toPixels( lastPoint, out );
-         int height = this.mMapView.getHeight();
-         int width = this.mMapView.getWidth();
-         if( out.x < 0 || out.y < 0 || out.y > height || out.x > width )
-         {
-            this.mMapView.clearAnimation();
-            this.mMapView.getController().setCenter( lastPoint );
-         }
-         else if( out.x < width / 4 || out.y < height / 4 || out.x > ( width / 4 ) * 3 || out.y > ( height / 4 ) * 3 )
-         {
-            this.mMapView.clearAnimation();
-            this.mMapView.getController().animateTo( lastPoint );
-         }
-      }
+      
+      moveActiveViewWindow();
+
       Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+mLastSegment+"/waypoints" );
-      resolver.unregisterContentObserver( this.mSegmentObserver );
-      resolver.registerContentObserver( lastSegmentUri, false, this.mSegmentObserver );
+      resolver.unregisterContentObserver( this.mSegmentWaypointsObserver );
+      resolver.registerContentObserver( lastSegmentUri, false, this.mSegmentWaypointsObserver );
    }
    
    private void updateDataOverlays()
@@ -1265,10 +1263,14 @@ public class LoggerMap extends MapActivity
       {
          if( segmentsCursor != null ) { segmentsCursor.close(); }
       }
+      moveActiveViewWindow();
+   }
 
-      if( mLoggerServiceManager.getLoggingState() == Constants.LOGGING )
+   private void moveActiveViewWindow()
+   {
+      GeoPoint lastPoint =  getLastTrackPoint();
+      if( lastPoint != null && mLoggerServiceManager.getLoggingState() == Constants.LOGGING )
       {
-         GeoPoint lastPoint =  getLastTrackPoint();
          Point out = new Point();
          this.mMapView.getProjection().toPixels( lastPoint, out );
          int height = this.mMapView.getHeight();
@@ -1288,7 +1290,6 @@ public class LoggerMap extends MapActivity
          }
       }
    }
-   
 
    /**
     * @param avgSpeed avgSpeed in m/s
@@ -1325,10 +1326,11 @@ public class LoggerMap extends MapActivity
             this.mTrackId = trackId;
             mLastSegment = -1;
             mLastWaypoint = -1;
-            resolver.unregisterContentObserver( this.mTrackObserver );
-            resolver.unregisterContentObserver( this.mMediaObserver );
-            resolver.registerContentObserver( trackUri, false, this.mTrackObserver );
-            resolver.registerContentObserver( mediaUri, false, this.mMediaObserver );
+            resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
+            resolver.unregisterContentObserver( this.mTrackMediasObserver );
+            Uri tracksegmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" );
+            resolver.registerContentObserver( tracksegmentsUri, false, this.mTrackSegmentsObserver );
+            resolver.registerContentObserver( mediaUri, false, this.mTrackMediasObserver );
             this.mMapView.getOverlays().clear();
 
             updateTitleBar();

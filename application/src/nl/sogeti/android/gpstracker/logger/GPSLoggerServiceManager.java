@@ -87,6 +87,30 @@ public class GPSLoggerServiceManager
          return logging;
       }
    }
+   
+   public boolean isMediaPrepared()
+   {
+      synchronized (mStartLock)
+      {
+         boolean prepared = false;
+         try
+         {
+            if( this.mGPSLoggerRemote != null )
+            {
+               prepared = this.mGPSLoggerRemote.isMediaPrepared();
+            }
+            else
+            {
+               Log.w( TAG, "Remote interface to logging service not found. Started: " + mStarted );
+            }
+         }
+         catch (RemoteException e)
+         {
+            Log.e( TAG, "Could stat GPSLoggerService.", e );
+         }
+         return prepared;
+      }
+   }
 
    public long startGPSLogging( String name )
    {

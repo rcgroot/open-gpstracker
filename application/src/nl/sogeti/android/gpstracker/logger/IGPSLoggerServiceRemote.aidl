@@ -10,4 +10,5 @@ interface IGPSLoggerServiceRemote {
     long resumeLogging();
 	void stopLogging();
 	Uri storeMediaUri(in Uri mediaUri);
+    boolean isMediaPrepared();
 }
