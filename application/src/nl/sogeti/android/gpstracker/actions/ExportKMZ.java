@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.actions;
 
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
 import nl.sogeti.android.gpstracker.actions.utils.XmlCreationProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
@@ -56,9 +57,9 @@ import android.widget.RemoteViews;
  * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.
  */
-public class ExportGPX extends Activity
+public class ExportKMZ extends Activity
 {
-   public static final String TAG = "OGT.ExportGPX";
+   public static final String TAG = "OGT.ExportKMZ";
    
    private static final int DIALOG_FILENAME = 11;
    private static final int PROGRESS_STEPS = 10;
@@ -75,10 +76,10 @@ public class ExportGPX extends Activity
             switch( which )
             {
                case Dialog.BUTTON_POSITIVE:
-                  ExportGPX.this.exportGPX( mFileNameView.getText().toString() );
+                  ExportKMZ.this.exportKMZ( mFileNameView.getText().toString() );
                   break;
                case Dialog.BUTTON_NEGATIVE:
-                  ExportGPX.this.finish();
+                  ExportKMZ.this.finish();
                   break;
             }
          }
@@ -121,10 +122,10 @@ public class ExportGPX extends Activity
       }
    }
 
-   protected void exportGPX( String chosenFileName )
+   protected void exportKMZ( String chosenFileName )
    {
-      GpxCreator mGpxCreator = new GpxCreator( this, getIntent(), chosenFileName, new ProgressListener() );
-      mGpxCreator.start();
+      KmzCreator mKmzCreator = new KmzCreator( this, getIntent(), chosenFileName, new ProgressListener() );
+      mKmzCreator.start();
       this.finish();
    }
    
@@ -133,12 +134,12 @@ public class ExportGPX extends Activity
       public void startNotification( String fileName )
       {
          String ns = Context.NOTIFICATION_SERVICE;
-         mNotificationManager = (NotificationManager) ExportGPX.this.getSystemService( ns );
+         mNotificationManager = (NotificationManager) ExportKMZ.this.getSystemService( ns );
          int icon = android.R.drawable.ic_menu_save;
          CharSequence tickerText = getString( R.string.ticker_saving )+ "\"" + fileName + "\"";
        
          mNotification = new Notification();
-         PendingIntent contentIntent = PendingIntent.getActivity( ExportGPX.this, 0, new Intent( ExportGPX.this, LoggerMap.class ).setFlags( Intent.FLAG_ACTIVITY_NEW_TASK ),
+         PendingIntent contentIntent = PendingIntent.getActivity( ExportKMZ.this, 0, new Intent( ExportKMZ.this, LoggerMap.class ).setFlags( Intent.FLAG_ACTIVITY_NEW_TASK ),
                PendingIntent.FLAG_UPDATE_CURRENT );
        
          mNotification.contentIntent = contentIntent;

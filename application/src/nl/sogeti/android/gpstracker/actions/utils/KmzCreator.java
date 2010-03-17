@@ -40,10 +40,10 @@ import android.util.Log;
 import android.util.Xml;
 import android.widget.Toast;
 
-public class GpxCreator extends Thread
+public class KmzCreator extends Thread
 {
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
-   public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
+   public static final String NS_KML_22 = "http://www.opengis.net/kml/2.2";
    public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
    
    private String mChosenFileName;
@@ -53,9 +53,9 @@ public class GpxCreator extends Thread
 
    private int mProgress = 0;
    private int mGoal = 0;
-   private String TAG = "OGT.GpxCreator";
+   private String TAG = "OGT.KmzCreator";
    
-   public GpxCreator(Context context, Intent intent, String chosenFileName, XmlCreationProgressListener listener)
+   public KmzCreator(Context context, Intent intent, String chosenFileName, XmlCreationProgressListener listener)
    {
       mChosenFileName = chosenFileName;
       mContext = context;
@@ -94,10 +94,10 @@ public class GpxCreator extends Thread
       }
       
       String filePath;
-      if( !( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) ) )
+      if( !( fileName.endsWith( ".kmz" ) || fileName.endsWith( ".zip" ) ) )
       {
          filePath = Environment.getExternalStorageDirectory() +Constants.EXTERNAL_DIR+fileName;
-         fileName = fileName + ".gpx";
+         fileName = fileName + ".kmz";
       }
       else
       {
@@ -119,35 +119,35 @@ public class GpxCreator extends Thread
          serializer.setOutput( buf, "UTF-8" );
          serializer.startDocument( "UTF-8", true );
          serializer.setPrefix( "xsi", NS_SCHEMA );
-         serializer.setPrefix( "gpx", NS_GPX_11 );
-         serializer.startTag( "", "gpx" );
-         serializer.attribute( null, "version", "1.1" );
-         serializer.attribute( null, "creator", "nl.sogeti.android.gpstracker" );
-         serializer.attribute( NS_SCHEMA, "schemaLocation", NS_GPX_11 + " http://www.topografix.com/gpx/1/1/gpx.xsd" );
-         serializer.attribute( null, "xmlns", NS_GPX_11 );
-   
-         // Big header of the track
-         String name = serializeTrack( mContext, serializer, trackUri );
+         serializer.setPrefix( "kml", NS_KML_22 );
+         serializer.startTag( "", "kml" );
+         serializer.attribute( NS_SCHEMA, "schemaLocation", NS_KML_22 + " http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd" );
+         serializer.attribute( null, "xmlns", NS_KML_22 );
    
          serializer.text( "\n" );
-         serializer.startTag( "", "trk" );
+         serializer.startTag( "", "Document" );
          serializer.text( "\n" );
          serializer.startTag( "", "name" );
-         serializer.text( name );
+         serializer.text( fileName );
          serializer.endTag( "", "name" );
-   
-         // The list of segments in the track
-         serializeSegments( mContext, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
-   
+         
+         /* from <name/> upto <Folder/>*/
+         serializeTrack( mContext, serializer, trackUri );
+         
          serializer.text( "\n" );
-         serializer.endTag( "", "trk" );
-         serializer.text( "\n" );
-         serializer.endTag( "", "gpx" );
+         serializer.endTag( "", "Document" );
+         
+         serializer.endTag( "", "kml" );
          serializer.endDocument();
    
          CharSequence text = mContext.getString( R.string.ticker_stored )+"\"" + fileName+"\"";
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_SHORT );
          toast.show();
+         
+//         serializer.text( "\n" );
+//         serializer.startTag( "", "Document" );
+//         serializer.text( "\n" );
+//         serializer.endTag( "", "Document" );
       }
       catch (IllegalArgumentException e)
       {
@@ -191,14 +191,49 @@ public class GpxCreator extends Thread
          trackCursor = resolver.query( trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
          if( trackCursor.moveToFirst() )
          {
+            serializer.text( "\n" );
+            serializer.startTag( "", "Style" );
+            serializer.attribute( null, "id", "lineStyle" );
+            serializer.startTag( "", "LineStyle" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "color" );
+            serializer.text( "99ffac59" );
+            serializer.endTag( "", "color" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "width" );
+            serializer.text( "6" );
+            serializer.endTag( "", "width" );
+            serializer.text( "\n" );
+            serializer.endTag( "", "LineStyle" );
+            serializer.text( "\n" );
+            serializer.endTag( "", "Style" );
+            serializer.text( "\n" );
+            
+            serializer.text( "\n" );
+            serializer.startTag( "", "Folder" );
+            
             name = trackCursor.getString( 1 );
-            serializer.startTag( "", "metadata" );
-            serializer.startTag( "", "time" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "name" );
+            serializer.text(  name );
+            serializer.endTag( "", "name" );
+            
+            serializer.text( "\n" );
+            serializer.startTag( "", "TimeStamp" );
+            serializer.startTag( "", "when" );
             Date time = new Date( trackCursor.getLong( 2 ) );
             DateFormat formater = new SimpleDateFormat( DATETIME );
             serializer.text( formater.format( time ) );
-            serializer.endTag( "", "time" );
-            serializer.endTag( "", "metadata" );
+            serializer.endTag( "", "when" );
+            serializer.text( "\n" );
+            serializer.endTag( "", "TimeStamp" );
+            
+            /* Multiple <Placemark/> */
+            serializeSegments( mContext, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
+            
+
+            serializer.text( "\n" );
+            serializer.endTag( "", "Folder" );
          }
       }
       finally
@@ -224,15 +259,35 @@ public class GpxCreator extends Thread
             {
                mProgressListener.updateNotification( mProgress, mGoal );
             }
-   
             do
             {
                Uri waypoints = Uri.withAppendedPath( segments, "/" + segmentCursor.getLong( 0 ) + "/waypoints" );
                serializer.text( "\n" );
-               serializer.startTag( "", "trkseg" );
+               serializer.startTag( "", "Placemark" );
+               serializer.text( "\n" );
+               
+               /* Single <TimeSpan/> element */
+               serializeSegmentToTimespan( context, serializer, waypoints );
+               
+               serializer.startTag( "", "styleUrl" );
+               serializer.text( "#lineStyle" );
+               serializer.endTag( "", "styleUrl" );
+               serializer.text( "\n" );
+               serializer.startTag( "", "LineString" );
+               serializer.text( "\n" );
+               serializer.startTag( "", "extrude" );
+               serializer.text( "1" );
+               serializer.endTag( "", "extrude" );
+               serializer.text( "\n" );
+               serializer.startTag( "", "altitudeMode" );
+               serializer.text( "absolute" );
+               serializer.endTag( "", "altitudeMode" );
+               /* Single <coordinates/> and <TimeSpan/> element */
                serializeWaypoints( context, serializer, waypoints );
                serializer.text( "\n" );
-               serializer.endTag( "", "trkseg" );
+               serializer.endTag( "", "LineString" );
+               serializer.text( "\n" );
+               serializer.endTag( "", "Placemark" );
             }
             while (segmentCursor.moveToNext());
    
@@ -247,16 +302,62 @@ public class GpxCreator extends Thread
       }
    }
    
+   private void serializeSegmentToTimespan( Context context, XmlSerializer serializer, Uri waypoints ) throws IOException
+   {
+      Cursor waypointsCursor = null;
+      Date segmentStartTime = null ;
+      Date segmentEndTime = null;
+      ContentResolver resolver = context.getContentResolver();
+      try
+      {
+         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.TIME }, null, null, null );
+
+         if( waypointsCursor.moveToFirst() )
+         {
+            segmentStartTime = new Date( waypointsCursor.getLong( 0 ) );
+         }
+         if( waypointsCursor.moveToLast() )
+         {
+            segmentEndTime = new Date( waypointsCursor.getLong( 0 ) );
+         }
+      }
+      finally
+      {
+         if( waypointsCursor != null )
+         {
+            waypointsCursor.close();
+         }
+      }
+      
+      DateFormat formater = new SimpleDateFormat( DATETIME );
+      serializer.text( "\n" );
+      serializer.startTag( "", "TimeSpan" );
+      serializer.text( "\n" );
+      serializer.startTag( "", "begin" );         
+      serializer.text( formater.format( segmentStartTime ) );
+      serializer.endTag( "", "begin" );
+      serializer.text( "\n" );
+      serializer.startTag( "", "end" );
+      serializer.text( formater.format( segmentEndTime ) );
+      serializer.endTag( "", "end" );
+      serializer.text( "\n" );
+      serializer.endTag( "", "TimeSpan" );
+      
+   }
+   
    private void serializeWaypoints( Context context, XmlSerializer serializer, Uri waypoints ) throws IOException
    {
       Cursor waypointsCursor = null;
       ContentResolver resolver = context.getContentResolver();
       try
       {
-         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints.ACCURACY }, null, null, null );
+         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
+            
             mGoal += waypointsCursor.getCount();
+            serializer.text( "\n" );
+            serializer.startTag( "", "coordinates" );
             do
             {
                mProgress++;
@@ -264,29 +365,14 @@ public class GpxCreator extends Thread
                {
                   mProgressListener.updateNotification(mProgress, mGoal);
                }
-   
-               serializer.text( "\n" );
-               serializer.startTag( "", "trkpt" );
-               serializer.attribute( null, "lat", Double.toString( waypointsCursor.getDouble( 1 ) ) );
-               serializer.attribute( null, "lon", Double.toString( waypointsCursor.getDouble( 0 ) ) );
-               serializer.text( "\n" );
-               serializer.startTag( "", "ele" );
-               serializer.text( Double.toString( waypointsCursor.getDouble( 3 ) ) );
-               serializer.endTag( "", "ele" );
-               serializer.text( "\n" );
-               serializer.startTag( "", "time" );
-               Date time = new Date( waypointsCursor.getLong( 2 ) );
-               DateFormat formater = new SimpleDateFormat( DATETIME );
-               serializer.text( formater.format( time ) );
-               serializer.endTag( "", "time" );
-               serializer.text( "\n" );
-               serializer.startTag( "", "name" );
-               serializer.text( "point_" + waypointsCursor.getPosition() );
-               serializer.endTag( "", "name" );
-               serializer.text( "\n" );
-               serializer.endTag( "", "trkpt" );
+               serializer.text( Double.toString( waypointsCursor.getDouble( 0 ) ) );
+               serializer.text( "," );
+               serializer.text( Double.toString( waypointsCursor.getDouble( 1 ) ) );
+               serializer.text( "," );
+               serializer.text( Double.toString( waypointsCursor.getDouble( 2 ) ) );
             }
             while (waypointsCursor.moveToNext());
+            serializer.endTag( "", "coordinates" );
          }
       }
       finally

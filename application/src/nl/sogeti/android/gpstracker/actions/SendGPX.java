@@ -29,7 +29,7 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.utils.GpxCreationProgressListener;
+import nl.sogeti.android.gpstracker.actions.utils.XmlCreationProgressListener;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;
 import android.app.Notification;
@@ -73,7 +73,7 @@ public class SendGPX extends Activity
       this.finish();
    }
    
-   class ProgressListener implements GpxCreationProgressListener
+   class ProgressListener implements XmlCreationProgressListener
    {
       public void startNotification( String fileName )
       {

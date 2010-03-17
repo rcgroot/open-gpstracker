@@ -73,7 +73,8 @@
     <string name="graphtype_distancealtitude">Altitude against distance</string>
 
     <string name="chooser_title">How to share this track?</string>
-	<string name="receive_filewriter">Store to SDcard</string>
+	<string name="receive_filewriter">Store to GPX on SDcard</string>
+    <string name="receive_kmzfilewriter">Store to KMZ on SDcard</string>
     <string name="receive_gpxsender">Send GPX file</string>
     <string name="email_chooser">Choose email program</string>
     <string name="email_subject">Open GPS Tracker - Trackdata</string>

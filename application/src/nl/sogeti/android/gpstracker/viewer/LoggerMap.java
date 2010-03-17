@@ -116,6 +116,7 @@ public class LoggerMap extends MapActivity
    private static final int MENU_TEXT = 10;
    private static final int MENU_VOICE = 11;
    private static final int MENU_VIDEO = 12;
+   private static final int MENU_SHARE = 13;
    private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_LOGCONTROL = 26;
@@ -685,6 +686,7 @@ public class LoggerMap extends MapActivity
       notemenu.add( ContextMenu.NONE, MENU_VIDEO, ContextMenu.NONE, R.string.menu_notevideo );
 
       menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
+      menu.add( ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack ).setIcon( R.drawable.ic_menu_share ).setAlphabeticShortcut('I');
       menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
       menu.add( ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
       return result;
@@ -706,6 +708,8 @@ public class LoggerMap extends MapActivity
    public boolean onOptionsItemSelected( MenuItem item )
    {
       boolean handled = false;
+
+      Uri trackUri;
       switch (item.getItemId())
       {
          case MENU_TRACKING:
@@ -730,9 +734,9 @@ public class LoggerMap extends MapActivity
          case MENU_STATS:
             if( this.mTrackId >= 0 )
             {
-               Uri uri = ContentUris.withAppendedId( Tracks.CONTENT_URI, this.mTrackId );
                Intent actionIntent = new Intent( this, Statistics.class );
-               actionIntent.setData( uri );
+               trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId );
+               actionIntent.setData( trackUri );
                startActivity( actionIntent );
                handled = true;
                break;
@@ -753,6 +757,14 @@ public class LoggerMap extends MapActivity
             {
                showDialog( DIALOG_INSTALL_ABOUT );
             }
+            break;
+         case MENU_SHARE:
+            Intent actionIntent = new Intent( Intent.ACTION_RUN );
+            trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId );
+            actionIntent.setDataAndType( trackUri, Tracks.CONTENT_ITEM_TYPE );
+            actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
+            startActivity( Intent.createChooser( actionIntent, getString( R.string.chooser_title ) ) );
+            handled = true;
             break;
          case MENU_PICTURE:
             addPicture();

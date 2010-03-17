@@ -141,5 +141,13 @@
             </intent-filter>
          </activity>
 		
+        <activity android:label="@string/receive_kmzfilewriter" android:name=".actions.ExportKMZ">
+            <intent-filter>
+                <action android:name="android.intent.action.RUN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
+            </intent-filter>
+        </activity>
+      
     </application>
 </manifest>

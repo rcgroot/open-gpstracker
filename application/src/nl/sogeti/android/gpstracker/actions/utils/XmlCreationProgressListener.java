@@ -12,7 +12,7 @@
  */
 package nl.sogeti.android.gpstracker.actions.utils;
 
-public interface GpxCreationProgressListener
+public interface XmlCreationProgressListener
 {
    public void startNotification( String fileName );
    public void updateNotification(int progress, int goal);
