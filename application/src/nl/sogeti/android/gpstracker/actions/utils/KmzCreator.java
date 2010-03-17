@@ -220,6 +220,7 @@ public class KmzCreator extends Thread
             
             serializer.text( "\n" );
             serializer.startTag( "", "TimeStamp" );
+            serializer.text( "\n" );
             serializer.startTag( "", "when" );
             Date time = new Date( trackCursor.getLong( 2 ) );
             DateFormat formater = new SimpleDateFormat( DATETIME );
@@ -268,7 +269,8 @@ public class KmzCreator extends Thread
                
                /* Single <TimeSpan/> element */
                serializeSegmentToTimespan( context, serializer, waypoints );
-               
+
+               serializer.text( "\n" );
                serializer.startTag( "", "styleUrl" );
                serializer.text( "#lineStyle" );
                serializer.endTag( "", "styleUrl" );
@@ -370,6 +372,7 @@ public class KmzCreator extends Thread
                serializer.text( Double.toString( waypointsCursor.getDouble( 1 ) ) );
                serializer.text( "," );
                serializer.text( Double.toString( waypointsCursor.getDouble( 2 ) ) );
+               serializer.text( " " );
             }
             while (waypointsCursor.moveToNext());
             serializer.endTag( "", "coordinates" );
