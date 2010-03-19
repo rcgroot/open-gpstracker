@@ -185,7 +185,7 @@ public class UnitsI18n
     * 
     * Interface definition for a callback to be invoked when the preference for units changed.  
     *
-    * @version $Id:$
+    * @version $Id$
     * @author rene (c) Feb 14, 2010, Sogeti B.V.
     */
    public interface UnitsChangeListener
