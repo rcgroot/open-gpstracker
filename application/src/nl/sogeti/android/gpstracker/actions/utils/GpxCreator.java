@@ -40,6 +40,12 @@ import android.util.Log;
 import android.util.Xml;
 import android.widget.Toast;
 
+/**
+ * ????
+ * 
+ * @version $Id$
+ * @author rene (c) Mar 22, 2009, Sogeti B.V.
+ */
 public class GpxCreator extends Thread
 {
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";

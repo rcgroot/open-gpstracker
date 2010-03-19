@@ -68,12 +68,6 @@ import android.widget.Toast;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-/**
- * ????
- * 
- * @version $Id$
- * @author rene (c) Jan 22, 2010, Sogeti B.V.
- */
 public class GPSLoggerService extends Service
 {
 

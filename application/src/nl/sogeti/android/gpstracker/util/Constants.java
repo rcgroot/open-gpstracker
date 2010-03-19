@@ -3,6 +3,13 @@ package nl.sogeti.android.gpstracker.util;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import android.net.Uri;
 
+
+/**
+ * ????
+ * 
+ * @version $Id$
+ * @author rene (c) Mar 22, 2009, Sogeti B.V.
+ */
 public class Constants
 {
    public static final String DISABLEBLANKING = "disableblanking";

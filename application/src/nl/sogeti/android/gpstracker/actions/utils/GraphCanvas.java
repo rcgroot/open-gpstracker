@@ -22,6 +22,12 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.View;
 
+/**
+ * ????
+ * 
+ * @version $Id$
+ * @author rene (c) Mar 22, 2009, Sogeti B.V.
+ */
 public class GraphCanvas extends View
 {
    @SuppressWarnings("unused")

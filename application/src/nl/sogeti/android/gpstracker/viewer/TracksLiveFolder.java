@@ -8,6 +8,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.LiveFolders;
 
+/**
+ * ????
+ * 
+ * @version $Id$
+ * @author rene (c) Mar 22, 2009, Sogeti B.V.
+ */
 public class TracksLiveFolder extends Activity
 {
    @Override
