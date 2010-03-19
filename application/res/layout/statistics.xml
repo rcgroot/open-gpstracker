@@ -105,9 +105,26 @@
          android:id="@+id/stat_maximumaltitude" />
    </TableRow>
 
-   <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
-      android:id="@+id/graph_canvas"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content" />
-   />
+   <ViewFlipper android:id="@+id/flipper">
+      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+         android:id="@+id/graph_canvas1"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content" />
+      />
+      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+         android:id="@+id/graph_canvas2"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content" />
+      />
+      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+         android:id="@+id/graph_canvas3"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content" />
+      />
+      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+         android:id="@+id/graph_canvas4"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content" />
+      />
+   </ViewFlipper>
 </TableLayout>
