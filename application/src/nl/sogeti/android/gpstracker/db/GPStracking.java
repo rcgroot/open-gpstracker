@@ -65,8 +65,8 @@ public final class GPStracking
       /** The name of this table */
       static final String TABLE = "tracks";
       static final String CREATE_STATEMENT = 
-         "CREATE TABLE " + Tracks.TABLE + "(" + " " + Tracks._ID + " " + Tracks._ID_TYPE + 
-                                          "," + " " + Tracks.NAME + " " + Tracks.NAME_TYPE + 
+         "CREATE TABLE " + Tracks.TABLE + "(" + " " + Tracks._ID           + " " + Tracks._ID_TYPE + 
+                                          "," + " " + Tracks.NAME          + " " + Tracks.NAME_TYPE + 
                                           "," + " " + Tracks.CREATION_TIME + " " + Tracks.CREATION_TIME_TYPE + 
                                           ");";
    }
@@ -87,10 +87,10 @@ public final class GPStracking
       /** The name of this table */
       static final String TABLE = "segments";
       static final String CREATE_STATMENT = 
-         "CREATE TABLE " + Segments.TABLE + "(" + " " + Segments._ID + " " + Segments._ID_TYPE + 
+         "CREATE TABLE " + Segments.TABLE + "(" + " " + Segments._ID   + " " + Segments._ID_TYPE + 
                                             "," + " " + Segments.TRACK + " " + Segments.TRACK_TYPE + 
                                             ");";
-   }  
+   }
 
    /**
     * This table contains waypoints.
@@ -109,21 +109,21 @@ public final class GPStracking
       public static final String TABLE = "waypoints";
       static final String CREATE_STATEMENT = "CREATE TABLE " + Waypoints.TABLE + 
       "(" + " " + BaseColumns._ID + " " + WaypointsColumns._ID_TYPE + 
-      "," + " " + WaypointsColumns.LATITUDE + " " + WaypointsColumns.LATITUDE_TYPE + 
+      "," + " " + WaypointsColumns.LATITUDE  + " " + WaypointsColumns.LATITUDE_TYPE + 
       "," + " " + WaypointsColumns.LONGITUDE + " " + WaypointsColumns.LONGITUDE_TYPE + 
-      "," + " " + WaypointsColumns.TIME + " " + WaypointsColumns.TIME_TYPE + 
-      "," + " " + WaypointsColumns.SPEED + " " + WaypointsColumns.SPEED + 
-      "," + " " + WaypointsColumns.SEGMENT + " " + WaypointsColumns.SEGMENT_TYPE + 
-      "," + " " + WaypointsColumns.ACCURACY + " " + WaypointsColumns.ACCURACY_TYPE + 
-      "," + " " + WaypointsColumns.ALTITUDE+ " " + WaypointsColumns.ALTITUDE_TYPE + 
-      "," + " " + WaypointsColumns.BEARING + " " + WaypointsColumns.BEARING_TYPE + 
+      "," + " " + WaypointsColumns.TIME      + " " + WaypointsColumns.TIME_TYPE + 
+      "," + " " + WaypointsColumns.SPEED     + " " + WaypointsColumns.SPEED + 
+      "," + " " + WaypointsColumns.SEGMENT   + " " + WaypointsColumns.SEGMENT_TYPE + 
+      "," + " " + WaypointsColumns.ACCURACY  + " " + WaypointsColumns.ACCURACY_TYPE + 
+      "," + " " + WaypointsColumns.ALTITUDE  + " " + WaypointsColumns.ALTITUDE_TYPE + 
+      "," + " " + WaypointsColumns.BEARING   + " " + WaypointsColumns.BEARING_TYPE + 
       ");";
       
       static final String[] UPGRADE_STATEMENT_7_TO_8 = 
          {
             "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.ACCURACY + " " + WaypointsColumns.ACCURACY_TYPE +";",
-            "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.ALTITUDE+ " " + WaypointsColumns.ALTITUDE_TYPE +";",
-            "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.BEARING + " " + WaypointsColumns.BEARING_TYPE +";"
+            "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.ALTITUDE + " " + WaypointsColumns.ALTITUDE_TYPE +";",
+            "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.BEARING  + " " + WaypointsColumns.BEARING_TYPE +";"
          };
    }
    
@@ -143,11 +143,11 @@ public final class GPStracking
       /** The name of this table */
       public static final String TABLE = "media";
       static final String CREATE_STATEMENT = "CREATE TABLE " + Media.TABLE + 
-      "(" + " " + BaseColumns._ID + " " + MediaColumns._ID_TYPE + 
-      "," + " " + MediaColumns.TRACK + " " + MediaColumns.TRACK_TYPE + 
-      "," + " " + MediaColumns.SEGMENT + " " + MediaColumns.SEGMENT_TYPE + 
+      "(" + " " + BaseColumns._ID       + " " + MediaColumns._ID_TYPE + 
+      "," + " " + MediaColumns.TRACK    + " " + MediaColumns.TRACK_TYPE + 
+      "," + " " + MediaColumns.SEGMENT  + " " + MediaColumns.SEGMENT_TYPE + 
       "," + " " + MediaColumns.WAYPOINT + " " + MediaColumns.WAYPOINT_TYPE + 
-      "," + " " + MediaColumns.URI + " " + MediaColumns.URI_TYPE + 
+      "," + " " + MediaColumns.URI      + " " + MediaColumns.URI_TYPE + 
       ");";
       public static final Uri CONTENT_URI = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + Media.TABLE );
    }
@@ -160,11 +160,11 @@ public final class GPStracking
    public static class TracksColumns
    {
       /** The end time */
-      public static final String NAME = "name";
+      public static final String NAME          = "name";
       public static final String CREATION_TIME = "creationtime";
-      static final String CREATION_TIME_TYPE = "INTEGER NOT NULL";
-      static final String NAME_TYPE = "TEXT";
-      static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
+      static final String CREATION_TIME_TYPE   = "INTEGER NOT NULL";
+      static final String NAME_TYPE            = "TEXT";
+      static final String _ID_TYPE             = "INTEGER PRIMARY KEY AUTOINCREMENT";
    }
    
    /**
@@ -176,8 +176,8 @@ public final class GPStracking
    {
       /** The track _id to which this segment belongs */
       public static final String TRACK = "track";     
-      static final String TRACK_TYPE = "INTEGER NOT NULL";
-      static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
+      static final String TRACK_TYPE   = "INTEGER NOT NULL";
+      static final String _ID_TYPE     = "INTEGER PRIMARY KEY AUTOINCREMENT";
    }
 
    /**
@@ -205,15 +205,15 @@ public final class GPStracking
       /** the bearing of the fix */
       public static final String BEARING = "bearing";
 
-      static final String LATITUDE_TYPE = "REAL NOT NULL";
+      static final String LATITUDE_TYPE  = "REAL NOT NULL";
       static final String LONGITUDE_TYPE = "REAL NOT NULL";
-      static final String TIME_TYPE = "INTEGER NOT NULL";
-      static final String SPEED_TYPE = "REAL NOT NULL";
-      static final String SEGMENT_TYPE = "INTEGER NOT NULL";
-      static final String ACCURACY_TYPE = "REAL";
-      static final String ALTITUDE_TYPE = "REAL";
-      static final String BEARING_TYPE = "REAL";
-      static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
+      static final String TIME_TYPE      = "INTEGER NOT NULL";
+      static final String SPEED_TYPE     = "REAL NOT NULL";
+      static final String SEGMENT_TYPE   = "INTEGER NOT NULL";
+      static final String ACCURACY_TYPE  = "REAL";
+      static final String ALTITUDE_TYPE  = "REAL";
+      static final String BEARING_TYPE   = "REAL";
+      static final String _ID_TYPE       = "INTEGER PRIMARY KEY AUTOINCREMENT";
    }
    
    /**
@@ -224,14 +224,14 @@ public final class GPStracking
    public static class MediaColumns
    {
       /** The track _id to which this segment belongs */
-      public static final String TRACK = "track";     
-      static final String TRACK_TYPE = "INTEGER NOT NULL";
-      public static final String SEGMENT = "segment";     
-      static final String SEGMENT_TYPE = "INTEGER NOT NULL";
+      public static final String TRACK    = "track";     
+      static final String TRACK_TYPE      = "INTEGER NOT NULL";
+      public static final String SEGMENT  = "segment";     
+      static final String SEGMENT_TYPE    = "INTEGER NOT NULL";
       public static final String WAYPOINT = "waypoint";     
-      static final String WAYPOINT_TYPE = "INTEGER NOT NULL";
-      public static final String URI = "uri";     
-      static final String URI_TYPE = "TEXT";
-      static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
+      static final String WAYPOINT_TYPE   = "INTEGER NOT NULL";
+      public static final String URI      = "uri";     
+      static final String URI_TYPE        = "TEXT";
+      static final String _ID_TYPE        = "INTEGER PRIMARY KEY AUTOINCREMENT";
    }
 }
