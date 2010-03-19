@@ -84,7 +84,7 @@ public class SegmentOverlay extends Overlay
    public static final int DRAW_DOTS = 4;
    private static final float MINIMUM_RL_DISTANCE = 25;
    private static final float MINIMUM_RL_TIME = 5;
-   private static final float MINIMUM_PX_DISTANCE = 5;
+   private static final float MINIMUM_PX_DISTANCE = 15;
    private int mTrackColoringMethod = DRAW_CALCULATED;
 
    private ContentResolver mResolver;
@@ -353,7 +353,8 @@ public class SegmentOverlay extends Overlay
                      this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
                      this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
                      this.location.setTime( mWaypointsCursor.getLong( 3 ) );
-                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME )
+                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE 
+                           && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME )
                            || mWaypointsCursor.isLast() )
                      {
                         speed = calculateSpeedBetweenLocations( this.prevLocation, this.location );
@@ -751,6 +752,7 @@ public class SegmentOverlay extends Overlay
    {
       this.mTrackColoringMethod = coloring;
       this.mAvgSpeed = avgspeed;
+      calculatePath();
    }
 
    /**
