@@ -105,7 +105,10 @@
          android:id="@+id/stat_maximumaltitude" />
    </TableRow>
 
-   <ViewFlipper android:id="@+id/flipper">
+   <ViewFlipper 
+        android:id="@+id/flipper"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">>
       <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
          android:id="@+id/graph_canvas1"
          android:layout_width="fill_parent"

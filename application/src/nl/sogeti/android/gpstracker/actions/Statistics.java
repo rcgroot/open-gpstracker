@@ -196,8 +196,8 @@ public class Statistics extends Activity
       mGraphView3 = (GraphCanvas) findViewById( R.id.graph_canvas3 );
       mGraphView4 = (GraphCanvas) findViewById( R.id.graph_canvas4 );
       mGraphView1.setType( GraphCanvas.TIMESPEEDGRAPH );
-      mGraphView2.setType( GraphCanvas.TIMEALTITUDEGRAPH );
-      mGraphView3.setType( GraphCanvas.DISTANCESPEEDGRAPH );
+      mGraphView2.setType( GraphCanvas.DISTANCESPEEDGRAPH );
+      mGraphView3.setType( GraphCanvas.TIMEALTITUDEGRAPH );
       mGraphView4.setType( GraphCanvas.DISTANCEALTITUDEGRAPH );
 
       mGestureDetector = new GestureDetector( new MyGestureDetector() );

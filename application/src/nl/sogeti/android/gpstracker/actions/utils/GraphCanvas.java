@@ -3,6 +3,7 @@ package nl.sogeti.android.gpstracker.actions.utils;
 import java.text.DateFormat;
 import java.util.Date;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
@@ -16,6 +17,7 @@ import android.graphics.CornerPathEffect;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Typeface;
 import android.graphics.Bitmap.Config;
 import android.location.Location;
 import android.net.Uri;
@@ -161,24 +163,28 @@ public class GraphCanvas extends View
          {
             case( TIMESPEEDGRAPH ):
                setupSpeedAxis();
+               drawGraphType();
                drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.SPEED } );
                drawSpeedsTexts();
                drawTimeTexts();
                break;
             case( DISTANCESPEEDGRAPH ):
                setupSpeedAxis();
+               drawGraphType();
                drawDistanceAxisGraphOnCanvas(  new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.SPEED } );
                drawSpeedsTexts();
                drawDistanceTexts();
                break;
             case( TIMEALTITUDEGRAPH ):
                setupAltitudeAxis();
+               drawGraphType();
                drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.ALTITUDE } );
                drawAltitudesTexts();
                drawTimeTexts();
                break;
             case( DISTANCEALTITUDEGRAPH ):
                setupAltitudeAxis();
+               drawGraphType();
                drawDistanceAxisGraphOnCanvas( new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE } );
                drawAltitudesTexts();
                drawDistanceTexts();
@@ -207,8 +213,6 @@ public class GraphCanvas extends View
       Uri waypointsUri = null;
       Cursor segments = null;
       Cursor waypoints = null;
-      mWidth = mRenderCanvas.getWidth()-5;
-      mHeight = mRenderCanvas.getHeight()-10;
       double[][] values ;
       int[][] valueDepth;
       double distance = 1;
@@ -299,8 +303,6 @@ public class GraphCanvas extends View
       Uri waypointsUri = null;
       Cursor segments = null;
       Cursor waypoints = null;
-      mWidth = mRenderCanvas.getWidth()-5;
-      mHeight = mRenderCanvas.getHeight()-10;
       long duration = 1+mEndTime - mStartTime;
       double[][] values ;
       int[][] valueDepth;
@@ -379,12 +381,18 @@ public class GraphCanvas extends View
    {
       mMinAxis = 4 *     (int)mUnits.conversionFromMeterToSmall(mMinAlititude / 4) ;
       mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMeterToSmall(mMaxAlititude / 4) ;
+
+      mWidth = mRenderCanvas.getWidth()-5;
+      mHeight = mRenderCanvas.getHeight()-10;
    }
 
    private void setupSpeedAxis()
    {
       mMinAxis = 0;
       mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMetersPerSecond( mMaxSpeed / 4);
+
+      mWidth = mRenderCanvas.getWidth()-5;
+      mHeight = mRenderCanvas.getHeight()-10;
    }
 
    private void drawAltitudesTexts()
@@ -434,6 +442,36 @@ public class GraphCanvas extends View
       mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, white );
    }
    
+   private void drawGraphType()
+   {
+      Paint dkgray = new Paint();
+      dkgray.setColor( Color.DKGRAY );
+      dkgray.setAntiAlias( true );
+      dkgray.setTextAlign( Paint.Align.CENTER );
+      dkgray.setTextSize( 14 );
+      dkgray.setTypeface( Typeface.DEFAULT_BOLD );
+      String text;
+      switch( mGraphType )
+      {
+         case( TIMESPEEDGRAPH ):
+            text = mContext.getResources().getString( R.string.graphtype_timespeed );
+            break;
+         case( DISTANCESPEEDGRAPH ):
+            text = mContext.getResources().getString( R.string.graphtype_distancespeed );
+            break;
+         case( TIMEALTITUDEGRAPH ):
+            text = mContext.getResources().getString( R.string.graphtype_timealtitude );
+            break;
+         case( DISTANCEALTITUDEGRAPH ):
+            text = mContext.getResources().getString( R.string.graphtype_distancealtitude );
+            break;
+         default:
+            text = "UNKNOWN GRAPH TYPE";
+            break;
+      }
+      mRenderCanvas.drawText( text, 5+mWidth/2, 5+mHeight/8, dkgray );
+      
+   }
    private void drawDistanceTexts()
    {
       String start = String.format( "%.0f %s", mUnits.conversionFromMeter( 0 ), mUnits.getDistanceUnit() ) ;
