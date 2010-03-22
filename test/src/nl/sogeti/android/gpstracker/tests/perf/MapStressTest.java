@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.tests.perf;
 
-import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.os.Debug;
 import android.test.ActivityInstrumentationTestCase2;
@@ -47,8 +46,6 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
    private static final String TAG = "OGT.MapStressTest";
-   private LoggerMap mLoggermap;
-   private GPSLoggerServiceManager mLoggerServiceManager;
    private Intermediates mIntermediates;
 
    public MapStressTest()
@@ -60,7 +57,7 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    protected void setUp() throws Exception 
    {
       super.setUp();
-      this.mLoggermap = getActivity();
+      getActivity();
    }  
 
    protected void tearDown() throws Exception

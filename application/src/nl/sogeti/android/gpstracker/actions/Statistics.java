@@ -56,7 +56,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -76,7 +75,6 @@ public class Statistics extends Activity
    private static final int MENU_GRAPHTYPE = 11;
    private static final int MENU_TRACKLIST = 12;
    private static final int MENU_SHARE = 41;
-   private static final String GRAPH_TYPE = "GRAPH_TYPE";
    private static final String TRACKURI = "TRACKURI";
    @SuppressWarnings("unused")
    private static final String TAG = "Statistics";

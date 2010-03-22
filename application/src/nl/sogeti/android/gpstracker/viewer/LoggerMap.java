@@ -1201,7 +1201,6 @@ public class LoggerMap extends MapActivity
       Cursor segments = null;
       int trackColoringMethod = new Integer( mSharedPreferences.getString( Constants.TRACKCOLORING, "2" ) ).intValue();
 
-      GeoPoint lastPoint = null;
       try
       {
          Uri segmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/segments" );
@@ -1222,7 +1221,7 @@ public class LoggerMap extends MapActivity
                if( segments.isLast() )
                {
                   segmentOverlay.addPlacement( SegmentOverlay.LAST_SEGMENT );
-                  lastPoint = getLastTrackPoint();
+                  getLastTrackPoint();
                }
                mLastSegment = segmentsId;
             }

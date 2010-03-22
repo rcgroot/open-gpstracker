@@ -28,12 +28,9 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.net.URI;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.util.Constants;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;

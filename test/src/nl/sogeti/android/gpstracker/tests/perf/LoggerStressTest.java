@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.tests.perf;
 
-import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.tests.R;
 import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;

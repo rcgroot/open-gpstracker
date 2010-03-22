@@ -8,12 +8,11 @@ import android.test.suitebuilder.annotation.SmallTest;
 public class TrackingOverlayTest extends AndroidTestCase
 {
 
-   private SegmentOverlay mTrackingOverlay;
 
    @Override
    protected void setUp()
    {
-      mTrackingOverlay = new SegmentOverlay( getContext(), null, SegmentOverlay.DRAW_CALCULATED, 36d, null );
+//      mTrackingOverlay = new SegmentOverlay( getContext(), null, SegmentOverlay.DRAW_CALCULATED, 36d, null );
    }
    
    @SmallTest

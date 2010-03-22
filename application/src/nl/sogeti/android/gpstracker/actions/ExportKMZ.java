@@ -32,7 +32,6 @@ package nl.sogeti.android.gpstracker.actions;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
 import nl.sogeti.android.gpstracker.actions.utils.XmlCreationProgressListener;
-import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;
 import android.app.AlertDialog;
