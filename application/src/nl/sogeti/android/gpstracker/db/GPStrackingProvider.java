@@ -82,6 +82,21 @@ import android.util.Log;
  * <p>
  * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/1/waypoints/52</code> is the URI string that 
  * would return a single result row, the waypoint with ID = 52
+ * <p>
+ * Media is stored under a waypoint and may be queried as:<br>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/3/waypoints/22/media</code>
+ * <p>
+ * All media for a segment can be queried with:<br>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/3/media</code>
+ * <p>
+ * All media for a track can be queried with:<br>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/media</code>
+ * <p>
+ * The whole set of collected media may be queried as:<br>
+ * <code>content://nl.sogeti.android.gpstracker/media</code>
+ * <p>
+ * A single media is stored with an ID, for instance ID = 12:<br>
+ * <code>content://nl.sogeti.android.gpstracker/media/12</code>
  * 
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.

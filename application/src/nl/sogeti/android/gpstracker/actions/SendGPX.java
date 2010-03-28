@@ -42,7 +42,7 @@ import android.os.Bundle;
 import android.widget.RemoteViews;
 
 /**
- * ????
+ * Send a GPX file with Android SEND Intent
  * 
  * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.

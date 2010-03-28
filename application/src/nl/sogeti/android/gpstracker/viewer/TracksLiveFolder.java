@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.provider.LiveFolders;
 
 /**
- * ????
+ * Activity to build a data set to be shown in a live folder in a Android desktop
  * 
  * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.

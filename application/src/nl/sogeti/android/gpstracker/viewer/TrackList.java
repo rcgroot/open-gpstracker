@@ -58,6 +58,8 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 /**
+ * Show a list view of all tracks, also doubles for showing search results
+ * 
  * @version $Id$
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */

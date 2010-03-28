@@ -97,6 +97,8 @@ import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 
 /**
+ * Main activity showing a track and allowing logging control
+ * 
  * @version $Id$
  * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */

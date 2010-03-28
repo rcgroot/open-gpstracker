@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 /**
- * 
  * Controller for the settings dialog
  *
  * @version $Id$

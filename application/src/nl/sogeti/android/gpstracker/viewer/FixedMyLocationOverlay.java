@@ -34,8 +34,8 @@ import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Projection;
 
 /**
- * From http://www.spectrekking.com/download/FixedMyLocationOverlay.java
- * 
+ * Fix for a ClassCastException found on some Google Maps API's implementations.
+ * @see <a href="http://www.spectrekking.com/download/FixedMyLocationOverlay.java">www.spectrekking.com</a> 
  * @version $Id$
  */
 public class FixedMyLocationOverlay extends MyLocationOverlay {

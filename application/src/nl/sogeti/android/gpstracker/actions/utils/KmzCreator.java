@@ -40,7 +40,7 @@ import android.util.Xml;
 import android.widget.Toast;
 
 /**
- * ????
+ * Create a KMZ version of a stored track
  * 
  * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.

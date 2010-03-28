@@ -13,7 +13,7 @@
 package nl.sogeti.android.gpstracker.actions.utils;
 
 /**
- * ????
+ * Interface to monitor progress of KMZ, GPX XML creation
  * 
  * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.

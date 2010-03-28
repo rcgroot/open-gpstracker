@@ -51,7 +51,7 @@ import android.widget.EditText;
 import android.widget.RemoteViews;
 
 /**
- * ????
+ * Store a KMZ file to SDCard
  * 
  * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.
