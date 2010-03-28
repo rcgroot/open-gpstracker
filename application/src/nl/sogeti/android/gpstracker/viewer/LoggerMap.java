@@ -428,7 +428,7 @@ public class LoggerMap extends MapActivity
 
       setContentView( R.layout.map );
       mMapView = (MapView) findViewById( R.id.myMapView );
-      mMylocation = new MyLocationOverlay( this, mMapView );
+      mMylocation = new FixedMyLocationOverlay( this, mMapView );
       mMapController = this.mMapView.getController();
       mMapView.setBuiltInZoomControls( true );
       mMapView.setClickable( true );
