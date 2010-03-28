@@ -115,7 +115,6 @@ public class SegmentOverlay extends Overlay
    private Location location;
    private Location prevLocation;
    private Cursor mWaypointsCursor;
-   private Uri[][] onscreenUri = new Uri[20][20];
    private Uri mSegmentUri;
    private int mWaypointCount;
 
@@ -516,10 +515,6 @@ public class SegmentOverlay extends Overlay
             int left = ( bitmap.getWidth() * 3 ) / 7;
             int up = ( bitmap.getHeight() * 6 ) / 7;
             canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
-
-            int xbox = ( mScreenPoint.x * 20 ) / canvas.getWidth();
-            int ybox = ( mScreenPoint.y * 20 ) / canvas.getHeight();
-            onscreenUri[xbox][ybox] = mediaVO.uri;
          }
       }
    }
