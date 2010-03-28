@@ -13,14 +13,18 @@
 package nl.sogeti.android.gpstracker.actions.utils;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.db.GPStracking;
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -35,6 +39,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Looper;
+import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 import android.util.Xml;
 import android.widget.Toast;
@@ -125,6 +130,7 @@ public class GpxCreator extends Thread
          serializer.startDocument( "UTF-8", true );
          serializer.setPrefix( "xsi", NS_SCHEMA );
          serializer.setPrefix( "gpx", NS_GPX_11 );
+         serializer.text( "\n" );
          serializer.startTag( "", "gpx" );
          serializer.attribute( null, "version", "1.1" );
          serializer.attribute( null, "creator", "nl.sogeti.android.gpstracker" );
@@ -132,7 +138,7 @@ public class GpxCreator extends Thread
          serializer.attribute( null, "xmlns", NS_GPX_11 );
    
          // Big header of the track
-         String name = serializeTrack( mContext, serializer, trackUri );
+         String name = serializeTrackHeader( mContext, serializer, trackUri );
    
          serializer.text( "\n" );
          serializer.startTag( "", "trk" );
@@ -185,7 +191,7 @@ public class GpxCreator extends Thread
       }
    }
 
-   private String serializeTrack( Context context, XmlSerializer serializer, Uri trackUri ) throws IOException
+   private String serializeTrackHeader( Context context, XmlSerializer serializer, Uri trackUri ) throws IOException
    {
       ContentResolver resolver = context.getContentResolver();
       Cursor trackCursor = null;
@@ -197,12 +203,15 @@ public class GpxCreator extends Thread
          if( trackCursor.moveToFirst() )
          {
             name = trackCursor.getString( 1 );
+            serializer.text( "\n" );
             serializer.startTag( "", "metadata" );
+            serializer.text( "\n" );
             serializer.startTag( "", "time" );
             Date time = new Date( trackCursor.getLong( 2 ) );
             DateFormat formater = new SimpleDateFormat( DATETIME );
             serializer.text( formater.format( time ) );
             serializer.endTag( "", "time" );
+            serializer.text( "\n" );
             serializer.endTag( "", "metadata" );
          }
       }
@@ -232,7 +241,7 @@ public class GpxCreator extends Thread
    
             do
             {
-               Uri waypoints = Uri.withAppendedPath( segments, "/" + segmentCursor.getLong( 0 ) + "/waypoints" );
+               Uri waypoints = Uri.withAppendedPath( segments, segmentCursor.getLong( 0 ) + "/waypoints" );
                serializer.text( "\n" );
                serializer.startTag( "", "trkseg" );
                serializeWaypoints( context, serializer, waypoints );
@@ -258,7 +267,7 @@ public class GpxCreator extends Thread
       ContentResolver resolver = context.getContentResolver();
       try
       {
-         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints.ACCURACY }, null, null, null );
+         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
             mGoal += waypointsCursor.getCount();
@@ -284,10 +293,7 @@ public class GpxCreator extends Thread
                DateFormat formater = new SimpleDateFormat( DATETIME );
                serializer.text( formater.format( time ) );
                serializer.endTag( "", "time" );
-               serializer.text( "\n" );
-               serializer.startTag( "", "name" );
-               serializer.text( "point_" + waypointsCursor.getPosition() );
-               serializer.endTag( "", "name" );
+               serializeWaypointDescription( context, serializer, Uri.withAppendedPath( waypoints, waypointsCursor.getLong( 4 ) + "/media" ) );
                serializer.text( "\n" );
                serializer.endTag( "", "trkpt" );
             }
@@ -302,5 +308,103 @@ public class GpxCreator extends Thread
          }
       }
    
+   }
+
+   private void serializeWaypointDescription( Context context, XmlSerializer serializer, Uri media ) throws IOException
+   {
+      String pathPrefix = Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.EXTERNAL_DIR;
+      Cursor mediaCursor = null;
+      ContentResolver resolver = context.getContentResolver();
+      try
+      {
+         mediaCursor = resolver.query( media, new String[] { Media.URI }, null, null, null );
+         if( mediaCursor.moveToFirst() )
+         {
+            do
+            {
+               Uri mediaUri = Uri.parse( mediaCursor.getString( 0 ) ) ;
+               if( mediaUri.getScheme().equals( "file" ) )
+               {
+                  if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
+                  {
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "link" );
+                     serializer.attribute( null, "href", pathPrefix + mediaUri.getLastPathSegment() );
+                     serializer.startTag( "", "text" );
+                     serializer.text( mediaUri.getLastPathSegment() );
+                     serializer.endTag( "", "text" );
+                     serializer.endTag( "", "link" );
+                  }
+                  else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
+                  {
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "link" );
+                     serializer.attribute( null, "href", pathPrefix + mediaUri.getLastPathSegment() );
+                     serializer.startTag( "", "text" );
+                     serializer.text( mediaUri.getLastPathSegment() );
+                     serializer.endTag( "", "text" );
+                     serializer.endTag( "", "link" );
+                  }
+                  else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
+                  {
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "desc" );
+                     BufferedReader buf = new BufferedReader( new FileReader( mediaUri.getEncodedPath() ) );
+                     String line;
+                     while( (line = buf.readLine()) != null )
+                     {
+                        serializer.text( line );
+                        serializer.text( "\n" );
+                     }
+                     serializer.endTag( "", "desc" );
+                  }
+               }
+               else if( mediaUri.getScheme().equals( "content" ) )
+               {
+                  if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+                  {
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "name" );
+                     serializer.text( mediaUri.getLastPathSegment() );
+                     serializer.endTag( "", "name" );
+                  }
+                  else if( mediaUri.getAuthority().equals( "media" ) )
+                  {
+                   
+                     Cursor mediaItemCursor = null;
+                     try
+                     {
+                     mediaItemCursor  = resolver.query( mediaUri, new String[]{ MediaColumns.DATA, MediaColumns.DISPLAY_NAME }, null, null, null );
+                     if( mediaItemCursor.moveToFirst() )
+                     {
+                        serializer.text( "\n" );
+                        serializer.startTag( "", "link" );
+                        serializer.attribute( null, "href", mediaItemCursor.getString( 0 ) );
+                        serializer.startTag( "", "text" );
+                        serializer.text( mediaItemCursor.getString( 1 ) );
+                        serializer.endTag( "", "text" );
+                        serializer.endTag( "", "link" );
+                     }
+                     }
+                     finally
+                     {
+                        if( mediaItemCursor != null )
+                        {
+                           mediaItemCursor.close();
+                        }
+                     }
+                  }
+               }
+            }
+            while (mediaCursor.moveToNext());
+         }
+      }
+      finally
+      {
+         if( mediaCursor != null )
+         {
+            mediaCursor.close();
+         }
+      }
    }
 }
