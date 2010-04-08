@@ -36,6 +36,7 @@
     <string name="ticker_saving">Saving: </string>
     <string name="ticker_stored">Stored: </string>
     <string name="ticker_failed">Unable to save the route: </string>
+    <string name="error_filenotfound"> reason: Can not find file or directory on SD card</string>
     <string name="error_filename"> reason: Incorrect filename</string>
     <string name="error_buildxml"> reason: Error building XML</string>
     <string name="error_writesdcard"> reason: Error writing to SD card</string>

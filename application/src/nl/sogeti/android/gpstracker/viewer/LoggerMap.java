@@ -994,7 +994,7 @@ public class LoggerMap extends MapActivity
             case MENU_PICTURE:
                file = new File( sdcard + Constants.TMPICTUREFILE_PATH );
                Calendar c = Calendar.getInstance();
-               newName =  String.format( "Imagenote_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c );
+               newName =  String.format( "Picture_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c );
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.getParentFile().mkdirs();
                file.renameTo( newFile );
@@ -1005,7 +1005,7 @@ public class LoggerMap extends MapActivity
             case MENU_VIDEO:
                file = new File( sdcard + Constants.TMPICTUREFILE_PATH );               
                c = Calendar.getInstance();
-               newName =  String.format( "Videonote_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c );
+               newName =  String.format( "Video_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c );
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.getParentFile().mkdirs();
                file.renameTo( newFile );

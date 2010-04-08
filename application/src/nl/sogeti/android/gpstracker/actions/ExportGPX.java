@@ -121,9 +121,9 @@ public class ExportGPX extends Activity
       }
    }
 
-   protected void exportGPX( String chosenFileName )
+   protected void exportGPX( String chosenBaseFileName )
    {
-      GpxCreator mGpxCreator = new GpxCreator( this, getIntent(), chosenFileName, new ProgressListener() );
+      GpxCreator mGpxCreator = new GpxCreator( this, getIntent(), chosenBaseFileName, new ProgressListener() );
       mGpxCreator.start();
       this.finish();
    }

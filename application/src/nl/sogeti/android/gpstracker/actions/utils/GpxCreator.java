@@ -15,12 +15,17 @@ package nl.sogeti.android.gpstracker.actions.utils;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
@@ -55,8 +60,8 @@ public class GpxCreator extends Thread
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
    public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-   
-   private String mChosenFileName;
+
+   private String mChosenBaseFileName;
    private Intent mIntent;
    private XmlCreationProgressListener mProgressListener;
    private Context mContext;
@@ -64,23 +69,26 @@ public class GpxCreator extends Thread
    private int mProgress = 0;
    private int mGoal = 0;
    private String TAG = "OGT.GpxCreator";
-   
-   public GpxCreator(Context context, Intent intent, String chosenFileName, XmlCreationProgressListener listener)
+   private String mExportDirectoryPath;
+   private String mXmlFileName;
+   private boolean mNeedsBundling;
+
+   public GpxCreator(Context context, Intent intent, String chosenBaseFileName, XmlCreationProgressListener listener)
    {
-      mChosenFileName = chosenFileName;
+      mChosenBaseFileName = chosenBaseFileName;
       mContext = context;
       mIntent = intent;
       mProgressListener = listener;
    }
-   
+
    public void run()
    {
       Looper.prepare();
       Uri trackUri = mIntent.getData();
       String fileName = "UntitledTrack";
-      if( mChosenFileName != null && !mChosenFileName.equals( "" ))
+      if( mChosenBaseFileName != null && !mChosenBaseFileName.equals( "" ) )
       {
-         fileName = mChosenFileName;
+         fileName = mChosenBaseFileName;
       }
       else
       {
@@ -102,82 +110,71 @@ public class GpxCreator extends Thread
             }
          }
       }
-      
-      String filePath;
+
       if( !( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) ) )
       {
-         filePath = Environment.getExternalStorageDirectory() +Constants.EXTERNAL_DIR+fileName;
-         fileName = fileName + ".gpx";
+         mExportDirectoryPath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName;
+         mXmlFileName = fileName + ".gpx";
       }
       else
       {
-         filePath = Environment.getExternalStorageDirectory() +Constants.EXTERNAL_DIR+fileName.substring( 0, fileName.length()-4 );
+         mExportDirectoryPath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 );
+         mXmlFileName = fileName;
       }
-      new File( filePath ).mkdirs();
-      filePath = filePath+"/"+fileName;
-   
+      new File( mExportDirectoryPath ).mkdirs();
+
+      String xmlFilePath = mExportDirectoryPath + "/" + mXmlFileName;
       if( mProgressListener != null )
       {
          mProgressListener.startNotification( fileName );
          mProgressListener.updateNotification( mProgress, mGoal );
       }
-   
+
+      String resultFilename = xmlFilePath;
       try
       {
          XmlSerializer serializer = Xml.newSerializer();
-         BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( filePath ), 8192 );
+         BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( xmlFilePath ), 8192 );
          serializer.setOutput( buf, "UTF-8" );
-         serializer.startDocument( "UTF-8", true );
-         serializer.setPrefix( "xsi", NS_SCHEMA );
-         serializer.setPrefix( "gpx", NS_GPX_11 );
-         serializer.text( "\n" );
-         serializer.startTag( "", "gpx" );
-         serializer.attribute( null, "version", "1.1" );
-         serializer.attribute( null, "creator", "nl.sogeti.android.gpstracker" );
-         serializer.attribute( NS_SCHEMA, "schemaLocation", NS_GPX_11 + " http://www.topografix.com/gpx/1/1/gpx.xsd" );
-         serializer.attribute( null, "xmlns", NS_GPX_11 );
-   
-         // Big header of the track
-         String name = serializeTrackHeader( mContext, serializer, trackUri );
-   
-         serializer.text( "\n" );
-         serializer.startTag( "", "trk" );
-         serializer.text( "\n" );
-         serializer.startTag( "", "name" );
-         serializer.text( name );
-         serializer.endTag( "", "name" );
-   
-         // The list of segments in the track
-         serializeSegments( mContext, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
-   
-         serializer.text( "\n" );
-         serializer.endTag( "", "trk" );
-         serializer.text( "\n" );
-         serializer.endTag( "", "gpx" );
-         serializer.endDocument();
-   
-         CharSequence text = mContext.getString( R.string.ticker_stored )+"\"" + fileName+"\"";
+
+         serializeTrack( trackUri, serializer );
+
+         if( mNeedsBundling )
+         {
+            resultFilename = bundlingMediaAndXml( fileName );
+         }
+
+         fileName = new File( resultFilename ).getName();
+
+         CharSequence text = mContext.getString( R.string.ticker_stored ) + "\"" + fileName + "\"";
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_SHORT );
          toast.show();
       }
-      catch (IllegalArgumentException e)
+      catch( FileNotFoundException e )
       {
-         Log.e( TAG , "Unable to save " + e );
-         CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + filePath+"\""  + mContext.getString( R.string.error_filename );
+         Log.e( TAG, "Unable to save " + e );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_filenotfound );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
-      catch (IllegalStateException e)
+      catch( IllegalArgumentException e )
       {
          Log.e( TAG, "Unable to save " + e );
-         CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + filePath+"\""  + mContext.getString( R.string.error_buildxml );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_filename );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
-      catch (IOException e)
+      catch( IllegalStateException e )
       {
          Log.e( TAG, "Unable to save " + e );
-         CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + filePath+"\""  + mContext.getString( R.string.error_writesdcard );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_buildxml );
+         Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+         toast.show();
+      }
+      catch( IOException e )
+      {
+         Log.e( TAG, "Unable to save " + e );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_writesdcard );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
@@ -185,10 +182,43 @@ public class GpxCreator extends Thread
       {
          if( mProgressListener != null )
          {
-            mProgressListener.endNotification( filePath );
+            mProgressListener.endNotification( resultFilename );
          }
          Looper.loop();
       }
+
+   }
+
+   private void serializeTrack( Uri trackUri, XmlSerializer serializer ) throws IllegalArgumentException, IllegalStateException, IOException
+   {
+      serializer.startDocument( "UTF-8", true );
+      serializer.setPrefix( "xsi", NS_SCHEMA );
+      serializer.setPrefix( "gpx", NS_GPX_11 );
+      serializer.text( "\n" );
+      serializer.startTag( "", "gpx" );
+      serializer.attribute( null, "version", "1.1" );
+      serializer.attribute( null, "creator", "nl.sogeti.android.gpstracker" );
+      serializer.attribute( NS_SCHEMA, "schemaLocation", NS_GPX_11 + " http://www.topografix.com/gpx/1/1/gpx.xsd" );
+      serializer.attribute( null, "xmlns", NS_GPX_11 );
+
+      // Big header of the track
+      String name = serializeTrackHeader( mContext, serializer, trackUri );
+
+      serializer.text( "\n" );
+      serializer.startTag( "", "trk" );
+      serializer.text( "\n" );
+      serializer.startTag( "", "name" );
+      serializer.text( name );
+      serializer.endTag( "", "name" );
+
+      // The list of segments in the track
+      serializeSegments( mContext, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
+
+      serializer.text( "\n" );
+      serializer.endTag( "", "trk" );
+      serializer.text( "\n" );
+      serializer.endTag( "", "gpx" );
+      serializer.endDocument();
    }
 
    private String serializeTrackHeader( Context context, XmlSerializer serializer, Uri trackUri ) throws IOException
@@ -196,7 +226,7 @@ public class GpxCreator extends Thread
       ContentResolver resolver = context.getContentResolver();
       Cursor trackCursor = null;
       String name = null;
-   
+
       try
       {
          trackCursor = resolver.query( trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
@@ -224,7 +254,7 @@ public class GpxCreator extends Thread
       }
       return name;
    }
-   
+
    private void serializeSegments( Context context, XmlSerializer serializer, Uri segments ) throws IOException
    {
       Cursor segmentCursor = null;
@@ -238,7 +268,7 @@ public class GpxCreator extends Thread
             {
                mProgressListener.updateNotification( mProgress, mGoal );
             }
-   
+
             do
             {
                Uri waypoints = Uri.withAppendedPath( segments, segmentCursor.getLong( 0 ) + "/waypoints" );
@@ -248,8 +278,8 @@ public class GpxCreator extends Thread
                serializer.text( "\n" );
                serializer.endTag( "", "trkseg" );
             }
-            while (segmentCursor.moveToNext());
-   
+            while( segmentCursor.moveToNext() );
+
          }
       }
       finally
@@ -260,7 +290,7 @@ public class GpxCreator extends Thread
          }
       }
    }
-   
+
    private void serializeWaypoints( Context context, XmlSerializer serializer, Uri waypoints ) throws IOException
    {
       Cursor waypointsCursor = null;
@@ -276,9 +306,9 @@ public class GpxCreator extends Thread
                mProgress++;
                if( mProgressListener != null )
                {
-                  mProgressListener.updateNotification(mProgress, mGoal);
+                  mProgressListener.updateNotification( mProgress, mGoal );
                }
-   
+
                serializer.text( "\n" );
                serializer.startTag( "", "trkpt" );
                serializer.attribute( null, "lat", Double.toString( waypointsCursor.getDouble( 1 ) ) );
@@ -297,7 +327,7 @@ public class GpxCreator extends Thread
                serializer.text( "\n" );
                serializer.endTag( "", "trkpt" );
             }
-            while (waypointsCursor.moveToNext());
+            while( waypointsCursor.moveToNext() );
          }
       }
       finally
@@ -307,12 +337,12 @@ public class GpxCreator extends Thread
             waypointsCursor.close();
          }
       }
-   
+
    }
 
    private void serializeWaypointDescription( Context context, XmlSerializer serializer, Uri media ) throws IOException
    {
-      String pathPrefix = Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.EXTERNAL_DIR;
+      String mediaPathPrefix = Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.EXTERNAL_DIR;
       Cursor mediaCursor = null;
       ContentResolver resolver = context.getContentResolver();
       try
@@ -322,14 +352,14 @@ public class GpxCreator extends Thread
          {
             do
             {
-               Uri mediaUri = Uri.parse( mediaCursor.getString( 0 ) ) ;
+               Uri mediaUri = Uri.parse( mediaCursor.getString( 0 ) );
                if( mediaUri.getScheme().equals( "file" ) )
                {
                   if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
                   {
                      serializer.text( "\n" );
                      serializer.startTag( "", "link" );
-                     serializer.attribute( null, "href", pathPrefix + mediaUri.getLastPathSegment() );
+                     serializer.attribute( null, "href", includeMediaFile( mediaPathPrefix + mediaUri.getLastPathSegment() ) );
                      serializer.startTag( "", "text" );
                      serializer.text( mediaUri.getLastPathSegment() );
                      serializer.endTag( "", "text" );
@@ -339,7 +369,7 @@ public class GpxCreator extends Thread
                   {
                      serializer.text( "\n" );
                      serializer.startTag( "", "link" );
-                     serializer.attribute( null, "href", pathPrefix + mediaUri.getLastPathSegment() );
+                     serializer.attribute( null, "href", includeMediaFile( mediaPathPrefix + mediaUri.getLastPathSegment() ) );
                      serializer.startTag( "", "text" );
                      serializer.text( mediaUri.getLastPathSegment() );
                      serializer.endTag( "", "text" );
@@ -351,7 +381,7 @@ public class GpxCreator extends Thread
                      serializer.startTag( "", "desc" );
                      BufferedReader buf = new BufferedReader( new FileReader( mediaUri.getEncodedPath() ) );
                      String line;
-                     while( (line = buf.readLine()) != null )
+                     while( ( line = buf.readLine() ) != null )
                      {
                         serializer.text( line );
                         serializer.text( "\n" );
@@ -370,21 +400,21 @@ public class GpxCreator extends Thread
                   }
                   else if( mediaUri.getAuthority().equals( "media" ) )
                   {
-                   
+
                      Cursor mediaItemCursor = null;
                      try
                      {
-                     mediaItemCursor  = resolver.query( mediaUri, new String[]{ MediaColumns.DATA, MediaColumns.DISPLAY_NAME }, null, null, null );
-                     if( mediaItemCursor.moveToFirst() )
-                     {
-                        serializer.text( "\n" );
-                        serializer.startTag( "", "link" );
-                        serializer.attribute( null, "href", mediaItemCursor.getString( 0 ) );
-                        serializer.startTag( "", "text" );
-                        serializer.text( mediaItemCursor.getString( 1 ) );
-                        serializer.endTag( "", "text" );
-                        serializer.endTag( "", "link" );
-                     }
+                        mediaItemCursor = resolver.query( mediaUri, new String[] { MediaColumns.DATA, MediaColumns.DISPLAY_NAME }, null, null, null );
+                        if( mediaItemCursor.moveToFirst() )
+                        {
+                           serializer.text( "\n" );
+                           serializer.startTag( "", "link" );
+                           serializer.attribute( null, "href", includeMediaFile( mediaItemCursor.getString( 0 ) ) );
+                           serializer.startTag( "", "text" );
+                           serializer.text( mediaItemCursor.getString( 1 ) );
+                           serializer.endTag( "", "text" );
+                           serializer.endTag( "", "link" );
+                        }
                      }
                      finally
                      {
@@ -396,7 +426,7 @@ public class GpxCreator extends Thread
                   }
                }
             }
-            while (mediaCursor.moveToNext());
+            while( mediaCursor.moveToNext() );
          }
       }
       finally
@@ -406,5 +436,109 @@ public class GpxCreator extends Thread
             mediaCursor.close();
          }
       }
+   }
+
+   /**
+    * Copies media into the export directory and returns the relative path of the media
+    * 
+    * @param inputFilePath
+    * @return file path relative to the export dir
+    * @throws IOException
+    */
+   private String includeMediaFile( String inputFilePath ) throws IOException
+   {
+      mNeedsBundling = true;
+      File source = new File( inputFilePath );
+      File target = new File( mExportDirectoryPath + "/" + source.getName() );
+
+      FileChannel inChannel = new FileInputStream( source ).getChannel();
+      FileChannel outChannel = new FileOutputStream( target ).getChannel();
+      try
+      {
+         inChannel.transferTo( 0, inChannel.size(), outChannel );
+      }
+      catch( IOException e )
+      {
+         throw e;
+      }
+      finally
+      {
+         if( inChannel != null )
+            inChannel.close();
+         if( outChannel != null )
+            outChannel.close();
+      }
+
+      return target.getName();
+   }
+
+   /**
+    * Create a zip of the export directory based on the given filename TODO
+    * 
+    * @param mExportDirectoryPath2
+    * @return
+    * @throws IOException
+    */
+   private String bundlingMediaAndXml( String fileName ) throws IOException
+   {
+      String zipFilePath;
+      if( fileName.endsWith( ".zip" ) )
+      {
+         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName;
+      }
+      else
+      {
+         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + ".zip";
+      }
+      String[] filenames = new File( mExportDirectoryPath ).list();
+      Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
+      byte[] buf = new byte[1024];
+      ZipOutputStream zos = null;
+      try
+      {
+         zos = new ZipOutputStream( new FileOutputStream( zipFilePath ) );
+         for( int i = 0; i < filenames.length; i++ )
+         {
+            String entryFilePath = mExportDirectoryPath + "/" + filenames[i];
+            Log.d( TAG, String.format( "Adding to zip %s the file %s", zipFilePath, entryFilePath ) );
+            FileInputStream in = new FileInputStream( entryFilePath );
+            zos.putNextEntry( new ZipEntry( filenames[i] ) );
+            int len;
+            while( ( len = in.read( buf ) ) >= 0 )
+            {
+               zos.write( buf, 0, len );
+            }
+            zos.closeEntry();
+            in.close();
+         }
+      }
+      finally
+      {
+         if( zos != null )
+         {
+            zos.close();
+         }
+      }
+
+      deleteRecursive( new File( mExportDirectoryPath ) );
+
+      return zipFilePath;
+   }
+
+   public static boolean deleteRecursive( File file )
+   {
+      if( file.isDirectory() )
+      {
+         String[] children = file.list();
+         for( int i = 0; i < children.length; i++ )
+         {
+            boolean success = deleteRecursive( new File( file, children[i] ) );
+            if( !success )
+            {
+               return false;
+            }
+         }
+      }
+      return file.delete();
    }
 }
