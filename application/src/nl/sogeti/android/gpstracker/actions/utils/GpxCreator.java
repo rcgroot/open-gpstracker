@@ -136,7 +136,7 @@ public class GpxCreator extends XmlCreator
 
          if( isNeedsBundling() )
          {
-            resultFilename = bundlingMediaAndXml( fileName );
+            resultFilename = bundlingMediaAndXml( fileName, ".zip" );
          }
 
          fileName = new File( resultFilename ).getName();
@@ -207,7 +207,7 @@ public class GpxCreator extends XmlCreator
       serializer.endTag( "", "name" );
 
       // The list of segments in the track
-      serializeSegments( mContext, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
+      serializeSegments( serializer, Uri.withAppendedPath( trackUri, "segments" ) );
 
       serializer.text( "\n" );
       serializer.endTag( "", "trk" );
@@ -250,10 +250,10 @@ public class GpxCreator extends XmlCreator
       return name;
    }
 
-   private void serializeSegments( Context context, XmlSerializer serializer, Uri segments ) throws IOException
+   private void serializeSegments( XmlSerializer serializer, Uri segments ) throws IOException
    {
       Cursor segmentCursor = null;
-      ContentResolver resolver = context.getContentResolver();
+      ContentResolver resolver = mContext.getContentResolver();
       try
       {
          segmentCursor = resolver.query( segments, new String[] { Segments._ID }, null, null, null );
@@ -269,7 +269,7 @@ public class GpxCreator extends XmlCreator
                Uri waypoints = Uri.withAppendedPath( segments, segmentCursor.getLong( 0 ) + "/waypoints" );
                serializer.text( "\n" );
                serializer.startTag( "", "trkseg" );
-               serializeWaypoints( context, serializer, waypoints );
+               serializeWaypoints( serializer, waypoints );
                serializer.text( "\n" );
                serializer.endTag( "", "trkseg" );
             }
@@ -286,10 +286,10 @@ public class GpxCreator extends XmlCreator
       }
    }
 
-   private void serializeWaypoints( Context context, XmlSerializer serializer, Uri waypoints ) throws IOException
+   private void serializeWaypoints( XmlSerializer serializer, Uri waypoints ) throws IOException
    {
       Cursor waypointsCursor = null;
-      ContentResolver resolver = context.getContentResolver();
+      ContentResolver resolver = mContext.getContentResolver();
       try
       {
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID }, null, null, null );
@@ -318,7 +318,7 @@ public class GpxCreator extends XmlCreator
                DateFormat formater = new SimpleDateFormat( DATETIME );
                serializer.text( formater.format( time ) );
                serializer.endTag( "", "time" );
-               serializeWaypointDescription( context, serializer, Uri.withAppendedPath( waypoints, waypointsCursor.getLong( 4 ) + "/media" ) );
+               serializeWaypointDescription( mContext, serializer, Uri.withAppendedPath( waypoints, waypointsCursor.getLong( 4 ) + "/media" ) );
                serializer.text( "\n" );
                serializer.endTag( "", "trkpt" );
             }

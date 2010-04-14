@@ -64,7 +64,7 @@ public class XmlCreator extends Thread
     * @return
     * @throws IOException
     */
-   protected String bundlingMediaAndXml( String fileName ) throws IOException
+   protected String bundlingMediaAndXml( String fileName, String extenstion ) throws IOException
    {
       String zipFilePath;
       if( fileName.endsWith( ".zip" ) )
@@ -73,7 +73,7 @@ public class XmlCreator extends Thread
       }
       else
       {
-         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + ".zip";
+         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + extenstion;
       }
       String[] filenames = new File( mExportDirectoryPath ).list();
       Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
