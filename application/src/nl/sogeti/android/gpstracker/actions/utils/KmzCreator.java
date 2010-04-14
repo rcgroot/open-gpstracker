@@ -45,7 +45,7 @@ import android.widget.Toast;
  * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.
  */
-public class KmzCreator extends Thread
+public class KmzCreator extends XmlCreator
 {
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_KML_22 = "http://www.opengis.net/kml/2.2";
@@ -55,9 +55,6 @@ public class KmzCreator extends Thread
    private Intent mIntent;
    private XmlCreationProgressListener mProgressListener;
    private Context mContext;
-
-   private int mProgress = 0;
-   private int mGoal = 0;
    private String TAG = "OGT.KmzCreator";
    
    public KmzCreator(Context context, Intent intent, String chosenFileName, XmlCreationProgressListener listener)
@@ -102,19 +99,18 @@ public class KmzCreator extends Thread
       if( !( fileName.endsWith( ".kmz" ) || fileName.endsWith( ".zip" ) ) )
       {
          filePath = Environment.getExternalStorageDirectory() +Constants.EXTERNAL_DIR+fileName;
-         fileName = fileName + ".kmz";
       }
       else
       {
          filePath = Environment.getExternalStorageDirectory() +Constants.EXTERNAL_DIR+fileName.substring( 0, fileName.length()-4 );
       }
       new File( filePath ).mkdirs();
-      filePath = filePath+"/"+fileName;
+      filePath = filePath+"/doc.kml";
    
       if( mProgressListener != null )
       {
          mProgressListener.startNotification( fileName );
-         mProgressListener.updateNotification( mProgress, mGoal );
+         mProgressListener.updateNotification( getProgress(), getGoal() );
       }
    
       try
@@ -122,28 +118,8 @@ public class KmzCreator extends Thread
          XmlSerializer serializer = Xml.newSerializer();
          BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( filePath ), 8192 );
          serializer.setOutput( buf, "UTF-8" );
-         serializer.startDocument( "UTF-8", true );
-         serializer.setPrefix( "xsi", NS_SCHEMA );
-         serializer.setPrefix( "kml", NS_KML_22 );
-         serializer.startTag( "", "kml" );
-         serializer.attribute( NS_SCHEMA, "schemaLocation", NS_KML_22 + " http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd" );
-         serializer.attribute( null, "xmlns", NS_KML_22 );
-   
-         serializer.text( "\n" );
-         serializer.startTag( "", "Document" );
-         serializer.text( "\n" );
-         serializer.startTag( "", "name" );
-         serializer.text( fileName );
-         serializer.endTag( "", "name" );
          
-         /* from <name/> upto <Folder/>*/
-         serializeTrack( mContext, serializer, trackUri );
-         
-         serializer.text( "\n" );
-         serializer.endTag( "", "Document" );
-         
-         serializer.endTag( "", "kml" );
-         serializer.endDocument();
+         serializeTrack( trackUri, fileName, serializer );
    
          CharSequence text = mContext.getString( R.string.ticker_stored )+"\"" + fileName+"\"";
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_SHORT );
@@ -185,9 +161,35 @@ public class KmzCreator extends Thread
       }
    }
 
-   private String serializeTrack( Context context, XmlSerializer serializer, Uri trackUri ) throws IOException
+   private void serializeTrack( Uri trackUri, String fileName, XmlSerializer serializer ) throws IOException
    {
-      ContentResolver resolver = context.getContentResolver();
+      serializer.startDocument( "UTF-8", true );
+      serializer.setPrefix( "xsi", NS_SCHEMA );
+      serializer.setPrefix( "kml", NS_KML_22 );
+      serializer.startTag( "", "kml" );
+      serializer.attribute( NS_SCHEMA, "schemaLocation", NS_KML_22 + " http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd" );
+      serializer.attribute( null, "xmlns", NS_KML_22 );
+  
+      serializer.text( "\n" );
+      serializer.startTag( "", "Document" );
+      serializer.text( "\n" );
+      serializer.startTag( "", "name" );
+      serializer.text( fileName );
+      serializer.endTag( "", "name" );
+      
+      /* from <name/> upto <Folder/>*/
+      serializeTrackHeader( serializer, trackUri );
+      
+      serializer.text( "\n" );
+      serializer.endTag( "", "Document" );
+      
+      serializer.endTag( "", "kml" );
+      serializer.endDocument();
+   }
+
+   private String serializeTrackHeader( XmlSerializer serializer, Uri trackUri ) throws IOException
+   {
+      ContentResolver resolver = mContext.getContentResolver();
       Cursor trackCursor = null;
       String name = null;
    
@@ -213,29 +215,28 @@ public class KmzCreator extends Thread
             serializer.text( "\n" );
             serializer.endTag( "", "Style" );
             serializer.text( "\n" );
-            
-            serializer.text( "\n" );
             serializer.startTag( "", "Folder" );
-            
             name = trackCursor.getString( 1 );
             serializer.text( "\n" );
             serializer.startTag( "", "name" );
             serializer.text(  name );
             serializer.endTag( "", "name" );
-            
+            serializer.text( "\n" );
+            serializer.startTag( "", "open" );
+            serializer.text( "1" );
+            serializer.endTag( "", "open" );
             serializer.text( "\n" );
             serializer.startTag( "", "TimeStamp" );
             serializer.text( "\n" );
-            serializer.startTag( "", "when" );
-            Date time = new Date( trackCursor.getLong( 2 ) );
-            DateFormat formater = new SimpleDateFormat( DATETIME );
-            serializer.text( formater.format( time ) );
-            serializer.endTag( "", "when" );
+//            serializer.startTag( "", "when" );
+//            Date time = new Date( trackCursor.getLong( 2 ) );
+//            DateFormat formater = new SimpleDateFormat( DATETIME );
+//            serializer.text( formater.format( time ) );
+//            serializer.endTag( "", "when" );
             serializer.text( "\n" );
             serializer.endTag( "", "TimeStamp" );
             
-            /* Multiple <Placemark/> */
-            serializeSegments( mContext, serializer, Uri.withAppendedPath( trackUri, "segments" ) );
+            serializeSegments( serializer, Uri.withAppendedPath( trackUri, "segments" ) );
             
 
             serializer.text( "\n" );
@@ -252,10 +253,25 @@ public class KmzCreator extends Thread
       return name;
    }
    
-   private void serializeSegments( Context context, XmlSerializer serializer, Uri segments ) throws IOException
+   /**
+    * &lt;Placemark>
+    *   serializeSegmentToTimespan()
+    *   &lt;styleUrl>...&lt;/styleUrl>
+    *   &lt;LineString>
+    *      &lt;tessellate/>
+    *      &lt;altitudeMode/>
+    *      serializeWaypoints()
+    *   &lt;/LineString>
+    * &lt;/Placemark>
+    * 
+    * @param serializer
+    * @param segments
+    * @throws IOException
+    */
+   private void serializeSegments( XmlSerializer serializer, Uri segments ) throws IOException
    {
       Cursor segmentCursor = null;
-      ContentResolver resolver = context.getContentResolver();
+      ContentResolver resolver = mContext.getContentResolver();
       try
       {
          segmentCursor = resolver.query( segments, new String[] { Segments._ID }, null, null, null );
@@ -263,18 +279,31 @@ public class KmzCreator extends Thread
          {
             if( mProgressListener != null )
             {
-               mProgressListener.updateNotification( mProgress, mGoal );
+               mProgressListener.updateNotification( getProgress(), getGoal() );
             }
             do
             {
                Uri waypoints = Uri.withAppendedPath( segments, "/" + segmentCursor.getLong( 0 ) + "/waypoints" );
                serializer.text( "\n" );
-               serializer.startTag( "", "Placemark" );
+               serializer.startTag( "", "Folder" );
                serializer.text( "\n" );
+               serializer.startTag( "", "name" );
+               serializer.text(  String.format("Segment %d", 1+segmentCursor.getPosition()) );
+               serializer.endTag( "", "name" );
+               serializer.text( "\n" );
+               serializer.startTag( "", "open" );
+               serializer.text( "1" );
+               serializer.endTag( "", "open" );
                
                /* Single <TimeSpan/> element */
-               serializeSegmentToTimespan( context, serializer, waypoints );
+               serializeSegmentToTimespan( serializer, waypoints );
 
+               serializer.text( "\n" );
+               serializer.startTag( "", "Placemark" );  
+               serializer.text( "\n" );
+               serializer.startTag( "", "name" );
+               serializer.text( "Path" );
+               serializer.endTag( "", "name" );
                serializer.text( "\n" );
                serializer.startTag( "", "styleUrl" );
                serializer.text( "#lineStyle" );
@@ -282,19 +311,26 @@ public class KmzCreator extends Thread
                serializer.text( "\n" );
                serializer.startTag( "", "LineString" );
                serializer.text( "\n" );
-               serializer.startTag( "", "extrude" );
-               serializer.text( "1" );
-               serializer.endTag( "", "extrude" );
+               serializer.startTag( "", "tessellate" );
+               serializer.text( "0" );
+               serializer.endTag( "", "tessellate" );
                serializer.text( "\n" );
                serializer.startTag( "", "altitudeMode" );
                serializer.text( "absolute" );
                serializer.endTag( "", "altitudeMode" );
-               /* Single <coordinates/> and <TimeSpan/> element */
-               serializeWaypoints( context, serializer, waypoints );
+               
+               /* Single <coordinates/> element */
+               serializeWaypoints( serializer, waypoints );
+               
                serializer.text( "\n" );
                serializer.endTag( "", "LineString" );
                serializer.text( "\n" );
                serializer.endTag( "", "Placemark" );
+               
+               serializer.text( "\n" );
+               serializer.endTag( "", "Folder" );
+               
+
             }
             while (segmentCursor.moveToNext());
    
@@ -309,12 +345,19 @@ public class KmzCreator extends Thread
       }
    }
    
-   private void serializeSegmentToTimespan( Context context, XmlSerializer serializer, Uri waypoints ) throws IOException
+   /**
+    * &lt;TimeSpan>&lt;begin>...&lt;/begin>&lt;end>...&lt;/end>&lt;/TimeSpan>
+    * 
+    * @param serializer
+    * @param waypoints
+    * @throws IOException
+    */
+   private void serializeSegmentToTimespan( XmlSerializer serializer, Uri waypoints ) throws IOException
    {
       Cursor waypointsCursor = null;
       Date segmentStartTime = null ;
       Date segmentEndTime = null;
-      ContentResolver resolver = context.getContentResolver();
+      ContentResolver resolver = mContext.getContentResolver();
       try
       {
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.TIME }, null, null, null );
@@ -352,34 +395,39 @@ public class KmzCreator extends Thread
       
    }
    
-   private void serializeWaypoints( Context context, XmlSerializer serializer, Uri waypoints ) throws IOException
+   /**
+    * &lt;coordinates>...&lt;/coordinates> 
+    * 
+    * @param serializer
+    * @param waypoints
+    * @throws IOException
+    */
+   private void serializeWaypoints( XmlSerializer serializer, Uri waypoints ) throws IOException
    {
       Cursor waypointsCursor = null;
-      ContentResolver resolver = context.getContentResolver();
+      ContentResolver resolver = mContext.getContentResolver();
       try
       {
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
             
-            mGoal += waypointsCursor.getCount();
+            increaseGoal( waypointsCursor.getCount() );
             serializer.text( "\n" );
             serializer.startTag( "", "coordinates" );
             do
             {
-               mProgress++;
+               increaseProgress( 1 );
                if( mProgressListener != null )
                {
-                  mProgressListener.updateNotification(mProgress, mGoal);
+                  mProgressListener.updateNotification(getProgress(), getGoal());
                }
-               serializer.text( Double.toString( waypointsCursor.getDouble( 0 ) ) );
-               serializer.text( "," );
-               serializer.text( Double.toString( waypointsCursor.getDouble( 1 ) ) );
-               serializer.text( "," );
-               serializer.text( Double.toString( waypointsCursor.getDouble( 2 ) ) );
+               // Single Coordinate tuple
+               serializeCoordinates( serializer, waypointsCursor );
                serializer.text( " " );
             }
             while (waypointsCursor.moveToNext());
+            
             serializer.endTag( "", "coordinates" );
          }
       }
@@ -391,5 +439,21 @@ public class KmzCreator extends Thread
          }
       }
    
+   }
+
+   /**
+    * lon,lat,alt tuple without trailing spaces
+    * 
+    * @param serializer
+    * @param waypointsCursor
+    * @throws IOException
+    */
+   private void serializeCoordinates( XmlSerializer serializer, Cursor waypointsCursor ) throws IOException
+   {
+      serializer.text( Double.toString( waypointsCursor.getDouble( 0 ) ) );
+      serializer.text( "," );
+      serializer.text( Double.toString( waypointsCursor.getDouble( 1 ) ) );
+      serializer.text( "," );
+      serializer.text( Double.toString( waypointsCursor.getDouble( 2 ) ) );
    }
 }

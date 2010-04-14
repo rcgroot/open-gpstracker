@@ -55,7 +55,7 @@ import android.widget.Toast;
  * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.
  */
-public class GpxCreator extends Thread
+public class GpxCreator extends XmlCreator
 {
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
@@ -65,13 +65,8 @@ public class GpxCreator extends Thread
    private Intent mIntent;
    private XmlCreationProgressListener mProgressListener;
    private Context mContext;
-
-   private int mProgress = 0;
-   private int mGoal = 0;
    private String TAG = "OGT.GpxCreator";
-   private String mExportDirectoryPath;
-   private String mXmlFileName;
-   private boolean mNeedsBundling;
+
 
    public GpxCreator(Context context, Intent intent, String chosenBaseFileName, XmlCreationProgressListener listener)
    {
@@ -113,21 +108,21 @@ public class GpxCreator extends Thread
 
       if( !( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) ) )
       {
-         mExportDirectoryPath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName;
-         mXmlFileName = fileName + ".gpx";
+         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
+         setXmlFileName( fileName + ".gpx" );
       }
       else
       {
-         mExportDirectoryPath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 );
-         mXmlFileName = fileName;
+         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 ) );
+         setXmlFileName( fileName );
       }
-      new File( mExportDirectoryPath ).mkdirs();
+      new File( getExportDirectoryPath() ).mkdirs();
 
-      String xmlFilePath = mExportDirectoryPath + "/" + mXmlFileName;
+      String xmlFilePath = getExportDirectoryPath() + "/" + getXmlFileName();
       if( mProgressListener != null )
       {
          mProgressListener.startNotification( fileName );
-         mProgressListener.updateNotification( mProgress, mGoal );
+         mProgressListener.updateNotification( getProgress(), getGoal() );
       }
 
       String resultFilename = xmlFilePath;
@@ -139,7 +134,7 @@ public class GpxCreator extends Thread
 
          serializeTrack( trackUri, serializer );
 
-         if( mNeedsBundling )
+         if( isNeedsBundling() )
          {
             resultFilename = bundlingMediaAndXml( fileName );
          }
@@ -266,7 +261,7 @@ public class GpxCreator extends Thread
          {
             if( mProgressListener != null )
             {
-               mProgressListener.updateNotification( mProgress, mGoal );
+               mProgressListener.updateNotification( getProgress(), getGoal() );
             }
 
             do
@@ -300,13 +295,13 @@ public class GpxCreator extends Thread
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
-            mGoal += waypointsCursor.getCount();
+            increaseGoal(  waypointsCursor.getCount() );
             do
             {
-               mProgress++;
+               increaseProgress( 1 );
                if( mProgressListener != null )
                {
-                  mProgressListener.updateNotification( mProgress, mGoal );
+                  mProgressListener.updateNotification( getProgress(), getGoal() );
                }
 
                serializer.text( "\n" );
@@ -436,109 +431,5 @@ public class GpxCreator extends Thread
             mediaCursor.close();
          }
       }
-   }
-
-   /**
-    * Copies media into the export directory and returns the relative path of the media
-    * 
-    * @param inputFilePath
-    * @return file path relative to the export dir
-    * @throws IOException
-    */
-   private String includeMediaFile( String inputFilePath ) throws IOException
-   {
-      mNeedsBundling = true;
-      File source = new File( inputFilePath );
-      File target = new File( mExportDirectoryPath + "/" + source.getName() );
-
-      FileChannel inChannel = new FileInputStream( source ).getChannel();
-      FileChannel outChannel = new FileOutputStream( target ).getChannel();
-      try
-      {
-         inChannel.transferTo( 0, inChannel.size(), outChannel );
-      }
-      catch( IOException e )
-      {
-         throw e;
-      }
-      finally
-      {
-         if( inChannel != null )
-            inChannel.close();
-         if( outChannel != null )
-            outChannel.close();
-      }
-
-      return target.getName();
-   }
-
-   /**
-    * Create a zip of the export directory based on the given filename TODO
-    * 
-    * @param mExportDirectoryPath2
-    * @return
-    * @throws IOException
-    */
-   private String bundlingMediaAndXml( String fileName ) throws IOException
-   {
-      String zipFilePath;
-      if( fileName.endsWith( ".zip" ) )
-      {
-         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName;
-      }
-      else
-      {
-         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + ".zip";
-      }
-      String[] filenames = new File( mExportDirectoryPath ).list();
-      Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
-      byte[] buf = new byte[1024];
-      ZipOutputStream zos = null;
-      try
-      {
-         zos = new ZipOutputStream( new FileOutputStream( zipFilePath ) );
-         for( int i = 0; i < filenames.length; i++ )
-         {
-            String entryFilePath = mExportDirectoryPath + "/" + filenames[i];
-            Log.d( TAG, String.format( "Adding to zip %s the file %s", zipFilePath, entryFilePath ) );
-            FileInputStream in = new FileInputStream( entryFilePath );
-            zos.putNextEntry( new ZipEntry( filenames[i] ) );
-            int len;
-            while( ( len = in.read( buf ) ) >= 0 )
-            {
-               zos.write( buf, 0, len );
-            }
-            zos.closeEntry();
-            in.close();
-         }
-      }
-      finally
-      {
-         if( zos != null )
-         {
-            zos.close();
-         }
-      }
-
-      deleteRecursive( new File( mExportDirectoryPath ) );
-
-      return zipFilePath;
-   }
-
-   public static boolean deleteRecursive( File file )
-   {
-      if( file.isDirectory() )
-      {
-         String[] children = file.list();
-         for( int i = 0; i < children.length; i++ )
-         {
-            boolean success = deleteRecursive( new File( file, children[i] ) );
-            if( !success )
-            {
-               return false;
-            }
-         }
-      }
-      return file.delete();
    }
 }
