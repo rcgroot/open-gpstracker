@@ -8,6 +8,8 @@ import java.nio.channels.FileChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.xmlpull.v1.XmlSerializer;
+
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.os.Environment;
 import android.util.Log;
@@ -105,7 +107,7 @@ public class XmlCreator extends Thread
          }
       }
 
-      deleteRecursive( new File( mExportDirectoryPath ) );
+      //deleteRecursive( new File( mExportDirectoryPath ) );
 
       return zipFilePath;
    }
@@ -168,6 +170,13 @@ public class XmlCreator extends Thread
       return mProgress;
    }
 
+   public void quickTag( XmlSerializer serializer, String ns, String tag, String content) throws IllegalArgumentException, IllegalStateException, IOException
+   {
+      serializer.text( "\n" );
+      serializer.startTag( "", tag );
+      serializer.text( content );
+      serializer.endTag( "", tag );
+   }
 
    public boolean isNeedsBundling()
    {

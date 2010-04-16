@@ -126,10 +126,7 @@ public class KmzCreator extends XmlCreator
          
          serializeTrack( trackUri, fileName, serializer );
          
-         if( isNeedsBundling() )
-         {
-            resultFilename = bundlingMediaAndXml( fileName, ".kmz" );
-         }
+         resultFilename = bundlingMediaAndXml( fileName, ".kmz" );
 
          fileName = new File( resultFilename ).getName();
    
@@ -501,12 +498,17 @@ public class KmzCreator extends XmlCreator
                   }
                   else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
                   {
+                     Uri singleWaypointUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mediaCursor.getLong(1)+"/segments/"+mediaCursor.getLong(2)+"/waypoints/"+mediaCursor.getLong(3) );
+                     
                      serializer.text( "\n" );
                      serializer.startTag( "", "PhotoOverlay" );
                      serializer.text( "\n" );
                      serializer.startTag( "", "name" );
                      serializer.text( mediaUri.getLastPathSegment() );
                      serializer.endTag( "", "name" );
+                     
+                     serializeCamera( serializer, singleWaypointUri );
+                     
                      serializer.text( "\n" );
                      serializer.startTag( "", "Icon" );
                      serializer.text( "\n" );
@@ -515,8 +517,16 @@ public class KmzCreator extends XmlCreator
                      serializer.endTag( "", "href" );
                      serializer.text( "\n" );
                      serializer.endTag( "", "Icon" );
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "ViewVolume" );
+                     quickTag( serializer, "", "leftFov", "-25");
+                     quickTag( serializer, "", "rightFov", "25");
+                     quickTag( serializer, "", "bottomFov", "-25");
+                     quickTag( serializer, "", "topFov", "25");
+                     quickTag( serializer, "", "near", "5");
+                     serializer.endTag( "", "ViewVolume" );
                      
-                     Uri singleWaypointUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mediaCursor.getLong(1)+"/segments/"+mediaCursor.getLong(2)+"/waypoints/"+mediaCursor.getLong(3) );
+                     
                      serializeMediaPoint( serializer, singleWaypointUri );
 
                      serializer.text( "\n" );
@@ -583,6 +593,57 @@ public class KmzCreator extends XmlCreator
          }
       }
    }
+   
+   private void serializeCamera( XmlSerializer serializer, Uri singleWaypointUri ) throws IllegalArgumentException, IllegalStateException, IOException
+   {
+      Cursor waypointsCursor = null;
+      ContentResolver resolver = mContext.getContentResolver();
+      try
+      {
+         waypointsCursor = resolver.query( singleWaypointUri, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null );
+         if( waypointsCursor.moveToFirst() )
+         {
+            serializer.text( "\n" );
+            serializer.startTag( "", "Camera" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "longitude" );
+            serializer.text(  Double.toString( waypointsCursor.getDouble( 0 ) ) );
+            serializer.endTag( "", "longitude" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "latitude" );
+            serializer.text( Double.toString( waypointsCursor.getDouble( 1 ) ) );
+            serializer.endTag( "", "latitude" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "altitude" );
+            serializer.text( "10.0" );
+            serializer.endTag( "", "altitude" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "heading" );
+            serializer.text( "0.0" );
+            serializer.endTag( "", "heading" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "tilt" );
+            serializer.text( "0.0" );
+            serializer.endTag( "", "tilt" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "roll" );
+            serializer.text( "0.0" );
+            serializer.endTag( "", "roll" );
+            serializer.text( "\n" );
+            serializer.startTag( "", "altitudeMode" );
+            serializer.text( "relativeToGround" );
+            serializer.endTag( "", "altitudeMode" );
+            serializer.endTag( "", "Camera" );
+         }
+      }
+      finally
+      {
+         if( waypointsCursor != null )
+         {
+            waypointsCursor.close();
+         }
+      }
+   }
 
    private void serializeMediaPoint( XmlSerializer serializer, Uri singleWaypointUri ) throws IllegalArgumentException, IllegalStateException, IOException
    {
@@ -597,9 +658,7 @@ public class KmzCreator extends XmlCreator
             serializer.startTag( "", "Point" );
             serializer.text( "\n" );
             serializer.startTag( "", "coordinates" );
-            
             serializeCoordinates( serializer, waypointsCursor );
-            
             serializer.endTag( "", "coordinates" );
             serializer.text( "\n" );
             serializer.endTag( "", "Point" );
