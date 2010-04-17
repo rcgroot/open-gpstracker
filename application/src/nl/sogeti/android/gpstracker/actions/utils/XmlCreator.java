@@ -107,7 +107,7 @@ public class XmlCreator extends Thread
          }
       }
 
-      //deleteRecursive( new File( mExportDirectoryPath ) );
+      deleteRecursive( new File( mExportDirectoryPath ) );
 
       return zipFilePath;
    }

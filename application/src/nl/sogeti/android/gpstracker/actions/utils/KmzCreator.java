@@ -517,43 +517,61 @@ public class KmzCreator extends XmlCreator
                      serializer.endTag( "", "href" );
                      serializer.text( "\n" );
                      serializer.endTag( "", "Icon" );
+                     String widthParameter = mediaUri.getQueryParameter( "width" );
+                     String heightParameter = mediaUri.getQueryParameter( "height" );
+                     int width  = widthParameter  == null ? 300 : Integer.parseInt( widthParameter ) ;
+                     int height = heightParameter == null ? 400 : Integer.parseInt( heightParameter ) ;
+                     double lrAngle = 25d;
+                     double near = 10d;
+                     double btAngle = Math.toDegrees( Math.atan( (Math.tan(Math.toRadians(lrAngle))*height)/width ) );
                      serializer.text( "\n" );
                      serializer.startTag( "", "ViewVolume" );
-                     quickTag( serializer, "", "leftFov", "-25");
-                     quickTag( serializer, "", "rightFov", "25");
-                     quickTag( serializer, "", "bottomFov", "-25");
-                     quickTag( serializer, "", "topFov", "25");
-                     quickTag( serializer, "", "near", "5");
-                     serializer.endTag( "", "ViewVolume" );
-                     
-                     
+                     quickTag( serializer, "", "leftFov",   Double.toString( -lrAngle ) );
+                     quickTag( serializer, "", "rightFov",  Double.toString(  lrAngle ) );
+                     quickTag( serializer, "", "bottomFov", Double.toString( -btAngle ));
+                     quickTag( serializer, "", "topFov",    Double.toString(  btAngle ));
+                     quickTag( serializer, "", "near", Double.toString( near ));
+                     serializer.endTag( "", "ViewVolume" );                     
                      serializeMediaPoint( serializer, singleWaypointUri );
-
                      serializer.text( "\n" );
                      serializer.endTag( "", "PhotoOverlay" );
                   }
                   else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
                   {
-//                     serializer.text( "\n" );
-//                     serializer.startTag( "", "desc" );
-//                     BufferedReader buf = new BufferedReader( new FileReader( mediaUri.getEncodedPath() ) );
-//                     String line;
-//                     while( ( line = buf.readLine() ) != null )
-//                     {
-//                        serializer.text( line );
-//                        serializer.text( "\n" );
-//                     }
-//                     serializer.endTag( "", "desc" );
+                     Uri singleWaypointUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mediaCursor.getLong(1)+"/segments/"+mediaCursor.getLong(2)+"/waypoints/"+mediaCursor.getLong(3) );
+                     
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "Placemark" );
+                     serializer.text( "\n" );
+                     quickTag( serializer, "", "name", mediaUri.getLastPathSegment() );
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "description" );
+                     BufferedReader buf = new BufferedReader( new FileReader( mediaUri.getEncodedPath() ) );
+                     String line;
+                     while( ( line = buf.readLine() ) != null )
+                     {
+                        serializer.text( line );
+                        serializer.text( "\n" );
+                     }
+                     serializer.endTag( "", "description" );                     
+                     serializeMediaPoint( serializer, singleWaypointUri );
+                     serializer.text( "\n" );
+                     serializer.endTag( "", "Placemark" );
                   }
                }
                else if( mediaUri.getScheme().equals( "content" ) )
                {
                   if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
                   {
-//                     serializer.text( "\n" );
-//                     serializer.startTag( "", "name" );
-//                     serializer.text( mediaUri.getLastPathSegment() );
-//                     serializer.endTag( "", "name" );
+                     Uri singleWaypointUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mediaCursor.getLong(1)+"/segments/"+mediaCursor.getLong(2)+"/waypoints/"+mediaCursor.getLong(3) );
+                     
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "Placemark" );
+                     serializer.text( "\n" );
+                     quickTag( serializer, "", "name", mediaUri.getLastPathSegment() );                   
+                     serializeMediaPoint( serializer, singleWaypointUri );
+                     serializer.text( "\n" );
+                     serializer.endTag( "", "Placemark" );
                   }
                   else if( mediaUri.getAuthority().equals( "media" ) )
                   {
@@ -645,6 +663,16 @@ public class KmzCreator extends XmlCreator
       }
    }
 
+   /**
+    * &lt;Point>...&lt;/Point>     
+    * &lt;shape>rectangle&lt;/shape> 
+    * 
+    * @param serializer
+    * @param singleWaypointUri
+    * @throws IllegalArgumentException
+    * @throws IllegalStateException
+    * @throws IOException
+    */
    private void serializeMediaPoint( XmlSerializer serializer, Uri singleWaypointUri ) throws IllegalArgumentException, IllegalStateException, IOException
    {
       Cursor waypointsCursor = null;

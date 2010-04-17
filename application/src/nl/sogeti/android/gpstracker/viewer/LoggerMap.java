@@ -63,6 +63,8 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationManager;
@@ -982,6 +984,8 @@ public class LoggerMap extends MapActivity
          Uri uri;
          File newFile;
          String newName;
+         Uri fileUri;
+         android.net.Uri.Builder builder;
          switch (requestCode)
          {
             case MENU_TRACKLIST:
@@ -998,7 +1002,20 @@ public class LoggerMap extends MapActivity
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.getParentFile().mkdirs();
                file.renameTo( newFile );
-               this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( newFile ) );
+               
+               Bitmap bm = BitmapFactory.decodeFile( newFile.getAbsolutePath() );
+               String height = Integer.toString( bm.getHeight() );
+               String width = Integer.toString( bm.getWidth() );
+               bm.recycle();
+               bm = null;
+               builder = new Uri.Builder();
+               fileUri = builder.scheme( "file").
+                  appendEncodedPath( "/" ).
+                  appendEncodedPath( newFile.getAbsolutePath() ).
+                  appendQueryParameter( "width", width ).
+                  appendQueryParameter( "height", height )
+                  .build();
+               this.mLoggerServiceManager.storeMediaUri( fileUri );
                mLastSegmentOverlay.calculateMedia();
                mMapView.postInvalidate();
                break;
@@ -1009,7 +1026,10 @@ public class LoggerMap extends MapActivity
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.getParentFile().mkdirs();
                file.renameTo( newFile );
-               this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( newFile ) );
+               builder = new Uri.Builder();
+               fileUri = builder.scheme( "file").
+                  appendPath( newFile.getAbsolutePath() ).build();
+               this.mLoggerServiceManager.storeMediaUri( fileUri );
                mLastSegmentOverlay.calculateMedia();
                mMapView.postInvalidate();
                break;
