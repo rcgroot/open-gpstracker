@@ -55,13 +55,13 @@ public class KmzCreator extends XmlCreator
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_KML_22 = "http://www.opengis.net/kml/2.2";
    public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-   
+
    private String mChosenFileName;
    private Intent mIntent;
    private XmlCreationProgressListener mProgressListener;
    private Context mContext;
    private String TAG = "OGT.KmzCreator";
-   
+
    public KmzCreator(Context context, Intent intent, String chosenFileName, XmlCreationProgressListener listener)
    {
       mChosenFileName = chosenFileName;
@@ -69,13 +69,13 @@ public class KmzCreator extends XmlCreator
       mIntent = intent;
       mProgressListener = listener;
    }
-   
+
    public void run()
    {
       Looper.prepare();
       Uri trackUri = mIntent.getData();
       String fileName = "UntitledTrack";
-      if( mChosenFileName != null && !mChosenFileName.equals( "" ))
+      if( mChosenFileName != null && !mChosenFileName.equals( "" ) )
       {
          fileName = mChosenFileName;
       }
@@ -99,64 +99,64 @@ public class KmzCreator extends XmlCreator
             }
          }
       }
-    
+
       if( !( fileName.endsWith( ".kmz" ) || fileName.endsWith( ".zip" ) ) )
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() +Constants.EXTERNAL_DIR + fileName );
+         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
       }
       else
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() +Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length()-4 ) );
+         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 ) );
       }
       new File( getExportDirectoryPath() ).mkdirs();
-      String xmlFilePath = getExportDirectoryPath()+"/doc.kml";
-   
+      String xmlFilePath = getExportDirectoryPath() + "/doc.kml";
+
       if( mProgressListener != null )
       {
          mProgressListener.startNotification( fileName );
          mProgressListener.updateNotification( getProgress(), getGoal() );
       }
-      
+
       String resultFilename = xmlFilePath;
       try
       {
          XmlSerializer serializer = Xml.newSerializer();
          BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( xmlFilePath ), 8192 );
          serializer.setOutput( buf, "UTF-8" );
-         
+
          serializeTrack( trackUri, fileName, serializer );
-         
+
          resultFilename = bundlingMediaAndXml( fileName, ".kmz" );
 
          fileName = new File( resultFilename ).getName();
-   
-         CharSequence text = mContext.getString( R.string.ticker_stored )+"\"" + fileName+"\"";
+
+         CharSequence text = mContext.getString( R.string.ticker_stored ) + "\"" + fileName + "\"";
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_SHORT );
          toast.show();
-         
-//         serializer.text( "\n" );
-//         serializer.startTag( "", "Document" );
-//         serializer.text( "\n" );
-//         serializer.endTag( "", "Document" );
+
+         //         serializer.text( "\n" );
+         //         serializer.startTag( "", "Document" );
+         //         serializer.text( "\n" );
+         //         serializer.endTag( "", "Document" );
       }
-      catch (IllegalArgumentException e)
+      catch( IllegalArgumentException e )
       {
-         Log.e( TAG , "Unable to save " + e );
-         CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + xmlFilePath+"\""  + mContext.getString( R.string.error_filename );
+         Log.e( TAG, "Unable to save " + e );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_filename );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
-      catch (IllegalStateException e)
+      catch( IllegalStateException e )
       {
          Log.e( TAG, "Unable to save " + e );
-         CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + xmlFilePath+"\""  + mContext.getString( R.string.error_buildxml );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_buildxml );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
-      catch (IOException e)
+      catch( IOException e )
       {
          Log.e( TAG, "Unable to save " + e );
-         CharSequence text = mContext.getString( R.string.ticker_failed )+"\"" + xmlFilePath+"\""  + mContext.getString( R.string.error_writesdcard );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_writesdcard );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
@@ -178,20 +178,20 @@ public class KmzCreator extends XmlCreator
       serializer.startTag( "", "kml" );
       serializer.attribute( NS_SCHEMA, "schemaLocation", NS_KML_22 + " http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd" );
       serializer.attribute( null, "xmlns", NS_KML_22 );
-  
+
       serializer.text( "\n" );
       serializer.startTag( "", "Document" );
       serializer.text( "\n" );
       serializer.startTag( "", "name" );
       serializer.text( fileName );
       serializer.endTag( "", "name" );
-      
-      /* from <name/> upto <Folder/>*/
+
+      /* from <name/> upto <Folder/> */
       serializeTrackHeader( serializer, trackUri );
-      
+
       serializer.text( "\n" );
       serializer.endTag( "", "Document" );
-      
+
       serializer.endTag( "", "kml" );
       serializer.endDocument();
    }
@@ -201,7 +201,7 @@ public class KmzCreator extends XmlCreator
       ContentResolver resolver = mContext.getContentResolver();
       Cursor trackCursor = null;
       String name = null;
-   
+
       try
       {
          trackCursor = resolver.query( trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
@@ -228,7 +228,7 @@ public class KmzCreator extends XmlCreator
             name = trackCursor.getString( 1 );
             serializer.text( "\n" );
             serializer.startTag( "", "name" );
-            serializer.text(  name );
+            serializer.text( name );
             serializer.endTag( "", "name" );
             serializer.text( "\n" );
             serializer.startTag( "", "open" );
@@ -237,16 +237,15 @@ public class KmzCreator extends XmlCreator
             serializer.text( "\n" );
             serializer.startTag( "", "TimeStamp" );
             serializer.text( "\n" );
-//            serializer.startTag( "", "when" );
-//            Date time = new Date( trackCursor.getLong( 2 ) );
-//            DateFormat formater = new SimpleDateFormat( DATETIME );
-//            serializer.text( formater.format( time ) );
-//            serializer.endTag( "", "when" );
+            //            serializer.startTag( "", "when" );
+            //            Date time = new Date( trackCursor.getLong( 2 ) );
+            //            DateFormat formater = new SimpleDateFormat( DATETIME );
+            //            serializer.text( formater.format( time ) );
+            //            serializer.endTag( "", "when" );
             serializer.text( "\n" );
             serializer.endTag( "", "TimeStamp" );
-            
+
             serializeSegments( serializer, Uri.withAppendedPath( trackUri, "segments" ) );
-            
 
             serializer.text( "\n" );
             serializer.endTag( "", "Folder" );
@@ -261,7 +260,7 @@ public class KmzCreator extends XmlCreator
       }
       return name;
    }
-   
+
    /**
     * <pre>
     * &lt;Folder>
@@ -300,18 +299,18 @@ public class KmzCreator extends XmlCreator
                serializer.startTag( "", "Folder" );
                serializer.text( "\n" );
                serializer.startTag( "", "name" );
-               serializer.text(  String.format("Segment %d", 1+segmentCursor.getPosition()) );
+               serializer.text( String.format( "Segment %d", 1 + segmentCursor.getPosition() ) );
                serializer.endTag( "", "name" );
                serializer.text( "\n" );
                serializer.startTag( "", "open" );
                serializer.text( "1" );
                serializer.endTag( "", "open" );
-               
+
                /* Single <TimeSpan/> element */
                serializeSegmentToTimespan( serializer, waypoints );
 
                serializer.text( "\n" );
-               serializer.startTag( "", "Placemark" );  
+               serializer.startTag( "", "Placemark" );
                serializer.text( "\n" );
                serializer.startTag( "", "name" );
                serializer.text( "Path" );
@@ -330,24 +329,23 @@ public class KmzCreator extends XmlCreator
                serializer.startTag( "", "altitudeMode" );
                serializer.text( "absolute" );
                serializer.endTag( "", "altitudeMode" );
-               
+
                /* Single <coordinates/> element */
                serializeWaypoints( serializer, waypoints );
-               
+
                serializer.text( "\n" );
                serializer.endTag( "", "LineString" );
                serializer.text( "\n" );
                serializer.endTag( "", "Placemark" );
-               
+
                serializeWaypointDescription( serializer, Uri.withAppendedPath( segments, "/" + segmentCursor.getLong( 0 ) + "/media" ) );
-               
+
                serializer.text( "\n" );
                serializer.endTag( "", "Folder" );
-               
 
             }
-            while (segmentCursor.moveToNext());
-   
+            while( segmentCursor.moveToNext() );
+
          }
       }
       finally
@@ -358,7 +356,7 @@ public class KmzCreator extends XmlCreator
          }
       }
    }
-   
+
    /**
     * &lt;TimeSpan>&lt;begin>...&lt;/begin>&lt;end>...&lt;/end>&lt;/TimeSpan>
     * 
@@ -369,7 +367,7 @@ public class KmzCreator extends XmlCreator
    private void serializeSegmentToTimespan( XmlSerializer serializer, Uri waypoints ) throws IOException
    {
       Cursor waypointsCursor = null;
-      Date segmentStartTime = null ;
+      Date segmentStartTime = null;
       Date segmentEndTime = null;
       ContentResolver resolver = mContext.getContentResolver();
       try
@@ -392,12 +390,12 @@ public class KmzCreator extends XmlCreator
             waypointsCursor.close();
          }
       }
-      
+
       DateFormat formater = new SimpleDateFormat( DATETIME );
       serializer.text( "\n" );
       serializer.startTag( "", "TimeSpan" );
       serializer.text( "\n" );
-      serializer.startTag( "", "begin" );         
+      serializer.startTag( "", "begin" );
       serializer.text( formater.format( segmentStartTime ) );
       serializer.endTag( "", "begin" );
       serializer.text( "\n" );
@@ -406,11 +404,11 @@ public class KmzCreator extends XmlCreator
       serializer.endTag( "", "end" );
       serializer.text( "\n" );
       serializer.endTag( "", "TimeSpan" );
-      
+
    }
-   
+
    /**
-    * &lt;coordinates>...&lt;/coordinates> 
+    * &lt;coordinates>...&lt;/coordinates>
     * 
     * @param serializer
     * @param waypoints
@@ -425,7 +423,7 @@ public class KmzCreator extends XmlCreator
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
-            
+
             increaseGoal( waypointsCursor.getCount() );
             serializer.text( "\n" );
             serializer.startTag( "", "coordinates" );
@@ -434,14 +432,14 @@ public class KmzCreator extends XmlCreator
                increaseProgress( 1 );
                if( mProgressListener != null )
                {
-                  mProgressListener.updateNotification(getProgress(), getGoal());
+                  mProgressListener.updateNotification( getProgress(), getGoal() );
                }
                // Single Coordinate tuple
                serializeCoordinates( serializer, waypointsCursor );
                serializer.text( " " );
             }
-            while (waypointsCursor.moveToNext());
-            
+            while( waypointsCursor.moveToNext() );
+
             serializer.endTag( "", "coordinates" );
          }
       }
@@ -452,7 +450,7 @@ public class KmzCreator extends XmlCreator
             waypointsCursor.close();
          }
       }
-   
+
    }
 
    /**
@@ -470,7 +468,7 @@ public class KmzCreator extends XmlCreator
       serializer.text( "," );
       serializer.text( Double.toString( waypointsCursor.getDouble( 2 ) ) );
    }
-   
+
    private void serializeWaypointDescription( XmlSerializer serializer, Uri media ) throws IOException
    {
       String mediaPathPrefix = Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.EXTERNAL_DIR;
@@ -484,62 +482,74 @@ public class KmzCreator extends XmlCreator
             do
             {
                Uri mediaUri = Uri.parse( mediaCursor.getString( 0 ) );
+               Uri singleWaypointUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mediaCursor.getLong( 1 ) + "/segments/" + mediaCursor.getLong( 2 ) + "/waypoints/" + mediaCursor.getLong( 3 ) );
                if( mediaUri.getScheme().equals( "file" ) )
                {
+                  String includedMediaFile = includeMediaFile( mediaPathPrefix + mediaUri.getLastPathSegment() );
                   if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
                   {
-//                     serializer.text( "\n" );
-//                     serializer.startTag( "", "link" );
-//                     serializer.attribute( null, "href", includeMediaFile( mediaPathPrefix + mediaUri.getLastPathSegment() ) );
-//                     serializer.startTag( "", "text" );
-//                     serializer.text( mediaUri.getLastPathSegment() );
-//                     serializer.endTag( "", "text" );
-//                     serializer.endTag( "", "link" );
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "Placemark" );
+                     serializer.text( "\n" );
+                     quickTag( serializer, "", "name", mediaUri.getLastPathSegment() );
+                     serializer.text( "\n" );
+                     serializer.startTag( "", "description" );
+                     serializer.text(" <a href=\""+includedMediaFile+"\">"+mediaUri.getLastPathSegment()+"</a><br>  ");
+                     serializer.text( "<OBJECT ID=\"MediaPlayer\" WIDTH=\"192\" HEIGHT=\"190\" CLASSID=\"CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95\"" );
+                     serializer.text( "   STANDBY=\"Loading Windows Media Player components...\" TYPE=\"application/x-oleobject\">" );
+                     serializer.text( "   <PARAM NAME=\"FileName\" VALUE=\""+includedMediaFile+"\">" );
+                     serializer.text( "   <PARAM name=\"autostart\" VALUE=\"false\">" );
+                     serializer.text( "   <PARAM name=\"ShowControls\" VALUE=\"true\">" );
+                     serializer.text( "   <param name=\"ShowStatusBar\" value=\"false\">" );
+                     serializer.text( "    <PARAM name=\"ShowDisplay\" VALUE=\"false\">" );
+                     serializer.text( "    <EMBED TYPE=\"application/x-mplayer2\" SRC=\""+includedMediaFile+"\" NAME=\"MediaPlayer\"" );
+                     serializer.text( "    WIDTH=\"192\" HEIGHT=\"190\" ShowControls=\"1\" ShowStatusBar=\"0\" ShowDisplay=\"0\" autostart=\"0\"> </EMBED>" );
+                     serializer.text( "</OBJECT>" );
+                     serializer.endTag( "", "description" );
+                     serializeMediaPoint( serializer, singleWaypointUri );
+                     serializer.text( "\n" );
+                     serializer.endTag( "", "Placemark" );
                   }
                   else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
                   {
-                     Uri singleWaypointUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mediaCursor.getLong(1)+"/segments/"+mediaCursor.getLong(2)+"/waypoints/"+mediaCursor.getLong(3) );
-                     
                      serializer.text( "\n" );
                      serializer.startTag( "", "PhotoOverlay" );
                      serializer.text( "\n" );
                      serializer.startTag( "", "name" );
                      serializer.text( mediaUri.getLastPathSegment() );
                      serializer.endTag( "", "name" );
-                     
+
                      serializeCamera( serializer, singleWaypointUri );
-                     
+
                      serializer.text( "\n" );
                      serializer.startTag( "", "Icon" );
                      serializer.text( "\n" );
                      serializer.startTag( "", "href" );
-                     serializer.text( includeMediaFile( mediaPathPrefix + mediaUri.getLastPathSegment() ) );  
+                     serializer.text( includedMediaFile );
                      serializer.endTag( "", "href" );
                      serializer.text( "\n" );
                      serializer.endTag( "", "Icon" );
                      String widthParameter = mediaUri.getQueryParameter( "width" );
                      String heightParameter = mediaUri.getQueryParameter( "height" );
-                     int width  = widthParameter  == null ? 300 : Integer.parseInt( widthParameter ) ;
-                     int height = heightParameter == null ? 400 : Integer.parseInt( heightParameter ) ;
+                     int width = widthParameter == null ? 300 : Integer.parseInt( widthParameter );
+                     int height = heightParameter == null ? 400 : Integer.parseInt( heightParameter );
                      double lrAngle = 25d;
                      double near = 10d;
-                     double btAngle = Math.toDegrees( Math.atan( (Math.tan(Math.toRadians(lrAngle))*height)/width ) );
+                     double btAngle = Math.toDegrees( Math.atan( ( Math.tan( Math.toRadians( lrAngle ) ) * height ) / width ) );
                      serializer.text( "\n" );
                      serializer.startTag( "", "ViewVolume" );
-                     quickTag( serializer, "", "leftFov",   Double.toString( -lrAngle ) );
-                     quickTag( serializer, "", "rightFov",  Double.toString(  lrAngle ) );
-                     quickTag( serializer, "", "bottomFov", Double.toString( -btAngle ));
-                     quickTag( serializer, "", "topFov",    Double.toString(  btAngle ));
-                     quickTag( serializer, "", "near", Double.toString( near ));
-                     serializer.endTag( "", "ViewVolume" );                     
+                     quickTag( serializer, "", "leftFov", Double.toString( -lrAngle ) );
+                     quickTag( serializer, "", "rightFov", Double.toString( lrAngle ) );
+                     quickTag( serializer, "", "bottomFov", Double.toString( -btAngle ) );
+                     quickTag( serializer, "", "topFov", Double.toString( btAngle ) );
+                     quickTag( serializer, "", "near", Double.toString( near ) );
+                     serializer.endTag( "", "ViewVolume" );
                      serializeMediaPoint( serializer, singleWaypointUri );
                      serializer.text( "\n" );
                      serializer.endTag( "", "PhotoOverlay" );
                   }
                   else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
                   {
-                     Uri singleWaypointUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mediaCursor.getLong(1)+"/segments/"+mediaCursor.getLong(2)+"/waypoints/"+mediaCursor.getLong(3) );
-                     
                      serializer.text( "\n" );
                      serializer.startTag( "", "Placemark" );
                      serializer.text( "\n" );
@@ -553,7 +563,7 @@ public class KmzCreator extends XmlCreator
                         serializer.text( line );
                         serializer.text( "\n" );
                      }
-                     serializer.endTag( "", "description" );                     
+                     serializer.endTag( "", "description" );
                      serializeMediaPoint( serializer, singleWaypointUri );
                      serializer.text( "\n" );
                      serializer.endTag( "", "Placemark" );
@@ -563,40 +573,53 @@ public class KmzCreator extends XmlCreator
                {
                   if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
                   {
-                     Uri singleWaypointUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mediaCursor.getLong(1)+"/segments/"+mediaCursor.getLong(2)+"/waypoints/"+mediaCursor.getLong(3) );
-                     
                      serializer.text( "\n" );
                      serializer.startTag( "", "Placemark" );
                      serializer.text( "\n" );
-                     quickTag( serializer, "", "name", mediaUri.getLastPathSegment() );                   
+                     quickTag( serializer, "", "name", mediaUri.getLastPathSegment() );
                      serializeMediaPoint( serializer, singleWaypointUri );
                      serializer.text( "\n" );
                      serializer.endTag( "", "Placemark" );
                   }
                   else if( mediaUri.getAuthority().equals( "media" ) )
                   {
-//                     Cursor mediaItemCursor = null;
-//                     try
-//                     {
-//                        mediaItemCursor = resolver.query( mediaUri, new String[] { MediaColumns.DATA, MediaColumns.DISPLAY_NAME }, null, null, null );
-//                        if( mediaItemCursor.moveToFirst() )
-//                        {
-//                           serializer.text( "\n" );
-//                           serializer.startTag( "", "link" );
-//                           serializer.attribute( null, "href", includeMediaFile( mediaItemCursor.getString( 0 ) ) );
-//                           serializer.startTag( "", "text" );
-//                           serializer.text( mediaItemCursor.getString( 1 ) );
-//                           serializer.endTag( "", "text" );
-//                           serializer.endTag( "", "link" );
-//                        }
-//                     }
-//                     finally
-//                     {
-//                        if( mediaItemCursor != null )
-//                        {
-//                           mediaItemCursor.close();
-//                        }
-//                     }
+                     Cursor mediaItemCursor = null;
+                     try
+                     {
+                        mediaItemCursor = resolver.query( mediaUri, new String[] { MediaColumns.DATA, MediaColumns.DISPLAY_NAME }, null, null, null );
+                        if( mediaItemCursor.moveToFirst() )
+                        {
+                           String includedMediaFile = includeMediaFile( mediaItemCursor.getString( 0 ) );
+                           serializer.text( "\n" );
+                           serializer.startTag( "", "Placemark" );
+                           serializer.text( "\n" );
+                           quickTag( serializer, "", "name", mediaItemCursor.getString( 1 ) );
+                           serializer.text( "\n" );
+                           serializer.startTag( "", "description" );
+                           serializer.text(" <a href=\""+includedMediaFile+"\">"+mediaItemCursor.getString( 1 )+"</a><br>  ");
+                           serializer.text( "<OBJECT ID=\"MediaPlayer\" WIDTH=\"192\" HEIGHT=\"190\" CLASSID=\"CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95\"" );
+                           serializer.text( "   STANDBY=\"Loading Windows Media Player components...\" TYPE=\"application/x-oleobject\">" );
+                           serializer.text( "   <PARAM NAME=\"FileName\" VALUE=\""+includedMediaFile+"\">" );
+                           serializer.text( "   <PARAM name=\"autostart\" VALUE=\"false\">" );
+                           serializer.text( "   <PARAM name=\"ShowControls\" VALUE=\"true\">" );
+                           serializer.text( "   <param name=\"ShowStatusBar\" value=\"false\">" );
+                           serializer.text( "    <PARAM name=\"ShowDisplay\" VALUE=\"false\">" );
+                           serializer.text( "    <EMBED TYPE=\"application/x-mplayer2\" SRC=\""+includedMediaFile+"\" NAME=\"MediaPlayer\"" );
+                           serializer.text( "    WIDTH=\"192\" HEIGHT=\"190\" ShowControls=\"1\" ShowStatusBar=\"0\" ShowDisplay=\"0\" autostart=\"0\"> </EMBED>" );
+                           serializer.text( "</OBJECT>" );
+                           serializer.endTag( "", "description" );
+                           serializeMediaPoint( serializer, singleWaypointUri );
+                           serializer.text( "\n" );
+                           serializer.endTag( "", "Placemark" );
+                        }
+                     }
+                     finally
+                     {
+                        if( mediaItemCursor != null )
+                        {
+                           mediaItemCursor.close();
+                        }
+                     }
                   }
                }
             }
@@ -611,7 +634,7 @@ public class KmzCreator extends XmlCreator
          }
       }
    }
-   
+
    private void serializeCamera( XmlSerializer serializer, Uri singleWaypointUri ) throws IllegalArgumentException, IllegalStateException, IOException
    {
       Cursor waypointsCursor = null;
@@ -625,7 +648,7 @@ public class KmzCreator extends XmlCreator
             serializer.startTag( "", "Camera" );
             serializer.text( "\n" );
             serializer.startTag( "", "longitude" );
-            serializer.text(  Double.toString( waypointsCursor.getDouble( 0 ) ) );
+            serializer.text( Double.toString( waypointsCursor.getDouble( 0 ) ) );
             serializer.endTag( "", "longitude" );
             serializer.text( "\n" );
             serializer.startTag( "", "latitude" );
@@ -664,8 +687,7 @@ public class KmzCreator extends XmlCreator
    }
 
    /**
-    * &lt;Point>...&lt;/Point>     
-    * &lt;shape>rectangle&lt;/shape> 
+    * &lt;Point>...&lt;/Point> &lt;shape>rectangle&lt;/shape>
     * 
     * @param serializer
     * @param singleWaypointUri
@@ -691,7 +713,7 @@ public class KmzCreator extends XmlCreator
             serializer.text( "\n" );
             serializer.endTag( "", "Point" );
             serializer.text( "\n" );
-            serializer.startTag( "", "shape" );            
+            serializer.startTag( "", "shape" );
             serializer.text( "rectangle" );
             serializer.endTag( "", "shape" );
          }
