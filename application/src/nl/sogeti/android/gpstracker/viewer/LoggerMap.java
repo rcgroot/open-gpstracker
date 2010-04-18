@@ -679,20 +679,23 @@ public class LoggerMap extends MapActivity
       boolean result = super.onCreateOptionsMenu( menu );
 
       menu.add( ContextMenu.NONE, MENU_TRACKING, ContextMenu.NONE, R.string.menu_tracking ).setIcon( R.drawable.ic_menu_movie ).setAlphabeticShortcut( 'T' );
-      menu.add( ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_statistics ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 'S' );
       menu.add( ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers ).setIcon( R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 'L' );
-
       SubMenu notemenu = menu.addSubMenu( ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote ).setIcon( R.drawable.ic_menu_myplaces );
+      
+      menu.add( ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_statistics ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 'S' );
+      menu.add( ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack ).setIcon( R.drawable.ic_menu_share ).setAlphabeticShortcut('I');
+      // More
+
+      menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
+      menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
+      menu.add( ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
+      
       notemenu.add( ContextMenu.NONE, MENU_NAME, ContextMenu.NONE, R.string.menu_notename );
       notemenu.add( ContextMenu.NONE, MENU_TEXT, ContextMenu.NONE, R.string.menu_notetext );
       notemenu.add( ContextMenu.NONE, MENU_VOICE, ContextMenu.NONE, R.string.menu_notespeech );
       notemenu.add( ContextMenu.NONE, MENU_PICTURE, ContextMenu.NONE, R.string.menu_notepicture );
       notemenu.add( ContextMenu.NONE, MENU_VIDEO, ContextMenu.NONE, R.string.menu_notevideo );
-
-      menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
-      menu.add( ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack ).setIcon( R.drawable.ic_menu_share ).setAlphabeticShortcut('I');
-      menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
-      menu.add( ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
+      
       return result;
    }
    
@@ -703,7 +706,7 @@ public class LoggerMap extends MapActivity
    @Override
    public boolean onPrepareOptionsMenu( Menu menu )
    {
-      MenuItem notemenu = menu.getItem( 3 );
+      MenuItem notemenu = menu.findItem( MENU_NOTE );
       notemenu.setEnabled( mLoggerServiceManager.isMediaPrepared() );
       return super.onPrepareOptionsMenu( menu );
    }
