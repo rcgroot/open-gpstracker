@@ -708,6 +708,8 @@ public class LoggerMap extends MapActivity
    {
       MenuItem notemenu = menu.findItem( MENU_NOTE );
       notemenu.setEnabled( mLoggerServiceManager.isMediaPrepared() );
+      MenuItem sharemenu = menu.findItem( MENU_SHARE );
+      sharemenu.setEnabled( mTrackId >= 0 );
       return super.onPrepareOptionsMenu( menu );
    }
 
