@@ -13,7 +13,7 @@
     <string name="dialog_notrack_title">Geen route gekozen</string>
     <string name="dialog_notrack_message">Kiest u alstublieft eerst een route</string>
     <string name="dialog_filename_title">Bestandsnaam</string>
-    <string name="dialog_filename_message">Geeft u alstublieft een naam voor het GPX bestand op de SDCards</string>
+    <string name="dialog_filename_message">Geeft u alstublieft een naam voor het route bestand op de SDCard</string>
     <string name="dialog_deletetitle">Verwijder</string>
     <string name="dialog_deleteconfirmation">Bevestigt u alstublieft het verwijderen van %s</string>
     <string name="dialog_nooiabout">OI About nodig</string>
@@ -64,7 +64,7 @@
     <string name="chooser_title">Delen via?</string>
     <string name="receive_filewriter">Opslaan op SDcard</string>
     <string name="receive_gpxsender">Verstuur GPX bestand</string>
-    <string name="email_chooser">Kies email applicatie</string>
+    <string name="sender_chooser">Kies zend applicatie</string>
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
     <string name="email_body">Bijgevoegd is een route als GPS Exchange Format (GPX) bestand zoals beschreven op http://www.topografix.com/gpx.asp</string>
 

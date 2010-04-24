@@ -123,8 +123,8 @@ public class ExportGPX extends Activity
 
    protected void exportGPX( String chosenBaseFileName )
    {
-      GpxCreator mGpxCreator = new GpxCreator( this, getIntent(), chosenBaseFileName, new ProgressListener() );
-      mGpxCreator.start();
+      GpxCreator gpxCreator = new GpxCreator( this, getIntent(), chosenBaseFileName, new ProgressListener() );
+      gpxCreator.start();
       this.finish();
    }
    

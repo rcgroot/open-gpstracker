@@ -117,8 +117,8 @@ public class GpxCreator extends XmlCreator
          setXmlFileName( fileName );
       }
       new File( getExportDirectoryPath() ).mkdirs();
-
       String xmlFilePath = getExportDirectoryPath() + "/" + getXmlFileName();
+      
       if( mProgressListener != null )
       {
          mProgressListener.startNotification( fileName );

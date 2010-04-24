@@ -121,10 +121,10 @@ public class ExportKMZ extends Activity
       }
    }
 
-   protected void exportKMZ( String chosenFileName )
+   protected void exportKMZ( String chosenBaseFileName )
    {
-      KmzCreator mKmzCreator = new KmzCreator( this, getIntent(), chosenFileName, new ProgressListener() );
-      mKmzCreator.start();
+      KmzCreator kmzCreator = new KmzCreator( this, getIntent(), chosenBaseFileName, new ProgressListener() );
+      kmzCreator.start();
       this.finish();
    }
    

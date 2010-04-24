@@ -13,7 +13,7 @@
     <string name="dialog_notrack_title">No track is selected</string>
     <string name="dialog_notrack_message">Please select a track first before exporting</string>
     <string name="dialog_filename_title">File name</string>
-    <string name="dialog_filename_message">Please enter the name for a GPX file on the SDCard</string>
+    <string name="dialog_filename_message">Please enter the name for a track file on the SDCard</string>
     <string name="dialog_deletetitle">Delete track</string>
     <string name="dialog_deleteconfirmation">Please confirm the deletion of the track %s</string>
     <string name="dialog_nooiabout">OI About missing</string>
@@ -76,8 +76,10 @@
     <string name="chooser_title">How to share this track?</string>
 	<string name="receive_filewriter">Store to GPX on SDcard</string>
     <string name="receive_kmzfilewriter">Store to KMZ on SDcard</string>
+    <string name="kmlVideoUnsupported">Embedded video is not supported, please use a zip tools to retreive the %s video file from the KMZ file.</string>
+    <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retreive the %s audio file from the KMZ file.</string>
     <string name="receive_gpxsender">Send GPX file</string>
-    <string name="email_chooser">Choose email program</string>
+    <string name="sender_chooser">Choose sender application</string>
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
     <string name="email_body">Attached is a track in the GPS Exchange Format (GPX) file as described on http://www.topografix.com/gpx.asp</string>
     

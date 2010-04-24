@@ -164,7 +164,7 @@ public class KmzCreator extends XmlCreator
       {
          if( mProgressListener != null )
          {
-            mProgressListener.endNotification( xmlFilePath );
+            mProgressListener.endNotification( resultFilename );
          }
          Looper.loop();
       }
@@ -423,7 +423,6 @@ public class KmzCreator extends XmlCreator
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
-
             increaseGoal( waypointsCursor.getCount() );
             serializer.text( "\n" );
             serializer.startTag( "", "coordinates" );
@@ -483,40 +482,32 @@ public class KmzCreator extends XmlCreator
             {
                Uri mediaUri = Uri.parse( mediaCursor.getString( 0 ) );
                Uri singleWaypointUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mediaCursor.getLong( 1 ) + "/segments/" + mediaCursor.getLong( 2 ) + "/waypoints/" + mediaCursor.getLong( 3 ) );
+               String lastPathSegment = mediaUri.getLastPathSegment();
                if( mediaUri.getScheme().equals( "file" ) )
                {
-                  String includedMediaFile = includeMediaFile( mediaPathPrefix + mediaUri.getLastPathSegment() );
-                  if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
+                  String includedMediaFile = includeMediaFile( mediaPathPrefix + lastPathSegment );
+                  if( lastPathSegment.endsWith( "3gp" ) )
                   {
                      serializer.text( "\n" );
                      serializer.startTag( "", "Placemark" );
                      serializer.text( "\n" );
-                     quickTag( serializer, "", "name", mediaUri.getLastPathSegment() );
+                     quickTag( serializer, "", "name", lastPathSegment );
                      serializer.text( "\n" );
                      serializer.startTag( "", "description" );
-                     serializer.text(" <a href=\""+includedMediaFile+"\">"+mediaUri.getLastPathSegment()+"</a><br>  ");
-                     serializer.text( "<OBJECT ID=\"MediaPlayer\" WIDTH=\"192\" HEIGHT=\"190\" CLASSID=\"CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95\"" );
-                     serializer.text( "   STANDBY=\"Loading Windows Media Player components...\" TYPE=\"application/x-oleobject\">" );
-                     serializer.text( "   <PARAM NAME=\"FileName\" VALUE=\""+includedMediaFile+"\">" );
-                     serializer.text( "   <PARAM name=\"autostart\" VALUE=\"false\">" );
-                     serializer.text( "   <PARAM name=\"ShowControls\" VALUE=\"true\">" );
-                     serializer.text( "   <param name=\"ShowStatusBar\" value=\"false\">" );
-                     serializer.text( "    <PARAM name=\"ShowDisplay\" VALUE=\"false\">" );
-                     serializer.text( "    <EMBED TYPE=\"application/x-mplayer2\" SRC=\""+includedMediaFile+"\" NAME=\"MediaPlayer\"" );
-                     serializer.text( "    WIDTH=\"192\" HEIGHT=\"190\" ShowControls=\"1\" ShowStatusBar=\"0\" ShowDisplay=\"0\" autostart=\"0\"> </EMBED>" );
-                     serializer.text( "</OBJECT>" );
+                     String kmlAudioUnsupported = mContext.getString( R.string.kmlVideoUnsupported );
+                     serializer.text( String.format( kmlAudioUnsupported, lastPathSegment ) );
                      serializer.endTag( "", "description" );
                      serializeMediaPoint( serializer, singleWaypointUri );
                      serializer.text( "\n" );
                      serializer.endTag( "", "Placemark" );
                   }
-                  else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
+                  else if( lastPathSegment.endsWith( "jpg" ) )
                   {
                      serializer.text( "\n" );
                      serializer.startTag( "", "PhotoOverlay" );
                      serializer.text( "\n" );
                      serializer.startTag( "", "name" );
-                     serializer.text( mediaUri.getLastPathSegment() );
+                     serializer.text( lastPathSegment );
                      serializer.endTag( "", "name" );
 
                      serializeCamera( serializer, singleWaypointUri );
@@ -548,12 +539,12 @@ public class KmzCreator extends XmlCreator
                      serializer.text( "\n" );
                      serializer.endTag( "", "PhotoOverlay" );
                   }
-                  else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
+                  else if( lastPathSegment.endsWith( "txt" ) )
                   {
                      serializer.text( "\n" );
                      serializer.startTag( "", "Placemark" );
                      serializer.text( "\n" );
-                     quickTag( serializer, "", "name", mediaUri.getLastPathSegment() );
+                     quickTag( serializer, "", "name", lastPathSegment );
                      serializer.text( "\n" );
                      serializer.startTag( "", "description" );
                      BufferedReader buf = new BufferedReader( new FileReader( mediaUri.getEncodedPath() ) );
@@ -576,7 +567,7 @@ public class KmzCreator extends XmlCreator
                      serializer.text( "\n" );
                      serializer.startTag( "", "Placemark" );
                      serializer.text( "\n" );
-                     quickTag( serializer, "", "name", mediaUri.getLastPathSegment() );
+                     quickTag( serializer, "", "name", lastPathSegment );
                      serializeMediaPoint( serializer, singleWaypointUri );
                      serializer.text( "\n" );
                      serializer.endTag( "", "Placemark" );
@@ -596,17 +587,8 @@ public class KmzCreator extends XmlCreator
                            quickTag( serializer, "", "name", mediaItemCursor.getString( 1 ) );
                            serializer.text( "\n" );
                            serializer.startTag( "", "description" );
-                           serializer.text(" <a href=\""+includedMediaFile+"\">"+mediaItemCursor.getString( 1 )+"</a><br>  ");
-                           serializer.text( "<OBJECT ID=\"MediaPlayer\" WIDTH=\"192\" HEIGHT=\"190\" CLASSID=\"CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95\"" );
-                           serializer.text( "   STANDBY=\"Loading Windows Media Player components...\" TYPE=\"application/x-oleobject\">" );
-                           serializer.text( "   <PARAM NAME=\"FileName\" VALUE=\""+includedMediaFile+"\">" );
-                           serializer.text( "   <PARAM name=\"autostart\" VALUE=\"false\">" );
-                           serializer.text( "   <PARAM name=\"ShowControls\" VALUE=\"true\">" );
-                           serializer.text( "   <param name=\"ShowStatusBar\" value=\"false\">" );
-                           serializer.text( "    <PARAM name=\"ShowDisplay\" VALUE=\"false\">" );
-                           serializer.text( "    <EMBED TYPE=\"application/x-mplayer2\" SRC=\""+includedMediaFile+"\" NAME=\"MediaPlayer\"" );
-                           serializer.text( "    WIDTH=\"192\" HEIGHT=\"190\" ShowControls=\"1\" ShowStatusBar=\"0\" ShowDisplay=\"0\" autostart=\"0\"> </EMBED>" );
-                           serializer.text( "</OBJECT>" );
+                           String kmlAudioUnsupported = mContext.getString( R.string.kmlAudioUnsupported );
+                           serializer.text( String.format( kmlAudioUnsupported, includedMediaFile ) );
                            serializer.endTag( "", "description" );
                            serializeMediaPoint( serializer, singleWaypointUri );
                            serializer.text( "\n" );

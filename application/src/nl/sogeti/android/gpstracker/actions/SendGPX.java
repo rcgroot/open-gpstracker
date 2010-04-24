@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.utils.XmlCreationProgressListener;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;
@@ -68,8 +69,8 @@ public class SendGPX extends Activity
 
    protected void exportGPX( String chosenFileName )
    {
-      nl.sogeti.android.gpstracker.actions.utils.GpxCreator mGpxCreator = new nl.sogeti.android.gpstracker.actions.utils.GpxCreator( this, getIntent(), chosenFileName, new ProgressListener() );
-      mGpxCreator.start();
+      GpxCreator gpxCreator = new GpxCreator( this, getIntent(), chosenFileName, new ProgressListener() );
+      gpxCreator.start();
       this.finish();
    }
    
@@ -122,12 +123,12 @@ public class SendGPX extends Activity
       public void endNotification( String filename )
       {
          mNotificationManager.cancel( R.layout.savenotificationprogress );
-         Intent emailIntent = new Intent(Intent.ACTION_SEND);
-         emailIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body) ); 
-         emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject) );
-         emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+filename)); 
-         emailIntent.setType("text/xml");
-         startActivity(Intent.createChooser(emailIntent, getString(R.string.email_chooser) )); 
+         Intent sendActionIntent = new Intent(Intent.ACTION_SEND);
+         sendActionIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body) ); 
+         sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject) );
+         sendActionIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+filename)); 
+         sendActionIntent.setType("text/xml");
+         startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser) )); 
       }
    }
 }
