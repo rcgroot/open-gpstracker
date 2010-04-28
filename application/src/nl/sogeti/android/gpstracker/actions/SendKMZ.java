@@ -29,7 +29,7 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
+import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
 import nl.sogeti.android.gpstracker.actions.utils.XmlCreationProgressListener;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;
@@ -48,11 +48,10 @@ import android.widget.RemoteViews;
  * @version $Id$
  * @author rene (c) Mar 22, 2009, Sogeti B.V.
  */
-public class SendGPX extends SendTrack
+public class SendKMZ extends SendTrack
 {
-   protected static final String TAG = "OGT.SendGPX";
-
-
+   protected static final String TAG = "OGT.SendKMZ";
+   
    @Override
    public void onCreate( Bundle savedInstanceState )
    {
@@ -63,8 +62,8 @@ public class SendGPX extends SendTrack
 
    protected void exportGPX( String chosenFileName )
    {
-      GpxCreator gpxCreator = new GpxCreator( this, getIntent(), chosenFileName, new ProgressListener() );
-      gpxCreator.start();
+      KmzCreator kmzCreator = new KmzCreator( this, getIntent(), chosenFileName, new ProgressListener() );
+      kmzCreator.start();
       this.finish();
    }
 }

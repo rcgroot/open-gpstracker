@@ -1,37 +1,7 @@
-/*------------------------------------------------------------------------------
- **     Ident: Innovation en Inspiration > Google Android 
- **    Author: rene
- ** Copyright: (c) Jan 22, 2009 Sogeti Nederland B.V. All Rights Reserved.
- **------------------------------------------------------------------------------
- ** Sogeti Nederland B.V.            |  No part of this file may be reproduced  
- ** Distributed Software Engineering |  or transmitted in any form or by any        
- ** Lange Dreef 17                   |  means, electronic or mechanical, for the      
- ** 4131 NJ Vianen                   |  purpose, without the express written    
- ** The Netherlands                  |  permission of the copyright holder.
- *------------------------------------------------------------------------------
- *
- *   This file is part of OpenGPSTracker.
- *
- *   OpenGPSTracker is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   OpenGPSTracker is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
 package nl.sogeti.android.gpstracker.actions;
-
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.XmlCreationProgressListener;
-import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -44,24 +14,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
-import android.os.Bundle;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 
-/**
- * Store a GPX file to SDCard
- * 
- * @version $Id$
- * @author rene (c) Mar 22, 2009, Sogeti B.V.
- */
-public class ExportGPX extends Activity
+public abstract class SendTrack extends Activity
 {
-   public static final String TAG = "OGT.ExportGPX";
-   
-   private static final int DIALOG_FILENAME = 11;
-   private static final int PROGRESS_STEPS = 10;
+   protected static final int DIALOG_FILENAME = 11;
+   protected static final int PROGRESS_STEPS = 10;
 
    private RemoteViews mContentView;
    private int barProgress = 0;
@@ -75,23 +37,14 @@ public class ExportGPX extends Activity
             switch( which )
             {
                case Dialog.BUTTON_POSITIVE:
-                  ExportGPX.this.exportGPX( mFileNameView.getText().toString() );
+                  SendTrack.this.sendFile( mFileNameView.getText().toString() );
                   break;
                case Dialog.BUTTON_NEGATIVE:
-                  ExportGPX.this.finish();
+                  SendTrack.this.finish();
                   break;
             }
          }
       };
-
-   @Override
-   public void onCreate( Bundle savedInstanceState )
-   {
-      setVisible( false );
-      super.onCreate( savedInstanceState );
-      showDialog( DIALOG_FILENAME );
-   }
-
    /*
     * (non-Javadoc)
     * @see android.app.Activity#onCreateDialog(int)
@@ -120,25 +73,28 @@ public class ExportGPX extends Activity
             return super.onCreateDialog( id );
       }
    }
-
-   protected void exportGPX( String chosenBaseFileName )
-   {
-      GpxCreator gpxCreator = new GpxCreator( this, getIntent(), chosenBaseFileName, new ProgressListener() );
-      gpxCreator.start();
-      this.finish();
-   }
    
+   private void sendFile( String filename )
+   {
+      Intent sendActionIntent = new Intent(Intent.ACTION_SEND);
+      sendActionIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body) ); 
+      sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject) );
+      sendActionIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+filename)); 
+      sendActionIntent.setType("text/xml");
+      startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser) )); 
+   }
+
    class ProgressListener implements XmlCreationProgressListener
    {
       public void startNotification( String fileName )
       {
          String ns = Context.NOTIFICATION_SERVICE;
-         mNotificationManager = (NotificationManager) ExportGPX.this.getSystemService( ns );
+         mNotificationManager = (NotificationManager) SendTrack.this.getSystemService( ns );
          int icon = android.R.drawable.ic_menu_save;
          CharSequence tickerText = getString( R.string.ticker_saving )+ "\"" + fileName + "\"";
        
          mNotification = new Notification();
-         PendingIntent contentIntent = PendingIntent.getActivity( ExportGPX.this, 0, new Intent( ExportGPX.this, LoggerMap.class ).setFlags( Intent.FLAG_ACTIVITY_NEW_TASK ),
+         PendingIntent contentIntent = PendingIntent.getActivity( SendTrack.this, 0, new Intent( SendTrack.this, LoggerMap.class ).setFlags( Intent.FLAG_ACTIVITY_NEW_TASK ),
                PendingIntent.FLAG_UPDATE_CURRENT );
        
          mNotification.contentIntent = contentIntent;
@@ -151,10 +107,9 @@ public class ExportGPX extends Activity
        
          mNotification.contentView = mContentView;
       }
-      
-      public void updateNotification(int progress, int goal)
+      public void updateNotification( int progress, int goal )
       {
-//         Log.d( TAG, "Progress " + progress + " of " + goal );
+//         Log.d( "TAG", "Progress " + progress + " of " + goal );
          if( progress > 0 && progress < goal )
          {
             if( ( progress * PROGRESS_STEPS ) / goal != barProgress )
@@ -175,10 +130,10 @@ public class ExportGPX extends Activity
             mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
          }
       }
-      
-      public void endNotification(String filename)
+      public void endNotification( String filename )
       {
          mNotificationManager.cancel( R.layout.savenotificationprogress );
+         sendFile( filename );
       }
    }
 }

@@ -62,7 +62,7 @@
     <string name="graphtype_distancealtitude">Altitude against distance</string>
 
     <string name="chooser_title">如何分享此路线?</string>
-	<string name="receive_filewriter">存储到 SD 卡</string>
+	<string name="receive_gpxfilewriter">存储到 SD 卡</string>
     <string name="receive_gpxsender">发送 GPX 文件</string>
     <string name="email_subject">打开 GPS 跟踪器 - 跟踪数据</string>
     <string name="email_body">附件是路线的 GPS 交换格式 (GPX) 文件, 描述在 http://www.topografix.com/gpx.asp</string>

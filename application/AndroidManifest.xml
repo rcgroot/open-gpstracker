@@ -122,15 +122,7 @@
       
         <activity android:label="@string/menu_statistics" android:name=".actions.Statistics">
         </activity> 
-
-		<activity android:label="@string/receive_filewriter" android:name=".actions.ExportGPX">
-			<intent-filter>
-				<action android:name="android.intent.action.RUN" />
-                <category android:name="android.intent.category.DEFAULT" />
-				<data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
-			</intent-filter>
-		</activity>
-
+     
          <activity
             android:label="@string/receive_gpxsender"
             android:name=".actions.SendGPX" >
@@ -140,14 +132,15 @@
                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
          </activity>
-		
-        <activity android:label="@string/receive_kmzfilewriter" android:name=".actions.ExportKMZ">
+         <activity
+            android:label="@string/receive_kmzsender"
+            android:name=".actions.SendKMZ" >
             <intent-filter>
-                <action android:name="android.intent.action.RUN" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
+               <action android:name="android.intent.action.RUN" />
+               <category android:name="android.intent.category.DEFAULT" />
+               <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
-        </activity>
-      
+         </activity>
+		       
     </application>
 </manifest>
