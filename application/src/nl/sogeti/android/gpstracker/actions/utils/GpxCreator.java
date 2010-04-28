@@ -59,6 +59,7 @@ public class GpxCreator extends XmlCreator
 {
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
+   public static final String NS_GPX_10 = "http://www.topografix.com/GPX/1/0"; 
    public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
    private String mChosenBaseFileName;
@@ -189,6 +190,7 @@ public class GpxCreator extends XmlCreator
       serializer.startDocument( "UTF-8", true );
       serializer.setPrefix( "xsi", NS_SCHEMA );
       serializer.setPrefix( "gpx", NS_GPX_11 );
+      serializer.setPrefix( "gpx10", NS_GPX_10 );
       serializer.text( "\n" );
       serializer.startTag( "", "gpx" );
       serializer.attribute( null, "version", "1.1" );
@@ -292,7 +294,7 @@ public class GpxCreator extends XmlCreator
       ContentResolver resolver = mContext.getContentResolver();
       try
       {
-         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID }, null, null, null );
+         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID, Waypoints.SPEED }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
             increaseGoal(  waypointsCursor.getCount() );
@@ -319,6 +321,12 @@ public class GpxCreator extends XmlCreator
                serializer.text( formater.format( time ) );
                serializer.endTag( "", "time" );
                serializeWaypointDescription( mContext, serializer, Uri.withAppendedPath( waypoints, waypointsCursor.getLong( 4 ) + "/media" ) );
+               serializer.text( "\n" );
+               serializer.startTag( "", "extensions" );
+               quickTag( serializer, "gpx10", "speed", Double.toString( waypointsCursor.getDouble( 5 ) )  );
+               
+               
+               serializer.endTag( "", "extensions" );
                serializer.text( "\n" );
                serializer.endTag( "", "trkpt" );
             }
@@ -422,6 +430,7 @@ public class GpxCreator extends XmlCreator
                }
             }
             while( mediaCursor.moveToNext() );
+            //TODO: Multiple media items per waypoint might break XML validity
          }
       }
       finally
