@@ -43,6 +43,7 @@ import android.os.Bundle;
 public class SendKMZ extends SendTrack
 {
    protected static final String TAG = "OGT.SendKMZ";
+   private KmzCreator mKmzCreator;
    
    @Override
    public void onCreate( Bundle savedInstanceState )
@@ -56,8 +57,8 @@ public class SendKMZ extends SendTrack
 
    protected void exportGPX( String chosenFileName )
    {
-      KmzCreator kmzCreator = new KmzCreator( this, getIntent(), chosenFileName, new ProgressListener() );
-      kmzCreator.start();
+      mKmzCreator = new KmzCreator( this, getIntent(), chosenFileName, new ProgressListener() );
+      mKmzCreator.start();
       this.finish();
    }
 
@@ -68,7 +69,7 @@ public class SendKMZ extends SendTrack
       sendActionIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body) ); 
       sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject) );
       sendActionIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+filename)); 
-      sendActionIntent.setType("text/xml");
+      sendActionIntent.setType( mKmzCreator.getContentType() );
       startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser) )); 
    }
 }
