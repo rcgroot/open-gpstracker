@@ -30,17 +30,9 @@ package nl.sogeti.android.gpstracker.actions;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
-import nl.sogeti.android.gpstracker.actions.utils.XmlCreationProgressListener;
-import nl.sogeti.android.gpstracker.viewer.LoggerMap;
-import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.RemoteViews;
 
 /**
  * Send a GPX file with Android SEND Intent
@@ -59,11 +51,24 @@ public class SendKMZ extends SendTrack
       super.onCreate( savedInstanceState );
       showDialog( DIALOG_FILENAME );
    }
+   
+   
 
    protected void exportGPX( String chosenFileName )
    {
       KmzCreator kmzCreator = new KmzCreator( this, getIntent(), chosenFileName, new ProgressListener() );
       kmzCreator.start();
       this.finish();
+   }
+
+   @Override
+   public void sendFile( String filename )
+   {
+      Intent sendActionIntent = new Intent(Intent.ACTION_SEND);
+      sendActionIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body) ); 
+      sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject) );
+      sendActionIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+filename)); 
+      sendActionIntent.setType("text/xml");
+      startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser) )); 
    }
 }

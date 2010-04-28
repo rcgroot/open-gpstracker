@@ -441,4 +441,10 @@ public class GpxCreator extends XmlCreator
          }
       }
    }
+
+   @Override
+   public String getContentType()
+   {
+      return isNeedsBundling() ? "application/zip" : "text/xml";
+   }
 }

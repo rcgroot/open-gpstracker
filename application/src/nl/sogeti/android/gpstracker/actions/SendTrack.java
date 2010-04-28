@@ -74,15 +74,8 @@ public abstract class SendTrack extends Activity
       }
    }
    
-   private void sendFile( String filename )
-   {
-      Intent sendActionIntent = new Intent(Intent.ACTION_SEND);
-      sendActionIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body) ); 
-      sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject) );
-      sendActionIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+filename)); 
-      sendActionIntent.setType("text/xml");
-      startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser) )); 
-   }
+   public abstract void sendFile( String filename );
+
 
    class ProgressListener implements XmlCreationProgressListener
    {

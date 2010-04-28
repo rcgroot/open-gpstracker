@@ -708,4 +708,10 @@ public class KmzCreator extends XmlCreator
          }
       }
    }
+   
+   @Override
+   public String getContentType()
+   {
+      return "application/vnd.google-earth.kmz";
+   }
 }

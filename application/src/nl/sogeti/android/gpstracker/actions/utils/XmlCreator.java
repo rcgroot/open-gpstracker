@@ -14,7 +14,7 @@ import nl.sogeti.android.gpstracker.util.Constants;
 import android.os.Environment;
 import android.util.Log;
 
-public class XmlCreator extends Thread
+public abstract class XmlCreator extends Thread
 {
    
    private String TAG = "OGT.XmlCreator";
@@ -60,7 +60,7 @@ public class XmlCreator extends Thread
    }
 
    /**
-    * Create a zip of the export directory based on the given filename TODO
+    * Create a zip of the export directory based on the given filename
     * 
     * @param mExportDirectoryPath2
     * @return
@@ -182,4 +182,7 @@ public class XmlCreator extends Thread
    {
       return mNeedsBundling;
    }
+   
+   public abstract String getContentType();
 }
+   
