@@ -73,16 +73,16 @@
     <string name="graphtype_distancespeed">Speed against distance</string>
     <string name="graphtype_distancealtitude">Altitude against distance</string>
 
-    <string name="chooser_title">How to share this track?</string>
-    <string name="receive_gpxsender">Share by GPX file</string>
-    <string name="receive_kmzsender">Share by KMZ file</string>
-	<string name="receive_gpxfilewriter">Store to GPX on SDcard</string>
-    <string name="receive_kmzfilewriter">Store to KMZ on SDcard</string>
-    <string name="kmlVideoUnsupported">Embedded video is not supported, please use a zip tools to retreive the %s video file from the KMZ file.</string>
-    <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retreive the %s audio file from the KMZ file.</string>
+    <string name="share_track">Share this track</string>
+    <string name="share_type">Choose format of shared track:</string>
+    <string name="share_name">Name of export:</string>
+    <string name="share_target">Means of sharing:</string>
+	<string name="store_file">Store file on SD card</string>
     <string name="sender_chooser">Choose sender application</string>
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
     <string name="email_body">Attached is a track in the GPS Exchange Format (GPX) file as described on http://www.topografix.com/gpx.asp</string>
+    <string name="kmlVideoUnsupported">Embedded video is not supported, please use a zip tools to retreive the %s video file from the KMZ file.</string>
+    <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retreive the %s audio file from the KMZ file.</string>
     
     <string name="opengpstracker_title">Open GPS Tracker</string>
     <string name="opengpstracker_settings">Settings</string>

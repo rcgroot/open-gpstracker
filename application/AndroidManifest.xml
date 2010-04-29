@@ -122,19 +122,10 @@
       
         <activity android:label="@string/menu_statistics" android:name=".actions.Statistics">
         </activity> 
-     
+
          <activity
-            android:label="@string/receive_gpxsender"
-            android:name=".actions.SendGPX" >
-            <intent-filter>
-               <action android:name="android.intent.action.RUN" />
-               <category android:name="android.intent.category.DEFAULT" />
-               <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
-            </intent-filter>
-         </activity>
-         <activity
-            android:label="@string/receive_kmzsender"
-            android:name=".actions.SendKMZ" >
+            android:label="@string/share_track"
+            android:name=".actions.ShareTrack" >
             <intent-filter>
                <action android:name="android.intent.action.RUN" />
                <category android:name="android.intent.category.DEFAULT" />

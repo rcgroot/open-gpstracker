@@ -28,6 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -63,24 +64,23 @@ public class GpxCreator extends XmlCreator
    public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
    private String mChosenBaseFileName;
-   private Intent mIntent;
-   private XmlCreationProgressListener mProgressListener;
+   private ProgressListener mProgressListener;
    private Context mContext;
    private String TAG = "OGT.GpxCreator";
+   private Uri mTrackUri;
 
 
-   public GpxCreator(Context context, Intent intent, String chosenBaseFileName, XmlCreationProgressListener listener)
+   public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, ProgressListener listener)
    {
       mChosenBaseFileName = chosenBaseFileName;
       mContext = context;
-      mIntent = intent;
+      mTrackUri = trackUri;
       mProgressListener = listener;
    }
 
    public void run()
    {
       Looper.prepare();
-      Uri trackUri = mIntent.getData();
       String fileName = "UntitledTrack";
       if( mChosenBaseFileName != null && !mChosenBaseFileName.equals( "" ) )
       {
@@ -92,7 +92,7 @@ public class GpxCreator extends XmlCreator
          ContentResolver resolver = mContext.getContentResolver();
          try
          {
-            trackCursor = resolver.query( trackUri, new String[] { Tracks.NAME }, null, null, null );
+            trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
             if( trackCursor.moveToLast() )
             {
                fileName = trackCursor.getString( 0 );
@@ -133,7 +133,7 @@ public class GpxCreator extends XmlCreator
          BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( xmlFilePath ), 8192 );
          serializer.setOutput( buf, "UTF-8" );
 
-         serializeTrack( trackUri, serializer );
+         serializeTrack( mTrackUri, serializer );
 
          if( isNeedsBundling() )
          {

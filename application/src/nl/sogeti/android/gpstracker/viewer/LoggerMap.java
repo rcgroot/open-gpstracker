@@ -772,7 +772,7 @@ public class LoggerMap extends MapActivity
             trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId );
             actionIntent.setDataAndType( trackUri, Tracks.CONTENT_ITEM_TYPE );
             actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
-            startActivity( Intent.createChooser( actionIntent, getString( R.string.chooser_title ) ) );
+            startActivity( Intent.createChooser( actionIntent, getString( R.string.share_track ) ) );
             handled = true;
             break;
          case MENU_PICTURE:

@@ -297,7 +297,7 @@ public class Statistics extends Activity
             Intent actionIntent = new Intent( Intent.ACTION_RUN );
             actionIntent.setDataAndType( mTrackUri, Tracks.CONTENT_ITEM_TYPE );
             actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
-            startActivity( Intent.createChooser( actionIntent, getString( R.string.chooser_title ) ) );
+            startActivity( Intent.createChooser( actionIntent, getString( R.string.share_track ) ) );
             handled = true;
             break;
          default:

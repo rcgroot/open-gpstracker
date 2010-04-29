@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -34,7 +35,6 @@ import org.xmlpull.v1.XmlSerializer;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -57,23 +57,22 @@ public class KmzCreator extends XmlCreator
    public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
    private String mChosenFileName;
-   private Intent mIntent;
-   private XmlCreationProgressListener mProgressListener;
+   private ProgressListener mProgressListener;
    private Context mContext;
    private String TAG = "OGT.KmzCreator";
+   private Uri mTrackUri;
 
-   public KmzCreator(Context context, Intent intent, String chosenFileName, XmlCreationProgressListener listener)
+   public KmzCreator(Context context, Uri trackUri, String chosenFileName, ProgressListener listener)
    {
       mChosenFileName = chosenFileName;
       mContext = context;
-      mIntent = intent;
+      mTrackUri = trackUri;
       mProgressListener = listener;
    }
 
    public void run()
    {
       Looper.prepare();
-      Uri trackUri = mIntent.getData();
       String fileName = "UntitledTrack";
       if( mChosenFileName != null && !mChosenFileName.equals( "" ) )
       {
@@ -85,7 +84,7 @@ public class KmzCreator extends XmlCreator
          ContentResolver resolver = mContext.getContentResolver();
          try
          {
-            trackCursor = resolver.query( trackUri, new String[] { Tracks.NAME }, null, null, null );
+            trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
             if( trackCursor.moveToLast() )
             {
                fileName = trackCursor.getString( 0 );
@@ -124,7 +123,7 @@ public class KmzCreator extends XmlCreator
          BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( xmlFilePath ), 8192 );
          serializer.setOutput( buf, "UTF-8" );
 
-         serializeTrack( trackUri, fileName, serializer );
+         serializeTrack( mTrackUri, fileName, serializer );
 
          resultFilename = bundlingMediaAndXml( fileName, ".kmz" );
 

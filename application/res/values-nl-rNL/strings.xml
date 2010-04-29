@@ -61,7 +61,6 @@
     <string name="graphtype_distancespeed">Snelheid tegen afstand</string>
     <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
 
-    <string name="chooser_title">Delen via?</string>
     <string name="receive_gpxfilewriter">Opslaan op SDcard</string>
     <string name="receive_kmzfilewriter">Store to KMZ on SDcard</string>
     <string name="receive_gpxsender">Verstuur GPX bestand</string>
