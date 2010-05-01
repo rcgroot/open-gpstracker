@@ -886,7 +886,7 @@ public class LoggerMap extends MapActivity
             view = factory.inflate( R.layout.notetextdialog, null );
             mNoteTextView = (EditText) view.findViewById( R.id.notetext );
             builder
-               .setTitle( R.string.dialog_notetexttitle )
+               .setTitle( R.string.dialog_notetext_title )
                .setMessage( R.string.dialog_notetext_message )
                .setIcon( android.R.drawable.ic_dialog_map )
                .setPositiveButton( R.string.btn_okay, mNoteTextDialogListener )
@@ -900,7 +900,7 @@ public class LoggerMap extends MapActivity
             view = factory.inflate( R.layout.notenamedialog, null );
             mNoteNameView = (EditText) view.findViewById( R.id.notename );
             builder
-               .setTitle( R.string.dialog_notenametitle )
+               .setTitle( R.string.dialog_notename_title )
                .setMessage( R.string.dialog_notename_message )
                .setIcon( android.R.drawable.ic_dialog_map )
                .setPositiveButton( R.string.btn_okay, mNoteNameDialogListener )
