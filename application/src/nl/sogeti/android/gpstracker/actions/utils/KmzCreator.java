@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressListener;
+import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -57,12 +57,12 @@ public class KmzCreator extends XmlCreator
    public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
    private String mChosenFileName;
-   private ProgressListener mProgressListener;
+   private ProgressMonitor mProgressListener;
    private Context mContext;
    private String TAG = "OGT.KmzCreator";
    private Uri mTrackUri;
 
-   public KmzCreator(Context context, Uri trackUri, String chosenFileName, ProgressListener listener)
+   public KmzCreator(Context context, Uri trackUri, String chosenFileName, ProgressMonitor listener)
    {
       mChosenFileName = chosenFileName;
       mContext = context;
@@ -112,7 +112,7 @@ public class KmzCreator extends XmlCreator
 
       if( mProgressListener != null )
       {
-         mProgressListener.startNotification( fileName );
+         mProgressListener.startNotification();
          mProgressListener.updateNotification( getProgress(), getGoal() );
       }
 
@@ -163,7 +163,7 @@ public class KmzCreator extends XmlCreator
       {
          if( mProgressListener != null )
          {
-            mProgressListener.endNotification( resultFilename );
+            mProgressListener.endNotification(  Uri.fromFile( new File( resultFilename ) ), getContentType() );
          }
          Looper.loop();
       }
@@ -708,8 +708,7 @@ public class KmzCreator extends XmlCreator
       }
    }
    
-   @Override
-   public String getContentType()
+   private String getContentType()
    {
       return "application/vnd.google-earth.kmz";
    }

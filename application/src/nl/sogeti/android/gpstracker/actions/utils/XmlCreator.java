@@ -182,7 +182,5 @@ public abstract class XmlCreator extends Thread
    {
       return mNeedsBundling;
    }
-   
-   public abstract String getContentType();
 }
    

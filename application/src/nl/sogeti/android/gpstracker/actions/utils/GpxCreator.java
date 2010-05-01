@@ -28,7 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressListener;
+import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -64,13 +64,13 @@ public class GpxCreator extends XmlCreator
    public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
    private String mChosenBaseFileName;
-   private ProgressListener mProgressListener;
+   private ProgressMonitor mProgressListener;
    private Context mContext;
    private String TAG = "OGT.GpxCreator";
    private Uri mTrackUri;
 
 
-   public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, ProgressListener listener)
+   public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, ProgressMonitor listener)
    {
       mChosenBaseFileName = chosenBaseFileName;
       mContext = context;
@@ -122,7 +122,7 @@ public class GpxCreator extends XmlCreator
       
       if( mProgressListener != null )
       {
-         mProgressListener.startNotification( fileName );
+         mProgressListener.startNotification();
          mProgressListener.updateNotification( getProgress(), getGoal() );
       }
 
@@ -178,7 +178,7 @@ public class GpxCreator extends XmlCreator
       {
          if( mProgressListener != null )
          {
-            mProgressListener.endNotification( resultFilename );
+            mProgressListener.endNotification( Uri.fromFile(  new File( resultFilename ) ), getContentType() );
          }
          Looper.loop();
       }
@@ -442,8 +442,7 @@ public class GpxCreator extends XmlCreator
       }
    }
 
-   @Override
-   public String getContentType()
+   private String getContentType()
    {
       return isNeedsBundling() ? "application/zip" : "text/xml";
    }

@@ -16,7 +16,7 @@
          android:padding="5dip"
       >
          <TextView
-            android:text="@string/dialog_filename_message"
+            android:text="@string/dialog_share_message"
             style="?android:attr/textAppearanceMedium"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
          <Spinner
-            android:id="@+id/typeSpinner"
+            android:id="@+id/shareTypeSpinner"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
 
@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
          <Spinner
-            android:id="@+id/targetSpinner"
+            android:id="@+id/shareTargetSpinner"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
       </LinearLayout>
@@ -63,7 +63,7 @@
    >
 
       <Button
-         android:id="@+id/skip_button"
+         android:id="@+id/cancelshare_button"
          android:layout_height="wrap_content"
          android:layout_width="140dip"
          android:ellipsize="marquee"
@@ -76,7 +76,7 @@
          android:layout_width="1dip"
          android:layout_weight="1" />
       <Button
-         android:id="@+id/next_button"
+         android:id="@+id/okayshare_button"
          android:layout_height="wrap_content"
          android:layout_width="140dip"
          android:drawablePadding="3dip"
