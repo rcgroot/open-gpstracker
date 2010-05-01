@@ -236,7 +236,7 @@ public class TrackList extends ListActivity
             Intent actionIntent = new Intent( Intent.ACTION_RUN );
             actionIntent.setDataAndType( mDialogUri, Tracks.CONTENT_ITEM_TYPE );
             actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
-            startActivity( Intent.createChooser( actionIntent, getString( R.string.chooser_title ) ) );
+            startActivity( Intent.createChooser( actionIntent, getString( R.string.share_track ) ) );
             handled = true;
             break;
          }
@@ -282,10 +282,10 @@ public class TrackList extends ListActivity
             dialog = builder.create();
             return dialog;
          case DIALOG_DELETE:
-            builder = new AlertDialog.Builder( TrackList.this ).setTitle( R.string.dialog_deletetitle ).setIcon( android.R.drawable.ic_dialog_alert ).setNegativeButton( android.R.string.cancel, null )
+            builder = new AlertDialog.Builder( TrackList.this ).setTitle( R.string.dialog_delete_title ).setIcon( android.R.drawable.ic_dialog_alert ).setNegativeButton( android.R.string.cancel, null )
                   .setPositiveButton( android.R.string.ok, mDeleteOnClickListener );
             dialog = builder.create();
-            String messageFormat = this.getResources().getString( R.string.dialog_deleteconfirmation );
+            String messageFormat = this.getResources().getString( R.string.dialog_delete_message );
             String message = String.format( messageFormat, "" );
             ( (AlertDialog) dialog ).setMessage( message );
             return dialog;
@@ -310,7 +310,7 @@ public class TrackList extends ListActivity
             break;
          case DIALOG_DELETE:
             AlertDialog alert = (AlertDialog) dialog;
-            String messageFormat = this.getResources().getString( R.string.dialog_deleteconfirmation );
+            String messageFormat = this.getResources().getString( R.string.dialog_delete_message );
             String message = String.format( messageFormat, mDialogCurrentName );
             alert.setMessage( message );
             break;

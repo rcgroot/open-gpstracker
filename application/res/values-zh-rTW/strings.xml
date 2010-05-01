@@ -7,47 +7,54 @@
     <string name="service_gpsdisabled">GPS 已禁用，日誌無效。</string>
     <string name="service_gpsenabled">GPS 已啟用, 開始記錄。</string>
     
+    <!-- Dialogs -->
     <string name="dialog_tracking_title">跟蹤控制</string>
 	<string name="dialog_routename_title">命名路線</string>
     <string name="dialog_routename_message">請輸入此路線的名稱</string>
     <string name="dialog_notrack_title">沒有選擇路線</string>
     <string name="dialog_notrack_message">在匯出之前請選擇一個路線</string>
-    <string name="dialog_filename_title">檔案名</string>
-    <string name="dialog_filename_message">請為 SD 卡上的 GPX 檔案輸入檔案名</string>
-    <string name="dialog_deletetitle">移除路線</string>
-    <string name="dialog_deleteconfirmation">請確認此路線的移除操作</string>
+    <string name="dialog_delete_title">移除路線</string>
+    <string name="dialog_delete_message">請確認此路線的移除操作</string>
     <string name="dialog_nooiabout">缺少 OI About</string>
     <string name="dialog_nooiabout_message">需要來自 OpenIntents 項目的\"OI About\"程式來顯示關於資訊。</string>
     <string name="dialog_layer_title">啟動覆寫</string>
     <string name="dialog_graphtype_title">Graph type</string>
-    
+    <string name="dialog_notetext_title">Text note</string>
+    <string name="dialog_notetext_message">Enter a text note for the current location</string>
+    <string name="dialog_notename_title">Mark</string>
+    <string name="dialog_notename_message">Enter the name of this location</string>
+    <string name="logcontrol_start">開始跟蹤</string>
+    <string name="logcontrol_pause">暫停跟蹤</string>
+    <string name="logcontrol_resume">恢復跟蹤</string>
+    <string name="logcontrol_stop">停止跟蹤</string>
     <string name="layer_satellite">衛星</string>
     <string name="layer_traffic">交通</string>
     <string name="layer_speed">速度</string>
     <string name="layer_compass">指南針</string>
     <string name="layer_location">我的位置</string>
 
+    <!-- Messages -->
     <string name="from">記錄: </string>
     <string name="no_tracks">無軌跡</string>
     <string name="ticker_saving">儲存檔案: </string>
     <string name="ticker_stored">存儲: </string>
     <string name="ticker_failed">無法儲存檔案路線: </string>
+    <string name="error_filenotfound"> reason: Can not find file or directory on SD card</string>
     <string name="error_filename"> 原因: 錯誤的檔案名</string>
     <string name="error_buildxml"> 原因: 建立 XML 時出錯</string>
     <string name="error_writesdcard"> 原因: 寫入到 SD 卡時出錯</string>
     
+	<!-- Buttons -->
 	<string name="btn_okay">確認</string>
 	<string name="btn_cancel">取消</string>
 	<string name="btn_save">儲存檔案</string>
 	<string name="btn_selecttrack">選擇路線</string>
-	<string name="btn_install">安裝</string>
+    <string name="btn_install">安裝</string>
+    <string name="btn_skip">Skip</string>
 	
+	<!-- Menu's -->
 	<string name="menu_settings">設定</string>
     <string name="menu_tracking">跟蹤</string>
-	<string name="logcontrol_start">開始跟蹤</string>
-    <string name="logcontrol_pause">暫停跟蹤</string>
-    <string name="logcontrol_resume">恢復跟蹤</string>
-	<string name="logcontrol_stop">停止跟蹤</string>
 	<string name="menu_tracklist">列出路線</string>
 	<string name="menu_shareTrack">分享路線</string>
 	<string name="menu_deleteTrack">移除路線</string>
@@ -56,17 +63,31 @@
     <string name="menu_about">關於</string>
     <string name="menu_showLayers">覆寫</string>
     <string name="menu_graphtype">Graph type</string>
+    <string name="menu_insertnote">Make note</string>
+    <string name="menu_notename">Mark with a name</string>
+    <string name="menu_notepicture">Take Picture</string>
+    <string name="menu_notetext">Write Text</string>
+    <string name="menu_notespeech">Record Speech</string>
+    <string name="menu_notevideo">Record Video</string>
     <string name="graphtype_timespeed">Speed against time</string>
     <string name="graphtype_timealtitude">Altitude against time</string>
     <string name="graphtype_distancespeed">Speed against distance</string>
     <string name="graphtype_distancealtitude">Altitude against distance</string>
 
-    <string name="chooser_title">如何分享此路線?</string>
-	<string name="receive_gpxfilewriter">存儲到 SD 卡</string>
-    <string name="receive_gpxsender">發送 GPX 檔案</string>
+    <!-- Communicated -->
     <string name="email_subject">開啟舊檔 GPS 跟蹤器 - 跟蹤資料</string>
-    <string name="email_body">附件是路線的 GPS 交換格式 (GPX) 檔案, 描述在 http://www.topografix.com/gpx.asp</string>
+    <string name="email_gpxbody">Attached is a track in GPS Exchange Format (GPX) format as described on http://www.topografix.com/gpx.asp</string>
+    <string name="email_kmzbody">Attached is a track in KMZ format as described on http://code.google.com/apis/kml/documentation/kml_tut.html</string>
+    <string name="kmlVideoUnsupported">Embedded video is not supported, please use a zip tools to retrieve the %s video file from the KMZ file.</string>
+    <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retrieve the %s audio file from the KMZ file.</string>
     
+    <!-- Screens -->
+    <string name="share_track">Share this track</string>
+    <string name="share_explained">Sharing creates a track export with as much of the recorded data as possible.</string>
+    <string name="share_type">Choose format of shared track:</string>
+    <string name="share_name">Name of export:</string>
+    <string name="share_target">Means of sharing:</string>
+    <string name="sender_chooser">Choose sender application</string>
     <string name="opengpstracker_title">開啟舊檔 GPS 跟蹤器</string>
     <string name="opengpstracker_settings">設定</string>
     <string name="preference_display">顯示設定</string>
@@ -91,7 +112,8 @@
     <string name="speedsanitycheck_summary">Only accept reasonable GPS speeds</string>
     <string name="showlocation_title">My location </string>
     <string name="showlocation_summary">Show my location on the map</string>
-
+    <string name="units_title">Units</string>
+    <string name="units_summary">Determine if metric or imperial units are used</string>
     <string name="stat_title">Statistics - %s</string>
     <string name="stat_maximumspeed">最高速度</string>
     <string name="stat_maximumaltitude">最高海拔</string>
@@ -103,9 +125,8 @@
     <string name="stat_starttime">開始時間</string>    
     <string name="stat_trackname">路線名稱</string>
     <string name="stat_waypoints">路點數量</string>
-
-    <string name="app_search">Tracks</string>
-    <string name="search_label">Search</string>
+    <string name="track_list">Tracks</string>
+    <string name="search_label">Tracks</string>
     <string name="search_description">Open GPS Tracker track names</string>
     <string name="search_hint">Search tracks</string>
 

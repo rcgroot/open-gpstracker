@@ -39,6 +39,7 @@
     <string name="ticker_saving">保存: </string>
     <string name="ticker_stored">存储: </string>
     <string name="ticker_failed">无法保存路线: </string>
+    <string name="error_filenotfound"> reason: Can not find file or directory on SD card</string>
     <string name="error_filename"> 原因: 错误的文件名</string>
     <string name="error_buildxml"> 原因: 创建 XML 时出错</string>
     <string name="error_writesdcard"> 原因: 写入到 SD 卡时出错</string>
