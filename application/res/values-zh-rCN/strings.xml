@@ -7,26 +7,33 @@
     <string name="service_gpsdisabled">GPS 已禁用，日志无效。</string>
     <string name="service_gpsenabled">GPS 已启用, 开始记录。</string>
     
+    <!-- Dialogs -->
     <string name="dialog_tracking_title">跟踪控制</string>
 	<string name="dialog_routename_title">命名路线</string>
     <string name="dialog_routename_message">请输入此路线的名称</string>
     <string name="dialog_notrack_title">没有选择路线</string>
     <string name="dialog_notrack_message">在导出之前请选择一个路线</string>
-    <string name="dialog_filename_title">文件名</string>
-    <string name="dialog_filename_message">请为 SD 卡上的 GPX 文件输入文件名</string>
-    <string name="dialog_deletetitle">删除路线</string>
-    <string name="dialog_deleteconfirmation">请确认此路线的删除操作</string>
+    <string name="dialog_delete_title">删除路线</string>
+    <string name="dialog_delete_message">请确认此路线的删除操作</string>
     <string name="dialog_nooiabout">缺少 OI About</string>
     <string name="dialog_nooiabout_message">需要来自 OpenIntents 项目的\"OI About\"程序来显示关于信息。</string>
     <string name="dialog_layer_title">启动覆盖</string>
     <string name="dialog_graphtype_title">Graph type</string>
-    
+    <string name="dialog_notetext_title">Text note</string>
+    <string name="dialog_notetext_message">Enter a text note for the current location</string>
+    <string name="dialog_notename_title">Mark</string>
+    <string name="dialog_notename_message">Enter the name of this location</string>
+    <string name="logcontrol_start">开始跟踪</string>
+    <string name="logcontrol_pause">暂停跟踪</string>
+    <string name="logcontrol_resume">恢复跟踪</string>
+    <string name="logcontrol_stop">停止跟踪</string>
     <string name="layer_satellite">卫星</string>
     <string name="layer_traffic">交通</string>
     <string name="layer_speed">速度</string>
     <string name="layer_compass">指南针</string>
     <string name="layer_location">我的位置</string>
 
+    <!-- Messages -->
     <string name="from">记录: </string>
     <string name="no_tracks">无轨迹</string>
     <string name="ticker_saving">保存: </string>
@@ -36,18 +43,17 @@
     <string name="error_buildxml"> 原因: 创建 XML 时出错</string>
     <string name="error_writesdcard"> 原因: 写入到 SD 卡时出错</string>
     
+	<!-- Buttons -->
 	<string name="btn_okay">确认</string>
 	<string name="btn_cancel">取消</string>
 	<string name="btn_save">保存</string>
 	<string name="btn_selecttrack">选择路线</string>
-	<string name="btn_install">安装</string>
+    <string name="btn_install">安装</string>
+    <string name="btn_skip">Skip</string>
 	
+	<!-- Menu's -->
 	<string name="menu_settings">设置</string>
     <string name="menu_tracking">跟踪</string>
-	<string name="logcontrol_start">开始跟踪</string>
-    <string name="logcontrol_pause">暂停跟踪</string>
-    <string name="logcontrol_resume">恢复跟踪</string>
-	<string name="logcontrol_stop">停止跟踪</string>
 	<string name="menu_tracklist">列出路线</string>
 	<string name="menu_shareTrack">分享路线</string>
 	<string name="menu_deleteTrack">删除路线</string>
@@ -56,17 +62,31 @@
     <string name="menu_about">关于</string>
     <string name="menu_showLayers">覆盖</string>
     <string name="menu_graphtype">Graph type</string>
+    <string name="menu_insertnote">Make note</string>
+    <string name="menu_notename">Mark with a name</string>
+    <string name="menu_notepicture">Take Picture</string>
+    <string name="menu_notetext">Write Text</string>
+    <string name="menu_notespeech">Record Speech</string>
+    <string name="menu_notevideo">Record Video</string>
     <string name="graphtype_timespeed">Speed against time</string>
     <string name="graphtype_timealtitude">Altitude against time</string>
     <string name="graphtype_distancespeed">Speed against distance</string>
     <string name="graphtype_distancealtitude">Altitude against distance</string>
 
-    <string name="chooser_title">如何分享此路线?</string>
-	<string name="receive_gpxfilewriter">存储到 SD 卡</string>
-    <string name="receive_gpxsender">发送 GPX 文件</string>
+    <!-- Communicated -->
     <string name="email_subject">打开 GPS 跟踪器 - 跟踪数据</string>
-    <string name="email_body">附件是路线的 GPS 交换格式 (GPX) 文件, 描述在 http://www.topografix.com/gpx.asp</string>
+    <string name="email_gpxbody">Attached is a track in GPS Exchange Format (GPX) format as described on http://www.topografix.com/gpx.asp</string>
+    <string name="email_kmzbody">Attached is a track in KMZ format as described on http://code.google.com/apis/kml/documentation/kml_tut.html</string>
+    <string name="kmlVideoUnsupported">Embedded video is not supported, please use a zip tools to retrieve the %s video file from the KMZ file.</string>
+    <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retrieve the %s audio file from the KMZ file.</string>
     
+    <!-- Screens -->
+    <string name="share_track">Share this track</string>
+    <string name="share_explained">Sharing creates a track export with as much of the recorded data as possible.</string>
+    <string name="share_type">Choose format of shared track:</string>
+    <string name="share_name">Name of export:</string>
+    <string name="share_target">Means of sharing:</string>
+    <string name="sender_chooser">Choose sender application</string>
     <string name="opengpstracker_title">打开 GPS 跟踪器</string>
     <string name="opengpstracker_settings">设置</string>
     <string name="preference_display">显示设置</string>
@@ -91,7 +111,8 @@
     <string name="speedsanitycheck_summary">Only accept reasonable GPS speeds</string>
     <string name="showlocation_title">My location </string>
     <string name="showlocation_summary">Show my location on the map</string>
-
+    <string name="units_title">Units</string>
+    <string name="units_summary">Determine if metric or imperial units are used</string>
     <string name="stat_title">Statistics - %s</string>
     <string name="stat_maximumspeed">最高速度</string>
     <string name="stat_maximumaltitude">最高海拔</string>
@@ -103,9 +124,8 @@
     <string name="stat_starttime">开始时间</string>    
     <string name="stat_trackname">路线名称</string>
     <string name="stat_waypoints">路点数量</string>
-
-    <string name="app_search">Tracks</string>
-    <string name="search_label">Search</string>
+    <string name="track_list">Tracks</string>
+    <string name="search_label">Tracks</string>
     <string name="search_description">Open GPS Tracker track names</string>
     <string name="search_hint">Search tracks</string>
 <!-- ***************************
