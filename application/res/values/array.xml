@@ -52,7 +52,7 @@
         <item>4</item>
     </string-array>  
 
-    <string-array name="units_values">
+    <string-array name="units_values" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>

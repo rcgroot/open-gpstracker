@@ -16,7 +16,7 @@
          android:padding="5dip"
       >
          <TextView
-            android:text="@string/dialog_share_message"
+            android:text="@string/share_explained"
             style="?android:attr/textAppearanceMedium"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
