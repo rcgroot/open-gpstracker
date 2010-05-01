@@ -814,6 +814,9 @@ public class SegmentOverlay extends Overlay
          }
          else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
          {
+            //<scheme>://<authority><absolute path>
+            Uri.Builder builder = new Uri.Builder();
+            mediaUri = builder.scheme( mediaUri.getScheme() ).authority( mediaUri.getAuthority() ).path( mediaUri.getPath() ).build();
             intent.setDataAndType( mediaUri, "image/jpeg" );
             mContext.startActivity( intent );
             return true;
@@ -854,8 +857,9 @@ public class SegmentOverlay extends Overlay
       float minScreendistance = Float.MAX_VALUE;
       
       float[] distance = new float[1];
-      for(MediaVO media : mMediaPath )
+      for(int i=mMediaPath.size()-1; i>=0; i-- )
       {
+         MediaVO media = mMediaPath.elementAt( i );
          double startLat = geoPoint.getLatitudeE6()/1E6d;
          double startLon = geoPoint.getLongitudeE6()/1E6d;
          double endLat = media.geopoint.getLatitudeE6()/1E6d;
