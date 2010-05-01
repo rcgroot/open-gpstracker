@@ -7,47 +7,54 @@
     <string name="service_gpsdisabled">GPS is uitgeschakeld, opnemen heeft geen effect.</string>
     <string name="service_gpsenabled">GPS is ingeschakeld, opnemen gaat van start.</string>
 	
-	<string name="dialog_tracking_title">Opnemen</string>
+    <!-- Dialogs -->
+    <string name="dialog_tracking_title">Opnemen</string>
 	<string name="dialog_routename_title">Naam</string>
     <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>
     <string name="dialog_notrack_title">Geen route gekozen</string>
     <string name="dialog_notrack_message">Kiest u alstublieft eerst een route</string>
-    <string name="dialog_filename_title">Bestandsnaam</string>
-    <string name="dialog_filename_message">Geeft u alstublieft een naam voor het route bestand op de SDCard</string>
-    <string name="dialog_deletetitle">Verwijder</string>
-    <string name="dialog_deleteconfirmation">Bevestigt u alstublieft het verwijderen van %s</string>
+    <string name="dialog_delete_title">Verwijder</string>
+    <string name="dialog_delete_message">Bevestigt u alstublieft het verwijderen van %s</string>
     <string name="dialog_nooiabout">OI About nodig</string>
     <string name="dialog_nooiabout_message">De applicatie \"OI About\" van het OpenIntents project is nodig om informatie te tonen.</string>
     <string name="dialog_layer_title">Activeer overlays</string>
     <string name="dialog_graphtype_title">Grafiek soort</string>
-    
+    <string name="dialog_notetext_title">Text notitie</string>
+    <string name="dialog_notetext_message">Voer een notitie in over deze locatie</string>
+    <string name="dialog_notename_title">Markeer</string>
+    <string name="dialog_notename_message">Voer de naam in van deze locatie</string>    
+    <string name="logcontrol_start">Start opnemen</string>
+    <string name="logcontrol_pause">Pauzeer opnemen</string>
+    <string name="logcontrol_resume">Vervolg opnemen</string>
+	<string name="logcontrol_stop">Stop opnemen</string>
     <string name="layer_satellite">Satelliet</string>
     <string name="layer_traffic">Verkeer</string>
     <string name="layer_speed">Snelheid</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">Mijn locatie</string>
     
+    <!-- Messages -->
     <string name="from">Opgenomen op: </string>
     <string name="no_tracks">Geen routes opgeslagen</string>
     <string name="ticker_saving">Opslaan: </string>
     <string name="ticker_stored">Opgeslagen: </string>
     <string name="ticker_failed">Kon niet opslaan: </string>
+    <string name="error_filenotfound"> reden: Kan bestand of directory niet vinden</string>
     <string name="error_filename"> reden: Fout in de bestandsnaam</string>
     <string name="error_buildxml"> reden: Fout tijdens bouwen XML</string>
     <string name="error_writesdcard"> reden: Fout tijdens schrijven naar de SDcard</string>
     
+	<!-- Buttons -->
 	<string name="btn_okay">OK</string>
     <string name="btn_cancel">Annuleren</string>
 	<string name="btn_save">Opslaan</string>
 	<string name="btn_selecttrack">Route selecteren</string>
     <string name="btn_install">Installeren</string>
+    <string name="btn_skip">Overslaan</string>
 	
+	<!-- Menu's -->
 	<string name="menu_settings">Instellingen</string>
     <string name="menu_tracking">Opnemen</string>
-	<string name="logcontrol_start">Start opnemen</string>
-    <string name="logcontrol_pause">Pauzeer opnemen</string>
-    <string name="logcontrol_resume">Vervolg opnemen</string>
-	<string name="logcontrol_stop">Stop opnemen</string>
 	<string name="menu_tracklist">Toon routes</string>
 	<string name="menu_shareTrack">Deel route</string>
 	<string name="menu_deleteTrack">Verwijder route</string>
@@ -56,18 +63,31 @@
     <string name="menu_about">Info</string>
     <string name="menu_showLayers">Lagen</string>
     <string name="menu_graphtype">Grafiek soort</string>
+    <string name="menu_insertnote">Maak notitie</string>
+    <string name="menu_notename">Markeer met naam</string>
+    <string name="menu_notepicture">Neem foto</string>
+    <string name="menu_notetext">Schrijf tekst</string>
+    <string name="menu_notespeech">Spraak opname</string>
+    <string name="menu_notevideo">Video opname</string>
     <string name="graphtype_timespeed">Snelheid tegen tijd</string>
     <string name="graphtype_timealtitude">Hoogte tegen tijd</string>
     <string name="graphtype_distancespeed">Snelheid tegen afstand</string>
     <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
 
-    <string name="receive_gpxfilewriter">Opslaan op SDcard</string>
-    <string name="receive_kmzfilewriter">Store to KMZ on SDcard</string>
-    <string name="receive_gpxsender">Verstuur GPX bestand</string>
-    <string name="sender_chooser">Kies zend applicatie</string>
+    <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
-    <string name="email_body">Bijgevoegd is een route als GPS Exchange Format (GPX) bestand zoals beschreven op http://www.topografix.com/gpx.asp</string>
+    <string name="email_gpxbody">Bijgevoegd is een route als GPS Exchange Format (GPX) bestand zoals beschreven op http://www.topografix.com/gpx.asp</string>
+    <string name="email_kmzbody">Bijgevoegd is een route als KMZ bestand zoals beschreven op http://code.google.com/apis/kml/documentation/kml_tut.html</string>
+    <string name="kmlVideoUnsupported">Embedded video is niet ondersteund, gebruikt u alstublief een zip programma om de %s video uit het KMZ bestand te lezen.</string>
+    <string name="kmlAudioUnsupported">Embedded audio is niet ondersteund, gebruikt u alstublief een zip programma om de %s audio uit het KMZ bestand te lezen.</string>
 
+    <!-- Screens -->
+    <string name="share_track">Deel deze track</string>
+    <string name="share_explained">Delen genereerd een route export met zo veel mogelijk opgenomen data als kan.</string>
+    <string name="share_type">Kies een formaat van doorsturen:</string>
+    <string name="share_name">Naam van de route:</string>
+    <string name="share_target">Methode van delen:</string>
+    <string name="sender_chooser">Kies zend applicatie</string>
     <string name="opengpstracker_title">Open GPS Tracker</string>
     <string name="opengpstracker_settings">Instellingen</string>
     <string name="preference_display">Beeld instellingen</string>
@@ -94,7 +114,6 @@
     <string name="showlocation_summary">Toon mijn locatie op de kaart</string>
     <string name="units_title">Eenheden</string>
     <string name="units_summary">Worden Engelse of internationale maten getoond</string>
-
     <string name="stat_title">Statistieken - %s</string>
     <string name="stat_maximumspeed">Maximale snelheid</string>
     <string name="stat_maximumaltitude">Maximale hoogte</string>
@@ -106,7 +125,6 @@
     <string name="stat_starttime">Start tijd</string>    
     <string name="stat_trackname">Route naam</string>
     <string name="stat_waypoints">Metingen</string>
-    
     <string name="track_list">Routes</string>
     <string name="search_label">Routes</string>
     <string name="search_description">Open GPS Tracker route namen</string>
