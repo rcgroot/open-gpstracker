@@ -28,6 +28,7 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.util.List;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
@@ -39,6 +40,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -56,6 +58,11 @@ import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Gallery;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
@@ -88,7 +95,7 @@ public class SegmentOverlay extends Overlay
    private int mTrackColoringMethod = DRAW_CALCULATED;
 
    private ContentResolver mResolver;
-   private Context mContext;
+   private LoggerMap mLoggerMap;
    private Projection mProjection;
 
    private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
@@ -127,14 +134,14 @@ public class SegmentOverlay extends Overlay
     * @param avgSpeed
     * @param mapView
     */
-   public SegmentOverlay(Context cxt, Uri segmentUri, int color, double avgSpeed, MapView mapView)
+   public SegmentOverlay(LoggerMap cxt, Uri segmentUri, int color, double avgSpeed, MapView mapView)
    {
       super();
-      this.mContext = cxt;
+      this.mLoggerMap = cxt;
       this.mMapView = mapView;
       this.mTrackColoringMethod = color;
       this.mAvgSpeed = avgSpeed;
-      this.mResolver = mContext.getApplicationContext().getContentResolver();
+      this.mResolver = mLoggerMap.getApplicationContext().getContentResolver();
       this.mSegmentUri = segmentUri;
       this.mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       this.mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
@@ -291,7 +298,7 @@ public class SegmentOverlay extends Overlay
 
       for( DotVO dotVO : mDotPath )
       {
-         Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
+         Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
          canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
          if( dotVO.radius > 8f )
          {
@@ -352,8 +359,7 @@ public class SegmentOverlay extends Overlay
                      this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
                      this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
                      this.location.setTime( mWaypointsCursor.getLong( 3 ) );
-                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE 
-                           && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME )
+                     if( ( this.prevLocation.distanceTo( this.location ) > MINIMUM_RL_DISTANCE && this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME )
                            || mWaypointsCursor.isLast() )
                      {
                         speed = calculateSpeedBetweenLocations( this.prevLocation, this.location );
@@ -442,8 +448,8 @@ public class SegmentOverlay extends Overlay
                mediaVO.waypointId = mediaCursor.getLong( 0 );
                mediaVO.uri = Uri.parse( mediaCursor.getString( 1 ) );
 
-//               Log.d( TAG, mediaVO.uri.toString() );
-               
+               //               Log.d( TAG, mediaVO.uri.toString() );
+
                Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, mediaVO.waypointId );
                Cursor waypointCursor = null;
                try
@@ -479,44 +485,61 @@ public class SegmentOverlay extends Overlay
 
    private synchronized void drawMedia( Canvas canvas )
    {
+      GeoPoint lastPoint = null;
+      int wiggle = 0;
       for( MediaVO mediaVO : mMediaPath )
       {
          if( isOnScreen( mediaVO.geopoint ) )
          {
             setScreenPoint( mediaVO.geopoint );
-            int drawable = 0;
-            if( mediaVO.uri.getScheme().equals( "file" ) )
+            int drawable = getResourceForMedia( mediaVO.uri );
+            if( mediaVO.geopoint.equals( lastPoint ) )
             {
-               if( mediaVO.uri.getLastPathSegment().endsWith( "3gp" ) )
-               {
-                  drawable = R.drawable.media_film;
-               }
-               else if( mediaVO.uri.getLastPathSegment().endsWith( "jpg" ) )
-               {
-                  drawable = R.drawable.media_camera;
-               }
-               else if( mediaVO.uri.getLastPathSegment().endsWith( "txt" ) )
-               {
-                  drawable = R.drawable.media_notepad;
-               }
+               wiggle += 4;
             }
-            else if( mediaVO.uri.getScheme().equals( "content" ) )
+            else
             {
-               if( mediaVO.uri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
-               {
-                  drawable = R.drawable.media_mark;
-               }
-               else if( mediaVO.uri.getAuthority().equals( "media" ) )
-               {
-                  drawable = R.drawable.media_speech;
-               }
+               wiggle = 0;
             }
-            Bitmap bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), drawable );
-            int left = ( bitmap.getWidth() * 3 ) / 7;
-            int up = ( bitmap.getHeight() * 6 ) / 7;
+            Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), drawable );
+            int left = ( bitmap.getWidth() * 3 ) / 7 + wiggle;
+            int up = ( bitmap.getHeight() * 6 ) / 7 - wiggle;
             canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
+            lastPoint = mediaVO.geopoint;
          }
       }
+   }
+
+   private static int getResourceForMedia( Uri uri )
+   {
+      int drawable = 0;
+      if( uri.getScheme().equals( "file" ) )
+      {
+         if( uri.getLastPathSegment().endsWith( "3gp" ) )
+         {
+            drawable = R.drawable.media_film;
+         }
+         else if( uri.getLastPathSegment().endsWith( "jpg" ) )
+         {
+            drawable = R.drawable.media_camera;
+         }
+         else if( uri.getLastPathSegment().endsWith( "txt" ) )
+         {
+            drawable = R.drawable.media_notepad;
+         }
+      }
+      else if( uri.getScheme().equals( "content" ) )
+      {
+         if( uri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+         {
+            drawable = R.drawable.media_mark;
+         }
+         else if( uri.getAuthority().equals( "media" ) )
+         {
+            drawable = R.drawable.media_speech;
+         }
+      }
+      return drawable;
    }
 
    private void drawStartStopCircles( Canvas canvas )
@@ -525,13 +548,13 @@ public class SegmentOverlay extends Overlay
       if( ( this.mPlacement == FIRST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mStartPoint != null )
       {
          setScreenPoint( this.mStartPoint );
-         bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip2 );
+         bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
          canvas.drawBitmap( bitmap, mScreenPoint.x - 8, mScreenPoint.y - 8, new Paint() );
       }
       if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
       {
          setScreenPoint( this.mEndPoint );
-         bitmap = BitmapFactory.decodeResource( this.mContext.getResources(), R.drawable.stip );
+         bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip );
          canvas.drawBitmap( bitmap, mScreenPoint.x - 5, mScreenPoint.y - 5, new Paint() );
       }
    }
@@ -801,7 +824,21 @@ public class SegmentOverlay extends Overlay
       return (double) Math.sqrt( x * x + y * y );
    }
 
-   private boolean handleMediaTap( Uri mediaUri )
+   private boolean handleMediaTapList( List<Uri> tappedUri )
+   {
+      if( tappedUri.size() == 1 )
+      {
+         return handleMedia( mLoggerMap, tappedUri.get( 0 ) );
+      }
+      else
+      {
+         BaseAdapter adapter = new MediaAdapter( mLoggerMap, tappedUri ); 
+         mLoggerMap.showDialog( adapter );
+         return true;
+      }
+   }
+
+   public static boolean handleMedia( Context ctx, Uri mediaUri )
    {
       if( mediaUri.getScheme().equals( "file" ) )
       {
@@ -809,7 +846,7 @@ public class SegmentOverlay extends Overlay
          if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
          {
             intent.setDataAndType( mediaUri, "video/3gpp" );
-            mContext.startActivity( intent );
+            ctx.startActivity( intent );
             return true;
          }
          else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
@@ -818,13 +855,13 @@ public class SegmentOverlay extends Overlay
             Uri.Builder builder = new Uri.Builder();
             mediaUri = builder.scheme( mediaUri.getScheme() ).authority( mediaUri.getAuthority() ).path( mediaUri.getPath() ).build();
             intent.setDataAndType( mediaUri, "image/jpeg" );
-            mContext.startActivity( intent );
+            ctx.startActivity( intent );
             return true;
          }
          else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
          {
             intent.setDataAndType( mediaUri, "text/plain" );
-            mContext.startActivity( intent );
+            ctx.startActivity( intent );
             return true;
          }
       }
@@ -833,13 +870,13 @@ public class SegmentOverlay extends Overlay
          if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
          {
             String text = mediaUri.getLastPathSegment();
-            Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+            Toast toast = Toast.makeText( ctx.getApplicationContext(), text, Toast.LENGTH_LONG );
             toast.show();
             return true;
          }
          else if( mediaUri.getAuthority().equals( "media" ) )
          {
-            mContext.startActivity( new Intent( Intent.ACTION_VIEW, mediaUri ) );
+            ctx.startActivity( new Intent( Intent.ACTION_VIEW, mediaUri ) );
             return true;
          }
       }
@@ -853,32 +890,31 @@ public class SegmentOverlay extends Overlay
    @Override
    public boolean onTap( GeoPoint geoPoint, MapView mapView )
    {
-      MediaVO tappedMedia = null;
-      float minScreendistance = Float.MAX_VALUE;
-      
-      float[] distance = new float[1];
-      for(int i=mMediaPath.size()-1; i>=0; i-- )
-      {
-         MediaVO media = mMediaPath.elementAt( i );
-         double startLat = geoPoint.getLatitudeE6()/1E6d;
-         double startLon = geoPoint.getLongitudeE6()/1E6d;
-         double endLat = media.geopoint.getLatitudeE6()/1E6d;
-         double endLon = media.geopoint.getLongitudeE6()/1E6d;
-         Location.distanceBetween( startLat, startLon, endLat, endLon, distance  );
-         float screendistance = mapView.getProjection().metersToEquatorPixels( distance[0] ) * Resources.getSystem().getDisplayMetrics().density;
-         if( minScreendistance > screendistance )
-         {
-            minScreendistance = screendistance;
-            tappedMedia = media;
-         }
+      List<Uri> tappedUri = new Vector<Uri>();
 
-      }
-      if(  minScreendistance < 15 )
+      float[] distance = new float[1];
+      for( MediaVO media : mMediaPath )
       {
-         Log.d( TAG, String.format( "Tapped at a distance of %f which is %f on screen", distance[0], minScreendistance ) );
-         return handleMediaTap( tappedMedia.uri );
+         double startLat = geoPoint.getLatitudeE6() / 1E6d;
+         double startLon = geoPoint.getLongitudeE6() / 1E6d;
+         double endLat = media.geopoint.getLatitudeE6() / 1E6d;
+         double endLon = media.geopoint.getLongitudeE6() / 1E6d;
+         Location.distanceBetween( startLat, startLon, endLat, endLon, distance );
+         float screendistance = mapView.getProjection().metersToEquatorPixels( distance[0] ) * Resources.getSystem().getDisplayMetrics().density;
+         if( screendistance < 25 )
+         {
+            Log.d( TAG, String.format( "Tapped at a distance of %f which is %f on screen", distance[0], screendistance ) );
+            tappedUri.add( media.uri );
+         }
       }
-      return super.onTap( geoPoint, mapView );
+      if( tappedUri.size() > 0 )
+      {
+         return handleMediaTapList( tappedUri );
+      }
+      else
+      {
+         return super.onTap( geoPoint, mapView );
+      }
    }
 
    private static class MediaVO
@@ -895,4 +931,49 @@ public class SegmentOverlay extends Overlay
       public float radius;
    }
 
+   private static class MediaAdapter extends BaseAdapter
+   {
+
+      private Context mContext ;
+      private List<Uri> mTappedUri;
+      private int itemBackground;
+
+      public MediaAdapter(Context ctx, List<Uri> tappedUri)
+      {
+         mContext = ctx;
+         mTappedUri = tappedUri;
+         TypedArray a = mContext.obtainStyledAttributes(R.styleable.gallery);
+         itemBackground = a.getResourceId( R.styleable.gallery_android_galleryItemBackground, 0);
+         a.recycle();                    
+
+      }
+
+      public int getCount()
+      {
+         return mTappedUri.size();
+      }
+
+      public Object getItem( int position )
+      {            
+         return mTappedUri.get( position ); 
+      }
+
+      public long getItemId(int position) 
+      {
+         return position;
+      }
+
+      public View getView( int position, View convertView, ViewGroup parent )
+      {
+         ImageView imageView = new ImageView( mContext );
+         int uriResource = getResourceForMedia( mTappedUri.get( position ) );
+         imageView.setImageResource( uriResource );
+         imageView.setScaleType( ImageView.ScaleType.FIT_XY );
+         imageView.setLayoutParams( new Gallery.LayoutParams( 150, 150 ) );
+         imageView.setBackgroundResource( itemBackground );
+         return imageView;
+
+      }
+
+   }
 }

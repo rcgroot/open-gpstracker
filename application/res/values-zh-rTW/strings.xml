@@ -8,6 +8,8 @@
     <string name="service_gpsenabled">GPS 已啟用, 開始記錄。</string>
     
     <!-- Dialogs -->
+    <string name="dialog_select_media_title">Select note</string>
+    <string name="dialog_select_media_message">Please select one of the notes found at this location</string>
     <string name="dialog_tracking_title">跟蹤控制</string>
 	<string name="dialog_routename_title">命名路線</string>
     <string name="dialog_routename_message">請輸入此路線的名稱</string>

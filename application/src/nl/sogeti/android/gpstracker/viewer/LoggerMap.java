@@ -83,10 +83,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Gallery;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -128,6 +130,7 @@ public class LoggerMap extends MapActivity
    private static final int DIALOG_LAYERS = 31;
    private static final int DIALOG_TEXT = 32;
    private static final int DIALOG_NAME = 33;
+   private static final int DIALOG_URIS = 34;
    private static final String TAG = "OGT.LoggerMap";
    private MapView mMapView = null;
    private MyLocationOverlay mMylocation;
@@ -402,7 +405,20 @@ public class LoggerMap extends MapActivity
       }
       
    };
+   private final OnClickListener mNoteSelectDialogListener = new DialogInterface.OnClickListener()
+   {
+
+      public void onClick( DialogInterface dialog, int which )
+      {
+         Uri selected = (Uri) mGallery.getSelectedItem();
+         SegmentOverlay.handleMedia( LoggerMap.this, selected );
+      }
+      
+   };
+   
    private SegmentOverlay mLastSegmentOverlay;
+   private BaseAdapter mMediaAdapter;
+   private Gallery mGallery;
  
    /**
     * Called when the activity is first created.
@@ -908,6 +924,20 @@ public class LoggerMap extends MapActivity
                .setView( view );
             dialog = builder.create();
             return dialog;
+         case DIALOG_URIS:
+            builder = new AlertDialog.Builder( this );
+            factory = LayoutInflater.from( this );
+            view = factory.inflate( R.layout.mediachooser, null );
+            mGallery = (Gallery) view.findViewById( R.id.gallery );
+            builder
+               .setTitle( R.string.dialog_select_media_title )
+               .setMessage( R.string.dialog_select_media_message )
+               .setIcon( android.R.drawable.ic_dialog_alert )
+               .setNegativeButton( R.string.btn_cancel, null )
+               .setPositiveButton( R.string.btn_okay, mNoteSelectDialogListener )
+               .setView( view );
+            dialog = builder.create();
+            return dialog;
          default:
             return super.onCreateDialog( id );
       }
@@ -968,6 +998,8 @@ public class LoggerMap extends MapActivity
             mCompass.setChecked( mSharedPreferences.getBoolean( Constants.COMPASS, false ) );
             mLocation.setChecked( mSharedPreferences.getBoolean( Constants.LOCATION, false ) );
             break;
+         case DIALOG_URIS:
+            mGallery.setAdapter( mMediaAdapter );  
          default:
             break;
       }
@@ -1238,7 +1270,7 @@ public class LoggerMap extends MapActivity
             {
                long segmentsId = segments.getLong( 0 );
                Uri segmentUri = ContentUris.withAppendedId( segmentsUri, segmentsId );
-               SegmentOverlay segmentOverlay = new SegmentOverlay( (Context) this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView );
+               SegmentOverlay segmentOverlay = new SegmentOverlay( this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView );
                overlays.add( segmentOverlay );
                mLastSegmentOverlay = segmentOverlay;
                if( segments.isFirst() )
@@ -1518,5 +1550,11 @@ public class LoggerMap extends MapActivity
    {
       Intent intent = new Intent( android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION );
       startActivityForResult( intent, MENU_VOICE );
+   }
+
+   public void showDialog( BaseAdapter mediaAdapter )
+   {
+      mMediaAdapter = mediaAdapter;
+      showDialog( LoggerMap.DIALOG_URIS );
    }
 }

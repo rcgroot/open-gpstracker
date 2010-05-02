@@ -8,6 +8,8 @@
     <string name="service_gpsenabled">GPS is ingeschakeld, opnemen gaat van start.</string>
 	
     <!-- Dialogs -->
+    <string name="dialog_select_media_title">Selecteer notitie</string>
+    <string name="dialog_select_media_message">Selecteert u alstublieft een van de noties gevonden op deze locatie</string>
     <string name="dialog_tracking_title">Opnemen</string>
 	<string name="dialog_routename_title">Naam</string>
     <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>
