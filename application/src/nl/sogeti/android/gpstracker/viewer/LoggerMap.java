@@ -179,7 +179,7 @@ public class LoggerMap extends MapActivity
             if( !selfUpdate  )
             {
 //               Log.d( TAG, "mSegmentWaypointsObserver "+ mLastSegment );
-               LoggerMap.this.createSpeedDisplayNumbers();
+               LoggerMap.this.updateDisplayedSpeedViews();
                if( mLastSegmentOverlay != null )
                {
                   moveActiveViewWindow();
@@ -354,7 +354,7 @@ public class LoggerMap extends MapActivity
       {
          public void onUnitsChange()
          {
-            createSpeedDisplayNumbers();
+            updateDisplayedSpeedViews();
             updateSpeedbarVisibility();
          }
       };
@@ -1146,9 +1146,9 @@ public class LoggerMap extends MapActivity
          {
             mAverageSpeed = waypointsCursor.getDouble( 0 );
          }
-         if( mAverageSpeed < 5 )
+         if( mAverageSpeed < 2 )
          {
-            mAverageSpeed = 33.33d / 2d;
+            mAverageSpeed = 5.55d / 2;
          }
       }
       finally
@@ -1218,7 +1218,7 @@ public class LoggerMap extends MapActivity
       }
    }
 
-   protected void createSpeedDisplayNumbers()
+   private void updateDisplayedSpeedViews()
    {
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor waypointsCursor = null;
@@ -1232,6 +1232,10 @@ public class LoggerMap extends MapActivity
             speed = mUnits.conversionFromMetersPerSecond( speed );
             String speedText = String.format( "%.0f %s", speed, mUnits.getSpeedUnit() );
             mLastGPSSpeedView.setText( speedText );
+            if( speed > 2*mAverageSpeed )
+            {
+               updateSpeedbarVisibility();
+            }
          }
       }
       finally
