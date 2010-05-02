@@ -969,7 +969,7 @@ public class SegmentOverlay extends Overlay
          int uriResource = getResourceForMedia( mTappedUri.get( position ) );
          imageView.setImageResource( uriResource );
          imageView.setScaleType( ImageView.ScaleType.FIT_XY );
-         imageView.setLayoutParams( new Gallery.LayoutParams( 150, 150 ) );
+//         imageView.setLayoutParams( new Gallery.LayoutParams( 150, 150 ) );
          imageView.setBackgroundResource( itemBackground );
          return imageView;
 
