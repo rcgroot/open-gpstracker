@@ -61,7 +61,7 @@ public class MockGPSLoggerServiceTest extends AndroidTestCase
    @SmallTest
    public void testGPRMCreateLocationCommand()
    {
-      String command = MockGPSLoggerDriver.createGPRMCLocationCommand( 5.117719d, 52.096524d, 0d );
+      String command = MockGPSLoggerDriver.createGPRMCLocationCommand( 5.117719d, 52.096524d, 0d, 0d );
       Assert.assertTrue("Start of a NMEA sentence: ", command.startsWith( "GPRMC" ));
       Assert.assertTrue("Body of a NMEA sentence", command.contains( "05205.791440" ));
    }

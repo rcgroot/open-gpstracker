@@ -97,7 +97,7 @@ public class MockGPSLoggerDriver implements Runnable
       {
          SimplePosition position = this.positions.remove( 0 );
          //String nmeaCommand = createGPGGALocationCommand(position.getLongitude(), position.getLatitude(), 0);
-         String nmeaCommand = createGPRMCLocationCommand( position.getLongitude(), position.getLatitude(), 0 );
+         String nmeaCommand = createGPRMCLocationCommand( position.lng, position.lat, 0, 0 );
          String checksum = calulateChecksum( nmeaCommand );
          this.sender.sendCommand( "geo nmea $" + nmeaCommand + "*" + checksum + "\r\n" );
 
@@ -188,8 +188,18 @@ public class MockGPSLoggerDriver implements Runnable
       }
    }
 
-   public static String createGPRMCLocationCommand( double longitude, double latitude, double elevation )
+   /**
+    * 
+    * TODO
+    * @param longitude
+    * @param latitude
+    * @param elevation
+    * @param speed in mps
+    * @return
+    */
+   public static String createGPRMCLocationCommand( double longitude, double latitude, double elevation, double speed )
    {
+      speed *= 0.51; // from m/s to knots
       final String COMMAND_GPS = "GPRMC," + "%1$02d" + // hh      c.get(Calendar.HOUR_OF_DAY)
             "%2$02d" + // mm      c.get(Calendar.MINUTE)
             "%3$02d." + // ss.     c.get(Calendar.SECOND)
@@ -204,7 +214,7 @@ public class MockGPSLoggerDriver implements Runnable
             "%9$09.6f," + //         longMinutett
 
             "%10$c," + //         longDirection (E or W)
-            "1.5," + //         Speed over ground in knot
+            "%14$.2f," + //         Speed over ground in knot
             "0," + //         Track made good in degrees True
             "%11$02d" + // dd
             "%12$02d" + // mm
@@ -232,7 +242,7 @@ public class MockGPSLoggerDriver implements Runnable
       double latMinute = ( absLat - Math.floor( absLat ) ) * 60;
 
       String command = String.format( COMMAND_GPS, c.get( Calendar.HOUR_OF_DAY ), c.get( Calendar.MINUTE ), c.get( Calendar.SECOND ), c.get( Calendar.MILLISECOND ), latDegree, latMinute,
-            latDirection, longDegree, longMinute, longDirection, c.get( Calendar.DAY_OF_MONTH ), c.get( Calendar.MONTH ), c.get( Calendar.YEAR ) - 2000 );
+            latDirection, longDegree, longMinute, longDirection, c.get( Calendar.DAY_OF_MONTH ), c.get( Calendar.MONTH ), c.get( Calendar.YEAR ) - 2000 , speed);
       return command;
 
    }
@@ -284,7 +294,7 @@ public class MockGPSLoggerDriver implements Runnable
    {
 
       public float speed;
-      double lat, lng;
+      public double lat, lng;
 
       public SimplePosition(float latitude, float longtitude)
       {
@@ -292,15 +302,6 @@ public class MockGPSLoggerDriver implements Runnable
          this.lng = longtitude;
       }
 
-      public double getLatitude()
-      {
-         return this.lat;
-      }
-
-      public double getLongitude()
-      {
-         return this.lng;
-      }
    }
 
    public void sendSMS( String string )
