@@ -9,7 +9,7 @@
     
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Select note</string>
-    <string name="dialog_select_media_message">Multiple notes are found at this location, please select one to open</string>
+    <string name="dialog_select_media_message">Multiple notes were found at this location, please select one to open</string>
     <string name="dialog_tracking_title">跟踪控制</string>
 	<string name="dialog_routename_title">命名路线</string>
     <string name="dialog_routename_message">请输入此路线的名称</string>
