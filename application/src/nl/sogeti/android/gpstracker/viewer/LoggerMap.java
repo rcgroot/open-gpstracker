@@ -1235,6 +1235,7 @@ public class LoggerMap extends MapActivity
             if( speed > 2*mAverageSpeed )
             {
                updateSpeedbarVisibility();
+               mMapView.postInvalidate();
             }
          }
       }
