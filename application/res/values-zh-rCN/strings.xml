@@ -6,6 +6,8 @@
     <string name="service_networkstatus">Logging: %s (%s with cell tower and wifi)</string>
     <string name="service_gpsdisabled">GPS 已禁用，日志无效。</string>
     <string name="service_gpsenabled">GPS 已启用, 开始记录。</string>
+    <string name="service_datadisabled">Network positioning is disabled, logging is without effect.</string>
+    <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
     
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Select note</string>
