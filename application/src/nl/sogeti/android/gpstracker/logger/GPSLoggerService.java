@@ -53,6 +53,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.GpsStatus.Listener;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -142,7 +144,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderDisabled( String provider )
          {
-            Log.d( TAG, "onProviderDisabled( String "+provider+" )" );
+            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
             if( mPrecision != LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                disabledProviderNotification( R.string.service_gpsdisabled );
@@ -156,7 +158,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderEnabled( String provider )
          {
-            Log.d( TAG, "onProviderEnabled( String "+provider+" )" );
+            Log.d( TAG, "onProviderEnabled( String " + provider + " )" );
             if( mPrecision != LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                enabledProviderNotification( R.string.service_gpsenabled );
@@ -494,6 +496,10 @@ public class GPSLoggerService extends Service
          case ( LOGGING_GLOBAL ): // Global
             mMaxAcceptableAccuracy = 1000f;
             mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 300000l, 500F, this.mLocationListener );
+            if( !isNetworkConnected() )
+            {
+               disabledProviderNotification( R.string.service_connectiondisabled );
+            }
             break;
          default:
             Log.e( TAG, "Unknown precision " + mPrecision );
@@ -684,5 +690,13 @@ public class GPSLoggerService extends Service
       Uri waypointInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints" );
       Uri inserted = mContext.getContentResolver().insert( waypointInsertUri, args );
       mWaypointId = Long.parseLong( inserted.getLastPathSegment() );
+   }
+
+   private boolean isNetworkConnected()
+   {
+      ConnectivityManager connMgr = (ConnectivityManager) getSystemService( Context.CONNECTIVITY_SERVICE );
+      NetworkInfo info = connMgr.getActiveNetworkInfo();
+
+      return ( info != null && info.isConnected() );
    }
 }
