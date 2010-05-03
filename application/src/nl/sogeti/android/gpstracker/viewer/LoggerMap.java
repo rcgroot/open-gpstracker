@@ -313,16 +313,7 @@ public class LoggerMap extends MapActivity
          {
             if( key.equals( Constants.TRACKCOLORING ) )
             {
-               int trackColoringMethod = new Integer( sharedPreferences.getString( Constants.TRACKCOLORING, "3" ) ).intValue();
-               updateSpeedbarVisibility();
-               List<Overlay> overlays = LoggerMap.this.mMapView.getOverlays();
-               for (Overlay overlay : overlays)
-               {
-                  if( overlay instanceof SegmentOverlay )
-                  {
-                     ( (SegmentOverlay) overlay ).setTrackColoringMethod( trackColoringMethod, mAverageSpeed );
-                  }
-               }
+               updateSpeedColoring();
             }
             else if( key.equals( Constants.DISABLEBLANKING ) )
             {
@@ -355,7 +346,7 @@ public class LoggerMap extends MapActivity
          public void onUnitsChange()
          {
             updateDisplayedSpeedViews();
-            updateSpeedbarVisibility();
+            updateSpeedColoring();
          }
       };
    private final OnClickListener mNoteTextDialogListener = new DialogInterface.OnClickListener()
@@ -490,7 +481,7 @@ public class LoggerMap extends MapActivity
       super.onResume();
       updateTitleBar();
       updateBlankingBehavior();
-      updateSpeedbarVisibility();
+      updateSpeedColoring();
       updateSpeedDisplayVisibility();
       updateCompassDisplayVisibility();
       updateLocationDisplayVisibility();
@@ -1134,7 +1125,7 @@ public class LoggerMap extends MapActivity
       }
    }
 
-   private void updateSpeedbarVisibility()
+   private void updateSpeedColoring()
    {
       int trackColoringMethod = new Integer( mSharedPreferences.getString( Constants.TRACKCOLORING, "3" ) ).intValue();
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
@@ -1174,6 +1165,14 @@ public class LoggerMap extends MapActivity
          for (int i = 0; i < mSpeedtexts.length; i++)
          {
             mSpeedtexts[i].setVisibility( View.INVISIBLE );
+         }
+      }
+      List<Overlay> overlays = mMapView.getOverlays();
+      for (Overlay overlay : overlays)
+      {
+         if( overlay instanceof SegmentOverlay )
+         {
+            ( (SegmentOverlay) overlay ).setTrackColoringMethod( trackColoringMethod, mAverageSpeed );
          }
       }
    }
@@ -1234,7 +1233,7 @@ public class LoggerMap extends MapActivity
             mLastGPSSpeedView.setText( speedText );
             if( speed > 2*mAverageSpeed )
             {
-               updateSpeedbarVisibility();
+               updateSpeedColoring();
                mMapView.postInvalidate();
             }
          }
@@ -1247,7 +1246,7 @@ public class LoggerMap extends MapActivity
          }
       }
    }
-
+   
    /**
     * For the current track identifier the route of that track is drawn by adding a OverLay for each segments in the track
     * 
@@ -1410,7 +1409,7 @@ public class LoggerMap extends MapActivity
 
             updateTitleBar();
             updateDataOverlays();
-            updateSpeedbarVisibility();
+            updateSpeedColoring();
 
             if( center )
             {
