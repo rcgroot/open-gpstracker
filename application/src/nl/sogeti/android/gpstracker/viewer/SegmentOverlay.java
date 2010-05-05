@@ -61,7 +61,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -79,6 +78,7 @@ import com.google.android.maps.Projection;
 public class SegmentOverlay extends Overlay
 {
 
+   private static final int SCREENTAPDISTANCE = 25;
    public static final int MIDDLE_SEGMENT = 0;
    public static final int FIRST_SEGMENT = 1;
    public static final int LAST_SEGMENT = 2;
@@ -502,9 +502,13 @@ public class SegmentOverlay extends Overlay
                wiggle = 0;
             }
             Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), drawable );
-            int left = ( bitmap.getWidth() * 3 ) / 7 + wiggle;
-            int up = ( bitmap.getHeight() * 6 ) / 7 - wiggle;
-            canvas.drawBitmap( bitmap, mScreenPoint.x - left, mScreenPoint.y - up, new Paint() );
+            mediaVO.w = bitmap.getWidth();
+            mediaVO.h = bitmap.getHeight();
+            int left = ( mediaVO.w * 3 ) / 7 + wiggle;
+            int up = ( mediaVO.h * 6 ) / 7 - wiggle;
+            mediaVO.x = mScreenPoint.x - left;
+            mediaVO.y = mScreenPoint.y - up;
+            canvas.drawBitmap( bitmap,mediaVO.x, mediaVO.y, new Paint() );
             lastPoint = mediaVO.geopoint;
          }
       }
@@ -882,28 +886,24 @@ public class SegmentOverlay extends Overlay
       }
       return false;
    }
-
+   
    /*
     * (non-Javadoc)
     * @see com.google.android.maps.Overlay#onTap(com.google.android.maps.GeoPoint, com.google.android.maps.MapView)
     */
    @Override
-   public boolean onTap( GeoPoint geoPoint, MapView mapView )
+   public boolean onTap( GeoPoint tappedGeoPoint, MapView mapView )
    {
       List<Uri> tappedUri = new Vector<Uri>();
 
-      float[] distance = new float[1];
+      Point tappedPoint = new Point();
       for( MediaVO media : mMediaPath )
       {
-         double startLat = geoPoint.getLatitudeE6() / 1E6d;
-         double startLon = geoPoint.getLongitudeE6() / 1E6d;
-         double endLat = media.geopoint.getLatitudeE6() / 1E6d;
-         double endLon = media.geopoint.getLongitudeE6() / 1E6d;
-         Location.distanceBetween( startLat, startLon, endLat, endLon, distance );
-         float screendistance = mapView.getProjection().metersToEquatorPixels( distance[0] ) * Resources.getSystem().getDisplayMetrics().density;
-         if( screendistance < 25 )
+         mapView.getProjection().toPixels( tappedGeoPoint, tappedPoint );
+         
+         if( media.x < tappedPoint.x && tappedPoint.x < media.x+media.w && media.y < tappedPoint.y && tappedPoint.y < media.y+media.h )
          {
-            Log.d( TAG, String.format( "Tapped at a distance of %f which is %f on screen", distance[0], screendistance ) );
+            //Log.d( TAG, String.format( "Tapped at a (x,y) (%d,%d)", tappedPoint.x, tappedPoint.y ) );
             tappedUri.add( media.uri );
          }
       }
@@ -913,7 +913,7 @@ public class SegmentOverlay extends Overlay
       }
       else
       {
-         return super.onTap( geoPoint, mapView );
+         return super.onTap( tappedGeoPoint, mapView );
       }
    }
 
@@ -921,6 +921,10 @@ public class SegmentOverlay extends Overlay
    {
       public Uri uri;
       public GeoPoint geopoint;
+      public int x;
+      public int y;
+      public int w;
+      public int h;
       public long waypointId;
    }
 
