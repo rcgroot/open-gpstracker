@@ -64,7 +64,7 @@
 	<string name="menu_shareTrack">Deel route</string>
 	<string name="menu_deleteTrack">Verwijder route</string>
     <string name="menu_renameTrack">Hernoem route</string>
-    <string name="menu_statistics">Toon statistieken</string>
+    <string name="menu_statistics">Statistieken</string>
     <string name="menu_about">Info</string>
     <string name="menu_showLayers">Lagen</string>
     <string name="menu_graphtype">Grafiek soort</string>
