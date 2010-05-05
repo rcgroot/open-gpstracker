@@ -130,15 +130,15 @@ public class GPSLoggerService extends Service
       {
          public void onLocationChanged( Location location )
          {
-            location = locationFilter( location );
-            if( location != null )
+            Location filteredLocation = locationFilter( location );
+            if( filteredLocation != null )
             {
                if( mStartNextSegment )
                {
                   mStartNextSegment = false;
                   startNewSegment();
                }
-               storeLocation( location );
+               storeLocation( filteredLocation );
             }
          }
 
@@ -534,89 +534,84 @@ public class GPSLoggerService extends Service
     */
    public Location locationFilter( Location proposedLocation )
    {
-      boolean hasAccuracy = proposedLocation.hasAccuracy();
-      float accuracy = proposedLocation.getAccuracy();
-
       // Do not log a waypoint which is more inaccurate then is configured to be acceptable
-      if( hasAccuracy && accuracy > mMaxAcceptableAccuracy )
+      if( proposedLocation != null && proposedLocation.getAccuracy() > mMaxAcceptableAccuracy )
       {
-         Log.w( TAG, String.format( "A weak location was recieved, lots of inaccuracy... (%f more then max %f)", accuracy, mMaxAcceptableAccuracy ) );
-         mWeakLocations.add( proposedLocation );
-         if( mWeakLocations.size() < 3 )
-         {
-            return null;
-         }
-         else
-         {
-            return collectLeastBad();
-         }
+         Log.w( TAG, String.format( "A weak location was recieved, lots of inaccuracy... (%f is more then max %f)", proposedLocation.getAccuracy(), mMaxAcceptableAccuracy ) );
+         proposedLocation = addBadLocation( proposedLocation );
       }
 
       // Do not log a waypoint which might be on any side of the previous waypoint
-      if( hasAccuracy && mPreviousLocation != null && accuracy > mPreviousLocation.distanceTo( proposedLocation ) )
+      if( proposedLocation != null && mPreviousLocation != null && proposedLocation.getAccuracy() > mPreviousLocation.distanceTo( proposedLocation ) )
       {
-         Log.w( TAG, String.format( "A weak location was recieved, not quite clear from the previous waypoint... (%f more then max %f)", accuracy, mPreviousLocation.distanceTo( proposedLocation ) ) );
-         mWeakLocations.add( proposedLocation );
-         if( mWeakLocations.size() < 3 )
-         {
-            return null;
-         }
-         else
-         {
-            return collectLeastBad();
-         }
+         Log.w( TAG, String.format( "A weak location was recieved, not quite clear from the previous waypoint... (%f more then max %f)", proposedLocation.getAccuracy(), mPreviousLocation.distanceTo( proposedLocation ) ) );
+         proposedLocation = addBadLocation( proposedLocation );
       }
-
-      if( mPrecision == LOGGING_GLOBAL && this.mPreviousLocation != null )
+      
+      // Speed checks for NETWORK logging, check if the proposed location could be reached from the previous one in sane speed
+      if( mSpeedSanityCheck && proposedLocation != null && mPreviousLocation != null &&  mPrecision == LOGGING_GLOBAL )
       {
          // To avoid near instant teleportation on network location or glitches cause continent hopping
          float meters = proposedLocation.distanceTo( mPreviousLocation );
          long seconds = ( proposedLocation.getTime() - mPreviousLocation.getTime() ) / 1000L;
          if( meters / seconds > MAX_REASONABLE_SPEED )
          {
-            // To fast a location change to be likely
-            return null;
+            Log.w( TAG, "A strange location was recieved, a really high speed, prob wrong..." );
+            proposedLocation = addBadLocation( proposedLocation );
          }
-         else
-         {
-            mWeakLocations.clear();
-            return proposedLocation;
-         }
+      }
+
+      // Remove speed if not sane
+      if( mSpeedSanityCheck && proposedLocation != null && proposedLocation.getSpeed() > MAX_REASONABLE_SPEED )
+      {
+         Log.w( TAG, "A strange speed, a really high speed, prob wrong..." );
+         proposedLocation.removeSpeed();
+      }
+      
+      // Older bad locations will not be needed
+      if( proposedLocation != null )
+      {
+         mWeakLocations.clear();
+      }
+      return proposedLocation;
+   }
+   
+   /**
+    * Store a bad location, when to many bad locations are stored the the storage is cleared and the least bad one is returned
+    * 
+    * @param location bad location
+    * @return null when the bad location is stored or the least bad one if the storage was full
+    */
+   private Location addBadLocation( Location location )
+   {
+      mWeakLocations.add( location );
+      if( mWeakLocations.size() < 3 )
+      {
+         location = null;
       }
       else
       {
-         // The log we have appears fine enough, just to remove the speed if it is weird (common on at least G1 GPS)
-         if( mSpeedSanityCheck && proposedLocation.hasSpeed() && proposedLocation.getSpeed() > MAX_REASONABLE_SPEED )
+         Location best = mWeakLocations.lastElement();
+         for( Location whimp : mWeakLocations )
          {
-            Log.w( TAG, "A strange location was recieved, a really high speed, prob wrong..." );
-            proposedLocation.removeSpeed();
-         }
-         mWeakLocations.clear();
-         return proposedLocation;
-      }
-   }
-
-   private Location collectLeastBad()
-   {
-      Location best = mWeakLocations.lastElement();
-      for( Location whimp : mWeakLocations )
-      {
-         if( whimp.hasAccuracy() && best.hasAccuracy() && whimp.getAccuracy() < best.getAccuracy() )
-         {
-            best = whimp;
-         }
-         else
-         {
-            if( whimp.hasAccuracy() && !best.hasAccuracy() )
+            if( whimp.hasAccuracy() && best.hasAccuracy() && whimp.getAccuracy() < best.getAccuracy() )
             {
                best = whimp;
             }
+            else
+            {
+               if( whimp.hasAccuracy() && !best.hasAccuracy() )
+               {
+                  best = whimp;
+               }
+            }
          }
+         mWeakLocations.clear();
+         location = best;
       }
-      mWeakLocations.clear();
-      return best;
+      return location;
    }
-
+   
    /**
     * Trigged by events that start a new track
     */
