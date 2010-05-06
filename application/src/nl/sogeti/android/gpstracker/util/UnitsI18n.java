@@ -94,6 +94,14 @@ public class UnitsI18n
          case( Constants.UNITS_METRIC ):
             setToMetric();
             break;
+         case( Constants.UNITS_IMPERIAL_AND_KNOTS ):
+            setToMetric();
+            overrideWithKnots( mContext.getResources() );
+            break;
+         case( Constants.UNITS_METRIC_AND_KNOTS ):
+            setToMetric();
+            overrideWithKnots( mContext.getResources() );
+            break;
          default:
             setToDefault();
             break;
@@ -148,6 +156,15 @@ public class UnitsI18n
       speed_unit = resources.getString( R.string.speed_unitname );
       distance_unit = resources.getString( R.string.distance_unitname );
       distance_smallunit = resources.getString( R.string.distance_smallunitname );
+   }
+
+   private void overrideWithKnots( Resources resources )
+   {
+      TypedValue outValue = new TypedValue();
+      resources.getValue( R.raw.conversion_from_mps_to_knot, outValue, false ) ;
+      conversion_from_mps =  outValue.getFloat();
+      
+      speed_unit = resources.getString( R.string.knot_unitname );
    }
    
    public double conversionFromMeterAndMiliseconds( double meters, long miliseconds )
