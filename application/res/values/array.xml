@@ -32,11 +32,18 @@
     <string-array name="sharetype_choices">
         <item>KMZ - Google Earth, etc.</item>
         <item>GPX - the GPS Exchange Format</item>
+        <item>Text - Speed and distance summary</item>
     </string-array>
     
     <string-array name="sharefiletarget_choices">
         <item>Store to SD Card</item>
         <item>Send with an (email) application</item>
+    </string-array>
+    
+    <string-array name="sharetexttarget_choices">
+        <item>Twidroid tweet</item>
+        <item>SMS</item>
+        <item>Generic text send</item>
     </string-array>
     
     <string-array name="precision_values" translatable="false">

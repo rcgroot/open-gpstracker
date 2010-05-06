@@ -16,11 +16,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.Spinner;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 public class ShareTrack extends Activity
 {
@@ -54,18 +56,39 @@ public class ShareTrack extends Activity
       mShareTypeSpinner.setAdapter( shareTypeAdapter );
 
       mShareTargetSpinner = (Spinner) findViewById( R.id.shareTargetSpinner );
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource( this, R.array.sharefiletarget_choices, android.R.layout.simple_spinner_item );
-      shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
-      mShareTargetSpinner.setAdapter( shareTargetAdapter );
+      mShareTypeSpinner.setOnItemSelectedListener( new OnItemSelectedListener()
+         {
+            public void onItemSelected( AdapterView< ? > arg0, View arg1, int position, long arg3 )
+            {
+               switch( position )
+               {
+                  case 0: //KMZ
+                     setXmlExportTargets();
+                     break;
+                  case 1: //GPX
+                     setXmlExportTargets();
+                     break;
+                  case 2: //Line of text
+                     setTextLineExportTargets();
+                  default:
+                     break;
+               }
+            }
+
+            public void onNothingSelected( AdapterView< ? > arg0 )
+            { /* NOOP */ }
+         } );
+
+      setXmlExportTargets();
 
       Button okay = (Button) findViewById( R.id.okayshare_button );
       okay.setOnClickListener( new View.OnClickListener()
-      {
-         public void onClick( View v )
          {
-            share();
-         }
-      } );
+            public void onClick( View v )
+            {
+               share();
+            }
+         } );
 
       Button cancel = (Button) findViewById( R.id.cancelshare_button );
       cancel.setOnClickListener( new View.OnClickListener()
@@ -77,12 +100,26 @@ public class ShareTrack extends Activity
          } );
    }
 
+   private void setXmlExportTargets()
+   {
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource( this, R.array.sharefiletarget_choices, android.R.layout.simple_spinner_item );
+      shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
+      mShareTargetSpinner.setAdapter( shareTargetAdapter );
+   }
+
+   private void setTextLineExportTargets()
+   {
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource( this, R.array.sharetexttarget_choices, android.R.layout.simple_spinner_item );
+      shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
+      mShareTargetSpinner.setAdapter( shareTargetAdapter );
+   }
+
    private void share()
    {
       String chosenFileName = mFileNameView.getText().toString();
       int type = (int) mShareTypeSpinner.getSelectedItemId();
       int target = (int) mShareTargetSpinner.getSelectedItemId();
-      switch( type ) 
+      switch( type )
       {
          case 0: //KMZ
             exportKmz( chosenFileName, target );
@@ -92,26 +129,11 @@ public class ShareTrack extends Activity
             exportGpx( chosenFileName, target );
             ShareTrack.this.finish();
             break;
+         case 2: //Line of text
+            exportTextLine( chosenFileName, target );
          default:
             break;
       }
-   }
-
-   protected void exportGpx( String chosenFileName, int target )
-   {
-      EndJob endJob = null;
-      if( target == 1 )
-      {
-         endJob = new EndJob()
-            {
-               public void shareFile( Uri fileUri, String contentType )
-               {
-                  sendFile( fileUri, getString( R.string.email_gpxbody ), contentType );
-               }
-            };
-      }
-      GpxCreator mGpxCreator = new GpxCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
-      mGpxCreator.start();
    }
 
    protected void exportKmz( String chosenFileName, int target )
@@ -131,7 +153,50 @@ public class ShareTrack extends Activity
       mKmzCreator.start();
    }
 
-   public void sendFile( Uri fileUri, String body, String contentType )
+   protected void exportGpx( String chosenFileName, int target )
+   {
+      EndJob endJob = null;
+      if( target == 1 )
+      {
+         endJob = new EndJob()
+            {
+               public void shareFile( Uri fileUri, String contentType )
+               {
+                  sendFile( fileUri, getString( R.string.email_gpxbody ), contentType );
+               }
+            };
+      }
+      GpxCreator mGpxCreator = new GpxCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
+      mGpxCreator.start();
+   }
+
+   protected void exportTextLine( String chosenFileName, int target )
+   {
+      String msg = "look at me!";
+      switch( target )
+      {
+         case 0:
+            sendTwidroidTweet( "Twitter twitter twatter, testing twitter wat later #opengpstracker #" + chosenFileName );
+            break;
+         case 1:
+            sendSMS( chosenFileName, msg );
+            break;
+         case 2:
+            sentGenericText( chosenFileName, msg );
+            break;
+      }
+
+   }
+
+   private void sendTwidroidTweet( String tweet )
+   {
+      final Intent intent = new Intent( "com.twidroid.SendTweet" );
+      intent.putExtra( "com.twidroid.extra.MESSAGE", tweet );
+      intent.setType( "application/twitter" );
+      startActivity( intent );
+   }
+
+   private void sendFile( Uri fileUri, String body, String contentType )
    {
       Intent sendActionIntent = new Intent( Intent.ACTION_SEND );
       sendActionIntent.putExtra( Intent.EXTRA_SUBJECT, getString( R.string.email_subject ) );
@@ -139,6 +204,23 @@ public class ShareTrack extends Activity
       sendActionIntent.putExtra( Intent.EXTRA_STREAM, fileUri );
       sendActionIntent.setType( contentType );
       startActivity( Intent.createChooser( sendActionIntent, getString( R.string.sender_chooser ) ) );
+   }
+
+   private void sendSMS( String intro, String msg )
+   {
+      final Intent intent = new Intent( Intent.ACTION_VIEW );
+      intent.setType( "vnd.android-dir/mms-sms" );
+      intent.putExtra( "sms_body", intro + " " + msg );
+      startActivity( intent );
+   }
+
+   private void sentGenericText( String subject, String msg )
+   {
+      final Intent intent = new Intent( Intent.ACTION_SEND );
+      intent.setType( "text/plain" );
+      intent.putExtra( Intent.EXTRA_SUBJECT, subject );
+      intent.putExtra( Intent.EXTRA_TEXT, msg );
+      startActivity( intent );
    }
 
    private String resolveTrackName()
@@ -231,7 +313,7 @@ public class ShareTrack extends Activity
          }
       }
    }
-   
+
    interface EndJob
    {
       void shareFile( Uri fileUri, String contentType );
