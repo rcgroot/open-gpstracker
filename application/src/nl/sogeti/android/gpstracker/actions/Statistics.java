@@ -47,6 +47,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -77,7 +78,7 @@ public class Statistics extends Activity
    private static final int MENU_SHARE = 41;
    private static final String TRACKURI = "TRACKURI";
    @SuppressWarnings("unused")
-   private static final String TAG = "Statistics";
+   private static final String TAG = "OGT.Statistics";
 
    private final ContentObserver mTrackObserver = new ContentObserver( new Handler() )
       {
@@ -132,7 +133,7 @@ public class Statistics extends Activity
    private TextView maxAltitudeView;
 
    private UnitsI18n mUnits;
-   private GraphCanvas mGraphView1;
+   private GraphCanvas mGraphTimeSpeed;
 
    private OnClickListener mGraphControlListener = new View.OnClickListener()
       {
@@ -142,15 +143,19 @@ public class Statistics extends Activity
             switch( id )
             {
                case R.id.graphtype_timespeed:
+                  Log.d( TAG, "graphtype_timespeed" );
                   mViewFlipper.setDisplayedChild( 0 );
                   break;
-               case R.id.graphtype_timealtitude:
+               case R.id.graphtype_distancespeed:
+                  Log.d( TAG, "graphtype_timealtitude" );
                   mViewFlipper.setDisplayedChild( 1 );
                   break;
-               case R.id.graphtype_distancespeed:
+               case R.id.graphtype_timealtitude:
+                  Log.d( TAG, "" );
                   mViewFlipper.setDisplayedChild( 2 );
                   break;
                case R.id.graphtype_distancealtitude:
+                  Log.d( TAG, "graphtype_distancealtitude" );
                   mViewFlipper.setDisplayedChild( 3 );
                   break;
                default:
@@ -165,9 +170,9 @@ public class Statistics extends Activity
    private Animation mSlideRightIn;
    private Animation mSlideRightOut;
    private GestureDetector mGestureDetector;
-   private GraphCanvas mGraphView2;
-   private GraphCanvas mGraphView3;
-   private GraphCanvas mGraphView4;
+   private GraphCanvas mGraphDistanceSpeed;
+   private GraphCanvas mGraphTimeAltitude;
+   private GraphCanvas mGraphDistanceAltitude;
 
    /**
     * Called when the activity is first created.
@@ -191,14 +196,15 @@ public class Statistics extends Activity
       mSlideRightIn = AnimationUtils.loadAnimation( this, R.anim.slide_right_in );
       mSlideRightOut = AnimationUtils.loadAnimation( this, R.anim.slide_right_out );
 
-      mGraphView1 = (GraphCanvas) findViewById( R.id.graph_canvas1 );
-      mGraphView2 = (GraphCanvas) findViewById( R.id.graph_canvas2 );
-      mGraphView3 = (GraphCanvas) findViewById( R.id.graph_canvas3 );
-      mGraphView4 = (GraphCanvas) findViewById( R.id.graph_canvas4 );
-      mGraphView1.setType( GraphCanvas.TIMESPEEDGRAPH );
-      mGraphView2.setType( GraphCanvas.DISTANCESPEEDGRAPH );
-      mGraphView3.setType( GraphCanvas.TIMEALTITUDEGRAPH );
-      mGraphView4.setType( GraphCanvas.DISTANCEALTITUDEGRAPH );
+      mGraphTimeSpeed        = (GraphCanvas) mViewFlipper.getChildAt( 0 );
+      mGraphDistanceSpeed    = (GraphCanvas) mViewFlipper.getChildAt( 1 );
+      mGraphTimeAltitude     = (GraphCanvas) mViewFlipper.getChildAt( 2 );
+      mGraphDistanceAltitude = (GraphCanvas) mViewFlipper.getChildAt( 3 );
+      
+      mGraphTimeSpeed.setType( GraphCanvas.TIMESPEEDGRAPH );
+      mGraphDistanceSpeed.setType( GraphCanvas.DISTANCESPEEDGRAPH );
+      mGraphTimeAltitude.setType( GraphCanvas.TIMEALTITUDEGRAPH );
+      mGraphDistanceAltitude.setType( GraphCanvas.DISTANCEALTITUDEGRAPH );
 
       mGestureDetector = new GestureDetector( new MyGestureDetector() );
 
@@ -506,10 +512,10 @@ public class Statistics extends Activity
          }
       }
 
-      mGraphView1.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
-      mGraphView2.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
-      mGraphView3.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
-      mGraphView4.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
+      mGraphTimeSpeed.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
+      mGraphDistanceSpeed.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
+      mGraphTimeAltitude.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
+      mGraphDistanceAltitude.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
 
       maxSpeeddb = mUnits.conversionFromMetersPerSecond( maxSpeeddb );
       maxAltitude = mUnits.conversionFromMeterToSmall( maxAltitude );

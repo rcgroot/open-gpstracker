@@ -125,26 +125,27 @@
         android:id="@+id/flipper"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
+        
       <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
-         android:id="@+id/graph_canvas1"
+         android:id="@+id/graph_timespeed"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"  />
+         
+      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+         android:id="@+id/graph_distancespeed"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content" />
-      />
+
       <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
-         android:id="@+id/graph_canvas2"
+         android:id="@+id/graph_timealtitude"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content" />
-      />
+
       <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
-         android:id="@+id/graph_canvas3"
+         android:id="@+id/graph_distancealtitude"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content" />
-      />
-      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
-         android:id="@+id/graph_canvas4"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content" />
-      />
+         
    </ViewFlipper>
    
 </LinearLayout>
