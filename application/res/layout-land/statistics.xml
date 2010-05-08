@@ -121,7 +121,7 @@
 
    </LinearLayout>
    
-   <ViewFlipper 
+   <nl.sogeti.android.gpstracker.actions.utils.ViewFlipper 
         android:id="@+id/flipper"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
@@ -146,6 +146,6 @@
          android:layout_width="fill_parent"
          android:layout_height="wrap_content" />
          
-   </ViewFlipper>
+   </nl.sogeti.android.gpstracker.actions.utils.ViewFlipper>
    
 </LinearLayout>
