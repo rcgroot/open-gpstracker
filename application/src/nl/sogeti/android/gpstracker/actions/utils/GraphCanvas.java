@@ -403,9 +403,9 @@ public class GraphCanvas extends View
       white.setColor( Color.WHITE );
       white.setAntiAlias( true );
       white.setTextSize( (int)(density * 12)  );
-      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getDistanceSmallUnit() )  , 8,  mHeight, white );
-      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getDistanceSmallUnit() ) , 8,  5+mHeight/2, white );
-      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getDistanceSmallUnit() ), 8,  15, white );
+      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getHeightUnit() )  , 8,  mHeight, white );
+      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getHeightUnit() ) , 8,  5+mHeight/2, white );
+      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getHeightUnit() ), 8,  15, white );
    }
 
    private void drawSpeedsTexts()

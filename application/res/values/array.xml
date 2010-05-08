@@ -25,8 +25,7 @@
         <item>Device locale</item>
         <item>Imperial (miles)</item>
         <item>Metric (meters)</item>
-        <item>Imperial with knots speed</item>
-        <item>Metric with knots speed</item>
+        <item>Nautical (knots)</item>
     </string-array>
     
     <string-array name="sharetype_choices">
@@ -66,7 +65,6 @@
         <item>1</item>
         <item>2</item>
         <item>3</item>
-        <item>4</item>
     </string-array>
 
     <string-array name="about_authors" translatable="false">

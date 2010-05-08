@@ -4,4 +4,5 @@
 <string name="distance_unitname">公里</string>
 <string name="distance_smallunitname">meter</string>
 <string name="knot_unitname">knot</string>
+<string name="nautic_unitname">nautic mile</string>
 </resources>

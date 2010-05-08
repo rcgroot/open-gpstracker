@@ -4,4 +4,5 @@
 <string name="distance_unitname">km</string>
 <string name="distance_smallunitname">meter</string>
 <string name="knot_unitname">knopen</string>
+<string name="nautic_unitname">zeemijl</string>
 </resources>

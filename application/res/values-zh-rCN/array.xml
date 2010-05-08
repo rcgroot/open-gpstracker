@@ -21,6 +21,13 @@
         <item>路点</item>
     </string-array>
 
+    <string-array name="units_choices">
+        <item>Device locale</item>
+        <item>Imperial (miles)</item>
+        <item>Metric (meters)</item>
+        <item>Nautical (knots)</item>
+    </string-array>
+
     <string-array name="about_translators">
         <item>NetDragon Websoft Inc. http://www.nd.com.cn/</item>
     </string-array>

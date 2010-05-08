@@ -50,14 +50,14 @@ import android.util.TypedValue;
 public class UnitsI18n
 {
    private Context mContext;
-   private double conversion_from_mps;
-   private double conversion_from_meter_to_small;
-   private double conversion_from_meter;
-   private String speed_unit;
-   private String distance_unit;
-   private String distance_smallunit;
+   private double mConversion_from_mps_to_speed;
+   private double mConversion_from_meter_to_distance;
+   private double mConversion_from_meter_to_height;
+   private String mSpeed_unit;
+   private String mDistance_unit;
+   private String mHeight_unit;
    private UnitsChangeListener mListener;
-   private OnSharedPreferenceChangeListener preferenceListener = new OnSharedPreferenceChangeListener()
+   private OnSharedPreferenceChangeListener mPreferenceListener = new OnSharedPreferenceChangeListener()
    {
       public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
       {
@@ -77,7 +77,7 @@ public class UnitsI18n
       mContext = ctx;
       mListener =  listener ;
       initBasedOnPreferences( PreferenceManager.getDefaultSharedPreferences( mContext ) );
-      PreferenceManager.getDefaultSharedPreferences( mContext ).registerOnSharedPreferenceChangeListener( preferenceListener  );
+      PreferenceManager.getDefaultSharedPreferences( mContext ).registerOnSharedPreferenceChangeListener( mPreferenceListener  );
    }
    
    private void initBasedOnPreferences( SharedPreferences sharedPreferences )
@@ -94,13 +94,9 @@ public class UnitsI18n
          case( Constants.UNITS_METRIC ):
             setToMetric();
             break;
-         case( Constants.UNITS_IMPERIAL_AND_KNOTS ):
+         case( Constants.UNITS_NAUTIC ):
             setToMetric();
-            overrideWithKnots( mContext.getResources() );
-            break;
-         case( Constants.UNITS_METRIC_AND_KNOTS ):
-            setToMetric();
-            overrideWithKnots( mContext.getResources() );
+            overrideWithNautic( mContext.getResources() );
             break;
          default:
             setToDefault();
@@ -145,26 +141,29 @@ public class UnitsI18n
    {
       TypedValue outValue = new TypedValue();
       resources.getValue( R.raw.conversion_from_mps, outValue, false ) ;
-      conversion_from_mps =  outValue.getFloat();
-      
+      mConversion_from_mps_to_speed =  outValue.getFloat();
       resources.getValue( R.raw.conversion_from_meter, outValue, false ) ;
-      conversion_from_meter = outValue.getFloat();
-      
+      mConversion_from_meter_to_distance = outValue.getFloat();
       resources.getValue( R.raw.conversion_from_meter_to_small, outValue, false ) ;
-      conversion_from_meter_to_small = outValue.getFloat();
+      mConversion_from_meter_to_height = outValue.getFloat();
       
-      speed_unit = resources.getString( R.string.speed_unitname );
-      distance_unit = resources.getString( R.string.distance_unitname );
-      distance_smallunit = resources.getString( R.string.distance_smallunitname );
+      mSpeed_unit = resources.getString( R.string.speed_unitname );
+      mDistance_unit = resources.getString( R.string.distance_unitname );
+      mHeight_unit = resources.getString( R.string.distance_smallunitname );
    }
 
-   private void overrideWithKnots( Resources resources )
+   private void overrideWithNautic( Resources resources )
    {
       TypedValue outValue = new TypedValue();
       resources.getValue( R.raw.conversion_from_mps_to_knot, outValue, false ) ;
-      conversion_from_mps =  outValue.getFloat();
+      mConversion_from_mps_to_speed =  outValue.getFloat();
+      resources.getValue( R.raw.conversion_from_meter_to_nauticmile, outValue, false ) ;
+      mConversion_from_meter_to_distance = outValue.getFloat();
+      resources.getValue( R.raw.conversion_from_mps_to_knot, outValue, false ) ;
+      mConversion_from_meter_to_height = outValue.getFloat();
       
-      speed_unit = resources.getString( R.string.knot_unitname );
+      mSpeed_unit = resources.getString( R.string.knot_unitname );
+      mHeight_unit = resources.getString( R.string.nautic_unitname );
    }
    
    public double conversionFromMeterAndMiliseconds( double meters, long miliseconds )
@@ -175,27 +174,27 @@ public class UnitsI18n
    
    public double conversionFromMetersPerSecond( double mps )
    {
-      return mps * conversion_from_mps;
+      return mps * mConversion_from_mps_to_speed;
    }
    public double conversionFromMeter( double meters )
    {
-      return meters * conversion_from_meter;
+      return meters * mConversion_from_meter_to_distance;
    }
    public double conversionFromMeterToSmall( double meters )
    {
-      return meters * conversion_from_meter_to_small;
+      return meters * mConversion_from_meter_to_height;
    }
    public String getSpeedUnit()
    {
-      return speed_unit;
+      return mSpeed_unit;
    }
    public String getDistanceUnit()
    {
-      return distance_unit;
+      return mDistance_unit;
    }
-   public String getDistanceSmallUnit()
+   public String getHeightUnit()
    {
-      return distance_smallunit;
+      return mHeight_unit;
    }
    
    /**

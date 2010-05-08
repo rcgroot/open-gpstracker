@@ -527,8 +527,8 @@ public class Statistics extends Activity
       overallavgSpeedText = String.format( "%.2f %s", overallavgSpeedfl, mUnits.getSpeedUnit() );
       distanceText = String.format( "%.2f %s", distanceTraveled, mUnits.getDistanceUnit() );
       maxSpeedText = String.format( "%.2f %s", maxSpeeddb, mUnits.getSpeedUnit() );
-      minAltitudeText = String.format( "%.0f %s", minAltitude, mUnits.getDistanceSmallUnit() );
-      maxAltitudeText = String.format( "%.0f %s", maxAltitude, mUnits.getDistanceSmallUnit() );
+      minAltitudeText = String.format( "%.0f %s", minAltitude, mUnits.getHeightUnit() );
+      maxAltitudeText = String.format( "%.0f %s", maxAltitude, mUnits.getHeightUnit() );
 
       maxSpeedView.setText( maxSpeedText );
       maxAltitudeView.setText( maxAltitudeText );

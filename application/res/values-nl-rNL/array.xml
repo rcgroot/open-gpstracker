@@ -25,6 +25,7 @@
         <item>Standaard</item>
         <item>Engelse</item>
         <item>Meters</item>
+        <item>Zeevaart</item>
     </string-array>
 
     <string-array name="sharetype_choices">
