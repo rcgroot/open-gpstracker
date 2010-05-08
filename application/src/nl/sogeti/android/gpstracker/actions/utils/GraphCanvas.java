@@ -381,8 +381,8 @@ public class GraphCanvas extends View
 
    private void setupAltitudeAxis()
    {
-      mMinAxis = 4 *     (int)mUnits.conversionFromMeterToSmall(mMinAlititude / 4) ;
-      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMeterToSmall(mMaxAlititude / 4) ;
+      mMinAxis = 4 *     (int)mUnits.conversionFromMeterToHeight(mMinAlititude / 4) ;
+      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMeterToHeight(mMaxAlititude / 4) ;
 
       mWidth = mRenderCanvas.getWidth()-5;
       mHeight = mRenderCanvas.getHeight()-10;
@@ -515,7 +515,7 @@ public class GraphCanvas extends View
             break;
          case( TIMEALTITUDEGRAPH ):
          case( DISTANCEALTITUDEGRAPH ):
-            val = mUnits.conversionFromMeterToSmall( val );
+            val = mUnits.conversionFromMeterToHeight( val );
             break;
          default:
             break;

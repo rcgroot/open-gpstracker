@@ -518,8 +518,8 @@ public class Statistics extends Activity
       mGraphDistanceAltitude.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
 
       maxSpeeddb = mUnits.conversionFromMetersPerSecond( maxSpeeddb );
-      maxAltitude = mUnits.conversionFromMeterToSmall( maxAltitude );
-      minAltitude = mUnits.conversionFromMeterToSmall( minAltitude );
+      maxAltitude = mUnits.conversionFromMeterToHeight( maxAltitude );
+      minAltitude = mUnits.conversionFromMeterToHeight( minAltitude );
       double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, overallduration );
       double avgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, duration );
       distanceTraveled = mUnits.conversionFromMeter( distanceTraveled );

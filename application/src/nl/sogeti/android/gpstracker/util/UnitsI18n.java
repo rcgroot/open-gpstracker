@@ -144,7 +144,7 @@ public class UnitsI18n
       mConversion_from_mps_to_speed =  outValue.getFloat();
       resources.getValue( R.raw.conversion_from_meter, outValue, false ) ;
       mConversion_from_meter_to_distance = outValue.getFloat();
-      resources.getValue( R.raw.conversion_from_meter_to_small, outValue, false ) ;
+      resources.getValue( R.raw.conversion_from_meter_to_height, outValue, false ) ;
       mConversion_from_meter_to_height = outValue.getFloat();
       
       mSpeed_unit = resources.getString( R.string.speed_unitname );
@@ -159,11 +159,9 @@ public class UnitsI18n
       mConversion_from_mps_to_speed =  outValue.getFloat();
       resources.getValue( R.raw.conversion_from_meter_to_nauticmile, outValue, false ) ;
       mConversion_from_meter_to_distance = outValue.getFloat();
-      resources.getValue( R.raw.conversion_from_mps_to_knot, outValue, false ) ;
-      mConversion_from_meter_to_height = outValue.getFloat();
       
       mSpeed_unit = resources.getString( R.string.knot_unitname );
-      mHeight_unit = resources.getString( R.string.nautic_unitname );
+      mDistance_unit = resources.getString( R.string.nautic_unitname );
    }
    
    public double conversionFromMeterAndMiliseconds( double meters, long miliseconds )
@@ -180,7 +178,7 @@ public class UnitsI18n
    {
       return meters * mConversion_from_meter_to_distance;
    }
-   public double conversionFromMeterToSmall( double meters )
+   public double conversionFromMeterToHeight( double meters )
    {
       return meters * mConversion_from_meter_to_height;
    }

@@ -2,7 +2,7 @@
 <resources>
 <item name="conversion_from_mps" type="raw" format="float">2.236936292</item>
 <item name="conversion_from_meter" type="raw" format="float">0.000621371</item>
-<item name="conversion_from_meter_to_small" type="raw" format="float">3.2808</item>
+<item name="conversion_from_meter_to_height" type="raw" format="float">3.2808</item>
 <string name="speed_unitname">mph</string>
 <string name="distance_unitname">mile</string>
 <string name="distance_smallunitname">feet</string>

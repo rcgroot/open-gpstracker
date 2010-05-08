@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<item name="conversion_from_mps"            type="raw" format="float">3.6</item>
-<item name="conversion_from_meter"          type="raw" format="float">0.001</item>
-<item name="conversion_from_meter_to_small" type="raw" format="float">1.0</item>
+<item name="conversion_from_mps"             type="raw" format="float">3.6</item>
+<item name="conversion_from_meter"           type="raw" format="float">0.001</item>
+<item name="conversion_from_meter_to_height" type="raw" format="float">1.0</item>
 <string name="speed_unitname">kph</string>
 <string name="distance_unitname">km</string>
 <string name="distance_smallunitname">meter</string>
