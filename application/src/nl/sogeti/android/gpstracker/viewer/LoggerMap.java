@@ -167,7 +167,7 @@ public class LoggerMap extends MapActivity
             }
             else
             {
-               Log.d( TAG, "mTrackSegmentsObserver skipping change on "+ mLastSegment );
+               Log.w( TAG, "mTrackSegmentsObserver skipping change on "+ mLastSegment );
             }
          }
       };
@@ -189,7 +189,7 @@ public class LoggerMap extends MapActivity
             }
             else
             {
-               Log.d( TAG, "mSegmentWaypointsObserver skipping change on "+ mLastSegment );
+               Log.w( TAG, "mSegmentWaypointsObserver skipping change on "+ mLastSegment );
             }
          }
       };
@@ -209,7 +209,7 @@ public class LoggerMap extends MapActivity
             }
             else
             {
-               Log.d( TAG, "mTrackMediasObserver skipping change on "+ mLastSegment );
+               Log.w( TAG, "mTrackMediasObserver skipping change on "+ mLastSegment );
             }
          }
       };
@@ -417,7 +417,6 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onCreate( Bundle load )
    {
-      Log.d( TAG, "onCreate()" );
       super.onCreate( load );
       this.startService( new Intent( Constants.SERVICENAME ) );
 
@@ -457,7 +456,6 @@ public class LoggerMap extends MapActivity
 
    protected void onPause()
    {
-      Log.d( TAG, "onPause()" );
       super.onPause();
       if( this.mWakeLock != null && this.mWakeLock.isHeld() )
       {
@@ -477,7 +475,6 @@ public class LoggerMap extends MapActivity
 
    protected void onResume()
    {
-      Log.d( TAG, "onResume" );
       super.onResume();
       updateTitleBar();
       updateBlankingBehavior();
@@ -510,7 +507,6 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onDestroy()
    {
-      Log.d( TAG, "onDestroy" );
       this.mLoggerServiceManager.shutdown();
       if( mWakeLock != null && mWakeLock.isHeld() )
       {
@@ -532,7 +528,6 @@ public class LoggerMap extends MapActivity
    @Override
    public void onNewIntent( Intent newIntent )
    {
-      Log.d( TAG, "onNewIntent" );
       Uri data = newIntent.getData();
       if( data != null )
       {

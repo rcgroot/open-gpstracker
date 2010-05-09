@@ -143,19 +143,15 @@ public class Statistics extends Activity
             switch( id )
             {
                case R.id.graphtype_timespeed:
-                  Log.d( TAG, "graphtype_timespeed" );
                   mViewFlipper.setDisplayedChild( 0 );
                   break;
                case R.id.graphtype_distancespeed:
-                  Log.d( TAG, "graphtype_timealtitude" );
                   mViewFlipper.setDisplayedChild( 1 );
                   break;
                case R.id.graphtype_timealtitude:
-                  Log.d( TAG, "" );
                   mViewFlipper.setDisplayedChild( 2 );
                   break;
                case R.id.graphtype_distancealtitude:
-                  Log.d( TAG, "graphtype_distancealtitude" );
                   mViewFlipper.setDisplayedChild( 3 );
                   break;
                default:

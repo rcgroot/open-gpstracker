@@ -144,7 +144,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderDisabled( String provider )
          {
-            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
+//            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
             if( mPrecision != LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                disabledProviderNotification( R.string.service_gpsdisabled );
@@ -158,7 +158,6 @@ public class GPSLoggerService extends Service
 
          public void onProviderEnabled( String provider )
          {
-            Log.d( TAG, "onProviderEnabled( String " + provider + " )" );
             if( mPrecision != LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                enabledProviderNotification( R.string.service_gpsenabled );

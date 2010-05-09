@@ -34,7 +34,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 
 /**
- * ????
+ * Work around based on input from the comment section of
+ * <a href="http://code.google.com/p/android/issues/detail?can=2&q=6191&colspec=ID%20Type%20Status%20Owner%20Summary%20Stars&id=6191">Issue 6191</a>
  * 
  * @version $Id$
  * @author rene (c) May 8, 2010, Sogeti B.V.
@@ -54,6 +55,11 @@ public class ViewFlipper extends android.widget.ViewFlipper
       super( context, attrs );
    }
 
+   /**
+    * On api level 7 unexpected exception occur during orientation switching.
+    * These are java.lang.IllegalArgumentException: Receiver not registered: android.widget.ViewFlipper$id
+    * exceptions. On level 7 devices these are ignored.
+    */
    @Override
    protected void onDetachedFromWindow()
    {

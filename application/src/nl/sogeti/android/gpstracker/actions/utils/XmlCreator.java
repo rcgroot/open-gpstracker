@@ -106,7 +106,7 @@ public abstract class XmlCreator extends Thread
          zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + extenstion;
       }
       String[] filenames = new File( mExportDirectoryPath ).list();
-      Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
+//      Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
       byte[] buf = new byte[1024];
       ZipOutputStream zos = null;
       try
@@ -115,7 +115,6 @@ public abstract class XmlCreator extends Thread
          for( int i = 0; i < filenames.length; i++ )
          {
             String entryFilePath = mExportDirectoryPath + "/" + filenames[i];
-            Log.d( TAG, String.format( "Adding to zip %s the file %s", zipFilePath, entryFilePath ) );
             FileInputStream in = new FileInputStream( entryFilePath );
             zos.putNextEntry( new ZipEntry( filenames[i] ) );
             int len;
