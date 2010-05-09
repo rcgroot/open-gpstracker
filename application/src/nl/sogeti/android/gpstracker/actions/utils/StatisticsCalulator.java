@@ -27,10 +27,10 @@ public class StatisticsCalulator
    private long mStarttime = -1;
    private long mEndtime = -1;
    private UnitsI18n mUnits;
-   private double maxSpeeddb;
-   private double maxAltitude;
-   private double minAltitude;
-   private double distanceTraveled;
+   private double mMaxSpeed;
+   private double mMaxAltitude;
+   private double mMinAltitude;
+   private double mDistanceTraveled;
    private long mDuration;
    
    
@@ -42,10 +42,10 @@ public class StatisticsCalulator
 
    public void updateCalculations( Uri mTrackUri )
    {
-      maxSpeeddb = 0;
-      maxAltitude = 0;
-      minAltitude = 0;
-      distanceTraveled = 0f;
+      mMaxSpeed = 0;
+      mMaxAltitude = 0;
+      mMinAltitude = 0;
+      mDistanceTraveled = 0f;
       long duration = 1;
 
       ContentResolver resolver = mContext.getContentResolver();
@@ -58,9 +58,9 @@ public class StatisticsCalulator
                null, null, null );
          if( waypointsCursor.moveToLast() )
          {
-            maxSpeeddb = waypointsCursor.getDouble( 0 );
-            maxAltitude = waypointsCursor.getDouble( 1 );
-            minAltitude = waypointsCursor.getDouble( 2 );
+            mMaxSpeed = waypointsCursor.getDouble( 0 );
+            mMaxAltitude = waypointsCursor.getDouble( 1 );
+            mMinAltitude = waypointsCursor.getDouble( 2 );
             long nrWaypoints = waypointsCursor.getLong( 3 );
             waypointsText = nrWaypoints + "";
          }
@@ -119,7 +119,7 @@ public class StatisticsCalulator
                         currentLocation.setLatitude( waypoints.getDouble( 3 ) );
                         if( lastLocation != null )
                         {
-                           distanceTraveled += lastLocation.distanceTo( currentLocation );
+                           mDistanceTraveled += lastLocation.distanceTo( currentLocation );
                            duration += currentLocation.getTime() - lastLocation.getTime();
                         }
                         lastLocation = currentLocation;
@@ -150,18 +150,18 @@ public class StatisticsCalulator
          }
       }
 
-      maxSpeeddb = mUnits.conversionFromMetersPerSecond( maxSpeeddb );
-      maxAltitude = mUnits.conversionFromMeterToHeight( maxAltitude );
-      minAltitude = mUnits.conversionFromMeterToHeight( minAltitude );
-      double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, mDuration );
-      double avgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, duration );
-      distanceTraveled = mUnits.conversionFromMeter( distanceTraveled );
-      avgSpeedText = String.format( "%.2f %s", avgSpeedfl, mUnits.getSpeedUnit() );
+      double speed             = mUnits.conversionFromMetersPerSecond( mMaxSpeed );
+      double maxAltitude       = mUnits.conversionFromMeterToHeight( mMaxAltitude );
+      double minAltitude       = mUnits.conversionFromMeterToHeight( mMinAltitude );
+      double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( mDistanceTraveled, mDuration );
+      double avgSpeedfl        = mUnits.conversionFromMeterAndMiliseconds( mDistanceTraveled, duration );
+      double traveled          = mUnits.conversionFromMeter( mDistanceTraveled );
+      avgSpeedText        = String.format( "%.2f %s", avgSpeedfl, mUnits.getSpeedUnit() );
       overallavgSpeedText = String.format( "%.2f %s", overallavgSpeedfl, mUnits.getSpeedUnit() );
-      distanceText = String.format( "%.2f %s", distanceTraveled, mUnits.getDistanceUnit() );
-      maxSpeedText = String.format( "%.2f %s", maxSpeeddb, mUnits.getSpeedUnit() );
-      minAltitudeText = String.format( "%.0f %s", minAltitude, mUnits.getHeightUnit() );
-      maxAltitudeText = String.format( "%.0f %s", maxAltitude, mUnits.getHeightUnit() );
+      distanceText        = String.format( "%.2f %s", traveled, mUnits.getDistanceUnit() );
+      maxSpeedText        = String.format( "%.2f %s", speed, mUnits.getSpeedUnit() );
+      minAltitudeText     = String.format( "%.0f %s", minAltitude, mUnits.getHeightUnit() );
+      maxAltitudeText     = String.format( "%.0f %s", maxAltitude, mUnits.getHeightUnit() );
    }
 
    /**
@@ -271,7 +271,7 @@ public class StatisticsCalulator
     */
    public double getMaxSpeed()
    {
-      return maxSpeeddb;
+      return mMaxSpeed;
    }
 
    /**
@@ -281,7 +281,7 @@ public class StatisticsCalulator
     */
    public double getMaxAltitude()
    {
-      return maxAltitude;
+      return mMaxAltitude;
    }
 
    /**
@@ -291,7 +291,7 @@ public class StatisticsCalulator
     */
    public double getMinAltitude()
    {
-      return minAltitude;
+      return mMinAltitude;
    }
 
    /**
@@ -301,7 +301,7 @@ public class StatisticsCalulator
     */
    public double getDistanceTraveled()
    {
-      return distanceTraveled;
+      return mDistanceTraveled;
    }
 
    /**

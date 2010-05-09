@@ -75,10 +75,10 @@
     <string name="menu_notetext">Write Text</string>
     <string name="menu_notespeech">Record Speech</string>
     <string name="menu_notevideo">Record Video</string>
-    <string name="graphtype_timespeed">Speed against time</string>
-    <string name="graphtype_timealtitude">Altitude against time</string>
-    <string name="graphtype_distancespeed">Speed against distance</string>
-    <string name="graphtype_distancealtitude">Altitude against distance</string>
+    <string name="graphtype_timespeed">Speed over time</string>
+    <string name="graphtype_timealtitude">Altitude over time</string>
+    <string name="graphtype_distancespeed">Speed over distance</string>
+    <string name="graphtype_distancealtitude">Altitude over distance</string>
 
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Track data</string>

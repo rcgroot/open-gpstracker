@@ -38,6 +38,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
 
 /**
@@ -70,7 +71,7 @@ public class UnitsI18n
    };
    
    @SuppressWarnings("unused")
-   private static final String TAG = "UnitsI18n";
+   private static final String TAG = "OGT.UnitsI18n";
    
    public UnitsI18n( Context ctx, UnitsChangeListener listener )
    {
@@ -176,7 +177,9 @@ public class UnitsI18n
    }
    public double conversionFromMeter( double meters )
    {
-      return meters * mConversion_from_meter_to_distance;
+      double value = meters * mConversion_from_meter_to_distance;
+      Log.d( TAG, String.format( "Converting %f.4 meters to a value of %f.4", meters, value ) );
+      return value;
    }
    public double conversionFromMeterToHeight( double meters )
    {
