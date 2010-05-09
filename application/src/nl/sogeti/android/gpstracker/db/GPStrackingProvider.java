@@ -412,6 +412,7 @@ public class GPStrackingProvider extends ContentProvider
          case LIVE_FOLDERS:
             tableName = Tracks.TABLE;
             projection = LIVE_PROJECTION;
+            sortorder = Tracks.CREATION_TIME+" desc";
             break;
          default:
             Log.e( GPStrackingProvider.TAG, "Unable to come to an action in the query uri: " + uri.toString() );
