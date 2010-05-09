@@ -51,6 +51,7 @@ import android.graphics.Bitmap.Config;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -62,7 +63,7 @@ import android.view.View;
 public class GraphCanvas extends View
 {
    @SuppressWarnings("unused")
-   private static final String TAG = "GraphCanvas";
+   private static final String TAG = "OGT.GraphCanvas";
    public static final int TIMESPEEDGRAPH = 0;
    public static final int DISTANCESPEEDGRAPH = 1;
    public static final int TIMEALTITUDEGRAPH = 2;
@@ -119,7 +120,7 @@ public class GraphCanvas extends View
     * @param maxSpeed
     * @param units
     */
-   public void setData( Uri uri, long startTime, long endTime, double distance, double minAlititude, double maxAlititude, double maxSpeed, UnitsI18n units )
+   public void setData( Uri uri, StatisticsCalulator calc )
    { 
       boolean rerender = false;
       if( uri.equals( mUri ) )
@@ -134,13 +135,13 @@ public class GraphCanvas extends View
       }
       
       mUri          = uri;
-      mUnits        = units;
-      mMinAlititude = minAlititude;
-      mMaxAlititude = maxAlititude;
-      mMaxSpeed     = maxSpeed;
-      mStartTime    = startTime;
-      mEndTime      = endTime;
-      mDistance     = distance;
+      mUnits        = calc.getUnits();
+      mMinAlititude = calc.getMinAltitude();
+      mMaxAlititude = calc.getMaxAltitude();
+      mMaxSpeed     = calc.getMaxSpeed();
+      mStartTime    = calc.getStarttime();
+      mEndTime      = calc.getEndtime();
+      mDistance     = calc.getDistanceTraveled();
       if( rerender && !calculating )
       {
          renderGraph();

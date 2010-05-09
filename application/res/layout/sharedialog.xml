@@ -30,7 +30,15 @@
             android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
 
-
+         <TextView
+            android:text="@string/share_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+         <Spinner
+            android:id="@+id/shareTargetSpinner"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent" />
+            
          <TextView
             android:text="@string/share_name"
             android:layout_width="wrap_content"
@@ -40,15 +48,6 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:singleLine="true"
-            android:layout_width="fill_parent" />
-
-         <TextView
-            android:text="@string/share_target"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-         <Spinner
-            android:id="@+id/shareTargetSpinner"
-            android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
       </LinearLayout>
    </ScrollView>

@@ -48,6 +48,7 @@
     <string name="error_filename"> reden: Fout in de bestandsnaam</string>
     <string name="error_buildxml"> reden: Fout tijdens bouwen XML</string>
     <string name="error_writesdcard"> reden: Fout tijdens schrijven naar de SDcard</string>
+    <string name="tweettext">%s: Afgelegd %s met een gemiddelde snelheid van %s gedurende %s #opengpstracker</string>
     
 	<!-- Buttons -->
 	<string name="btn_okay">OK</string>

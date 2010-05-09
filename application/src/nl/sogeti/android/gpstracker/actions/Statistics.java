@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.actions;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
+import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -80,21 +81,73 @@ public class Statistics extends Activity
    @SuppressWarnings("unused")
    private static final String TAG = "OGT.Statistics";
 
-   private final ContentObserver mTrackObserver = new ContentObserver( new Handler() )
-      {
-
-         @Override
-         public void onChange( boolean selfUpdate )
-         {
-            if( !calculating )
-            {
-               Statistics.this.drawTrackingStatistics();
-            }
-         }
-      };
    private static final int SWIPE_MIN_DISTANCE = 120;
    private static final int SWIPE_MAX_OFF_PATH = 250;
    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+   private Uri mTrackUri = null;
+   private boolean calculating;
+   private TextView overallavgSpeedView;
+   private TextView avgSpeedView;
+   private TextView distanceView;
+   private TextView endtimeView;
+   private TextView starttimeView;
+   private TextView maxSpeedView;
+   private TextView waypointsView;
+   private TextView minAltitudeView;
+   private TextView maxAltitudeView;
+
+   private UnitsI18n mUnits;
+   private GraphCanvas mGraphTimeSpeed;
+
+   private ViewFlipper mViewFlipper;
+   private Animation mSlideLeftIn;
+   private Animation mSlideLeftOut;
+   private Animation mSlideRightIn;
+   private Animation mSlideRightOut;
+   private GestureDetector mGestureDetector;
+   private GraphCanvas mGraphDistanceSpeed;
+   private GraphCanvas mGraphTimeAltitude;
+   private GraphCanvas mGraphDistanceAltitude;
+
+   private final ContentObserver mTrackObserver = new ContentObserver( new Handler() )
+   {
+   
+      @Override
+      public void onChange( boolean selfUpdate )
+      {
+         if( !calculating )
+         {
+            Statistics.this.drawTrackingStatistics();
+         }
+      }
+   };
+   private OnClickListener mGraphControlListener = new View.OnClickListener()
+   {
+      public void onClick( View v )
+      {
+         int id = v.getId();
+         switch( id )
+         {
+            case R.id.graphtype_timespeed:
+               mViewFlipper.setDisplayedChild( 0 );
+               break;
+            case R.id.graphtype_distancespeed:
+               mViewFlipper.setDisplayedChild( 1 );
+               break;
+            case R.id.graphtype_timealtitude:
+               mViewFlipper.setDisplayedChild( 2 );
+               break;
+            case R.id.graphtype_distancealtitude:
+               mViewFlipper.setDisplayedChild( 3 );
+               break;
+            default:
+               break;
+         }
+         dismissDialog( DIALOG_GRAPHTYPE );
+      }
+   };
+   private StatisticsCalulator mCalculator;
 
    class MyGestureDetector extends SimpleOnGestureListener
    {
@@ -120,56 +173,6 @@ public class Statistics extends Activity
       }
    }
 
-   private Uri mTrackUri = null;
-   private boolean calculating;
-   private TextView overallavgSpeedView;
-   private TextView avgSpeedView;
-   private TextView distanceView;
-   private TextView endtimeView;
-   private TextView starttimeView;
-   private TextView maxSpeedView;
-   private TextView waypointsView;
-   private TextView minAltitudeView;
-   private TextView maxAltitudeView;
-
-   private UnitsI18n mUnits;
-   private GraphCanvas mGraphTimeSpeed;
-
-   private OnClickListener mGraphControlListener = new View.OnClickListener()
-      {
-         public void onClick( View v )
-         {
-            int id = v.getId();
-            switch( id )
-            {
-               case R.id.graphtype_timespeed:
-                  mViewFlipper.setDisplayedChild( 0 );
-                  break;
-               case R.id.graphtype_distancespeed:
-                  mViewFlipper.setDisplayedChild( 1 );
-                  break;
-               case R.id.graphtype_timealtitude:
-                  mViewFlipper.setDisplayedChild( 2 );
-                  break;
-               case R.id.graphtype_distancealtitude:
-                  mViewFlipper.setDisplayedChild( 3 );
-                  break;
-               default:
-                  break;
-            }
-            dismissDialog( DIALOG_GRAPHTYPE );
-         }
-      };
-   private ViewFlipper mViewFlipper;
-   private Animation mSlideLeftIn;
-   private Animation mSlideLeftOut;
-   private Animation mSlideRightIn;
-   private Animation mSlideRightOut;
-   private GestureDetector mGestureDetector;
-   private GraphCanvas mGraphDistanceSpeed;
-   private GraphCanvas mGraphTimeAltitude;
-   private GraphCanvas mGraphDistanceAltitude;
-
    /**
     * Called when the activity is first created.
     */
@@ -186,6 +189,9 @@ public class Statistics extends Activity
          } );
       setContentView( R.layout.statistics );
 
+
+      mCalculator = new StatisticsCalulator( this, mUnits );
+      
       mViewFlipper = (ViewFlipper) findViewById( R.id.flipper );
       mSlideLeftIn = AnimationUtils.loadAnimation( this, R.anim.slide_left_in );
       mSlideLeftOut = AnimationUtils.loadAnimation( this, R.anim.slide_left_out );
@@ -389,154 +395,26 @@ public class Statistics extends Activity
    private void drawTrackingStatistics()
    {
       calculating = true;
-      String overallavgSpeedText = "Unknown";
-      String avgSpeedText = "Unknown";
-      String maxSpeedText = "Unknown";
-      String maxAltitudeText = "Unknown";
-      String minAltitudeText = "Unknown";
-      String tracknameText = "Unknown";
-      String waypointsText = "Unknown";
-      String distanceText = "Unknown";
-      long starttime = 0;
-      long endtime = 0;
-      double maxSpeeddb = 0;
-      double maxAltitude = 0;
-      double minAltitude = 0;
-      double distanceTraveled = 0f;
-      long duration = 1;
-      long overallduration = 1;
+      
+      mCalculator.updateCalculations( mTrackUri );
+      
+      mGraphTimeSpeed.setData       ( mTrackUri, mCalculator );
+      mGraphDistanceSpeed.setData   ( mTrackUri, mCalculator );
+      mGraphTimeAltitude.setData    ( mTrackUri, mCalculator );
+      mGraphDistanceAltitude.setData( mTrackUri, mCalculator );
 
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
-
-      Cursor waypointsCursor = null;
-      try
-      {
-         waypointsCursor = resolver.query( Uri.withAppendedPath( mTrackUri, "waypoints" ), new String[] { "max  (" + Waypoints.TABLE + "." + Waypoints.SPEED + ")",
-               "max  (" + Waypoints.TABLE + "." + Waypoints.ALTITUDE + ")", "min  (" + Waypoints.TABLE + "." + Waypoints.ALTITUDE + ")", "count(" + Waypoints.TABLE + "." + Waypoints._ID + ")" },
-               null, null, null );
-         if( waypointsCursor.moveToLast() )
-         {
-            maxSpeeddb = waypointsCursor.getDouble( 0 );
-            maxAltitude = waypointsCursor.getDouble( 1 );
-            minAltitude = waypointsCursor.getDouble( 2 );
-            long nrWaypoints = waypointsCursor.getLong( 3 );
-            waypointsText = nrWaypoints + "";
-         }
-      }
-      finally
-      {
-         if( waypointsCursor != null )
-         {
-            waypointsCursor.close();
-         }
-      }
-      Cursor trackCursor = null;
-      try
-      {
-         trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
-         if( trackCursor.moveToLast() )
-         {
-            tracknameText = trackCursor.getString( 0 );
-         }
-      }
-      finally
-      {
-         if( trackCursor != null )
-         {
-            trackCursor.close();
-         }
-      }
-      Cursor segments = null;
-      Location lastLocation = null;
-      Location currentLocation = null;
-      try
-      {
-         Uri segmentsUri = Uri.withAppendedPath( this.mTrackUri, "segments" );
-         segments = resolver.query( segmentsUri, new String[] { Segments._ID }, null, null, null );
-         if( segments.moveToFirst() )
-         {
-            do
-            {
-               long segmentsId = segments.getLong( 0 );
-               Cursor waypoints = null;
-               try
-               {
-                  Uri waypointsUri = Uri.withAppendedPath( segmentsUri, segmentsId + "/waypoints" );
-                  waypoints = resolver.query( waypointsUri, new String[] { Waypoints._ID, Waypoints.TIME, Waypoints.LONGITUDE, Waypoints.LATITUDE }, null, null, null );
-                  if( waypoints.moveToFirst() )
-                  {
-                     do
-                     {
-                        if( starttime == 0 )
-                        {
-                           starttime = waypoints.getLong( 1 );
-                        }
-                        currentLocation = new Location( this.getClass().getName() );
-                        currentLocation.setTime( waypoints.getLong( 1 ) );
-                        currentLocation.setLongitude( waypoints.getDouble( 2 ) );
-                        currentLocation.setLatitude( waypoints.getDouble( 3 ) );
-                        if( lastLocation != null )
-                        {
-                           distanceTraveled += lastLocation.distanceTo( currentLocation );
-                           duration += currentLocation.getTime() - lastLocation.getTime();
-                        }
-                        lastLocation = currentLocation;
-
-                     }
-                     while( waypoints.moveToNext() );
-                     endtime = lastLocation.getTime();
-                     overallduration = endtime - starttime;
-                  }
-               }
-               finally
-               {
-                  if( waypoints != null )
-                  {
-                     waypoints.close();
-                  }
-               }
-               lastLocation = null;
-            }
-            while( segments.moveToNext() );
-         }
-      }
-      finally
-      {
-         if( segments != null )
-         {
-            segments.close();
-         }
-      }
-
-      mGraphTimeSpeed.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
-      mGraphDistanceSpeed.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
-      mGraphTimeAltitude.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
-      mGraphDistanceAltitude.setData( mTrackUri, starttime, endtime, distanceTraveled, minAltitude, maxAltitude, maxSpeeddb, mUnits );
-
-      maxSpeeddb = mUnits.conversionFromMetersPerSecond( maxSpeeddb );
-      maxAltitude = mUnits.conversionFromMeterToHeight( maxAltitude );
-      minAltitude = mUnits.conversionFromMeterToHeight( minAltitude );
-      double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, overallduration );
-      double avgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( distanceTraveled, duration );
-      distanceTraveled = mUnits.conversionFromMeter( distanceTraveled );
-      avgSpeedText = String.format( "%.2f %s", avgSpeedfl, mUnits.getSpeedUnit() );
-      overallavgSpeedText = String.format( "%.2f %s", overallavgSpeedfl, mUnits.getSpeedUnit() );
-      distanceText = String.format( "%.2f %s", distanceTraveled, mUnits.getDistanceUnit() );
-      maxSpeedText = String.format( "%.2f %s", maxSpeeddb, mUnits.getSpeedUnit() );
-      minAltitudeText = String.format( "%.0f %s", minAltitude, mUnits.getHeightUnit() );
-      maxAltitudeText = String.format( "%.0f %s", maxAltitude, mUnits.getHeightUnit() );
-
-      maxSpeedView.setText( maxSpeedText );
-      maxAltitudeView.setText( maxAltitudeText );
-      minAltitudeView.setText( minAltitudeText );
-      overallavgSpeedView.setText( overallavgSpeedText );
-      avgSpeedView.setText( avgSpeedText );
-      distanceView.setText( distanceText );
-      starttimeView.setText( Long.toString( starttime ) );
-      endtimeView.setText( Long.toString( endtime ) );
+      
+      maxSpeedView.setText( mCalculator.getMaxSpeedText() );
+      maxAltitudeView.setText( mCalculator.getMaxAltitudeText() );
+      minAltitudeView.setText( mCalculator.getMinAltitudeText() );
+      overallavgSpeedView.setText( mCalculator.getOverallavgSpeedText() );
+      avgSpeedView.setText( mCalculator.getAvgSpeedText() );
+      distanceView.setText( mCalculator.getDistanceText() );
+      starttimeView.setText( Long.toString( mCalculator.getStarttime() ) );
+      endtimeView.setText( Long.toString( mCalculator.getEndtime() ) );
       String titleFormat = getString( R.string.stat_title );
-      setTitle( String.format( titleFormat, tracknameText ) );
-      waypointsView.setText( waypointsText );
+      setTitle( String.format( titleFormat, mCalculator.getTracknameText() ) );
+      waypointsView.setText( mCalculator.getWaypointsText() );
 
       calculating = false;
    }

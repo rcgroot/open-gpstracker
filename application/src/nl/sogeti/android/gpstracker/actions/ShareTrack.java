@@ -3,7 +3,9 @@ package nl.sogeti.android.gpstracker.actions;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
+import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;
 import android.app.Notification;
@@ -39,6 +41,7 @@ public class ShareTrack extends Activity
    private Spinner mShareTypeSpinner;
    private Spinner mShareTargetSpinner;
    private Uri mTrackUri;
+   private StatisticsCalulator calculator;
 
    @Override
    public void onCreate( Bundle savedInstanceState )
@@ -70,6 +73,7 @@ public class ShareTrack extends Activity
                      break;
                   case 2: //Line of text
                      setTextLineExportTargets();
+                     setDefaultTwitterText();
                   default:
                      break;
                }
@@ -81,6 +85,8 @@ public class ShareTrack extends Activity
 
       setXmlExportTargets();
 
+      calculator = new StatisticsCalulator( this, new UnitsI18n( this, null ) );
+      
       Button okay = (Button) findViewById( R.id.okayshare_button );
       okay.setOnClickListener( new View.OnClickListener()
          {
@@ -112,6 +118,17 @@ public class ShareTrack extends Activity
       ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource( this, R.array.sharetexttarget_choices, android.R.layout.simple_spinner_item );
       shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
       mShareTargetSpinner.setAdapter( shareTargetAdapter );
+   }
+   
+   private void setDefaultTwitterText()
+   {
+      calculator.updateCalculations( mTrackUri );
+      String name = resolveTrackName();
+      String distString = calculator.getDistanceText();
+      String avgSpeed = calculator.getAvgSpeedText();
+      String duration = calculator.getDurationText();
+      String message = String.format( getString( R.string.tweettext, name, distString, avgSpeed, duration  ) );
+      mFileNameView.setText( message );
    }
 
    private void share()
@@ -170,19 +187,19 @@ public class ShareTrack extends Activity
       mGpxCreator.start();
    }
 
-   protected void exportTextLine( String chosenFileName, int target )
+   protected void exportTextLine( String message, int target )
    {
-      String msg = "look at me!";
+      String subject = "Open GPS Tracker";
       switch( target )
       {
          case 0:
-            sendTwidroidTweet( "Twitter twitter twatter, testing twitter wat later #opengpstracker #" + chosenFileName );
+            sendTwidroidTweet( message );
             break;
          case 1:
-            sendSMS( chosenFileName, msg );
+            sendSMS( message );
             break;
          case 2:
-            sentGenericText( chosenFileName, msg );
+            sentGenericText( subject, message );
             break;
       }
 
@@ -206,11 +223,11 @@ public class ShareTrack extends Activity
       startActivity( Intent.createChooser( sendActionIntent, getString( R.string.sender_chooser ) ) );
    }
 
-   private void sendSMS( String intro, String msg )
+   private void sendSMS( String msg )
    {
       final Intent intent = new Intent( Intent.ACTION_VIEW );
       intent.setType( "vnd.android-dir/mms-sms" );
-      intent.putExtra( "sms_body", intro + " " + msg );
+      intent.putExtra( "sms_body", msg );
       startActivity( intent );
    }
 

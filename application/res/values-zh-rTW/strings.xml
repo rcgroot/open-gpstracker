@@ -47,6 +47,7 @@
     <string name="error_filename"> 原因: 錯誤的檔案名</string>
     <string name="error_buildxml"> 原因: 建立 XML 時出錯</string>
     <string name="error_writesdcard"> 原因: 寫入到 SD 卡時出錯</string>
+    <string name="tweettext">%s: Traveled %s with an average speed of %s during %s #opengpstracker</string>
     
 	<!-- Buttons -->
 	<string name="btn_okay">確認</string>

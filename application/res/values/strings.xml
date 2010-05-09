@@ -48,6 +48,7 @@
     <string name="error_filename"> reason: Incorrect filename</string>
     <string name="error_buildxml"> reason: Error building XML</string>
     <string name="error_writesdcard"> reason: Error writing to SD card</string>
+    <string name="tweettext">%s: Traveled %s with an average speed of %s during %s #opengpstracker</string>
     
     <!-- Buttons -->
 	<string name="btn_okay">OK</string>
