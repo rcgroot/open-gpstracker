@@ -37,6 +37,8 @@
     <string name="layer_speed">Speed</string>
     <string name="layer_compass">Compass</string>
     <string name="layer_location">My Location</string>
+    <string name="dialog_notwidroid">twidroid missing</string>
+    <string name="dialog_notwidroid_message">The application \"twidroid\" is required to tweet this line.</string>
     
     <!-- Messages -->
     <string name="from">Tracked on: </string>

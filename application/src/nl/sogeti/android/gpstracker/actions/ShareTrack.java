@@ -8,15 +8,22 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.AlertDialog.Builder;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,6 +38,7 @@ public class ShareTrack extends Activity
 
    protected static final int DIALOG_FILENAME = 11;
    protected static final int PROGRESS_STEPS = 10;
+   private static final int DIALOG_INSTALL_TWIDROID = 34;
 
    private RemoteViews mContentView;
    private int barProgress = 0;
@@ -42,6 +50,24 @@ public class ShareTrack extends Activity
    private Spinner mShareTargetSpinner;
    private Uri mTrackUri;
    private StatisticsCalulator calculator;
+   private OnClickListener mTwidroidDialogListener = new DialogInterface.OnClickListener()
+   {
+      public void onClick( DialogInterface dialog, int which )
+      {
+         Uri twidroidUri = Uri.parse( "market://details?id=com.twidroid" );
+         Intent getTwidroid = new Intent( Intent.ACTION_VIEW, twidroidUri );
+         try
+         {
+            startActivity( getTwidroid );
+         }
+         catch (ActivityNotFoundException e)
+         {
+            twidroidUri = Uri.parse( "http://twidroid.com/download/" );
+            getTwidroid = new Intent( Intent.ACTION_VIEW, twidroidUri );
+            startActivity( getTwidroid );
+         }
+      }
+   };
 
    @Override
    public void onCreate( Bundle savedInstanceState )
@@ -78,15 +104,15 @@ public class ShareTrack extends Activity
                      break;
                }
             }
-
             public void onNothingSelected( AdapterView< ? > arg0 )
-            { /* NOOP */ }
+            { /* NOOP */
+            }
          } );
 
       setXmlExportTargets();
 
       calculator = new StatisticsCalulator( this, new UnitsI18n( this, null ) );
-      
+
       Button okay = (Button) findViewById( R.id.okayshare_button );
       okay.setOnClickListener( new View.OnClickListener()
          {
@@ -106,6 +132,34 @@ public class ShareTrack extends Activity
          } );
    }
 
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onCreateDialog(int)
+    */
+   @Override
+   protected Dialog onCreateDialog( int id )
+   {
+      Dialog dialog = null;
+      LayoutInflater factory = null;
+      View view = null;
+      Builder builder = null;
+      switch( id )
+      {
+         case DIALOG_INSTALL_TWIDROID:
+            builder = new AlertDialog.Builder( this );
+            builder
+               .setTitle( R.string.dialog_notwidroid )
+               .setMessage( R.string.dialog_notwidroid_message )
+               .setIcon( android.R.drawable.ic_dialog_alert )
+               .setPositiveButton( R.string.btn_install, mTwidroidDialogListener )
+               .setNegativeButton( R.string.btn_cancel, null );
+            dialog = builder.create();
+            return dialog;
+         default:
+            return super.onCreateDialog( id );
+      }
+   }
+
    private void setXmlExportTargets()
    {
       ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource( this, R.array.sharefiletarget_choices, android.R.layout.simple_spinner_item );
@@ -119,7 +173,7 @@ public class ShareTrack extends Activity
       shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
       mShareTargetSpinner.setAdapter( shareTargetAdapter );
    }
-   
+
    private void setDefaultTwitterText()
    {
       calculator.updateCalculations( mTrackUri );
@@ -127,7 +181,7 @@ public class ShareTrack extends Activity
       String distString = calculator.getDistanceText();
       String avgSpeed = calculator.getAvgSpeedText();
       String duration = calculator.getDurationText();
-      String message = String.format( getString( R.string.tweettext, name, distString, avgSpeed, duration  ) );
+      String message = String.format( getString( R.string.tweettext, name, distString, avgSpeed, duration ) );
       mFileNameView.setText( message );
    }
 
@@ -210,7 +264,14 @@ public class ShareTrack extends Activity
       final Intent intent = new Intent( "com.twidroid.SendTweet" );
       intent.putExtra( "com.twidroid.extra.MESSAGE", tweet );
       intent.setType( "application/twitter" );
-      startActivity( intent );
+      try
+      {
+         startActivity( intent );
+      }
+      catch( ActivityNotFoundException e )
+      {
+         showDialog( DIALOG_INSTALL_TWIDROID );
+      }
    }
 
    private void sendFile( Uri fileUri, String body, String contentType )

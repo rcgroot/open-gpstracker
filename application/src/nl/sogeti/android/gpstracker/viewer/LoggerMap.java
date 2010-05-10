@@ -148,6 +148,7 @@ public class LoggerMap extends MapActivity
    private double mAverageSpeed = 33.33d / 2d;
    private long mTrackId = -1;
    private long mLastSegment = -1;
+   @SuppressWarnings("unused")
    private long mLastWaypoint = -1;
    private UnitsI18n mUnits;
    private WakeLock mWakeLock = null;

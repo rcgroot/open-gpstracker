@@ -37,6 +37,8 @@
     <string name="layer_speed">Snelheid</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">Mijn locatie</string>
+    <string name="dialog_twidroid">twidroid nodig</string>
+    <string name="dialog_twidroid_message">De applicatie \"twidroid\" is nodig om deze regel te tweeten.</string>
     
     <!-- Messages -->
     <string name="from">Opgenomen op: </string>
