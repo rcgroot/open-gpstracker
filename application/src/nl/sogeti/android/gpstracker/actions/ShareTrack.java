@@ -46,6 +46,7 @@ public class ShareTrack extends Activity
    private NotificationManager mNotificationManager;
 
    private EditText mFileNameView;
+   private EditText mTweetView;
    private Spinner mShareTypeSpinner;
    private Spinner mShareTargetSpinner;
    private Uri mTrackUri;
@@ -77,8 +78,8 @@ public class ShareTrack extends Activity
 
       mTrackUri = getIntent().getData();
       mFileNameView = (EditText) findViewById( R.id.fileNameField );
-      mFileNameView.setText( resolveTrackName() );
-
+      mTweetView = (EditText) findViewById( R.id.tweetField );
+      
       mShareTypeSpinner = (Spinner) findViewById( R.id.shareTypeSpinner );
       ArrayAdapter<CharSequence> shareTypeAdapter = ArrayAdapter.createFromResource( this, R.array.sharetype_choices, android.R.layout.simple_spinner_item );
       shareTypeAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
@@ -93,13 +94,18 @@ public class ShareTrack extends Activity
                {
                   case 0: //KMZ
                      setXmlExportTargets();
+                     mFileNameView.setVisibility( View.VISIBLE );
+                     mTweetView.setVisibility( View.GONE );
                      break;
                   case 1: //GPX
                      setXmlExportTargets();
+                     mFileNameView.setVisibility( View.VISIBLE );
+                     mTweetView.setVisibility( View.GONE );
                      break;
                   case 2: //Line of text
                      setTextLineExportTargets();
-                     setDefaultTwitterText();
+                     mFileNameView.setVisibility( View.GONE );
+                     mTweetView.setVisibility( View.VISIBLE );
                   default:
                      break;
                }
@@ -112,6 +118,8 @@ public class ShareTrack extends Activity
       setXmlExportTargets();
 
       calculator = new StatisticsCalulator( this, new UnitsI18n( this, null ) );
+      mFileNameView.setText( createFileName() );
+      mTweetView.setText( createTweetText() );
 
       Button okay = (Button) findViewById( R.id.okayshare_button );
       okay.setOnClickListener( new View.OnClickListener()
@@ -140,8 +148,6 @@ public class ShareTrack extends Activity
    protected Dialog onCreateDialog( int id )
    {
       Dialog dialog = null;
-      LayoutInflater factory = null;
-      View view = null;
       Builder builder = null;
       switch( id )
       {
@@ -173,23 +179,13 @@ public class ShareTrack extends Activity
       shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
       mShareTargetSpinner.setAdapter( shareTargetAdapter );
    }
-
-   private void setDefaultTwitterText()
-   {
-      calculator.updateCalculations( mTrackUri );
-      String name = resolveTrackName();
-      String distString = calculator.getDistanceText();
-      String avgSpeed = calculator.getAvgSpeedText();
-      String duration = calculator.getDurationText();
-      String message = String.format( getString( R.string.tweettext, name, distString, avgSpeed, duration ) );
-      mFileNameView.setText( message );
-   }
-
+   
    private void share()
    {
       String chosenFileName = mFileNameView.getText().toString();
-      int type = (int) mShareTypeSpinner.getSelectedItemId();
-      int target = (int) mShareTargetSpinner.getSelectedItemId();
+      String textLine       = mTweetView.getText().toString();
+      int type              = (int) mShareTypeSpinner.getSelectedItemId();
+      int target            = (int) mShareTargetSpinner.getSelectedItemId();
       switch( type )
       {
          case 0: //KMZ
@@ -201,7 +197,7 @@ public class ShareTrack extends Activity
             ShareTrack.this.finish();
             break;
          case 2: //Line of text
-            exportTextLine( chosenFileName, target );
+            exportTextLine( textLine, target );
          default:
             break;
       }
@@ -301,7 +297,17 @@ public class ShareTrack extends Activity
       startActivity( intent );
    }
 
-   private String resolveTrackName()
+   private String createTweetText()
+   {
+      calculator.updateCalculations( mTrackUri );
+      String name = createFileName();
+      String distString = calculator.getDistanceText();
+      String avgSpeed = calculator.getAvgSpeedText();
+      String duration = calculator.getDurationText();
+      return String.format( getString( R.string.tweettext, name, distString, avgSpeed, duration ) );
+   }
+
+   private String createFileName()
    {
       ContentResolver resolver = getContentResolver();
       Cursor trackCursor = null;

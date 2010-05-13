@@ -49,6 +49,12 @@
             android:clickable="true"
             android:singleLine="true"
             android:layout_width="fill_parent" />
+         <EditText
+            android:id="@+id/tweetField"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:singleLine="true"
+            android:layout_width="fill_parent" />
       </LinearLayout>
    </ScrollView>
 
