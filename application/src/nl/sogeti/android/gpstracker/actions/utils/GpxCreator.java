@@ -123,18 +123,19 @@ public class GpxCreator extends XmlCreator
          }
       }
 
-      if( !( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) ) )
+      String xmlFilePath;
+      if( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) )
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
-         setXmlFileName( fileName + ".gpx" );
+         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 ) );
+         new File( getExportDirectoryPath() ).mkdirs();
+         xmlFilePath = getExportDirectoryPath() + "/" + fileName;
       }
       else
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 ) );
-         setXmlFileName( fileName );
+         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
+         new File( getExportDirectoryPath() ).mkdirs();
+         xmlFilePath = getExportDirectoryPath() + "/" + fileName+".gpx";
       }
-      new File( getExportDirectoryPath() ).mkdirs();
-      String xmlFilePath = getExportDirectoryPath() + "/" + getXmlFileName();
       
       if( mProgressListener != null )
       {
@@ -142,20 +143,26 @@ public class GpxCreator extends XmlCreator
          mProgressListener.updateNotification( getProgress(), getGoal() );
       }
 
-      String resultFilename = xmlFilePath;
+      String resultFilename = null;
       try
       {
          XmlSerializer serializer = Xml.newSerializer();
-         BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( xmlFilePath ), 8192 );
+         File xmlFile = new File( xmlFilePath );
+         Log.d( TAG, "xmlFilePath: "+xmlFilePath );         
+         BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( xmlFile ), 8192 );
          serializer.setOutput( buf, "UTF-8" );
-
+         
          serializeTrack( mTrackUri, serializer );
-
          if( isNeedsBundling() )
          {
-            resultFilename = bundlingMediaAndXml( fileName, ".zip" );
+            resultFilename = bundlingMediaAndXml( xmlFile.getParentFile().getName(), ".zip" );
+         }
+         else
+         {
+            resultFilename = xmlFile.getName();
          }
 
+         Log.d( TAG, "resultFilename: "+resultFilename );         
          fileName = new File( resultFilename ).getName();
 
          CharSequence text = mContext.getString( R.string.ticker_stored ) + "\"" + fileName + "\"";
@@ -190,15 +197,12 @@ public class GpxCreator extends XmlCreator
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
-      finally
+      Log.d( TAG, "Successfuly stored file " );         
+      if( mProgressListener != null )
       {
-         if( mProgressListener != null )
-         {
-            mProgressListener.endNotification( Uri.fromFile(  new File( resultFilename ) ), getContentType() );
-         }
-         Looper.loop();
+         mProgressListener.endNotification( Uri.fromFile(  new File( resultFilename ) ), getContentType() );
       }
-
+      Looper.loop();
    }
 
    private void serializeTrack( Uri trackUri, XmlSerializer serializer ) throws IllegalArgumentException, IllegalStateException, IOException

@@ -53,8 +53,9 @@
             android:id="@+id/tweetField"
             android:layout_height="wrap_content"
             android:clickable="true"
-            android:singleLine="true"
-            android:layout_width="fill_parent" />
+            android:layout_width="fill_parent"
+            android:maxLines="3"
+            android:maxLength="140"/>
       </LinearLayout>
    </ScrollView>
 

@@ -45,6 +45,7 @@ import android.util.Log;
 public abstract class XmlCreator extends Thread
 {
    
+   @SuppressWarnings("unused")
    private String TAG = "OGT.XmlCreator";
    private String mExportDirectoryPath;
    private String mXmlFileName;
@@ -90,23 +91,25 @@ public abstract class XmlCreator extends Thread
    /**
     * Create a zip of the export directory based on the given filename
     * 
-    * @param mExportDirectoryPath2
+    * @param fileName The directory to be replaced by a zipped file of the same name
+    * @param extension
+    * 
     * @return
     * @throws IOException
     */
-   protected String bundlingMediaAndXml( String fileName, String extenstion ) throws IOException
+   protected String bundlingMediaAndXml( String fileName, String extension ) throws IOException
    {
       String zipFilePath;
-      if( fileName.endsWith( ".zip" ) )
+      if( fileName.endsWith( ".zip" ) || fileName.endsWith( extension ) )
       {
          zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName;
       }
       else
       {
-         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + extenstion;
+         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + extension;
       }
       String[] filenames = new File( mExportDirectoryPath ).list();
-//      Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
+      Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
       byte[] buf = new byte[1024];
       ZipOutputStream zos = null;
       try
@@ -154,16 +157,6 @@ public abstract class XmlCreator extends Thread
          }
       }
       return file.delete();
-   }
-
-   public void setXmlFileName( String mXmlFileName )
-   {
-      this.mXmlFileName = mXmlFileName;
-   }
-
-   public String getXmlFileName()
-   {
-      return mXmlFileName;
    }
    
    public void setExportDirectoryPath( String exportDirectoryPath )

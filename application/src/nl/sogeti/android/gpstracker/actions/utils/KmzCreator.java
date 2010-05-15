@@ -115,13 +115,13 @@ public class KmzCreator extends XmlCreator
          }
       }
 
-      if( !( fileName.endsWith( ".kmz" ) || fileName.endsWith( ".zip" ) ) )
+      if(  fileName.endsWith( ".kmz" ) || fileName.endsWith( ".zip" ) )
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
+         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 ) );
       }
       else
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 ) );
+         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
       }
       new File( getExportDirectoryPath() ).mkdirs();
       String xmlFilePath = getExportDirectoryPath() + "/doc.kml";
@@ -131,28 +131,23 @@ public class KmzCreator extends XmlCreator
          mProgressListener.startNotification();
          mProgressListener.updateNotification( getProgress(), getGoal() );
       }
-
-      String resultFilename = xmlFilePath;
+      
+      String resultFilename = null;
       try
       {
          XmlSerializer serializer = Xml.newSerializer();
-         BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( xmlFilePath ), 8192 );
+         File xmlFile = new File( xmlFilePath );
+         BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( xmlFile ), 8192 );
          serializer.setOutput( buf, "UTF-8" );
 
          serializeTrack( mTrackUri, fileName, serializer );
-
-         resultFilename = bundlingMediaAndXml( fileName, ".kmz" );
-
+         
+         resultFilename = bundlingMediaAndXml( xmlFile.getParentFile().getName(), ".kmz" );
          fileName = new File( resultFilename ).getName();
 
          CharSequence text = mContext.getString( R.string.ticker_stored ) + "\"" + fileName + "\"";
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_SHORT );
          toast.show();
-
-         //         serializer.text( "\n" );
-         //         serializer.startTag( "", "Document" );
-         //         serializer.text( "\n" );
-         //         serializer.endTag( "", "Document" );
       }
       catch( IllegalArgumentException e )
       {
@@ -185,7 +180,7 @@ public class KmzCreator extends XmlCreator
       }
    }
 
-   private void serializeTrack( Uri trackUri, String fileName, XmlSerializer serializer ) throws IOException
+   private void serializeTrack( Uri trackUri, String trackName, XmlSerializer serializer ) throws IOException
    {
       serializer.startDocument( "UTF-8", true );
       serializer.setPrefix( "xsi", NS_SCHEMA );
@@ -198,7 +193,7 @@ public class KmzCreator extends XmlCreator
       serializer.startTag( "", "Document" );
       serializer.text( "\n" );
       serializer.startTag( "", "name" );
-      serializer.text( fileName );
+      serializer.text( trackName );
       serializer.endTag( "", "name" );
 
       /* from <name/> upto <Folder/> */
@@ -309,7 +304,7 @@ public class KmzCreator extends XmlCreator
             }
             do
             {
-               Uri waypoints = Uri.withAppendedPath( segments, "/" + segmentCursor.getLong( 0 ) + "/waypoints" );
+               Uri waypoints = Uri.withAppendedPath( segments, segmentCursor.getLong( 0 ) + "/waypoints" );
                serializer.text( "\n" );
                serializer.startTag( "", "Folder" );
                serializer.text( "\n" );
@@ -388,14 +383,34 @@ public class KmzCreator extends XmlCreator
       try
       {
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.TIME }, null, null, null );
+         
+         Log.d( TAG, "waypoints:" + waypoints + " with "+ waypointsCursor.getCount() + " rows.");
 
          if( waypointsCursor.moveToFirst() )
          {
             segmentStartTime = new Date( waypointsCursor.getLong( 0 ) );
-         }
-         if( waypointsCursor.moveToLast() )
-         {
-            segmentEndTime = new Date( waypointsCursor.getLong( 0 ) );
+            if( waypointsCursor.moveToLast() )
+            {
+               segmentEndTime = new Date( waypointsCursor.getLong( 0 ) );
+               
+               Log.d( TAG, "segmentStartTime: "+segmentStartTime );
+               Log.d( TAG, "segmentEndTime: "+segmentEndTime );
+               
+               
+               DateFormat formater = new SimpleDateFormat( DATETIME );
+               serializer.text( "\n" );
+               serializer.startTag( "", "TimeSpan" );
+               serializer.text( "\n" );
+               serializer.startTag( "", "begin" );
+               serializer.text( formater.format( segmentStartTime ) );
+               serializer.endTag( "", "begin" );
+               serializer.text( "\n" );
+               serializer.startTag( "", "end" );
+               serializer.text( formater.format( segmentEndTime ) );
+               serializer.endTag( "", "end" );
+               serializer.text( "\n" );
+               serializer.endTag( "", "TimeSpan" );
+            }
          }
       }
       finally
@@ -405,21 +420,6 @@ public class KmzCreator extends XmlCreator
             waypointsCursor.close();
          }
       }
-
-      DateFormat formater = new SimpleDateFormat( DATETIME );
-      serializer.text( "\n" );
-      serializer.startTag( "", "TimeSpan" );
-      serializer.text( "\n" );
-      serializer.startTag( "", "begin" );
-      serializer.text( formater.format( segmentStartTime ) );
-      serializer.endTag( "", "begin" );
-      serializer.text( "\n" );
-      serializer.startTag( "", "end" );
-      serializer.text( formater.format( segmentEndTime ) );
-      serializer.endTag( "", "end" );
-      serializer.text( "\n" );
-      serializer.endTag( "", "TimeSpan" );
-
    }
 
    /**
@@ -728,4 +728,11 @@ public class KmzCreator extends XmlCreator
    {
       return "application/vnd.google-earth.kmz";
    }
+   
+   @Override
+   public boolean isNeedsBundling()
+   {
+      return true;
+   }
+   
 }

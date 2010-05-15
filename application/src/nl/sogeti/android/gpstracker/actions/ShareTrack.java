@@ -23,6 +23,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.Spinner;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class ShareTrack extends Activity
@@ -39,6 +41,7 @@ public class ShareTrack extends Activity
    protected static final int DIALOG_FILENAME = 11;
    protected static final int PROGRESS_STEPS = 10;
    private static final int DIALOG_INSTALL_TWIDROID = 34;
+   private static final String TAG = "OGT.ShareTrack";
 
    private RemoteViews mContentView;
    private int barProgress = 0;
@@ -189,15 +192,18 @@ public class ShareTrack extends Activity
       switch( type )
       {
          case 0: //KMZ
+            Log.d( TAG, "share KMZ: "+chosenFileName );
             exportKmz( chosenFileName, target );
             ShareTrack.this.finish();
             break;
          case 1: //GPX
+            Log.d( TAG, "share GPX: "+chosenFileName );
             exportGpx( chosenFileName, target );
             ShareTrack.this.finish();
             break;
          case 2: //Line of text
             exportTextLine( textLine, target );
+            ShareTrack.this.finish();
          default:
             break;
       }
@@ -206,35 +212,65 @@ public class ShareTrack extends Activity
    protected void exportKmz( String chosenFileName, int target )
    {
       EndJob endJob = null;
-      if( target == 1 )
+      switch( target )
       {
-         endJob = new EndJob()
+         case 1: 
+            endJob = new EndJob()
             {
                public void shareFile( Uri fileUri, String contentType )
                {
                   sendFile( fileUri, getString( R.string.email_kmzbody ), contentType );
                }
             };
+            break;
+         case 2:
+            endJob = new EndJob()
+            {
+               public void shareFile( Uri fileUri, String contentType )
+               {
+                  CharSequence text = "Saved "+fileUri+" of type "+contentType;
+                  Toast toast = Toast.makeText( ShareTrack.this.getApplicationContext(), text, Toast.LENGTH_LONG );
+                  toast.show();
+               }
+            };
+            break;
+         default:
+            break;
       }
-      KmzCreator mKmzCreator = new KmzCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
-      mKmzCreator.start();
+      KmzCreator kmzCreator = new KmzCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
+      kmzCreator.start();
    }
 
    protected void exportGpx( String chosenFileName, int target )
    {
       EndJob endJob = null;
-      if( target == 1 )
+      switch( target )
       {
-         endJob = new EndJob()
+         case 1: 
+            endJob = new EndJob()
             {
                public void shareFile( Uri fileUri, String contentType )
                {
                   sendFile( fileUri, getString( R.string.email_gpxbody ), contentType );
                }
             };
+            break;
+         case 2:
+            endJob = new EndJob()
+            {
+               public void shareFile( Uri fileUri, String contentType )
+               {
+                  CharSequence text = "Saved "+fileUri+" of type "+contentType;
+                  Toast toast = Toast.makeText( ShareTrack.this.getApplicationContext(), text, Toast.LENGTH_LONG );
+                  toast.show();
+               }
+            };
+            break;
+         default:
+            break;
       }
-      GpxCreator mGpxCreator = new GpxCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
-      mGpxCreator.start();
+      GpxCreator gpxCreator = new GpxCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
+      gpxCreator.start();
    }
 
    protected void exportTextLine( String message, int target )
