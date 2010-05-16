@@ -133,14 +133,21 @@ public class KmzCreator extends XmlCreator
       }
       
       String resultFilename = null;
+      FileOutputStream fos = null;
+      BufferedOutputStream buf = null;
       try
       {
          XmlSerializer serializer = Xml.newSerializer();
          File xmlFile = new File( xmlFilePath );
-         BufferedOutputStream buf = new BufferedOutputStream( new FileOutputStream( xmlFile ), 8192 );
+         fos = new FileOutputStream( xmlFile );
+         buf = new BufferedOutputStream( fos, 8192 );
          serializer.setOutput( buf, "UTF-8" );
 
          serializeTrack( mTrackUri, fileName, serializer );
+         buf.close();
+         buf = null;
+         fos.close();
+         fos =  null;
          
          resultFilename = bundlingMediaAndXml( xmlFile.getParentFile().getName(), ".kmz" );
          fileName = new File( resultFilename ).getName();
@@ -172,6 +179,28 @@ public class KmzCreator extends XmlCreator
       }
       finally
       {
+         if( buf != null )
+         {
+            try
+            {
+               buf.close();
+            }
+            catch( IOException e )
+            {
+               e.printStackTrace();
+            }
+         }
+         if( fos != null )
+         {
+            try
+            {
+               fos.close();
+            }
+            catch( IOException e )
+            {
+               e.printStackTrace();
+            }
+         }
          if( mProgressListener != null )
          {
             mProgressListener.endNotification(  Uri.fromFile( new File( resultFilename ) ), getContentType() );

@@ -31,11 +31,18 @@
     <string-array name="sharetype_choices">
         <item>KMZ - Google Earth, etc.</item>
         <item>GPX - GPS Exchange formaat</item>
+        <item>Text - Snelheid en afstands samenvatting</item>
     </string-array>
     
     <string-array name="sharefiletarget_choices">
         <item>Opslaan op SD Card</item>
         <item>Verstuur met een (email) applicatie</item>
+    </string-array>
+
+    <string-array name="sharetexttarget_choices">
+        <item>Twidroid tweet</item>
+        <item>SMS</item>
+        <item>Overige tekst applicaties</item>
     </string-array>
     
     <string-array name="about_translators" translatable="false">
