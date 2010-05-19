@@ -424,7 +424,7 @@ public class GpxCreator extends XmlCreator
                   {
                      serializer.text( "\n" );
                      serializer.startTag( "", "link" );
-                     serializer.attribute( null, "href", includeMediaFile( mediaPathPrefix + mediaUri.getLastPathSegment() ) );
+                     serializer.attribute( null, "href", includeMediaFile( mediaUri.getLastPathSegment() ) );
                      serializer.startTag( "", "text" );
                      serializer.text( mediaUri.getLastPathSegment() );
                      serializer.endTag( "", "text" );

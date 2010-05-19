@@ -162,6 +162,7 @@ public class KmzCreator extends XmlCreator
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_filename );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
+         e.printStackTrace();
       }
       catch( IllegalStateException e )
       {
@@ -169,6 +170,7 @@ public class KmzCreator extends XmlCreator
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_buildxml );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
+         e.printStackTrace();
       }
       catch( IOException e )
       {
@@ -176,6 +178,7 @@ public class KmzCreator extends XmlCreator
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_writesdcard );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
+         e.printStackTrace();
       }
       finally
       {
@@ -201,7 +204,7 @@ public class KmzCreator extends XmlCreator
                e.printStackTrace();
             }
          }
-         if( mProgressListener != null )
+         if( mProgressListener != null && resultFilename != null )
          {
             mProgressListener.endNotification(  Uri.fromFile( new File( resultFilename ) ), getContentType() );
          }
@@ -529,9 +532,9 @@ public class KmzCreator extends XmlCreator
                String lastPathSegment = mediaUri.getLastPathSegment();
                if( mediaUri.getScheme().equals( "file" ) )
                {
-                  String includedMediaFile = includeMediaFile( mediaPathPrefix + lastPathSegment );
                   if( lastPathSegment.endsWith( "3gp" ) )
                   {
+                     String includedMediaFile = includeMediaFile( lastPathSegment );
                      serializer.text( "\n" );
                      serializer.startTag( "", "Placemark" );
                      serializer.text( "\n" );
@@ -539,7 +542,7 @@ public class KmzCreator extends XmlCreator
                      serializer.text( "\n" );
                      serializer.startTag( "", "description" );
                      String kmlAudioUnsupported = mContext.getString( R.string.kmlVideoUnsupported );
-                     serializer.text( String.format( kmlAudioUnsupported, lastPathSegment ) );
+                     serializer.text( String.format( kmlAudioUnsupported, includedMediaFile ) );
                      serializer.endTag( "", "description" );
                      serializeMediaPoint( serializer, singleWaypointUri );
                      serializer.text( "\n" );
@@ -547,6 +550,7 @@ public class KmzCreator extends XmlCreator
                   }
                   else if( lastPathSegment.endsWith( "jpg" ) )
                   {
+                     String includedMediaFile = includeMediaFile( mediaPathPrefix + lastPathSegment );
                      serializer.text( "\n" );
                      serializer.startTag( "", "PhotoOverlay" );
                      serializer.text( "\n" );

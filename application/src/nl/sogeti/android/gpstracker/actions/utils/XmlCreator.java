@@ -67,6 +67,9 @@ public abstract class XmlCreator extends Thread
       File source = new File( inputFilePath );
       File target = new File( mExportDirectoryPath + "/" + source.getName() );
 
+      Log.d( TAG, String.format( "Copy %s to %s", source, target ) ); 
+      
+      
       FileChannel inChannel = new FileInputStream( source ).getChannel();
       FileChannel outChannel = new FileOutputStream( target ).getChannel();
       try
