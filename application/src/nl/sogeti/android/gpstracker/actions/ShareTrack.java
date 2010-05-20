@@ -203,7 +203,6 @@ public class ShareTrack extends Activity
             break;
          case 2: //Line of text
             exportTextLine( textLine, target );
-            ShareTrack.this.finish();
          default:
             break;
       }
@@ -283,9 +282,11 @@ public class ShareTrack extends Activity
             break;
          case 1:
             sendSMS( message );
+            ShareTrack.this.finish();
             break;
          case 2:
             sentGenericText( subject, message );
+            ShareTrack.this.finish();
             break;
       }
 
@@ -299,6 +300,7 @@ public class ShareTrack extends Activity
       try
       {
          startActivity( intent );
+         ShareTrack.this.finish();
       }
       catch( ActivityNotFoundException e )
       {
