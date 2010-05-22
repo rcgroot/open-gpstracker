@@ -35,7 +35,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -77,7 +76,7 @@ public class GpxCreator extends XmlCreator
    static
    {
       TimeZone utc = TimeZone.getTimeZone( "UTC" );
-      ZULU_DATE_FORMAT.setTimeZone( utc );
+      ZULU_DATE_FORMAT.setTimeZone( utc ); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
    }
 
    private String mChosenBaseFileName;
@@ -188,28 +187,28 @@ public class GpxCreator extends XmlCreator
       }
       catch( FileNotFoundException e )
       {
-         Log.e( TAG, "Unable to save " + e );
+         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_filenotfound );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( IllegalArgumentException e )
       {
-         Log.e( TAG, "Unable to save " + e );
+         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_filename );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( IllegalStateException e )
       {
-         Log.e( TAG, "Unable to save " + e );
+         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_buildxml );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( IOException e )
       {
-         Log.e( TAG, "Unable to save " + e );
+         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_writesdcard );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
@@ -224,7 +223,7 @@ public class GpxCreator extends XmlCreator
             }
             catch( IOException e )
             {
-               e.printStackTrace();
+               Log.e( TAG, "Failed to close buf after completion, ignoring." , e );
             }
          }
          if( fos != null )
@@ -235,7 +234,7 @@ public class GpxCreator extends XmlCreator
             }
             catch( IOException e )
             {
-               e.printStackTrace();
+               Log.e( TAG, "Failed to close fos after completion, ignoring." , e );
             }
          }
          Log.d( TAG, "Successfuly stored file " );

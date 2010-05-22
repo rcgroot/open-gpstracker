@@ -165,27 +165,24 @@ public class KmzCreator extends XmlCreator
       }
       catch( IllegalArgumentException e )
       {
-         Log.e( TAG, "Unable to save " + e );
+         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_filename );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
-         e.printStackTrace();
       }
       catch( IllegalStateException e )
       {
-         Log.e( TAG, "Unable to save " + e );
+         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_buildxml );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
-         e.printStackTrace();
       }
       catch( IOException e )
       {
-         Log.e( TAG, "Unable to save " + e );
+         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_writesdcard );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
-         e.printStackTrace();
       }
       finally
       {
@@ -197,7 +194,7 @@ public class KmzCreator extends XmlCreator
             }
             catch( IOException e )
             {
-               e.printStackTrace();
+               Log.e( TAG, "Failed to close buf after completion, ignoring." , e );
             }
          }
          if( fos != null )
@@ -208,7 +205,7 @@ public class KmzCreator extends XmlCreator
             }
             catch( IOException e )
             {
-               e.printStackTrace();
+               Log.e( TAG, "Failed to close fos after completion, ignoring." , e );
             }
          }
          if( mProgressListener != null && resultFilename != null )
