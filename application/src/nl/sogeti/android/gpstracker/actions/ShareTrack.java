@@ -192,12 +192,10 @@ public class ShareTrack extends Activity
       switch( type )
       {
          case 0: //KMZ
-            Log.d( TAG, "share KMZ: "+chosenFileName );
             exportKmz( chosenFileName, target );
             ShareTrack.this.finish();
             break;
          case 1: //GPX
-            Log.d( TAG, "share GPX: "+chosenFileName );
             exportGpx( chosenFileName, target );
             ShareTrack.this.finish();
             break;

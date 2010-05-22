@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.logger;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
@@ -77,6 +79,13 @@ public class GPSLoggerService extends Service
     * <code>MAX_REASONABLE_SPEED</code> is about 216 kilometer per hour or 134 mile per hour.
     */
    private static final int MAX_REASONABLE_SPEED = 60;
+   
+   /**
+    * <code>MAX_REASONABLE_ALTITUDECHANGE</code> between the last few waypoints and a new one the difference should be less then 
+    * 200 meter.
+    */
+   private static final int MAX_REASONABLE_ALTITUDECHANGE = 200;
+   
    private static final String TAG = "OGT.GPSLoggerService";
    private static final int LOGGING_FINE = 0;
    private static final int LOGGING_NORMAL = 1;
@@ -104,6 +113,7 @@ public class GPSLoggerService extends Service
    private Notification mNotification;
 
    private Vector<Location> mWeakLocations;
+   private Queue<Double> mAltitudes;
 
    /**
     * <code>mAcceptableAccuracy</code> indicates the maximum acceptable accuracy of a waypoint in meters.
@@ -247,6 +257,7 @@ public class GPSLoggerService extends Service
    {
       super.onCreate();
       mWeakLocations = new Vector<Location>( 3 );
+      mAltitudes = new LinkedList<Double>();
       mLoggingState = Constants.STOPPED;
       mStartNextSegment = false;
       mContext = getApplicationContext();
@@ -567,6 +578,15 @@ public class GPSLoggerService extends Service
          proposedLocation.removeSpeed();
       }
       
+      // Remove altitude if not sane
+      if( mSpeedSanityCheck && proposedLocation != null && proposedLocation.hasAltitude() )
+      {
+         if( ! addSaneAltitude( proposedLocation.getAltitude() ) )
+         {
+            Log.w( TAG, "A strange altitude, a really big difference, prob wrong..." );
+            proposedLocation.removeAltitude();
+         }
+      }
       // Older bad locations will not be needed
       if( proposedLocation != null )
       {
@@ -609,6 +629,37 @@ public class GPSLoggerService extends Service
          location = best;
       }
       return location;
+   }
+   
+   /**
+    * Builds a bit of knowledge about altitudes to expect and 
+    * return if the added value is deemed sane.
+    * 
+    * @param altitude 
+    * @return whether the altitude is considered sane
+    */
+   private boolean addSaneAltitude( double altitude )
+   {
+      boolean sane = true;
+      double avg = 0;
+      int elements = 0;
+      // Even insane altitude shifts increases alter perception
+      mAltitudes.add( altitude );
+      if( mAltitudes.size() > 3 )
+      {
+         mAltitudes.poll();
+      }
+      for( Double alt : mAltitudes )
+      {
+         avg += alt;
+         elements++;
+      }
+      avg = avg / elements;
+      sane = Math.abs( altitude - avg ) < MAX_REASONABLE_ALTITUDECHANGE;
+
+//      Log.d( TAG, String.format( "Added %f to a total of %d and it was deemed %s ", altitude, mAltitudes.size(), sane ) );
+      
+      return sane;
    }
    
    /**

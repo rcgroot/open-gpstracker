@@ -55,7 +55,8 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       this.mLocation = new Location("GPSLoggerServiceTest");
       this.mLocation.setLatitude( 37.422006d );
       this.mLocation.setLongitude( -122.084095d );
-      this.mLocation.setAccuracy( 50f );
+      this.mLocation.setAccuracy( 10f );
+      this.mLocation.setAltitude( 12.5d );
    }
 
    public GPSLoggerServiceTest(Class<GPSLoggerService> serviceClass)
@@ -173,6 +174,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location sane = service.locationFilter( reference );
       Assert.assertFalse( "No speed anymore", sane.hasSpeed() );
+      Assert.assertEquals( "No speed", 0.0f, sane.getSpeed() );
       Assert.assertSame( "Still the same", reference, sane );
       
       service.stopLogging();
@@ -192,8 +194,67 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       service.storeLocation( this.mLocation );
       
       Location sane = service.locationFilter( reference );
-      Assert.assertTrue( "No speed anymore", sane.hasSpeed() );
+      Assert.assertTrue( "Has speed", sane.hasSpeed() );
       Assert.assertSame( "Still the same", reference, sane );
+      
+      service.stopLogging();
+   }
+   
+   @SmallTest
+   public void testNormalAltitudeChange()
+   {
+      startService( new Intent( Constants.SERVICENAME ) );
+      GPSLoggerService service = this.getService();
+      service.startLogging();
+      
+      mLocation = service.locationFilter( mLocation );
+      mLocation.setLatitude( mLocation.getLatitude()+0.0001d );
+      mLocation = service.locationFilter( mLocation );
+      mLocation.setLatitude( mLocation.getLatitude()+0.0001d );
+      mLocation = service.locationFilter( mLocation );
+      
+      Location reference = new Location( mLocation );
+      reference.setLatitude( reference.getLatitude()+0.0001d );
+      reference.setSpeed( 4f );
+      reference.setAccuracy( 9f );
+      reference.setAltitude( 14.3d );
+      service.storeLocation( this.mLocation );
+      
+      Location sane = service.locationFilter( reference );
+      Assert.assertTrue( "Has altitude", mLocation.hasAltitude() );
+      Assert.assertTrue( "Has altitude", sane.hasAltitude() );
+      Assert.assertSame( "Still the same", reference, sane );
+      
+      service.stopLogging();
+   }
+   
+   @SmallTest
+   public void testInsaneAltitudeChange()
+   {
+      startService( new Intent( Constants.SERVICENAME ) );
+      GPSLoggerService service = this.getService();
+      service.startLogging();
+      
+      mLocation = service.locationFilter( mLocation );
+      mLocation.setLatitude( mLocation.getLatitude()+0.0001d );
+      mLocation = service.locationFilter( mLocation );
+      mLocation.setLatitude( mLocation.getLatitude()+0.0001d );
+      mLocation = service.locationFilter( mLocation );
+      
+      Location reference = new Location( mLocation );
+      reference.setLatitude( reference.getLatitude()+0.0001d );
+      reference.setSpeed( 4f );
+      reference.setAccuracy( 9f );
+      reference.setAltitude( 514.3d );
+      Location sane = service.locationFilter( reference );
+      
+      Assert.assertTrue ( "Has altitude"   , mLocation.hasAltitude() );
+      Assert.assertFalse( "Has no altitude", sane.hasAltitude() );
+      Assert.assertSame ( "Still the same" , reference, sane );
+      
+      mLocation.setLatitude( mLocation.getLatitude()+0.0001d );
+      mLocation = service.locationFilter( mLocation );
+      Assert.assertTrue ( "Has altitude"   , mLocation.hasAltitude() );
       
       service.stopLogging();
    }

@@ -419,8 +419,6 @@ public class KmzCreator extends XmlCreator
       try
       {
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.TIME }, null, null, null );
-         
-         Log.d( TAG, "waypoints:" + waypoints + " with "+ waypointsCursor.getCount() + " rows.");
 
          if( waypointsCursor.moveToFirst() )
          {
@@ -428,9 +426,6 @@ public class KmzCreator extends XmlCreator
             if( waypointsCursor.moveToLast() )
             {
                segmentEndTime = new Date( waypointsCursor.getLong( 0 ) );
-               
-               Log.d( TAG, "segmentStartTime: "+segmentStartTime );
-               Log.d( TAG, "segmentEndTime: "+segmentEndTime );
                
                serializer.text( "\n" );
                serializer.startTag( "", "TimeSpan" );

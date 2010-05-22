@@ -13,8 +13,8 @@
             android:defaultValue="1"/>
         <CheckBoxPreference
             android:key="speedsanitycheck"
-            android:title="@string/speedsanitycheck_title"
-            android:summary="@string/speedsanitycheck_summary"
+            android:title="@string/sanitycheck_title"
+            android:summary="@string/sanitycheck_summary"
             android:defaultValue="true" 
             />
         <CheckBoxPreference

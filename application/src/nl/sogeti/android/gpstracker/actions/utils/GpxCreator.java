@@ -134,10 +134,7 @@ public class GpxCreator extends XmlCreator
          setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
          xmlFilePath = getExportDirectoryPath() + "/" + fileName + ".gpx";
       }
-
-      Log.d( TAG, "Creating new directory " + getExportDirectoryPath() );
       new File( getExportDirectoryPath() ).mkdirs();
-      Log.d( TAG, "Creating new File for XML with name " + xmlFilePath );
 
       if( mProgressListener != null )
       {
@@ -152,7 +149,6 @@ public class GpxCreator extends XmlCreator
       {
          XmlSerializer serializer = Xml.newSerializer();
          File xmlFile = new File( xmlFilePath );
-         Log.d( TAG, "xmlFilePath: " + xmlFilePath );
          fos = new FileOutputStream( xmlFile );
          buf = new BufferedOutputStream( fos, 8192 );
          serializer.setOutput( buf, "UTF-8" );
@@ -170,15 +166,12 @@ public class GpxCreator extends XmlCreator
          else
          {
             File finalFile = new File( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + "/" + xmlFile.getName() );
-            Log.d( TAG, "Rename from " + xmlFile + " to " + finalFile );
             xmlFile.renameTo( finalFile );
             resultFilename = finalFile.getName();
 
-            Log.d( TAG, "Deleting  " + xmlFile.getParentFile() );
             XmlCreator.deleteRecursive( xmlFile.getParentFile() );
          }
 
-         Log.d( TAG, "resultFilename: " + resultFilename );
          fileName = new File( resultFilename ).getName();
 
          CharSequence text = mContext.getString( R.string.ticker_stored ) + "\"" + fileName + "\"";
@@ -237,7 +230,6 @@ public class GpxCreator extends XmlCreator
                Log.e( TAG, "Failed to close fos after completion, ignoring." , e );
             }
          }
-         Log.d( TAG, "Successfuly stored file " );
          if( mProgressListener != null )
          {
             mProgressListener.endNotification( Uri.fromFile( new File( resultFilename ) ), getContentType() );

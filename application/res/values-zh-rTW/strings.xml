@@ -115,8 +115,8 @@
     <string name="showspeed_summary">顯示來自最後收到的 GPS 固定的速度。</string>
     <string name="showcompass_title">指南針</string>
     <string name="showcompass_summary">顯示指針指向北的指南針</string>
-    <string name="speedsanitycheck_title">Speed sanity check </string>
-    <string name="speedsanitycheck_summary">Only accept reasonable GPS speeds</string>
+    <string name="sanitycheck_title">Speed and altitude sanity check </string>
+    <string name="sanitycheck_summary">Only accept reasonable GPS speeds and altitudes</string>
     <string name="showlocation_title">My location </string>
     <string name="showlocation_summary">Show my location on the map</string>
     <string name="units_title">Units</string>

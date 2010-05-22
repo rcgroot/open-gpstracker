@@ -116,8 +116,8 @@
     <string name="showspeed_summary">Toon de snelheid zoals van de laatste GPS bepaling.</string>
     <string name="showcompass_title">Kompas</string>
     <string name="showcompass_summary">Toon een kompas die het noorden aangeeft</string>
-    <string name="speedsanitycheck_title">Snelheids normalisatie</string>
-    <string name="speedsanitycheck_summary">Accepteer alleen redelijke GPS snelheden</string>
+    <string name="sanitycheck_title">Snelheids and hoogte normalisatie</string>
+    <string name="sanitycheck_summary">Accepteer alleen redelijke GPS hoogtes en snelheden</string>
     <string name="showlocation_title">Mijn locatie </string>
     <string name="showlocation_summary">Toon mijn locatie op de kaart</string>
     <string name="units_title">Eenheden</string>
