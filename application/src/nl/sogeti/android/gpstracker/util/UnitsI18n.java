@@ -65,7 +65,10 @@ public class UnitsI18n
          if( key.equals( Constants.UNITS ) )
          {
             initBasedOnPreferences( sharedPreferences );
-            mListener.onUnitsChange();
+            if( mListener != null )
+            {
+               mListener.onUnitsChange();
+            }
          }
       }
    };
