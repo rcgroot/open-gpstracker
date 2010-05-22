@@ -31,17 +31,14 @@ package nl.sogeti.android.gpstracker.actions.utils;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
@@ -56,7 +53,6 @@ import org.xmlpull.v1.XmlSerializer;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -76,15 +72,19 @@ public class GpxCreator extends XmlCreator
 {
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
-   public static final String NS_GPX_10 = "http://www.topografix.com/GPX/1/0"; 
-   public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+   public static final String NS_GPX_10 = "http://www.topografix.com/GPX/1/0";
+   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
+   static
+   {
+      TimeZone utc = TimeZone.getTimeZone( "UTC" );
+      ZULU_DATE_FORMAT.setTimeZone( utc );
+   }
 
    private String mChosenBaseFileName;
    private ProgressMonitor mProgressListener;
    private Context mContext;
    private String TAG = "OGT.GpxCreator";
    private Uri mTrackUri;
-
 
    public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, ProgressMonitor listener)
    {
@@ -127,19 +127,19 @@ public class GpxCreator extends XmlCreator
       if( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) )
       {
          setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 ) );
-         
+
          xmlFilePath = getExportDirectoryPath() + "/" + fileName;
       }
       else
       {
          setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
-         xmlFilePath = getExportDirectoryPath() + "/" + fileName+".gpx";
+         xmlFilePath = getExportDirectoryPath() + "/" + fileName + ".gpx";
       }
 
-      Log.d( TAG, "Creating new directory "+ getExportDirectoryPath() ); 
+      Log.d( TAG, "Creating new directory " + getExportDirectoryPath() );
       new File( getExportDirectoryPath() ).mkdirs();
-      Log.d( TAG, "Creating new File for XML with name "+xmlFilePath ); 
-      
+      Log.d( TAG, "Creating new File for XML with name " + xmlFilePath );
+
       if( mProgressListener != null )
       {
          mProgressListener.startNotification();
@@ -153,35 +153,35 @@ public class GpxCreator extends XmlCreator
       {
          XmlSerializer serializer = Xml.newSerializer();
          File xmlFile = new File( xmlFilePath );
-         Log.d( TAG, "xmlFilePath: "+xmlFilePath );         
+         Log.d( TAG, "xmlFilePath: " + xmlFilePath );
          fos = new FileOutputStream( xmlFile );
          buf = new BufferedOutputStream( fos, 8192 );
          serializer.setOutput( buf, "UTF-8" );
-         
+
          serializeTrack( mTrackUri, serializer );
          buf.close();
          buf = null;
          fos.close();
-         fos =  null;
-         
+         fos = null;
+
          if( isNeedsBundling() )
          {
             resultFilename = bundlingMediaAndXml( xmlFile.getParentFile().getName(), ".zip" );
          }
          else
          {
-            File finalFile = new File( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR +"/"+xmlFile.getName() );
-            Log.d( TAG, "Rename from "+xmlFile+" to "+ finalFile );
+            File finalFile = new File( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + "/" + xmlFile.getName() );
+            Log.d( TAG, "Rename from " + xmlFile + " to " + finalFile );
             xmlFile.renameTo( finalFile );
             resultFilename = finalFile.getName();
-            
-            Log.d( TAG, "Deleting  "+xmlFile.getParentFile() );
+
+            Log.d( TAG, "Deleting  " + xmlFile.getParentFile() );
             XmlCreator.deleteRecursive( xmlFile.getParentFile() );
          }
 
-         Log.d( TAG, "resultFilename: "+resultFilename );         
+         Log.d( TAG, "resultFilename: " + resultFilename );
          fileName = new File( resultFilename ).getName();
-         
+
          CharSequence text = mContext.getString( R.string.ticker_stored ) + "\"" + fileName + "\"";
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_SHORT );
          toast.show();
@@ -238,10 +238,10 @@ public class GpxCreator extends XmlCreator
                e.printStackTrace();
             }
          }
-         Log.d( TAG, "Successfuly stored file " );         
+         Log.d( TAG, "Successfuly stored file " );
          if( mProgressListener != null )
          {
-            mProgressListener.endNotification( Uri.fromFile(  new File( resultFilename ) ), getContentType() );
+            mProgressListener.endNotification( Uri.fromFile( new File( resultFilename ) ), getContentType() );
          }
          Looper.loop();
       }
@@ -297,8 +297,7 @@ public class GpxCreator extends XmlCreator
             serializer.text( "\n" );
             serializer.startTag( "", "time" );
             Date time = new Date( trackCursor.getLong( 2 ) );
-            DateFormat formater = new SimpleDateFormat( DATETIME );
-            serializer.text( formater.format( time ) );
+            serializer.text( ZULU_DATE_FORMAT.format( time ) );
             serializer.endTag( "", "time" );
             serializer.text( "\n" );
             serializer.endTag( "", "metadata" );
@@ -359,7 +358,7 @@ public class GpxCreator extends XmlCreator
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID, Waypoints.SPEED }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
-            increaseGoal(  waypointsCursor.getCount() );
+            increaseGoal( waypointsCursor.getCount() );
             do
             {
                increaseProgress( 1 );
@@ -379,15 +378,13 @@ public class GpxCreator extends XmlCreator
                serializer.text( "\n" );
                serializer.startTag( "", "time" );
                Date time = new Date( waypointsCursor.getLong( 2 ) );
-               DateFormat formater = new SimpleDateFormat( DATETIME );
-               serializer.text( formater.format( time ) );
+               serializer.text( ZULU_DATE_FORMAT.format( time ) );
                serializer.endTag( "", "time" );
                serializeWaypointDescription( mContext, serializer, Uri.withAppendedPath( waypoints, waypointsCursor.getLong( 4 ) + "/media" ) );
                serializer.text( "\n" );
                serializer.startTag( "", "extensions" );
-               quickTag( serializer, "gpx10", "speed", Double.toString( waypointsCursor.getDouble( 5 ) )  );
-               
-               
+               quickTag( serializer, "gpx10", "speed", Double.toString( waypointsCursor.getDouble( 5 ) ) );
+
                serializer.endTag( "", "extensions" );
                serializer.text( "\n" );
                serializer.endTag( "", "trkpt" );
