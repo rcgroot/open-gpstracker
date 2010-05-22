@@ -167,7 +167,7 @@ public class GpxCreator extends XmlCreator
          {
             File finalFile = new File( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + "/" + xmlFile.getName() );
             xmlFile.renameTo( finalFile );
-            resultFilename = finalFile.getName();
+            resultFilename = finalFile.getAbsolutePath();
 
             XmlCreator.deleteRecursive( xmlFile.getParentFile() );
          }

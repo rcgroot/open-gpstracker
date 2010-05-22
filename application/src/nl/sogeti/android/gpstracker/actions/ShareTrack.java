@@ -24,7 +24,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -41,6 +40,7 @@ public class ShareTrack extends Activity
    protected static final int DIALOG_FILENAME = 11;
    protected static final int PROGRESS_STEPS = 10;
    private static final int DIALOG_INSTALL_TWIDROID = 34;
+   @SuppressWarnings("unused")
    private static final String TAG = "OGT.ShareTrack";
 
    private RemoteViews mContentView;
@@ -193,11 +193,9 @@ public class ShareTrack extends Activity
       {
          case 0: //KMZ
             exportKmz( chosenFileName, target );
-            ShareTrack.this.finish();
             break;
          case 1: //GPX
             exportGpx( chosenFileName, target );
-            ShareTrack.this.finish();
             break;
          case 2: //Line of text
             exportTextLine( textLine, target );
@@ -217,6 +215,7 @@ public class ShareTrack extends Activity
                public void shareFile( Uri fileUri, String contentType )
                {
                   sendFile( fileUri, getString( R.string.email_kmzbody ), contentType );
+                  ShareTrack.this.finish();
                }
             };
             break;
@@ -228,10 +227,12 @@ public class ShareTrack extends Activity
                   CharSequence text = "Saved "+fileUri+" of type "+contentType;
                   Toast toast = Toast.makeText( ShareTrack.this.getApplicationContext(), text, Toast.LENGTH_LONG );
                   toast.show();
+                  ShareTrack.this.finish();
                }
             };
             break;
          default:
+            Log.e( TAG, "Unable to determine target for sharing KMZ" );
             break;
       }
       KmzCreator kmzCreator = new KmzCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
@@ -249,6 +250,7 @@ public class ShareTrack extends Activity
                public void shareFile( Uri fileUri, String contentType )
                {
                   sendFile( fileUri, getString( R.string.email_gpxbody ), contentType );
+                  ShareTrack.this.finish();
                }
             };
             break;
@@ -260,10 +262,12 @@ public class ShareTrack extends Activity
                   CharSequence text = "Saved "+fileUri+" of type "+contentType;
                   Toast toast = Toast.makeText( ShareTrack.this.getApplicationContext(), text, Toast.LENGTH_LONG );
                   toast.show();
+                  ShareTrack.this.finish();
                }
             };
             break;
          default:
+            Log.e( TAG, "Unable to determine target for sharing GPX" );
             break;
       }
       GpxCreator gpxCreator = new GpxCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
