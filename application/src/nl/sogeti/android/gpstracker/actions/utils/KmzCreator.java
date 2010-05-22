@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
@@ -70,7 +71,13 @@ public class KmzCreator extends XmlCreator
 {
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_KML_22 = "http://www.opengis.net/kml/2.2";
-   public static final String DATETIME = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
+   static
+   {
+      TimeZone utc = TimeZone.getTimeZone( "UTC" );
+      ZULU_DATE_FORMAT.setTimeZone( utc ); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
+   }
+
 
    private String mChosenFileName;
    private ProgressMonitor mProgressListener;
@@ -428,17 +435,15 @@ public class KmzCreator extends XmlCreator
                Log.d( TAG, "segmentStartTime: "+segmentStartTime );
                Log.d( TAG, "segmentEndTime: "+segmentEndTime );
                
-               
-               DateFormat formater = new SimpleDateFormat( DATETIME );
                serializer.text( "\n" );
                serializer.startTag( "", "TimeSpan" );
                serializer.text( "\n" );
                serializer.startTag( "", "begin" );
-               serializer.text( formater.format( segmentStartTime ) );
+               serializer.text( ZULU_DATE_FORMAT.format( segmentStartTime ) );
                serializer.endTag( "", "begin" );
                serializer.text( "\n" );
                serializer.startTag( "", "end" );
-               serializer.text( formater.format( segmentEndTime ) );
+               serializer.text( ZULU_DATE_FORMAT.format( segmentEndTime ) );
                serializer.endTag( "", "end" );
                serializer.text( "\n" );
                serializer.endTag( "", "TimeSpan" );
