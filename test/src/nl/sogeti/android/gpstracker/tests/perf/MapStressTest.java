@@ -71,8 +71,10 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    }
 
    @LargeTest
-   public void notestCreate2kTestTrack()
+   public void testCreateBigTestTrack()
    {
+      int total = 6000;
+      
       // zig-zag through the netherlands
       double lat1 = 52.195d;
       double lon1 = 4.685d;
@@ -92,8 +94,7 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
       Uri segmentUri = resolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
       Uri waypointUri = Uri.withAppendedPath( segmentUri, "waypoints" );
       
-      int total = 500;
-      for( int step=0;step<total;step++ )
+      for( int step=0;step<total/2;step++ )
       {
          double latitude = lat1+ ((lat1-lat2)/total)*step;
          double longtitude = lon1+ ((lon2-lon1)/total)*step;
@@ -101,7 +102,7 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
          wp.put( Waypoints.LONGITUDE, new Double( longtitude ) );
          resolver.insert( waypointUri, wp );
       }
-      for( int step=0;step<total;step++ )
+      for( int step=0;step<total/2;step++ )
       {
          double latitude = lat2+ ((lat3-lat2)/total)*step;
          double longtitude = lon2+ ((lon3-lon2)/total)*step;
@@ -119,8 +120,8 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
     * @throws InterruptedException
     */
    @LargeTest
-   public void testBrowseFirstTrack() throws InterruptedException
-   {    
+   public void notestBrowseFirstTrack() throws InterruptedException
+   {
       int actions = 0;
       String[] timeActions = {"G","G","T","T"};
       
