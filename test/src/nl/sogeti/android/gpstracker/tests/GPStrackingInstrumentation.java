@@ -29,9 +29,13 @@
 package nl.sogeti.android.gpstracker.tests;
 
 import junit.framework.TestSuite;
+import nl.sogeti.android.gpstracker.tests.actions.ExportGPXTest;
 import nl.sogeti.android.gpstracker.tests.db.GPStrackingProviderTest;
+import nl.sogeti.android.gpstracker.tests.demo.OpenGPSTrackerDemo;
 import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerServiceTest;
 import nl.sogeti.android.gpstracker.tests.logger.GPSLoggerServiceTest;
+import nl.sogeti.android.gpstracker.tests.perf.MapStressTest;
+import nl.sogeti.android.gpstracker.tests.userinterface.LoggerMapTest;
 import android.test.InstrumentationTestRunner;
 import android.test.InstrumentationTestSuite;
 
@@ -57,15 +61,14 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner
    {
       TestSuite suite = new InstrumentationTestSuite( this );
       suite.setName( "GPS Tracking Testsuite" );
-      suite.addTestSuite( GPStrackingProviderTest.class );
-      suite.addTestSuite( MockGPSLoggerServiceTest.class );
-      suite.addTestSuite( GPSLoggerServiceTest.class );
-      //suite.addTestSuite( ExportGPXTest.class );
-      //suite.addTestSuite( LoggerMapTest.class );
+//      suite.addTestSuite( GPStrackingProviderTest.class );
+//      suite.addTestSuite( MockGPSLoggerServiceTest.class );
+//      suite.addTestSuite( GPSLoggerServiceTest.class );
+//      suite.addTestSuite( ExportGPXTest.class );
+//      suite.addTestSuite( LoggerMapTest.class );
       
-      //suite.addTestSuite( OpenGPSTrackerDemo.class );   // The demo recorded for youtube
-      //suite.addTestSuite( LoggerMapStressTest.class ); // The stress test of the tracking
-      //suite.addTestSuite( MapStressTest.class );       // The stress test of the map viewer
+//      suite.addTestSuite( OpenGPSTrackerDemo.class );   // The demo recorded for youtube
+      suite.addTestSuite( MapStressTest.class );       // The stress test of the map viewer
       return suite;
    }
 

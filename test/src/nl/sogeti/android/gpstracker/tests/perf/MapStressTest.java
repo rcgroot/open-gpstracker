@@ -28,7 +28,12 @@
  */
 package nl.sogeti.android.gpstracker.tests.perf;
 
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Debug;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.PerformanceTestCase;
@@ -64,6 +69,48 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    {
       super.tearDown();
    }
+
+   @LargeTest
+   public void notestCreate2kTestTrack()
+   {
+      // zig-zag through the netherlands
+      double lat1 = 52.195d;
+      double lon1 = 4.685d;
+      double lat2 = 51.882d;
+      double lon2 = 5.040d;
+      double lat3 = 52.178d;
+      double lon3 = 5.421d;
+
+      ContentResolver resolver = this.getActivity().getContentResolver();
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.ACCURACY, new Double(10d) );
+      wp.put( Waypoints.ALTITUDE, new Double(5d) );
+      wp.put( Waypoints.SPEED, new Double(15d) );
+      
+      // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
+      Uri trackUri = resolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = resolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
+      Uri waypointUri = Uri.withAppendedPath( segmentUri, "waypoints" );
+      
+      int total = 500;
+      for( int step=0;step<total;step++ )
+      {
+         double latitude = lat1+ ((lat1-lat2)/total)*step;
+         double longtitude = lon1+ ((lon2-lon1)/total)*step;
+         wp.put( Waypoints.LATITUDE, new Double( latitude ) );
+         wp.put( Waypoints.LONGITUDE, new Double( longtitude ) );
+         resolver.insert( waypointUri, wp );
+      }
+      for( int step=0;step<total;step++ )
+      {
+         double latitude = lat2+ ((lat3-lat2)/total)*step;
+         double longtitude = lon2+ ((lon3-lon2)/total)*step;
+         wp.put( Waypoints.LATITUDE, new Double( latitude ) );
+         wp.put( Waypoints.LONGITUDE, new Double( longtitude ) );
+         resolver.insert( waypointUri, wp );
+      }
+   }
+   
    
    /**
     * Open the first track in the list and scroll around 
@@ -75,7 +122,7 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    public void testBrowseFirstTrack() throws InterruptedException
    {    
       int actions = 0;
-      String[] timeActions = {"G T T T","G","G","T","G","T","G G T"};
+      String[] timeActions = {"G","G","T","T"};
       
       // Start method tracing for Issue 18
       Debug.startMethodTracing("testBrowseFirstTrack");
@@ -87,7 +134,7 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
       {
          this.sendKeys( timeActions[actions] );
          actions++;
-         Thread.sleep( 500L );
+         Thread.sleep( 300L );
       }
       if( this.mIntermediates != null )
       {
