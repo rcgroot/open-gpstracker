@@ -697,17 +697,28 @@ public class SegmentOverlay extends Overlay
     */
    private boolean moveToNextOnScreenWaypoint()
    {
-      while( mWaypointsCursor.moveToNext() )
+      if( mWaypointsCursor.move( mStepSize ) )
       {
-         mStep++;
-         if( isFullStepTaken() )
+         boolean nowOnScreen = isOnScreen( extractGeoPoint() );
+         if( nowOnScreen || mStepSize == 1 )
          {
+            // Stepping along nicely on screen
+            mLastOnscreen = nowOnScreen;
+            return true;
+         }
+         else
+         {
+            // Stepped out the screen, inching forward towards until the screen is crossed
+            mWaypointsCursor.move( (-1*mStepSize)+1 );
             mLastOnscreen = isOnScreen( extractGeoPoint() );
             return true;
          }
       }
-      // No full step can be taken, move to last
-      return mWaypointsCursor.moveToLast();
+      else
+      {
+         // No full step can be taken, move to last
+         return mWaypointsCursor.moveToLast();
+      }
    }
 
    private boolean moveToNextOffScreenWaypoint()
@@ -735,11 +746,6 @@ public class SegmentOverlay extends Overlay
       }
       mWaypointsCursor.moveToLast();
       return isOnScreen( extractGeoPoint() );
-   }
-
-   private boolean isFullStepTaken()
-   {
-      return mStep % mStepSize == 0;
    }
 
    /**
