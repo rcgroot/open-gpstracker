@@ -64,7 +64,8 @@
 		<activity
             android:label="@string/app_name" 
             android:name=".viewer.LoggerMap" 
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.NoBackground">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
