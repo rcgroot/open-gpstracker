@@ -56,6 +56,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -108,20 +109,21 @@ public class SegmentOverlay extends Overlay
    private GeoPoint mStartPoint;
    private GeoPoint mEndPoint;
    private int mCalculatedPoints;
-   private Point mPrevScreenPoint;
+   private Point mPrevDrawnScreenPoint;
    private Point mScreenPoint;
    private boolean mLastOnscreen;
    private int mStepSize = 1;
    private int mStep = 0;
    private MapView mMapView;
-   private Location location;
-   private Location prevLocation;
+   private Location mLocation;
+   private Location mPrevLocation;
    private Cursor mWaypointsCursor;
    private Uri mSegmentUri;
    private int mWaypointCount;
    private int mWidth;
    private int mHeight;
 //   private Canvas mDebugCanvas;
+   private GeoPoint mPrevGeoPoint;
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -179,7 +181,7 @@ public class SegmentOverlay extends Overlay
                || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 || mBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
          {
             this.mScreenPoint = new Point();
-            this.mPrevScreenPoint = new Point();
+            this.mPrevDrawnScreenPoint = new Point();
             calculateTrack();
          }
          switch( mTrackColoringMethod )
@@ -258,7 +260,7 @@ public class SegmentOverlay extends Overlay
                geoPoint = extractGeoPoint();
                setScreenPoint( geoPoint );
 
-               float distance = (float) distanceInPoints( this.mPrevScreenPoint, this.mScreenPoint );
+               float distance = (float) distanceInPoints( this.mPrevDrawnScreenPoint, this.mScreenPoint );
                if( distance > MINIMUM_PX_DISTANCE )
                {
                   DotVO dotVO = new DotVO();
@@ -267,8 +269,8 @@ public class SegmentOverlay extends Overlay
                   dotVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
                   mDotPath.add( dotVO );
 
-                  this.mPrevScreenPoint.x = this.mScreenPoint.x;
-                  this.mPrevScreenPoint.y = this.mScreenPoint.y;
+                  this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
+                  this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
                }
             }
             while( moveToNextWayPoint() );
@@ -324,7 +326,7 @@ public class SegmentOverlay extends Overlay
       GeoPoint geoPoint;
       mCalculatedPoints = 0;
       mStep = 0;
-      this.prevLocation = null;
+      this.mPrevLocation = null;
       int moves = 0;
       calculateStepSize();
 
@@ -335,10 +337,10 @@ public class SegmentOverlay extends Overlay
          {
             // Start point of the segments, possible a dot
             this.mStartPoint = extractGeoPoint();
-            this.location = new Location( this.getClass().getName() );
-            this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
-            this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
-            this.location.setTime( mWaypointsCursor.getLong( 3 ) );
+            this.mLocation = new Location( this.getClass().getName() );
+            this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+            this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+            this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
             
             moveToGeoPoint( this.mStartPoint );
             
@@ -356,13 +358,14 @@ public class SegmentOverlay extends Overlay
                      lineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
                      break;
                   case DRAW_CALCULATED:
-                     this.location = new Location( this.getClass().getName() );
-                     this.location.setLatitude( mWaypointsCursor.getDouble( 0 ) );
-                     this.location.setLongitude( mWaypointsCursor.getDouble( 1 ) );
-                     this.location.setTime( mWaypointsCursor.getLong( 3 ) );
+                     this.mPrevLocation = this.mLocation;
+                     this.mLocation = new Location( this.getClass().getName() );
+                     this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+                     this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+                     this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
                      if( ( isDistanceOnScreenEnough() && isTimeOnScreenEnough() ) || mWaypointsCursor.isLast() )
                      {
-                        speed = calculateSpeedBetweenLocations( this.prevLocation, this.location );
+                        speed = calculateSpeedBetweenLocations( this.mPrevLocation, this.mLocation );
                         lineToGeoPoint( geoPoint, speed );
                      }
                      else
@@ -393,15 +396,25 @@ public class SegmentOverlay extends Overlay
 //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
 
+   /**
+    * Decide whether the time-distance between two drawable items is large enough
+    *
+    * @return
+    */
    private boolean isTimeOnScreenEnough()
    {
-      return this.location.getTime() - this.prevLocation.getTime() > MINIMUM_RL_TIME;
+      return this.mLocation.getTime() - this.mPrevLocation.getTime() > MINIMUM_RL_TIME;
    }
 
+   /**
+    * Decide whether the geo-distance between two drawable items is large enough
+    *
+    * @return
+    */
    private boolean isDistanceOnScreenEnough()
    {
-      double latshift = (Math.abs(prevLocation.getLatitude()-location.getLatitude())*1E6)/Math.abs(mBottumRight.getLatitudeE6()-mTopLeft.getLatitudeE6());
-      double lonshift = (Math.abs(prevLocation.getLongitude()-location.getLongitude())*1E6)/Math.abs(mBottumRight.getLongitudeE6()-mTopLeft.getLongitudeE6());
+      double latshift = (Math.abs(mPrevLocation.getLatitude()-mLocation.getLatitude())*1E6)/Math.abs(mBottumRight.getLatitudeE6()-mTopLeft.getLatitudeE6());
+      double lonshift = (Math.abs(mPrevLocation.getLongitude()-mLocation.getLongitude())*1E6)/Math.abs(mBottumRight.getLongitudeE6()-mTopLeft.getLongitudeE6());
       return latshift > 0.1 || lonshift > 0.1;
    }
 
@@ -598,6 +611,11 @@ public class SegmentOverlay extends Overlay
       return Long.parseLong( mSegmentUri.getLastPathSegment() );
    }
 
+   /**
+    * Set the beginnging to the next contour of the line to the give GeoPoint
+    * 
+    * @param geoPoint
+    */
    private void moveToGeoPoint( GeoPoint geoPoint )
    {
       setScreenPoint( geoPoint );
@@ -606,9 +624,6 @@ public class SegmentOverlay extends Overlay
       {
          this.mPath.moveTo( this.mScreenPoint.x, this.mScreenPoint.y );
       }
-      this.prevLocation = this.location;
-      this.mPrevScreenPoint.x = this.mScreenPoint.x;
-      this.mPrevScreenPoint.y = this.mScreenPoint.y;
    }
 
    private void lineToGeoPoint( GeoPoint geoPoint, double speed )
@@ -620,12 +635,12 @@ public class SegmentOverlay extends Overlay
          int greenfactor = (int) Math.min( ( 127 * speed ) / mAvgSpeed, 255 );
          int redfactor = 255 - greenfactor;
          int currentColor = Color.rgb( redfactor, greenfactor, 0 );
-         float distance = (float) distanceInPoints( this.mPrevScreenPoint, this.mScreenPoint );
+         float distance = (float) distanceInPoints( this.mPrevDrawnScreenPoint, this.mScreenPoint );
          if( distance > MINIMUM_PX_DISTANCE )
          {
 //            Log.d( TAG, "Circle from " + mPrevScreenPoint+" to "+mScreenPoint );
-            int x_circle = ( this.mPrevScreenPoint.x + this.mScreenPoint.x ) / 2;
-            int y_circle = ( this.mPrevScreenPoint.y + this.mScreenPoint.y ) / 2;
+            int x_circle = ( this.mPrevDrawnScreenPoint.x + this.mScreenPoint.x ) / 2;
+            int y_circle = ( this.mPrevDrawnScreenPoint.y + this.mScreenPoint.y ) / 2;
             float radius_factor = 0.4f;
             Shader lastShader = new RadialGradient( x_circle, y_circle, distance
                   , new int[]   { currentColor,  currentColor, Color.TRANSPARENT }
@@ -655,17 +670,23 @@ public class SegmentOverlay extends Overlay
             {
                this.mShader = lastShader;
             }
-            this.prevLocation = this.location;
-            this.mPrevScreenPoint.x = this.mScreenPoint.x;
-            this.mPrevScreenPoint.y = this.mScreenPoint.y;
+            this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
+            this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
          }
       }
 
       this.mPath.lineTo( this.mScreenPoint.x, this.mScreenPoint.y );
    }
 
+   /**
+    * Use to update location/point state when calculating the line
+    * 
+    * @param geoPoint
+    */
    private void setScreenPoint( GeoPoint geoPoint )
    {
+      this.mPrevGeoPoint = geoPoint;
+      
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );
       mCalculatedPoints++;
    }
@@ -721,10 +742,17 @@ public class SegmentOverlay extends Overlay
       }
    }
 
+   /**
+    * Previous path GeoPoint was off screen and the next one will be to 
+    * or the first on screen when the path reaches the projection.
+    * TODO
+    * @return
+    */
    private boolean moveToNextOffScreenWaypoint()
    {
       GeoPoint lastPoint = extractGeoPoint();
-      int acceleratedStepsize = 1+mStepSize * mWaypointCount/1000;
+      int acceleratedStepsize = mStepSize * (mWaypointCount/1000+6); // Keep drawing mod(mStepSize) to avoid jumping around
+//      Log.d( TAG, "acceleratedStepsize "+acceleratedStepsize); // On full zoom  this 6 on normal 1k-less and 12+ on 6k-more and more 
       while( mWaypointsCursor.move( acceleratedStepsize ) )
       {
          if( mWaypointsCursor.isLast() )
