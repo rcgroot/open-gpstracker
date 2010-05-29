@@ -111,7 +111,6 @@ public class SegmentOverlay extends Overlay
    private int mCalculatedPoints;
    private Point mPrevDrawnScreenPoint;
    private Point mScreenPoint;
-   private boolean mLastOnscreen;
    private int mStepSize = 1;
    private int mStep = 0;
    private MapView mMapView;
@@ -215,7 +214,6 @@ public class SegmentOverlay extends Overlay
 
    public void calculateTrack()
    {
-
       calculateStepSize();
       switch( mTrackColoringMethod )
       {
@@ -257,6 +255,10 @@ public class SegmentOverlay extends Overlay
          if( mProjection != null && mWaypointsCursor.moveToFirst() )
          {
             GeoPoint geoPoint;
+            
+            mStartPoint = extractGeoPoint();
+            mPrevGeoPoint = mStartPoint;
+            
             do
             {
                geoPoint = extractGeoPoint();
@@ -338,6 +340,7 @@ public class SegmentOverlay extends Overlay
          {
             // Start point of the segments, possible a dot
             this.mStartPoint = extractGeoPoint();
+            mPrevGeoPoint = mStartPoint;
             this.mLocation = new Location( this.getClass().getName() );
             this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
             this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
@@ -382,8 +385,8 @@ public class SegmentOverlay extends Overlay
             }
             while( moveToNextWayPoint() );
 
-            // End point of the segments, possible a dot
-            this.mEndPoint = extractGeoPoint();
+            
+            this.mEndPoint = extractGeoPoint(); // End point of the segments, possible a dot
 
          }
       }
@@ -394,7 +397,7 @@ public class SegmentOverlay extends Overlay
             mWaypointsCursor.close();
          }
       }
-//      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
+      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
 
    /**
@@ -686,8 +689,6 @@ public class SegmentOverlay extends Overlay
     */
    private void setScreenPoint( GeoPoint geoPoint )
    {
-      this.mPrevGeoPoint = geoPoint;
-      
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );
       mCalculatedPoints++;
    }
@@ -701,21 +702,22 @@ public class SegmentOverlay extends Overlay
     */
    private boolean moveToNextWayPoint()
    {
-      if( mWaypointsCursor.isLast() )
+      boolean cursorReady = true;
+      boolean onscreen = isOnScreen( extractGeoPoint() );
+      if( mWaypointsCursor.isLast() ) // End of the line, cant move onward
       {
-         return false;
+         cursorReady = false;
       }
-      if( mLastOnscreen )
+      else if( onscreen )             // Are on screen
       {
-         boolean moved = moveToNextOnScreenWaypoint();
-         return moved;
+         cursorReady = moveOnScreenWaypoint();
       }
-      else
+      else                            // Are off screen => accelerate
       {
-         mLastOnscreen = false;
-         boolean moved = moveToNextOffScreenWaypoint();
-         return moved;
+         int acceleratedStepsize = mStepSize * (mWaypointCount/1000+6);
+         cursorReady = moveOffscreenWaypoint( acceleratedStepsize );
       }
+      return cursorReady ;
    }
 
    /**
@@ -725,15 +727,13 @@ public class SegmentOverlay extends Overlay
     * @param trackCursor
     * @return
     */
-   private boolean moveToNextOnScreenWaypoint()
+   private boolean moveOnScreenWaypoint()
    {
-      int nextPosition = (mWaypointsCursor.getPosition()/mStepSize)+mStepSize;
+      int nextPosition = mStepSize*(mWaypointsCursor.getPosition()/mStepSize)+mStepSize;
       if( mWaypointsCursor.moveToPosition( nextPosition ) )
       {
          if( isOnScreen( extractGeoPoint() ) )      // Remained on screen
          {
-            
-            mLastOnscreen = true; 
             return true;                            // Cursor is pointing to somewhere
          }
          else 
@@ -745,7 +745,6 @@ public class SegmentOverlay extends Overlay
                mWaypointsCursor.moveToNext();       // inch forward to the edge
                nowOnScreen = isOnScreen( extractGeoPoint() );
             }
-            mLastOnscreen = false;                  // and when over the edge
             return true;                            // with a cursor point to somewhere
          }
       }
@@ -754,6 +753,8 @@ public class SegmentOverlay extends Overlay
          return mWaypointsCursor.moveToLast();      // No full step can be taken, move to last
       }
    }
+   
+   
 
    /**
     * Previous path GeoPoint was off screen and the next one will be to 
@@ -761,12 +762,9 @@ public class SegmentOverlay extends Overlay
     * TODO
     * @return
     */
-   private boolean moveToNextOffScreenWaypoint()
-   {
-      GeoPoint lastPoint = extractGeoPoint();
-      int acceleratedStepsize = mStepSize * (mWaypointCount/1000+6); // Keep drawing mod(mStepSize) to avoid jumping around
-//      Log.d( TAG, "acceleratedStepsize "+acceleratedStepsize); // On full zoom  this 6 on normal 1k-less and 12+ on 6k-more and more 
-      while( mWaypointsCursor.move( acceleratedStepsize ) )
+   private boolean moveOffscreenWaypoint( int flexStepsize )
+   {   
+      while( mWaypointsCursor.move( flexStepsize ) )
       {
          if( mWaypointsCursor.isLast() )
          {
@@ -774,19 +772,106 @@ public class SegmentOverlay extends Overlay
          }
 
          GeoPoint evalPoint = extractGeoPoint();
-         if( isOnScreen( evalPoint ) )
+         if( possibleScreenPass( mPrevGeoPoint, evalPoint ) )
          {
-            mWaypointsCursor.move( -1*acceleratedStepsize );
-            mWaypointsCursor.moveToNext();
-            mLastOnscreen = true;
-            moveToGeoPoint( lastPoint );
-            //               Log.d(TAG, "first in screen "+trackCursor.getPosition() );
-            return true;
+            mPrevGeoPoint = evalPoint;
+            if( flexStepsize == 1 )                                 // Just stumbled over a border
+            {
+               return true;
+            }
+            else
+            {
+               mWaypointsCursor.move( -1*flexStepsize );             // Take 1 step back
+               return moveOffscreenWaypoint( flexStepsize/2 );       // Continue at halve accelerated speed
+            }
          }
-         lastPoint = evalPoint;
+         
       }
-      mWaypointsCursor.moveToLast();
-      return isOnScreen( extractGeoPoint() );
+      return mWaypointsCursor.moveToLast();
+   }
+
+   private boolean possibleScreenPass( GeoPoint p1, GeoPoint p2 )
+   {
+      boolean safe = true;
+      if( p1 != null && p2 != null )
+      {
+         int from = toSegment( p1 );
+         int to = toSegment( p2 );
+         
+         switch( from )
+         {
+            case 1:
+               safe = to == 1 || to == 2 || to == 3 || to == 4 || to == 7;
+               break;
+            case 2:
+               safe = to == 1 || to == 2 || to == 3;
+               break;
+            case 3:
+               safe = to == 1 || to == 2 || to == 3 || to == 6 || to == 9;
+               break;
+            case 4:
+               safe = to == 1 || to == 4 || to == 7;
+               break;
+            case 5:
+               safe = false;
+               break;
+            case 6:
+               safe = to == 3 || to == 6 || to == 9;
+               break;
+            case 7:
+               safe = to == 1 || to == 4 || to == 7 || to == 8 || to == 9;
+               break;
+            case 8:
+               safe = to == 7 || to == 8 || to == 9;
+               break;
+            case 9:
+               safe = to == 3 || to == 6 || to == 7 || to == 8 || to == 9;
+               break;
+            default:
+               safe = false;
+               break;
+         }
+//         Log.d( TAG, String.format( "From %d to %d is safe: %s", to, from, safe ) );
+      }
+      return !safe;
+   }
+
+   /**
+    * Calculates in which segment opposited to the projecting a geo point resides
+    * 
+    * @param p1
+    * @return
+    */
+   private int toSegment( GeoPoint p1 )
+   {
+//      Log.d( TAG, String.format( "Comparing %s to points TL %s and BR %s", p1, mTopLeft, mBottumRight )); 
+      int nr ;
+      if( p1.getLongitudeE6() < mTopLeft.getLongitudeE6() )           // left
+      {
+         nr = 1;
+      }
+      else if( p1.getLongitudeE6() > mBottumRight.getLongitudeE6() )  // right
+      {
+        nr = 3;  
+      }
+      else                                                            // middle
+      {
+         nr =2 ;
+      }
+      
+      if( p1.getLatitudeE6() > mTopLeft.getLatitudeE6() )             // top
+      {
+         nr = nr+0;
+      }
+      else if( p1.getLatitudeE6() < mBottumRight.getLatitudeE6() )   // bottum
+      {
+         nr = nr+6;
+      }
+      else                                                            // middle
+      {
+         nr = nr+3;
+      }
+      return nr;
    }
 
    /**
