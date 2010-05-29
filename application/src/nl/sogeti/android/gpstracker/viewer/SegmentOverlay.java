@@ -215,6 +215,8 @@ public class SegmentOverlay extends Overlay
 
    public void calculateTrack()
    {
+
+      calculateStepSize();
       switch( mTrackColoringMethod )
       {
          case ( DRAW_CALCULATED ):
@@ -328,7 +330,6 @@ public class SegmentOverlay extends Overlay
       mStep = 0;
       this.mPrevLocation = null;
       int moves = 0;
-      calculateStepSize();
 
       try
       {
@@ -691,6 +692,13 @@ public class SegmentOverlay extends Overlay
       mCalculatedPoints++;
    }
 
+   /**
+    * Move to a next waypoint, for on screen this are the points with 
+    * mStepSize % position == 0 to avoid jittering in the rendering
+    * or the points on the either side of the screen edge. 
+    * 
+    * @return if a next waypoint is pointed to with the mWaypointsCursor
+    */
    private boolean moveToNextWayPoint()
    {
       if( mWaypointsCursor.isLast() )
@@ -711,34 +719,39 @@ public class SegmentOverlay extends Overlay
    }
 
    /**
-    * Move the cursor to the next waypoint based on the stepsize
+    * Move the cursor to the next waypoint modulo of the step size
+    * or less if the screen edge is reached
     * 
     * @param trackCursor
     * @return
     */
    private boolean moveToNextOnScreenWaypoint()
    {
-      if( mWaypointsCursor.move( mStepSize ) )
+      int nextPosition = (mWaypointsCursor.getPosition()/mStepSize)+mStepSize;
+      if( mWaypointsCursor.moveToPosition( nextPosition ) )
       {
-         boolean nowOnScreen = isOnScreen( extractGeoPoint() );
-         if( nowOnScreen || mStepSize == 1 )
+         if( isOnScreen( extractGeoPoint() ) )      // Remained on screen
          {
-            // Stepping along nicely on screen
-            mLastOnscreen = nowOnScreen;
-            return true;
+            
+            mLastOnscreen = true; 
+            return true;                            // Cursor is pointing to somewhere
          }
-         else
+         else 
          {
-            // Stepped out the screen, inching forward towards until the screen is crossed
-            mWaypointsCursor.move( (-1*mStepSize)+1 );
-            mLastOnscreen = isOnScreen( extractGeoPoint() );
-            return true;
+            mWaypointsCursor.move( -1*mStepSize );  // Step back
+            boolean nowOnScreen = true;             // onto the screen
+            while( nowOnScreen  )                   // while on the screen 
+            {
+               mWaypointsCursor.moveToNext();       // inch forward to the edge
+               nowOnScreen = isOnScreen( extractGeoPoint() );
+            }
+            mLastOnscreen = false;                  // and when over the edge
+            return true;                            // with a cursor point to somewhere
          }
       }
       else
       {
-         // No full step can be taken, move to last
-         return mWaypointsCursor.moveToLast();
+         return mWaypointsCursor.moveToLast();      // No full step can be taken, move to last
       }
    }
 
@@ -781,12 +794,13 @@ public class SegmentOverlay extends Overlay
     */
    private void calculateStepSize()
    {
+      
       if( mWaypointCount < 250 )
       {
          mStepSize = 1;
       }
       else
-      {
+      {         
          int zoomLevel = mMapView.getZoomLevel();
          int maxZoomLevel = mMapView.getMaxZoomLevel();
          if( zoomLevel >= maxZoomLevel - 2 )
