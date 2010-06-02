@@ -28,6 +28,11 @@
             android:title="@string/logatstartup"
             android:summary="@string/logatstartup_summary"
             android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="startupatboot"
+            android:title="@string/startupatboot"
+            android:summary="@string/startupatboot_summary"
+            android:defaultValue="false" />
     </PreferenceCategory>
     
     <PreferenceCategory

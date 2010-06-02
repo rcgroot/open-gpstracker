@@ -102,6 +102,8 @@
     <string name="preference_behavior">Run settings</string>
     <string name="logatstartup">Log at start up</string>
     <string name="logatstartup_summary">After starting the application tracking starts.</string>   
+    <string name="startupatboot">Start up at boot</string>
+    <string name="startupatboot_summary">After starting the device, the application starts.</string>   
     <string name="disableblanking_title">Disable screen blanking</string>
     <string name="disableblanking_summary">Keeps the screen on during tracking.</string>       
     <string name="precision_title">Logging precision</string>
