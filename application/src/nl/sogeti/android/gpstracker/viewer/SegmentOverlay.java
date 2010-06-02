@@ -790,90 +790,6 @@ public class SegmentOverlay extends Overlay
       return mWaypointsCursor.moveToLast();
    }
 
-   private boolean possibleScreenPass( GeoPoint p1, GeoPoint p2 )
-   {
-      boolean safe = true;
-      if( p1 != null && p2 != null )
-      {
-         int from = toSegment( p1 );
-         int to = toSegment( p2 );
-         
-         switch( from )
-         {
-            case 1:
-               safe = to == 1 || to == 2 || to == 3 || to == 4 || to == 7;
-               break;
-            case 2:
-               safe = to == 1 || to == 2 || to == 3;
-               break;
-            case 3:
-               safe = to == 1 || to == 2 || to == 3 || to == 6 || to == 9;
-               break;
-            case 4:
-               safe = to == 1 || to == 4 || to == 7;
-               break;
-            case 5:
-               safe = false;
-               break;
-            case 6:
-               safe = to == 3 || to == 6 || to == 9;
-               break;
-            case 7:
-               safe = to == 1 || to == 4 || to == 7 || to == 8 || to == 9;
-               break;
-            case 8:
-               safe = to == 7 || to == 8 || to == 9;
-               break;
-            case 9:
-               safe = to == 3 || to == 6 || to == 7 || to == 8 || to == 9;
-               break;
-            default:
-               safe = false;
-               break;
-         }
-//         Log.d( TAG, String.format( "From %d to %d is safe: %s", to, from, safe ) );
-      }
-      return !safe;
-   }
-
-   /**
-    * Calculates in which segment opposited to the projecting a geo point resides
-    * 
-    * @param p1
-    * @return
-    */
-   private int toSegment( GeoPoint p1 )
-   {
-//      Log.d( TAG, String.format( "Comparing %s to points TL %s and BR %s", p1, mTopLeft, mBottumRight )); 
-      int nr ;
-      if( p1.getLongitudeE6() < mTopLeft.getLongitudeE6() )           // left
-      {
-         nr = 1;
-      }
-      else if( p1.getLongitudeE6() > mBottumRight.getLongitudeE6() )  // right
-      {
-        nr = 3;  
-      }
-      else                                                            // middle
-      {
-         nr =2 ;
-      }
-      
-      if( p1.getLatitudeE6() > mTopLeft.getLatitudeE6() )             // top
-      {
-         nr = nr+0;
-      }
-      else if( p1.getLatitudeE6() < mBottumRight.getLatitudeE6() )   // bottum
-      {
-         nr = nr+6;
-      }
-      else                                                            // middle
-      {
-         nr = nr+3;
-      }
-      return nr;
-   }
-
    /**
     * If a segment contains more then 500 waypoints and is zoomed out more then twice then some waypoints will not be used to render the line, this speeding things along.
     */
@@ -905,30 +821,98 @@ public class SegmentOverlay extends Overlay
     * @param eval
     * @return
     */
-   private boolean isOnScreen( GeoPoint eval )
+   protected boolean isOnScreen( GeoPoint eval )
    {
-      boolean under = this.mTopLeft.getLatitudeE6() > eval.getLatitudeE6();
-      boolean above = this.mBottumRight.getLatitudeE6() < eval.getLatitudeE6();
-      boolean right = this.mTopLeft.getLongitudeE6() < eval.getLongitudeE6();
-      boolean left = this.mBottumRight.getLongitudeE6() > eval.getLongitudeE6();
+      boolean under =     mTopLeft.getLatitudeE6()  > eval.getLatitudeE6();
+      boolean above = mBottumRight.getLatitudeE6()  < eval.getLatitudeE6();
+      boolean right =     mTopLeft.getLongitudeE6() < eval.getLongitudeE6();
+      boolean left  = mBottumRight.getLongitudeE6() > eval.getLongitudeE6();
       return under && above && right && left;
    }
    
    /**
-    * Is a given Point in the current projection of the map.
-    * 
-    * @param eval
-    * @return
-    */
-   private boolean isOnScreen( Point eval )
-   {
-//      Log.d( TAG, String.format("(%d,%d) in (%d,%d)",eval.x,eval.y, mWidth, mHeight) );
-      boolean under = eval.y > 0;
-      boolean above = eval.y < mWidth;
-      boolean left  = eval.x < mHeight;
-      boolean right = eval.x > 0;
-      return under && above && right && left;
-   }
+       * Calculates in which segment opposited to the projecting a geo point resides
+       * 
+       * @param p1
+       * @return
+       */
+      private int toSegment( GeoPoint p1 )
+      {
+   //      Log.d( TAG, String.format( "Comparing %s to points TL %s and BR %s", p1, mTopLeft, mBottumRight )); 
+         int nr ;
+         if( p1.getLongitudeE6() < mTopLeft.getLongitudeE6() )           // left
+         {
+            nr = 1;
+         }
+         else if( p1.getLongitudeE6() > mBottumRight.getLongitudeE6() )  // right
+         {
+           nr = 3;  
+         }
+         else                                                            // middle
+         {
+            nr =2 ;
+         }
+         
+         if( p1.getLatitudeE6() > mTopLeft.getLatitudeE6() )             // top
+         {
+            nr = nr+0;
+         }
+         else if( p1.getLatitudeE6() < mBottumRight.getLatitudeE6() )   // bottom
+         {
+            nr = nr+6;
+         }
+         else                                                            // middle
+         {
+            nr = nr+3;
+         }
+         return nr;
+      }
+
+   private boolean possibleScreenPass( GeoPoint p1, GeoPoint p2 )
+      {
+         boolean safe = true;
+         if( p1 != null && p2 != null )
+         {
+            int from = toSegment( p1 );
+            int to   = toSegment( p2 );
+            
+            switch( from )
+            {
+               case 1:
+                  safe = to == 1 || to == 2 || to == 3 || to == 4 || to == 7;
+                  break;
+               case 2:
+                  safe = to == 1 || to == 2 || to == 3;
+                  break;
+               case 3:
+                  safe = to == 1 || to == 2 || to == 3 || to == 6 || to == 9;
+                  break;
+               case 4:
+                  safe = to == 1 || to == 4 || to == 7;
+                  break;
+               case 5:
+                  safe = false;
+                  break;
+               case 6:
+                  safe = to == 3 || to == 6 || to == 9;
+                  break;
+               case 7:
+                  safe = to == 1 || to == 4 || to == 7 || to == 8 || to == 9;
+                  break;
+               case 8:
+                  safe = to == 7 || to == 8 || to == 9;
+                  break;
+               case 9:
+                  safe = to == 3 || to == 6 || to == 7 || to == 8 || to == 9;
+                  break;
+               default:
+                  safe = false;
+                  break;
+            }
+   //         Log.d( TAG, String.format( "From %d to %d is safe: %s", to, from, safe ) );
+         }
+         return !safe;
+      }
 
    public void setTrackColoringMethod( int coloring, double avgspeed )
    {
