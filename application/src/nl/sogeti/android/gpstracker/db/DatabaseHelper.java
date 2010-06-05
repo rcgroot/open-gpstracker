@@ -215,6 +215,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       }
       
       affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ String.valueOf( trackId ) } );
+      sqldb.execSQL( "VACUUM" );
       
       ContentResolver resolver = this.mContext.getContentResolver();
       resolver.notifyChange( Tracks.CONTENT_URI, null );
