@@ -397,7 +397,7 @@ public class SegmentOverlay extends Overlay
             mWaypointsCursor.close();
          }
       }
-      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
+//      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
 
    /**
@@ -772,6 +772,7 @@ public class SegmentOverlay extends Overlay
          }
 
          GeoPoint evalPoint = extractGeoPoint();
+//         Log.d( TAG, String.format( "Evaluate point number %d ", mWaypointsCursor.getPosition() ) );
          if( possibleScreenPass( mPrevGeoPoint, evalPoint ) )
          {
             mPrevGeoPoint = evalPoint;
@@ -784,6 +785,11 @@ public class SegmentOverlay extends Overlay
                mWaypointsCursor.move( -1*flexStepsize );             // Take 1 step back
                return moveOffscreenWaypoint( flexStepsize/2 );       // Continue at halve accelerated speed
             }
+         }
+         else
+         {
+            moveToGeoPoint( evalPoint );
+            mPrevGeoPoint = evalPoint;
          }
          
       }
@@ -868,13 +874,13 @@ public class SegmentOverlay extends Overlay
          return nr;
       }
 
-   private boolean possibleScreenPass( GeoPoint p1, GeoPoint p2 )
+   private boolean possibleScreenPass( GeoPoint fromGeo, GeoPoint toGeo )
       {
          boolean safe = true;
-         if( p1 != null && p2 != null )
+         if( fromGeo != null && toGeo != null )
          {
-            int from = toSegment( p1 );
-            int to   = toSegment( p2 );
+            int from = toSegment( fromGeo );
+            int to   = toSegment( toGeo );
             
             switch( from )
             {
@@ -909,7 +915,7 @@ public class SegmentOverlay extends Overlay
                   safe = false;
                   break;
             }
-   //         Log.d( TAG, String.format( "From %d to %d is safe: %s", to, from, safe ) );
+//            Log.d( TAG, String.format( "From %d to %d is safe: %s", from, to, safe ) );
          }
          return !safe;
       }
