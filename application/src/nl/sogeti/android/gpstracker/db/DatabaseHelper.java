@@ -197,9 +197,13 @@ class DatabaseHelper extends SQLiteOpenHelper
       {
          cursor = sqldb.query( Segments.TABLE, new String[] { Segments._ID }, Segments.TRACK + "= ?", new String[]{ String.valueOf( trackId ) }, null, null, null, null );
          if (cursor.moveToFirst())
-         {
-            segmentId = cursor.getLong( 0 ) ;
-            affected += deleteSegment( sqldb, trackId, segmentId );
+         {  
+            do
+            {
+               segmentId = cursor.getLong( 0 ) ;
+               affected += deleteSegment( sqldb, trackId, segmentId );
+            }
+            while( cursor.moveToNext() );
          }
          else 
          {

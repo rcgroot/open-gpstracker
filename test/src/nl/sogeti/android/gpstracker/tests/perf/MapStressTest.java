@@ -83,7 +83,7 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    @LargeTest
    public void testCreateTestData() throws XmlPullParserException, IOException
    {
-//      createTrackBigTest( 6000 );
+      createTrackBigTest( 6000 );
 //      createTrackFromKMLData( "/mnt/sdcard/estland50k.xml" );
    }
 
