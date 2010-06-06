@@ -19,7 +19,6 @@
  */
 package nl.sogeti.android.gpstracker.util;
 
-import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,27 +32,25 @@ public class BootReceiver extends BroadcastReceiver
    @Override
    public void onReceive( Context context, Intent intent )
    {
-      Log.d( TAG, "BootReceiver.onReceive(), probably ACTION_BOOT_COMPLETED" );
+//      Log.d( TAG, "BootReceiver.onReceive(), probably ACTION_BOOT_COMPLETED" );
       String action = intent.getAction();
 
       // start on BOOT_COMPLETED
       if( action.equals( Intent.ACTION_BOOT_COMPLETED ) )
       {
-         Log.d( TAG, "BootReceiver received ACTION_BOOT_COMPLETED" );
+//         Log.d( TAG, "BootReceiver received ACTION_BOOT_COMPLETED" );
 
          // check in the settings if we need to auto start
          boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( context ).getBoolean( Constants.STARTUPATBOOT, false );
 
          if( startImmidiatly )
          {
-            Log.d( TAG, "Starting LoggerMap activity..." );
-            Intent newintent = new Intent( context, LoggerMap.class );
-            newintent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
-            context.startActivity( newintent );
+//            Log.d( TAG, "Starting LoggerMap activity..." );
+            context.startService( new Intent( Constants.SERVICENAME ) );
          }
          else
          {
-            Log.d( TAG, "Not starting LoggerMap activity. Adjust the settings if you wanted this !" );
+            Log.i( TAG, "Not starting Logger Service. Adjust the settings if you wanted this !" );
          }
       }
       else
