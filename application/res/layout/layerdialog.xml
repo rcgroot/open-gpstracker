@@ -25,6 +25,11 @@
          android:layout_width="wrap_content"
          android:layout_height="wrap_content" />
       <CheckBox
+         android:text="@string/layer_altitude"
+         android:id="@+id/layer_altitude"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content" />
+      <CheckBox
          android:text="@string/layer_compass"
          android:id="@+id/layer_compass"
          android:layout_width="wrap_content"

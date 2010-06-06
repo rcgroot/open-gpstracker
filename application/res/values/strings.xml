@@ -35,6 +35,7 @@
     <string name="layer_satellite">Satellite</string>
     <string name="layer_traffic">Traffic</string>
     <string name="layer_speed">Speed</string>
+    <string name="layer_altitude">Altitude</string>
     <string name="layer_compass">Compass</string>
     <string name="layer_location">My Location</string>
     <string name="dialog_notwidroid">twidroid missing</string>
@@ -116,6 +117,8 @@
     <string name="showtraffic_summary">Show the Google Maps traffic information</string>
     <string name="showspeed_title">GPS speed</string>
     <string name="showspeed_summary">Show the speed from the last received GPS fix.</string>
+    <string name="showaltitude_title">GPS altitude</string>
+    <string name="showaltitude_summary">Show the altitude from the last received GPS fix.</string>
     <string name="showcompass_title">Compass</string>
     <string name="showcompass_summary">Show a compass with a needle pointing north</string>
     <string name="sanitycheck_title">Speed and altitude sanity check </string>

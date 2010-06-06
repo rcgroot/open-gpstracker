@@ -71,7 +71,13 @@
             android:key="showspeed"
             android:title="@string/showspeed_title"
             android:summary="@string/showspeed_summary"
-            android:defaultValue="true" 
+            android:defaultValue="false" 
+         />
+        <CheckBoxPreference
+            android:key="showaltitude"
+            android:title="@string/showaltitude_title"
+            android:summary="@string/showaltitude_summary"
+            android:defaultValue="false" 
          />
          <CheckBoxPreference
             android:key="COMPASS"

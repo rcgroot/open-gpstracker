@@ -137,11 +137,13 @@ public class LoggerMap extends MapActivity
    private CheckBox mSatellite;
    private CheckBox mTraffic;
    private CheckBox mSpeed;
+   private CheckBox mAltitude;
    private CheckBox mCompass;
    private CheckBox mLocation;
    private EditText mTrackNameView;
    private TextView[] mSpeedtexts = null;
    private TextView mLastGPSSpeedView = null;
+   private TextView mLastGPSAltitudeView = null;
    private EditText mNoteNameView;
    private EditText mNoteTextView;
 
@@ -297,6 +299,9 @@ public class LoggerMap extends MapActivity
                case R.id.layer_speed:
                   setSpeedOverlay( isChecked );
                   break;
+               case R.id.layer_altitude:
+                  setAltitudeOverlay( isChecked );
+                  break;
                case R.id.layer_compass:
                   setCompassOverlay( isChecked );
                   break;
@@ -323,6 +328,10 @@ public class LoggerMap extends MapActivity
             else if( key.equals( Constants.SPEED ) )
             {
                updateSpeedDisplayVisibility();
+            }
+            else if( key.equals( Constants.ALTITUDE ) )
+            {
+               updateAltitudeDisplayVisibility();
             }
             else if( key.equals( Constants.COMPASS ) )
             {
@@ -451,6 +460,7 @@ public class LoggerMap extends MapActivity
             (TextView) findViewById( R.id.speedview02 ), (TextView) findViewById( R.id.speedview01 ), (TextView) findViewById( R.id.speedview00 ) };
       mSpeedtexts = speeds;
       mLastGPSSpeedView = (TextView) findViewById( R.id.currentSpeed );
+      mLastGPSAltitudeView = (TextView) findViewById( R.id.currentAltitude );
 
       onRestoreInstanceState( load );
    }
@@ -481,6 +491,7 @@ public class LoggerMap extends MapActivity
       updateBlankingBehavior();
       updateSpeedColoring();
       updateSpeedDisplayVisibility();
+      updateAltitudeDisplayVisibility();
       updateCompassDisplayVisibility();
       updateLocationDisplayVisibility();
 
@@ -662,6 +673,13 @@ public class LoggerMap extends MapActivity
       editor.commit();
    }
 
+   private void setAltitudeOverlay( boolean b )
+   {
+      Editor editor = mSharedPreferences.edit();
+      editor.putBoolean( Constants.ALTITUDE, b );
+      editor.commit();
+   }
+   
    private void setCompassOverlay( boolean b )
    {
       Editor editor = mSharedPreferences.edit();
@@ -841,6 +859,8 @@ public class LoggerMap extends MapActivity
             mTraffic.setOnCheckedChangeListener( mCheckedChangeListener );
             mSpeed = (CheckBox) view.findViewById( R.id.layer_speed );
             mSpeed.setOnCheckedChangeListener( mCheckedChangeListener );
+            mAltitude = (CheckBox) view.findViewById( R.id.layer_altitude );
+            mAltitude.setOnCheckedChangeListener( mCheckedChangeListener );
             mCompass = (CheckBox) view.findViewById( R.id.layer_compass );
             mCompass.setOnCheckedChangeListener( mCheckedChangeListener );
             mLocation = (CheckBox) view.findViewById( R.id.layer_location );
@@ -982,6 +1002,7 @@ public class LoggerMap extends MapActivity
             mSatellite.setChecked( mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
             mTraffic.setChecked( mSharedPreferences.getBoolean( Constants.TRAFFIC, false ) );
             mSpeed.setChecked( mSharedPreferences.getBoolean( Constants.SPEED, false ) );
+            mAltitude.setChecked( mSharedPreferences.getBoolean( Constants.ALTITUDE, false ) );
             mCompass.setChecked( mSharedPreferences.getBoolean( Constants.COMPASS, false ) );
             mLocation.setChecked( mSharedPreferences.getBoolean( Constants.LOCATION, false ) );
             break;
@@ -1187,6 +1208,20 @@ public class LoggerMap extends MapActivity
       }
    }
 
+   private void updateAltitudeDisplayVisibility()
+   {
+      boolean showaltitude = mSharedPreferences.getBoolean( Constants.ALTITUDE, false );
+      if( showaltitude )
+      {
+         mLastGPSAltitudeView.setVisibility( View.VISIBLE );
+         mLastGPSAltitudeView.setText( "" );
+      }
+      else
+      {
+         mLastGPSAltitudeView.setVisibility( View.INVISIBLE );
+      }
+   }
+   
    private void updateCompassDisplayVisibility()
    {
       boolean compass = mSharedPreferences.getBoolean( Constants.COMPASS, false );
@@ -1213,6 +1248,12 @@ public class LoggerMap extends MapActivity
       }
    }
 
+   /**
+    * Retrieves the numbers of the measured speed and altitude 
+    * from the most recent waypoint and 
+    * updates UI components with this latest bit of information. 
+    * 
+    */
    private void updateDisplayedSpeedViews()
    {
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
@@ -1220,18 +1261,27 @@ public class LoggerMap extends MapActivity
       try
       {
          Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/segments/" + mLastSegment + "/waypoints" );
-         waypointsCursor = resolver.query( lastSegmentUri, new String[] { Waypoints.SPEED }, null, null, null );
+         waypointsCursor = resolver.query( lastSegmentUri, new String[] { Waypoints.SPEED, Waypoints.ALTITUDE }, null, null, null );
          if( waypointsCursor != null && waypointsCursor.moveToLast() )
          {
+            // Speed number
             double speed = waypointsCursor.getDouble( 0 );
             speed = mUnits.conversionFromMetersPerSecond( speed );
             String speedText = String.format( "%.0f %s", speed, mUnits.getSpeedUnit() );
             mLastGPSSpeedView.setText( speedText );
+            
+            // Speed color bar
             if( speed > 2*mAverageSpeed )
             {
                updateSpeedColoring();
                mMapView.postInvalidate();
             }
+            
+            //Altitude number
+            double altitude = waypointsCursor.getDouble( 1 );
+            altitude = mUnits.conversionFromMeterToHeight( altitude );
+            String altitudeText = String.format( "%.0f %s", altitude, mUnits.getHeightUnit() );
+            mLastGPSAltitudeView.setText( altitudeText );
          }
       }
       finally
