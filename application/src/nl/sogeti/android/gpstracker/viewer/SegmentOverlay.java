@@ -144,7 +144,8 @@ public class SegmentOverlay extends Overlay
       this.mSegmentUri = segmentUri;
       this.mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       this.mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
-
+      this.mMediaPath = new Vector<MediaVO>();
+      
       Cursor waypointsCursor = null;
       try
       {
@@ -204,10 +205,7 @@ public class SegmentOverlay extends Overlay
                break;
          }
          drawStartStopCircles( canvas );
-         if( mMediaPath == null )
-         {
-            calculateMedia();
-         }
+         calculateMedia();
          drawMedia( canvas );
       }
    }
@@ -456,14 +454,7 @@ public class SegmentOverlay extends Overlay
 
    public synchronized void calculateMedia()
    {
-      if( mMediaPath == null )
-      {
-         mMediaPath = new Vector<MediaVO>();
-      }
-      else
-      {
-         mMediaPath.clear();
-      }
+      mMediaPath.clear();
       Cursor mediaCursor = null;
       try
       {
