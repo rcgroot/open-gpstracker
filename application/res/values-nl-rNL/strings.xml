@@ -2,7 +2,7 @@
 <resources>
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Opstarten opname service</string>
-    <string name="service_gpsstatus">Loggen: %s (%s met %d satellieten)</string>
+	<string name="service_gpsstatus">Loggen: %s (%s met %d satellieten)</string>
     <string name="service_networkstatus">Loggen: %s (%s met gsm and wifi )</string>
     <string name="service_gpsdisabled">GPS is uitgeschakeld, opnemen heeft geen effect.</string>
     <string name="service_gpsenabled">GPS is ingeschakeld, opnemen gaat van start.</string>
@@ -27,14 +27,15 @@
     <string name="dialog_notetext_title">Text notitie</string>
     <string name="dialog_notetext_message">Voer een notitie in over deze locatie</string>
     <string name="dialog_notename_title">Markeer</string>
-    <string name="dialog_notename_message">Voer de naam in van deze locatie</string>    
+    <string name="dialog_notename_message">Voer de naam in van deze locatie</string>
     <string name="logcontrol_start">Start opnemen</string>
     <string name="logcontrol_pause">Pauzeer opnemen</string>
     <string name="logcontrol_resume">Vervolg opnemen</string>
-	<string name="logcontrol_stop">Stop opnemen</string>
+    <string name="logcontrol_stop">Stop opnemen</string>
     <string name="layer_satellite">Satelliet</string>
     <string name="layer_traffic">Verkeer</string>
     <string name="layer_speed">Snelheid</string>
+    <string name="layer_altitude">Hoogte</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">Mijn locatie</string>
     <string name="dialog_twidroid">twidroid nodig</string>
@@ -116,6 +117,8 @@
     <string name="showtraffic_summary">Toon Google Maps verkeersinformatie (geen Nederlandse helaas)</string>
     <string name="showspeed_title">GPS snelheid</string>
     <string name="showspeed_summary">Toon de snelheid zoals van de laatste GPS bepaling.</string>
+    <string name="showaltitude_title">GPS hoogte</string>
+    <string name="showaltitude_summary">Toon de hoogte zoals van de laatste GPS bepaling.</string>
     <string name="showcompass_title">Kompas</string>
     <string name="showcompass_summary">Toon een kompas die het noorden aangeeft</string>
     <string name="sanitycheck_title">Snelheids and hoogte normalisatie</string>

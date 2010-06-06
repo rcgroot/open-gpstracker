@@ -6,6 +6,7 @@
     <string name="service_networkstatus">Logging: %s (%s with cell tower and wifi)</string>
     <string name="service_gpsdisabled">GPS 已禁用，日誌無效。</string>
     <string name="service_gpsenabled">GPS 已啟用, 開始記錄。</string>
+    <string name="service_connectiondisabled">Network is disabled, network location logging is without effect.</string>
     <string name="service_datadisabled">Network positioning is disabled, logging is without effect.</string>
     <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
     
@@ -34,6 +35,7 @@
     <string name="layer_satellite">衛星</string>
     <string name="layer_traffic">交通</string>
     <string name="layer_speed">速度</string>
+    <string name="layer_altitude">Altitude</string>
     <string name="layer_compass">指南針</string>
     <string name="layer_location">我的位置</string>
     <string name="dialog_twidroid">twidroid missing</string>
@@ -100,7 +102,9 @@
     <string name="preference_display">顯示設定</string>
     <string name="preference_behavior">執行設定</string>
     <string name="logatstartup">在啟動時記錄</string>
-    <string name="logatstartup_summary">在程式啟動後開始記錄。</string>   
+    <string name="logatstartup_summary">在程式啟動後開始記錄。</string>
+    <string name="startupatboot">Start up at boot</string>
+    <string name="startupatboot_summary">After starting the device, the logging service starts.</string>   
     <string name="disableblanking_title">禁止關屏</string>
     <string name="disableblanking_summary">跟蹤時保持螢幕開啟舊檔。</string>       
     <string name="precision_title">記錄精度</string>
@@ -113,6 +117,8 @@
     <string name="showtraffic_summary">顯示谷歌地圖交通資訊</string>
     <string name="showspeed_title">GPS 速度</string>
     <string name="showspeed_summary">顯示來自最後收到的 GPS 固定的速度。</string>
+    <string name="showaltitude_title">GPS altitude</string>
+    <string name="showaltitude_summary">Show the altitude from the last received GPS fix.</string>
     <string name="showcompass_title">指南針</string>
     <string name="showcompass_summary">顯示指針指向北的指南針</string>
     <string name="sanitycheck_title">Speed and altitude sanity check </string>

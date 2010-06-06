@@ -6,6 +6,7 @@
     <string name="service_networkstatus">Logging: %s (%s with cell tower and wifi)</string>
     <string name="service_gpsdisabled">GPS 已禁用，日志无效。</string>
     <string name="service_gpsenabled">GPS 已启用, 开始记录。</string>
+    <string name="service_connectiondisabled">Network is disabled, network location logging is without effect.</string>
     <string name="service_datadisabled">Network positioning is disabled, logging is without effect.</string>
     <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
     
@@ -34,10 +35,11 @@
     <string name="layer_satellite">卫星</string>
     <string name="layer_traffic">交通</string>
     <string name="layer_speed">速度</string>
+    <string name="layer_altitude">Altitude</string>
     <string name="layer_compass">指南针</string>
     <string name="layer_location">我的位置</string>
-    <string name="dialog_twidroid">twidroid missing</string>
-    <string name="dialog_twidroid_message">The application \"twidroid\" is required to tweet this line.</string>
+    <string name="dialog_notwidroid">twidroid not found</string>
+    <string name="dialog_notwidroid_message">The application \"twidroid\" is required to tweet this line.</string>
 
     <!-- Messages -->
     <string name="from">记录: </string>
@@ -100,7 +102,9 @@
     <string name="preference_display">显示设置</string>
     <string name="preference_behavior">运行设置</string>
     <string name="logatstartup">在启动时记录</string>
-    <string name="logatstartup_summary">在程序启动后开始记录。</string>   
+    <string name="logatstartup_summary">在程序启动后开始记录。</string>
+    <string name="startupatboot">Start up at boot</string>
+    <string name="startupatboot_summary">After starting the device, the logging service starts.</string>   
     <string name="disableblanking_title">禁止关屏</string>
     <string name="disableblanking_summary">跟踪时保持屏幕打开。</string>       
     <string name="precision_title">记录精度</string>
@@ -113,6 +117,8 @@
     <string name="showtraffic_summary">显示谷歌地图交通信息</string>
     <string name="showspeed_title">GPS 速度</string>
     <string name="showspeed_summary">显示来自最后收到的 GPS 固定的速度。</string>
+    <string name="showaltitude_title">GPS altitude</string>
+    <string name="showaltitude_summary">Show the altitude from the last received GPS fix.</string>
     <string name="showcompass_title">指南针</string>
     <string name="showcompass_summary">显示指针指向北的指南针</string>
     <string name="sanitycheck_title">Speed and altitude sanity check </string>
@@ -136,6 +142,7 @@
     <string name="search_label">Tracks</string>
     <string name="search_description">Open GPS Tracker track names</string>
     <string name="search_hint">Search tracks</string>
+
 <!-- ***************************
    About information
    ***************************-->
