@@ -242,6 +242,10 @@ public class Statistics extends Activity
       {
          mTrackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, load.getString( TRACKURI ) );
       }
+      if(  load != null && load.containsKey( "FLIP" )  )
+      {
+         mViewFlipper.setDisplayedChild( load.getInt( "FLIP" ) );
+      }
    }
 
    @Override
@@ -249,6 +253,7 @@ public class Statistics extends Activity
    {
       super.onSaveInstanceState( save );
       save.putString( TRACKURI, mTrackUri.getLastPathSegment() );
+      save.putInt( "FLIP" , mViewFlipper.getDisplayedChild() );
    }
 
    /*
@@ -259,6 +264,7 @@ public class Statistics extends Activity
    protected void onPause()
    {
       super.onPause();
+      mViewFlipper.stopFlipping();
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       resolver.unregisterContentObserver( this.mTrackObserver );
    }
