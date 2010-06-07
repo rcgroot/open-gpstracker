@@ -102,7 +102,7 @@
     <string name="preference_display">Display settings</string>
     <string name="preference_behavior">Run settings</string>
     <string name="logatstartup">Log at service start</string>
-    <string name="logatstartup_summary">After starting the logging service immediately record.</string>   
+    <string name="logatstartup_summary">After starting, the logging service immediately records.</string>   
     <string name="startupatboot">Start up at boot</string>
     <string name="startupatboot_summary">After starting the device, the logging service starts.</string>   
     <string name="disableblanking_title">Disable screen blanking</string>
