@@ -101,10 +101,10 @@
     <string name="opengpstracker_settings">Instellingen</string>
     <string name="preference_display">Beeld instellingen</string>
     <string name="preference_behavior">Gedrags instellingen</string>
-    <string name="logatstartup">Log bij opstarten</string>
-    <string name="logatstartup_summary">De applicatie begint direct met opnemen na het opstarten.</string>   
+    <string name="logatstartup">Log na service start</string>
+    <string name="logatstartup_summary">Het opnemen begint direct na het starten van de log service.</string>   
     <string name="startupatboot">Opstarten na systeemstart</string>
-    <string name="startupatboot_summary">De applicatie wordt gestart na opstarten van het systeem.</string>   
+    <string name="startupatboot_summary">De log service wordt gestart nadat het apparaat opgestart is.</string>   
     <string name="disableblanking_title">Voorkom scherm uitzetten</string>
     <string name="disableblanking_summary">Houd het scherm aan tijdens het opnemen.</string>       
     <string name="precision_title">Meetprecisie</string>

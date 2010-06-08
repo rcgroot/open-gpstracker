@@ -86,7 +86,7 @@ public class SegmentOverlay extends Overlay
    public static final int DRAW_MEASURED = 2;
    public static final int DRAW_CALCULATED = 3;
    public static final int DRAW_DOTS = 4;
-   private static final float MINIMUM_RL_TIME = 5;
+   private static final float MINIMUM_RL_TIME = 5000;
    private static final float MINIMUM_PX_DISTANCE = 15;
    private int mTrackColoringMethod = DRAW_CALCULATED;
 
@@ -123,6 +123,7 @@ public class SegmentOverlay extends Overlay
    private int mHeight;
 //   private Canvas mDebugCanvas;
    private GeoPoint mPrevGeoPoint;
+   private int mCurrentColor;
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -145,6 +146,7 @@ public class SegmentOverlay extends Overlay
       this.mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       this.mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
       this.mMediaPath = new Vector<MediaVO>();
+      this.mCurrentColor = Color.rgb( 255, 0, 0 );
       
       Cursor waypointsCursor = null;
       try
@@ -365,15 +367,8 @@ public class SegmentOverlay extends Overlay
                      this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
                      this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
                      this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
-                     if( ( isDistanceOnScreenEnough() && isTimeOnScreenEnough() ) || mWaypointsCursor.isLast() )
-                     {
-                        speed = calculateSpeedBetweenLocations( this.mPrevLocation, this.mLocation );
-                        lineToGeoPoint( geoPoint, speed );
-                     }
-                     else
-                     {
-                        lineToGeoPoint( geoPoint, -1d );
-                     }
+                     speed = calculateSpeedBetweenLocations( this.mPrevLocation, this.mLocation );
+                     lineToGeoPoint( geoPoint, speed );
                      break;
                   default:
                      lineToGeoPoint( geoPoint, speed );
@@ -396,28 +391,6 @@ public class SegmentOverlay extends Overlay
          }
       }
 //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
-   }
-
-   /**
-    * Decide whether the time-distance between two drawable items is large enough
-    *
-    * @return
-    */
-   private boolean isTimeOnScreenEnough()
-   {
-      return this.mLocation.getTime() - this.mPrevLocation.getTime() > MINIMUM_RL_TIME;
-   }
-
-   /**
-    * Decide whether the geo-distance between two drawable items is large enough
-    *
-    * @return
-    */
-   private boolean isDistanceOnScreenEnough()
-   {
-      double latshift = (Math.abs(mPrevLocation.getLatitude()-mLocation.getLatitude())*1E6)/Math.abs(mBottumRight.getLatitudeE6()-mTopLeft.getLatitudeE6());
-      double lonshift = (Math.abs(mPrevLocation.getLongitude()-mLocation.getLongitude())*1E6)/Math.abs(mBottumRight.getLongitudeE6()-mTopLeft.getLongitudeE6());
-      return latshift > 0.1 || lonshift > 0.1;
    }
 
    /**
@@ -618,29 +591,41 @@ public class SegmentOverlay extends Overlay
       if( this.mPath != null )
       {
          this.mPath.moveTo( this.mScreenPoint.x, this.mScreenPoint.y );
+         this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
+         this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
       }
    }
 
    private void lineToGeoPoint( GeoPoint geoPoint, double speed )
    {
       setScreenPoint( geoPoint );
-
+      
+//      Log.d( TAG, "Draw line to " + geoPoint+" with speed "+speed );
+      
       if( speed > 0 )
       {
          int greenfactor = (int) Math.min( ( 127 * speed ) / mAvgSpeed, 255 );
-         int redfactor = 255 - greenfactor;
-         int currentColor = Color.rgb( redfactor, greenfactor, 0 );
-         float distance = (float) distanceInPoints( this.mPrevDrawnScreenPoint, this.mScreenPoint );
-         if( distance > MINIMUM_PX_DISTANCE )
-         {
-//            Log.d( TAG, "Circle from " + mPrevScreenPoint+" to "+mScreenPoint );
-            int x_circle = ( this.mPrevDrawnScreenPoint.x + this.mScreenPoint.x ) / 2;
-            int y_circle = ( this.mPrevDrawnScreenPoint.y + this.mScreenPoint.y ) / 2;
-            float radius_factor = 0.4f;
-            Shader lastShader = new RadialGradient( x_circle, y_circle, distance
-                  , new int[]   { currentColor,  currentColor, Color.TRANSPARENT }
-                  , new float[] {            0, radius_factor,                 1 }
-                  , TileMode.CLAMP );
+         int redfactor   = 255 - greenfactor;
+         mCurrentColor   = Color.rgb( redfactor, greenfactor, 0 );
+      }
+      else
+      {
+         int greenfactor = Color.green( mCurrentColor );
+         int redfactor   = Color.red( mCurrentColor );
+         mCurrentColor   = Color.argb( 128, redfactor, greenfactor, 0 );
+      }
+      
+      float distance = (float) distanceInPoints( this.mPrevDrawnScreenPoint, this.mScreenPoint );
+      if( distance > MINIMUM_PX_DISTANCE )
+      {
+         Log.d( TAG, "Circle between " + mPrevDrawnScreenPoint+" and "+mScreenPoint );
+         int x_circle = ( this.mPrevDrawnScreenPoint.x + this.mScreenPoint.x ) / 2;
+         int y_circle = ( this.mPrevDrawnScreenPoint.y + this.mScreenPoint.y ) / 2;
+         float radius_factor = 0.4f;
+         Shader lastShader = new RadialGradient( x_circle, y_circle, distance
+               , new int[]   { mCurrentColor,  mCurrentColor, Color.TRANSPARENT }
+               , new float[] {            0, radius_factor,                 1 }
+               , TileMode.CLAMP );
 //            Paint debug = new Paint();
 //            debug.setStyle( Paint.Style.FILL_AND_STROKE );
 //            this.mDebugCanvas.drawCircle(
@@ -657,17 +642,16 @@ public class SegmentOverlay extends Overlay
 //            {
 //               Log.d( TAG, "Created shader for speed " + speed + " on " + x_circle + "," + y_circle );
 //            }
-            if( this.mShader != null )
-            {
-               this.mShader = new ComposeShader( lastShader, this.mShader, Mode.SRC_OVER );
-            }
-            else
-            {
-               this.mShader = lastShader;
-            }
-            this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
-            this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
+         if( this.mShader != null )
+         {
+            this.mShader = new ComposeShader( lastShader, this.mShader, Mode.SRC_OVER );
          }
+         else
+         {
+            this.mShader = lastShader;
+         }
+         this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
+         this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
       }
 
       this.mPath.lineTo( this.mScreenPoint.x, this.mScreenPoint.y );
@@ -943,7 +927,7 @@ public class SegmentOverlay extends Overlay
          float distance = startLocation.distanceTo( endLocation );
          float seconds = ( endLocation.getTime() - startLocation.getTime() ) / 1000f;
          speed = distance / seconds;
-         //         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
+         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
       }
       if( speed > 0 )
       {
