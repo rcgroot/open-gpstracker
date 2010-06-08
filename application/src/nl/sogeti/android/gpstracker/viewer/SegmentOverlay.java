@@ -167,7 +167,7 @@ public class SegmentOverlay extends Overlay
 //      this.mDebugCanvas = canvas;
       if( shadow )
       {
-         //         Log.d( TAG, "No shadows to draw" );
+//                  Log.d( TAG, "No shadows to draw" );
       }
       else
       {
@@ -618,7 +618,7 @@ public class SegmentOverlay extends Overlay
       float distance = (float) distanceInPoints( this.mPrevDrawnScreenPoint, this.mScreenPoint );
       if( distance > MINIMUM_PX_DISTANCE )
       {
-         Log.d( TAG, "Circle between " + mPrevDrawnScreenPoint+" and "+mScreenPoint );
+//         Log.d( TAG, "Circle between " + mPrevDrawnScreenPoint+" and "+mScreenPoint );
          int x_circle = ( this.mPrevDrawnScreenPoint.x + this.mScreenPoint.x ) / 2;
          int y_circle = ( this.mPrevDrawnScreenPoint.y + this.mScreenPoint.y ) / 2;
          float radius_factor = 0.4f;
@@ -927,7 +927,7 @@ public class SegmentOverlay extends Overlay
          float distance = startLocation.distanceTo( endLocation );
          float seconds = ( endLocation.getTime() - startLocation.getTime() ) / 1000f;
          speed = distance / seconds;
-         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
+//         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
       }
       if( speed > 0 )
       {
