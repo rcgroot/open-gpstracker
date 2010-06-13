@@ -44,6 +44,8 @@ import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
+import nl.sogeti.android.gpstracker.viewer.proxy.MyLocationOverlayProxy;
 
 import org.openintents.intents.AboutIntents;
 
@@ -95,10 +97,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
 
 /**
  * Main activity showing a track and allowing logging control
@@ -132,8 +131,6 @@ public class LoggerMap extends MapActivity
    private static final int DIALOG_NAME = 33;
    private static final int DIALOG_URIS = 34;
    private static final String TAG = "OGT.LoggerMap";
-   private MapView mMapView = null;
-   private MyLocationOverlay mMylocation;
    private CheckBox mSatellite;
    private CheckBox mTraffic;
    private CheckBox mSpeed;
@@ -154,10 +151,12 @@ public class LoggerMap extends MapActivity
    private long mLastWaypoint = -1;
    private UnitsI18n mUnits;
    private WakeLock mWakeLock = null;
-   private MapController mMapController = null;
    private SharedPreferences mSharedPreferences;
    private GPSLoggerServiceManager mLoggerServiceManager;
 
+   private MapViewProxy mMapView = null;
+   private int mActiveMap = R.id.myMapView;
+   
    private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
          @Override
@@ -420,6 +419,7 @@ public class LoggerMap extends MapActivity
    private SegmentOverlay mLastSegmentOverlay;
    private BaseAdapter mMediaAdapter;
    private Gallery mGallery;
+   private MyLocationOverlayProxy mMylocation;
  
    /**
     * Called when the activity is first created.
@@ -447,9 +447,9 @@ public class LoggerMap extends MapActivity
       mSharedPreferences.registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
       setContentView( R.layout.map );
-      mMapView = (MapView) findViewById( R.id.myMapView );
-      mMylocation = new FixedMyLocationOverlay( this, mMapView );
-      mMapController = this.mMapView.getController();
+      mMapView = new MapViewProxy( findViewById( mActiveMap ) );
+
+      mMylocation = new MyLocationOverlayProxy( this, mMapView ); 
       mMapView.setBuiltInZoomControls( true );
       mMapView.setClickable( true );
       mMapView.setStreetView( false );
@@ -576,11 +576,11 @@ public class LoggerMap extends MapActivity
 
       if( load != null && load.containsKey( "zoom" ) )
       {
-         this.mMapController.setZoom( load.getInt( "zoom" ) );
+         mMapView.getController().setZoom( load.getInt( "zoom" ) );
       }
       else
       {
-         this.mMapController.setZoom( LoggerMap.ZOOM_LEVEL );
+         mMapView.getController().setZoom( LoggerMap.ZOOM_LEVEL );
       }
 
       if( load != null && load.containsKey( "e6lat" ) && load.containsKey( "e6long" ) )
@@ -623,6 +623,9 @@ public class LoggerMap extends MapActivity
       boolean propagate = true;
       switch (keyCode)
       {
+         case KeyEvent.KEYCODE_C:
+            switchMapProvider();
+            break;
          case KeyEvent.KEYCODE_T:
             propagate = this.mMapView.getController().zoomIn();
             break;
@@ -650,6 +653,21 @@ public class LoggerMap extends MapActivity
             break;
       }
       return propagate;
+   }
+
+   private void switchMapProvider()
+   {
+      findViewById( mActiveMap ).setVisibility( View.INVISIBLE );
+      if( mActiveMap == R.id.myMapView )
+      {
+         mActiveMap = R.id.myOsmMapView;
+      }
+      else
+      {
+         mActiveMap = R.id.myMapView;
+      }
+      findViewById( mActiveMap ).setVisibility( View.VISIBLE );
+      mMapView.setMap( findViewById( mActiveMap ) );
    }
 
    private void setTrafficOverlay( boolean b )
@@ -1184,8 +1202,8 @@ public class LoggerMap extends MapActivity
             mSpeedtexts[i].setVisibility( View.INVISIBLE );
          }
       }
-      List<Overlay> overlays = mMapView.getOverlays();
-      for (Overlay overlay : overlays)
+      List< ? > overlays = mMapView.getOverlays();
+      for (Object overlay : overlays)
       {
          if( overlay instanceof SegmentOverlay )
          {
@@ -1302,9 +1320,8 @@ public class LoggerMap extends MapActivity
    private void createDataOverlays()
    {
       mLastSegmentOverlay = null;
-      List<Overlay> overlays = this.mMapView.getOverlays();
-      overlays.clear();
-      overlays.add( mMylocation );
+      mMapView.clearOverlays();
+      mMapView.addOverlay( mMylocation );
 
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null;
@@ -1321,7 +1338,7 @@ public class LoggerMap extends MapActivity
                long segmentsId = segments.getLong( 0 );
                Uri segmentUri = ContentUris.withAppendedId( segmentsUri, segmentsId );
                SegmentOverlay segmentOverlay = new SegmentOverlay( this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView );
-               overlays.add( segmentOverlay );
+               mMapView.addOverlay( segmentOverlay );
                mLastSegmentOverlay = segmentOverlay;
                if( segments.isFirst() )
                {
@@ -1357,10 +1374,10 @@ public class LoggerMap extends MapActivity
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Uri segmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/segments" );
       Cursor segmentsCursor = null;
-      List<Overlay> overlays = this.mMapView.getOverlays();
+      List<?> overlays = this.mMapView.getOverlays();
       int segmentOverlaysCount = 0;
       
-      for( Overlay overlay : overlays )
+      for( Object overlay : overlays )
       {
          if( overlay instanceof SegmentOverlay )
          {

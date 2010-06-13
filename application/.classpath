@@ -4,5 +4,7 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OI About"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="src" path="OpenStreetMapViewerLibrary"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/OpenStreetMapViewerLibrary"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
