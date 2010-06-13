@@ -56,7 +56,6 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -86,7 +85,6 @@ public class SegmentOverlay extends Overlay
    public static final int DRAW_MEASURED = 2;
    public static final int DRAW_CALCULATED = 3;
    public static final int DRAW_DOTS = 4;
-   private static final float MINIMUM_RL_TIME = 5000;
    private static final float MINIMUM_PX_DISTANCE = 15;
    private int mTrackColoringMethod = DRAW_CALCULATED;
 
@@ -112,7 +110,6 @@ public class SegmentOverlay extends Overlay
    private Point mPrevDrawnScreenPoint;
    private Point mScreenPoint;
    private int mStepSize = 1;
-   private int mStep = 0;
    private MapView mMapView;
    private Location mLocation;
    private Location mPrevLocation;
@@ -247,8 +244,7 @@ public class SegmentOverlay extends Overlay
          mDotPath.clear();
       }
       mCalculatedPoints = 0;
-      mStep = 0;
-
+      
       try
       {
          mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
@@ -329,7 +325,6 @@ public class SegmentOverlay extends Overlay
 
       GeoPoint geoPoint;
       mCalculatedPoints = 0;
-      mStep = 0;
       this.mPrevLocation = null;
       int moves = 0;
 

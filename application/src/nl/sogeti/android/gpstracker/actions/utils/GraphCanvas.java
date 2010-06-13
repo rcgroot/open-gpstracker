@@ -51,7 +51,6 @@ import android.graphics.Bitmap.Config;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 /**

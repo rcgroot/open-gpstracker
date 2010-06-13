@@ -1,7 +1,5 @@
 package nl.sogeti.android.gpstracker.actions.utils;
 
-import java.util.Calendar;
-
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;

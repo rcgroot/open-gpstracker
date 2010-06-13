@@ -38,7 +38,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.TypedValue;
 
 /**

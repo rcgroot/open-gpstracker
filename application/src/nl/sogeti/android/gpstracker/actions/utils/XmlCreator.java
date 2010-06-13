@@ -36,11 +36,11 @@ import java.nio.channels.FileChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import nl.sogeti.android.gpstracker.util.Constants;
+
 import org.xmlpull.v1.XmlSerializer;
 
-import nl.sogeti.android.gpstracker.util.Constants;
 import android.os.Environment;
-import android.util.Log;
 
 public abstract class XmlCreator extends Thread
 {
@@ -48,7 +48,6 @@ public abstract class XmlCreator extends Thread
    @SuppressWarnings("unused")
    private String TAG = "OGT.XmlCreator";
    private String mExportDirectoryPath;
-   private String mXmlFileName;
    private int mProgress = 0;
    private int mGoal = 0;
    private boolean mNeedsBundling;

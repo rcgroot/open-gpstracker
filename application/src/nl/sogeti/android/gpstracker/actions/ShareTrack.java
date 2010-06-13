@@ -68,7 +68,6 @@ public class ShareTrack extends Activity
    protected static final int DIALOG_FILENAME = 11;
    protected static final int PROGRESS_STEPS = 10;
    private static final int DIALOG_INSTALL_TWIDROID = 34;
-   @SuppressWarnings("unused")
    private static final String TAG = "OGT.ShareTrack";
 
    private RemoteViews mContentView;
