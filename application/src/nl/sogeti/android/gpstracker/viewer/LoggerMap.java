@@ -1651,6 +1651,11 @@ public class LoggerMap extends MapActivity
       startActivityForResult( intent, MENU_VOICE );
    }
 
+   /**
+    * Enables a SegmentOverlay to call back to the MapActivity to show a dialog with choices of media
+    * 
+    * @param mediaAdapter
+    */
    public void showDialog( BaseAdapter mediaAdapter )
    {
       mMediaAdapter = mediaAdapter;
