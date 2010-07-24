@@ -105,6 +105,7 @@ public class GPSLoggerService extends Service
    private static final int REQUEST_COARSEGPS_LOCATIONUPDATES = 3;
    private static final int REQUEST_GLOBALGPS_LOCATIONUPDATES = 4;
    private static final int REGISTERONSHAREDPREFERENCECHANGELISTENER = 5;
+   private static final int STOPLOOPER = 6;
    
    private Context mContext;
    private LocationManager mLocationManager;
@@ -322,6 +323,11 @@ public class GPSLoggerService extends Service
                disabledProviderNotification( R.string.service_connectiondisabled );
             }
             break;
+         case STOPLOOPER:
+            mLocationManager.removeGpsStatusListener( mStatusListener );
+            mLocationManager.removeUpdates( mLocationListener );
+            Looper.myLooper().quit();
+            break;
       }
    }
    /**
@@ -364,8 +370,11 @@ public class GPSLoggerService extends Service
    @Override
    public void onDestroy()
    {
-      stopLogging();
       super.onDestroy();
+      stopLogging();
+      Message msg = Message.obtain();
+      msg.what = STOPLOOPER;
+      mHandler.sendMessage(msg);
    }
 
    private void crashProtectState()
@@ -497,8 +506,10 @@ public class GPSLoggerService extends Service
       if( this.mLoggingState == Constants.PAUSED || this.mLoggingState == Constants.LOGGING )
       {
          PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+         
          mLocationManager.removeGpsStatusListener( mStatusListener );
          mLocationManager.removeUpdates( mLocationListener );
+
          mLoggingState = Constants.STOPPED;
          updateWakeLock();
          mNoticationManager.cancel( R.layout.map );
