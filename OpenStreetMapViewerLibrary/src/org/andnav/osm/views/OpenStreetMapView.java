@@ -474,7 +474,7 @@ public class OpenStreetMapView extends View implements OpenStreetMapViewConstant
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 
-	    Log.d(DEBUGTAG, "onTouchEvent(" + event + ")");
+//	    Log.d(DEBUGTAG, "onTouchEvent(" + event + ")");
 
 		/*
 		 * handle multi touch events:
