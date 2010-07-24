@@ -260,6 +260,7 @@ public class LoggerMap extends MapActivity
          public void onClick( View v )
          {
             int id = v.getId();
+            dismissDialog( DIALOG_LOGCONTROL );
             switch (id)
             {
                case R.id.logcontrol_start:
@@ -280,7 +281,6 @@ public class LoggerMap extends MapActivity
                   break;
             }
             updateBlankingBehavior();
-            dismissDialog( DIALOG_LOGCONTROL );
          }
       };
    private final OnCheckedChangeListener mCheckedChangeListener = new OnCheckedChangeListener()
