@@ -59,7 +59,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -96,10 +99,19 @@ public class GPSLoggerService extends Service
    private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
    private static final String SERVICESTATE_TRACKID = "SERVICESTATE_TRACKID";
 
+   private static final int ADDGPSSTATUSLISTENER = 0;
+   private static final int REQUEST_FINEGPS_LOCATIONUPDATES = 1;
+   private static final int REQUEST_NORMALGPS_LOCATIONUPDATES = 2;
+   private static final int REQUEST_COARSEGPS_LOCATIONUPDATES = 3;
+   private static final int REQUEST_GLOBALGPS_LOCATIONUPDATES = 4;
+   private static final int REGISTERONSHAREDPREFERENCECHANGELISTENER = 5;
+   
    private Context mContext;
    private LocationManager mLocationManager;
    private NotificationManager mNoticationManager;
    private PowerManager.WakeLock mWakeLock;
+   private Handler mHandler;
+
 
    private boolean mSpeedSanityCheck;
    private long mTrackId = -1;
@@ -121,6 +133,9 @@ public class GPSLoggerService extends Service
    private float mMaxAcceptableAccuracy = 20;
    private int mSatellites = 0;
 
+   /**
+    * Listens to changes in preference to precision and sanity checks
+    */
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
       {
          public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
@@ -136,6 +151,9 @@ public class GPSLoggerService extends Service
             }
          }
       };
+   /**
+    * Listens to location changes and provider availability
+    */
    private LocationListener mLocationListener = new LocationListener()
       {
          public void onLocationChanged( Location location )
@@ -184,6 +202,9 @@ public class GPSLoggerService extends Service
             Log.w( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
          }
       };
+   /**
+    * Listens to GPS status changes
+    */
    private Listener mStatusListener = new GpsStatus.Listener()
       {
          public synchronized void onGpsStatusChanged( int event )
@@ -248,7 +269,54 @@ public class GPSLoggerService extends Service
             return GPSLoggerService.this.isMediaPrepared();
          }
       };
-
+   
+   private class GPSLoggerServiceThread extends Thread
+   {
+      public void run()
+      {
+         Looper.prepare();
+         mHandler = new Handler()
+         {
+             public void handleMessage(Message msg) 
+             {
+                _handleMessage(msg);
+             }
+         };
+         Looper.loop();
+     }
+   }
+   private void _handleMessage(Message msg) 
+   {
+      switch (msg.what)
+      {
+         case ADDGPSSTATUSLISTENER:
+            this.mLocationManager.addGpsStatusListener( mStatusListener );
+            break;
+         case REGISTERONSHAREDPREFERENCECHANGELISTENER:
+            PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
+            break;
+         case REQUEST_FINEGPS_LOCATIONUPDATES:
+            mMaxAcceptableAccuracy = 10f;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
+            break;
+         case REQUEST_NORMALGPS_LOCATIONUPDATES:
+            mMaxAcceptableAccuracy = 20f;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
+            break;
+         case REQUEST_COARSEGPS_LOCATIONUPDATES:
+            mMaxAcceptableAccuracy = 50f;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
+            break;
+         case REQUEST_GLOBALGPS_LOCATIONUPDATES:
+            mMaxAcceptableAccuracy = 1000f;
+            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 300000l, 500F, this.mLocationListener );
+            if( !isNetworkConnected() )
+            {
+               disabledProviderNotification( R.string.service_connectiondisabled );
+            }
+            break;
+      }
+   }
    /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
     */
@@ -256,6 +324,8 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
+      new GPSLoggerServiceThread().start();
+      
       mWeakLocations = new Vector<Location>( 3 );
       mAltitudes = new LinkedList<Double>();
       mLoggingState = Constants.STOPPED;
@@ -358,25 +428,27 @@ public class GPSLoggerService extends Service
     * 
     * @see nl.sogeti.android.gpstracker.IGPSLoggerService#startLogging()
     */
-   public synchronized long startLogging()
+   public synchronized void startLogging()
    {
       startNewTrack();
       requestLocationUpdates();
-      this.mLocationManager.addGpsStatusListener( this.mStatusListener );
+      
+      Message msg = Message.obtain();
+      msg.what = ADDGPSSTATUSLISTENER;
+      mHandler.sendMessage(msg);
+      
       this.mLoggingState = Constants.LOGGING;
       updateWakeLock();
-
       setupNotification();
       crashProtectState();
-      return mTrackId;
    }
 
    public synchronized void pauseLogging()
    {
       if( this.mLoggingState == Constants.LOGGING )
       {
-         mLocationManager.removeGpsStatusListener( this.mStatusListener );
-         mLocationManager.removeUpdates( this.mLocationListener );
+         mLocationManager.removeGpsStatusListener( mStatusListener );
+         mLocationManager.removeUpdates( mLocationListener );
          mLoggingState = Constants.PAUSED;
          mPreviousLocation = null;
          updateWakeLock();
@@ -395,7 +467,11 @@ public class GPSLoggerService extends Service
             mStartNextSegment = true;
          }
          requestLocationUpdates();
-         this.mLocationManager.addGpsStatusListener( this.mStatusListener );
+
+         Message msg = Message.obtain();
+         msg.what = ADDGPSSTATUSLISTENER;
+         mHandler.sendMessage(msg);
+         
          this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
          updateNotification();
@@ -411,8 +487,8 @@ public class GPSLoggerService extends Service
    public synchronized void stopLogging()
    {
       PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
-      mLocationManager.removeGpsStatusListener( this.mStatusListener );
-      mLocationManager.removeUpdates( this.mLocationListener );
+      mLocationManager.removeGpsStatusListener( mStatusListener );
+      mLocationManager.removeUpdates( mLocationListener );
       mLoggingState = Constants.STOPPED;
       updateWakeLock();
       mNoticationManager.cancel( R.layout.map );
@@ -486,30 +562,27 @@ public class GPSLoggerService extends Service
 
    private void requestLocationUpdates()
    {
-      this.mLocationManager.removeUpdates( this.mLocationListener );
+      this.mLocationManager.removeUpdates( mLocationListener );
       mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( Constants.PRECISION, "1" ) ).intValue();
       //Log.d( TAG, "requestLocationUpdates to precision "+precision );
+      Message msg = Message.obtain();
       switch( mPrecision )
       {
          case ( LOGGING_FINE ): // Fine
-            mMaxAcceptableAccuracy = 10f;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
+            msg.what = REQUEST_FINEGPS_LOCATIONUPDATES;
+            mHandler.sendMessage(msg);
             break;
          case ( LOGGING_NORMAL ): // Normal
-            mMaxAcceptableAccuracy = 20f;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
+            msg.what = REQUEST_NORMALGPS_LOCATIONUPDATES;
+            mHandler.sendMessage(msg);
             break;
          case ( LOGGING_COARSE ): // Coarse
-            mMaxAcceptableAccuracy = 50f;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
+            msg.what = REQUEST_COARSEGPS_LOCATIONUPDATES;
+            mHandler.sendMessage(msg);
             break;
-         case ( LOGGING_GLOBAL ): // Global
-            mMaxAcceptableAccuracy = 1000f;
-            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 300000l, 500F, this.mLocationListener );
-            if( !isNetworkConnected() )
-            {
-               disabledProviderNotification( R.string.service_connectiondisabled );
-            }
+         case ( REQUEST_GLOBALGPS_LOCATIONUPDATES ): // Global
+            msg.what = REQUEST_COARSEGPS_LOCATIONUPDATES;
+            mHandler.sendMessage(msg);
             break;
          default:
             Log.e( TAG, "Unknown precision " + mPrecision );
@@ -521,7 +594,10 @@ public class GPSLoggerService extends Service
    {
       if( this.mLoggingState == Constants.LOGGING )
       {
-         PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
+         Message msg = Message.obtain();
+         msg.what = REGISTERONSHAREDPREFERENCECHANGELISTENER;
+         mHandler.sendMessage(msg);
+         
          PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
          this.mWakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, TAG );
          this.mWakeLock.acquire();
