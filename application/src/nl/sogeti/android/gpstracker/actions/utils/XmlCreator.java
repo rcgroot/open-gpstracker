@@ -36,10 +36,16 @@ import java.nio.channels.FileChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 
 import org.xmlpull.v1.XmlSerializer;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Environment;
 
 public abstract class XmlCreator extends Thread
@@ -51,7 +57,47 @@ public abstract class XmlCreator extends Thread
    private int mProgress = 0;
    private int mGoal = 0;
    private boolean mNeedsBundling;
+   
+   String mChosenFileName;
+   ProgressMonitor mProgressListener;
+   Context mContext;
+   Uri mTrackUri;
+   String fileName;
 
+   XmlCreator(Context context, Uri trackUri, String chosenFileName, ProgressMonitor listener)
+   {
+      mChosenFileName = chosenFileName;
+      mContext = context;
+      mTrackUri = trackUri;
+      mProgressListener = listener;
+      
+      fileName = "UntitledTrack";
+      if( mChosenFileName != null && !mChosenFileName.equals( "" ) )
+      {
+         fileName = mChosenFileName.trim();
+      }
+      else
+      {
+         Cursor trackCursor = null;
+         ContentResolver resolver = mContext.getContentResolver();
+         try
+         {
+            trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
+            if( trackCursor.moveToLast() )
+            {
+               fileName = trackCursor.getString( 0 ).trim();
+            }
+         }
+         finally
+         {
+            if( trackCursor != null )
+            {
+               trackCursor.close();
+            }
+         }
+      }
+      
+   }
    
    /**
     * Copies media into the export directory and returns the relative path of the media

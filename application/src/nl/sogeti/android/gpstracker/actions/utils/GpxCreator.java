@@ -79,48 +79,16 @@ public class GpxCreator extends XmlCreator
       ZULU_DATE_FORMAT.setTimeZone( utc ); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
    }
 
-   private String mChosenBaseFileName;
-   private ProgressMonitor mProgressListener;
-   private Context mContext;
    private String TAG = "OGT.GpxCreator";
-   private Uri mTrackUri;
 
    public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, ProgressMonitor listener)
    {
-      mChosenBaseFileName = chosenBaseFileName;
-      mContext = context;
-      mTrackUri = trackUri;
-      mProgressListener = listener;
+      super( context, trackUri, chosenBaseFileName, listener );
    }
 
    public void run()
    {
       Looper.prepare();
-      String fileName = "UntitledTrack";
-      if( mChosenBaseFileName != null && !mChosenBaseFileName.equals( "" ) )
-      {
-         fileName = mChosenBaseFileName;
-      }
-      else
-      {
-         Cursor trackCursor = null;
-         ContentResolver resolver = mContext.getContentResolver();
-         try
-         {
-            trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
-            if( trackCursor.moveToLast() )
-            {
-               fileName = trackCursor.getString( 0 );
-            }
-         }
-         finally
-         {
-            if( trackCursor != null )
-            {
-               trackCursor.close();
-            }
-         }
-      }
 
       String xmlFilePath;
       if( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) )

@@ -77,49 +77,15 @@ public class KmzCreator extends XmlCreator
       ZULU_DATE_FORMAT.setTimeZone( utc ); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
    }
 
-
-   private String mChosenFileName;
-   private ProgressMonitor mProgressListener;
-   private Context mContext;
    private String TAG = "OGT.KmzCreator";
-   private Uri mTrackUri;
-
    public KmzCreator(Context context, Uri trackUri, String chosenFileName, ProgressMonitor listener)
    {
-      mChosenFileName = chosenFileName;
-      mContext = context;
-      mTrackUri = trackUri;
-      mProgressListener = listener;
+      super( context, trackUri, chosenFileName, listener );
    }
 
    public void run()
    {
       Looper.prepare();
-      String fileName = "UntitledTrack";
-      if( mChosenFileName != null && !mChosenFileName.equals( "" ) )
-      {
-         fileName = mChosenFileName;
-      }
-      else
-      {
-         Cursor trackCursor = null;
-         ContentResolver resolver = mContext.getContentResolver();
-         try
-         {
-            trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
-            if( trackCursor.moveToLast() )
-            {
-               fileName = trackCursor.getString( 0 );
-            }
-         }
-         finally
-         {
-            if( trackCursor != null )
-            {
-               trackCursor.close();
-            }
-         }
-      }
 
       if(  fileName.endsWith( ".kmz" ) || fileName.endsWith( ".zip" ) )
       {
