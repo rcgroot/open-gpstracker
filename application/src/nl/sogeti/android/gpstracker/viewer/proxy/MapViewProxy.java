@@ -16,6 +16,7 @@ public class MapViewProxy
    private MapView mMapView;
    private MapControllerProxy mMapControllerProxy;
    private ProjectionProxy mProjectionProxy;
+   private MyLocationOverlayProxy mMyLocationOverlayProxy;
    
    private OpenStreetMapView mOpenStreetMapView;
 
@@ -59,6 +60,19 @@ public class MapViewProxy
 
          mMapView = null;
       }
+   }
+   
+   protected View getMap()
+   {
+      if( mMapView != null )
+      {
+         return mMapView;
+      }
+      if( mOpenStreetMapView != null )
+      {
+         return mOpenStreetMapView;
+      }
+      return null;
    }
    
    public void postInvalidate()
@@ -188,16 +202,6 @@ public class MapViewProxy
          return mMapView.getMaxZoomLevel();
       }
       return 0;
-   }
-
-   protected MapView getGoogleMapView()
-   {
-      return mMapView;
-   }
-   
-   protected OpenStreetMapView getOsmMapView()
-   {
-      return null;
    }
 
    /**

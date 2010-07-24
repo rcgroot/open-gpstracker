@@ -741,7 +741,6 @@ public class SegmentOverlay extends Overlay
          {
             return true;
          }
-
          GeoPoint evalPoint = extractGeoPoint();
 //         Log.d( TAG, String.format( "Evaluate point number %d ", mWaypointsCursor.getPosition() ) );
          if( possibleScreenPass( mPrevGeoPoint, evalPoint ) )
