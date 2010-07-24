@@ -269,6 +269,7 @@ public class GPSLoggerService extends Service
             return GPSLoggerService.this.isMediaPrepared();
          }
       };
+
    
    private class GPSLoggerServiceThread extends Thread
    {
@@ -285,6 +286,12 @@ public class GPSLoggerService extends Service
          Looper.loop();
      }
    }
+   
+   /**
+    * Message handler method to do the work off-loaded by mHandler to GPSLoggerServiceThread
+    * 
+    * @param msg
+    */
    private void _handleMessage(Message msg) 
    {
       switch (msg.what)
@@ -372,7 +379,7 @@ public class GPSLoggerService extends Service
       editor.commit();
    }
 
-   private void crashRestoreState()
+   private synchronized void crashRestoreState()
    {
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mContext );
       long previousState = preferences.getInt( SERVICESTATE_STATE, Constants.STOPPED );
@@ -430,17 +437,19 @@ public class GPSLoggerService extends Service
     */
    public synchronized void startLogging()
    {
-      startNewTrack();
-      requestLocationUpdates();
-      
-      Message msg = Message.obtain();
-      msg.what = ADDGPSSTATUSLISTENER;
-      mHandler.sendMessage(msg);
-      
-      this.mLoggingState = Constants.LOGGING;
-      updateWakeLock();
-      setupNotification();
-      crashProtectState();
+      if( this.mLoggingState == Constants.STOPPED )
+      {
+         startNewTrack();
+         requestLocationUpdates();
+
+         Message msg = Message.obtain();
+         msg.what = ADDGPSSTATUSLISTENER;
+         mHandler.sendMessage(msg);
+         this.mLoggingState = Constants.LOGGING;
+         updateWakeLock();
+         setupNotification();
+         crashProtectState();
+      }
    }
 
    public synchronized void pauseLogging()
@@ -461,7 +470,6 @@ public class GPSLoggerService extends Service
    {
       if( this.mLoggingState == Constants.PAUSED )
       {
-
          if( mPrecision != LOGGING_GLOBAL )
          {
             mStartNextSegment = true;
@@ -486,13 +494,16 @@ public class GPSLoggerService extends Service
     */
    public synchronized void stopLogging()
    {
-      PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
-      mLocationManager.removeGpsStatusListener( mStatusListener );
-      mLocationManager.removeUpdates( mLocationListener );
-      mLoggingState = Constants.STOPPED;
-      updateWakeLock();
-      mNoticationManager.cancel( R.layout.map );
-      crashProtectState();
+      if( this.mLoggingState == Constants.PAUSED || this.mLoggingState == Constants.LOGGING )
+      {
+         PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+         mLocationManager.removeGpsStatusListener( mStatusListener );
+         mLocationManager.removeUpdates( mLocationListener );
+         mLoggingState = Constants.STOPPED;
+         updateWakeLock();
+         mNoticationManager.cancel( R.layout.map );
+         crashProtectState();
+      }
    }
 
    private void setupNotification()
