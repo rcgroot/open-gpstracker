@@ -98,7 +98,6 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapView;
 
 /**
  * Main activity showing a track and allowing logging control
@@ -230,7 +229,20 @@ public class LoggerMap extends MapActivity
       {
          public void onClick( DialogInterface dialog, int which )
          {
-            String trackName = mTrackNameView.getText().toString();
+            String trackName;
+            switch( which )
+            {
+               case DialogInterface.BUTTON_POSITIVE:
+                  trackName = mTrackNameView.getText().toString();
+                  break;
+               case DialogInterface.BUTTON_NEGATIVE:
+                  Calendar c = Calendar.getInstance();
+                  trackName = String.format( "Track %tY-%tm-%td %tH:%tM", c, c, c, c, c );
+                  break;
+               default:
+                  trackName = "";
+                  break;
+            }
             ContentValues values = new ContentValues();
             values.put( Tracks.NAME, trackName );
             getContentResolver().update( ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId ), values, null, null );
@@ -882,6 +894,7 @@ public class LoggerMap extends MapActivity
                .setTitle( R.string.dialog_routename_title )
                .setMessage( R.string.dialog_routename_message )
                .setIcon( android.R.drawable.ic_dialog_alert )
+               .setNegativeButton( R.string.btn_skip, mTrackNameDialogListener )
                .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener )
                .setView( view );
             dialog = builder.create();
