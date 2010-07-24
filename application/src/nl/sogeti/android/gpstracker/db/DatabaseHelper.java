@@ -219,7 +219,7 @@ class DatabaseHelper extends SQLiteOpenHelper
       }
       
       affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ String.valueOf( trackId ) } );
-      sqldb.execSQL( "VACUUM" );
+      //sqldb.execSQL( "VACUUM" ); // Rebuilds the database and acctually frees up space, but locks/blocks the entire database 
       
       ContentResolver resolver = this.mContext.getContentResolver();
       resolver.notifyChange( Tracks.CONTENT_URI, null );
