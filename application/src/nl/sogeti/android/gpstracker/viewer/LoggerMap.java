@@ -83,6 +83,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.BaseAdapter;
@@ -616,6 +617,23 @@ public class LoggerMap extends MapActivity
       Object nonConfigurationInstance = this.mLoggerServiceManager;
       return nonConfigurationInstance;
    }
+   
+   
+
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onTrackballEvent(android.view.MotionEvent)
+    */
+   @Override
+   public boolean onTrackballEvent( MotionEvent event )
+   {
+      switch( event.getAction() )
+      {
+         case MotionEvent.ACTION_DOWN:
+            switchMapProvider();
+      }
+      return super.onTrackballEvent( event );
+   }
 
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
@@ -661,6 +679,7 @@ public class LoggerMap extends MapActivity
       if( mActiveMap == R.id.myMapView )
       {
          mActiveMap = R.id.myOsmMapView;
+         
       }
       else
       {
@@ -728,7 +747,7 @@ public class LoggerMap extends MapActivity
       menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
       menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
       menu.add( ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
-      
+            
       notemenu.add( ContextMenu.NONE, MENU_NAME, ContextMenu.NONE, R.string.menu_notename );
       notemenu.add( ContextMenu.NONE, MENU_TEXT, ContextMenu.NONE, R.string.menu_notetext );
       notemenu.add( ContextMenu.NONE, MENU_VOICE, ContextMenu.NONE, R.string.menu_notespeech );

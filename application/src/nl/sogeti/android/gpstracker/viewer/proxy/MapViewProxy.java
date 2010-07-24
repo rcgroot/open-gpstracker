@@ -16,7 +16,6 @@ public class MapViewProxy
    private MapView mMapView;
    private MapControllerProxy mMapControllerProxy;
    private ProjectionProxy mProjectionProxy;
-   private MyLocationOverlayProxy mMyLocationOverlayProxy;
    
    private OpenStreetMapView mOpenStreetMapView;
 
@@ -248,11 +247,11 @@ public class MapViewProxy
       {
          if( mOpenStreetMapView != null )
          {
-            mOpenStreetMapView.getOverlays().add( ((OverlayProxy) overlay).getOsmOverlay() );
+            mOpenStreetMapView.getOverlays().add( (OpenStreetMapViewOverlay) ((OverlayProxy) overlay).getOverlay() );
          }
          if( mMapView != null )
          {
-            mMapView.getOverlays().add( ((OverlayProxy) overlay).getGoogleOverlay() );
+            mMapView.getOverlays().add( (Overlay) ((OverlayProxy) overlay).getOverlay() );
          }
       }
    }

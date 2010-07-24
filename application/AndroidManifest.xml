@@ -143,13 +143,5 @@
 	        	<action android:name="android.intent.action.BOOT_COMPLETED" />
 	        </intent-filter>
 	     </receiver>
-        
-         <service android:name="org.andnav.osm.services.OpenStreetMapTileProviderService"
-                 android:process=":remote"
-                 android:label="OpenStreetMapTileProviderService">
-            <intent-filter>
-                <action android:name="org.andnav.osm.services.IOpenStreetMapTileProviderService" />
-            </intent-filter>
-         </service>
     </application>
 </manifest>
