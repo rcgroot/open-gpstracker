@@ -578,6 +578,7 @@ public class GraphCanvas extends View
       routePaint.setAntiAlias( true );
       routePaint.setColor(Color.GREEN);
       Path mPath;
+      int emptyValues = 0;
       mPath = new Path();
       for( int p=0;p<values.length;p++)
       {
@@ -592,7 +593,19 @@ public class GraphCanvas extends View
             double y =   mHeight - ( ( values[p][x]-mMinAxis )*mHeight ) / ( mMaxAxis-mMinAxis ) ;
             if( valueDepth[p][x] > 0 )
             {
-               mPath.lineTo( (float)x+5, (float) y+5 );
+               if( emptyValues > mWidth/10 )
+               {
+                  mPath.moveTo( (float)x+5, (float) y+5 );
+               }
+               else
+               {
+                  mPath.lineTo( (float)x+5, (float) y+5 );
+               }
+               emptyValues = 0;
+            }
+            else
+            {
+               emptyValues++;
             }
          }
       }
