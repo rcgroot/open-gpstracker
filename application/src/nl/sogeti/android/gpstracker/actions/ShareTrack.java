@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
+import java.io.File;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
@@ -455,11 +457,12 @@ public class ShareTrack extends Activity
          }
       }
 
-      public void endNotification( Uri file, String contentType )
+      public void endNotification( String filepath, String contentType )
       {
          mNotificationManager.cancel( R.layout.savenotificationprogress );
-         if( mEndJob != null )
+         if( mEndJob != null && filepath != null )
          {
+            Uri file = Uri.fromFile( new File( filepath ) );
             mEndJob.shareFile( file, contentType );
          }
       }

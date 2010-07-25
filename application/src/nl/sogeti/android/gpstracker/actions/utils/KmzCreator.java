@@ -173,9 +173,9 @@ public class KmzCreator extends XmlCreator
                Log.e( TAG, "Failed to close fos after completion, ignoring." , e );
             }
          }
-         if( mProgressListener != null && resultFilename != null )
+         if( mProgressListener != null )
          {
-            mProgressListener.endNotification(  Uri.fromFile( new File( resultFilename ) ), getContentType() );
+            mProgressListener.endNotification( resultFilename, getContentType() );
          }
          Looper.loop();
       }

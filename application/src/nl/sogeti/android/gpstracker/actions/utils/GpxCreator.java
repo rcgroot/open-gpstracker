@@ -200,7 +200,7 @@ public class GpxCreator extends XmlCreator
          }
          if( mProgressListener != null )
          {
-            mProgressListener.endNotification( Uri.fromFile( new File( resultFilename ) ), getContentType() );
+            mProgressListener.endNotification( resultFilename, getContentType() );
          }
          Looper.loop();
       }

@@ -142,7 +142,7 @@ public abstract class XmlCreator extends Thread
     * @param fileName The directory to be replaced by a zipped file of the same name
     * @param extension
     * 
-    * @return
+    * @return full path of the build zip file
     * @throws IOException
     */
    protected String bundlingMediaAndXml( String fileName, String extension ) throws IOException
