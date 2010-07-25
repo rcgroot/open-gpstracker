@@ -799,18 +799,15 @@ public class SegmentOverlay extends Overlay
     */
    protected boolean isOnScreen( GeoPoint eval )
    {
+      boolean onscreen = false;
       if( eval != null )
       {
-         boolean under =     mTopLeft.getLatitudeE6()  > eval.getLatitudeE6();
-         boolean above = mBottumRight.getLatitudeE6()  < eval.getLatitudeE6();
-         boolean right =     mTopLeft.getLongitudeE6() < eval.getLongitudeE6();
-         boolean left  = mBottumRight.getLongitudeE6() > eval.getLongitudeE6();
-         return under && above && right && left;
+         onscreen = mTopLeft.getLatitudeE6() > eval.getLatitudeE6();
+         onscreen = onscreen && mBottumRight.getLatitudeE6()  < eval.getLatitudeE6();
+         onscreen = onscreen && mTopLeft.getLongitudeE6() < eval.getLongitudeE6();
+         onscreen = onscreen && mBottumRight.getLongitudeE6() > eval.getLongitudeE6();
       }
-      else
-      {
-         return false;
-      }
+      return onscreen;
    }
    
    /**
