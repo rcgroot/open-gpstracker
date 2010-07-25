@@ -800,7 +800,7 @@ public class SegmentOverlay extends Overlay
    protected boolean isOnScreen( GeoPoint eval )
    {
       boolean onscreen = false;
-      if( eval != null )
+      if( eval != null && mTopLeft != null && mBottumRight != null )
       {
          onscreen = mTopLeft.getLatitudeE6() > eval.getLatitudeE6();
          onscreen = onscreen && mBottumRight.getLatitudeE6()  < eval.getLatitudeE6();
