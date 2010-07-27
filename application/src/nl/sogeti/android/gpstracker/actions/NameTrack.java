@@ -121,7 +121,6 @@ public class NameTrack extends Activity
       LayoutInflater factory = null;
       View view = null;
       Builder builder = null;
-      String trackName;
       switch (id)
       {
          case DIALOG_TRACKNAME:
@@ -129,10 +128,6 @@ public class NameTrack extends Activity
             factory = LayoutInflater.from( this );
             view = factory.inflate( R.layout.namedialog, null );
             mTrackNameView = (EditText) view.findViewById( R.id.nameField );
-            Calendar c = Calendar.getInstance();
-            trackName = String.format( getString( R.string.dialog_routename_default ), c, c, c, c, c );
-            mTrackNameView.setText( trackName );
-            mTrackNameView.setSelection( 0, trackName.length() );
             builder
                .setTitle( R.string.dialog_routename_title )
                .setMessage( R.string.dialog_routename_message )
@@ -144,6 +139,24 @@ public class NameTrack extends Activity
             return dialog;
          default:
             return super.onCreateDialog( id );
+      }
+   }
+   
+   @Override
+   protected void onPrepareDialog( int id, Dialog dialog )
+   {
+      switch (id)
+      {
+         case DIALOG_TRACKNAME:
+            String trackName;
+            Calendar c = Calendar.getInstance();
+            trackName = String.format( getString( R.string.dialog_routename_default ), c, c, c, c, c );
+            mTrackNameView.setText( trackName );
+            mTrackNameView.setSelection( 0, trackName.length() );
+            break;
+         default:
+            super.onPrepareDialog( id, dialog );
+            break;
       }
    }
    
