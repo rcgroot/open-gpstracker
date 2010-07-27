@@ -53,7 +53,7 @@ import android.widget.EditText;
 /**
  * Empty Activity that pops up the dialog to name the track
  *
- * @version $Id:$
+ * @version $Id$
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
  */
 public class NameTrack extends Activity
@@ -62,7 +62,7 @@ public class NameTrack extends Activity
 
    private EditText mTrackNameView;
 
-   protected long mTrackId;
+   protected long mTrackId = -1;
    
    private final DialogInterface.OnClickListener mTrackNameDialogListener = new DialogInterface.OnClickListener()
    {
@@ -98,10 +98,22 @@ public class NameTrack extends Activity
       if( data != null )
       {
          mTrackId = Long.parseLong( data.getLastPathSegment() );
-         showDialog( DIALOG_TRACKNAME );
       }
    }
    
+   /*
+    * (non-Javadoc)
+    * @see com.google.android.maps.MapActivity#onPause()
+    */
+   @Override
+   protected void onResume()
+   {
+      super.onResume();
+      if( mTrackId >= 0 )
+      {
+         showDialog( DIALOG_TRACKNAME );
+      }
+   }
    @Override
    protected Dialog onCreateDialog( int id )
    {

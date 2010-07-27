@@ -35,6 +35,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.NameTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -123,7 +124,6 @@ public class LoggerMap extends MapActivity
    private static final int MENU_VIDEO = 12;
    private static final int MENU_SHARE = 13;
    private static final int DIALOG_NOTRACK = 24;
-   private static final int DIALOG_LOGCONTROL = 26;
    private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
    private static final int DIALOG_TEXT = 32;
@@ -242,36 +242,7 @@ public class LoggerMap extends MapActivity
             }
          }
       };
-   private final View.OnClickListener mLoggingControlListener = new View.OnClickListener()
-      {
-         public void onClick( View v )
-         {
-            int id = v.getId();
-            dismissDialog( DIALOG_LOGCONTROL );
-            switch (id)
-            {
-               case R.id.logcontrol_start:
-                  long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
-                  moveToTrack( loggerTrackId, true );
-                  Intent namingIntent = new Intent( LoggerMap.this, NameTrack.class );
-                  namingIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId ) );
-                  startActivity( namingIntent );
-                  break;
-               case R.id.logcontrol_pause:
-                  mLoggerServiceManager.pauseGPSLogging();
-                  break;
-               case R.id.logcontrol_resume:
-                  mLoggerServiceManager.resumeGPSLogging();
-                  break;
-               case R.id.logcontrol_stop:
-                  mLoggerServiceManager.stopGPSLogging();
-                  break;
-               default:
-                  break;
-            }
-            updateBlankingBehavior();
-         }
-      };
+
    private final OnCheckedChangeListener mCheckedChangeListener = new OnCheckedChangeListener()
       {
          public void onCheckedChanged( CompoundButton buttonView, boolean isChecked )
@@ -509,6 +480,7 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onDestroy()
    {
+      super.onDestroy();
       this.mLoggerServiceManager.shutdown();
       if( mWakeLock != null && mWakeLock.isHeld() )
       {
@@ -520,7 +492,6 @@ public class LoggerMap extends MapActivity
       {
          stopService( new Intent( Constants.SERVICENAME ) );
       }
-      super.onDestroy();
    }
 
    /*
@@ -769,8 +740,8 @@ public class LoggerMap extends MapActivity
       switch (item.getItemId())
       {
          case MENU_TRACKING:
-            showDialog( DIALOG_LOGCONTROL );
-            updateBlankingBehavior();
+            Intent controlIntent = new Intent( this, ControlTracking.class );
+            startActivityForResult( controlIntent, MENU_TRACKING );
             handled = true;
             break;
          case MENU_LAYERS:
@@ -778,8 +749,8 @@ public class LoggerMap extends MapActivity
             handled = true;
             break;
          case MENU_SETTINGS:
-            Intent i = new Intent( this, SettingsDialog.class );
-            startActivity( i );
+            Intent settingsIntent = new Intent( this, SettingsDialog.class );
+            startActivity( settingsIntent );
             handled = true;
             break;
          case MENU_TRACKLIST:
@@ -895,17 +866,6 @@ public class LoggerMap extends MapActivity
                .setNegativeButton( R.string.btn_cancel, null );
             dialog = builder.create();
             return dialog;
-         case DIALOG_LOGCONTROL:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.logcontrol, null );
-            builder  
-               .setTitle( R.string.dialog_tracking_title )
-               .setIcon( android.R.drawable.ic_dialog_alert )
-               .setNegativeButton( R.string.btn_cancel, null )
-               .setView( view );
-            dialog = builder.create();
-            return dialog;
          case DIALOG_INSTALL_ABOUT:
             builder = new AlertDialog.Builder( this );
             builder
@@ -970,47 +930,8 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onPrepareDialog( int id, Dialog dialog )
    {
-      int state = mLoggerServiceManager.getLoggingState();
       switch (id)
       {
-         case DIALOG_LOGCONTROL:
-            Button start = (Button) dialog.findViewById( R.id.logcontrol_start );
-            Button pause = (Button) dialog.findViewById( R.id.logcontrol_pause );
-            Button resume = (Button) dialog.findViewById( R.id.logcontrol_resume );
-            Button stop = (Button) dialog.findViewById( R.id.logcontrol_stop );
-            start.setOnClickListener( mLoggingControlListener );
-            pause.setOnClickListener( mLoggingControlListener );
-            resume.setOnClickListener( mLoggingControlListener );
-            stop.setOnClickListener( mLoggingControlListener );
-            switch (state)
-            {
-               case Constants.STOPPED:
-                  start.setEnabled( true );
-                  pause.setEnabled( false );
-                  resume.setEnabled( false );
-                  stop.setEnabled( false );
-                  break;
-               case Constants.LOGGING:
-                  start.setEnabled( false );
-                  pause.setEnabled( true );
-                  resume.setEnabled( false );
-                  stop.setEnabled( true );
-                  break;
-               case Constants.PAUSED:
-                  start.setEnabled( false );
-                  pause.setEnabled( false );
-                  resume.setEnabled( true );
-                  stop.setEnabled( true );
-                  break;
-               default:
-                  Log.e( TAG, String.format( "State %d of logging, enabling and hope for the best....", state ) );
-                  start.setEnabled( true );
-                  pause.setEnabled( true );
-                  resume.setEnabled( true );
-                  stop.setEnabled( true );
-                  break;
-            }
-            break;
          case DIALOG_LAYERS:
             mSatellite.setChecked( mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
             mTraffic.setChecked( mSharedPreferences.getBoolean( Constants.TRAFFIC, false ) );
@@ -1044,11 +965,13 @@ public class LoggerMap extends MapActivity
          String newName;
          Uri fileUri;
          android.net.Uri.Builder builder;
+         Uri trackUri;
+         long trackId;
          switch (requestCode)
          {
             case MENU_TRACKLIST:
-               Uri trackUri = intent.getData();
-               long trackId = Long.parseLong( trackUri.getLastPathSegment() );
+               trackUri = intent.getData();
+               trackId = Long.parseLong( trackUri.getLastPathSegment() );
                moveToTrack( trackId, true );
                break;
             case MENU_ABOUT:
@@ -1096,6 +1019,14 @@ public class LoggerMap extends MapActivity
                this.mLoggerServiceManager.storeMediaUri(  uri );
                mLastSegmentOverlay.calculateMedia();
                mMapView.postInvalidate();
+               break;
+            case MENU_TRACKING:
+               trackUri = intent.getData();
+               trackId = Long.parseLong( trackUri.getLastPathSegment() );
+               moveToTrack( trackId, true );
+               Intent namingIntent = new Intent( this, NameTrack.class );
+               namingIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) );
+               startActivity( namingIntent );
                break;
             default:
                Log.e( TAG, "Returned form unknow activity: " + requestCode );

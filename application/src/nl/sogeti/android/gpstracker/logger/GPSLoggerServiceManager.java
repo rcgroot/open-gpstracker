@@ -226,7 +226,7 @@ public class GPSLoggerServiceManager
          }
       }
    }
-
+   
    /**
     * Means by which an Activity lifecycle aware object hints about binding and unbinding
     */
