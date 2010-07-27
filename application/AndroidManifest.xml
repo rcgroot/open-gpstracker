@@ -84,6 +84,11 @@
             android:label="@string/menu_settings" 
             android:name=".logger.SettingsDialog"/>
 
+         <activity 
+            android:label="@string/dialog_routename_title" 
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name=".actions.NameTrack"/>
+
          <activity
             android:label="@string/track_list" 
             android:name=".viewer.TrackList"

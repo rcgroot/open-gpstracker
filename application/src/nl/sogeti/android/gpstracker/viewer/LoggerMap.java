@@ -35,6 +35,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.NameTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -55,7 +56,6 @@ import android.app.AlertDialog.Builder;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -122,7 +122,6 @@ public class LoggerMap extends MapActivity
    private static final int MENU_VOICE = 11;
    private static final int MENU_VIDEO = 12;
    private static final int MENU_SHARE = 13;
-   private static final int DIALOG_TRACKNAME = 23;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_LOGCONTROL = 26;
    private static final int DIALOG_INSTALL_ABOUT = 29;
@@ -137,7 +136,6 @@ public class LoggerMap extends MapActivity
    private CheckBox mAltitude;
    private CheckBox mCompass;
    private CheckBox mLocation;
-   private EditText mTrackNameView;
    private TextView[] mSpeedtexts = null;
    private TextView mLastGPSSpeedView = null;
    private TextView mLastGPSAltitudeView = null;
@@ -225,30 +223,7 @@ public class LoggerMap extends MapActivity
             startActivityForResult( tracklistIntent, MENU_TRACKLIST );
          }
       };
-   private final DialogInterface.OnClickListener mTrackNameDialogListener = new DialogInterface.OnClickListener()
-      {
-         public void onClick( DialogInterface dialog, int which )
-         {
-            String trackName;
-            switch( which )
-            {
-               case DialogInterface.BUTTON_POSITIVE:
-                  trackName = mTrackNameView.getText().toString();
-                  break;
-               case DialogInterface.BUTTON_NEGATIVE:
-                  Calendar c = Calendar.getInstance();
-                  trackName = String.format( "Track %tY-%tm-%td %tH:%tM", c, c, c, c, c );
-                  break;
-               default:
-                  trackName = "";
-                  break;
-            }
-            ContentValues values = new ContentValues();
-            values.put( Tracks.NAME, trackName );
-            getContentResolver().update( ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId ), values, null, null );
-            updateTitleBar();
-         }
-      };
+
    private final DialogInterface.OnClickListener mOiAboutDialogListener = new DialogInterface.OnClickListener()
       {
          public void onClick( DialogInterface dialog, int which )
@@ -278,7 +253,9 @@ public class LoggerMap extends MapActivity
                case R.id.logcontrol_start:
                   long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
                   moveToTrack( loggerTrackId, true );
-                  showDialog( DIALOG_TRACKNAME );
+                  Intent namingIntent = new Intent( LoggerMap.this, NameTrack.class );
+                  namingIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, LoggerMap.this.mTrackId ) );
+                  startActivity( namingIntent );
                   break;
                case R.id.logcontrol_pause:
                   mLoggerServiceManager.pauseGPSLogging();
@@ -885,20 +862,6 @@ public class LoggerMap extends MapActivity
       Builder builder = null;
       switch (id)
       {
-         case DIALOG_TRACKNAME:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.namedialog, null );
-            mTrackNameView = (EditText) view.findViewById( R.id.nameField );
-            builder
-               .setTitle( R.string.dialog_routename_title )
-               .setMessage( R.string.dialog_routename_message )
-               .setIcon( android.R.drawable.ic_dialog_alert )
-               .setNegativeButton( R.string.btn_skip, mTrackNameDialogListener )
-               .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener )
-               .setView( view );
-            dialog = builder.create();
-            return dialog;
          case DIALOG_LAYERS:
             builder = new AlertDialog.Builder( this );
             factory = LayoutInflater.from( this );
@@ -1498,8 +1461,10 @@ public class LoggerMap extends MapActivity
             resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
             resolver.unregisterContentObserver( this.mTrackMediasObserver );
             Uri tracksegmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" );
+            
             resolver.registerContentObserver( tracksegmentsUri, false, this.mTrackSegmentsObserver );
             resolver.registerContentObserver( mediaUri, false, this.mTrackMediasObserver );
+            
             this.mMapView.getOverlays().clear();
 
             updateTitleBar();
