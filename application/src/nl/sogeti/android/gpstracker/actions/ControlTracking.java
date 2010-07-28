@@ -101,6 +101,10 @@ public class ControlTracking extends Activity
          finish();
       }
    };
+   private Button start;
+   private Button pause;
+   private Button resume;
+   private Button stop;
 
 
    @Override
@@ -130,6 +134,35 @@ public class ControlTracking extends Activity
    {
       super.onResume();
       showDialog( DIALOG_LOGCONTROL );
+      new Thread()
+      {
+         @Override
+         public void run()
+         {
+            synchronized( mLoggerServiceManager.mStartLock )
+            {
+               try
+               {
+                  if( mLoggerServiceManager.getLoggingState() == Constants.UNKNOWN )
+                  {
+                     Log.d( TAG, "Waiting....."+ Thread.currentThread().getId() );
+                     mLoggerServiceManager.mStartLock.wait();
+                     Log.d( TAG, "Done....."+ Thread.currentThread().getId() );
+                  }
+                  else
+                  {
+                     int state = mLoggerServiceManager.getLoggingState();
+                     updateDialogState( state );
+                  }
+               }
+               catch( InterruptedException e )
+               {
+                  Log.e( TAG, "Did not expect to be interrupted", e );
+               }
+            }
+         }
+      }.start();
+
    }
    
    /*
@@ -174,6 +207,14 @@ public class ControlTracking extends Activity
                .setNegativeButton( R.string.btn_cancel, mDialogClickListener  )
                .setView( view );
             dialog = builder.create();
+            start = (Button) view.findViewById( R.id.logcontrol_start );
+            pause = (Button) view.findViewById( R.id.logcontrol_pause );
+            resume = (Button) view.findViewById( R.id.logcontrol_resume );
+            stop = (Button) view.findViewById( R.id.logcontrol_stop );
+            start.setOnClickListener( mLoggingControlListener );
+            pause.setOnClickListener( mLoggingControlListener );
+            resume.setOnClickListener( mLoggingControlListener );
+            stop.setOnClickListener( mLoggingControlListener );
             return dialog;
          default:
             return super.onCreateDialog( id );
@@ -191,47 +232,44 @@ public class ControlTracking extends Activity
       switch (id)
       {
          case DIALOG_LOGCONTROL:
-            Button start = (Button) dialog.findViewById( R.id.logcontrol_start );
-            Button pause = (Button) dialog.findViewById( R.id.logcontrol_pause );
-            Button resume = (Button) dialog.findViewById( R.id.logcontrol_resume );
-            Button stop = (Button) dialog.findViewById( R.id.logcontrol_stop );
-            start.setOnClickListener( mLoggingControlListener );
-            pause.setOnClickListener( mLoggingControlListener );
-            resume.setOnClickListener( mLoggingControlListener );
-            stop.setOnClickListener( mLoggingControlListener );
-            switch (state)
-            {
-               case Constants.STOPPED:
-                  start.setEnabled( true );
-                  pause.setEnabled( false );
-                  resume.setEnabled( false );
-                  stop.setEnabled( false );
-                  break;
-               case Constants.LOGGING:
-                  start.setEnabled( false );
-                  pause.setEnabled( true );
-                  resume.setEnabled( false );
-                  stop.setEnabled( true );
-                  break;
-               case Constants.PAUSED:
-                  start.setEnabled( false );
-                  pause.setEnabled( false );
-                  resume.setEnabled( true );
-                  stop.setEnabled( true );
-                  break;
-               default:
-                  Log.w( TAG, String.format( "State %d of logging, enabling and hope for the best....", state ) );
-                  start.setEnabled( false );
-                  pause.setEnabled( false );
-                  resume.setEnabled( false );
-                  stop.setEnabled( false );
-                  break;
-            }
+            updateDialogState( state );
             break;
          default:
             break;
       }
       super.onPrepareDialog( id, dialog );
+   }
+
+   private void updateDialogState( int state )
+   {
+      switch (state)
+      {
+         case Constants.STOPPED:
+            start.setEnabled( true );
+            pause.setEnabled( false );
+            resume.setEnabled( false );
+            stop.setEnabled( false );
+            break;
+         case Constants.LOGGING:
+            start.setEnabled( false );
+            pause.setEnabled( true );
+            resume.setEnabled( false );
+            stop.setEnabled( true );
+            break;
+         case Constants.PAUSED:
+            start.setEnabled( false );
+            pause.setEnabled( false );
+            resume.setEnabled( true );
+            stop.setEnabled( true );
+            break;
+         default:
+            Log.w( TAG, String.format( "State %d of logging, enabling and hope for the best....", state ) );
+            start.setEnabled( false );
+            pause.setEnabled( false );
+            resume.setEnabled( false );
+            stop.setEnabled( false );
+            break;
+      }
    }
 }
    

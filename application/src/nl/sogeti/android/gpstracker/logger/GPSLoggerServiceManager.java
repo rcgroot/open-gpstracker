@@ -50,7 +50,7 @@ public class GPSLoggerServiceManager
    private static final String REMOTE_EXCEPTION = "REMOTE_EXCEPTION";
    private Context mCtx;
    private IGPSLoggerServiceRemote mGPSLoggerRemote;
-   private final Object mStartLock = new Object();
+   public final Object mStartLock = new Object();
    private boolean mStarted = false;
 
    /**
@@ -241,9 +241,10 @@ public class GPSLoggerServiceManager
                {
                   synchronized (mStartLock)
                   {
-                     //                     Log.d( TAG, "onServiceConnected()" );
+                     Log.d( TAG, "onServiceConnected() "+ Thread.currentThread().getId() );
                      GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
                      mStarted = true;
+                     mStartLock.notifyAll();
                   }
                }
 
