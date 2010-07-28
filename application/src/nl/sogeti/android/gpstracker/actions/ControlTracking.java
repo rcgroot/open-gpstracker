@@ -60,6 +60,10 @@ public class ControlTracking extends Activity
    private static final String TAG = "OGT.ControlTracking";
    
    private GPSLoggerServiceManager mLoggerServiceManager;
+   private Button start;
+   private Button pause;
+   private Button resume;
+   private Button stop;
 
    private final View.OnClickListener mLoggingControlListener = new View.OnClickListener()
    {
@@ -101,12 +105,6 @@ public class ControlTracking extends Activity
          finish();
       }
    };
-   private Button start;
-   private Button pause;
-   private Button resume;
-   private Button stop;
-
-
    @Override
    protected void onCreate( Bundle savedInstanceState )
    {
