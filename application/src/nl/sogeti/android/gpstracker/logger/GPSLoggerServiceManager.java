@@ -278,7 +278,7 @@ public class GPSLoggerServiceManager
       }
       catch (IllegalArgumentException e)
       {
-         Log.e( TAG, "Failed to unbind a service, prehaps the service disapearded?", e );
+         Log.w( TAG, "Failed to unbind a service, prehaps the service disapearded?", e );
       }
    }
 }
