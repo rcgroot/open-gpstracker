@@ -241,7 +241,7 @@ public class GPSLoggerServiceManager
                {
                   synchronized (mStartLock)
                   {
-                     Log.d( TAG, "onServiceConnected() "+ Thread.currentThread().getId() );
+//                     Log.d( TAG, "onServiceConnected() "+ Thread.currentThread().getId() );
                      GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
                      mStarted = true;
                      mStartLock.notifyAll();
