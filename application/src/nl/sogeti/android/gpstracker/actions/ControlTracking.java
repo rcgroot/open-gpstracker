@@ -50,7 +50,7 @@ import android.widget.Button;
 
 /**
  * Empty Activity that pops up the dialog to name the track
- *
+ * 
  * @version $Id$
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
  */
@@ -58,7 +58,7 @@ public class ControlTracking extends Activity
 {
    private static final int DIALOG_LOGCONTROL = 26;
    private static final String TAG = "OGT.ControlTracking";
-   
+
    private GPSLoggerServiceManager mLoggerServiceManager;
    private Button start;
    private Button pause;
@@ -66,126 +66,75 @@ public class ControlTracking extends Activity
    private Button stop;
 
    private final View.OnClickListener mLoggingControlListener = new View.OnClickListener()
-   {
-      public void onClick( View v )
       {
-         int id = v.getId();
-         switch (id)
+         public void onClick( View v )
          {
-            case R.id.logcontrol_start:
-               long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
-               
-               Intent intent = new Intent();
-               intent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, loggerTrackId ) );
-               ComponentName caller = ControlTracking.this.getCallingActivity();
-               if( caller != null )
-               {
-                  setResult( RESULT_OK, intent );
-               }
-               break;
-            case R.id.logcontrol_pause:
-               mLoggerServiceManager.pauseGPSLogging();
-               break;
-            case R.id.logcontrol_resume:
-               mLoggerServiceManager.resumeGPSLogging();
-               break;
-            case R.id.logcontrol_stop:
-               mLoggerServiceManager.stopGPSLogging();
-               break;
-            default:
-               break;
+            int id = v.getId();
+            switch( id )
+            {
+               case R.id.logcontrol_start:
+                  long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
+
+                  Intent intent = new Intent();
+                  intent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, loggerTrackId ) );
+                  ComponentName caller = ControlTracking.this.getCallingActivity();
+                  if( caller != null )
+                  {
+                     setResult( RESULT_OK, intent );
+                  }
+                  break;
+               case R.id.logcontrol_pause:
+                  mLoggerServiceManager.pauseGPSLogging();
+                  break;
+               case R.id.logcontrol_resume:
+                  mLoggerServiceManager.resumeGPSLogging();
+                  break;
+               case R.id.logcontrol_stop:
+                  mLoggerServiceManager.stopGPSLogging();
+                  break;
+               default:
+                  break;
+            }
+            finish();
          }
-         finish();
-      }
-   };
+      };
    private OnClickListener mDialogClickListener = new OnClickListener()
-   {
-      public void onClick( DialogInterface dialog, int which )
       {
-         finish();
-      }
-   };
+         public void onClick( DialogInterface dialog, int which )
+         {
+            finish();
+         }
+      };
+
    @Override
    protected void onCreate( Bundle savedInstanceState )
    {
       super.onCreate( savedInstanceState );
       this.setVisible( false );
 
-      Object previousInstanceData = getLastNonConfigurationInstance();
-      if( previousInstanceData != null && previousInstanceData instanceof GPSLoggerServiceManager )
-      {
-         mLoggerServiceManager = (GPSLoggerServiceManager) previousInstanceData;
-      }
-      else
-      {
-         mLoggerServiceManager = new GPSLoggerServiceManager( (Context) this );
-      }
-      mLoggerServiceManager.startup();
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.google.android.maps.MapActivity#onPause()
-    */
+
    @Override
    protected void onResume()
    {
       super.onResume();
-      showDialog( DIALOG_LOGCONTROL );
-      new Thread()
-      {
-         @Override
-         public void run()
+      mLoggerServiceManager = new GPSLoggerServiceManager( this );
+      mLoggerServiceManager.startup( new Runnable()
          {
-            synchronized( mLoggerServiceManager.mStartLock )
+            public void run()
             {
-               try
-               {
-                  if( mLoggerServiceManager.getLoggingState() == Constants.UNKNOWN )
-                  {
-                     Log.d( TAG, "Waiting....."+ Thread.currentThread().getId() );
-                     mLoggerServiceManager.mStartLock.wait();
-                     Log.d( TAG, "Done....."+ Thread.currentThread().getId() );
-                  }
-                  else
-                  {
-                     int state = mLoggerServiceManager.getLoggingState();
-                     updateDialogState( state );
-                  }
-               }
-               catch( InterruptedException e )
-               {
-                  Log.e( TAG, "Did not expect to be interrupted", e );
-               }
+               showDialog( DIALOG_LOGCONTROL );
             }
-         }
-      }.start();
-
+         } );
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.google.android.maps.MapActivity#onPause()
-    */
+
    @Override
-   protected void onDestroy()
+   protected void onPause()
    {
       super.onDestroy();
       this.mLoggerServiceManager.shutdown();
    }
 
-   /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onRetainNonConfigurationInstance()
-    */
-   @Override
-   public Object onRetainNonConfigurationInstance()
-   {
-      Object nonConfigurationInstance = this.mLoggerServiceManager;
-      return nonConfigurationInstance;
-   }
-   
-   
    @Override
    protected Dialog onCreateDialog( int id )
    {
@@ -193,17 +142,13 @@ public class ControlTracking extends Activity
       LayoutInflater factory = null;
       View view = null;
       Builder builder = null;
-      switch (id)
+      switch( id )
       {
          case DIALOG_LOGCONTROL:
             builder = new AlertDialog.Builder( this );
             factory = LayoutInflater.from( this );
             view = factory.inflate( R.layout.logcontrol, null );
-            builder  
-               .setTitle( R.string.dialog_tracking_title )
-               .setIcon( android.R.drawable.ic_dialog_alert )
-               .setNegativeButton( R.string.btn_cancel, mDialogClickListener  )
-               .setView( view );
+            builder.setTitle( R.string.dialog_tracking_title ).setIcon( android.R.drawable.ic_dialog_alert ).setNegativeButton( R.string.btn_cancel, mDialogClickListener ).setView( view );
             dialog = builder.create();
             start = (Button) view.findViewById( R.id.logcontrol_start );
             pause = (Button) view.findViewById( R.id.logcontrol_pause );
@@ -218,7 +163,7 @@ public class ControlTracking extends Activity
             return super.onCreateDialog( id );
       }
    }
-   
+
    /*
     * (non-Javadoc)
     * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
@@ -227,7 +172,7 @@ public class ControlTracking extends Activity
    protected void onPrepareDialog( int id, Dialog dialog )
    {
       int state = mLoggerServiceManager.getLoggingState();
-      switch (id)
+      switch( id )
       {
          case DIALOG_LOGCONTROL:
             updateDialogState( state );
@@ -240,7 +185,7 @@ public class ControlTracking extends Activity
 
    private void updateDialogState( int state )
    {
-      switch (state)
+      switch( state )
       {
          case Constants.STOPPED:
             start.setEnabled( true );
@@ -270,4 +215,3 @@ public class ControlTracking extends Activity
       }
    }
 }
-   

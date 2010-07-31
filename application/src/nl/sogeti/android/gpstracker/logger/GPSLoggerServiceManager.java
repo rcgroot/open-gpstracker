@@ -57,6 +57,7 @@ public class GPSLoggerServiceManager
     * Class for interacting with the main interface of the service.
     */
    private ServiceConnection mServiceConnection = null;
+   private Runnable mOnServiceConnected;
 
    public GPSLoggerServiceManager(Context ctx)
    {
@@ -232,6 +233,16 @@ public class GPSLoggerServiceManager
     */
    public void startup()
    {
+      startup( null );
+   }
+   
+   /**
+    * Means by which an Activity lifecycle aware object hints about binding and unbinding
+    * 
+    * @param onServiceConnected Run on main thread after the service is bound
+    */
+   public void startup( final Runnable onServiceConnected )
+   {
       //      Log.d( TAG, "connectToGPSLoggerService()" );
       if( !mStarted )
       {
@@ -245,6 +256,10 @@ public class GPSLoggerServiceManager
                      GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
                      mStarted = true;
                      mStartLock.notifyAll();
+                  }
+                  if( onServiceConnected != null )
+                  {
+                     onServiceConnected.run();
                   }
                }
 
