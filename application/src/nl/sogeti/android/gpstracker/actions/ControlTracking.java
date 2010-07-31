@@ -131,7 +131,7 @@ public class ControlTracking extends Activity
    @Override
    protected void onPause()
    {
-      super.onDestroy();
+      super.onPause();
       this.mLoggerServiceManager.shutdown();
    }
 
