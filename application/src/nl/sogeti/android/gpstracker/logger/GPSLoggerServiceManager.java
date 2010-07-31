@@ -57,7 +57,6 @@ public class GPSLoggerServiceManager
     * Class for interacting with the main interface of the service.
     */
    private ServiceConnection mServiceConnection = null;
-   private Runnable mOnServiceConnected;
 
    public GPSLoggerServiceManager(Context ctx)
    {
