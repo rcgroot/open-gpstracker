@@ -102,7 +102,6 @@ public abstract class XmlCreator extends Thread
 
    public static String cleanFilename( String fileName )
    {
-      fileName = fileName.trim();
       fileName = fileName.replaceAll("\\W", "");
       Log.d( "CLEANED", fileName );
       return fileName;
