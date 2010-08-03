@@ -28,6 +28,7 @@
  */
 package nl.sogeti.android.gpstracker.tests.actions;
 
+import nl.sogeti.android.gpstracker.actions.utils.XmlCreator;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -63,5 +64,13 @@ public class ExportGPXTest extends TestCase
       Assert.assertEquals( "Data Schema", "content", actionIntent.getScheme() );
       Assert.assertEquals( "Data Authority", "nl.sogeti.android.gpstracker", actionIntent.getData().getAuthority() );
       Assert.assertEquals( "Data Path", "/tracks/0", actionIntent.getData().getPath() );
+   }
+   
+   @SmallTest
+   public void testCleanFilename()
+   {
+      String dirty = "abc=+:;/123";
+      String clean = XmlCreator.cleanFilename( dirty );
+      Assert.assertEquals( "Cleaned", "abc123" , clean );
    }
 }

@@ -47,6 +47,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 
 public abstract class XmlCreator extends Thread
 {
@@ -74,7 +75,7 @@ public abstract class XmlCreator extends Thread
       fileName = "UntitledTrack";
       if( mChosenFileName != null && !mChosenFileName.equals( "" ) )
       {
-         fileName = mChosenFileName.trim();
+         fileName = cleanFilename( fileName );
       }
       else
       {
@@ -85,7 +86,7 @@ public abstract class XmlCreator extends Thread
             trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
             if( trackCursor.moveToLast() )
             {
-               fileName = trackCursor.getString( 0 ).trim();
+               fileName = cleanFilename( trackCursor.getString( 0 ) );
             }
          }
          finally
@@ -97,6 +98,14 @@ public abstract class XmlCreator extends Thread
          }
       }
       
+   }
+
+   public static String cleanFilename( String fileName )
+   {
+      fileName = fileName.trim();
+      fileName = fileName.replaceAll("\\W", "");
+      Log.d( "CLEANED", fileName );
+      return fileName;
    }
    
    /**
