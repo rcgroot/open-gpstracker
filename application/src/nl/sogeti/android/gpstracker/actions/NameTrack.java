@@ -44,6 +44,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnDismissListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -78,16 +79,22 @@ public class NameTrack extends Activity
                getContentResolver().update( ContentUris.withAppendedId( Tracks.CONTENT_URI, NameTrack.this.mTrackId ), values, null, null );
                break;
             case DialogInterface.BUTTON_NEGATIVE:
-               nameTrackNotification( R.string.dialog_routename_title );
+               cancelNaming();
                break;
             default:
                break;
          }
          finish();
-
       }
-   };
 
+
+   };
+   
+   private void cancelNaming()
+   {
+      nameTrackNotification( R.string.dialog_routename_title );
+   }
+   
    @Override
    protected void onCreate( Bundle savedInstanceState )
    {
@@ -136,6 +143,14 @@ public class NameTrack extends Activity
                .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener )
                .setView( view );
             dialog = builder.create();
+            dialog.setOnDismissListener( new OnDismissListener()
+            {
+               public void onDismiss( DialogInterface dialog )
+               {
+                  cancelNaming();
+                  finish();
+               }
+            });
             return dialog;
          default:
             return super.onCreateDialog( id );
