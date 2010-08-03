@@ -75,7 +75,7 @@ public abstract class XmlCreator extends Thread
       fileName = "UntitledTrack";
       if( mChosenFileName != null && !mChosenFileName.equals( "" ) )
       {
-         fileName = cleanFilename( fileName );
+         fileName = cleanFilename( mChosenFileName );
       }
       else
       {
