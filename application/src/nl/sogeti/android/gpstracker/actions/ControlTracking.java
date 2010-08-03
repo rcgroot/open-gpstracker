@@ -42,6 +42,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -111,14 +112,13 @@ public class ControlTracking extends Activity
    {
       super.onCreate( savedInstanceState );
       this.setVisible( false );
-
+      mLoggerServiceManager = new GPSLoggerServiceManager( this );
    }
 
    @Override
    protected void onResume()
    {
       super.onResume();
-      mLoggerServiceManager = new GPSLoggerServiceManager( this );
       mLoggerServiceManager.startup( new Runnable()
          {
             public void run()
@@ -132,7 +132,7 @@ public class ControlTracking extends Activity
    protected void onPause()
    {
       super.onPause();
-      this.mLoggerServiceManager.shutdown();
+      mLoggerServiceManager.shutdown();
    }
 
    @Override
@@ -158,6 +158,13 @@ public class ControlTracking extends Activity
             pause.setOnClickListener( mLoggingControlListener );
             resume.setOnClickListener( mLoggingControlListener );
             stop.setOnClickListener( mLoggingControlListener );
+            dialog.setOnDismissListener( new OnDismissListener()
+               {
+                  public void onDismiss( DialogInterface dialog )
+                  {
+                     finish();
+                  }
+               });
             return dialog;
          default:
             return super.onCreateDialog( id );
@@ -171,11 +178,10 @@ public class ControlTracking extends Activity
    @Override
    protected void onPrepareDialog( int id, Dialog dialog )
    {
-      int state = mLoggerServiceManager.getLoggingState();
       switch( id )
       {
          case DIALOG_LOGCONTROL:
-            updateDialogState( state );
+            updateDialogState( mLoggerServiceManager.getLoggingState() );
             break;
          default:
             break;

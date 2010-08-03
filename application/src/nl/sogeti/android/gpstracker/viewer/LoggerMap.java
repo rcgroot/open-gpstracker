@@ -1033,6 +1033,10 @@ public class LoggerMap extends MapActivity
                break;
          }
       }
+      else
+      {
+         Log.w( TAG, "Received unexpected resultcode "+resultCode);
+      }
    }
 
    /**
