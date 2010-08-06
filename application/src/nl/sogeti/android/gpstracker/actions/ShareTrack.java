@@ -116,6 +116,7 @@ public class ShareTrack extends Activity
       ArrayAdapter<CharSequence> shareTypeAdapter = ArrayAdapter.createFromResource( this, R.array.sharetype_choices, android.R.layout.simple_spinner_item );
       shareTypeAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
       mShareTypeSpinner.setAdapter( shareTypeAdapter );
+      mShareTypeSpinner.setSelection( 0 );
 
       mShareTargetSpinner = (Spinner) findViewById( R.id.shareTargetSpinner );
       mShareTypeSpinner.setOnItemSelectedListener( new OnItemSelectedListener()
@@ -203,6 +204,7 @@ public class ShareTrack extends Activity
       ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource( this, R.array.sharefiletarget_choices, android.R.layout.simple_spinner_item );
       shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
       mShareTargetSpinner.setAdapter( shareTargetAdapter );
+      mShareTargetSpinner.setSelection( 0 );
    }
 
    private void setTextLineExportTargets()
@@ -210,6 +212,7 @@ public class ShareTrack extends Activity
       ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource( this, R.array.sharetexttarget_choices, android.R.layout.simple_spinner_item );
       shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
       mShareTargetSpinner.setAdapter( shareTargetAdapter );
+      mShareTargetSpinner.setSelection( 0 );
    }
    
    private void share()
@@ -229,6 +232,7 @@ public class ShareTrack extends Activity
          case 2: //Line of text
             exportTextLine( textLine, target );
          default:
+            Log.e( TAG, "Failed to determine sharing type" + type );
             break;
       }
    }
@@ -261,7 +265,7 @@ public class ShareTrack extends Activity
             };
             break;
          default:
-            Log.e( TAG, "Unable to determine target for sharing KMZ" );
+            Log.e( TAG, "Unable to determine target for sharing KMZ "+target );
             break;
       }
       KmzCreator kmzCreator = new KmzCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
@@ -296,7 +300,7 @@ public class ShareTrack extends Activity
             };
             break;
          default:
-            Log.e( TAG, "Unable to determine target for sharing GPX" );
+            Log.e( TAG, "Unable to determine target for sharing GPX "+target );
             break;
       }
       GpxCreator gpxCreator = new GpxCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
