@@ -29,7 +29,7 @@
     </string-array>
     
     <string-array name="sharetype_choices">
-        <item>NetDragon Websoft Inc。 http://www。nd。com。cn/</item>
+        <item>KMZ - Keyhole Markup Language</item>
         <item>GPX - GPS的交換格式</item>
         <item>文字 - 速度和距離的概觀</item>
     </string-array>
@@ -78,11 +78,12 @@
 
     <string-array name="about_artists" translatable="false">
         <item>程式圖示：Android 開源項目</item>
-        <item>泡沫圖示：ICONS etc。 MySiteMyWay</item>
+        <item>泡沫圖示：ICONS etc. MySiteMyWay</item>
     </string-array>
 
     <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
         <item>安智網中文化 (bbs.goapk.com)</item>
+        <item>NetDragon Websoft Inc. http://www.nd.com.cn/</item>
     </string-array>
     
 </resources>
