@@ -1,153 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">開啟舊檔 GPS 跟蹤器</string>
+	<string name="app_name">開啟 GPS 追蹤器</string>
     <string name="service_start">啟動日誌服務中</string>
-	<string name="service_gpsstatus">日誌精確度: %s (%s with %d satellites)</string>
-    <string name="service_networkstatus">Logging: %s (%s with cell tower and wifi)</string>
-    <string name="service_gpsdisabled">GPS 已禁用，日誌無效。</string>
-    <string name="service_gpsenabled">GPS 已啟用, 開始記錄。</string>
-    <string name="service_connectiondisabled">Network is disabled, network location logging is without effect.</string>
-    <string name="service_datadisabled">Network positioning is disabled, logging is without effect.</string>
-    <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
+	<string name="service_gpsstatus">日誌： %s (%s 使用 %d 個衛星)</string>
+    <string name="service_networkstatus">日誌： %s (%s 使用基站和WiFi)</string>
+    <string name="service_gpsdisabled">GPS 已禁用，日誌將是無效的。</string>
+    <string name="service_gpsenabled">GPS 已啟用， 開始記錄。</string>
+    <string name="service_connectiondisabled">網路被禁用，網路位置的日誌將是無效的。</string>
+    <string name="service_datadisabled">網路位置被禁用，日誌將是無效的。</string>
+    <string name="service_dataenabled">網路位置已啟用，開始記錄。</string>
     
     <!-- Dialogs -->
-    <string name="dialog_select_media_title">Select note</string>
-    <string name="dialog_select_media_message">Multiple notes were found at this location, please select one to open</string>
-    <string name="dialog_tracking_title">跟蹤控制</string>
+    <string name="dialog_select_media_title">選取註解</string>
+    <string name="dialog_select_media_message">對於這個位置發現了多個註解，請從中選取個來開啟。</string>
+    <string name="dialog_tracking_title">追蹤控制</string>
 	<string name="dialog_routename_title">命名路線</string>
     <string name="dialog_routename_message">請輸入此路線的名稱</string>
-    <string name="dialog_notrack_title">沒有選擇路線</string>
-    <string name="dialog_notrack_message">在匯出之前請選擇一個路線</string>
-    <string name="dialog_delete_title">移除路線</string>
-    <string name="dialog_delete_message">請確認此路線的移除操作</string>
+    <string name="dialog_routename_default">路線 %tY-%tm-%td %tH：%tM</string>
+    <string name="dialog_notrack_title">沒有選取路線</string>
+    <string name="dialog_notrack_message">在匯出之前請選取一個路線</string>
+    <string name="dialog_delete_title">刪除路線</string>
+    <string name="dialog_delete_message">請確認此路線的刪除操作</string>
     <string name="dialog_nooiabout">缺少 OI About</string>
-    <string name="dialog_nooiabout_message">需要來自 OpenIntents 項目的\"OI About\"程式來顯示關於資訊。</string>
+    <string name="dialog_nooiabout_message">本軟體需要來自 OpenIntents 項目的\"OI About\"程式來顯示關於訊息。</string>
     <string name="dialog_layer_title">啟動覆寫</string>
-    <string name="dialog_graphtype_title">Graph type</string>
-    <string name="dialog_notetext_title">Text note</string>
-    <string name="dialog_notetext_message">Enter a text note for the current location</string>
-    <string name="dialog_notename_title">Mark</string>
-    <string name="dialog_notename_message">Enter the name of this location</string>
-    <string name="logcontrol_start">開始跟蹤</string>
-    <string name="logcontrol_pause">暫停跟蹤</string>
-    <string name="logcontrol_resume">恢復跟蹤</string>
-    <string name="logcontrol_stop">停止跟蹤</string>
+    <string name="dialog_graphtype_title">圖類型</string>
+    <string name="dialog_notetext_title">文字附註</string>
+    <string name="dialog_notetext_message">為目前位置輸入一個文字附註</string>
+    <string name="dialog_notename_title">標記</string>
+    <string name="dialog_notename_message">為這個位置輸入一個名字</string>
+    <string name="logcontrol_start">開始追蹤</string>
+    <string name="logcontrol_pause">暫停追蹤</string>
+    <string name="logcontrol_resume">還原追蹤</string>
+    <string name="logcontrol_stop">停止追蹤</string>
     <string name="layer_satellite">衛星</string>
     <string name="layer_traffic">交通</string>
     <string name="layer_speed">速度</string>
-    <string name="layer_altitude">Altitude</string>
+    <string name="layer_altitude">海拔</string>
     <string name="layer_compass">指南針</string>
     <string name="layer_location">我的位置</string>
-    <string name="dialog_twidroid">twidroid missing</string>
-    <string name="dialog_twidroid_message">The application \"twidroid\" is required to tweet this line.</string>
-
-    <!-- Messages -->
-    <string name="from">記錄: </string>
-    <string name="no_tracks">無軌跡</string>
-    <string name="ticker_saving">儲存檔案: </string>
-    <string name="ticker_stored">存儲: </string>
-    <string name="ticker_failed">無法儲存檔案路線: </string>
-    <string name="error_filenotfound"> reason: Can not find file or directory on SD card</string>
-    <string name="error_filename"> 原因: 錯誤的檔案名</string>
-    <string name="error_buildxml"> 原因: 建立 XML 時出錯</string>
-    <string name="error_writesdcard"> 原因: 寫入到 SD 卡時出錯</string>
-    <string name="tweettext">%s: Traveled %s with an average speed of %s during %s #opengpstracker</string>
+    <string name="dialog_notwidroid">未找到 Twidroid</string>
+    <string name="dialog_notwidroid_message">Tweet此行需要軟體\"twidroid\"的支援。</string>
     
-	<!-- Buttons -->
+    <!-- Messages -->
+    <string name="from">記錄：</string>
+    <string name="no_tracks">無已儲存路線</string>
+    <string name="ticker_saving">儲存中：</string>
+    <string name="ticker_stored">已儲存：</string>
+    <string name="ticker_failed">無法儲存路線：</string>
+    <string name="error_filenotfound">原因：無法在SD卡上找到檔案或資料夾</string>
+    <string name="error_filename"> 原因：錯誤的檔案名</string>
+    <string name="error_buildxml"> 原因：建立 XML 時錯誤</string>
+    <string name="error_writesdcard"> 原因：寫入到 SD 卡時錯誤</string>
+    <string name="tweettext">%s： 已行進 %s 統計出的平均速度是 %s 在 %s #opengpstracker</string>
+    
+    <!-- Buttons -->
 	<string name="btn_okay">確認</string>
 	<string name="btn_cancel">取消</string>
-	<string name="btn_save">儲存檔案</string>
-	<string name="btn_selecttrack">選擇路線</string>
+	<string name="btn_save">儲存</string>
+	<string name="btn_selecttrack">選取路線</string>
     <string name="btn_install">安裝</string>
-    <string name="btn_skip">Skip</string>
+    <string name="btn_skip">跳過</string>
 	
-	<!-- Menu's -->
+    <!-- Menu's -->
 	<string name="menu_settings">設定</string>
-    <string name="menu_tracking">跟蹤</string>
+    <string name="menu_tracking">追蹤中</string>
 	<string name="menu_tracklist">列出路線</string>
 	<string name="menu_shareTrack">分享路線</string>
-	<string name="menu_deleteTrack">移除路線</string>
-    <string name="menu_renameTrack">更名路線</string>
-    <string name="menu_statistics">顯示統計</string>
+	<string name="menu_deleteTrack">刪除路線</string>
+    <string name="menu_renameTrack">重新命名路線</string>
+    <string name="menu_statistics">統計</string>
     <string name="menu_about">關於</string>
     <string name="menu_showLayers">覆寫</string>
-    <string name="menu_graphtype">Graph type</string>
-    <string name="menu_insertnote">Make note</string>
-    <string name="menu_notename">Mark with a name</string>
-    <string name="menu_notepicture">Take Picture</string>
-    <string name="menu_notetext">Write Text</string>
-    <string name="menu_notespeech">Record Speech</string>
-    <string name="menu_notevideo">Record Video</string>
-    <string name="graphtype_timespeed">Speed against time</string>
-    <string name="graphtype_timealtitude">Altitude against time</string>
-    <string name="graphtype_distancespeed">Speed against distance</string>
-    <string name="graphtype_distancealtitude">Altitude against distance</string>
+    <string name="menu_graphtype">圖類型</string>
+    <string name="menu_insertnote">做註解</string>
+    <string name="menu_notename">為註解取個名</string>
+    <string name="menu_notepicture">獲取一張圖片</string>
+    <string name="menu_notetext">寫下文字</string>
+    <string name="menu_notespeech">錄製語音</string>
+    <string name="menu_notevideo">錄製視頻</string>
+    <string name="graphtype_timespeed">速度/時間</string>
+    <string name="graphtype_timealtitude">海拔/時間</string>
+    <string name="graphtype_distancespeed">速度/距離</string>
+    <string name="graphtype_distancealtitude">海拔/距離</string>
 
     <!-- Communicated -->
-    <string name="email_subject">開啟舊檔 GPS 跟蹤器 - 跟蹤資料</string>
-    <string name="email_gpxbody">Attached is a track in GPS Exchange Format (GPX) format as described on http://www.topografix.com/gpx.asp</string>
-    <string name="email_kmzbody">Attached is a track in KMZ format as described on http://code.google.com/apis/kml/documentation/kml_tut.html</string>
-    <string name="kmlVideoUnsupported">Embedded video is not supported, please use a zip tools to retrieve the %s video file from the KMZ file.</string>
-    <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retrieve the %s audio file from the KMZ file.</string>
+    <string name="email_subject">開啟 GPS 追蹤器 - 追蹤資料</string>
+    <string name="email_gpxbody">附加的是一個在 GPS 交換格式(GPX)檔案中的路線，該格式的描述見：http：//www。topografix。com/gpx。asp</string>
+    <string name="email_kmzbody">附加的是一個在 KMZ 格式檔案中的路線，該格式的描述見：http：//code。google。com/apis/kml/documentation/kml_tut。html</string>
+    <string name="kmlVideoUnsupported">不支援視頻嵌入，請使用一個zip工具來從這個KMZ檔案中獲取視頻檔案 %s。</string>
+    <string name="kmlAudioUnsupported">不支援音頻嵌入，請使用一個zip工具來從這個KMZ檔案中獲取音頻檔案 %s。</string>
     
     <!-- Screens -->
-    <string name="share_track">Share this track</string>
-    <string name="share_explained">Sharing creates a track export with as much of the recorded data as possible.</string>
-    <string name="share_type">Choose format of shared track:</string>
-    <string name="share_name">Name of export:</string>
-    <string name="share_target">Means of sharing:</string>
-    <string name="sender_chooser">Choose sender application</string>
-    <string name="opengpstracker_title">開啟舊檔 GPS 跟蹤器</string>
+    <string name="share_track">分這個路線</string>
+    <string name="share_explained">分享建立一個匯出了包含盡可能多的路線記錄資料。</string>
+    <string name="share_type">選取要分享的路線的名字：</string>
+    <string name="share_name">匯出名：</string>
+    <string name="share_target">分享的方法：</string>
+    <string name="sender_chooser">選取傳送程式</string>
+    <string name="opengpstracker_title">開啟 GPS 追蹤器</string>
     <string name="opengpstracker_settings">設定</string>
     <string name="preference_display">顯示設定</string>
     <string name="preference_behavior">執行設定</string>
     <string name="logatstartup">在啟動時記錄</string>
-    <string name="logatstartup_summary">在程式啟動後開始記錄。</string>
-    <string name="startupatboot">Start up at boot</string>
-    <string name="startupatboot_summary">After starting the device, the logging service starts.</string>   
+    <string name="logatstartup_summary">在程式啟動後立即開始日誌服務進行記錄。</string>   
+    <string name="startupatboot">開機啟動</string>
+    <string name="startupatboot_summary">在設備啟動後，開啟日誌服務。</string>   
     <string name="disableblanking_title">禁止關屏</string>
-    <string name="disableblanking_summary">跟蹤時保持螢幕開啟舊檔。</string>       
+    <string name="disableblanking_summary">追蹤時保持屏幕開啟。</string>       
     <string name="precision_title">記錄精度</string>
     <string name="precision_summary">GPS 記錄點之間的間隔大小。</string>      
-    <string name="trackcoloring_title">路線色彩</string>
-    <string name="trackcoloring_summary">繪製路線使用的色彩。</string>
-    <string name="showsatellite_title">衛星影像</string>
-    <string name="showsatellite_summary">顯示谷歌地圖衛星視圖</string>
+    <string name="trackcoloring_title">路線顏色</string>
+    <string name="trackcoloring_summary">繪製路線使用的顏色。</string>
+    <string name="showsatellite_title">衛星圖像</string>
+    <string name="showsatellite_summary">顯示谷歌地圖衛星檢視</string>
     <string name="showtraffic_title">交通</string>
-    <string name="showtraffic_summary">顯示谷歌地圖交通資訊</string>
+    <string name="showtraffic_summary">顯示谷歌地圖交通訊息</string>
     <string name="showspeed_title">GPS 速度</string>
     <string name="showspeed_summary">顯示來自最後收到的 GPS 固定的速度。</string>
-    <string name="showaltitude_title">GPS altitude</string>
-    <string name="showaltitude_summary">Show the altitude from the last received GPS fix.</string>
+    <string name="showaltitude_title">GPS 海拔</string>
+    <string name="showaltitude_summary">顯示最後一次收到的 GPS 修正中的海拔。</string>
     <string name="showcompass_title">指南針</string>
-    <string name="showcompass_summary">顯示指針指向北的指南針</string>
-    <string name="sanitycheck_title">Speed and altitude sanity check </string>
-    <string name="sanitycheck_summary">Only accept reasonable GPS speeds and altitudes</string>
-    <string name="showlocation_title">My location </string>
-    <string name="showlocation_summary">Show my location on the map</string>
-    <string name="units_title">Units</string>
-    <string name="units_summary">Determine if metric or imperial units are used</string>
-    <string name="stat_title">Statistics - %s</string>
+    <string name="showcompass_summary">顯示指標指向北的指南針</string>
+    <string name="sanitycheck_title">速度和海拔完整性檢查</string>
+    <string name="sanitycheck_summary">僅接收合理的 GPS 速度和海拔</string>
+    <string name="showlocation_title">我的位置</string>
+    <string name="showlocation_summary">在地圖上顯示我的位置</string>
+    <string name="units_title">單位</string>
+    <string name="units_summary">決定使用的單位是公制還是英制</string>
+    <string name="stat_title">統計 - %s</string>
     <string name="stat_maximumspeed">最高速度</string>
     <string name="stat_maximumaltitude">最高海拔</string>
     <string name="stat_minimalaltitide">最低海拔</string>
     <string name="stat_overallaveragespeed">總平均速度</string>
     <string name="stat_averagespeed">平均速度</string>    
     <string name="stat_distance">路線距離</string>    
-    <string name="stat_endtime">前次時間</string>    
+    <string name="stat_endtime">上次時間</string>    
     <string name="stat_starttime">開始時間</string>    
     <string name="stat_trackname">路線名稱</string>
     <string name="stat_waypoints">路點數量</string>
-    <string name="track_list">Tracks</string>
-    <string name="search_label">Tracks</string>
-    <string name="search_description">Open GPS Tracker track names</string>
-    <string name="search_hint">Search tracks</string>
-
+    <string name="track_list">路線</string>
+    <string name="search_label">路線</string>
+    <string name="search_description">開啟 GPS 追蹤器的路線名</string>
+    <string name="search_hint">搜索路線</string>
+    
 <!-- ***************************
    About information
    ***************************-->
-   <string name="about_comments">透過 GPS, 程式可以記錄你裝置的移動。</string>
+   <string name="about_comments">通過 GPS， 程式可以記錄你設備的移動。</string>
    <string name="about_activity_name_extended">關於 %s</string>
-   <string name="no_information_available">沒有可用的資訊。</string>
+   <string name="no_information_available">沒有可用的訊息。</string>
    
 </resources>
