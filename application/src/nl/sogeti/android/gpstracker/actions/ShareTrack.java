@@ -242,7 +242,7 @@ public class ShareTrack extends Activity
       EndJob endJob = null;
       switch( target )
       {
-         case 1: 
+         case 0: 
             endJob = new EndJob()
             {
                public void shareFile( Uri fileUri, String contentType )
@@ -252,7 +252,7 @@ public class ShareTrack extends Activity
                }
             };
             break;
-         case 2:
+         case 1:
             endJob = new EndJob()
             {
                public void shareFile( Uri fileUri, String contentType )
@@ -268,8 +268,11 @@ public class ShareTrack extends Activity
             Log.e( TAG, "Unable to determine target for sharing KMZ "+target );
             break;
       }
-      KmzCreator kmzCreator = new KmzCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
-      kmzCreator.start();
+      if( endJob != null )
+      {
+         KmzCreator kmzCreator = new KmzCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
+         kmzCreator.start();
+      }
    }
 
    protected void exportGpx( String chosenFileName, int target )
@@ -277,7 +280,7 @@ public class ShareTrack extends Activity
       EndJob endJob = null;
       switch( target )
       {
-         case 1: 
+         case 0: 
             endJob = new EndJob()
             {
                public void shareFile( Uri fileUri, String contentType )
@@ -287,7 +290,7 @@ public class ShareTrack extends Activity
                }
             };
             break;
-         case 2:
+         case 1:
             endJob = new EndJob()
             {
                public void shareFile( Uri fileUri, String contentType )
@@ -303,8 +306,11 @@ public class ShareTrack extends Activity
             Log.e( TAG, "Unable to determine target for sharing GPX "+target );
             break;
       }
-      GpxCreator gpxCreator = new GpxCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
-      gpxCreator.start();
+      if( endJob != null )
+      {
+         GpxCreator gpxCreator = new GpxCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
+         gpxCreator.start();
+      }
    }
 
    protected void exportTextLine( String message, int target )

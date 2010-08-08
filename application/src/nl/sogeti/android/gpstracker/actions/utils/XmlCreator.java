@@ -72,38 +72,51 @@ public abstract class XmlCreator extends Thread
       mTrackUri = trackUri;
       mProgressListener = listener;
       
-      fileName = "UntitledTrack";
-      if( mChosenFileName != null && !mChosenFileName.equals( "" ) )
+      String trackName = extractCleanTrackName();
+      fileName = cleanFilename( mChosenFileName, trackName );
+   }
+
+   private String extractCleanTrackName()
+   {
+      Cursor trackCursor = null;
+      ContentResolver resolver = mContext.getContentResolver();
+      String trackName = "Untitled";
+      try
       {
-         fileName = cleanFilename( mChosenFileName );
+         trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
+         if( trackCursor.moveToLast() )
+         {
+            trackName = cleanFilename( trackCursor.getString( 0 ), trackName );
+         }
+      }
+      finally
+      {
+         if( trackCursor != null )
+         {
+            trackCursor.close();
+         }
+      }
+      return trackName;
+   }
+
+   /**
+    * Removes all non-word chars (\W) from the text 
+    * 
+    * @param fileName
+    * @param defaultName
+    * @return a string larger then 0 with either word chars remaining from the input or the default provided
+    */
+   public static String cleanFilename( String fileName, String defaultName )
+   {
+      if( fileName == null || "".equals( fileName ) )
+      {
+         fileName = defaultName;
       }
       else
       {
-         Cursor trackCursor = null;
-         ContentResolver resolver = mContext.getContentResolver();
-         try
-         {
-            trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
-            if( trackCursor.moveToLast() )
-            {
-               fileName = cleanFilename( trackCursor.getString( 0 ) );
-            }
-         }
-         finally
-         {
-            if( trackCursor != null )
-            {
-               trackCursor.close();
-            }
-         }
+         fileName = fileName.replaceAll("\\W", "");
+         fileName = (fileName.length() > 0) ? fileName : defaultName;
       }
-      
-   }
-
-   public static String cleanFilename( String fileName )
-   {
-      fileName = fileName.replaceAll("\\W", "");
-      Log.d( "CLEANED", fileName );
       return fileName;
    }
    
@@ -165,7 +178,7 @@ public abstract class XmlCreator extends Thread
          zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + extension;
       }
       String[] filenames = new File( mExportDirectoryPath ).list();
-//      Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
+      Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
       byte[] buf = new byte[1024];
       ZipOutputStream zos = null;
       try
