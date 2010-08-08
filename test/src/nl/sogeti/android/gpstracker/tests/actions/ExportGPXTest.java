@@ -70,7 +70,31 @@ public class ExportGPXTest extends TestCase
    public void testCleanFilename()
    {
       String dirty = "abc=+:;/123";
-      String clean = XmlCreator.cleanFilename( dirty );
+      String clean = XmlCreator.cleanFilename( dirty, "ERROR" );
       Assert.assertEquals( "Cleaned", "abc123" , clean );
+   }
+   
+   @SmallTest
+   public void testCleanFilenameEmpty()
+   {
+      String dirty = "";
+      String clean = XmlCreator.cleanFilename( dirty, "Untitled" );
+      Assert.assertEquals( "Cleaned", "Untitled" , clean );
+   }
+   
+   @SmallTest
+   public void testCleanFilenameNull()
+   {
+      String dirty = null;
+      String clean = XmlCreator.cleanFilename( dirty, "Untitled2" );
+      Assert.assertEquals( "Cleaned", "Untitled2" , clean );
+   }
+   
+   @SmallTest
+   public void testCleanFilenameAllSpecial()
+   {
+      String dirty = "!!??";
+      String clean = XmlCreator.cleanFilename( dirty, "Untitled3" );
+      Assert.assertEquals( "Cleaned", "Untitled3" , clean );
    }
 }
