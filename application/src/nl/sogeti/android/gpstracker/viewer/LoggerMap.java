@@ -981,23 +981,36 @@ public class LoggerMap extends MapActivity
                newName =  String.format( "Picture_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c );
                newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
                file.getParentFile().mkdirs();
-               file.renameTo( newFile );
-               
-               Bitmap bm = BitmapFactory.decodeFile( newFile.getAbsolutePath() );
-               String height = Integer.toString( bm.getHeight() );
-               String width = Integer.toString( bm.getWidth() );
-               bm.recycle();
-               bm = null;
-               builder = new Uri.Builder();
-               fileUri = builder.scheme( "file").
-                  appendEncodedPath( "/" ).
-                  appendEncodedPath( newFile.getAbsolutePath() ).
-                  appendQueryParameter( "width", width ).
-                  appendQueryParameter( "height", height )
-                  .build();
-               this.mLoggerServiceManager.storeMediaUri( fileUri );
-               mLastSegmentOverlay.calculateMedia();
-               mMapView.postInvalidate();
+               boolean isRenamed = file.renameTo( newFile );
+               if( isRenamed )
+               {
+                  Bitmap bm = BitmapFactory.decodeFile( newFile.getAbsolutePath() );
+                  if( bm != null )
+                  {
+                     String height = Integer.toString( bm.getHeight() );
+                     String width = Integer.toString( bm.getWidth() );
+                     bm.recycle();
+                     bm = null;
+                     builder = new Uri.Builder();
+                     fileUri = builder.scheme( "file").
+                        appendEncodedPath( "/" ).
+                        appendEncodedPath( newFile.getAbsolutePath() ).
+                        appendQueryParameter( "width", width ).
+                        appendQueryParameter( "height", height )
+                        .build();
+                     this.mLoggerServiceManager.storeMediaUri( fileUri );
+                     mLastSegmentOverlay.calculateMedia();
+                     mMapView.postInvalidate();
+                  }
+                  else
+                  {
+                     Log.e( TAG, "Failed to read image from: " + newFile.getAbsolutePath() );
+                  }
+               }
+               else
+               {
+                  Log.e( TAG, "Failed to rename image: " + file.getAbsolutePath() );
+               }
                break;
             case MENU_VIDEO:
                file = new File( sdcard + Constants.TMPICTUREFILE_PATH );               
