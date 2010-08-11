@@ -2,9 +2,6 @@ package nl.sogeti.android.gpstracker.viewer.proxy;
 
 import java.util.List;
 
-import org.andnav.osm.views.OpenStreetMapView;
-import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
-
 import android.view.View;
 
 import com.google.android.maps.GeoPoint;
@@ -17,8 +14,6 @@ public class MapViewProxy
    private MapControllerProxy mMapControllerProxy;
    private ProjectionProxy mProjectionProxy;
    
-   private OpenStreetMapView mOpenStreetMapView;
-
    public MapViewProxy( View view )
    {
       mProjectionProxy = new ProjectionProxy();
@@ -33,30 +28,6 @@ public class MapViewProxy
          mGoogleMapView = (MapView) newView;
          mMapControllerProxy.setController( mGoogleMapView.getController() );
          mProjectionProxy.setProjection( mGoogleMapView.getProjection() );
-         
-         if( mOpenStreetMapView != null )
-         {
-            GeoPoint mapCenter = new GeoPoint( mOpenStreetMapView.getMapCenterLatitudeE6(), mOpenStreetMapView.getMapCenterLongitudeE6() );
-            int zoomLevel = mOpenStreetMapView.getZoomLevel();
-            mMapControllerProxy.setCenter( mapCenter );
-            mMapControllerProxy.setZoom( zoomLevel );
-         }
-         mOpenStreetMapView = null;
-      }
-      else if( newView instanceof OpenStreetMapView )
-      {
-         mOpenStreetMapView = (OpenStreetMapView) newView;
-         mMapControllerProxy.setController( mOpenStreetMapView.getController() );
-         mProjectionProxy.setProjection( mOpenStreetMapView.getProjection() );
-         
-         if( mGoogleMapView != null )
-         {
-            GeoPoint mapCenter = mGoogleMapView.getMapCenter();
-            int zoomLevel = mGoogleMapView.getZoomLevel();
-            mMapControllerProxy.setCenter( mapCenter );
-            mMapControllerProxy.setZoom( zoomLevel );
-         }
-         mGoogleMapView = null;
       }
    }
    
@@ -65,10 +36,6 @@ public class MapViewProxy
       if( mGoogleMapView != null )
       {
          return mGoogleMapView;
-      }
-      if( mOpenStreetMapView != null )
-      {
-         return mOpenStreetMapView;
       }
       return null;
    }
@@ -213,10 +180,6 @@ public class MapViewProxy
       {
          return mGoogleMapView.getOverlays();
       }
-      if( mOpenStreetMapView != null )
-      {
-         return mOpenStreetMapView.getOverlays();
-      }
       return null;
    }
 
@@ -226,10 +189,6 @@ public class MapViewProxy
       {
          mGoogleMapView.getOverlays().clear();
       }
-      if( mOpenStreetMapView != null )
-      {
-         mOpenStreetMapView.getOverlays().clear();
-      }
    }
 
    public void addOverlay( Object overlay )
@@ -237,21 +196,6 @@ public class MapViewProxy
       if( mGoogleMapView != null && overlay instanceof Overlay )
       {
          mGoogleMapView.getOverlays().add( (Overlay) overlay );
-      }
-      else if( mOpenStreetMapView != null && overlay instanceof OpenStreetMapViewOverlay )
-      {
-         mOpenStreetMapView.getOverlays().add( (OpenStreetMapViewOverlay) overlay );
-      }
-      else if( overlay instanceof OverlayProxy )
-      {
-         if( mOpenStreetMapView != null )
-         {
-            mOpenStreetMapView.getOverlays().add( (OpenStreetMapViewOverlay) ((OverlayProxy) overlay).getOverlay() );
-         }
-         if( mGoogleMapView != null )
-         {
-            mGoogleMapView.getOverlays().add( (Overlay) ((OverlayProxy) overlay).getOverlay() );
-         }
       }
    }
 }

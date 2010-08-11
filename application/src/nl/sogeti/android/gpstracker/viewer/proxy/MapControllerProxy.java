@@ -1,6 +1,5 @@
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
-import org.andnav.osm.views.OpenStreetMapViewController;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
@@ -9,7 +8,6 @@ public class MapControllerProxy
 {
 
    private MapController mMapController;
-   private OpenStreetMapViewController mOpenStreetMapViewController;
 
    public MapControllerProxy()
    {
@@ -18,15 +16,9 @@ public class MapControllerProxy
    
    public void setController(Object controller)
    {
-      if( controller instanceof OpenStreetMapViewController )
-      {
-         mOpenStreetMapViewController = (OpenStreetMapViewController) controller;
-         mMapController = null;
-      }
       if( controller instanceof MapController )
       {
          mMapController = (MapController) controller;
-         mOpenStreetMapViewController = null;
       }
    }
 
@@ -36,10 +28,6 @@ public class MapControllerProxy
       {
          mMapController.setZoom( i );
       }
-      if( mOpenStreetMapViewController != null )
-      {
-         mOpenStreetMapViewController.setZoom( i );
-      }
    }
 
    public void animateTo( GeoPoint point )
@@ -48,10 +36,6 @@ public class MapControllerProxy
       {
          mMapController.animateTo( point );
       }
-      if( mOpenStreetMapViewController != null )
-      {
-         mOpenStreetMapViewController.animateTo( new org.andnav.osm.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
-      }
    }
 
    public boolean zoomIn()
@@ -59,10 +43,6 @@ public class MapControllerProxy
       if( mMapController != null )
       {
          return mMapController.zoomIn();
-      }
-      if( mOpenStreetMapViewController != null )
-      {
-         return mOpenStreetMapViewController.zoomIn();
       }
       return false;
    }
@@ -73,10 +53,6 @@ public class MapControllerProxy
       {
          return mMapController.zoomOut();
       }
-      if( mOpenStreetMapViewController != null )
-      {
-         return mOpenStreetMapViewController.zoomOut();
-      }
       return false;
    }
 
@@ -85,10 +61,6 @@ public class MapControllerProxy
       if( mMapController != null )
       {
          mMapController.setCenter( point );
-      }
-      if( mOpenStreetMapViewController != null )
-      {
-         mOpenStreetMapViewController.setCenter( new org.andnav.osm.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
       }
    }
 
