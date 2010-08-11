@@ -20,7 +20,6 @@
 package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;

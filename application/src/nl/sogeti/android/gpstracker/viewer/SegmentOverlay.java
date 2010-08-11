@@ -35,7 +35,6 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -111,7 +110,7 @@ public class SegmentOverlay extends Overlay
    private Point mPrevDrawnScreenPoint;
    private Point mScreenPoint;
    private int mStepSize = 1;
-   private MapViewProxy mMapView;
+   private MapView mMapView;
    private Location mLocation;
    private Location mPrevLocation;
    private Cursor mWaypointsCursor;
@@ -136,7 +135,7 @@ public class SegmentOverlay extends Overlay
     * @param avgSpeed
     * @param mMapView
     */
-   public SegmentOverlay(LoggerMap cxt, Uri segmentUri, int color, double avgSpeed, MapViewProxy mMapView)
+   public SegmentOverlay(LoggerMap cxt, Uri segmentUri, int color, double avgSpeed, MapView mMapView)
    {
       super();
       this.mLoggerMap = cxt;
