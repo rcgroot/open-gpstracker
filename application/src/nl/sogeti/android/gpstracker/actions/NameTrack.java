@@ -47,6 +47,7 @@ import android.content.Intent;
 import android.content.DialogInterface.OnDismissListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -60,6 +61,8 @@ import android.widget.EditText;
 public class NameTrack extends Activity
 {
    private static final int DIALOG_TRACKNAME = 23;
+
+   protected static final String TAG = "OGT.NameTrack";
 
    private EditText mTrackNameView;
 
@@ -77,11 +80,16 @@ public class NameTrack extends Activity
                ContentValues values = new ContentValues();
                values.put( Tracks.NAME, trackName );
                getContentResolver().update( ContentUris.withAppendedId( Tracks.CONTENT_URI, NameTrack.this.mTrackId ), values, null, null );
+               clearNotification();
+               break;
+            case DialogInterface.BUTTON_NEUTRAL:
+               startDelayNotification();
                break;
             case DialogInterface.BUTTON_NEGATIVE:
-               cancelNaming();
+               clearNotification();
                break;
             default:
+               Log.e( TAG, "Unknown option ending dialog:"+which );
                break;
          }
          finish();
@@ -90,9 +98,35 @@ public class NameTrack extends Activity
 
    };
    
-   private void cancelNaming()
+   
+   private void clearNotification()
    {
-      nameTrackNotification( R.string.dialog_routename_title );
+
+      NotificationManager noticationManager = (NotificationManager) this.getSystemService( Context.NOTIFICATION_SERVICE );;
+      noticationManager.cancel( R.layout.namedialog );
+   }
+   
+   private void startDelayNotification()
+   {
+      int resId = R.string.dialog_routename_title;
+      int icon = R.drawable.ic_maps_indicator_current_position;
+      CharSequence tickerText = getResources().getString( resId );
+      long when = System.currentTimeMillis();
+      
+      Notification nameNotification = new Notification( icon, tickerText, when );
+      nameNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+      
+      CharSequence contentTitle = getResources().getString( R.string.app_name );
+      CharSequence contentText = getResources().getString( resId );
+      
+      Intent notificationIntent = new Intent( this, NameTrack.class );
+      notificationIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ) );
+      
+      PendingIntent contentIntent = PendingIntent.getActivity( this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK );
+      nameNotification.setLatestEventInfo( this, contentTitle, contentText, contentIntent );
+      
+      NotificationManager noticationManager = (NotificationManager) this.getSystemService( Context.NOTIFICATION_SERVICE );
+      noticationManager.notify( R.layout.namedialog, nameNotification );
    }
    
    @Override
@@ -139,15 +173,15 @@ public class NameTrack extends Activity
                .setTitle( R.string.dialog_routename_title )
                .setMessage( R.string.dialog_routename_message )
                .setIcon( android.R.drawable.ic_dialog_alert )
-               .setNegativeButton( R.string.btn_skip, mTrackNameDialogListener )
                .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener )
+               .setNeutralButton( R.string.btn_skip, mTrackNameDialogListener )
+               .setNegativeButton( R.string.btn_cancel, mTrackNameDialogListener )
                .setView( view );
             dialog = builder.create();
             dialog.setOnDismissListener( new OnDismissListener()
             {
                public void onDismiss( DialogInterface dialog )
                {
-                  cancelNaming();
                   finish();
                }
             });
@@ -173,27 +207,6 @@ public class NameTrack extends Activity
             super.onPrepareDialog( id, dialog );
             break;
       }
-   }
-   
-   private void nameTrackNotification( int resId )
-   {
-      int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = getResources().getString( resId );
-      long when = System.currentTimeMillis();
-      Notification nameNotification = new Notification( icon, tickerText, when );
-      nameNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-      CharSequence contentTitle = getResources().getString( R.string.app_name );
-      CharSequence contentText = getResources().getString( resId );
-      
-      Intent notificationIntent = new Intent( this, NameTrack.class );
-      notificationIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ) );
-      
-      PendingIntent contentIntent = PendingIntent.getActivity( this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK );
-      nameNotification.setLatestEventInfo( this, contentTitle, contentText, contentIntent );
-
-      NotificationManager noticationManager = (NotificationManager) this.getSystemService( Context.NOTIFICATION_SERVICE );;
-      noticationManager.notify( R.id.icon, nameNotification );
-   }
+   }   
 }
    
