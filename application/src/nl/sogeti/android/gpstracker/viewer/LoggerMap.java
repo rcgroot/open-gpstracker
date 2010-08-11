@@ -577,32 +577,12 @@ public class LoggerMap extends MapActivity
       return nonConfigurationInstance;
    }
    
-   
-
-   /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onTrackballEvent(android.view.MotionEvent)
-    */
-   @Override
-   public boolean onTrackballEvent( MotionEvent event )
-   {
-      switch( event.getAction() )
-      {
-         case MotionEvent.ACTION_DOWN:
-            switchMapProvider();
-      }
-      return super.onTrackballEvent( event );
-   }
-
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
    {
       boolean propagate = true;
       switch (keyCode)
       {
-         case KeyEvent.KEYCODE_C:
-            switchMapProvider();
-            break;
          case KeyEvent.KEYCODE_T:
             propagate = this.mMapView.getController().zoomIn();
             break;
@@ -630,22 +610,6 @@ public class LoggerMap extends MapActivity
             break;
       }
       return propagate;
-   }
-
-   private void switchMapProvider()
-   {
-      findViewById( mActiveMap ).setVisibility( View.INVISIBLE );
-      if( mActiveMap == R.id.myMapView )
-      {
-         mActiveMap = R.id.myOsmMapView;
-         
-      }
-      else
-      {
-         mActiveMap = R.id.myMapView;
-      }
-      findViewById( mActiveMap ).setVisibility( View.VISIBLE );
-      mMapView.setMap( findViewById( mActiveMap ) );
    }
 
    private void setTrafficOverlay( boolean b )
