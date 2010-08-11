@@ -36,6 +36,7 @@ import java.nio.channels.FileChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -48,6 +49,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 public abstract class XmlCreator extends Thread
 {
@@ -155,6 +157,20 @@ public abstract class XmlCreator extends Thread
       }
 
       return target.getName();
+   }
+   
+   /**
+    * Just to start failing early
+    * 
+    * @throws IOException
+    */
+   protected void verifySdCardAvailibility() throws IOException
+   {
+      String state = Environment.getExternalStorageState();
+      if( !Environment.MEDIA_MOUNTED.equals( state ) )
+      {
+         throw new IOException("The ExternalStorage is not mounted, unable to export files for sharing.");
+      }
    }
 
    /**

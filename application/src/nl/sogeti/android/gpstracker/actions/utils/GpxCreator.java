@@ -102,6 +102,7 @@ public class GpxCreator extends XmlCreator
          setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
          xmlFilePath = getExportDirectoryPath() + "/" + fileName + ".gpx";
       }
+      
       new File( getExportDirectoryPath() ).mkdirs();
 
       if( mProgressListener != null )
@@ -115,6 +116,8 @@ public class GpxCreator extends XmlCreator
       BufferedOutputStream buf = null;
       try
       {
+         verifySdCardAvailibility();
+         
          XmlSerializer serializer = Xml.newSerializer();
          File xmlFile = new File( xmlFilePath );
          fos = new FileOutputStream( xmlFile );
@@ -142,35 +145,35 @@ public class GpxCreator extends XmlCreator
 
          fileName = new File( resultFilename ).getName();
 
-         CharSequence text = mContext.getString( R.string.ticker_stored ) + "\"" + fileName + "\"";
-         Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_SHORT );
+         CharSequence text = mContext.getString( R.string.ticker_stored ) + " \"" + fileName + "\" ";
+         Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( FileNotFoundException e )
       {
          Log.e( TAG, "Unable to save ", e );
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_filenotfound );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_filenotfound );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( IllegalArgumentException e )
       {
          Log.e( TAG, "Unable to save ", e );
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_filename );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_filename );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( IllegalStateException e )
       {
          Log.e( TAG, "Unable to save ", e );
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_buildxml );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_buildxml );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( IOException e )
       {
          Log.e( TAG, "Unable to save ", e );
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + "\"" + xmlFilePath + "\"" + mContext.getString( R.string.error_writesdcard );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_writesdcard );
          Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
          toast.show();
       }
