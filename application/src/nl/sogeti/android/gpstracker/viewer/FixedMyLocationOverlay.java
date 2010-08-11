@@ -65,10 +65,12 @@ public class FixedMyLocationOverlay extends MyLocationOverlay {
 
       if (bugged) {
          if (drawable == null) {
-            accuracyPaint = new Paint();
-            accuracyPaint.setAntiAlias(true);
-            accuracyPaint.setStrokeWidth(2.0f);
-            
+            if( accuracyPaint == null )
+            {
+               accuracyPaint = new Paint();
+               accuracyPaint.setAntiAlias(true);
+               accuracyPaint.setStrokeWidth(2.0f);
+            }
             drawable = mapView.getContext().getResources().getDrawable(R.drawable.mylocation);
             width = drawable.getIntrinsicWidth();
             height = drawable.getIntrinsicHeight();

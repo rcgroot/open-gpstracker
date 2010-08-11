@@ -122,6 +122,10 @@ public class SegmentOverlay extends Overlay
 //   private Canvas mDebugCanvas;
    private GeoPoint mPrevGeoPoint;
    private int mCurrentColor;
+   private Paint dotpaint;
+   private Paint radiusPaint;
+   private Paint routePaint;
+   private Paint defaultPaint;
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -145,6 +149,17 @@ public class SegmentOverlay extends Overlay
       this.mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
       this.mMediaPath = new Vector<MediaVO>();
       this.mCurrentColor = Color.rgb( 255, 0, 0 );
+      
+      dotpaint = new Paint();
+      radiusPaint = new Paint();
+      radiusPaint.setColor( Color.YELLOW );
+      radiusPaint.setAlpha( 100 );
+      routePaint = new Paint();
+      routePaint.setStyle( Paint.Style.STROKE );
+      routePaint.setStrokeWidth( 6 );
+      routePaint.setAntiAlias( true );
+      routePaint.setPathEffect( new CornerPathEffect( 10 ) );
+      defaultPaint = new Paint();
       
       Cursor waypointsCursor = null;
       try
@@ -295,11 +310,6 @@ public class SegmentOverlay extends Overlay
 
    private synchronized void drawDots( Canvas canvas )
    {
-      Paint dotpaint = new Paint();
-      Paint radiusPaint = new Paint();
-      radiusPaint.setColor( Color.YELLOW );
-      radiusPaint.setAlpha( 100 );
-
       for( DotVO dotVO : mDotPath )
       {
          Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
@@ -397,8 +407,6 @@ public class SegmentOverlay extends Overlay
     */
    private synchronized void drawPath( Canvas canvas )
    {
-      Paint routePaint = new Paint();
-      routePaint.setPathEffect( new CornerPathEffect( 10 ) );
       switch( mTrackColoringMethod )
       {
          case ( DRAW_CALCULATED ):
@@ -406,18 +414,18 @@ public class SegmentOverlay extends Overlay
             routePaint.setShader( this.mShader );
             break;
          case ( DRAW_RED ):
+            routePaint.setShader( null );
             routePaint.setColor( Color.RED );
             break;
          case ( DRAW_GREEN ):
+            routePaint.setShader( null );
             routePaint.setColor( Color.GREEN );
             break;
          default:
+            routePaint.setShader( null );
             routePaint.setColor( Color.YELLOW );
             break;
       }
-      routePaint.setStyle( Paint.Style.STROKE );
-      routePaint.setStrokeWidth( 6 );
-      routePaint.setAntiAlias( true );
       canvas.drawPath( this.mPath, routePaint );
    }
 
@@ -497,7 +505,7 @@ public class SegmentOverlay extends Overlay
             int up = ( mediaVO.h * 6 ) / 7 - wiggle;
             mediaVO.x = mScreenPoint.x - left;
             mediaVO.y = mScreenPoint.y - up;
-            canvas.drawBitmap( bitmap,mediaVO.x, mediaVO.y, new Paint() );
+            canvas.drawBitmap( bitmap,mediaVO.x, mediaVO.y, defaultPaint );
             lastPoint = mediaVO.geopoint;
          }
       }
@@ -542,13 +550,13 @@ public class SegmentOverlay extends Overlay
       {
          setScreenPoint( this.mStartPoint );
          bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
-         canvas.drawBitmap( bitmap, mScreenPoint.x - 8, mScreenPoint.y - 8, new Paint() );
+         canvas.drawBitmap( bitmap, mScreenPoint.x - 8, mScreenPoint.y - 8, defaultPaint );
       }
       if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
       {
          setScreenPoint( this.mEndPoint );
          bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip );
-         canvas.drawBitmap( bitmap, mScreenPoint.x - 5, mScreenPoint.y - 5, new Paint() );
+         canvas.drawBitmap( bitmap, mScreenPoint.x - 5, mScreenPoint.y - 5, defaultPaint );
       }
    }
 

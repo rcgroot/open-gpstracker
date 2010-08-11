@@ -89,22 +89,57 @@ public class GraphCanvas extends View
    private boolean calculating;
    float density = Resources.getSystem().getDisplayMetrics().density;
    
-   public GraphCanvas(Context context)
-   {
-      super(context);
-      mContext = context;
-   }
-   
+   private Paint whiteText ;
+   private Paint ltgreyMatrixDashed;
+   private Paint greenGraphLine;
+   private Paint dkgreyMatrixLine;
+   private Paint whiteCenteredText;
+   private Paint dkgrayLargeType;
+      
    public GraphCanvas( Context context, AttributeSet attrs )
    {
-      super(context, attrs);
-      mContext = context;
+      this(context, attrs, 0);
    }
    
    public GraphCanvas( Context context, AttributeSet attrs, int defStyle )
    {
       super(context, attrs, defStyle);
+      
       mContext = context;
+      
+      whiteText = new Paint();
+      whiteText.setColor( Color.WHITE );
+      whiteText.setAntiAlias( true );
+      whiteText.setTextSize( (int)(density * 12)  );
+      
+      whiteCenteredText = new Paint();
+      whiteCenteredText.setColor( Color.WHITE );
+      whiteCenteredText.setAntiAlias( true );
+      whiteCenteredText.setTextAlign( Paint.Align.CENTER );
+      whiteCenteredText.setTextSize( (int)(density * 12)  );
+      
+      ltgreyMatrixDashed = new Paint();
+      ltgreyMatrixDashed.setColor( Color.LTGRAY );
+      ltgreyMatrixDashed.setStrokeWidth( 1 );
+      ltgreyMatrixDashed.setPathEffect( new DashPathEffect( new float[]{2,4}, 0 ) );
+      
+      greenGraphLine = new Paint();
+      greenGraphLine.setPathEffect( new CornerPathEffect( 8 ) );
+      greenGraphLine.setStyle( Paint.Style.STROKE );
+      greenGraphLine.setStrokeWidth( 4 );
+      greenGraphLine.setAntiAlias( true );
+      greenGraphLine.setColor(Color.GREEN);
+      
+      dkgreyMatrixLine = new Paint();
+      dkgreyMatrixLine.setColor( Color.DKGRAY );
+      dkgreyMatrixLine.setStrokeWidth( 2 );
+      
+      dkgrayLargeType = new Paint();
+      dkgrayLargeType.setColor( Color.LTGRAY );
+      dkgrayLargeType.setAntiAlias( true );
+      dkgrayLargeType.setTextAlign( Paint.Align.CENTER );
+      dkgrayLargeType.setTextSize( (int)(density * 21) );
+      dkgrayLargeType.setTypeface( Typeface.DEFAULT_BOLD );
    }
    
    /**
@@ -427,24 +462,16 @@ public class GraphCanvas extends View
 
    private void drawAltitudesTexts()
    {
-      Paint white = new Paint();
-      white.setColor( Color.WHITE );
-      white.setAntiAlias( true );
-      white.setTextSize( (int)(density * 12)  );
-      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getHeightUnit() )  , 8,  mHeight, white );
-      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getHeightUnit() ) , 8,  5+mHeight/2, white );
-      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getHeightUnit() ), 8,  15, white );
+      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getHeightUnit() )  , 8,  mHeight, whiteText );
+      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getHeightUnit() ) , 8,  5+mHeight/2, whiteText );
+      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getHeightUnit() ), 8,  15, whiteText );
    }
 
    private void drawSpeedsTexts()
    {
-      Paint white = new Paint();
-      white.setColor( Color.WHITE );
-      white.setAntiAlias( true );
-      white.setTextSize( (int)(density * 12)  );
-      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getSpeedUnit() )              , 8,  mHeight, white );
-      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getSpeedUnit() ) , 8,  3+mHeight/2, white );
-      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getSpeedUnit() )              , 8,  7+white.getTextSize(), white );
+      mRenderCanvas.drawText( String.format( "%d %s", mMinAxis, mUnits.getSpeedUnit() )              , 8,  mHeight, whiteText );
+      mRenderCanvas.drawText( String.format( "%d %s", (mMaxAxis+mMinAxis)/2, mUnits.getSpeedUnit() ) , 8,  3+mHeight/2, whiteText );
+      mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getSpeedUnit() )              , 8,  7+whiteText.getTextSize(), whiteText );
    }
    
    private void drawTimeTexts()
@@ -453,37 +480,25 @@ public class GraphCanvas extends View
       String start = timeInstance.format( new Date( mStartTime ) );
       String half  = timeInstance.format( new Date( (mEndTime+mStartTime)/2 ) );
       String end   = timeInstance.format( new Date( mEndTime ) );
-      
-      Paint white = new Paint();
-      white.setColor( Color.WHITE );
-      white.setAntiAlias( true );
-      white.setTextAlign( Paint.Align.CENTER );
-      white.setTextSize( (int)(density * 12)  );
-      
+           
       Path yAxis;
       yAxis = new Path();
       yAxis.moveTo( 5, 5+mHeight/2 );
       yAxis.lineTo( 5, 5 );
-      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, white.getTextSize(), white );
+      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, whiteCenteredText.getTextSize(), whiteCenteredText );
       yAxis = new Path();
       yAxis.moveTo( 5+mWidth/2  , 5+mHeight/2 );
       yAxis.lineTo( 5+mWidth/2  , 5 );
-      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, white );
+      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, whiteCenteredText );
       yAxis = new Path();
       yAxis.moveTo( 5+mWidth-1  , 5+mHeight/2  );
       yAxis.lineTo( 5+mWidth-1  , 5 );
-      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, white );
+      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, whiteCenteredText );
    }
    
    private void drawGraphType()
    {
       float density = Resources.getSystem().getDisplayMetrics().density;
-      Paint dkgray = new Paint();
-      dkgray.setColor( Color.LTGRAY );
-      dkgray.setAntiAlias( true );
-      dkgray.setTextAlign( Paint.Align.CENTER );
-      dkgray.setTextSize( (int)(density * 21) );
-      dkgray.setTypeface( Typeface.DEFAULT_BOLD );
       String text;
       switch( mGraphType )
       {
@@ -503,7 +518,7 @@ public class GraphCanvas extends View
             text = "UNKNOWN GRAPH TYPE";
             break;
       }
-      mRenderCanvas.drawText( text, 5+mWidth/2, 5+mHeight/8, dkgray );
+      mRenderCanvas.drawText( text, 5+mWidth/2, 5+mHeight/8, dkgrayLargeType );
       
    }
    private void drawDistanceTexts()
@@ -512,25 +527,19 @@ public class GraphCanvas extends View
       String half  = String.format( "%.0f %s", mUnits.conversionFromMeter( mDistance/2), mUnits.getDistanceUnit() ) ;
       String end   = String.format( "%.0f %s", mUnits.conversionFromMeter( mDistance), mUnits.getDistanceUnit() ) ;
       
-      Paint white = new Paint();
-      white.setColor( Color.WHITE );
-      white.setAntiAlias( true );
-      white.setTextAlign( Paint.Align.CENTER );
-      white.setTextSize( (int)(density * 12)  );
-      
       Path yAxis;
       yAxis = new Path();
       yAxis.moveTo( 5, 5+mHeight/2 );
       yAxis.lineTo( 5, 5 );
-      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, white.getTextSize(), white );
+      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, whiteText.getTextSize(), whiteText );
       yAxis = new Path();
       yAxis.moveTo( 5+mWidth/2  , 5+mHeight/2 );
       yAxis.lineTo( 5+mWidth/2  , 5 );
-      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, white );
+      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, whiteText );
       yAxis = new Path();
       yAxis.moveTo( 5+mWidth-1  , 5+mHeight/2  );
       yAxis.lineTo( 5+mWidth-1  , 5 );
-      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, white );
+      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, whiteText );
    }
 
    private double translateValue( double val )
@@ -555,28 +564,18 @@ public class GraphCanvas extends View
    private void drawGraph( double[][] values, int[][] valueDepth )
    {
       // Matrix
-      Paint ltgrey = new Paint();
-      ltgrey.setColor( Color.LTGRAY );
-      ltgrey.setStrokeWidth( 1 );
       // Horizontals
-      ltgrey.setPathEffect( new DashPathEffect( new float[]{2,4}, 0 ) );
-      mRenderCanvas.drawLine( 5, 5            , 5+mWidth, 5            , ltgrey ); // top
-      mRenderCanvas.drawLine( 5, 5+mHeight/4  , 5+mWidth, 5+mHeight/4  , ltgrey ); // 2nd
-      mRenderCanvas.drawLine( 5, 5+mHeight/2  , 5+mWidth, 5+mHeight/2  , ltgrey ); // middle
-      mRenderCanvas.drawLine( 5, 5+mHeight/4*3, 5+mWidth, 5+mHeight/4*3, ltgrey ); // 3rd
+      mRenderCanvas.drawLine( 5, 5            , 5+mWidth, 5            , ltgreyMatrixDashed ); // top
+      mRenderCanvas.drawLine( 5, 5+mHeight/4  , 5+mWidth, 5+mHeight/4  , ltgreyMatrixDashed ); // 2nd
+      mRenderCanvas.drawLine( 5, 5+mHeight/2  , 5+mWidth, 5+mHeight/2  , ltgreyMatrixDashed ); // middle
+      mRenderCanvas.drawLine( 5, 5+mHeight/4*3, 5+mWidth, 5+mHeight/4*3, ltgreyMatrixDashed ); // 3rd
       // Verticals
-      mRenderCanvas.drawLine( 5+mWidth/4  , 5, 5+mWidth/4  , 5+mHeight, ltgrey ); // 2nd
-      mRenderCanvas.drawLine( 5+mWidth/2  , 5, 5+mWidth/2  , 5+mHeight, ltgrey ); // middle
-      mRenderCanvas.drawLine( 5+mWidth/4*3, 5, 5+mWidth/4*3, 5+mHeight, ltgrey ); // 3rd
-      mRenderCanvas.drawLine( 5+mWidth-1  , 5, 5+mWidth-1  , 5+mHeight, ltgrey ); // right
+      mRenderCanvas.drawLine( 5+mWidth/4  , 5, 5+mWidth/4  , 5+mHeight, ltgreyMatrixDashed ); // 2nd
+      mRenderCanvas.drawLine( 5+mWidth/2  , 5, 5+mWidth/2  , 5+mHeight, ltgreyMatrixDashed ); // middle
+      mRenderCanvas.drawLine( 5+mWidth/4*3, 5, 5+mWidth/4*3, 5+mHeight, ltgreyMatrixDashed ); // 3rd
+      mRenderCanvas.drawLine( 5+mWidth-1  , 5, 5+mWidth-1  , 5+mHeight, ltgreyMatrixDashed ); // right
       
       // The line
-      Paint routePaint = new Paint();
-      routePaint.setPathEffect( new CornerPathEffect( 8 ) );
-      routePaint.setStyle( Paint.Style.STROKE );
-      routePaint.setStrokeWidth( 4 );
-      routePaint.setAntiAlias( true );
-      routePaint.setColor(Color.GREEN);
       Path mPath;
       int emptyValues = 0;
       mPath = new Path();
@@ -609,14 +608,11 @@ public class GraphCanvas extends View
             }
          }
       }
-      mRenderCanvas.drawPath( mPath, routePaint );
+      mRenderCanvas.drawPath( mPath, greenGraphLine );
       
       // Axis's
-      Paint dkgrey = new Paint();
-      dkgrey.setColor( Color.DKGRAY );
-      dkgrey.setStrokeWidth( 2 );
-      mRenderCanvas.drawLine( 5, 5       , 5       , 5+mHeight, dkgrey );
-      mRenderCanvas.drawLine( 5, 5+mHeight, 5+mWidth, 5+mHeight, dkgrey );
+      mRenderCanvas.drawLine( 5, 5       , 5       , 5+mHeight, dkgreyMatrixLine );
+      mRenderCanvas.drawLine( 5, 5+mHeight, 5+mWidth, 5+mHeight, dkgreyMatrixLine );
    }
 
 }
