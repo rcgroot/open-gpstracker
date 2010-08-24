@@ -65,6 +65,7 @@ public class NameTrack extends Activity
    protected static final String TAG = "OGT.NameTrack";
 
    private EditText mTrackNameView;
+   private boolean paused;
 
    protected long mTrackId = -1;
    
@@ -134,12 +135,20 @@ public class NameTrack extends Activity
    {
       super.onCreate( savedInstanceState );
       this.setVisible( false );
+      paused = false;
       
       Uri data = this.getIntent().getData();
       if( data != null )
       {
          mTrackId = Long.parseLong( data.getLastPathSegment() );
       }
+   }
+   
+   @Override
+   protected void onPause()
+   {
+      super.onPause();
+      paused = true;
    }
    
    /*
@@ -182,7 +191,10 @@ public class NameTrack extends Activity
             {
                public void onDismiss( DialogInterface dialog )
                {
-                  finish();
+                  if( !paused )
+                  {
+                     finish();
+                  }
                }
             });
             return dialog;
