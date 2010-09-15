@@ -36,7 +36,6 @@ import java.nio.channels.FileChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -49,12 +48,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 public abstract class XmlCreator extends Thread
 {
-   
-   @SuppressWarnings("unused")
    private String TAG = "OGT.XmlCreator";
    private String mExportDirectoryPath;
    private int mProgress = 0;
@@ -194,7 +190,6 @@ public abstract class XmlCreator extends Thread
          zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + extension;
       }
       String[] filenames = new File( mExportDirectoryPath ).list();
-      Log.d( TAG, String.format( "Creating zip from %s into zip file %s", mExportDirectoryPath, zipFilePath ) );
       byte[] buf = new byte[1024];
       ZipOutputStream zos = null;
       try

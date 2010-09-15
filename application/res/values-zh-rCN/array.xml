@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <string-array name="state_choices">
         <item>运行</item>
@@ -43,37 +43,6 @@
         <item>Twidroid tweet</item>
         <item>短信</item>
         <item>通用文本发送</item>
-    </string-array>
-    
-    <string-array name="precision_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-    
-    <string-array name="trackcoloring_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-    </string-array>  
-
-    <string-array name="units_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <string-array name="about_authors" translatable="false"><!-- Add your name here if you helped out -->
-        <item>René de Groot</item>
-        <item>Tom Van Braeckel</item>
-    </string-array>
-
-    <string-array name="about_documenters" translatable="false">
-        <item>René de Groot</item>
     </string-array>
 
     <string-array name="about_artists" translatable="false">

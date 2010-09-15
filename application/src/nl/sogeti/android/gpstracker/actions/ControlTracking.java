@@ -34,15 +34,14 @@ import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.ContentUris;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -65,6 +64,7 @@ public class ControlTracking extends Activity
    private Button pause;
    private Button resume;
    private Button stop;
+   private boolean paused;
 
    private final View.OnClickListener mLoggingControlListener = new View.OnClickListener()
       {
@@ -112,6 +112,7 @@ public class ControlTracking extends Activity
    {
       super.onCreate( savedInstanceState );
       this.setVisible( false );
+      paused = false;
       mLoggerServiceManager = new GPSLoggerServiceManager( this );
    }
 
@@ -133,6 +134,7 @@ public class ControlTracking extends Activity
    {
       super.onPause();
       mLoggerServiceManager.shutdown();
+      paused = true;
    }
 
    @Override
@@ -148,7 +150,10 @@ public class ControlTracking extends Activity
             builder = new AlertDialog.Builder( this );
             factory = LayoutInflater.from( this );
             view = factory.inflate( R.layout.logcontrol, null );
-            builder.setTitle( R.string.dialog_tracking_title ).setIcon( android.R.drawable.ic_dialog_alert ).setNegativeButton( R.string.btn_cancel, mDialogClickListener ).setView( view );
+            builder.setTitle( R.string.dialog_tracking_title ).
+            setIcon( android.R.drawable.ic_dialog_alert ).
+            setNegativeButton( R.string.btn_cancel, mDialogClickListener ).
+            setView( view );
             dialog = builder.create();
             start = (Button) view.findViewById( R.id.logcontrol_start );
             pause = (Button) view.findViewById( R.id.logcontrol_pause );
@@ -162,7 +167,10 @@ public class ControlTracking extends Activity
                {
                   public void onDismiss( DialogInterface dialog )
                   {
-                     finish();
+                     if( !paused )
+                     {
+                        finish();
+                     }
                   }
                });
             return dialog;
@@ -188,6 +196,8 @@ public class ControlTracking extends Activity
       }
       super.onPrepareDialog( id, dialog );
    }
+   
+    
 
    private void updateDialogState( int state )
    {

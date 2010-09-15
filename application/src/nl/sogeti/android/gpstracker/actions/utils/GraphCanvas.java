@@ -40,6 +40,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.CornerPathEffect;
@@ -47,7 +48,6 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
-import android.graphics.Bitmap.Config;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;
@@ -498,7 +498,7 @@ public class GraphCanvas extends View
    
    private void drawGraphType()
    {
-      float density = Resources.getSystem().getDisplayMetrics().density;
+      //float density = Resources.getSystem().getDisplayMetrics().density;
       String text;
       switch( mGraphType )
       {

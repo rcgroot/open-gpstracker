@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import java.io.File;
+import java.lang.annotation.Target;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
@@ -66,6 +67,14 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 public class ShareTrack extends Activity
 {
+   private static final int EXPORT_TYPE_KMZ = 0;
+   private static final int EXPORT_TYPE_GPX = 1;
+   private static final int EXPORT_TYPE_TEXTLINE = 2;
+   private static final int EXPORT_TARGET_SAVE = 0;
+   private static final int EXPORT_TARGET_SEND = 1;
+   private static final int EXPORT_TYPE_TWITDRIOD = 0;
+   private static final int EXPORT_TYPE_SMS = 1;
+   private static final int EXPORT_TYPE_TEXT = 2;
 
    protected static final int DIALOG_FILENAME = 11;
    protected static final int PROGRESS_STEPS = 10;
@@ -84,93 +93,94 @@ public class ShareTrack extends Activity
    private Uri mTrackUri;
    private StatisticsCalulator calculator;
    private OnClickListener mTwidroidDialogListener = new DialogInterface.OnClickListener()
-   {
-      public void onClick( DialogInterface dialog, int which )
       {
-         Uri twidroidUri = Uri.parse( "market://details?id=com.twidroid" );
-         Intent getTwidroid = new Intent( Intent.ACTION_VIEW, twidroidUri );
-         try
+         public void onClick(DialogInterface dialog, int which)
          {
-            startActivity( getTwidroid );
+            Uri twidroidUri = Uri.parse("market://details?id=com.twidroid");
+            Intent getTwidroid = new Intent(Intent.ACTION_VIEW, twidroidUri);
+            try
+            {
+               startActivity(getTwidroid);
+            }
+            catch (ActivityNotFoundException e)
+            {
+               twidroidUri = Uri.parse("http://twidroid.com/download/");
+               getTwidroid = new Intent(Intent.ACTION_VIEW, twidroidUri);
+               startActivity(getTwidroid);
+            }
          }
-         catch (ActivityNotFoundException e)
-         {
-            twidroidUri = Uri.parse( "http://twidroid.com/download/" );
-            getTwidroid = new Intent( Intent.ACTION_VIEW, twidroidUri );
-            startActivity( getTwidroid );
-         }
-      }
-   };
+      };
 
    @Override
-   public void onCreate( Bundle savedInstanceState )
+   public void onCreate(Bundle savedInstanceState)
    {
-      super.onCreate( savedInstanceState );
-      setContentView( R.layout.sharedialog );
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.sharedialog);
 
       mTrackUri = getIntent().getData();
-      mFileNameView = (EditText) findViewById( R.id.fileNameField );
-      mTweetView = (EditText) findViewById( R.id.tweetField );
-      
-      mShareTypeSpinner = (Spinner) findViewById( R.id.shareTypeSpinner );
-      ArrayAdapter<CharSequence> shareTypeAdapter = ArrayAdapter.createFromResource( this, R.array.sharetype_choices, android.R.layout.simple_spinner_item );
-      shareTypeAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
-      mShareTypeSpinner.setAdapter( shareTypeAdapter );
-      mShareTypeSpinner.setSelection( 0 );
+      mFileNameView = (EditText) findViewById(R.id.fileNameField);
+      mTweetView = (EditText) findViewById(R.id.tweetField);
 
-      mShareTargetSpinner = (Spinner) findViewById( R.id.shareTargetSpinner );
-      mShareTypeSpinner.setOnItemSelectedListener( new OnItemSelectedListener()
+      mShareTypeSpinner = (Spinner) findViewById(R.id.shareTypeSpinner);
+      ArrayAdapter<CharSequence> shareTypeAdapter = ArrayAdapter.createFromResource(this, R.array.sharetype_choices, android.R.layout.simple_spinner_item);
+      shareTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+      mShareTypeSpinner.setAdapter(shareTypeAdapter);
+      mShareTypeSpinner.setSelection(EXPORT_TYPE_KMZ);
+
+      mShareTargetSpinner = (Spinner) findViewById(R.id.shareTargetSpinner);
+      mShareTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
          {
-            public void onItemSelected( AdapterView< ? > arg0, View arg1, int position, long arg3 )
+            public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
             {
-               switch( position )
+               switch (position)
                {
-                  case 0: //KMZ
+                  case EXPORT_TYPE_KMZ:
                      setXmlExportTargets();
-                     mFileNameView.setVisibility( View.VISIBLE );
-                     mTweetView.setVisibility( View.GONE );
+                     mFileNameView.setVisibility(View.VISIBLE);
+                     mTweetView.setVisibility(View.GONE);
                      break;
-                  case 1: //GPX
+                  case EXPORT_TYPE_GPX:
                      setXmlExportTargets();
-                     mFileNameView.setVisibility( View.VISIBLE );
-                     mTweetView.setVisibility( View.GONE );
+                     mFileNameView.setVisibility(View.VISIBLE);
+                     mTweetView.setVisibility(View.GONE);
                      break;
-                  case 2: //Line of text
+                  case EXPORT_TYPE_TEXTLINE:
                      setTextLineExportTargets();
-                     mFileNameView.setVisibility( View.GONE );
-                     mTweetView.setVisibility( View.VISIBLE );
+                     mFileNameView.setVisibility(View.GONE);
+                     mTweetView.setVisibility(View.VISIBLE);
                   default:
                      break;
                }
             }
-            public void onNothingSelected( AdapterView< ? > arg0 )
+
+            public void onNothingSelected(AdapterView< ? > arg0)
             { /* NOOP */
             }
-         } );
+         });
 
       setXmlExportTargets();
 
-      calculator = new StatisticsCalulator( this, new UnitsI18n( this, null ) );
-      mFileNameView.setText( createFileName() );
-      mTweetView.setText( createTweetText() );
+      calculator = new StatisticsCalulator(this, new UnitsI18n(this, null));
+      mFileNameView.setText(createFileName());
+      mTweetView.setText(createTweetText());
 
-      Button okay = (Button) findViewById( R.id.okayshare_button );
-      okay.setOnClickListener( new View.OnClickListener()
+      Button okay = (Button) findViewById(R.id.okayshare_button);
+      okay.setOnClickListener(new View.OnClickListener()
          {
-            public void onClick( View v )
+            public void onClick(View v)
             {
                share();
             }
-         } );
+         });
 
-      Button cancel = (Button) findViewById( R.id.cancelshare_button );
-      cancel.setOnClickListener( new View.OnClickListener()
+      Button cancel = (Button) findViewById(R.id.cancelshare_button);
+      cancel.setOnClickListener(new View.OnClickListener()
          {
-            public void onClick( View v )
+            public void onClick(View v)
             {
                ShareTrack.this.finish();
             }
-         } );
+         });
    }
 
    /*
@@ -178,212 +188,202 @@ public class ShareTrack extends Activity
     * @see android.app.Activity#onCreateDialog(int)
     */
    @Override
-   protected Dialog onCreateDialog( int id )
+   protected Dialog onCreateDialog(int id)
    {
       Dialog dialog = null;
       Builder builder = null;
-      switch( id )
+      switch (id)
       {
          case DIALOG_INSTALL_TWIDROID:
-            builder = new AlertDialog.Builder( this );
-            builder
-               .setTitle( R.string.dialog_notwidroid )
-               .setMessage( R.string.dialog_notwidroid_message )
-               .setIcon( android.R.drawable.ic_dialog_alert )
-               .setPositiveButton( R.string.btn_install, mTwidroidDialogListener )
-               .setNegativeButton( R.string.btn_cancel, null );
+            builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.dialog_notwidroid).setMessage(R.string.dialog_notwidroid_message).setIcon(android.R.drawable.ic_dialog_alert)
+                  .setPositiveButton(R.string.btn_install, mTwidroidDialogListener).setNegativeButton(R.string.btn_cancel, null);
             dialog = builder.create();
             return dialog;
          default:
-            return super.onCreateDialog( id );
+            return super.onCreateDialog(id);
       }
    }
 
    private void setXmlExportTargets()
    {
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource( this, R.array.sharefiletarget_choices, android.R.layout.simple_spinner_item );
-      shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
-      mShareTargetSpinner.setAdapter( shareTargetAdapter );
-      mShareTargetSpinner.setSelection( 0 );
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharefiletarget_choices, android.R.layout.simple_spinner_item);
+      shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+      mShareTargetSpinner.setAdapter(shareTargetAdapter);
+      mShareTargetSpinner.setSelection(EXPORT_TARGET_SEND);
    }
 
    private void setTextLineExportTargets()
    {
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource( this, R.array.sharetexttarget_choices, android.R.layout.simple_spinner_item );
-      shareTargetAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
-      mShareTargetSpinner.setAdapter( shareTargetAdapter );
-      mShareTargetSpinner.setSelection( 0 );
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharetexttarget_choices, android.R.layout.simple_spinner_item);
+      shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+      mShareTargetSpinner.setAdapter(shareTargetAdapter);
+      mShareTargetSpinner.setSelection(EXPORT_TYPE_TWITDRIOD);
    }
-   
+
    private void share()
    {
       String chosenFileName = mFileNameView.getText().toString();
-      String textLine       = mTweetView.getText().toString();
-      int type              = (int) mShareTypeSpinner.getSelectedItemId();
-      int target            = (int) mShareTargetSpinner.getSelectedItemId();
-      switch( type )
+      String textLine = mTweetView.getText().toString();
+      int type = (int) mShareTypeSpinner.getSelectedItemId();
+      int target = (int) mShareTargetSpinner.getSelectedItemId();
+      switch (type)
       {
-         case 0: //KMZ
-            exportKmz( chosenFileName, target );
+         case EXPORT_TYPE_KMZ:
+            exportKmz(chosenFileName, target);
             break;
-         case 1: //GPX
-            exportGpx( chosenFileName, target );
+         case EXPORT_TYPE_GPX:
+            exportGpx(chosenFileName, target);
             break;
-         case 2: //Line of text
-            exportTextLine( textLine, target );
+         case EXPORT_TYPE_TEXTLINE:
+            exportTextLine(textLine, target);
          default:
-            Log.e( TAG, "Failed to determine sharing type" + type );
+            Log.e(TAG, "Failed to determine sharing type" + type);
             break;
       }
    }
 
-   protected void exportKmz( String chosenFileName, int target )
+   protected void exportKmz(String chosenFileName, int target)
    {
       EndJob endJob = null;
-      switch( target )
+      switch (target)
       {
-         case 0: 
+         case EXPORT_TARGET_SEND:
             endJob = new EndJob()
-            {
-               public void shareFile( Uri fileUri, String contentType )
                {
-                  sendFile( fileUri, getString( R.string.email_kmzbody ), contentType );
-                  ShareTrack.this.finish();
-               }
-            };
+                  public void shareFile(Uri fileUri, String contentType)
+                  {
+                     sendFile(fileUri, getString(R.string.email_kmzbody), contentType);
+                     ShareTrack.this.finish();
+                  }
+               };
             break;
-         case 1:
+         case EXPORT_TARGET_SAVE:
             endJob = new EndJob()
-            {
-               public void shareFile( Uri fileUri, String contentType )
                {
-                  CharSequence text = "Saved "+fileUri+" of type "+contentType;
-                  Toast toast = Toast.makeText( ShareTrack.this.getApplicationContext(), text, Toast.LENGTH_LONG );
-                  toast.show();
-                  ShareTrack.this.finish();
-               }
-            };
+                  public void shareFile(Uri fileUri, String contentType)
+                  {
+                     ShareTrack.this.finish();
+                  }
+               };
             break;
          default:
-            Log.e( TAG, "Unable to determine target for sharing KMZ "+target );
+            Log.e(TAG, "Unable to determine target for sharing KMZ " + target);
             break;
       }
-      if( endJob != null )
+      if (endJob != null)
       {
-         KmzCreator kmzCreator = new KmzCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
+         KmzCreator kmzCreator = new KmzCreator(this, mTrackUri, chosenFileName, new ProgressMonitor(chosenFileName, endJob));
          kmzCreator.start();
       }
    }
 
-   protected void exportGpx( String chosenFileName, int target )
+   protected void exportGpx(String chosenFileName, int target)
    {
       EndJob endJob = null;
-      switch( target )
+      switch (target)
       {
-         case 0: 
+         case EXPORT_TARGET_SEND:
             endJob = new EndJob()
-            {
-               public void shareFile( Uri fileUri, String contentType )
                {
-                  sendFile( fileUri, getString( R.string.email_gpxbody ), contentType );
-                  ShareTrack.this.finish();
-               }
-            };
+                  public void shareFile(Uri fileUri, String contentType)
+                  {
+                     sendFile(fileUri, getString(R.string.email_gpxbody), contentType);
+                     ShareTrack.this.finish();
+                  }
+               };
             break;
-         case 1:
+         case EXPORT_TARGET_SAVE:
             endJob = new EndJob()
-            {
-               public void shareFile( Uri fileUri, String contentType )
                {
-                  CharSequence text = "Saved "+fileUri+" of type "+contentType;
-                  Toast toast = Toast.makeText( ShareTrack.this.getApplicationContext(), text, Toast.LENGTH_LONG );
-                  toast.show();
-                  ShareTrack.this.finish();
-               }
-            };
+                  public void shareFile(Uri fileUri, String contentType)
+                  {
+                     ShareTrack.this.finish();
+                  }
+               };
             break;
          default:
-            Log.e( TAG, "Unable to determine target for sharing GPX "+target );
+            Log.e(TAG, "Unable to determine target for sharing GPX " + target);
             break;
       }
-      if( endJob != null )
+      if (endJob != null)
       {
-         GpxCreator gpxCreator = new GpxCreator( this, mTrackUri, chosenFileName, new ProgressMonitor( chosenFileName, endJob ) );
+         GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, new ProgressMonitor(chosenFileName, endJob));
          gpxCreator.start();
       }
    }
 
-   protected void exportTextLine( String message, int target )
+   protected void exportTextLine(String message, int target)
    {
       String subject = "Open GPS Tracker";
-      switch( target )
+      switch (target)
       {
-         case 0:
-            sendTwidroidTweet( message );
+         case EXPORT_TYPE_TWITDRIOD:
+            sendTwidroidTweet(message);
             break;
-         case 1:
-            sendSMS( message );
+         case EXPORT_TYPE_SMS:
+            sendSMS(message);
             ShareTrack.this.finish();
             break;
-         case 2:
-            sentGenericText( subject, message );
+         case EXPORT_TYPE_TEXT:
+            sentGenericText(subject, message);
             ShareTrack.this.finish();
             break;
       }
 
    }
 
-   private void sendTwidroidTweet( String tweet )
+   private void sendTwidroidTweet(String tweet)
    {
-      final Intent intent = new Intent( "com.twidroid.SendTweet" );
-      intent.putExtra( "com.twidroid.extra.MESSAGE", tweet );
-      intent.setType( "application/twitter" );
+      final Intent intent = new Intent("com.twidroid.SendTweet");
+      intent.putExtra("com.twidroid.extra.MESSAGE", tweet);
+      intent.setType("application/twitter");
       try
       {
-         startActivity( intent );
+         startActivity(intent);
          ShareTrack.this.finish();
       }
-      catch( ActivityNotFoundException e )
+      catch (ActivityNotFoundException e)
       {
-         showDialog( DIALOG_INSTALL_TWIDROID );
+         showDialog(DIALOG_INSTALL_TWIDROID);
       }
    }
 
-   private void sendFile( Uri fileUri, String body, String contentType )
+   private void sendFile(Uri fileUri, String body, String contentType)
    {
-      Intent sendActionIntent = new Intent( Intent.ACTION_SEND );
-      sendActionIntent.putExtra( Intent.EXTRA_SUBJECT, getString( R.string.email_subject ) );
-      sendActionIntent.putExtra( Intent.EXTRA_TEXT, body );
-      sendActionIntent.putExtra( Intent.EXTRA_STREAM, fileUri );
-      sendActionIntent.setType( contentType );
-      startActivity( Intent.createChooser( sendActionIntent, getString( R.string.sender_chooser ) ) );
+      Intent sendActionIntent = new Intent(Intent.ACTION_SEND);
+      sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
+      sendActionIntent.putExtra(Intent.EXTRA_TEXT, body);
+      sendActionIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+      sendActionIntent.setType(contentType);
+      startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser)));
    }
 
-   private void sendSMS( String msg )
+   private void sendSMS(String msg)
    {
-      final Intent intent = new Intent( Intent.ACTION_VIEW );
-      intent.setType( "vnd.android-dir/mms-sms" );
-      intent.putExtra( "sms_body", msg );
-      startActivity( intent );
+      final Intent intent = new Intent(Intent.ACTION_VIEW);
+      intent.setType("vnd.android-dir/mms-sms");
+      intent.putExtra("sms_body", msg);
+      startActivity(intent);
    }
 
-   private void sentGenericText( String subject, String msg )
+   private void sentGenericText(String subject, String msg)
    {
-      final Intent intent = new Intent( Intent.ACTION_SEND );
-      intent.setType( "text/plain" );
-      intent.putExtra( Intent.EXTRA_SUBJECT, subject );
-      intent.putExtra( Intent.EXTRA_TEXT, msg );
-      startActivity( intent );
+      final Intent intent = new Intent(Intent.ACTION_SEND);
+      intent.setType("text/plain");
+      intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+      intent.putExtra(Intent.EXTRA_TEXT, msg);
+      startActivity(intent);
    }
 
    private String createTweetText()
    {
-      calculator.updateCalculations( mTrackUri );
+      calculator.updateCalculations(mTrackUri);
       String name = createFileName();
       String distString = calculator.getDistanceText();
       String avgSpeed = calculator.getAvgSpeedText();
       String duration = calculator.getDurationText();
-      return String.format( getString( R.string.tweettext, name, distString, avgSpeed, duration ) );
+      return String.format(getString(R.string.tweettext, name, distString, avgSpeed, duration));
    }
 
    private String createFileName()
@@ -394,15 +394,15 @@ public class ShareTrack extends Activity
 
       try
       {
-         trackCursor = resolver.query( mTrackUri, new String[] { Tracks.NAME }, null, null, null );
-         if( trackCursor.moveToFirst() )
+         trackCursor = resolver.query(mTrackUri, new String[] { Tracks.NAME }, null, null, null);
+         if (trackCursor.moveToFirst())
          {
-            name = trackCursor.getString( 0 );
+            name = trackCursor.getString(0);
          }
       }
       finally
       {
-         if( trackCursor != null )
+         if (trackCursor != null)
          {
             trackCursor.close();
          }
@@ -424,62 +424,62 @@ public class ShareTrack extends Activity
       public void startNotification()
       {
          String ns = Context.NOTIFICATION_SERVICE;
-         mNotificationManager = (NotificationManager) ShareTrack.this.getSystemService( ns );
+         mNotificationManager = (NotificationManager) ShareTrack.this.getSystemService(ns);
          int icon = android.R.drawable.ic_menu_save;
-         CharSequence tickerText = getString( R.string.ticker_saving ) + "\"" + mFileName + "\"";
+         CharSequence tickerText = getString(R.string.ticker_saving) + "\"" + mFileName + "\"";
 
          mNotification = new Notification();
-         PendingIntent contentIntent = PendingIntent.getActivity( ShareTrack.this, 0, new Intent( ShareTrack.this, LoggerMap.class ).setFlags( Intent.FLAG_ACTIVITY_NEW_TASK ),
-               PendingIntent.FLAG_UPDATE_CURRENT );
+         PendingIntent contentIntent = PendingIntent.getActivity(ShareTrack.this, 0, new Intent(ShareTrack.this, LoggerMap.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+               PendingIntent.FLAG_UPDATE_CURRENT);
 
          mNotification.contentIntent = contentIntent;
          mNotification.tickerText = tickerText;
          mNotification.icon = icon;
          mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-         mContentView = new RemoteViews( getPackageName(), R.layout.savenotificationprogress );
-         mContentView.setImageViewResource( R.id.icon, icon );
-         mContentView.setTextViewText( R.id.progresstext, tickerText );
+         mContentView = new RemoteViews(getPackageName(), R.layout.savenotificationprogress);
+         mContentView.setImageViewResource(R.id.icon, icon);
+         mContentView.setTextViewText(R.id.progresstext, tickerText);
 
          mNotification.contentView = mContentView;
       }
 
-      public void updateNotification( int progress, int goal )
+      public void updateNotification(int progress, int goal)
       {
          //         Log.d( "TAG", "Progress " + progress + " of " + goal );
-         if( progress > 0 && progress < goal )
+         if (progress > 0 && progress < goal)
          {
-            if( ( progress * PROGRESS_STEPS ) / goal != barProgress )
+            if ((progress * PROGRESS_STEPS) / goal != barProgress)
             {
-               barProgress = ( progress * PROGRESS_STEPS ) / goal;
-               mContentView.setProgressBar( R.id.progress, goal, progress, false );
-               mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
+               barProgress = (progress * PROGRESS_STEPS) / goal;
+               mContentView.setProgressBar(R.id.progress, goal, progress, false);
+               mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
             }
          }
-         else if( progress == 0 )
+         else if (progress == 0)
          {
-            mContentView.setProgressBar( R.id.progress, goal, progress, true );
-            mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
+            mContentView.setProgressBar(R.id.progress, goal, progress, true);
+            mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
          }
-         else if( progress >= goal )
+         else if (progress >= goal)
          {
-            mContentView.setProgressBar( R.id.progress, goal, progress, false );
-            mNotificationManager.notify( R.layout.savenotificationprogress, mNotification );
+            mContentView.setProgressBar(R.id.progress, goal, progress, false);
+            mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
          }
       }
 
-      public void endNotification( String filepath, String contentType )
+      public void endNotification(String filepath, String contentType)
       {
-         mNotificationManager.cancel( R.layout.savenotificationprogress );
-         if( mEndJob != null && filepath != null )
+         mNotificationManager.cancel(R.layout.savenotificationprogress);
+         if (mEndJob != null && filepath != null)
          {
-            Uri file = Uri.fromFile( new File( filepath ) );
-            mEndJob.shareFile( file, contentType );
+            Uri file = Uri.fromFile(new File(filepath));
+            mEndJob.shareFile(file, contentType);
          }
       }
    }
 
    interface EndJob
    {
-      void shareFile( Uri fileUri, String contentType );
+      void shareFile(Uri fileUri, String contentType);
    }
 }
