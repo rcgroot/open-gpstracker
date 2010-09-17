@@ -14,6 +14,7 @@ import com.google.android.maps.MyLocationOverlay;
 
 public class MyLocationOverlayProxy implements OverlayProxy
 {
+   @SuppressWarnings("unused")
    private static final String TAG = "OGT.MyLocationOverlayProxy";
 
    private MyLocationOverlay googleLocationOverlay;

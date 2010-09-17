@@ -36,7 +36,7 @@ public class MapViewProxy
          
          if( mOpenStreetMapView != null )
          {
-            GeoPoint mapCenter = new GeoPoint( mOpenStreetMapView.getMapCenterLatitudeE6(), mOpenStreetMapView.getMapCenterLongitudeE6() );
+            GeoPoint mapCenter = convertOSMGeoPoint( mOpenStreetMapView.getMapCenter() );
             int zoomLevel = mOpenStreetMapView.getZoomLevel();
             mMapControllerProxy.setCenter( mapCenter );
             mMapControllerProxy.setZoom( zoomLevel );
@@ -113,6 +113,10 @@ public class MapViewProxy
       if( mGoogleMapView != null )
       {
          return mGoogleMapView.getMapCenter();
+      }
+      else if( mOpenStreetMapView != null )
+      {
+         return convertOSMGeoPoint( mOpenStreetMapView.getMapCenter() );
       }
       return null;
    }
@@ -205,7 +209,7 @@ public class MapViewProxy
    /**
     * To maintain state do not alter this list, use the MapViewProxy methods instead
     *  
-    * @return
+    * @return The list of overlays
     */
    public List<?> getOverlays()
    {
@@ -253,5 +257,15 @@ public class MapViewProxy
             mGoogleMapView.getOverlays().add( (Overlay) ((OverlayProxy) overlay).getOverlay() );
          }
       }
+   }
+
+   static GeoPoint convertOSMGeoPoint( org.andnav.osm.util.GeoPoint point )
+   {
+      return new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
+   }
+   
+   static org.andnav.osm.util.GeoPoint convertMapGeoPoint( GeoPoint point )
+   {
+      return new org.andnav.osm.util.GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
    }
 }

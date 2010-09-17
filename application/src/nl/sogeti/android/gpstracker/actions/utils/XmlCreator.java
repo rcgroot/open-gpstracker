@@ -47,10 +47,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
-import android.util.Log;
 
 public abstract class XmlCreator extends Thread
 {
+   @SuppressWarnings("unused")
    private String TAG = "OGT.XmlCreator";
    private String mExportDirectoryPath;
    private int mProgress = 0;

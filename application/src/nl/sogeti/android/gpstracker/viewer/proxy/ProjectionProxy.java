@@ -15,7 +15,7 @@ public class ProjectionProxy
 
    public ProjectionProxy()
    {
-      }
+   }
    
    public void setProjection( Object projection )
    {
@@ -23,8 +23,8 @@ public class ProjectionProxy
       {
          mProjection = (Projection) projection;
          mOpenStreetMapViewProjection = null;
-      }
-      if( projection instanceof OpenStreetMapViewProjection )
+      } 
+      else if( projection instanceof OpenStreetMapViewProjection )
       {
          mOpenStreetMapViewProjection = (OpenStreetMapViewProjection) projection;
          mProjection = null;
@@ -37,7 +37,12 @@ public class ProjectionProxy
       if( mProjection != null )
       {
          mProjection.toPixels( geoPoint, out );
+      } 
+      else if( mOpenStreetMapViewProjection != null )
+      {
+         mOpenStreetMapViewProjection.toMapPixels( MapViewProxy.convertMapGeoPoint(geoPoint), out );
       }
+
    }
 
 }
