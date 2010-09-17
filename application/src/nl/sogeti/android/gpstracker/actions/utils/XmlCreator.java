@@ -273,9 +273,9 @@ public abstract class XmlCreator extends Thread
    public void quickTag( XmlSerializer serializer, String ns, String tag, String content) throws IllegalArgumentException, IllegalStateException, IOException
    {
       serializer.text( "\n" );
-      serializer.startTag( "", tag );
+      serializer.startTag( ns, tag );
       serializer.text( content );
-      serializer.endTag( "", tag );
+      serializer.endTag( ns, tag );
    }
 
    public boolean isNeedsBundling()
