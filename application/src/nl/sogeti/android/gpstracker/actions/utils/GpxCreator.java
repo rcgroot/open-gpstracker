@@ -213,7 +213,6 @@ public class GpxCreator extends XmlCreator
    {
       serializer.startDocument( "UTF-8", true );
       serializer.setPrefix( "xsi", NS_SCHEMA );
-      serializer.setPrefix( "gpx", NS_GPX_11 );
       serializer.setPrefix( "gpx10", NS_GPX_10 );
       serializer.text( "\n" );
       serializer.startTag( "", "gpx" );

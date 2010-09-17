@@ -117,7 +117,7 @@ public class UnitsI18n
       Resources resources = mContext.getResources();
       Configuration config = resources.getConfiguration();
       Locale oldLocale = config.locale;
-      config.locale = new Locale("nl", "NL");
+      config.locale = new Locale("");
       resources.updateConfiguration( config, resources.getDisplayMetrics() );
       init( resources );
       config.locale = oldLocale;
@@ -150,9 +150,9 @@ public class UnitsI18n
       resources.getValue( R.raw.conversion_from_meter_to_height, outValue, false ) ;
       mConversion_from_meter_to_height = outValue.getFloat();
       
-      mSpeed_unit = resources.getString( R.string.speed_unitname );
+      mSpeed_unit    = resources.getString( R.string.speed_unitname );
       mDistance_unit = resources.getString( R.string.distance_unitname );
-      mHeight_unit = resources.getString( R.string.distance_smallunitname );
+      mHeight_unit   = resources.getString( R.string.distance_smallunitname );
    }
 
    private void overrideWithNautic( Resources resources )
@@ -163,7 +163,7 @@ public class UnitsI18n
       resources.getValue( R.raw.conversion_from_meter_to_nauticmile, outValue, false ) ;
       mConversion_from_meter_to_distance = outValue.getFloat();
       
-      mSpeed_unit = resources.getString( R.string.knot_unitname );
+      mSpeed_unit    = resources.getString( R.string.knot_unitname );
       mDistance_unit = resources.getString( R.string.nautic_unitname );
    }
    
