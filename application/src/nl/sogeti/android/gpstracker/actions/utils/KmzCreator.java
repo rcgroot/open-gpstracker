@@ -517,40 +517,29 @@ public class KmzCreator extends XmlCreator
                   {
                      String includedMediaFile = includeMediaFile( mediaPathPrefix + lastPathSegment );
                      serializer.text( "\n" );
-                     serializer.startTag( "", "PhotoOverlay" );
-                     serializer.text( "\n" );
-                     serializer.startTag( "", "name" );
-                     serializer.text( lastPathSegment );
-                     serializer.endTag( "", "name" );
-
-                     serializeCamera( serializer, singleWaypointUri );
-
-                     serializer.text( "\n" );
-                     serializer.startTag( "", "Icon" );
-                     serializer.text( "\n" );
-                     serializer.startTag( "", "href" );
-                     serializer.text( includedMediaFile );
-                     serializer.endTag( "", "href" );
-                     serializer.text( "\n" );
-                     serializer.endTag( "", "Icon" );
-                     String widthParameter = mediaUri.getQueryParameter( "width" );
-                     String heightParameter = mediaUri.getQueryParameter( "height" );
-                     int width = widthParameter == null ? 300 : Integer.parseInt( widthParameter );
-                     int height = heightParameter == null ? 400 : Integer.parseInt( heightParameter );
-                     double lrAngle = 25d;
-                     double near = 10d;
-                     double btAngle = Math.toDegrees( Math.atan( ( Math.tan( Math.toRadians( lrAngle ) ) * height ) / width ) );
-                     serializer.text( "\n" );
-                     serializer.startTag( "", "ViewVolume" );
-                     quickTag( serializer, "", "leftFov", Double.toString( -lrAngle ) );
-                     quickTag( serializer, "", "rightFov", Double.toString( lrAngle ) );
-                     quickTag( serializer, "", "bottomFov", Double.toString( -btAngle ) );
-                     quickTag( serializer, "", "topFov", Double.toString( btAngle ) );
-                     quickTag( serializer, "", "near", Double.toString( near ) );
-                     serializer.endTag( "", "ViewVolume" );
-                     serializeMediaPoint( serializer, singleWaypointUri );
-                     serializer.text( "\n" );
-                     serializer.endTag( "", "PhotoOverlay" );
+                     
+//                     <Placemark>
+//                        <name>Picture_2010-05-01_153045.jpg</name>
+//                        <description><![CDATA[<img src="Picture_2010-05-01_153045.jpg" width="500px"/><br/>Picture_2010-05-01_153045.jpg]]></description>
+//                        <styleUrl>#sn_blue-pushpin</styleUrl>
+//                        <Point>
+//                                <coordinates>5.086487531661987,52.097758054733276,49.0</coordinates>
+//                        </Point>
+//                     </Placemark>
+                                         
+                     serializer.startTag(  "", "Placemark" );
+                     serializer.text(      "\n" );
+                     quickTag( serializer, "", "name", lastPathSegment );
+                     serializer.text(      "\n" );
+                     quickTag( serializer, "", "description", "<![CDATA[<img src=\""+includedMediaFile+"\" width=\"500px\"/><br/>"+lastPathSegment+"]]>" );
+                     serializer.text(      "\n" );
+                     quickTag( serializer, "", "styleUrl", "#sn_blue-pushpin" );
+                     serializer.text(      "\n" );
+                     serializer.startTag ( "", "Point" );
+                     quickTag( serializer, "", "coordinates", "5.086487531661987,52.097758054733276,49.0" );
+                     serializer.endTag(    "", "Point" );
+                     serializer.text(      "\n" );
+                     serializer.endTag(    "", "Placemark" );
                   }
                   else if( lastPathSegment.endsWith( "txt" ) )
                   {
