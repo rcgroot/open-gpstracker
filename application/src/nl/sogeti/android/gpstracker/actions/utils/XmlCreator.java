@@ -132,26 +132,30 @@ public abstract class XmlCreator extends Thread
       File target = new File( mExportDirectoryPath + "/" + source.getName() );
 
 //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) ); 
-      
-      
-      FileChannel inChannel = new FileInputStream( source ).getChannel();
-      FileChannel outChannel = new FileOutputStream( target ).getChannel();
-      try
-      {
-         inChannel.transferTo( 0, inChannel.size(), outChannel );
+      if( source.exists() )
+      {      
+         FileChannel inChannel = new FileInputStream( source ).getChannel();
+         FileChannel outChannel = new FileOutputStream( target ).getChannel();
+         try
+         {
+            inChannel.transferTo( 0, inChannel.size(), outChannel );
+         }
+         catch( IOException e )
+         {
+            throw e;
+         }
+         finally
+         {
+            if( inChannel != null )
+               inChannel.close();
+            if( outChannel != null )
+               outChannel.close();
+         }
       }
-      catch( IOException e )
+      else
       {
-         throw e;
+         target.createNewFile();
       }
-      finally
-      {
-         if( inChannel != null )
-            inChannel.close();
-         if( outChannel != null )
-            outChannel.close();
-      }
-
       return target.getName();
    }
    

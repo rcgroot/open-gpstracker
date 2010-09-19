@@ -516,28 +516,14 @@ public class KmzCreator extends XmlCreator
                   else if( lastPathSegment.endsWith( "jpg" ) )
                   {
                      String includedMediaFile = includeMediaFile( mediaPathPrefix + lastPathSegment );
-                     serializer.text( "\n" );
-                     
-//                     <Placemark>
-//                        <name>Picture_2010-05-01_153045.jpg</name>
-//                        <description><![CDATA[<img src="Picture_2010-05-01_153045.jpg" width="500px"/><br/>Picture_2010-05-01_153045.jpg]]></description>
-//                        <styleUrl>#sn_blue-pushpin</styleUrl>
-//                        <Point>
-//                                <coordinates>5.086487531661987,52.097758054733276,49.0</coordinates>
-//                        </Point>
-//                     </Placemark>
-                                         
+                     serializer.text( "\n" );       
                      serializer.startTag(  "", "Placemark" );
                      serializer.text(      "\n" );
                      quickTag( serializer, "", "name", lastPathSegment );
                      serializer.text(      "\n" );
-                     quickTag( serializer, "", "description", "<![CDATA[<img src=\""+includedMediaFile+"\" width=\"500px\"/><br/>"+lastPathSegment+"]]>" );
+                     quickTag( serializer, "", "description", "<img src=\""+includedMediaFile+"\" width=\"500px\"/><br/>"+lastPathSegment );
                      serializer.text(      "\n" );
-                     quickTag( serializer, "", "styleUrl", "#sn_blue-pushpin" );
-                     serializer.text(      "\n" );
-                     serializer.startTag ( "", "Point" );
-                     quickTag( serializer, "", "coordinates", "5.086487531661987,52.097758054733276,49.0" );
-                     serializer.endTag(    "", "Point" );
+                     serializeMediaPoint( serializer, singleWaypointUri );
                      serializer.text(      "\n" );
                      serializer.endTag(    "", "Placemark" );
                   }
@@ -619,57 +605,6 @@ public class KmzCreator extends XmlCreator
       }
    }
 
-   private void serializeCamera( XmlSerializer serializer, Uri singleWaypointUri ) throws IllegalArgumentException, IllegalStateException, IOException
-   {
-      Cursor waypointsCursor = null;
-      ContentResolver resolver = mContext.getContentResolver();
-      try
-      {
-         waypointsCursor = resolver.query( singleWaypointUri, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null );
-         if( waypointsCursor.moveToFirst() )
-         {
-            serializer.text( "\n" );
-            serializer.startTag( "", "Camera" );
-            serializer.text( "\n" );
-            serializer.startTag( "", "longitude" );
-            serializer.text( Double.toString( waypointsCursor.getDouble( 0 ) ) );
-            serializer.endTag( "", "longitude" );
-            serializer.text( "\n" );
-            serializer.startTag( "", "latitude" );
-            serializer.text( Double.toString( waypointsCursor.getDouble( 1 ) ) );
-            serializer.endTag( "", "latitude" );
-            serializer.text( "\n" );
-            serializer.startTag( "", "altitude" );
-            serializer.text( "10.0" );
-            serializer.endTag( "", "altitude" );
-            serializer.text( "\n" );
-            serializer.startTag( "", "heading" );
-            serializer.text( "0.0" );
-            serializer.endTag( "", "heading" );
-            serializer.text( "\n" );
-            serializer.startTag( "", "tilt" );
-            serializer.text( "0.0" );
-            serializer.endTag( "", "tilt" );
-            serializer.text( "\n" );
-            serializer.startTag( "", "roll" );
-            serializer.text( "0.0" );
-            serializer.endTag( "", "roll" );
-            serializer.text( "\n" );
-            serializer.startTag( "", "altitudeMode" );
-            serializer.text( "relativeToGround" );
-            serializer.endTag( "", "altitudeMode" );
-            serializer.endTag( "", "Camera" );
-         }
-      }
-      finally
-      {
-         if( waypointsCursor != null )
-         {
-            waypointsCursor.close();
-         }
-      }
-   }
-
    /**
     * &lt;Point>...&lt;/Point> &lt;shape>rectangle&lt;/shape>
     * 
@@ -697,9 +632,6 @@ public class KmzCreator extends XmlCreator
             serializer.text( "\n" );
             serializer.endTag( "", "Point" );
             serializer.text( "\n" );
-            serializer.startTag( "", "shape" );
-            serializer.text( "rectangle" );
-            serializer.endTag( "", "shape" );
          }
       }
       finally
