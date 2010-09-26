@@ -767,7 +767,7 @@ public class GPSLoggerService extends Service
    {
       Uri newTrack = this.mContext.getContentResolver().insert( Tracks.CONTENT_URI, null );
       mTrackId = new Long( newTrack.getLastPathSegment() ).longValue();
-      startNewSegment();
+      mStartNextSegment = true;
    }
 
    /**

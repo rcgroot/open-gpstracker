@@ -5,7 +5,6 @@ import nl.sogeti.android.gpstracker.viewer.FixedMyLocationOverlay;
 import org.andnav.osm.views.OpenStreetMapView;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.maps.MapView;
