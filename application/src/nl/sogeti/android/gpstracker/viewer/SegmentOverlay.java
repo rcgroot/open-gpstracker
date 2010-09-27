@@ -115,6 +115,7 @@ public class SegmentOverlay extends Overlay
    private Location mLocation;
    private Location mPrevLocation;
    private Cursor mWaypointsCursor;
+   private Cursor mMediaCursor;
    private Uri mSegmentUri;
    private int mWaypointCount;
    private int mWidth;
@@ -172,6 +173,36 @@ public class SegmentOverlay extends Overlay
          waypointsCursor.close();
       }
    }
+   
+   
+
+   /*
+    * (non-Javadoc)
+    * @see java.lang.Object#finalize()
+    */
+   @Override
+   protected void finalize() throws Throwable
+   {
+      try {
+         closeResources();
+     } finally {
+         super.finalize();
+     }
+
+   }
+
+   public void closeResources()
+   {
+      if( mWaypointsCursor != null )
+      {
+         mWaypointsCursor.close();
+      }
+      if( mMediaCursor != null )
+      {
+         mMediaCursor.close();
+      }
+   }
+
 
    @Override
    public void draw( Canvas canvas, MapView mapView, boolean shadow )
@@ -261,50 +292,43 @@ public class SegmentOverlay extends Overlay
       }
       mCalculatedPoints = 0;
       
-      try
+      if( mWaypointsCursor == null )
       {
-         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.ACCURACY }, null, null, null );
-         if( mProjection != null && mWaypointsCursor.moveToFirst() )
-         {
-            GeoPoint geoPoint;
-            
-            mStartPoint = extractGeoPoint();
-            mPrevGeoPoint = mStartPoint;
-            
-            do
-            {
-               geoPoint = extractGeoPoint();
-               setScreenPoint( geoPoint );
-
-               float distance = (float) distanceInPoints( this.mPrevDrawnScreenPoint, this.mScreenPoint );
-               if( distance > MINIMUM_PX_DISTANCE )
-               {
-                  DotVO dotVO = new DotVO();
-                  dotVO.x = this.mScreenPoint.x;
-                  dotVO.y = this.mScreenPoint.y;
-                  dotVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
-                  mDotPath.add( dotVO );
-
-                  this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
-                  this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
-               }
-            }
-            while( moveToNextWayPoint() );
-
-            this.mEndPoint = extractGeoPoint();
-            DotVO pointVO = new DotVO();
-            pointVO.x = this.mScreenPoint.x;
-            pointVO.y = this.mScreenPoint.y;
-            pointVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
-            mDotPath.add( pointVO );
-         }
+         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
       }
-      finally
+      if( mProjection != null && mWaypointsCursor.moveToFirst() )
       {
-         if( mWaypointsCursor != null )
+         GeoPoint geoPoint;
+         
+         mStartPoint = extractGeoPoint();
+         mPrevGeoPoint = mStartPoint;
+         
+         do
          {
-            mWaypointsCursor.close();
+            geoPoint = extractGeoPoint();
+            setScreenPoint( geoPoint );
+
+            float distance = (float) distanceInPoints( this.mPrevDrawnScreenPoint, this.mScreenPoint );
+            if( distance > MINIMUM_PX_DISTANCE )
+            {
+               DotVO dotVO = new DotVO();
+               dotVO.x = this.mScreenPoint.x;
+               dotVO.y = this.mScreenPoint.y;
+               dotVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
+               mDotPath.add( dotVO );
+
+               this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
+               this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
+            }
          }
+         while( moveToNextWayPoint() );
+
+         this.mEndPoint = extractGeoPoint();
+         DotVO pointVO = new DotVO();
+         pointVO.x = this.mScreenPoint.x;
+         pointVO.y = this.mScreenPoint.y;
+         pointVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
+         mDotPath.add( pointVO );
       }
    }
 
@@ -339,63 +363,56 @@ public class SegmentOverlay extends Overlay
       this.mPrevLocation = null;
       int moves = 0;
 
-      try
+      if( mWaypointsCursor == null )
       {
          mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
-         if( mProjection != null && mWaypointsCursor.moveToFirst() )
-         {
-            // Start point of the segments, possible a dot
-            this.mStartPoint = extractGeoPoint();
-            mPrevGeoPoint = mStartPoint;
-            this.mLocation = new Location( this.getClass().getName() );
-            this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
-            this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
-            this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
-            
-            moveToGeoPoint( this.mStartPoint );
-            
-            do
-            {
-               geoPoint = extractGeoPoint();
-               double speed = -1d;
-               switch( mTrackColoringMethod )
-               {
-                  case DRAW_GREEN:
-                  case DRAW_RED:
-                     lineToGeoPoint( geoPoint, speed );
-                     break;
-                  case DRAW_MEASURED:
-                     lineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
-                     break;
-                  case DRAW_CALCULATED:
-                     this.mPrevLocation = this.mLocation;
-                     this.mLocation = new Location( this.getClass().getName() );
-                     this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
-                     this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
-                     this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
-                     speed = calculateSpeedBetweenLocations( this.mPrevLocation, this.mLocation );
-                     lineToGeoPoint( geoPoint, speed );
-                     break;
-                  default:
-                     lineToGeoPoint( geoPoint, speed );
-                     break;
-               }
-               moves++;
-            }
-            while( moveToNextWayPoint() );
-
-            
-            this.mEndPoint = extractGeoPoint(); // End point of the segments, possible a dot
-
-         }
       }
-      finally
+      if( mProjection != null && mWaypointsCursor.moveToFirst() )
       {
-         if( mWaypointsCursor != null )
+         // Start point of the segments, possible a dot
+         this.mStartPoint = extractGeoPoint();
+         mPrevGeoPoint = mStartPoint;
+         this.mLocation = new Location( this.getClass().getName() );
+         this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+         this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+         this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
+         
+         moveToGeoPoint( this.mStartPoint );
+         
+         do
          {
-            mWaypointsCursor.close();
+            geoPoint = extractGeoPoint();
+            double speed = -1d;
+            switch( mTrackColoringMethod )
+            {
+               case DRAW_GREEN:
+               case DRAW_RED:
+                  lineToGeoPoint( geoPoint, speed );
+                  break;
+               case DRAW_MEASURED:
+                  lineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
+                  break;
+               case DRAW_CALCULATED:
+                  this.mPrevLocation = this.mLocation;
+                  this.mLocation = new Location( this.getClass().getName() );
+                  this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+                  this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+                  this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
+                  speed = calculateSpeedBetweenLocations( this.mPrevLocation, this.mLocation );
+                  lineToGeoPoint( geoPoint, speed );
+                  break;
+               default:
+                  lineToGeoPoint( geoPoint, speed );
+                  break;
+            }
+            moves++;
          }
-      }
+         while( moveToNextWayPoint() );
+
+         
+         this.mEndPoint = extractGeoPoint(); // End point of the segments, possible a dot
+
+         }
 //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
 
@@ -432,51 +449,43 @@ public class SegmentOverlay extends Overlay
    public synchronized void calculateMedia()
    {
       mMediaPath.clear();
-      Cursor mediaCursor = null;
-      try
+      //         Log.d( TAG, "Searching for media on " + this.mMediaUri );
+      if( mMediaCursor == null )
       {
-         //         Log.d( TAG, "Searching for media on " + this.mMediaUri );
-         mediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );
-         if( mProjection != null && mediaCursor.moveToFirst() )
-         {
-            do
-            {
-               MediaVO mediaVO = new MediaVO();
-               mediaVO.waypointId = mediaCursor.getLong( 0 );
-               mediaVO.uri = Uri.parse( mediaCursor.getString( 1 ) );
-
-               //               Log.d( TAG, mediaVO.uri.toString() );
-
-               Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, mediaVO.waypointId );
-               Cursor waypointCursor = null;
-               try
-               {
-                  waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
-                  if( waypointCursor != null && waypointCursor.moveToFirst() )
-                  {
-                     int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
-                     int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
-                     mediaVO.geopoint = new GeoPoint( microLatitude, microLongitude );
-                  }
-               }
-               finally
-               {
-                  if( waypointCursor != null )
-                  {
-                     waypointCursor.close();
-                  }
-               }
-               mMediaPath.add( mediaVO );
-            }
-            while( mediaCursor.moveToNext() );
-         }
+         mMediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );
       }
-      finally
+      if( mProjection != null && mMediaCursor.moveToFirst() )
       {
-         if( mediaCursor != null )
+         do
          {
-            mediaCursor.close();
+            MediaVO mediaVO = new MediaVO();
+            mediaVO.waypointId = mMediaCursor.getLong( 0 );
+            mediaVO.uri = Uri.parse( mMediaCursor.getString( 1 ) );
+
+            //               Log.d( TAG, mediaVO.uri.toString() );
+
+            Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, mediaVO.waypointId );
+            Cursor waypointCursor = null;
+            try
+            {
+               waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
+               if( waypointCursor != null && waypointCursor.moveToFirst() )
+               {
+                  int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
+                  int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
+                  mediaVO.geopoint = new GeoPoint( microLatitude, microLongitude );
+               }
+            }
+            finally
+            {
+               if( waypointCursor != null )
+               {
+                  waypointCursor.close();
+               }
+            }
+            mMediaPath.add( mediaVO );
          }
+         while( mMediaCursor.moveToNext() );
       }
    }
 
