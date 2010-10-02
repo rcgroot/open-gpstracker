@@ -109,7 +109,9 @@
     <string name="disableblanking_title">Disable screen blanking</string>
     <string name="disableblanking_summary">Keeps the screen on during tracking.</string>       
     <string name="precision_title">Logging precision</string>
-    <string name="precision_summary">The size of interval between GPS fixes.</string>      
+    <string name="precision_summary">The size of interval between GPS fixes.</string>
+    <string name="mapprovider_title">Map provider</string>
+    <string name="mapprovider_summary">The source from which to retrieve mapdata.</string>      
     <string name="trackcoloring_title">Track color</string>
     <string name="trackcoloring_summary">The coloring used to draw the track.</string>
     <string name="showsatellite_title">Satellite images</string>

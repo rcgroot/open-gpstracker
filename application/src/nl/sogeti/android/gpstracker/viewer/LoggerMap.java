@@ -150,9 +150,12 @@ public class LoggerMap extends MapActivity
    private WakeLock mWakeLock = null;
    private SharedPreferences mSharedPreferences;
    private GPSLoggerServiceManager mLoggerServiceManager;
-
+   private SegmentOverlay mLastSegmentOverlay;
+   private BaseAdapter mMediaAdapter;
+   private Gallery mGallery;
+   
    private MapViewProxy mMapView = null;
-   private int mActiveMap = R.id.myMapView;
+   private MyLocationOverlayProxy mMylocation;
    
    private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
@@ -308,6 +311,10 @@ public class LoggerMap extends MapActivity
             {
                updateLocationDisplayVisibility();
             }
+            else if( key.equals( Constants.MAPPROVIDER ) ) 
+            {
+               updateMapProvider();
+            }
          }
       };
    private final UnitsI18n.UnitsChangeListener mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
@@ -375,11 +382,6 @@ public class LoggerMap extends MapActivity
       }
       
    };
-   
-   private SegmentOverlay mLastSegmentOverlay;
-   private BaseAdapter mMediaAdapter;
-   private Gallery mGallery;
-   private MyLocationOverlayProxy mMylocation;
  
    /**
     * Called when the activity is first created.
@@ -407,7 +409,9 @@ public class LoggerMap extends MapActivity
       mSharedPreferences.registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
       setContentView( R.layout.map );
-      mMapView = new MapViewProxy( findViewById( mActiveMap ) );
+
+      mMapView = new MapViewProxy();
+      updateMapProvider();
 
       mMylocation = new MyLocationOverlayProxy( this, mMapView ); 
       mMapView.setBuiltInZoomControls( true );
@@ -454,6 +458,7 @@ public class LoggerMap extends MapActivity
       updateAltitudeDisplayVisibility();
       updateCompassDisplayVisibility();
       updateLocationDisplayVisibility();
+      updateMapProvider();
 
       if( mTrackId >= 0 )
       {
@@ -576,23 +581,6 @@ public class LoggerMap extends MapActivity
       Object nonConfigurationInstance = this.mLoggerServiceManager;
       return nonConfigurationInstance;
    }
-   
-   
-
-   /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onTrackballEvent(android.view.MotionEvent)
-    */
-   @Override
-   public boolean onTrackballEvent( MotionEvent event )
-   {
-      switch( event.getAction() )
-      {
-         case MotionEvent.ACTION_DOWN:
-            switchMapProvider();
-      }
-      return super.onTrackballEvent( event );
-   }
 
    @Override
    public boolean onKeyDown( int keyCode, KeyEvent event )
@@ -600,9 +588,6 @@ public class LoggerMap extends MapActivity
       boolean propagate = true;
       switch (keyCode)
       {
-         case KeyEvent.KEYCODE_C:
-            switchMapProvider();
-            break;
          case KeyEvent.KEYCODE_T:
             propagate = this.mMapView.getController().zoomIn();
             break;
@@ -630,22 +615,6 @@ public class LoggerMap extends MapActivity
             break;
       }
       return propagate;
-   }
-
-   private void switchMapProvider()
-   {
-      findViewById( mActiveMap ).setVisibility( View.INVISIBLE );
-      if( mActiveMap == R.id.myMapView )
-      {
-         mActiveMap = R.id.myOsmMapView;
-         
-      }
-      else
-      {
-         mActiveMap = R.id.myMapView;
-      }
-      findViewById( mActiveMap ).setVisibility( View.VISIBLE );
-      mMapView.setMap( findViewById( mActiveMap ) );
    }
 
    private void setTrafficOverlay( boolean b )
@@ -1081,6 +1050,27 @@ public class LoggerMap extends MapActivity
          {
             trackCursor.close();
          }
+      }
+   }
+
+   private void updateMapProvider()
+   {
+      int provider = new Integer( mSharedPreferences.getString( Constants.MAPPROVIDER, "0" ) ).intValue();
+      switch( provider )
+      {
+         case Constants.OSM:
+            findViewById( R.id.myMapView ).setVisibility( View.INVISIBLE );
+            findViewById( R.id.myOsmMapView ).setVisibility( View.VISIBLE );
+            mMapView.setMap( findViewById( R.id.myOsmMapView ) );
+   
+            break;
+         case Constants.GOOGLE:
+            findViewById( R.id.myOsmMapView ).setVisibility( View.INVISIBLE );
+            findViewById( R.id.myMapView ).setVisibility( View.VISIBLE );
+            mMapView.setMap( findViewById( R.id.myMapView ) );
+         default:
+            Log.e( TAG, "Fault in value "+provider+" as MapProvider." );
+            break;
       }
    }
 

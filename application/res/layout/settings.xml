@@ -33,6 +33,13 @@
             android:title="@string/logatstartup"
             android:summary="@string/logatstartup_summary"
             android:defaultValue="false" />
+        <ListPreference
+            android:key="mapprovider"
+            android:title="@string/mapprovider_title"
+            android:summary="@string/mapprovider_summary"
+            android:entries="@array/mapprovider_choices"
+            android:entryValues="@array/mapprovider_values"
+            android:defaultValue="0"/>
     </PreferenceCategory>
     
     <PreferenceCategory

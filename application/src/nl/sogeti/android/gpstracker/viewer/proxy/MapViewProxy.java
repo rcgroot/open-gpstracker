@@ -18,12 +18,12 @@ public class MapViewProxy
    private ProjectionProxy mProjectionProxy;
    
    private OpenStreetMapView mOpenStreetMapView;
+   private boolean buildinzoom;
 
-   public MapViewProxy( View view )
+   public MapViewProxy()
    {
       mProjectionProxy = new ProjectionProxy();
       mMapControllerProxy = new MapControllerProxy();
-      setMap( view );
    }
    
    public void setMap( View newView )
@@ -58,6 +58,7 @@ public class MapViewProxy
          }
          mGoogleMapView = null;
       }
+      setBuiltInZoomControls( buildinzoom );
    }
    
    protected View getMap()
@@ -79,6 +80,34 @@ public class MapViewProxy
       {
          mGoogleMapView.postInvalidate();
       }
+      if( mOpenStreetMapView != null )
+      {
+         mOpenStreetMapView.postInvalidate();
+      }
+   }
+
+   public void clearAnimation()
+   {
+      if( mGoogleMapView != null )
+      {
+         mGoogleMapView.clearAnimation();
+      }
+      if( mOpenStreetMapView != null )
+      {
+         mOpenStreetMapView.clearAnimation();
+      }
+   }
+
+   public void clearOverlays()
+   {
+      if( mGoogleMapView != null )
+      {
+         mGoogleMapView.getOverlays().clear();
+      }
+      if( mOpenStreetMapView != null )
+      {
+         mOpenStreetMapView.getOverlays().clear();
+      }
    }
 
    public MapControllerProxy getController()
@@ -89,121 +118,6 @@ public class MapViewProxy
    public ProjectionProxy getProjection()
    {
       return mProjectionProxy;
-   }
-
-   public void clearAnimation()
-   {
-      if( mGoogleMapView != null )
-      {
-         mGoogleMapView.clearAnimation();
-      }
-   }
-
-   public int getHeight()
-   {
-      if( mGoogleMapView != null )
-      {
-         return mGoogleMapView.getHeight();
-      }
-      return 0;
-   }
-
-   public GeoPoint getMapCenter()
-   {
-      if( mGoogleMapView != null )
-      {
-         return mGoogleMapView.getMapCenter();
-      }
-      else if( mOpenStreetMapView != null )
-      {
-         return convertOSMGeoPoint( mOpenStreetMapView.getMapCenter() );
-      }
-      return null;
-   }
-
-   public int getWidth()
-   {
-      if( mGoogleMapView != null )
-      {
-         return mGoogleMapView.getWidth();
-      }
-      return 0;
-   }
-
-   public int getZoomLevel()
-   {
-      if( mGoogleMapView != null )
-      {
-         return mGoogleMapView.getZoomLevel();
-      }
-      return 0;
-   }
-
-   public boolean isSatellite()
-   {
-      if( mGoogleMapView != null )
-      {
-         return mGoogleMapView.isSatellite();
-      }
-      return false;
-   }
-
-   public boolean isTraffic()
-   {
-      if( mGoogleMapView != null )
-      {
-         return mGoogleMapView.isTraffic();
-      }
-      return false;
-   }
-
-   public void setBuiltInZoomControls( boolean b )
-   {
-      if( mGoogleMapView != null )
-      {
-         mGoogleMapView.setBuiltInZoomControls( b );
-      }
-   }
-
-   public void setClickable( boolean b )
-   {
-      if( mGoogleMapView != null )
-      {
-         mGoogleMapView.setClickable( b );
-      }
-   }
-
-   public void setSatellite( boolean b )
-   {
-      if( mGoogleMapView != null )
-      {
-         mGoogleMapView.setSatellite( b );
-      }
-   }
-
-   public void setStreetView( boolean b )
-   {
-      if( mGoogleMapView != null )
-      {
-         mGoogleMapView.setStreetView( b );
-      }
-   }
-
-   public void setTraffic( boolean b )
-   {
-      if( mGoogleMapView != null )
-      {
-         mGoogleMapView.setTraffic( b );
-      }
-   }
-
-   public int getMaxZoomLevel()
-   {
-      if( mGoogleMapView != null )
-      {
-         return mGoogleMapView.getMaxZoomLevel();
-      }
-      return 0;
    }
 
    /**
@@ -224,16 +138,69 @@ public class MapViewProxy
       return null;
    }
 
-   public void clearOverlays()
+   public GeoPoint getMapCenter()
    {
       if( mGoogleMapView != null )
       {
-         mGoogleMapView.getOverlays().clear();
+         return mGoogleMapView.getMapCenter();
       }
       if( mOpenStreetMapView != null )
       {
-         mOpenStreetMapView.getOverlays().clear();
+         return convertOSMGeoPoint( mOpenStreetMapView.getMapCenter() );
       }
+      return null;
+   }
+
+   public int getHeight()
+   {
+      if( mGoogleMapView != null )
+      {
+         return mGoogleMapView.getHeight();
+      }      
+      if( mOpenStreetMapView != null )
+      {
+         return mOpenStreetMapView.getHeight();
+      }
+      return 0;
+   }
+
+   public int getWidth()
+   {
+      if( mGoogleMapView != null )
+      {
+         return mGoogleMapView.getWidth();
+      }
+      else if( mOpenStreetMapView != null )
+      {
+         return mOpenStreetMapView.getWidth();
+      }
+      return 0;
+   }
+
+   public int getZoomLevel()
+   {
+      if( mGoogleMapView != null )
+      {
+         return mGoogleMapView.getZoomLevel();
+      }
+      else if( mOpenStreetMapView != null )
+      {
+         return mOpenStreetMapView.getZoomLevel();
+      }
+      return 0;
+   }
+
+   public int getMaxZoomLevel()
+   {
+      if( mGoogleMapView != null )
+      {
+         return mGoogleMapView.getMaxZoomLevel();
+      }
+      else if( mOpenStreetMapView != null )
+      {
+         return mOpenStreetMapView.getMaxZoomLevel();
+      }
+      return 0;
    }
 
    public void addOverlay( Object overlay )
@@ -259,6 +226,32 @@ public class MapViewProxy
       }
    }
 
+   public void setBuiltInZoomControls( boolean b )
+   {
+      buildinzoom = b;
+      if( mGoogleMapView != null )
+      {
+         mGoogleMapView.setBuiltInZoomControls( b );
+      }
+      else if( mOpenStreetMapView != null )
+      {
+         mOpenStreetMapView.setBuiltInZoomControls( b );
+      }
+   }
+
+   public void setClickable( boolean b )
+   {
+      if( mGoogleMapView != null )
+      {
+         mGoogleMapView.setClickable( b );
+      }
+      else if( mOpenStreetMapView != null )
+      {
+         mOpenStreetMapView.setClickable( b );
+      }
+      
+   }
+
    static GeoPoint convertOSMGeoPoint( org.andnav.osm.util.GeoPoint point )
    {
       return new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
@@ -267,5 +260,47 @@ public class MapViewProxy
    static org.andnav.osm.util.GeoPoint convertMapGeoPoint( GeoPoint point )
    {
       return new org.andnav.osm.util.GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
+   }
+
+   public boolean isSatellite()
+   {
+      if( mGoogleMapView != null )
+      {
+         return mGoogleMapView.isSatellite();
+      }
+      return false;
+   }
+
+   public boolean isTraffic()
+   {
+      if( mGoogleMapView != null )
+      {
+         return mGoogleMapView.isTraffic();
+      }
+      return false;
+   }
+
+   public void setTraffic( boolean b )
+   {
+      if( mGoogleMapView != null )
+      {
+         mGoogleMapView.setTraffic( b );
+      }
+   }
+
+   public void setSatellite( boolean b )
+   {
+      if( mGoogleMapView != null )
+      {
+         mGoogleMapView.setSatellite( b );
+      }
+   }
+
+   public void setStreetView( boolean b )
+   {
+      if( mGoogleMapView != null )
+      {
+         mGoogleMapView.setStreetView( b );
+      }
    }
 }

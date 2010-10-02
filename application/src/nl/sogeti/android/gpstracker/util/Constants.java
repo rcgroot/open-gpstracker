@@ -47,6 +47,7 @@ public class Constants
    public static final String ALTITUDE = "showaltitude";
    public static final String COMPASS = "COMPASS";
    public static final String LOCATION = "LOCATION";
+   public static final String MAPPROVIDER = "mapprovider";
    public static final String TRACKCOLORING = "trackcoloring";
    public static final int UNKNOWN = -1;
    public static final int LOGGING = 1;
@@ -64,5 +65,7 @@ public class Constants
    public static final int UNITS_NAUTIC = 3;
    public static final String EXTERNAL_DIR = "/OpenGPSTracker/";
    public static final String TMPICTUREFILE_PATH = EXTERNAL_DIR+"media_tmp";
-   public static final Uri NAME_URI = Uri.parse( "content://" + GPStracking.AUTHORITY+".string" );  
+   public static final Uri NAME_URI = Uri.parse( "content://" + GPStracking.AUTHORITY+".string" );
+   public static final int GOOGLE = 0;
+   public static final int OSM = 1;
 }

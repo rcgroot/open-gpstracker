@@ -59,8 +59,9 @@
       <meta-data 
            android:name="android.app.default_searchable"
            android:value=".viewer.TrackList" />
-
-		<uses-library android:name="com.google.android.maps" />
+    
+	
+    	<uses-library android:name="com.google.android.maps" />
 
 		<activity
             android:label="@string/app_name" 

@@ -229,8 +229,6 @@ class DatabaseHelper extends SQLiteOpenHelper
    }
    
    /**
-    * 
-    * TODO
     * @param mediaId
     * @return
     */
