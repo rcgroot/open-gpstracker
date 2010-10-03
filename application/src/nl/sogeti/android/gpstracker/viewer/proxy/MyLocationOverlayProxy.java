@@ -3,12 +3,14 @@ package nl.sogeti.android.gpstracker.viewer.proxy;
 import nl.sogeti.android.gpstracker.viewer.FixedMyLocationOverlay;
 
 import org.andnav.osm.views.OpenStreetMapView;
+import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
 
 import android.content.Context;
 import android.view.View;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
+import com.google.android.maps.Overlay;
 
 
 public class MyLocationOverlayProxy implements OverlayProxy
@@ -33,6 +35,10 @@ public class MyLocationOverlayProxy implements OverlayProxy
       if( googleLocationOverlay != null )
       {
          googleLocationOverlay.disableCompass();
+      }
+      if( osmLocationOverlay != null )
+      {
+         osmLocationOverlay.disableCompass();
       }
    }
 
@@ -66,45 +72,23 @@ public class MyLocationOverlayProxy implements OverlayProxy
       {
          googleLocationOverlay.enableCompass();
       }
+      if( osmLocationOverlay != null )
+      {
+         osmLocationOverlay.enableCompass();
+      }
    }
 
-   public Object getOverlay()
+   public Overlay getGoogleOverlay()
    {
       View mapview = mMapViewProxy.getMap();
-      if( mapview instanceof MapView )
-      {
-         googleLocationOverlay = new FixedMyLocationOverlay( mContext, (MapView) mapview );
-         if( osmLocationOverlay != null )
-         {
-            if( osmLocationOverlay.isMyLocationEnabled() )
-            {
-               googleLocationOverlay.enableMyLocation();
-            }
-            else
-            {
-               googleLocationOverlay.disableMyLocation();
-            }
-         }
-         osmLocationOverlay = null;
-         return googleLocationOverlay;
-      }
-      if( mapview instanceof OpenStreetMapView )
-      {
-         osmLocationOverlay = new org.andnav.osm.views.overlay.MyLocationOverlay( mContext, (OpenStreetMapView) mapview );
-         if( googleLocationOverlay != null )
-         {
-            if( googleLocationOverlay.isMyLocationEnabled() )
-            {
-               osmLocationOverlay.enableMyLocation();
-            }
-            else
-            {
-               osmLocationOverlay.disableMyLocation();
-            }
-         }
-         googleLocationOverlay = null;
-         return osmLocationOverlay;
-      }
-      return null;
+      googleLocationOverlay = new FixedMyLocationOverlay( mContext, (MapView) mapview );
+      return googleLocationOverlay;
+   }
+
+   public OpenStreetMapViewOverlay getOSMOverlay()
+   {
+      View mapview = mMapViewProxy.getMap();
+      osmLocationOverlay = new org.andnav.osm.views.overlay.MyLocationOverlay( mContext, (OpenStreetMapView) mapview );
+      return osmLocationOverlay;
    }
 }

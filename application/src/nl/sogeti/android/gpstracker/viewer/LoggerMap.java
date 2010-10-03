@@ -84,7 +84,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.BaseAdapter;
@@ -1055,19 +1054,19 @@ public class LoggerMap extends MapActivity
 
    private void updateMapProvider()
    {
-      int provider = new Integer( mSharedPreferences.getString( Constants.MAPPROVIDER, "0" ) ).intValue();
+      int provider = new Integer( mSharedPreferences.getString( Constants.MAPPROVIDER, ""+Constants.GOOGLE ) ).intValue();
       switch( provider )
       {
-         case Constants.OSM:
-            findViewById( R.id.myMapView ).setVisibility( View.INVISIBLE );
-            findViewById( R.id.myOsmMapView ).setVisibility( View.VISIBLE );
-            mMapView.setMap( findViewById( R.id.myOsmMapView ) );
-   
-            break;
          case Constants.GOOGLE:
             findViewById( R.id.myOsmMapView ).setVisibility( View.INVISIBLE );
             findViewById( R.id.myMapView ).setVisibility( View.VISIBLE );
             mMapView.setMap( findViewById( R.id.myMapView ) );
+            break;
+         case Constants.OSM:
+            findViewById( R.id.myMapView ).setVisibility( View.INVISIBLE );
+            findViewById( R.id.myOsmMapView ).setVisibility( View.VISIBLE );
+            mMapView.setMap( findViewById( R.id.myOsmMapView ) );
+            break;
          default:
             Log.e( TAG, "Fault in value "+provider+" as MapProvider." );
             break;

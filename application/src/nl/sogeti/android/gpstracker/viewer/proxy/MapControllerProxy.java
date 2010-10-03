@@ -22,8 +22,7 @@ public class MapControllerProxy
       {
          mOpenStreetMapViewController = (OpenStreetMapViewController) controller;
          mMapController = null;
-      }
-      if( controller instanceof MapController )
+      } else if( controller instanceof MapController )
       {
          mMapController = (MapController) controller;
          mOpenStreetMapViewController = null;

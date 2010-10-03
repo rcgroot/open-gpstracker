@@ -18,6 +18,7 @@
    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> 
    
          
 	<application 
@@ -26,41 +27,43 @@
       android:description="@string/app_name" 
       android:allowClearUserData="true" 
       android:debuggable="true">
-      <meta-data
-         android:name="org.openintents.metadata.COMMENTS"
-         android:value="@string/about_comments" />
-      <meta-data
-         android:name="org.openintents.metadata.COPYRIGHT"
-         android:value="@string/about_copyright" />
-      <meta-data
-         android:name="org.openintents.metadata.AUTHORS"
-         android:resource="@array/about_authors" />
-      <meta-data
-         android:name="org.openintents.metadata.DOCUMENTERS"
-         android:resource="@array/about_documenters" />
-      <meta-data
-         android:name="org.openintents.metadata.TRANSLATORS"
-         android:resource="@array/about_translators" />
-      <meta-data
-         android:name="org.openintents.metadata.ARTISTS"
-         android:resource="@array/about_artists" />
-      <meta-data
-         android:name="org.openintents.metadata.WEBSITE_LABEL"
-         android:value="@string/about_website_label" />
-      <meta-data
-         android:name="org.openintents.metadata.WEBSITE_URL"
-         android:value="@string/about_website_url" />
-      <meta-data
-         android:name="org.openintents.metadata.LICENSE"
-         android:resource="@raw/licence_short" />
-      <meta-data
-         android:name="org.openintents.metadata.EMAIL"
-         android:value="@string/about_email" />
-      <meta-data 
-           android:name="android.app.default_searchable"
-           android:value=".viewer.TrackList" />
-    
-	
+         <meta-data
+            android:name="org.openintents.metadata.COMMENTS"
+            android:value="@string/about_comments" />
+         <meta-data
+            android:name="org.openintents.metadata.COPYRIGHT"
+            android:value="@string/about_copyright" />
+         <meta-data
+            android:name="org.openintents.metadata.AUTHORS"
+            android:resource="@array/about_authors" />
+         <meta-data
+            android:name="org.openintents.metadata.DOCUMENTERS"
+            android:resource="@array/about_documenters" />
+         <meta-data
+            android:name="org.openintents.metadata.TRANSLATORS"
+            android:resource="@array/about_translators" />
+         <meta-data
+            android:name="org.openintents.metadata.ARTISTS"
+            android:resource="@array/about_artists" />
+         <meta-data
+            android:name="org.openintents.metadata.WEBSITE_LABEL"
+            android:value="@string/about_website_label" />
+         <meta-data
+            android:name="org.openintents.metadata.WEBSITE_URL"
+            android:value="@string/about_website_url" />
+         <meta-data
+            android:name="org.openintents.metadata.LICENSE"
+            android:resource="@raw/licence_short" />
+         <meta-data
+            android:name="org.openintents.metadata.EMAIL"
+            android:value="@string/about_email" />
+         <meta-data 
+              android:name="android.app.default_searchable"
+              android:value=".viewer.TrackList" />
+         <meta-data 
+              android:name="CLOUDMADE_KEY" 
+              android:value="" />
+           
     	<uses-library android:name="com.google.android.maps" />
 
 		<activity
@@ -123,7 +126,7 @@
 				<action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
 			</intent-filter>
 		</service>
-
+      
 		<provider 
             android:enabled="true" 
             android:authorities="nl.sogeti.android.gpstracker"

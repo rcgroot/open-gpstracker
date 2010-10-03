@@ -203,26 +203,15 @@ public class MapViewProxy
       return 0;
    }
 
-   public void addOverlay( Object overlay )
+   public void addOverlay( OverlayProxy overlay )
    {
-      if( mGoogleMapView != null && overlay instanceof Overlay )
+      if( mGoogleMapView != null  )
       {
-         mGoogleMapView.getOverlays().add( (Overlay) overlay );
+         mGoogleMapView.getOverlays().add( overlay.getGoogleOverlay() );
       }
-      else if( mOpenStreetMapView != null && overlay instanceof OpenStreetMapViewOverlay )
+      else if( mOpenStreetMapView != null )
       {
-         mOpenStreetMapView.getOverlays().add( (OpenStreetMapViewOverlay) overlay );
-      }
-      else if( overlay instanceof OverlayProxy )
-      {
-         if( mOpenStreetMapView != null )
-         {
-            mOpenStreetMapView.getOverlays().add( (OpenStreetMapViewOverlay) ((OverlayProxy) overlay).getOverlay() );
-         }
-         if( mGoogleMapView != null )
-         {
-            mGoogleMapView.getOverlays().add( (Overlay) ((OverlayProxy) overlay).getOverlay() );
-         }
+         mOpenStreetMapView.getOverlays().add( overlay.getOSMOverlay() );
       }
    }
 

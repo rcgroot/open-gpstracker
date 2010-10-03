@@ -31,16 +31,22 @@ package nl.sogeti.android.gpstracker.viewer;
 import java.util.List;
 import java.util.Vector;
 
+import org.andnav.osm.views.OpenStreetMapView;
+import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
+import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProxy;
+import nl.sogeti.android.gpstracker.viewer.proxy.ProjectionProxy;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -57,6 +63,8 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -66,7 +74,6 @@ import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.Projection;
 
 /**
  * Creates an overlay that can draw a single segment of connected waypoints
@@ -74,7 +81,7 @@ import com.google.android.maps.Projection;
  * @version $Id$
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */
-public class SegmentOverlay extends Overlay
+public class SegmentOverlay extends Overlay implements OverlayProxy
 {
    public static final int MIDDLE_SEGMENT = 0;
    public static final int FIRST_SEGMENT = 1;
@@ -91,7 +98,7 @@ public class SegmentOverlay extends Overlay
 
    private ContentResolver mResolver;
    private LoggerMap mLoggerMap;
-   private Projection mProjection;
+   private ProjectionProxy mProjection;
 
    private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
    private Uri mWaypointsUri;
@@ -120,13 +127,31 @@ public class SegmentOverlay extends Overlay
    private int mWaypointCount;
    private int mWidth;
    private int mHeight;
-//   private Canvas mDebugCanvas;
+   //   private Canvas mDebugCanvas;
    private GeoPoint mPrevGeoPoint;
    private int mCurrentColor;
    private Paint dotpaint;
    private Paint radiusPaint;
    private Paint routePaint;
    private Paint defaultPaint;
+   private boolean mRequeryFlag;
+
+   private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
+      {
+
+         @Override
+         public void onChange( boolean selfUpdate )
+         {
+            if( !selfUpdate )
+            {
+               mRequeryFlag = true;
+            }
+            else
+            {
+               Log.w( TAG, "mTrackSegmentsObserver skipping change on " + mSegmentUri );
+            }
+         }
+      };
 
    /**
     * Constructor: create a new TrackingOverlay.
@@ -137,20 +162,23 @@ public class SegmentOverlay extends Overlay
     * @param avgSpeed
     * @param mMapView
     */
-   public SegmentOverlay(LoggerMap cxt, Uri segmentUri, int color, double avgSpeed, MapViewProxy mMapView)
+   public SegmentOverlay(LoggerMap cxt, Uri segmentUri, int color, double avgSpeed, MapViewProxy mapView)
    {
       super();
-      this.mLoggerMap = cxt;
-      this.mMapView = mMapView;
-      this.mTrackColoringMethod = color;
-      this.mAvgSpeed = avgSpeed;
-      this.mResolver = mLoggerMap.getApplicationContext().getContentResolver();
-      this.mSegmentUri = segmentUri;
-      this.mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
-      this.mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
-      this.mMediaPath = new Vector<MediaVO>();
-      this.mCurrentColor = Color.rgb( 255, 0, 0 );
-      
+      mLoggerMap = cxt;
+      mMapView = mapView;
+      mTrackColoringMethod = color;
+      mAvgSpeed = avgSpeed;
+      mResolver = mLoggerMap.getApplicationContext().getContentResolver();
+      mSegmentUri = segmentUri;
+      mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
+      mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
+      mMediaPath = new Vector<MediaVO>();
+      mCurrentColor = Color.rgb( 255, 0, 0 );
+      mProjection = new ProjectionProxy();
+
+      mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
+
       dotpaint = new Paint();
       radiusPaint = new Paint();
       radiusPaint.setColor( Color.YELLOW );
@@ -161,7 +189,7 @@ public class SegmentOverlay extends Overlay
       routePaint.setAntiAlias( true );
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
       defaultPaint = new Paint();
-      
+
       Cursor waypointsCursor = null;
       try
       {
@@ -173,8 +201,6 @@ public class SegmentOverlay extends Overlay
          waypointsCursor.close();
       }
    }
-   
-   
 
    /*
     * (non-Javadoc)
@@ -183,11 +209,14 @@ public class SegmentOverlay extends Overlay
    @Override
    protected void finalize() throws Throwable
    {
-      try {
+      try
+      {
          closeResources();
-     } finally {
+      }
+      finally
+      {
          super.finalize();
-     }
+      }
 
    }
 
@@ -201,21 +230,26 @@ public class SegmentOverlay extends Overlay
       {
          mMediaCursor.close();
       }
+      mResolver.unregisterContentObserver( this.mTrackSegmentsObserver );
    }
-
-
+   
    @Override
    public void draw( Canvas canvas, MapView mapView, boolean shadow )
    {
       super.draw( canvas, mapView, shadow );
-//      this.mDebugCanvas = canvas;
+      mProjection.setProjection( mapView.getProjection() ); 
+      draw( canvas, shadow );
+   }
+
+   public void draw( Canvas canvas, boolean shadow )
+   {
+      //      this.mDebugCanvas = canvas;
       if( shadow )
       {
-//                  Log.d( TAG, "No shadows to draw" );
+         //                  Log.d( TAG, "No shadows to draw" );
       }
       else
       {
-         mProjection = mapView.getProjection();
          GeoPoint oldTopLeft = mTopLeft;
          GeoPoint oldBottumRight = mBottumRight;
          mTopLeft = mProjection.fromPixels( 0, 0 );
@@ -291,18 +325,22 @@ public class SegmentOverlay extends Overlay
          mDotPath.clear();
       }
       mCalculatedPoints = 0;
-      
+
       if( mWaypointsCursor == null )
       {
          mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
       }
+      if( mRequeryFlag )
+      {
+         mWaypointsCursor.requery();
+      }
       if( mProjection != null && mWaypointsCursor.moveToFirst() )
       {
          GeoPoint geoPoint;
-         
+
          mStartPoint = extractGeoPoint();
          mPrevGeoPoint = mStartPoint;
-         
+
          do
          {
             geoPoint = extractGeoPoint();
@@ -367,6 +405,10 @@ public class SegmentOverlay extends Overlay
       {
          mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
       }
+      if( mRequeryFlag )
+      {
+         mWaypointsCursor.requery();
+      }
       if( mProjection != null && mWaypointsCursor.moveToFirst() )
       {
          // Start point of the segments, possible a dot
@@ -376,9 +418,9 @@ public class SegmentOverlay extends Overlay
          this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
          this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
          this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
-         
+
          moveToGeoPoint( this.mStartPoint );
-         
+
          do
          {
             geoPoint = extractGeoPoint();
@@ -409,11 +451,10 @@ public class SegmentOverlay extends Overlay
          }
          while( moveToNextWayPoint() );
 
-         
          this.mEndPoint = extractGeoPoint(); // End point of the segments, possible a dot
 
-         }
-//      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
+      }
+      //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
 
    /**
@@ -514,7 +555,7 @@ public class SegmentOverlay extends Overlay
             int up = ( mediaVO.h * 6 ) / 7 - wiggle;
             mediaVO.x = mScreenPoint.x - left;
             mediaVO.y = mScreenPoint.y - up;
-            canvas.drawBitmap( bitmap,mediaVO.x, mediaVO.y, defaultPaint );
+            canvas.drawBitmap( bitmap, mediaVO.x, mediaVO.y, defaultPaint );
             lastPoint = mediaVO.geopoint;
          }
       }
@@ -612,49 +653,46 @@ public class SegmentOverlay extends Overlay
    private void lineToGeoPoint( GeoPoint geoPoint, double speed )
    {
       setScreenPoint( geoPoint );
-      
-//      Log.d( TAG, "Draw line to " + geoPoint+" with speed "+speed );
-      
+
+      //      Log.d( TAG, "Draw line to " + geoPoint+" with speed "+speed );
+
       if( speed > 0 )
       {
          int greenfactor = (int) Math.min( ( 127 * speed ) / mAvgSpeed, 255 );
-         int redfactor   = 255 - greenfactor;
-         mCurrentColor   = Color.rgb( redfactor, greenfactor, 0 );
+         int redfactor = 255 - greenfactor;
+         mCurrentColor = Color.rgb( redfactor, greenfactor, 0 );
       }
       else
       {
          int greenfactor = Color.green( mCurrentColor );
-         int redfactor   = Color.red( mCurrentColor );
-         mCurrentColor   = Color.argb( 128, redfactor, greenfactor, 0 );
+         int redfactor = Color.red( mCurrentColor );
+         mCurrentColor = Color.argb( 128, redfactor, greenfactor, 0 );
       }
-      
+
       float distance = (float) distanceInPoints( this.mPrevDrawnScreenPoint, this.mScreenPoint );
       if( distance > MINIMUM_PX_DISTANCE )
       {
-//         Log.d( TAG, "Circle between " + mPrevDrawnScreenPoint+" and "+mScreenPoint );
+         //         Log.d( TAG, "Circle between " + mPrevDrawnScreenPoint+" and "+mScreenPoint );
          int x_circle = ( this.mPrevDrawnScreenPoint.x + this.mScreenPoint.x ) / 2;
          int y_circle = ( this.mPrevDrawnScreenPoint.y + this.mScreenPoint.y ) / 2;
          float radius_factor = 0.4f;
-         Shader lastShader = new RadialGradient( x_circle, y_circle, distance
-               , new int[]   { mCurrentColor,  mCurrentColor, Color.TRANSPARENT }
-               , new float[] {            0, radius_factor,                 1 }
-               , TileMode.CLAMP );
-//            Paint debug = new Paint();
-//            debug.setStyle( Paint.Style.FILL_AND_STROKE );
-//            this.mDebugCanvas.drawCircle(
-//                  x_circle,
-//                  y_circle, 
-//                  distance*radius_factor/2, 
-//                  debug );
-//            this.mDebugCanvas.drawCircle(
-//                  x_circle,
-//                  y_circle, 
-//                  distance*radius_factor, 
-//                  debug );
-//            if( distance > 100 )
-//            {
-//               Log.d( TAG, "Created shader for speed " + speed + " on " + x_circle + "," + y_circle );
-//            }
+         Shader lastShader = new RadialGradient( x_circle, y_circle, distance, new int[] { mCurrentColor, mCurrentColor, Color.TRANSPARENT }, new float[] { 0, radius_factor, 1 }, TileMode.CLAMP );
+         //            Paint debug = new Paint();
+         //            debug.setStyle( Paint.Style.FILL_AND_STROKE );
+         //            this.mDebugCanvas.drawCircle(
+         //                  x_circle,
+         //                  y_circle, 
+         //                  distance*radius_factor/2, 
+         //                  debug );
+         //            this.mDebugCanvas.drawCircle(
+         //                  x_circle,
+         //                  y_circle, 
+         //                  distance*radius_factor, 
+         //                  debug );
+         //            if( distance > 100 )
+         //            {
+         //               Log.d( TAG, "Created shader for speed " + speed + " on " + x_circle + "," + y_circle );
+         //            }
          if( this.mShader != null )
          {
             this.mShader = new ComposeShader( lastShader, this.mShader, Mode.SRC_OVER );
@@ -682,9 +720,7 @@ public class SegmentOverlay extends Overlay
    }
 
    /**
-    * Move to a next waypoint, for on screen this are the points with 
-    * mStepSize % position == 0 to avoid jittering in the rendering
-    * or the points on the either side of the screen edge. 
+    * Move to a next waypoint, for on screen this are the points with mStepSize % position == 0 to avoid jittering in the rendering or the points on the either side of the screen edge.
     * 
     * @return if a next waypoint is pointed to with the mWaypointsCursor
     */
@@ -696,62 +732,59 @@ public class SegmentOverlay extends Overlay
       {
          cursorReady = false;
       }
-      else if( onscreen )             // Are on screen
+      else if( onscreen ) // Are on screen
       {
          cursorReady = moveOnScreenWaypoint();
       }
-      else                            // Are off screen => accelerate
+      else
+      // Are off screen => accelerate
       {
-         int acceleratedStepsize = mStepSize * (mWaypointCount/1000+6);
+         int acceleratedStepsize = mStepSize * ( mWaypointCount / 1000 + 6 );
          cursorReady = moveOffscreenWaypoint( acceleratedStepsize );
       }
-      return cursorReady ;
+      return cursorReady;
    }
 
    /**
-    * Move the cursor to the next waypoint modulo of the step size
-    * or less if the screen edge is reached
+    * Move the cursor to the next waypoint modulo of the step size or less if the screen edge is reached
     * 
     * @param trackCursor
     * @return
     */
    private boolean moveOnScreenWaypoint()
    {
-      int nextPosition = mStepSize*(mWaypointsCursor.getPosition()/mStepSize)+mStepSize;
+      int nextPosition = mStepSize * ( mWaypointsCursor.getPosition() / mStepSize ) + mStepSize;
       if( mWaypointsCursor.moveToPosition( nextPosition ) )
       {
-         if( isOnScreen( extractGeoPoint() ) )      // Remained on screen
+         if( isOnScreen( extractGeoPoint() ) ) // Remained on screen
          {
-            return true;                            // Cursor is pointing to somewhere
+            return true; // Cursor is pointing to somewhere
          }
-         else 
+         else
          {
-            mWaypointsCursor.move( -1*mStepSize );  // Step back
-            boolean nowOnScreen = true;             // onto the screen
-            while( nowOnScreen  )                   // while on the screen 
+            mWaypointsCursor.move( -1 * mStepSize ); // Step back
+            boolean nowOnScreen = true; // onto the screen
+            while( nowOnScreen ) // while on the screen 
             {
-               mWaypointsCursor.moveToNext();       // inch forward to the edge
+               mWaypointsCursor.moveToNext(); // inch forward to the edge
                nowOnScreen = isOnScreen( extractGeoPoint() );
             }
-            return true;                            // with a cursor point to somewhere
+            return true; // with a cursor point to somewhere
          }
       }
       else
       {
-         return mWaypointsCursor.moveToLast();      // No full step can be taken, move to last
+         return mWaypointsCursor.moveToLast(); // No full step can be taken, move to last
       }
    }
-   
-   
 
    /**
-    * Previous path GeoPoint was off screen and the next one will be to 
-    * or the first on screen when the path reaches the projection.
-    * TODO
+    * Previous path GeoPoint was off screen and the next one will be to or the first on screen when the path reaches the projection.
+    * 
     * @return
     */
    private boolean moveOffscreenWaypoint( int flexStepsize )
-   {   
+   {
       while( mWaypointsCursor.move( flexStepsize ) )
       {
          if( mWaypointsCursor.isLast() )
@@ -759,18 +792,18 @@ public class SegmentOverlay extends Overlay
             return true;
          }
          GeoPoint evalPoint = extractGeoPoint();
-//         Log.d( TAG, String.format( "Evaluate point number %d ", mWaypointsCursor.getPosition() ) );
+         //         Log.d( TAG, String.format( "Evaluate point number %d ", mWaypointsCursor.getPosition() ) );
          if( possibleScreenPass( mPrevGeoPoint, evalPoint ) )
          {
             mPrevGeoPoint = evalPoint;
-            if( flexStepsize == 1 )                                 // Just stumbled over a border
+            if( flexStepsize == 1 ) // Just stumbled over a border
             {
                return true;
             }
             else
             {
-               mWaypointsCursor.move( -1*flexStepsize );             // Take 1 step back
-               return moveOffscreenWaypoint( flexStepsize/2 );       // Continue at halve accelerated speed
+               mWaypointsCursor.move( -1 * flexStepsize ); // Take 1 step back
+               return moveOffscreenWaypoint( flexStepsize / 2 ); // Continue at halve accelerated speed
             }
          }
          else
@@ -778,7 +811,7 @@ public class SegmentOverlay extends Overlay
             moveToGeoPoint( evalPoint );
             mPrevGeoPoint = evalPoint;
          }
-         
+
       }
       return mWaypointsCursor.moveToLast();
    }
@@ -788,13 +821,13 @@ public class SegmentOverlay extends Overlay
     */
    private void calculateStepSize()
    {
-      
+
       if( mWaypointCount < 250 )
       {
          mStepSize = 1;
       }
       else
-      {         
+      {
          int zoomLevel = mMapView.getZoomLevel();
          int maxZoomLevel = mMapView.getMaxZoomLevel();
          if( zoomLevel >= maxZoomLevel - 2 )
@@ -820,96 +853,98 @@ public class SegmentOverlay extends Overlay
       if( eval != null && mTopLeft != null && mBottumRight != null )
       {
          onscreen = mTopLeft.getLatitudeE6() > eval.getLatitudeE6();
-         onscreen = onscreen && mBottumRight.getLatitudeE6()  < eval.getLatitudeE6();
+         onscreen = onscreen && mBottumRight.getLatitudeE6() < eval.getLatitudeE6();
          onscreen = onscreen && mTopLeft.getLongitudeE6() < eval.getLongitudeE6();
          onscreen = onscreen && mBottumRight.getLongitudeE6() > eval.getLongitudeE6();
       }
       return onscreen;
    }
-   
+
    /**
-       * Calculates in which segment opposited to the projecting a geo point resides
-       * 
-       * @param p1
-       * @return
-       */
-      private int toSegment( GeoPoint p1 )
+    * Calculates in which segment opposited to the projecting a geo point resides
+    * 
+    * @param p1
+    * @return
+    */
+   private int toSegment( GeoPoint p1 )
+   {
+      //      Log.d( TAG, String.format( "Comparing %s to points TL %s and BR %s", p1, mTopLeft, mBottumRight )); 
+      int nr;
+      if( p1.getLongitudeE6() < mTopLeft.getLongitudeE6() ) // left
       {
-   //      Log.d( TAG, String.format( "Comparing %s to points TL %s and BR %s", p1, mTopLeft, mBottumRight )); 
-         int nr ;
-         if( p1.getLongitudeE6() < mTopLeft.getLongitudeE6() )           // left
-         {
-            nr = 1;
-         }
-         else if( p1.getLongitudeE6() > mBottumRight.getLongitudeE6() )  // right
-         {
-           nr = 3;  
-         }
-         else                                                            // middle
-         {
-            nr =2 ;
-         }
-         
-         if( p1.getLatitudeE6() > mTopLeft.getLatitudeE6() )             // top
-         {
-            nr = nr+0;
-         }
-         else if( p1.getLatitudeE6() < mBottumRight.getLatitudeE6() )   // bottom
-         {
-            nr = nr+6;
-         }
-         else                                                            // middle
-         {
-            nr = nr+3;
-         }
-         return nr;
+         nr = 1;
+      }
+      else if( p1.getLongitudeE6() > mBottumRight.getLongitudeE6() ) // right
+      {
+         nr = 3;
+      }
+      else
+      // middle
+      {
+         nr = 2;
       }
 
-   private boolean possibleScreenPass( GeoPoint fromGeo, GeoPoint toGeo )
+      if( p1.getLatitudeE6() > mTopLeft.getLatitudeE6() ) // top
       {
-         boolean safe = true;
-         if( fromGeo != null && toGeo != null )
-         {
-            int from = toSegment( fromGeo );
-            int to   = toSegment( toGeo );
-            
-            switch( from )
-            {
-               case 1:
-                  safe = to == 1 || to == 2 || to == 3 || to == 4 || to == 7;
-                  break;
-               case 2:
-                  safe = to == 1 || to == 2 || to == 3;
-                  break;
-               case 3:
-                  safe = to == 1 || to == 2 || to == 3 || to == 6 || to == 9;
-                  break;
-               case 4:
-                  safe = to == 1 || to == 4 || to == 7;
-                  break;
-               case 5:
-                  safe = false;
-                  break;
-               case 6:
-                  safe = to == 3 || to == 6 || to == 9;
-                  break;
-               case 7:
-                  safe = to == 1 || to == 4 || to == 7 || to == 8 || to == 9;
-                  break;
-               case 8:
-                  safe = to == 7 || to == 8 || to == 9;
-                  break;
-               case 9:
-                  safe = to == 3 || to == 6 || to == 7 || to == 8 || to == 9;
-                  break;
-               default:
-                  safe = false;
-                  break;
-            }
-//            Log.d( TAG, String.format( "From %d to %d is safe: %s", from, to, safe ) );
-         }
-         return !safe;
+         nr = nr + 0;
       }
+      else if( p1.getLatitudeE6() < mBottumRight.getLatitudeE6() ) // bottom
+      {
+         nr = nr + 6;
+      }
+      else
+      // middle
+      {
+         nr = nr + 3;
+      }
+      return nr;
+   }
+
+   private boolean possibleScreenPass( GeoPoint fromGeo, GeoPoint toGeo )
+   {
+      boolean safe = true;
+      if( fromGeo != null && toGeo != null )
+      {
+         int from = toSegment( fromGeo );
+         int to = toSegment( toGeo );
+
+         switch( from )
+         {
+            case 1:
+               safe = to == 1 || to == 2 || to == 3 || to == 4 || to == 7;
+               break;
+            case 2:
+               safe = to == 1 || to == 2 || to == 3;
+               break;
+            case 3:
+               safe = to == 1 || to == 2 || to == 3 || to == 6 || to == 9;
+               break;
+            case 4:
+               safe = to == 1 || to == 4 || to == 7;
+               break;
+            case 5:
+               safe = false;
+               break;
+            case 6:
+               safe = to == 3 || to == 6 || to == 9;
+               break;
+            case 7:
+               safe = to == 1 || to == 4 || to == 7 || to == 8 || to == 9;
+               break;
+            case 8:
+               safe = to == 7 || to == 8 || to == 9;
+               break;
+            case 9:
+               safe = to == 3 || to == 6 || to == 7 || to == 8 || to == 9;
+               break;
+            default:
+               safe = false;
+               break;
+         }
+         //            Log.d( TAG, String.format( "From %d to %d is safe: %s", from, to, safe ) );
+      }
+      return !safe;
+   }
 
    public void setTrackColoringMethod( int coloring, double avgspeed )
    {
@@ -943,7 +978,7 @@ public class SegmentOverlay extends Overlay
          float distance = startLocation.distanceTo( endLocation );
          float seconds = ( endLocation.getTime() - startLocation.getTime() ) / 1000f;
          speed = distance / seconds;
-//         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
+         //         Log.d( TAG, "Found a speed of "+speed+ " over a distance of "+ distance+" in a time of "+seconds);
       }
       if( speed > 0 )
       {
@@ -977,7 +1012,7 @@ public class SegmentOverlay extends Overlay
       }
       else
       {
-         BaseAdapter adapter = new MediaAdapter( mLoggerMap, tappedUri ); 
+         BaseAdapter adapter = new MediaAdapter( mLoggerMap, tappedUri );
          mLoggerMap.showDialog( adapter );
          return true;
       }
@@ -1027,7 +1062,7 @@ public class SegmentOverlay extends Overlay
       }
       return false;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.google.android.maps.Overlay#onTap(com.google.android.maps.GeoPoint, com.google.android.maps.MapView)
@@ -1041,8 +1076,8 @@ public class SegmentOverlay extends Overlay
       for( MediaVO media : mMediaPath )
       {
          mapView.getProjection().toPixels( tappedGeoPoint, tappedPoint );
-         
-         if( media.x < tappedPoint.x && tappedPoint.x < media.x+media.w && media.y < tappedPoint.y && tappedPoint.y < media.y+media.h )
+
+         if( media.x < tappedPoint.x && tappedPoint.x < media.x + media.w && media.y < tappedPoint.y && tappedPoint.y < media.y + media.h )
          {
             //Log.d( TAG, String.format( "Tapped at a (x,y) (%d,%d)", tappedPoint.x, tappedPoint.y ) );
             tappedUri.add( media.uri );
@@ -1079,7 +1114,7 @@ public class SegmentOverlay extends Overlay
    private static class MediaAdapter extends BaseAdapter
    {
 
-      private Context mContext ;
+      private Context mContext;
       private List<Uri> mTappedUri;
       private int itemBackground;
 
@@ -1087,9 +1122,9 @@ public class SegmentOverlay extends Overlay
       {
          mContext = ctx;
          mTappedUri = tappedUri;
-         TypedArray a = mContext.obtainStyledAttributes(R.styleable.gallery);
-         itemBackground = a.getResourceId( R.styleable.gallery_android_galleryItemBackground, 0);
-         a.recycle();                    
+         TypedArray a = mContext.obtainStyledAttributes( R.styleable.gallery );
+         itemBackground = a.getResourceId( R.styleable.gallery_android_galleryItemBackground, 0 );
+         a.recycle();
 
       }
 
@@ -1099,11 +1134,11 @@ public class SegmentOverlay extends Overlay
       }
 
       public Object getItem( int position )
-      {            
-         return mTappedUri.get( position ); 
+      {
+         return mTappedUri.get( position );
       }
 
-      public long getItemId(int position) 
+      public long getItemId( int position )
       {
          return position;
       }
@@ -1118,6 +1153,32 @@ public class SegmentOverlay extends Overlay
          return imageView;
 
       }
-
    }
+
+   public Overlay getGoogleOverlay()
+   {
+      return this;
+   }
+
+   public OpenStreetMapViewOverlay getOSMOverlay()
+   {
+      return osmOverlay;
+   }
+   
+   OpenStreetMapViewOverlay osmOverlay = new OpenStreetMapViewOverlay(mLoggerMap) {
+
+      @Override
+      protected void onDraw( Canvas canvas, OpenStreetMapView view )
+      {
+         mProjection.setProjection( view.getProjection() );
+         SegmentOverlay.this.draw( canvas, false );
+      }
+
+      @Override
+      protected void onDrawFinished( Canvas arg0, OpenStreetMapView arg1 )
+      {
+         // noop
+      }
+      
+   };
 }

@@ -45,4 +45,32 @@ public class ProjectionProxy
 
    }
 
+   public GeoPoint fromPixels( int i, int j )
+   {
+      GeoPoint point = null;
+      if( mProjection != null )
+      {
+         point  = mProjection.fromPixels( i, j );
+      } 
+      if( mOpenStreetMapViewProjection != null )
+      {
+         point = MapViewProxy.convertOSMGeoPoint( mOpenStreetMapViewProjection.fromPixels( i, j ) );
+      }
+      return point;
+   }
+
+   public float metersToEquatorPixels( float i )
+   {
+      float pixels = 0f;
+      if( mProjection != null )
+      {
+         pixels  = mProjection.metersToEquatorPixels( i );
+      } 
+      if( mOpenStreetMapViewProjection != null )
+      {
+         pixels = mOpenStreetMapViewProjection.metersToEquatorPixels( i ) ;
+      }
+      return pixels;
+   }
+
 }
