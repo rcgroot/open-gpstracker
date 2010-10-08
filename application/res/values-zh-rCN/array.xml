@@ -34,7 +34,13 @@
         <item>文本 - 速度和距离的摘要</item>
     </string-array>
     
-    <string-array name="sharefiletarget_choices">
+    <string-array name="sharegpxtarget_choices">
+        <item>保存到SD卡</item>
+        <item>使用一个(Email)程序发送</item>
+        <item>jogrunner.de</item>
+    </string-array>
+    
+    <string-array name="sharekmztarget_choices">
         <item>保存到SD卡</item>
         <item>使用一个(Email)程序发送</item>
     </string-array>

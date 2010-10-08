@@ -39,7 +39,13 @@
         <item>Text - Speed and distance summary</item>
     </string-array>
     
-    <string-array name="sharefiletarget_choices">
+    <string-array name="sharegpxtarget_choices">
+        <item>Store to SD Card</item>
+        <item>Send with an (email) application</item>
+        <item>Publish to jogrunner.de</item>
+    </string-array>
+    
+    <string-array name="sharekmztarget_choices">
         <item>Store to SD Card</item>
         <item>Send with an (email) application</item>
     </string-array>

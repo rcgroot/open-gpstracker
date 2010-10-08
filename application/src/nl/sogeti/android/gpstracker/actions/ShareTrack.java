@@ -70,6 +70,7 @@ public class ShareTrack extends Activity
    private static final int EXPORT_TYPE_TEXTLINE = 2;
    private static final int EXPORT_TARGET_SAVE = 0;
    private static final int EXPORT_TARGET_SEND = 1;
+   private static final int EXPORT_TARGET_JOGRUN = 2;
    private static final int EXPORT_TYPE_TWITDRIOD = 0;
    private static final int EXPORT_TYPE_SMS = 1;
    private static final int EXPORT_TYPE_TEXT = 2;
@@ -123,9 +124,8 @@ public class ShareTrack extends Activity
       ArrayAdapter<CharSequence> shareTypeAdapter = ArrayAdapter.createFromResource(this, R.array.sharetype_choices, android.R.layout.simple_spinner_item);
       shareTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTypeSpinner.setAdapter(shareTypeAdapter);
-      mShareTypeSpinner.setSelection(EXPORT_TYPE_KMZ);
-
       mShareTargetSpinner = (Spinner) findViewById(R.id.shareTargetSpinner);
+      
       mShareTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
          {
             public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
@@ -133,12 +133,12 @@ public class ShareTrack extends Activity
                switch (position)
                {
                   case EXPORT_TYPE_KMZ:
-                     setXmlExportTargets();
+                     setKmzExportTargets();
                      mFileNameView.setVisibility(View.VISIBLE);
                      mTweetView.setVisibility(View.GONE);
                      break;
                   case EXPORT_TYPE_GPX:
-                     setXmlExportTargets();
+                     setGpxExportTargets();
                      mFileNameView.setVisibility(View.VISIBLE);
                      mTweetView.setVisibility(View.GONE);
                      break;
@@ -155,8 +155,9 @@ public class ShareTrack extends Activity
             { /* NOOP */
             }
          });
-
-      setXmlExportTargets();
+      
+      mShareTypeSpinner.setSelection(EXPORT_TYPE_KMZ);
+      setKmzExportTargets();
 
       calculator = new StatisticsCalulator(this, new UnitsI18n(this, null));
       mFileNameView.setText(createFileName());
@@ -203,9 +204,17 @@ public class ShareTrack extends Activity
       }
    }
 
-   private void setXmlExportTargets()
+   private void setGpxExportTargets()
    {
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharefiletarget_choices, android.R.layout.simple_spinner_item);
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharegpxtarget_choices, android.R.layout.simple_spinner_item);
+      shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+      mShareTargetSpinner.setAdapter(shareTargetAdapter);
+      mShareTargetSpinner.setSelection(EXPORT_TARGET_SEND);
+   }
+   
+   private void setKmzExportTargets()
+   {
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharekmztarget_choices, android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
       mShareTargetSpinner.setSelection(EXPORT_TARGET_SEND);
@@ -300,6 +309,16 @@ public class ShareTrack extends Activity
                   }
                };
             break;
+         case EXPORT_TARGET_JOGRUN:
+            endJob = new EndJob()
+            {
+               public void shareFile(Uri fileUri, String contentType)
+               {
+                  sendToJogrun(fileUri, contentType);
+                  ShareTrack.this.finish();
+               }
+            };
+         break;
          default:
             Log.e(TAG, "Unable to determine target for sharing GPX " + target);
             break;
@@ -355,6 +374,11 @@ public class ShareTrack extends Activity
       sendActionIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
       sendActionIntent.setType(contentType);
       startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser)));
+   }
+   
+   private void sendToJogrun( Uri fileUri, String contentType )
+   {
+      // TODO Post to Jogrun.de
    }
 
    private void sendSMS(String msg)
