@@ -175,8 +175,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
       mMediaPath = new Vector<MediaVO>();
       mCurrentColor = Color.rgb( 255, 0, 0 );
-      mProjection = new ProjectionProxy();
-
+      mProjection = mapView.getProjection();
+      
       mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
 
       dotpaint = new Paint();
@@ -459,8 +459,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    /**
     * @param canvas
-    * @param mapView
-    * @param shadow
+    * 
     * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
    private synchronized void drawPath( Canvas canvas )
@@ -950,7 +949,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    {
       this.mTrackColoringMethod = coloring;
       this.mAvgSpeed = avgspeed;
-      calculatePath();
    }
 
    /**
@@ -1170,7 +1168,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       @Override
       protected void onDraw( Canvas canvas, OpenStreetMapView view )
       {
-         mProjection.setProjection( view.getProjection() );
          SegmentOverlay.this.draw( canvas, false );
       }
 

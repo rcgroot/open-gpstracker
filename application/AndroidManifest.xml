@@ -62,7 +62,7 @@
               android:value=".viewer.TrackList" />
          <meta-data 
               android:name="CLOUDMADE_KEY" 
-              android:value="" />
+              android:value="534dfce474894e218f363a5473248ff6" />
            
     	<uses-library android:name="com.google.android.maps" />
 

@@ -29,7 +29,6 @@ public class ProjectionProxy
          mOpenStreetMapViewProjection = (OpenStreetMapViewProjection) projection;
          mProjection = null;
       }
-
    }
 
    public void toPixels( GeoPoint geoPoint, Point out )
@@ -41,8 +40,11 @@ public class ProjectionProxy
       else if( mOpenStreetMapViewProjection != null )
       {
          mOpenStreetMapViewProjection.toMapPixels( MapViewProxy.convertMapGeoPoint(geoPoint), out );
+      } 
+      else 
+      {
+         throw new IllegalStateException( "No working projection available" );
       }
-
    }
 
    public GeoPoint fromPixels( int i, int j )
@@ -52,9 +54,13 @@ public class ProjectionProxy
       {
          point  = mProjection.fromPixels( i, j );
       } 
-      if( mOpenStreetMapViewProjection != null )
+      else if( mOpenStreetMapViewProjection != null )
       {
          point = MapViewProxy.convertOSMGeoPoint( mOpenStreetMapViewProjection.fromPixels( i, j ) );
+      }
+      else
+      {
+         throw new IllegalStateException( "No working projection available" );
       }
       return point;
    }
@@ -66,9 +72,13 @@ public class ProjectionProxy
       {
          pixels  = mProjection.metersToEquatorPixels( i );
       } 
-      if( mOpenStreetMapViewProjection != null )
+      else if( mOpenStreetMapViewProjection != null )
       {
          pixels = mOpenStreetMapViewProjection.metersToEquatorPixels( i ) ;
+      }
+      else
+      {
+         throw new IllegalStateException( "No working projection available" );
       }
       return pixels;
    }
