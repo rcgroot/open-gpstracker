@@ -46,8 +46,6 @@ import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.SettingsDialog;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
-import nl.sogeti.android.gpstracker.viewer.proxy.MyLocationOverlayProxy;
 
 import org.openintents.intents.AboutIntents;
 
@@ -97,6 +95,8 @@ import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 
 /**
  * Main activity showing a track and allowing logging control
@@ -153,8 +153,8 @@ public class LoggerMap extends MapActivity
    private BaseAdapter mMediaAdapter;
    private Gallery mGallery;
    
-   private MapViewProxy mMapView = null;
-   private MyLocationOverlayProxy mMylocation;
+   private MapView mMapView = null;
+   private MyLocationOverlay mMylocation;
    
    private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
@@ -310,10 +310,6 @@ public class LoggerMap extends MapActivity
             {
                updateLocationDisplayVisibility();
             }
-            else if( key.equals( Constants.MAPPROVIDER ) ) 
-            {
-               updateMapProvider();
-            }
          }
       };
    private final UnitsI18n.UnitsChangeListener mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
@@ -409,10 +405,9 @@ public class LoggerMap extends MapActivity
 
       setContentView( R.layout.map );
 
-      mMapView = new MapViewProxy();
-      updateMapProvider();
+      mMapView = (MapView) findViewById( R.id.myMapView );
 
-      mMylocation = new MyLocationOverlayProxy( this, mMapView ); 
+      mMylocation = new FixedMyLocationOverlay( this, mMapView );
       mMapView.setBuiltInZoomControls( true );
       mMapView.setClickable( true );
       mMapView.setStreetView( false );
@@ -457,7 +452,6 @@ public class LoggerMap extends MapActivity
       updateAltitudeDisplayVisibility();
       updateCompassDisplayVisibility();
       updateLocationDisplayVisibility();
-      updateMapProvider();
 
       if( mTrackId >= 0 )
       {
@@ -1052,27 +1046,6 @@ public class LoggerMap extends MapActivity
       }
    }
 
-   private void updateMapProvider()
-   {
-      int provider = new Integer( mSharedPreferences.getString( Constants.MAPPROVIDER, ""+Constants.GOOGLE ) ).intValue();
-      switch( provider )
-      {
-         case Constants.GOOGLE:
-            findViewById( R.id.myOsmMapView ).setVisibility( View.INVISIBLE );
-            findViewById( R.id.myMapView ).setVisibility( View.VISIBLE );
-            mMapView.setMap( findViewById( R.id.myMapView ) );
-            break;
-         case Constants.OSM:
-            findViewById( R.id.myMapView ).setVisibility( View.INVISIBLE );
-            findViewById( R.id.myOsmMapView ).setVisibility( View.VISIBLE );
-            mMapView.setMap( findViewById( R.id.myOsmMapView ) );
-            break;
-         default:
-            Log.e( TAG, "Fault in value "+provider+" as MapProvider." );
-            break;
-      }
-   }
-
    private void updateBlankingBehavior()
    {
       boolean disableblanking = mSharedPreferences.getBoolean( Constants.DISABLEBLANKING, false );
@@ -1251,8 +1224,8 @@ public class LoggerMap extends MapActivity
    private void createDataOverlays()
    {
       mLastSegmentOverlay = null;
-      mMapView.clearOverlays();
-      mMapView.addOverlay( mMylocation );
+      mMapView.getOverlays().clear();
+      mMapView.getOverlays().add( mMylocation );
 
       ContentResolver resolver = this.getApplicationContext().getContentResolver();
       Cursor segments = null;
@@ -1269,7 +1242,7 @@ public class LoggerMap extends MapActivity
                long segmentsId = segments.getLong( 0 );
                Uri segmentUri = ContentUris.withAppendedId( segmentsUri, segmentsId );
                SegmentOverlay segmentOverlay = new SegmentOverlay( this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView );
-               mMapView.addOverlay( segmentOverlay );
+               mMapView.getOverlays().add( segmentOverlay );
                mLastSegmentOverlay = segmentOverlay;
                if( segments.isFirst() )
                {

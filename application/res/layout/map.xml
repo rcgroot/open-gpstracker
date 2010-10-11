@@ -16,15 +16,6 @@
    <!--  Emulator        : 0bmdf4-ggC50pzCfGzq5ADyCoBsyRz0kUybFeUw -->
    <!--  Mac emulator    : 0bmdf4-ggC527Bi-Ac3W30MvwmhnL-5CBRo6Slg -->
 
-   <org.andnav.osm.views.OpenStreetMapView
-      android:id="@+id/myOsmMapView"
-      android:layout_width="fill_parent"
-      android:layout_height="fill_parent"
-      android:visibility="invisible" 
-      android:clickable="true"
-      android:enabled="true"
-   />
-
    <TextView
       android:id="@+id/currentSpeed"
       android:text=".."
