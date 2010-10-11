@@ -289,13 +289,11 @@ public class GraphCanvas extends View
          int segmentCount = segments.getCount();
          values = new double[segmentCount][mWidth];
          valueDepth = new int[segmentCount][mWidth];
-         Log.d( TAG, "drawDistanceAxisGraphOnCanvas with "+segmentCount+" segments" );
          if( segments.moveToFirst() )
          {
             for(int segment=0;segment<segmentCount;segment++)
             {
                segments.moveToPosition( segment );
-               Log.d( TAG, "drawDistanceAxisGraphOnCanvas calculating number"+segment );
                long segmentId = segments.getLong( 0 );
                waypointsUri = Uri.withAppendedPath( segmentsUri, segmentId+"/waypoints" );
                try
@@ -381,13 +379,11 @@ public class GraphCanvas extends View
          int segmentCount = segments.getCount();
          values = new double[segmentCount][mWidth];
          valueDepth = new int[segmentCount][mWidth];
-         Log.d( TAG, "drawTimeAxisGraphOnCanvas with "+segmentCount+" segments" );
          if( segments.moveToFirst() )
          {
             for(int segment=0;segment<segmentCount;segment++)
             {
                segments.moveToPosition( segment );
-               Log.d( TAG, "drawTimeAxisGraphOnCanvas calculating number"+segment );
                long segmentId = segments.getLong( 0 );
                waypointsUri = Uri.withAppendedPath( segmentsUri, segmentId+"/waypoints" );
                try
