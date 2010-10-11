@@ -403,6 +403,8 @@ public class Statistics extends Activity
       mGraphDistanceSpeed.setData   ( mTrackUri, mCalculator );
       mGraphTimeAltitude.setData    ( mTrackUri, mCalculator );
       mGraphDistanceAltitude.setData( mTrackUri, mCalculator );
+      
+      mViewFlipper.postInvalidate();
 
       
       maxSpeedView.setText( mCalculator.getMaxSpeedText() );
