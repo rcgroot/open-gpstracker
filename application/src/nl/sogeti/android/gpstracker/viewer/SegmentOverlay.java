@@ -292,18 +292,21 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    public void calculateTrack()
    {
-      calculateStepSize();
-      switch( mTrackColoringMethod )
+      if( this.mScreenPoint != null ) // No screen point allocate means no draw yet called
       {
-         case ( DRAW_CALCULATED ):
-         case ( DRAW_MEASURED ):
-         case ( DRAW_RED ):
-         case ( DRAW_GREEN ):
-            calculatePath();
-            break;
-         case ( DRAW_DOTS ):
-            calculateDots();
-            break;
+         calculateStepSize();
+         switch( mTrackColoringMethod )
+         {
+            case ( DRAW_CALCULATED ):
+            case ( DRAW_MEASURED ):
+            case ( DRAW_RED ):
+            case ( DRAW_GREEN ):
+               calculatePath();
+               break;
+            case ( DRAW_DOTS ):
+               calculateDots();
+               break;
+         }
       }
    }
 

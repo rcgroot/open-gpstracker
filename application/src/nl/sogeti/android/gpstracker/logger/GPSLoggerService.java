@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.logger;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
+import java.util.concurrent.Semaphore;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -271,6 +272,8 @@ public class GPSLoggerService extends Service
          }
       };
 
+   private Semaphore handlerGatekeeper;
+
    
    private class GPSLoggerServiceThread extends Thread
    {
@@ -284,6 +287,7 @@ public class GPSLoggerService extends Service
                 _handleMessage(msg);
              }
          };
+         handlerGatekeeper.release();
          Looper.loop();
      }
    }
@@ -337,6 +341,8 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
+      
+      handlerGatekeeper = new Semaphore( 0 );
       new GPSLoggerServiceThread().start();
       
       mWeakLocations = new Vector<Location>( 3 );
@@ -351,8 +357,9 @@ public class GPSLoggerService extends Service
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this.mContext );
       mSpeedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( Constants.LOGATSTARTUP, false );
-      //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
+
       crashRestoreState();
+      
       if( startImmidiatly && mLoggingState == Constants.STOPPED )
       {
          startLogging();
@@ -374,7 +381,7 @@ public class GPSLoggerService extends Service
       stopLogging();
       Message msg = Message.obtain();
       msg.what = STOPLOOPER;
-      mHandler.sendMessage(msg);
+      sendMessage( msg );
    }
 
    private void crashProtectState()
@@ -453,7 +460,7 @@ public class GPSLoggerService extends Service
 
          Message msg = Message.obtain();
          msg.what = ADDGPSSTATUSLISTENER;
-         mHandler.sendMessage(msg);
+         sendMessage( msg );
          this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
          setupNotification();
@@ -487,7 +494,7 @@ public class GPSLoggerService extends Service
 
          Message msg = Message.obtain();
          msg.what = ADDGPSSTATUSLISTENER;
-         mHandler.sendMessage(msg);
+         sendMessage( msg );
          
          this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
@@ -592,23 +599,38 @@ public class GPSLoggerService extends Service
       {
          case ( LOGGING_FINE ): // Fine
             msg.what = REQUEST_FINEGPS_LOCATIONUPDATES;
-            mHandler.sendMessage(msg);
+            sendMessage( msg );
             break;
          case ( LOGGING_NORMAL ): // Normal
             msg.what = REQUEST_NORMALGPS_LOCATIONUPDATES;
-            mHandler.sendMessage(msg);
+            sendMessage( msg );
             break;
          case ( LOGGING_COARSE ): // Coarse
             msg.what = REQUEST_COARSEGPS_LOCATIONUPDATES;
-            mHandler.sendMessage(msg);
+            sendMessage( msg );
             break;
          case ( REQUEST_GLOBALGPS_LOCATIONUPDATES ): // Global
             msg.what = REQUEST_COARSEGPS_LOCATIONUPDATES;
-            mHandler.sendMessage(msg);
+            sendMessage( msg ); 
             break;
          default:
             Log.e( TAG, "Unknown precision " + mPrecision );
             break;
+      }
+      handlerGatekeeper.release();
+   }
+   
+   private void sendMessage( Message msg ) 
+   {
+      try
+      {
+         handlerGatekeeper.acquire();
+         mHandler.sendMessage(msg);
+         handlerGatekeeper.release();
+      }
+      catch( InterruptedException e )
+      {
+         Log.e( TAG, "Interrupted while waiting for handler to be created for message: "+msg );
       }
    }
 
@@ -618,7 +640,7 @@ public class GPSLoggerService extends Service
       {
          Message msg = Message.obtain();
          msg.what = REGISTERONSHAREDPREFERENCECHANGELISTENER;
-         mHandler.sendMessage(msg);
+         sendMessage( msg );
          
          PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
          this.mWakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, TAG );
