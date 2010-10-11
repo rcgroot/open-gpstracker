@@ -142,9 +142,6 @@
     <string name="search_label">Routes</string>
     <string name="search_description">Open GPS Tracker route namen</string>
     <string name="search_hint">Zoek routes</string>
-    <string name="preference_sharing">Delen instellingen</string>
-    <string name="jogmap_title">jogmap upload code</string>
-    <string name="jogmap_summary">De authentication code om the uploaden naar een jogmap.de account</string>
     
 <!-- ***************************
    About information

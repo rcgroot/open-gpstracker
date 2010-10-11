@@ -99,13 +99,5 @@
             android:defaultValue="false" 
          />        
     </PreferenceCategory>
-    <PreferenceCategory
-        android:title="@string/preference_sharing">
-        <EditTextPreference
-            android:key="JOGRUNNER_AUTH"
-            android:title="@string/jogmap_title"
-            android:summary="@string/jogmap_summary"
-            android:defaultValue="" 
-            />
-    </PreferenceCategory>
+
 </PreferenceScreen>

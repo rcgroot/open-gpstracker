@@ -143,9 +143,6 @@
     <string name="search_label">路线</string>
     <string name="search_description">打开 GPS 追踪器的路线名</string>
     <string name="search_hint">搜索路线</string>
-    <string name="preference_sharing">Sharing settings</string>
-    <string name="jogmap_title">jogmap upload code</string>
-    <string name="jogmap_summary">The authentication code to upload to a jogmap.de account</string>
     
 <!-- ***************************
    About information
