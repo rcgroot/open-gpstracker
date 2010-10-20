@@ -28,15 +28,35 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -50,9 +70,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -62,6 +84,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 public class ShareTrack extends Activity
 {
@@ -130,25 +153,7 @@ public class ShareTrack extends Activity
          {
             public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
             {
-               switch (position)
-               {
-                  case EXPORT_TYPE_KMZ:
-                     setKmzExportTargets();
-                     mFileNameView.setVisibility(View.VISIBLE);
-                     mTweetView.setVisibility(View.GONE);
-                     break;
-                  case EXPORT_TYPE_GPX:
-                     setGpxExportTargets();
-                     mFileNameView.setVisibility(View.VISIBLE);
-                     mTweetView.setVisibility(View.GONE);
-                     break;
-                  case EXPORT_TYPE_TEXTLINE:
-                     setTextLineExportTargets();
-                     mFileNameView.setVisibility(View.GONE);
-                     mTweetView.setVisibility(View.VISIBLE);
-                  default:
-                     break;
-               }
+               adjustTargetToType(position);
             }
 
             public void onNothingSelected(AdapterView< ? > arg0)
@@ -156,8 +161,12 @@ public class ShareTrack extends Activity
             }
          });
       
-      mShareTypeSpinner.setSelection(EXPORT_TYPE_KMZ);
-      setKmzExportTargets();
+      int lastType = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TYPE, EXPORT_TYPE_KMZ);
+      mShareTypeSpinner.setSelection(lastType);
+      adjustTargetToType(lastType);
+      int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TARGET, 0);
+      mShareTargetSpinner.setSelection(lastTarget);
+    	  
 
       calculator = new StatisticsCalulator(this, new UnitsI18n(this, null));
       mFileNameView.setText(createFileName());
@@ -234,6 +243,12 @@ public class ShareTrack extends Activity
       String textLine = mTweetView.getText().toString();
       int type = (int) mShareTypeSpinner.getSelectedItemId();
       int target = (int) mShareTargetSpinner.getSelectedItemId();
+      
+      Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+      editor.putInt(Constants.EXPORT_TYPE, type);
+      editor.putInt(Constants.EXPORT_TARGET, target);
+      editor.commit();
+      
       switch (type)
       {
          case EXPORT_TYPE_KMZ:
@@ -314,7 +329,7 @@ public class ShareTrack extends Activity
             {
                public void shareFile(Uri fileUri, String contentType)
                {
-                  sendToJogrun(fileUri, contentType);
+                  sendToJogmap(fileUri, contentType);
                   ShareTrack.this.finish();
                }
             };
@@ -376,11 +391,98 @@ public class ShareTrack extends Activity
       startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser)));
    }
    
-   private void sendToJogrun( Uri fileUri, String contentType )
+   private void sendToJogmap( Uri fileUri, String contentType )
    {
-      // TODO Post to Jogrun.de
+      String authCode = PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.JOGRUNNER_AUTH, "" );     
+      File gpxFile = new File(fileUri.getEncodedPath() );
+      HttpClient httpclient = new DefaultHttpClient();
+      HttpResponse response = null; 
+      URI jogrun = null;
+      String jogmapResponseText = "";
+      int statusCode = 0;
+	try
+      {
+         jogrun = new URI( getString( R.string.jogrun_post_url ) );
+         HttpPost method = new HttpPost( jogrun );
+
+         MultipartEntity entity = new MultipartEntity();
+         entity.addPart("id", new StringBody(authCode));
+         entity.addPart("mFile", new FileBody(gpxFile));
+         method.setEntity(entity);
+         response = httpclient.execute(method);
+         
+         statusCode = response.getStatusLine().getStatusCode() ;
+         InputStream stream = response.getEntity().getContent();
+         jogmapResponseText = convertStreamToString( stream );
+      }
+      catch( URISyntaxException e )
+      {
+          Log.e( TAG, "Failed to use configured URI "+jogrun.toString(), e );
+          CharSequence text = getString( R.string.jogmap_failed )+e.getLocalizedMessage();
+          Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
+          toast.show();
+      }
+      catch( ClientProtocolException e )
+      {
+          Log.e( TAG, "Failed to use configured URI "+jogrun.toString(), e );
+          CharSequence text = getString( R.string.jogmap_failed )+e.getLocalizedMessage();
+          Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
+          toast.show();
+      }
+      catch( IOException e )
+      {
+          Log.e( TAG, "Failed to use configured URI "+jogrun.toString(), e );
+          CharSequence text = getString( R.string.jogmap_failed )+e.getLocalizedMessage();
+          Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
+          toast.show();
+      }
+      if( statusCode == 200 )
+      {
+	      CharSequence text = getString( R.string.jogmap_success )+jogmapResponseText;
+	      Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
+	      toast.show();
+      }
+      else 
+      {
+          Log.e( TAG, "Wrong status code "+statusCode );
+          CharSequence text = getString( R.string.jogmap_failed )+jogmapResponseText;
+          Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
+          toast.show();
+      }
    }
 
+   public String convertStreamToString( InputStream is ) throws IOException
+   {
+      /*
+       * To convert the InputStream to String we use the Reader.read(char[] buffer) method. We iterate until the Reader return -1 which means there's no more data to read. We use the StringWriter
+       * class to produce the string.
+       */
+      if( is != null )
+      {
+         Writer writer = new StringWriter();
+
+         char[] buffer = new char[1024];
+         try
+         {
+            Reader reader = new BufferedReader( new InputStreamReader( is, "UTF-8" ) );
+            int n;
+            while( ( n = reader.read( buffer ) ) != -1 )
+            {
+               writer.write( buffer, 0, n );
+            }
+         }
+         finally
+         {
+            is.close();
+         }
+         return writer.toString();
+      }
+      else
+      {
+         return "";
+      }
+   }
+   
    private void sendSMS(String msg)
    {
       final Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -432,7 +534,29 @@ public class ShareTrack extends Activity
       return name;
    }
 
-   public class ProgressMonitor
+   private void adjustTargetToType(int position) {
+	switch (position)
+	   {
+	      case EXPORT_TYPE_KMZ:
+	         setKmzExportTargets();
+	         mFileNameView.setVisibility(View.VISIBLE);
+	         mTweetView.setVisibility(View.GONE);
+	         break;
+	      case EXPORT_TYPE_GPX:
+	         setGpxExportTargets();
+	         mFileNameView.setVisibility(View.VISIBLE);
+	         mTweetView.setVisibility(View.GONE);
+	         break;
+	      case EXPORT_TYPE_TEXTLINE:
+	         setTextLineExportTargets();
+	         mFileNameView.setVisibility(View.GONE);
+	         mTweetView.setVisibility(View.VISIBLE);
+	      default:
+	         break;
+	   }
+}
+
+public class ProgressMonitor
    {
       private String mFileName;
       private EndJob mEndJob;
