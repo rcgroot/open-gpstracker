@@ -163,10 +163,7 @@ public class ShareTrack extends Activity
       
       int lastType = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TYPE, EXPORT_TYPE_KMZ);
       mShareTypeSpinner.setSelection(lastType);
-      adjustTargetToType(lastType);
-      int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TARGET, 0);
-      mShareTargetSpinner.setSelection(lastTarget);
-    	  
+      adjustTargetToType(lastType);   	  
 
       calculator = new StatisticsCalulator(this, new UnitsI18n(this, null));
       mFileNameView.setText(createFileName());
@@ -218,7 +215,8 @@ public class ShareTrack extends Activity
       ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharegpxtarget_choices, android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
-      mShareTargetSpinner.setSelection(EXPORT_TARGET_SEND);
+      int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_GPXTARGET, EXPORT_TARGET_SEND);
+      mShareTargetSpinner.setSelection(lastTarget);
    }
    
    private void setKmzExportTargets()
@@ -226,7 +224,8 @@ public class ShareTrack extends Activity
       ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharekmztarget_choices, android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
-      mShareTargetSpinner.setSelection(EXPORT_TARGET_SEND);
+      int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_KMZTARGET, EXPORT_TARGET_SEND);
+      mShareTargetSpinner.setSelection(lastTarget);
    }
 
    private void setTextLineExportTargets()
@@ -234,7 +233,9 @@ public class ShareTrack extends Activity
       ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharetexttarget_choices, android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
-      mShareTargetSpinner.setSelection(EXPORT_TYPE_TWITDRIOD);
+      int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TXTTARGET, EXPORT_TYPE_TWITDRIOD);
+      mShareTargetSpinner.setSelection(lastTarget);
+
    }
 
    private void share()
@@ -246,19 +247,23 @@ public class ShareTrack extends Activity
       
       Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
       editor.putInt(Constants.EXPORT_TYPE, type);
-      editor.putInt(Constants.EXPORT_TARGET, target);
-      editor.commit();
       
       switch (type)
       {
          case EXPORT_TYPE_KMZ:
-            exportKmz(chosenFileName, target);
-            break;
+        	 editor.putInt(Constants.EXPORT_KMZTARGET, target);
+             editor.commit();
+        	 exportKmz(chosenFileName, target);
+        	 break;
          case EXPORT_TYPE_GPX:
-            exportGpx(chosenFileName, target);
-            break;
+        	 editor.putInt(Constants.EXPORT_GPXTARGET, target);
+             editor.commit();
+             exportGpx(chosenFileName, target);
+             break;
          case EXPORT_TYPE_TEXTLINE:
-            exportTextLine(textLine, target);
+        	 editor.putInt(Constants.EXPORT_TXTTARGET, target);
+             editor.commit();
+             exportTextLine(textLine, target);
          default:
             Log.e(TAG, "Failed to determine sharing type" + type);
             break;
@@ -276,7 +281,6 @@ public class ShareTrack extends Activity
                   public void shareFile(Uri fileUri, String contentType)
                   {
                      sendFile(fileUri, getString(R.string.email_kmzbody), contentType);
-                     ShareTrack.this.finish();
                   }
                };
             break;
@@ -285,7 +289,6 @@ public class ShareTrack extends Activity
                {
                   public void shareFile(Uri fileUri, String contentType)
                   {
-                     ShareTrack.this.finish();
                   }
                };
             break;
@@ -297,6 +300,7 @@ public class ShareTrack extends Activity
       {
          KmzCreator kmzCreator = new KmzCreator(this, mTrackUri, chosenFileName, new ProgressMonitor(chosenFileName, endJob));
          kmzCreator.start();
+         ShareTrack.this.finish();
       }
    }
 
@@ -311,7 +315,6 @@ public class ShareTrack extends Activity
                   public void shareFile(Uri fileUri, String contentType)
                   {
                      sendFile(fileUri, getString(R.string.email_gpxbody), contentType);
-                     ShareTrack.this.finish();
                   }
                };
             break;
@@ -320,7 +323,6 @@ public class ShareTrack extends Activity
                {
                   public void shareFile(Uri fileUri, String contentType)
                   {
-                     ShareTrack.this.finish();
                   }
                };
             break;
@@ -330,7 +332,6 @@ public class ShareTrack extends Activity
                public void shareFile(Uri fileUri, String contentType)
                {
                   sendToJogmap(fileUri, contentType);
-                  ShareTrack.this.finish();
                }
             };
          break;
@@ -342,6 +343,7 @@ public class ShareTrack extends Activity
       {
          GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, new ProgressMonitor(chosenFileName, endJob));
          gpxCreator.start();
+         ShareTrack.this.finish();
       }
    }
 
@@ -391,63 +393,56 @@ public class ShareTrack extends Activity
       startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser)));
    }
    
-   private void sendToJogmap( Uri fileUri, String contentType )
+   private void sendToJogmap(Uri fileUri, String contentType)
    {
-      String authCode = PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.JOGRUNNER_AUTH, "" );     
-      File gpxFile = new File(fileUri.getEncodedPath() );
+      String authCode = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.JOGRUNNER_AUTH, "");
+      File gpxFile = new File(fileUri.getEncodedPath());
       HttpClient httpclient = new DefaultHttpClient();
-      HttpResponse response = null; 
+      HttpResponse response = null;
       URI jogrun = null;
       String jogmapResponseText = "";
       int statusCode = 0;
-	try
+      try
       {
-         jogrun = new URI( getString( R.string.jogrun_post_url ) );
-         HttpPost method = new HttpPost( jogrun );
+         jogrun = new URI(getString(R.string.jogrun_post_url));
+         HttpPost method = new HttpPost(jogrun);
 
          MultipartEntity entity = new MultipartEntity();
          entity.addPart("id", new StringBody(authCode));
          entity.addPart("mFile", new FileBody(gpxFile));
          method.setEntity(entity);
          response = httpclient.execute(method);
-         
-         statusCode = response.getStatusLine().getStatusCode() ;
+
+         statusCode = response.getStatusLine().getStatusCode();
          InputStream stream = response.getEntity().getContent();
-         jogmapResponseText = convertStreamToString( stream );
+         jogmapResponseText = convertStreamToString(stream);
       }
-      catch( URISyntaxException e )
+      catch (IOException e)
       {
-          Log.e( TAG, "Failed to use configured URI "+jogrun.toString(), e );
-          CharSequence text = getString( R.string.jogmap_failed )+e.getLocalizedMessage();
-          Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
-          toast.show();
+         Log.e(TAG, "Failed to upload to " + jogrun.toString(), e);
+         CharSequence text = getString(R.string.jogmap_failed) + e.getLocalizedMessage();
+         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+         toast.show();
       }
-      catch( ClientProtocolException e )
+      catch (URISyntaxException e)
       {
-          Log.e( TAG, "Failed to use configured URI "+jogrun.toString(), e );
-          CharSequence text = getString( R.string.jogmap_failed )+e.getLocalizedMessage();
-          Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
-          toast.show();
+         Log.e(TAG, "Failed to use configured URI " + jogrun.toString(), e);
+         CharSequence text = getString(R.string.jogmap_failed) + e.getLocalizedMessage();
+         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+         toast.show();
       }
-      catch( IOException e )
+      if (statusCode == 200)
       {
-          Log.e( TAG, "Failed to use configured URI "+jogrun.toString(), e );
-          CharSequence text = getString( R.string.jogmap_failed )+e.getLocalizedMessage();
-          Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
-          toast.show();
+         CharSequence text = getString(R.string.jogmap_success) + jogmapResponseText;
+         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+         toast.show();
       }
-      if( statusCode == 200 )
+      else
       {
-	      CharSequence text = getString( R.string.jogmap_success )+jogmapResponseText;
-	      Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
-	      toast.show();
-      }
-      else 
-      {
-          Log.e( TAG, "Wrong status code "+statusCode );
-          CharSequence text = getString( R.string.jogmap_failed )+jogmapResponseText;
-          Toast toast = Toast.makeText( getApplicationContext(), text, Toast.LENGTH_LONG );
-          toast.show();
+         Log.e(TAG, "Wrong status code " + statusCode);
+         CharSequence text = getString(R.string.jogmap_failed) + jogmapResponseText;
+         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+         toast.show();
       }
    }
 
