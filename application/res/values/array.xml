@@ -31,6 +31,8 @@
         <item>Imperial (miles)</item>
         <item>Metric (meters)</item>
         <item>Nautical (knots)</item>
+        <item>Pace (minutes per kilometer)</item>
+        <item>Pace (minutes per mile)</item>
     </string-array>
     
     <string-array name="sharetype_choices">
@@ -81,6 +83,8 @@
         <item>1</item>
         <item>2</item>
         <item>3</item>
+        <item>4</item>
+        <item>5</item>
     </string-array>
 
     <string-array name="about_authors" translatable="false"><!-- Add your name here if you helped out -->

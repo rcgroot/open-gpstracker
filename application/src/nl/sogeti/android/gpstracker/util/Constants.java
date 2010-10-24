@@ -59,10 +59,12 @@ public class Constants
    public static final String STARTUPATBOOT = "startupatboot";
    public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
    public static final String UNITS = "units";
-   public static final int UNITS_DEFAULT = 0;
-   public static final int UNITS_IMPERIAL = 1;
-   public static final int UNITS_METRIC = 2;
-   public static final int UNITS_NAUTIC = 3;
+   public static final int UNITS_DEFAULT      = 0;
+   public static final int UNITS_IMPERIAL     = 1;
+   public static final int UNITS_METRIC       = 2;
+   public static final int UNITS_NAUTIC       = 3;
+   public static final int UNITS_METRICPACE   = 4;
+   public static final int UNITS_IMPERIALPACE = 5;
    public static final String EXTERNAL_DIR = "/OpenGPSTracker/";
    public static final String TMPICTUREFILE_PATH = EXTERNAL_DIR+"media_tmp";
    public static final Uri NAME_URI = Uri.parse( "content://" + GPStracking.AUTHORITY+".string" );

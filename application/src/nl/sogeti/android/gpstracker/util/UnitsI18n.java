@@ -101,6 +101,14 @@ public class UnitsI18n
             setToMetric();
             overrideWithNautic( mContext.getResources() );
             break;
+         case( Constants.UNITS_METRICPACE ):
+            setToMetric();
+            overrideWithPace( mContext.getResources() );
+            break;
+         case( Constants.UNITS_IMPERIALPACE ):
+            setToImperial();
+            overrideWithPaceImperial( mContext.getResources() );
+            break;
          default:
             setToDefault();
             break;
@@ -112,6 +120,7 @@ public class UnitsI18n
       Resources resources = mContext.getResources();
       init( resources );
    }
+   
    private void setToMetric()
    {
       Resources resources = mContext.getResources();
@@ -123,6 +132,7 @@ public class UnitsI18n
       config.locale = oldLocale;
       resources.updateConfiguration( config, resources.getDisplayMetrics() );
    }
+   
    private void setToImperial()
    {
       Resources resources = mContext.getResources();
@@ -165,6 +175,24 @@ public class UnitsI18n
       
       mSpeed_unit    = resources.getString( R.string.knot_unitname );
       mDistance_unit = resources.getString( R.string.nautic_unitname );
+   }
+   
+   private void overrideWithPace( Resources resources )
+   {
+      TypedValue outValue = new TypedValue();
+      resources.getValue( R.raw.conversion_from_mps_to_pace, outValue, false ) ;
+      mConversion_from_mps_to_speed =  outValue.getFloat();
+      
+      mSpeed_unit    = resources.getString( R.string.pace_unitname );
+   }
+   
+   private void overrideWithPaceImperial( Resources resources )
+   {
+      TypedValue outValue = new TypedValue();
+      resources.getValue( R.raw.conversion_from_mps_to_pace, outValue, false ) ;
+      mConversion_from_mps_to_speed =  outValue.getFloat();
+      
+      mSpeed_unit    = resources.getString( R.string.pace_unitname_imperial );
    }
    
    public double conversionFromMeterAndMiliseconds( double meters, long miliseconds )

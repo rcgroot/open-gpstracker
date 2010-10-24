@@ -26,6 +26,8 @@
         <item>英制 (英里)</item>
         <item>公制 (米)</item>
         <item>航海 (節)</item>
+        <item>Pace (minute per kilometer)</item>
+        <item>Pace (minute per mile)</item>
     </string-array>
     
     <string-array name="sharetype_choices">

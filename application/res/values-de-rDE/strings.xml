@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Open GPS Tracker</string>
+    <string name="service_start">Logging einschalten</string>
+	<string name="service_gpsstatus">Logging: %s (%s mit %d Satelliten)</string>
+    <string name="service_networkstatus">Logging: %s (%s mit Funkmasten und WLAN)</string>
+    <string name="service_gpsdisabled">GPS ist aus, logging deaktiviert.</string>
+    <string name="service_gpsenabled">GPS ist an, logging ermöglicht.</string>
+    <string name="service_connectiondisabled">Funknetz aus, Funknetz logging deaktiviert.</string>
+    <string name="service_datadisabled">Funknetz Positionsbestimmung aus, logging deaktiviert.</string>
+    <string name="service_dataenabled">Funknetz Ortsbestimmung an, logging aktiviert.</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_select_media_title">Anmerkung auswählen</string>
+    <string name="dialog_select_media_message">Wähle ein von mehreren Anmerkungen zu diesem Ort aus</string>
+    <string name="dialog_tracking_title">Trackingkontrolle</string>
+	<string name="dialog_routename_title">Track-Name</string>
+    <string name="dialog_routename_message">Name des Tracks eingeben</string>
+    <string name="dialog_routename_default">Track %tY-%tm-%td %tH:%tM</string>
+    <string name="dialog_notrack_title">Kein Track ausgewählt</string>
+    <string name="dialog_notrack_message">Vor dem Exportieren, Track auswählen.</string>
+    <string name="dialog_delete_title">Track löschen</string>
+    <string name="dialog_delete_message">Bestätige das Löschen von Track: %s</string>
+    <string name="dialog_nooiabout">App OI About fehlt</string>
+    <string name="dialog_nooiabout_message">App \"OI About\" vom OpenIntents project ist erforderlich, um die About-Informationen anzuzeigen.</string>
+    <string name="dialog_layer_title">Overlays aktivieren</string>
+    <string name="dialog_graphtype_title">Diagrammtyp</string>
+    <string name="dialog_notetext_title">Textnotiz</string>
+    <string name="dialog_notetext_message">Textnotiz zum aktuellen Ort</string>
+    <string name="dialog_notename_title">Markieren</string>
+    <string name="dialog_notename_message">Name des Orts eingeben</string>
+    <string name="logcontrol_start">Tracking-Start</string>
+    <string name="logcontrol_pause">Tracking-Pause</string>
+    <string name="logcontrol_resume">Tracking fortsetzen</string>
+    <string name="logcontrol_stop">Tracking-Stop</string>
+    <string name="layer_satellite">Satellit</string>
+    <string name="layer_traffic">Verkehr</string>
+    <string name="layer_speed">Geschwindigkeit</string>
+    <string name="layer_altitude">Höhe</string>
+    <string name="layer_compass">Lompass</string>
+    <string name="layer_location">Mein Standort</string>
+    <string name="dialog_notwidroid">App Twidroid nicht gefunden</string>
+    <string name="dialog_notwidroid_message">Die App \"twidroid\" ist erforderlich, um diese Message zu posten.</string>
+    
+    <!-- Messages -->
+    <string name="from">Aufgezeichnet auf: </string>
+    <string name="no_tracks">Keine gespeicherten Tracks</string>
+    <string name="ticker_saving">Speichere: </string>
+    <string name="ticker_stored">Gespeichert: </string>
+    <string name="ticker_failed">Kann folgenden Track nicht speichern: </string>
+    <string name="error_filenotfound"> Grund:Datei/Verzeichnis auf der SD-Karte nicht gefunden</string>
+    <string name="error_filename"> Grund: Ungültiger Dateiname</string>
+    <string name="error_buildxml"> Grund: Fehler beim Erzeugen von XML</string>
+    <string name="error_writesdcard"> Grund: Fehler beim Schreiben auf SD-Karte</string>
+    <string name="tweettext">%s: Strecke %s mit durchschnittlichem Speed von of %s in Zeit %s gelaufen.#opengpstracker</string>
+    
+    <!-- Buttons -->
+	<string name="btn_okay">OK</string>
+	<string name="btn_cancel">Abbrechen</string>
+	<string name="btn_save">Speichern</string>
+	<string name="btn_selecttrack">Track auswählen</string>
+    <string name="btn_install">Installieren</string>
+    <string name="btn_skip">Übergehen</string>
+	
+    <!-- Menu's -->
+	<string name="menu_settings">Einstellungen</string>
+    <string name="menu_tracking">Tracking</string>
+	<string name="menu_tracklist">Trackliste</string>
+	<string name="menu_shareTrack">Track senden</string>
+	<string name="menu_deleteTrack">Track löschen</string>
+    <string name="menu_renameTrack">Track umbenennen</string>
+    <string name="menu_statistics">Statistiken</string>
+    <string name="menu_about">About</string>
+    <string name="menu_showLayers">Overlays</string>
+    <string name="menu_graphtype">Diagrantyp</string>
+    <string name="menu_insertnote">Notiz machen</string>
+    <string name="menu_notename">Namentlich Markieren</string>
+    <string name="menu_notepicture">Foto machen</string>
+    <string name="menu_notetext">Text schreiben</string>
+    <string name="menu_notespeech">Sprache aufzeichnen</string>
+    <string name="menu_notevideo">Video aufzeichnen</string>
+    <string name="graphtype_timespeed">Geschwindigkeit/Zeit</string>
+    <string name="graphtype_timealtitude">Höhe/Zeit</string>
+    <string name="graphtype_distancespeed">Geschwindigkeit/Länge</string>
+    <string name="graphtype_distancealtitude">Höhe/Länge</string>
+
+    <!-- Communicated -->
+    <string name="email_subject">Open GPS Tracker - Track data</string>
+    <string name="email_gpxbody">Angehängt ist ein Track im GPS Exchange Format (GPX). Formatdetails hier: http://www.topografix.com/gpx.asp</string>
+    <string name="email_kmzbody">Angehängt ist ein Track im KMZ-Format. Formatdetails hier:  http://code.google.com/apis/kml/documentation/kml_tut.html</string>
+    <string name="kmlVideoUnsupported">Videoeinbettung nicht unterstüzt, nutze ein Zip-Tool um das Video %s aus der KMZ Datei zu entpacken.</string>
+    <string name="kmlAudioUnsupported">Audioeinbettung nicht unterstüzt, nutze ein Zip-Tool um die Audiodatei %s aus der KMZ-Datei zu entpacken.</string>
+
+    <!-- Screens -->
+    <string name="share_track">Tracksharing</string>
+    <string name="share_explained">Beim Tracksharing werden so viel Aufzeichungsdaten, wie möglich exportiert.</string>
+    <string name="share_type">Formatwahl für Tracksharing:</string>
+    <string name="share_name">Exportname:</string>
+    <string name="share_target">Sharingptechnologie:</string>
+    <string name="sender_chooser">Sende-App wählen</string>
+    <string name="opengpstracker_title">Open GPS Tracker</string>
+    <string name="opengpstracker_settings">Einstellungen</string>
+    <string name="preference_display">Displayeinstellungen</string>
+    <string name="preference_behavior">Run Einstellungen</string>
+    <string name="logatstartup">Aufzeichnung-Autostart</string>
+    <string name="logatstartup_summary">Beim Appstart, startet die Trackaufzeichnung automatisch</string>   
+    <string name="startupatboot">Aufzeichnung bei Neustart</string>
+    <string name="startupatboot_summary">Beim Gerätestart, automatisch Trackaufzeichnung starten</string>   
+    <string name="disableblanking_title">Display anlassen</string>
+    <string name="disableblanking_summary">Display bleibt beim Tracking an.</string>       
+    <string name="precision_title">Aufzeichnungspräzision</string>
+    <string name="precision_summary">Genauigkeit der GPS Aufzeichnung .</string>
+    <string name="mapprovider_title">Kartenanbieter</string>
+    <string name="mapprovider_summary">Quelle für Kartendaten.</string>      
+    <string name="trackcoloring_title">Track-Farbe</string>
+    <string name="trackcoloring_summary">Farbe, in der der Track auf der Karte dargestellt wird.</string>
+    <string name="showsatellite_title">Satellitenbild</string>
+    <string name="showsatellite_summary">Google Maps Satellitenansicht</string>
+    <string name="showtraffic_title">Verkehr</string>
+    <string name="showtraffic_summary">Google Maps Verkehrsinformation</string>
+    <string name="showspeed_title">GPS Geschwindigkeit</string>
+    <string name="showspeed_summary">Zeige von GPS ermittelte Geschwindigkeit an.</string>
+    <string name="showaltitude_title">GPS Höhe</string>
+    <string name="showaltitude_summary">Zeige von GPS ermittelte Höhe an.</string>
+    <string name="showcompass_title">kompass</string>
+    <string name="showcompass_summary">Zeige Kompassnadel für Nordrichtung an.</string>
+    <string name="sanitycheck_title">Höhe und Geschwindigkeit checken </string>
+    <string name="sanitycheck_summary"> Prüft GPS-Höhe und -Geschwindigkeit auf Plausibilität</string>
+    <string name="showlocation_title">Mein Standort </string>
+    <string name="showlocation_summary">Zeigt meinen Standort auf der Karte</string>
+    <string name="units_title">Maßeinheiten</string>
+    <string name="units_summary">Metrische oder Anglo-Amerikanische Maßeinheiten wählen</string>
+    <string name="stat_title">Statistiken - %s</string>
+    <string name="stat_maximumspeed">Maximalgeschwindigkeit</string>
+    <string name="stat_maximumaltitude">Maximalhöhe</string>
+    <string name="stat_minimalaltitide">Mininumhöhe</string>
+    <string name="stat_overallaveragespeed">Aktuelle Geschwindigkeit</string>
+    <string name="stat_averagespeed">Durchschnittsgeschwindigkeit</string>    
+    <string name="stat_distance">Entfernung</string>    
+    <string name="stat_endtime">Letzte Zeitangabe</string>    
+    <string name="stat_starttime">Startzeit</string>    
+    <string name="stat_trackname">Track-Name</string>
+    <string name="stat_waypoints">Waypoints</string>
+    <string name="track_list">Tracks</string>
+    <string name="search_label">Tracks</string>
+    <string name="search_description">Open GPS Tracker - Track Name</string>
+    <string name="search_hint">Suche Tracks</string>
+    <string name="preference_sharing">Sharing-Einstellungen</string>
+    <string name="jogmap_title">jogmap upload code</string>
+    <string name="jogmap_summary">jogmap-Zugangskey, um zu einem jogmap.de Account hochzuladen</string>
+    <string name="jogmap_failed">Fehler beim Upload zu jogmap.de: </string>
+    <string name="jogmap_success">Track wurde zu jogmap.de hochgeladen: </string>
+
+<!-- ***************************
+   About information
+   ***************************-->
+   <string name="about_comments">Dieses ist eine App, die per GPS, alle Bewegungen eines Mobilgeräts aufzeichen kann .</string>
+   <string name="about_activity_name_extended">About %s</string>
+   <string name="no_information_available">Keine Information verfügbar.</string>
+
+</resources>
