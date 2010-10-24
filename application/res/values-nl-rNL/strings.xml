@@ -16,6 +16,7 @@
     <string name="dialog_tracking_title">Opnemen</string>
 	<string name="dialog_routename_title">Naam</string>
     <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>
+    <string name="dialog_routename_default">Route %tY-%tm-%td %tH:%tM</string>
     <string name="dialog_notrack_title">Geen route gekozen</string>
     <string name="dialog_notrack_message">Kiest u alstublieft eerst een route</string>
     <string name="dialog_delete_title">Verwijder</string>
@@ -38,8 +39,8 @@
     <string name="layer_altitude">Hoogte</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">Mijn locatie</string>
-    <string name="dialog_twidroid">twidroid nodig</string>
-    <string name="dialog_twidroid_message">De applicatie \"twidroid\" is nodig om deze regel te tweeten.</string>
+    <string name="dialog_notwidroid">twidroid nodig</string>
+    <string name="dialog_notwidroid_message">De applicatie \"twidroid\" is nodig om deze regel te tweeten.</string>
     
     <!-- Messages -->
     <string name="from">Opgenomen op: </string>
@@ -145,7 +146,9 @@
     <string name="preference_sharing">Delen instellingen</string>
     <string name="jogmap_title">jogmap upload code</string>
     <string name="jogmap_summary">De authentication code om the uploaden naar een jogmap.de account</string>
-    
+    <string name="jogmap_failed">Het is mislukt om de route te uploaden naar jogmap.de: </string>
+    <string name="jogmap_success">Succesvol gestuurd naar jogmap.de: </string>
+
 <!-- ***************************
    About information
    ***************************-->

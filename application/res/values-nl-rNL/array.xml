@@ -37,7 +37,7 @@
     <string-array name="sharegpxtarget_choices">
         <item>Opslaan op SD Card</item>
         <item>Verstuur met een (email) applicatie</item>
-        <item>Publiceer op jogrunner.de</item>
+        <item>Publiceer op www.jogmap.de</item>
     </string-array>
     
     <string-array name="sharekmztarget_choices">

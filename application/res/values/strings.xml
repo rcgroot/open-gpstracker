@@ -150,7 +150,7 @@
     <string name="jogmap_summary">The authentication code to upload to a jogmap.de account</string>
     <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
     <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
-    
+
 <!-- ***************************
    About information
    ***************************-->

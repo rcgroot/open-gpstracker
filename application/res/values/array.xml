@@ -42,7 +42,7 @@
     <string-array name="sharegpxtarget_choices">
         <item>Store to SD Card</item>
         <item>Send with an (email) application</item>
-        <item>Publish to jogrunner.de</item>
+        <item>Publish to www.jogmap.de</item>
     </string-array>
     
     <string-array name="sharekmztarget_choices">

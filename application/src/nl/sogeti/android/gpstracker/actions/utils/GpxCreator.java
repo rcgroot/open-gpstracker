@@ -80,10 +80,12 @@ public class GpxCreator extends XmlCreator
    }
 
    private String TAG = "OGT.GpxCreator";
+   private boolean includeAttachments;
 
-   public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, ProgressMonitor listener)
+   public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressMonitor listener)
    {
       super( context, trackUri, chosenBaseFileName, listener );
+      includeAttachments = attachments;
    }
 
    public void run()
@@ -341,7 +343,10 @@ public class GpxCreator extends XmlCreator
                Date time = new Date( waypointsCursor.getLong( 2 ) );
                serializer.text( ZULU_DATE_FORMAT.format( time ) );
                serializer.endTag( "", "time" );
-               serializeWaypointDescription( mContext, serializer, Uri.withAppendedPath( waypoints, waypointsCursor.getLong( 4 ) + "/media" ) );
+               if( includeAttachments )
+               {
+                  serializeWaypointDescription( mContext, serializer, Uri.withAppendedPath( waypoints, waypointsCursor.getLong( 4 ) + "/media" ) );
+               }
                serializer.text( "\n" );
                serializer.startTag( "", "extensions" );
                quickTag( serializer, "gpx10", "speed", Double.toString( waypointsCursor.getDouble( 5 ) ) );

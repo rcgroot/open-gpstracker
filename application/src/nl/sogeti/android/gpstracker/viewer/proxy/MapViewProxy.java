@@ -3,13 +3,11 @@ package nl.sogeti.android.gpstracker.viewer.proxy;
 import java.util.List;
 
 import org.andnav.osm.views.OpenStreetMapView;
-import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
 
 import android.view.View;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
 
 public class MapViewProxy
 {

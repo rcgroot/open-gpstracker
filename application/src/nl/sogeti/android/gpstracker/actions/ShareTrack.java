@@ -49,7 +49,6 @@ import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -306,10 +305,12 @@ public class ShareTrack extends Activity
 
    protected void exportGpx(String chosenFileName, int target)
    {
+      boolean attachments = true;
       EndJob endJob = null;
       switch (target)
       {
          case EXPORT_TARGET_SEND:
+            attachments = true;
             endJob = new EndJob()
                {
                   public void shareFile(Uri fileUri, String contentType)
@@ -319,6 +320,7 @@ public class ShareTrack extends Activity
                };
             break;
          case EXPORT_TARGET_SAVE:
+            attachments = true;
             endJob = new EndJob()
                {
                   public void shareFile(Uri fileUri, String contentType)
@@ -327,6 +329,7 @@ public class ShareTrack extends Activity
                };
             break;
          case EXPORT_TARGET_JOGRUN:
+            attachments = false;
             endJob = new EndJob()
             {
                public void shareFile(Uri fileUri, String contentType)
@@ -341,7 +344,7 @@ public class ShareTrack extends Activity
       }
       if (endJob != null)
       {
-         GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, new ProgressMonitor(chosenFileName, endJob));
+         GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ProgressMonitor(chosenFileName, endJob));
          gpxCreator.start();
          ShareTrack.this.finish();
       }
@@ -399,13 +402,13 @@ public class ShareTrack extends Activity
       File gpxFile = new File(fileUri.getEncodedPath());
       HttpClient httpclient = new DefaultHttpClient();
       HttpResponse response = null;
-      URI jogrun = null;
+      URI jogmap = null;
       String jogmapResponseText = "";
       int statusCode = 0;
       try
       {
-         jogrun = new URI(getString(R.string.jogrun_post_url));
-         HttpPost method = new HttpPost(jogrun);
+         jogmap = new URI(getString(R.string.jogmap_post_url));
+         HttpPost method = new HttpPost(jogmap);
 
          MultipartEntity entity = new MultipartEntity();
          entity.addPart("id", new StringBody(authCode));
@@ -419,14 +422,14 @@ public class ShareTrack extends Activity
       }
       catch (IOException e)
       {
-         Log.e(TAG, "Failed to upload to " + jogrun.toString(), e);
+         Log.e(TAG, "Failed to upload to " + jogmap.toString(), e);
          CharSequence text = getString(R.string.jogmap_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
          toast.show();
       }
       catch (URISyntaxException e)
       {
-         Log.e(TAG, "Failed to use configured URI " + jogrun.toString(), e);
+         Log.e(TAG, "Failed to use configured URI " + jogmap.toString(), e);
          CharSequence text = getString(R.string.jogmap_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
          toast.show();
