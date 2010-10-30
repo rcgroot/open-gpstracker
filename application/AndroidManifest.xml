@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2010  Just Objects B.V.
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="org.opentraces.metatracker"
+          android:versionCode="1"
+          android:versionName="0.1.0">
+
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4"/>
+
+    <supports-screens
+            android:largeScreens="true"
+            android:normalScreens="true"
+            android:smallScreens="true"/>
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <application      android:icon="@drawable/icon"
+      android:label="@string/app_name"
+      android:description="@string/app_name"
+      android:allowClearUserData="true"
+      android:debuggable="false"
+      >
+        
+     <meta-data
+         android:name="org.openintents.metadata.COMMENTS"
+         android:value="@string/about_comments" />
+      <meta-data
+         android:name="org.openintents.metadata.COPYRIGHT"
+         android:value="@string/about_copyright" />
+      <meta-data
+         android:name="org.openintents.metadata.AUTHORS"
+         android:resource="@array/about_authors" />
+      <meta-data
+         android:name="org.openintents.metadata.DOCUMENTERS"
+         android:resource="@array/about_documenters" />
+      <meta-data
+         android:name="org.openintents.metadata.TRANSLATORS"
+         android:resource="@array/about_translators" />
+      <meta-data
+         android:name="org.openintents.metadata.ARTISTS"
+         android:resource="@array/about_artists" />
+      <meta-data
+         android:name="org.openintents.metadata.WEBSITE_LABEL"
+         android:value="@string/about_website_label" />
+      <meta-data
+         android:name="org.openintents.metadata.WEBSITE_URL"
+         android:value="@string/about_website_url" />
+      <meta-data
+         android:name="org.openintents.metadata.LICENSE"
+         android:resource="@raw/license_short" />
+      <meta-data
+         android:name="org.openintents.metadata.EMAIL"
+         android:value="@string/about_email" />
+
+        <uses-library android:name="com.google.android.maps"/>
+
+        <activity
+                android:icon="@drawable/icon"
+                android:description="@string/app_name"
+                android:allowClearUserData="true"
+                android:name=".activity.MainActivity"
+                android:label="@string/app_name"
+                android:debuggable="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:label="@string/menu_settings"
+            android:name=".activity.SettingsActivity"/>
+
+        <activity
+            android:label="@string/upload_track"
+            android:name=".activity.UploadTrackActivity" >
+            <intent-filter>
+               <action android:name="android.intent.action.RUN" />
+               <category android:name="android.intent.category.DEFAULT" />
+               <data android:mimeType="vnd.android.cursor.item/vnd.org.opentraces.metatracker" />
+            </intent-filter>
+         </activity>
+
+
+    </application>
+</manifest> 

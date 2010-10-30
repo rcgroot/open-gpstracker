@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2010  Just Objects B.V.
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="app_name">MetaTracker</string>
+
+    <string name="service_start">Activating logging service</string>
+    <string name="service_gpsstatus">Logging: %s (%s with %d satellites)</string>
+    <string name="service_networkstatus">Logging: %s (%s with cell tower and wifi)</string>
+    <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
+    <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
+    <string name="service_connectiondisabled">Network is disabled, network location logging is without effect.</string>
+    <string name="service_datadisabled">Network positioning is disabled, logging is without effect.</string>
+    <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_select_media_title">Select note</string>
+    <string name="dialog_select_media_message">Multiple notes were found at this location, please select one to open
+    </string>
+    <string name="dialog_tracking_title">Tracking control</string>
+    <string name="dialog_routename_title">Name track</string>
+    <string name="dialog_routename_message">Please enter the name of the track</string>
+    <string name="dialog_nofilemanager">filemanager not found</string>
+    <string name="dialog_nofilemanager_message">The application \"Open Intents FileManager\" is required to pick a file.
+    </string>
+    <string name="dialog_noopengpstracker">Open GPS Tracker application not found</string>
+    <string name="dialog_noopengpstracker_message">The application \"Open GPS Tracker\" is required to record and export
+        tracks.
+    </string>
+    <string name="dialog_failinstallopengpstracker_message">The application \"Open GPS Tracker\" cannot be installed.
+    </string>
+    <string name="dialog_notrack_title">No track is selected</string>
+    <string name="dialog_notrack_message">Please select a track first before exporting</string>
+    <string name="dialog_delete_title">Delete track</string>
+    <string name="dialog_delete_message">Please confirm the deletion of the track %s</string>
+    <string name="dialog_nooiabout">OI About missing</string>
+    <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to
+        display the about information.
+    </string>
+    <string name="dialog_layer_title">Activate overlays</string>
+    <string name="dialog_graphtype_title">Graph type</string>
+    <string name="dialog_notetext_title">Text note</string>
+    <string name="dialog_notetext_message">Enter a text note for the current location</string>
+    <string name="dialog_notename_title">Mark</string>
+    <string name="dialog_notename_message">Enter the name of this location</string>
+
+    <string name="logcontrol_start">Start tracking</string>
+    <string name="logcontrol_pause">Pause tracking</string>
+    <string name="logcontrol_resume">Resume tracking</string>
+    <string name="logcontrol_stop">Stop tracking</string>
+    <string name="layer_satellite">Satellite</string>
+    <string name="layer_traffic">Traffic</string>
+    <string name="layer_speed">Speed</string>
+    <string name="layer_altitude">Altitude</string>
+    <string name="layer_compass">Compass</string>
+    <string name="layer_location">My Location</string>
+
+    <!-- Messages -->
+    <string name="from">Tracked on:</string>
+    <string name="no_tracks">No tracks stored</string>
+    <string name="ticker_saving">Saving:</string>
+    <string name="ticker_stored">Stored:</string>
+    <string name="ticker_failed">Unable to save the route:</string>
+    <string name="error_filenotfound">reason: Can not find file or directory on SD card</string>
+    <string name="error_filename">reason: Incorrect filename</string>
+    <string name="error_buildxml">reason: Error building XML</string>
+    <string name="error_writesdcard">reason: Error writing to SD card</string>
+    <string name="tweettext">%s: Traveled %s with an average speed of %s during %s #opengpstracker</string>
+    <string name="no_file_selected">(no file selected)</string>
+
+    <!-- Buttons -->
+    <string name="btn_upload">Upload!</string>
+    <string name="btn_okay">OK</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_selecttrack">Select track</string>
+    <string name="btn_install">Install</string>
+    <string name="btn_skip">Skip</string>
+
+    <!-- Menu's -->
+    <string name="menu_settings">Settings</string>
+    <string name="menu_tracking">Tracking (OGT)</string>
+    <string name="menu_upload">Upload</string>
+    <string name="menu_help">Help</string>
+    <string name="menu_about">About</string>
+    <string name="menu_message_unsupported">Sorry. This option is not yet supported.</string>
+
+    <string name="graphtype_timespeed">Speed over time</string>
+    <string name="graphtype_timealtitude">Altitude over time</string>
+    <string name="graphtype_distancespeed">Speed over distance</string>
+    <string name="graphtype_distancealtitude">Altitude over distance</string>
+
+    <!-- Communicated -->
+    <string name="email_subject">Open GPS Tracker - Track data</string>
+    <string name="email_gpxbody">Attached is a track in GPS Exchange Format (GPX) format as described on
+        http://www.topografix.com/gpx.asp
+    </string>
+    <string name="email_kmzbody">Attached is a track in KMZ format as described on
+        http://code.google.com/apis/kml/documentation/kml_tut.html
+    </string>
+    <string name="kmlVideoUnsupported">Embedded video is not supported, please use a zip tools to retrieve the %s video
+        file from the KMZ file.
+    </string>
+    <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retrieve the %s audio
+        file from the KMZ file.
+    </string>
+
+    <!-- Screens -->
+    <string name="upload_track">Upload an exported GPX track</string>
+    <string name="share_explained">Sharing creates a track export with as much of the recorded data as possible.
+    </string>
+    <string name="share_type">Choose format of shared track:</string>
+    <string name="share_name">Name of export:</string>
+    <string name="share_target">Means of sharing:</string>
+    <string name="sender_chooser">Choose sender application</string>
+    <string name="metatracker_title">MetaTracker</string>
+    <string name="metatracker_settings">Settings</string>
+
+    <string name="logatstartup">Log at service start</string>
+    <string name="logatstartup_summary">After starting, the logging service immediately records.</string>
+    <string name="startupatboot">Start up at boot</string>
+    <string name="startupatboot_summary">After starting the device, the logging service starts.</string>
+    <string name="disableblanking_title">Disable screen blanking</string>
+    <string name="disableblanking_summary">Keeps the screen on during tracking.</string>
+    <string name="precision_title">Logging precision</string>
+    <string name="precision_summary">The size of interval between GPS fixes.</string>
+    <string name="trackcoloring_title">Track color</string>
+    <string name="trackcoloring_summary">The coloring used to draw the track.</string>
+    <string name="showsatellite_title">Satellite images</string>
+    <string name="showsatellite_summary">Show the Google Maps satellite view</string>
+    <string name="showtraffic_title">Traffic</string>
+    <string name="showtraffic_summary">Show the Google Maps traffic information</string>
+    <string name="showspeed_title">GPS speed</string>
+    <string name="showspeed_summary">Show the speed from the last received GPS fix.</string>
+    <string name="showaltitude_title">GPS altitude</string>
+    <string name="showaltitude_summary">Show the altitude from the last received GPS fix.</string>
+    <string name="showcompass_title">Compass</string>
+    <string name="showcompass_summary">Show a compass with a needle pointing north</string>
+    <string name="sanitycheck_title">Speed and altitude sanity check</string>
+    <string name="sanitycheck_summary">Only accept reasonable GPS speeds and altitudes</string>
+    <string name="showlocation_title">My location</string>
+    <string name="showlocation_summary">Show my location on the map</string>
+    <string name="units_title">Units</string>
+    <string name="units_summary">Determine if metric or imperial units are used</string>
+    <string name="stat_title">Statistics - %s</string>
+    <string name="stat_maximumspeed">Maximum speed</string>
+    <string name="stat_maximumaltitude">Maximum altitude</string>
+    <string name="stat_minimalaltitide">Minimum altitude</string>
+    <string name="stat_overallaveragespeed">Travel speed</string>
+    <string name="stat_averagespeed">Average speed</string>
+    <string name="stat_distance">Tracked distance</string>
+    <string name="stat_endtime">Last time</string>
+    <string name="stat_starttime">Start time</string>
+    <string name="stat_trackname">Track name</string>
+    <string name="stat_waypoints">Waypoints</string>
+    <string name="track_list">Tracks</string>
+    <string name="search_label">Tracks</string>
+    <string name="search_description">Open GPS Tracker track names</string>
+    <string name="search_hint">Search tracks</string>
+
+    <!-- Preferences -->
+    <string name="preference_display">Display settings</string>
+    <string name="pref_cat_behavior">Behavior settings</string>
+
+    <string name="pref_enablesound_title">Enable sounds</string>
+    <string name="pref_enablesound_summary">A short beep is played each time a GPS point is recorded.</string>
+
+    <string name="pref_cat_server">Upload Server</string>
+    <string name="pref_server_url_dlg_title">Server URL</string>
+    <string name="pref_server_url_dlg_msg">Set server URL starting with http://</string>
+    <string name="pref_server_url_title">Server URL</string>
+    <string name="pref_server_url_summary">Set Server URL for track upload</string>
+
+     <string name="pref_server_user_title">User name</string>
+     <string name="pref_server_user_summary">Set user account name</string>
+
+     <string name="pref_server_password_title">Password</string>
+     <string name="pref_server_password_summary">Set Server password for track upload</string>
+
+    <!-- ***************************
+           About information
+           ***************************-->
+    <string name="about_comments">Record GPS tracks annotated with road quality ratings through Open GPS Tracker.
+    </string>
+
+    <string name="about_activity_name_extended">About %s</string>
+    <string name="no_information_available">No information available.</string>
+
+</resources>
