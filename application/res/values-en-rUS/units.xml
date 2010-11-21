@@ -6,4 +6,8 @@
 <string name="speed_unitname">mph</string>
 <string name="distance_unitname">mile</string>
 <string name="distance_smallunitname">feet</string>
+<string name="knot_unitname">knot</string>
+<string name="nautic_unitname">nautic mile</string>
+<string name="pace_unitname">min/km</string>
+<string name="pace_unitname_imperial">min/mile</string>
 </resources>

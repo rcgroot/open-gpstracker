@@ -34,6 +34,7 @@ import java.util.Date;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -51,6 +52,7 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -72,7 +74,7 @@ public class GraphCanvas extends View
    private Canvas mRenderCanvas;
    private Context mContext;
    private UnitsI18n mUnits;
-   private int mGraphType = TIMESPEEDGRAPH;
+   private int mGraphType = -1;
    private long mEndTime;
    private long mStartTime;
    private double mDistance;
@@ -82,11 +84,10 @@ public class GraphCanvas extends View
    private int mMaxAxis;
    private double mMinAlititude;
    private double mMaxAlititude;
-   private double mMaxSpeed;
+   private double mHighestSpeedNumber;
    private double mDistanceDrawn;
    private long mStartTimeDrawn;
    private long mEndTimeDrawn;
-   private boolean calculating;
    float density = Resources.getSystem().getDisplayMetrics().density;
    
    private Paint whiteText ;
@@ -165,24 +166,43 @@ public class GraphCanvas extends View
       }
       else
       {
+         if( mRenderBuffer == null && super.getWidth() > 0 && super.getHeight() > 0 )
+         {
+            initRenderBuffer(super.getWidth(), super.getHeight());
+         }
          rerender = true;
       }
       
       mUri          = uri;
       mUnits        = calc.getUnits();
-      mMinAlititude = calc.getMinAltitude();
-      mMaxAlititude = calc.getMaxAltitude();
-      mMaxSpeed     = calc.getMaxSpeed();
+      
+      mMinAlititude = mUnits.conversionFromMeterToHeight( calc.getMinAltitude() );
+      mMaxAlititude = mUnits.conversionFromMeterToHeight( calc.getMaxAltitude() );
+      if( mUnits.isUnitFlipped() )
+      {
+         mHighestSpeedNumber     = 1.5 * mUnits.conversionFromMetersPerSecond( calc.getAverageStatisicsSpeed() );
+      }
+      else
+      {
+         mHighestSpeedNumber     = mUnits.conversionFromMetersPerSecond( calc.getMaxSpeed() );
+      }
       mStartTime    = calc.getStarttime();
       mEndTime      = calc.getEndtime();
       mDistance     = calc.getDistanceTraveled();
-      if( rerender && !calculating )
+      
+      if( rerender )
       {
          renderGraph();
-      }         
-      postInvalidate();
+      }
    }
    
+   public synchronized void clearData()
+   {
+      mUri = null;
+      mUnits = null;
+      mRenderBuffer = null;
+   }
+
    public void setType( int graphType)
    {
       if( mGraphType != graphType )
@@ -198,31 +218,33 @@ public class GraphCanvas extends View
    }
 
    @Override
-   protected void onSizeChanged( int w, int h, int oldw, int oldh )
+   protected synchronized void onSizeChanged( int w, int h, int oldw, int oldh )
    {
       super.onSizeChanged( w, h, oldw, oldh );
-      
-      if( mRenderBuffer == null || mRenderBuffer.getWidth() != w || mRenderBuffer.getHeight() != h )
-      {
-         mRenderBuffer = Bitmap.createBitmap( w, h, Config.ARGB_8888 );
-         mRenderCanvas = new Canvas( mRenderBuffer );
-         renderGraph();
-      }
+      initRenderBuffer(w, h);
+
+      renderGraph();
+   }
+
+   private void initRenderBuffer(int w, int h)
+   {
+      mRenderBuffer = Bitmap.createBitmap( w, h, Config.ARGB_8888 );
+      mRenderCanvas = new Canvas( mRenderBuffer );
    }
 
    @Override
-   protected void onDraw( Canvas canvas )
+   protected synchronized void onDraw( Canvas canvas )
    {
       super.onDraw(canvas);
-      canvas.drawBitmap( mRenderBuffer, 0, 0, null );
+      if( mRenderBuffer != null )
+      {
+         canvas.drawBitmap( mRenderBuffer, 0, 0, null );
+      }
    }
 
-   private void renderGraph()
+   private synchronized void renderGraph()
    {
-//      Log.d( TAG, "renderGraph() type "+mGraphType+" on "+mRenderBuffer );
-      
-      calculating = true;
-      if( mRenderBuffer != null )
+      if( mRenderBuffer != null && mUri != null )
       {
          mRenderBuffer.eraseColor( Color.TRANSPARENT );
          switch( mGraphType )
@@ -262,7 +284,8 @@ public class GraphCanvas extends View
          mStartTimeDrawn = mStartTime;
          mEndTimeDrawn = mEndTime;
       }
-      calculating = false;
+
+      postInvalidate();
    }
       
    /**
@@ -316,9 +339,12 @@ public class GraphCanvas extends View
                         }
                         lastLocation = currentLocation;
                         double value = waypoints.getDouble( 2 );
-                        if( value > 1 && segment < values.length )
+                        if( value > Constants.MIN_STATISTICS_SPEED && segment < values.length )
                         {
                            int x = (int) ((distance)*(mWidth-1) / mDistance);
+                           
+                           //Log.d( TAG, waypoints.getPosition()+" will add "+value+" to bucket "+x+"/"+valueDepth[segment].length );
+                           
                            if( x < valueDepth[segment].length )
                            {
                               valueDepth[segment][x]++;
@@ -397,7 +423,7 @@ public class GraphCanvas extends View
                      {
                         long time = waypoints.getLong( 0 );
                         double value = waypoints.getDouble( 1 );
-                        if( value > 1 && segment < values.length )
+                        if( value > Constants.MIN_STATISTICS_SPEED && segment < values.length )
                         {
                            int x = (int) ((time-mStartTime)*(mWidth-1) / duration);
                            if( x < valueDepth[segment].length )
@@ -443,8 +469,8 @@ public class GraphCanvas extends View
 
    private void setupAltitudeAxis()
    {
-      mMinAxis = 4 *     (int)mUnits.conversionFromMeterToHeight(mMinAlititude / 4) ;
-      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMeterToHeight(mMaxAlititude / 4) ;
+      mMinAxis = 4 *     (int)(mMinAlititude / 4);
+      mMaxAxis = 4 + 4 * (int)(mMaxAlititude / 4);
 
       mWidth = mRenderCanvas.getWidth()-5;
       mHeight = mRenderCanvas.getHeight()-10;
@@ -453,7 +479,7 @@ public class GraphCanvas extends View
    private void setupSpeedAxis()
    {
       mMinAxis = 0;
-      mMaxAxis = 4 + 4 * (int)mUnits.conversionFromMetersPerSecond( mMaxSpeed / 4);
+      mMaxAxis = 4 + 4 * (int)( mHighestSpeedNumber / 4);
 
       mWidth = mRenderCanvas.getWidth()-5;
       mHeight = mRenderCanvas.getHeight()-10;
@@ -522,9 +548,9 @@ public class GraphCanvas extends View
    }
    private void drawDistanceTexts()
    {
-      String start = String.format( "%.0f %s", mUnits.conversionFromMeter( 0 ), mUnits.getDistanceUnit() ) ;
-      String half  = String.format( "%.0f %s", mUnits.conversionFromMeter( mDistance/2), mUnits.getDistanceUnit() ) ;
-      String end   = String.format( "%.0f %s", mUnits.conversionFromMeter( mDistance), mUnits.getDistanceUnit() ) ;
+      String start = String.format( "%.0f %s", mUnits.conversionFromMeter(0), mUnits.getDistanceUnit() ) ;
+      String half  = String.format( "%.0f %s", mUnits.conversionFromMeter(mDistance)/2, mUnits.getDistanceUnit() ) ;
+      String end   = String.format( "%.0f %s", mUnits.conversionFromMeter(mDistance)  , mUnits.getDistanceUnit() ) ;
       
       Path yAxis;
       yAxis = new Path();

@@ -90,7 +90,7 @@
     <string name="email_kmzbody">Angehängt ist ein Track im KMZ-Format. Formatdetails hier:  http://code.google.com/apis/kml/documentation/kml_tut.html</string>
     <string name="kmlVideoUnsupported">Videoeinbettung nicht unterstüzt, nutze ein Zip-Tool um das Video %s aus der KMZ Datei zu entpacken.</string>
     <string name="kmlAudioUnsupported">Audioeinbettung nicht unterstüzt, nutze ein Zip-Tool um die Audiodatei %s aus der KMZ-Datei zu entpacken.</string>
-
+    
     <!-- Screens -->
     <string name="share_track">Tracksharing</string>
     <string name="share_explained">Beim Tracksharing werden so viel Aufzeichungsdaten, wie möglich exportiert.</string>
@@ -122,7 +122,7 @@
     <string name="showspeed_summary">Zeige von GPS ermittelte Geschwindigkeit an.</string>
     <string name="showaltitude_title">GPS Höhe</string>
     <string name="showaltitude_summary">Zeige von GPS ermittelte Höhe an.</string>
-    <string name="showcompass_title">kompass</string>
+    <string name="showcompass_title">Kompass</string>
     <string name="showcompass_summary">Zeige Kompassnadel für Nordrichtung an.</string>
     <string name="sanitycheck_title">Höhe und Geschwindigkeit checken </string>
     <string name="sanitycheck_summary"> Prüft GPS-Höhe und -Geschwindigkeit auf Plausibilität</string>
@@ -157,5 +157,5 @@
    <string name="about_comments">Dieses ist eine App, die per GPS, alle Bewegungen eines Mobilgeräts aufzeichen kann .</string>
    <string name="about_activity_name_extended">About %s</string>
    <string name="no_information_available">Keine Information verfügbar.</string>
-
+   
 </resources>

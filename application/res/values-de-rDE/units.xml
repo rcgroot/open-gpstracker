@@ -6,4 +6,5 @@
 <string name="knot_unitname">Knoten</string>
 <string name="nautic_unitname">Seemeile</string>
 <string name="pace_unitname">min/km</string>
+<string name="pace_unitname_imperial">min/mile</string>
 </resources>

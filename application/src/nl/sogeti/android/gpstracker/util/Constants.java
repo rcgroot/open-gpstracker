@@ -76,4 +76,6 @@ public class Constants
    public static final String EXPORT_KMZTARGET = "EXPORT_KMZTARGET";
    public static final String EXPORT_TXTTARGET = "EXPORT_TXTTARGET";
    
+   public static final double MIN_STATISTICS_SPEED = 1.0d;
+   
 }

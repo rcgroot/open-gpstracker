@@ -12,8 +12,6 @@
 <string name="knot_unitname">knot</string>
 <string name="nautic_unitname">nautic mile</string>
 
-<item name="conversion_from_mps_to_pace"          type="raw" format="float">16.66666667</item>
-<item name="conversion_from_mps_to_pace_imperial" type="raw" format="float">26.82240823</item>
 <string name="pace_unitname">min/km</string>
 <string name="pace_unitname_imperial">min/mile</string>
 </resources>
