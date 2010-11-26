@@ -5,10 +5,11 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/OI About"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="lib" path="lib/slf4j-android-1.5.8.jar"/>
-	<classpathentry kind="lib" path="lib/osmdroid-android-1.07.jar"/>
 	<classpathentry kind="lib" path="lib/apache-mime4j-0.6.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/osmdroid-android-1.08.jar">
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

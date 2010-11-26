@@ -20,9 +20,8 @@
       android:id="@+id/myOsmMapView"
       android:layout_width="fill_parent"
       android:layout_height="fill_parent"
-      android:visibility="invisible" 
-      android:clickable="true"
-      android:enabled="true"
+      renderer="CLOUDMADESTANDARDTILES"
+      cloudmadeStyle="1"
    />
 
    <TextView
