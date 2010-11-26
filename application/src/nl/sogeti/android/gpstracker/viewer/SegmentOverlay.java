@@ -65,6 +65,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -1071,12 +1072,17 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    @Override
    public boolean onTap( GeoPoint tappedGeoPoint, MapView mapView )
    {
+      return commonOnTap(tappedGeoPoint) ;
+   }
+
+   private boolean commonOnTap(GeoPoint tappedGeoPoint)
+   {
       List<Uri> tappedUri = new Vector<Uri>();
 
       Point tappedPoint = new Point();
       for( MediaVO media : mMediaPath )
       {
-         mapView.getProjection().toPixels( tappedGeoPoint, tappedPoint );
+         mProjection.toPixels( tappedGeoPoint, tappedPoint );
 
          if( media.x < tappedPoint.x && tappedPoint.x < media.x + media.w && media.y < tappedPoint.y && tappedPoint.y < media.y + media.h )
          {
@@ -1090,7 +1096,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
       else
       {
-         return super.onTap( tappedGeoPoint, mapView );
+         return false;
       }
    }
 
@@ -1172,6 +1178,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       protected void onDraw( Canvas canvas, OpenStreetMapView view )
       {
          SegmentOverlay.this.draw( canvas, false );
+         mProjection.setProjection(view.getProjection());
       }
 
       @Override
@@ -1179,6 +1186,15 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          // noop
       }
+      
+      public boolean onSingleTapUp(MotionEvent e, OpenStreetMapView openStreetMapView) 
+      {
+         int x = (int) e.getX();
+         int y = (int) e.getY();
+         GeoPoint tappedGeoPoint = mProjection.fromPixels(x, y);
+         return SegmentOverlay.this.commonOnTap(tappedGeoPoint );
+      }
+
       
    };
 }

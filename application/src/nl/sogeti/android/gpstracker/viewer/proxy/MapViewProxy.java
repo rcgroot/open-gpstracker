@@ -3,7 +3,9 @@ package nl.sogeti.android.gpstracker.viewer.proxy;
 import java.util.List;
 
 import org.andnav.osm.views.OpenStreetMapView;
+import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
 
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.maps.GeoPoint;
@@ -11,6 +13,7 @@ import com.google.android.maps.MapView;
 
 public class MapViewProxy
 {
+   private static final String TAG = "OGT.MapViewProxy";
    private MapView mGoogleMapView;
    private MapControllerProxy mMapControllerProxy;
    private ProjectionProxy mProjectionProxy;
@@ -104,7 +107,10 @@ public class MapViewProxy
       }
       if( mOpenStreetMapView != null )
       {
-         mOpenStreetMapView.getOverlays().clear();
+         List<OpenStreetMapViewOverlay> overlays = mOpenStreetMapView.getOverlays();
+         OpenStreetMapViewOverlay baseLayar = overlays.get(0);
+         overlays.clear();
+         overlays.add(baseLayar);
       }
    }
 

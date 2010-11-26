@@ -1401,7 +1401,7 @@ public class LoggerMap extends MapActivity
             resolver.registerContentObserver( tracksegmentsUri, false, this.mTrackSegmentsObserver );
             resolver.registerContentObserver( mediaUri, false, this.mTrackMediasObserver );
             
-            this.mMapView.getOverlays().clear();
+            this.mMapView.clearOverlays();
 
             updateTitleBar();
             updateDataOverlays();
