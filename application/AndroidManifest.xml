@@ -121,7 +121,11 @@
              </intent-filter>
          </activity>
 
-		<service android:enabled="true" android:name=".logger.GPSLoggerService">
+		<service 
+		      android:enabled="true" 
+		      android:name=".logger.GPSLoggerService"
+		      android:process=":loggingservice"
+		      android:permission="android.permission.ACCESS_FINE_LOCATION">
 			<intent-filter android:label="GPS logger">
 				<action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
 			</intent-filter>
