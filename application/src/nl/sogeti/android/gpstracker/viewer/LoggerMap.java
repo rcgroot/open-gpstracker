@@ -430,7 +430,6 @@ public class LoggerMap extends MapActivity
 
    protected void onPause()
    {
-      super.onPause();
       if( this.mWakeLock != null && this.mWakeLock.isHeld() )
       {
          this.mWakeLock.release();
@@ -445,6 +444,8 @@ public class LoggerMap extends MapActivity
       }
       mMylocation.disableMyLocation();
       mMylocation.disableCompass();
+      
+      super.onPause();
    }
 
    protected void onResume()
