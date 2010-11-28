@@ -342,7 +342,7 @@ public class GpxCreator extends XmlCreator
                }
                serializer.text( "\n" );
                serializer.startTag( "", "extensions" );
-               quickTag( serializer, "gpx10", "speed", Double.toString( waypointsCursor.getDouble( 5 ) ) );
+               quickTag( serializer, NS_GPX_10, "speed", Double.toString( waypointsCursor.getDouble( 5 ) ) );
 
                serializer.endTag( "", "extensions" );
                serializer.text( "\n" );
