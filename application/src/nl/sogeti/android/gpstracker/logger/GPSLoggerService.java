@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.logger;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
+import java.util.concurrent.Semaphore;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -51,10 +52,10 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
+import android.location.GpsStatus.Listener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.GpsStatus.Listener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -271,6 +272,7 @@ public class GPSLoggerService extends Service
 
    private class GPSLoggerServiceThread extends Thread
    {
+      public Semaphore ready = new Semaphore( 0 );
       public void run()
       {
          Looper.prepare();
@@ -281,6 +283,7 @@ public class GPSLoggerService extends Service
                   _handleMessage( msg );
                }
             };
+         ready.release(); // Signal the looper and handler are created 
          Looper.loop();
       }
    }
@@ -335,7 +338,17 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
-      new GPSLoggerServiceThread().start();
+      
+      GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
+      looper.start();
+      try
+      {
+         looper.ready.acquire();
+      }
+      catch (InterruptedException e)
+      {
+         Log.e( TAG, "Interrupted during wait for the GPSLoggerServiceThread to start, prepare for trouble!", e );
+      }
 
       mWeakLocations = new Vector<Location>( 3 );
       mAltitudes = new LinkedList<Double>();
@@ -349,7 +362,7 @@ public class GPSLoggerService extends Service
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this.mContext );
       mSpeedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( Constants.LOGATSTARTUP, false );
-      //      Log.d( TAG, "Commence logging at startup:"+startImmidiatly );
+
       crashRestoreState();
       if( startImmidiatly && mLoggingState == Constants.STOPPED )
       {
