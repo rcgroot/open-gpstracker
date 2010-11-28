@@ -218,7 +218,7 @@ public class KmzCreator extends XmlCreator
 
       try
       {
-         trackCursor = resolver.query( trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
+         trackCursor = resolver.query( trackUri, new String[] { Tracks.NAME }, null, null, null );
          if( trackCursor.moveToFirst() )
          {
             serializer.text( "\n" );
@@ -239,7 +239,7 @@ public class KmzCreator extends XmlCreator
             serializer.endTag( "", "Style" );
             serializer.text( "\n" );
             serializer.startTag( "", "Folder" );
-            name = trackCursor.getString( 1 );
+            name = trackCursor.getString( 0 );
             serializer.text( "\n" );
             serializer.startTag( "", "name" );
             serializer.text( name );
@@ -249,15 +249,6 @@ public class KmzCreator extends XmlCreator
             serializer.text( "1" );
             serializer.endTag( "", "open" );
             serializer.text( "\n" );
-            serializer.startTag( "", "TimeStamp" );
-            serializer.text( "\n" );
-            //            serializer.startTag( "", "when" );
-            //            Date time = new Date( trackCursor.getLong( 2 ) );
-            //            DateFormat formater = new SimpleDateFormat( DATETIME );
-            //            serializer.text( formater.format( time ) );
-            //            serializer.endTag( "", "when" );
-            serializer.text( "\n" );
-            serializer.endTag( "", "TimeStamp" );
 
             serializeSegments( serializer, Uri.withAppendedPath( trackUri, "segments" ) );
 
@@ -337,7 +328,7 @@ public class KmzCreator extends XmlCreator
                serializer.endTag( "", "tessellate" );
                serializer.text( "\n" );
                serializer.startTag( "", "altitudeMode" );
-               serializer.text( "absolute" );
+               serializer.text( "clampToGround" );
                serializer.endTag( "", "altitudeMode" );
 
                /* Single <coordinates/> element */
