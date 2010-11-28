@@ -28,16 +28,30 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+import java.util.Vector;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.SearchManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -364,10 +378,21 @@ public class TrackList extends ListActivity
       }
       else if( Intent.ACTION_VIEW.equals( queryAction ) )
       {
-         // Got to VIEW a single track, instead had it of to the LoggerMap
-         Intent notificationIntent = new Intent( this, LoggerMap.class );
-         notificationIntent.setData( intent.getData() );
-         startActivity( notificationIntent );
+         Uri uri = intent.getData();
+         
+         // Got to VIEW a GPX filename
+         if( uri.getScheme().equals( "file" ) )
+         {
+            doUglyXMLParsing( uri );
+            tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
+         }
+         else
+         {
+            // Got to VIEW a single track, instead had it of to the LoggerMap
+            Intent notificationIntent = new Intent( this, LoggerMap.class );
+            notificationIntent.setData( uri );
+            startActivity( notificationIntent );
+         }
       }
       else
       {
@@ -375,6 +400,7 @@ public class TrackList extends ListActivity
          tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
       }
       displayCursor( tracksCursor );
+      
    }
 
    private void displayCursor( Cursor tracksCursor )
@@ -395,4 +421,140 @@ public class TrackList extends ListActivity
       return cursor;
    }
 
+   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
+   static
+   {
+      TimeZone utc = TimeZone.getTimeZone( "UTC" );
+      ZULU_DATE_FORMAT.setTimeZone( utc ); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
+   }
+   
+   
+   private void doUglyXMLParsing( Uri fileUri )
+   {
+      int eventType;
+      ContentValues lastPosition = null ;
+      Vector<ContentValues> bulk = new Vector<ContentValues>();
+      boolean speed = false;
+      boolean elevation = false;
+      boolean name = false;
+      boolean time = false;
+      
+      Uri trackUri = null;
+      Uri segment = null;
+      Log.d( TAG, "Started doUglyXMLParsing" );
+      try
+      {
+         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+         XmlPullParser xmlParser = factory.newPullParser();
+         xmlParser.setInput( new FileReader( new File(fileUri.getPath()) ) );
+         String filename = fileUri.getLastPathSegment();
+         
+         eventType = xmlParser.getEventType();
+
+         while (eventType != XmlPullParser.END_DOCUMENT)
+         {
+            ContentResolver contentResolver = this.getContentResolver();
+            if( eventType == XmlPullParser.START_TAG )
+            {
+               if( xmlParser.getName().equals( "name" ) )
+               {
+                  name = true;
+               }
+               else
+               {
+                  ContentValues trackContent = new ContentValues( );
+                  trackContent.put(  Tracks.NAME, filename );
+                  if( xmlParser.getName().equals( "trk" ) )
+                  {
+                     trackUri = contentResolver.insert( Tracks.CONTENT_URI, trackContent );
+                  }
+                  else if ( xmlParser.getName().equals( "trkseg" ) )
+                  {
+                     segment = contentResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), trackContent );
+                  }
+                  else if( xmlParser.getName().equals( "trkpt" ) )
+                  {                  
+                     lastPosition = new ContentValues(); 
+                     lastPosition.put( Waypoints.LATITUDE,  new Double( xmlParser.getAttributeValue( 0) ) );
+                     lastPosition.put( Waypoints.LONGITUDE, new Double( xmlParser.getAttributeValue( 1 ) ) );
+                  }
+                  else if( xmlParser.getName().equals( "speed" ) )
+                  {                  
+                     speed = true;
+                  }
+                  else if( xmlParser.getName().equals( "ele" ) )
+                  {                  
+                     elevation = true;
+                  }
+                  else if( xmlParser.getName().equals( "time" ) )
+                  {                  
+                     time = true;
+                  }
+               }
+            }
+            else if( eventType == XmlPullParser.END_TAG )
+            {
+               if( xmlParser.getName().equals( "name" ) )
+               {
+                  name = false;
+               }
+               else if( xmlParser.getName().equals( "speed" ) )
+               {
+                  speed = false;
+               }
+               else if( xmlParser.getName().equals( "ele" ) )
+               {
+                  elevation = false;
+               }
+               else if( xmlParser.getName().equals( "time" ) )
+               {
+                  time = false;
+               }
+               else  if ( xmlParser.getName().equals( "trkseg" ) )
+               {
+                  contentResolver.bulkInsert( Uri.withAppendedPath( segment, "waypoints" ), bulk.toArray( new ContentValues[bulk.size()] ));
+               }
+               else if( xmlParser.getName().equals("trkpt" ) )
+               {
+                  bulk.add( lastPosition );
+                  lastPosition = null;
+               }
+            }
+            else if( eventType == XmlPullParser.TEXT )
+            {
+               if( name )
+               {
+                  ContentValues nameValues = new ContentValues();
+                  nameValues.put( Tracks.NAME, xmlParser.getText() );
+                  contentResolver.update( trackUri, nameValues , null, null );
+               }
+               else if( lastPosition != null && speed )
+               {
+                  lastPosition.put( Waypoints.SPEED, new Float( xmlParser.getText() ) );
+               }
+               else if( lastPosition != null && elevation )
+               {
+                  lastPosition.put( Waypoints.ALTITUDE, Double.parseDouble( xmlParser.getText() ) );
+               }
+               else if( lastPosition != null && time )
+               {
+                  lastPosition.put( Waypoints.TIME, new Long( ZULU_DATE_FORMAT.parse( xmlParser.getText() ).getTime() ) );
+               }
+            }
+            eventType = xmlParser.next();
+         }
+      }
+      catch (XmlPullParserException e)
+      { 
+         Log.e( TAG, "Error", e );
+      }
+      catch (IOException e)
+      {
+         Log.e( TAG, "Error", e );
+      }
+      catch (ParseException e)
+      {
+         Log.e( TAG, "Error", e );
+      }
+   }
 }
