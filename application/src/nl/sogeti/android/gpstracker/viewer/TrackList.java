@@ -138,6 +138,7 @@ public class TrackList extends ListActivity
    {
       mDialogUri = state.getParcelable( "URI" );
       mDialogCurrentName = state.getString( "NAME" );
+      mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
       super.onRestoreInstanceState( state );
    }
 
@@ -241,6 +242,7 @@ public class TrackList extends ListActivity
       Cursor cursor = (Cursor) getListAdapter().getItem( info.position );
       mDialogUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, cursor.getLong( 0 ) );
       mDialogCurrentName = cursor.getString( 1 );
+      mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
       switch( item.getItemId() )
       {
          case MENU_DETELE:
@@ -294,7 +296,6 @@ public class TrackList extends ListActivity
             LayoutInflater factory = LayoutInflater.from( this );
             View view = factory.inflate( R.layout.namedialog, null );
             mTrackNameView = (EditText) view.findViewById( R.id.nameField );
-
             builder = new AlertDialog.Builder( this )
                         .setTitle( R.string.dialog_routename_title )
                         .setMessage( R.string.dialog_routename_message )
