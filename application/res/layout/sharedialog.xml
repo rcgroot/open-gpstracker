@@ -55,7 +55,8 @@
             android:clickable="true"
             android:layout_width="fill_parent"
             android:maxLines="3"
-            android:maxLength="140"/>
+            android:maxLength="140"
+            android:text="" />
       </LinearLayout>
    </ScrollView>
 

@@ -37,7 +37,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
 
 import org.xmlpull.v1.XmlSerializer;
@@ -53,8 +55,6 @@ public abstract class XmlCreator extends Thread
    @SuppressWarnings("unused")
    private String TAG = "OGT.XmlCreator";
    private String mExportDirectoryPath;
-   private int mProgress = 0;
-   private int mGoal = 0;
    private boolean mNeedsBundling;
    
    String mChosenFileName;
@@ -96,6 +96,63 @@ public abstract class XmlCreator extends Thread
       }
       return trackName;
    }
+   
+   /**
+    *  Calculated the total progress sum expected from a export to file
+    *  
+    *  This is the sum of the number of waypoints and media entries times 100. The
+    *  whole number is doubled when compression is needed.  
+    *  
+    */
+   public void determineProgressGoal()
+   {
+      if( mProgressListener != null )
+      {
+         int goal = 0;
+         Uri allWaypointsUri = Uri.withAppendedPath( mTrackUri, "waypoints" );
+         Uri allMediaUri = Uri.withAppendedPath( mTrackUri, "media" );
+         Cursor cursor = null;
+         ContentResolver resolver = mContext.getContentResolver();
+         try
+         {
+            cursor = resolver.query( allWaypointsUri, new String[] { "count("+Waypoints.TABLE+"."+Waypoints._ID+")" }, null, null, null );
+            if( cursor.moveToLast() )
+            {
+               goal += cursor.getInt( 0 );
+            }
+            cursor.close();
+            cursor = resolver.query( allMediaUri, new String[] { "count("+Media.TABLE+"."+Media._ID+")" }, null, null, null );
+            if( cursor.moveToLast() )
+            {
+               goal +=  100*cursor.getInt( 0 );
+            }
+            cursor.close();
+            cursor = resolver.query( 
+                  allMediaUri, 
+                  new String[] { "count("+Tracks._ID+")" }, 
+                  Media.URI + " LIKE ? and " + Media.URI +" NOT LIKE ?", 
+                  new String[] { "file://%", "%txt" }, 
+                  null );
+            if( cursor.moveToLast() )
+            {
+               if( cursor.getInt( 0 ) > 0 )
+               {
+                  mNeedsBundling = true;
+                  goal *= 2;
+               }
+            }
+         }
+         finally
+         {
+            if( cursor != null )
+            {
+               cursor.close();
+            }
+         }
+         mProgressListener.setGoal( goal );
+      }
+      
+   }
 
    /**
     * Removes all non-word chars (\W) from the text 
@@ -133,7 +190,7 @@ public abstract class XmlCreator extends Thread
 
 //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) ); 
       if( source.exists() )
-      {      
+      {
          FileChannel inChannel = new FileInputStream( source ).getChannel();
          FileChannel outChannel = new FileOutputStream( target ).getChannel();
          try
@@ -155,6 +212,10 @@ public abstract class XmlCreator extends Thread
       else
       {
          target.createNewFile();
+      }
+      if( mProgressListener != null )
+      {
+         mProgressListener.increaseProgress( 100 );
       }
       return target.getName();
    }
@@ -211,6 +272,10 @@ public abstract class XmlCreator extends Thread
             }
             zos.closeEntry();
             in.close();
+            if( mProgressListener != null )
+            {
+               mProgressListener.increaseProgress( (mProgressListener.getGoal()/2)/filenames.length );
+            }
          }
       }
       finally
@@ -253,27 +318,6 @@ public abstract class XmlCreator extends Thread
       return mExportDirectoryPath;
    }
    
-
-   public void increaseGoal( int goal )
-   {
-      this.mGoal += goal;
-   }
-
-   public int getGoal()
-   {
-      return mGoal;
-   }
-
-   public void increaseProgress( int progress )
-   {
-      this.mProgress += progress;
-   }
-
-   public int getProgress()
-   {
-      return mProgress;
-   }
-
    public void quickTag( XmlSerializer serializer, String ns, String tag, String content) throws IllegalArgumentException, IllegalStateException, IOException
    {
       serializer.text( "\n" );
@@ -282,7 +326,7 @@ public abstract class XmlCreator extends Thread
       serializer.endTag( ns, tag );
    }
 
-   public boolean isNeedsBundling()
+   public boolean needsBundling()
    {
       return mNeedsBundling;
    }

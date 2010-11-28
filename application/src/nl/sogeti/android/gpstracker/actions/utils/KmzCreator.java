@@ -101,8 +101,8 @@ public class KmzCreator extends XmlCreator
 
       if( mProgressListener != null )
       {
+         determineProgressGoal();
          mProgressListener.startNotification();
-         mProgressListener.updateNotification( getProgress(), getGoal() );
       }
       
       String resultFilename = null;
@@ -302,10 +302,6 @@ public class KmzCreator extends XmlCreator
          segmentCursor = resolver.query( segments, new String[] { Segments._ID }, null, null, null );
          if( segmentCursor.moveToFirst() )
          {
-            if( mProgressListener != null )
-            {
-               mProgressListener.updateNotification( getProgress(), getGoal() );
-            }
             do
             {
                Uri waypoints = Uri.withAppendedPath( segments, segmentCursor.getLong( 0 ) + "/waypoints" );
@@ -435,15 +431,13 @@ public class KmzCreator extends XmlCreator
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
-            increaseGoal( waypointsCursor.getCount() );
             serializer.text( "\n" );
             serializer.startTag( "", "coordinates" );
             do
             {
-               increaseProgress( 1 );
                if( mProgressListener != null )
                {
-                  mProgressListener.updateNotification( getProgress(), getGoal() );
+                  mProgressListener.increaseProgress( 1 );
                }
                // Single Coordinate tuple
                serializeCoordinates( serializer, waypointsCursor );
@@ -649,7 +643,7 @@ public class KmzCreator extends XmlCreator
    }
    
    @Override
-   public boolean isNeedsBundling()
+   public boolean needsBundling()
    {
       return true;
    }

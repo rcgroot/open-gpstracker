@@ -109,8 +109,8 @@ public class GpxCreator extends XmlCreator
 
       if( mProgressListener != null )
       {
+         determineProgressGoal();
          mProgressListener.startNotification();
-         mProgressListener.updateNotification( getProgress(), getGoal() );
       }
 
       String resultFilename = null;
@@ -132,7 +132,7 @@ public class GpxCreator extends XmlCreator
          fos.close();
          fos = null;
 
-         if( isNeedsBundling() )
+         if( needsBundling() )
          {
             resultFilename = bundlingMediaAndXml( xmlFile.getParentFile().getName(), ".zip" );
          }
@@ -285,11 +285,6 @@ public class GpxCreator extends XmlCreator
          segmentCursor = resolver.query( segments, new String[] { Segments._ID }, null, null, null );
          if( segmentCursor.moveToFirst() )
          {
-            if( mProgressListener != null )
-            {
-               mProgressListener.updateNotification( getProgress(), getGoal() );
-            }
-
             do
             {
                Uri waypoints = Uri.withAppendedPath( segments, segmentCursor.getLong( 0 ) + "/waypoints" );
@@ -321,13 +316,11 @@ public class GpxCreator extends XmlCreator
          waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID, Waypoints.SPEED }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
-            increaseGoal( waypointsCursor.getCount() );
             do
             {
-               increaseProgress( 1 );
                if( mProgressListener != null )
                {
-                  mProgressListener.updateNotification( getProgress(), getGoal() );
+                  mProgressListener.increaseProgress( 1 );
                }
 
                serializer.text( "\n" );
@@ -469,6 +462,6 @@ public class GpxCreator extends XmlCreator
 
    private String getContentType()
    {
-      return isNeedsBundling() ? "application/zip" : "text/xml";
+      return needsBundling() ? "application/zip" : "text/xml";
    }
 }

@@ -63,7 +63,7 @@ public final class GPStracking
       public static final Uri CONTENT_URI = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + Tracks.TABLE );
 
       /** The name of this table */
-      static final String TABLE = "tracks";
+      public static final String TABLE = "tracks";
       static final String CREATE_STATEMENT = 
          "CREATE TABLE " + Tracks.TABLE + "(" + " " + Tracks._ID           + " " + Tracks._ID_TYPE + 
                                           "," + " " + Tracks.NAME          + " " + Tracks.NAME_TYPE + 
@@ -85,7 +85,7 @@ public final class GPStracking
       public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.segment";
 
       /** The name of this table */
-      static final String TABLE = "segments";
+      public static final String TABLE = "segments";
       static final String CREATE_STATMENT = 
          "CREATE TABLE " + Segments.TABLE + "(" + " " + Segments._ID   + " " + Segments._ID_TYPE + 
                                             "," + " " + Segments.TRACK + " " + Segments.TRACK_TYPE + 
@@ -159,7 +159,6 @@ public final class GPStracking
     */
    public static class TracksColumns
    {
-      /** The end time */
       public static final String NAME          = "name";
       public static final String CREATION_TIME = "creationtime";
       static final String CREATION_TIME_TYPE   = "INTEGER NOT NULL";

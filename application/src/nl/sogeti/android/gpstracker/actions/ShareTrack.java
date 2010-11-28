@@ -166,7 +166,6 @@ public class ShareTrack extends Activity
 
       calculator = new StatisticsCalulator(this, new UnitsI18n(this, null));
       mFileNameView.setText(createFileName());
-      mTweetView.setText(createTweetText());
 
       Button okay = (Button) findViewById(R.id.okayshare_button);
       okay.setOnClickListener(new View.OnClickListener()
@@ -549,22 +548,44 @@ public class ShareTrack extends Activity
 	         setTextLineExportTargets();
 	         mFileNameView.setVisibility(View.GONE);
 	         mTweetView.setVisibility(View.VISIBLE);
+	         if( mTweetView.getText().toString().equals( "" ))
+            {
+	            mTweetView.setText(createTweetText());
+            }
 	      default:
 	         break;
 	   }
 }
 
-public class ProgressMonitor
+   public class ProgressMonitor
    {
       private String mFileName;
       private EndJob mEndJob;
+      private int mGoal;
+      private int mProgress;
 
       public ProgressMonitor(String sharename, EndJob endJob)
       {
          mFileName = sharename;
          mEndJob = endJob;
       }
-
+      
+      public void setGoal( int goal )
+      {
+         this.mGoal = goal;
+      }
+      
+      public int getGoal()
+      {
+         return mGoal;
+      }
+      
+      public void increaseProgress( int step )
+      {
+         mProgress += step;
+         updateNotification();
+      }
+      
       public void startNotification()
       {
          String ns = Context.NOTIFICATION_SERVICE;
@@ -587,26 +608,26 @@ public class ProgressMonitor
          mNotification.contentView = mContentView;
       }
 
-      public void updateNotification(int progress, int goal)
+      private void updateNotification()
       {
          //         Log.d( "TAG", "Progress " + progress + " of " + goal );
-         if (progress > 0 && progress < goal)
+         if (mProgress > 0 && mProgress < mGoal)
          {
-            if ((progress * PROGRESS_STEPS) / goal != barProgress)
+            if ((mProgress * PROGRESS_STEPS) / mGoal != barProgress)
             {
-               barProgress = (progress * PROGRESS_STEPS) / goal;
-               mContentView.setProgressBar(R.id.progress, goal, progress, false);
+               barProgress = (mProgress * PROGRESS_STEPS) / mGoal;
+               mContentView.setProgressBar(R.id.progress, mGoal, mProgress, false);
                mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
             }
          }
-         else if (progress == 0)
+         else if (mProgress == 0)
          {
-            mContentView.setProgressBar(R.id.progress, goal, progress, true);
+            mContentView.setProgressBar(R.id.progress, mGoal, mProgress, true);
             mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
          }
-         else if (progress >= goal)
+         else if (mProgress >= mGoal)
          {
-            mContentView.setProgressBar(R.id.progress, goal, progress, false);
+            mContentView.setProgressBar(R.id.progress, mGoal, mProgress, false);
             mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
          }
       }
