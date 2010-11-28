@@ -30,15 +30,15 @@ public class MyLocationOverlayProxy implements OverlayProxy
       mMapViewProxy = view;
    }
 
-   public void disableCompass()
+   public void enableMyLocation()
    {
       if( googleLocationOverlay != null )
       {
-         googleLocationOverlay.disableCompass();
+         googleLocationOverlay.enableMyLocation();
       }
       if( osmLocationOverlay != null )
       {
-         osmLocationOverlay.disableCompass();
+         osmLocationOverlay.enableMyLocation();
       }
    }
 
@@ -54,18 +54,6 @@ public class MyLocationOverlayProxy implements OverlayProxy
       }
    }
 
-   public void enableMyLocation()
-   {
-      if( googleLocationOverlay != null )
-      {
-         googleLocationOverlay.enableMyLocation();
-      }
-      if( osmLocationOverlay != null )
-      {
-         osmLocationOverlay.enableMyLocation();
-      }
-   }
-
    public void enableCompass()
    {
       if( googleLocationOverlay != null )
@@ -75,6 +63,18 @@ public class MyLocationOverlayProxy implements OverlayProxy
       if( osmLocationOverlay != null )
       {
          osmLocationOverlay.enableCompass();
+      }
+   }
+
+   public void disableCompass()
+   {
+      if( googleLocationOverlay != null )
+      {
+         googleLocationOverlay.disableCompass();
+      }
+      if( osmLocationOverlay != null )
+      {
+         osmLocationOverlay.disableCompass();
       }
    }
 
