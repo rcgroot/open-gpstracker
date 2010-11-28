@@ -28,6 +28,7 @@
  */
 package nl.sogeti.android.gpstracker.db;
 
+import java.util.Iterator;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -223,6 +224,28 @@ public class GPStrackingProvider extends ContentProvider
       return mime;
    }
 
+   @Override
+   public int bulkInsert( Uri uri, ContentValues[] valuesArray )
+   {
+      Log.d( TAG, "start bulkInsert() "+uri+ " : "+valuesArray.length );
+      int inserted = 0;
+      int match = GPStrackingProvider.sURIMatcher.match( uri );
+      switch (match)
+      {
+         case WAYPOINTS:
+            List<String> pathSegments = uri.getPathSegments();
+            int trackId = Integer.parseInt( pathSegments.get( 1 ) );
+            int segmentId = Integer.parseInt( pathSegments.get( 3 ) );
+            inserted = this.mDbHelper.bulkInsertWaypoint( trackId, segmentId, valuesArray );
+            break;
+         default:
+            inserted = super.bulkInsert( uri, valuesArray );
+            break;
+      }
+      Log.d( TAG, "done bulkInsert() "+uri+ " : "+inserted );
+      return inserted;
+   }
+   
    /**
     * (non-Javadoc)
     * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
@@ -246,7 +269,6 @@ public class GPStrackingProvider extends ContentProvider
             segmentId = Integer.parseInt( pathSegments.get( 3 ) );
             
             Location loc = new Location( TAG );
-            
             Double latitude = values.getAsDouble( Waypoints.LATITUDE );
             Double longitude = values.getAsDouble( Waypoints.LONGITUDE );
             Long time = values.getAsLong( Waypoints.TIME );

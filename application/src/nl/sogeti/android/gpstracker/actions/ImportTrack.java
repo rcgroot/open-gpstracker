@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.res.XmlResourceParser;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,19 +52,19 @@ public class ImportTrack extends Activity
       }
       catch (XmlPullParserException e)
       {
-         e.printStackTrace();
+         Log.e( TAG, "Error", e );
       }
       catch (FileNotFoundException e)
       {
-         e.printStackTrace();
+         Log.e( TAG, "Error", e );
       }
-      
    }
    
    private void doUglyXMLParsing( String filename, XmlPullParser xmlParser )
    {
       int eventType;
       ContentValues lastPosition = null ;
+      Vector<ContentValues> bulk = new Vector<ContentValues>();
       boolean speed = false;
       boolean elevation = false;
       boolean name = false;
@@ -73,6 +72,7 @@ public class ImportTrack extends Activity
       
       Uri trackUri = null;
       Uri segment = null;
+      Log.d( TAG, "Started doUglyXMLParsing" );
       try
       {
          eventType = xmlParser.getEventType();
@@ -131,9 +131,13 @@ public class ImportTrack extends Activity
                {
                   time = false;
                }
-               else if( xmlParser.getName().equals( "trkpt" ) )
+               else  if ( xmlParser.getName().equals( "trkseg" ) )
                {
-                  contentResolver.insert( Uri.withAppendedPath( segment, "waypoints" ), lastPosition );
+                  contentResolver.bulkInsert( Uri.withAppendedPath( segment, "waypoints" ), bulk.toArray( new ContentValues[bulk.size()] ));
+               }
+               else if( xmlParser.getName().equals("trkpt" ) )
+               {
+                  bulk.add( lastPosition );
                   lastPosition = null;
                }
             }
@@ -173,5 +177,6 @@ public class ImportTrack extends Activity
       {
          Log.e( TAG, "Error", e );
       }
+      Log.d( TAG, "Ended doUglyXMLParsing" );
    }
 }

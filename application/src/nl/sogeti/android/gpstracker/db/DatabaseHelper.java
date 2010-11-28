@@ -124,6 +124,42 @@ public class DatabaseHelper extends SQLiteOpenHelper
       }.start();
 
    }
+   
+   int bulkInsertWaypoint( long trackId, long segmentId, ContentValues[] valuesArray )
+   {
+      Log.d( TAG, "start bulkInsert() : "+valuesArray.length );
+      if( trackId < 0 || segmentId < 0 )
+      {
+         throw new IllegalArgumentException( "Track and segments may not the less then 0." );
+      }
+      int inserted = 0;
+      
+      SQLiteDatabase sqldb = getWritableDatabase();
+      sqldb.beginTransaction();
+      try 
+      {
+         for( ContentValues args : valuesArray )
+         {
+            args.put( Waypoints.SEGMENT, segmentId );
+            
+            long id = sqldb.insert( Waypoints.TABLE, null, args );
+            if( id >= 0 )
+            {
+               inserted++;
+            }
+         }
+         sqldb.setTransactionSuccessful();
+
+      }
+      finally
+      {
+         sqldb.endTransaction();
+      }
+      
+      Log.d( TAG, "done bulkInsert() : "+inserted );
+      
+      return inserted;
+   }
 
    /**
     * Creates a waypoint under the current track segment with the current time on which the waypoint is reached
