@@ -54,7 +54,7 @@ import android.util.Log;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-class DatabaseHelper extends SQLiteOpenHelper
+public class DatabaseHelper extends SQLiteOpenHelper
 {
    private Context mContext;
    private final static String TAG = "OGT.DatabaseHelper";
@@ -110,6 +110,19 @@ class DatabaseHelper extends SQLiteOpenHelper
          db.execSQL( Media.CREATE_STATEMENT );
          current = 9;
       }
+   }
+   
+   public void vacuum()
+   {
+      new Thread(){
+         @Override
+         public void run()
+         {
+            SQLiteDatabase sqldb = getWritableDatabase();
+            sqldb.execSQL( "VACUUM" );
+         }
+      }.start();
+
    }
 
    /**

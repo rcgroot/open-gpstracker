@@ -30,18 +30,19 @@ package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
+import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.SearchManager;
-import android.app.AlertDialog.Builder;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -66,15 +67,18 @@ import android.widget.TextView;
 public class TrackList extends ListActivity
 {
    private static final String TAG = "OGT.TrackList";
-   private static final int MENU_DETELE = 0;
-   private static final int MENU_SHARE = 1;
-   private static final int MENU_RENAME = 2;
-   private static final int MENU_STATS = 3;
+   private static final int MENU_DETELE = Menu.FIRST+0;
+   private static final int MENU_SHARE  = Menu.FIRST+1;
+   private static final int MENU_RENAME = Menu.FIRST+2;
+   private static final int MENU_STATS  = Menu.FIRST+3;
+   private static final int MENU_SEARCH = Menu.FIRST+4;
+   private static final int MENU_VACUUM = Menu.FIRST+5;
+   
 
-   public static final int DIALOG_FILENAME = 0;
-   private static final int DIALOG_RENAME = 23;
-   private static final int DIALOG_DELETE = 24;
-   private static final int MENU_SEARCH = 0;
+   public  static final int DIALOG_FILENAME = Menu.FIRST+22;
+   private static final int DIALOG_RENAME   = Menu.FIRST+23;
+   private static final int DIALOG_DELETE   = Menu.FIRST+24;
+   private static final int DIALOG_VACUUM   = Menu.FIRST+25;
 
    private EditText mTrackNameView;
    private Uri mDialogUri;
@@ -97,6 +101,14 @@ public class TrackList extends ListActivity
             ContentValues values = new ContentValues();
             values.put( Tracks.NAME, trackName );
             TrackList.this.getContentResolver().update( mDialogUri, values, null, null );
+         }
+      };
+   private OnClickListener mVacuumOnClickListener = new DialogInterface.OnClickListener()
+      {
+         public void onClick( DialogInterface dialog, int which )
+         {
+            DatabaseHelper helper = new DatabaseHelper(TrackList.this);
+            helper.vacuum();
          }
       };
 
@@ -147,6 +159,8 @@ public class TrackList extends ListActivity
       boolean result = super.onCreateOptionsMenu( menu );
 
       menu.add( ContextMenu.NONE, MENU_SEARCH, ContextMenu.NONE, android.R.string.search_go ).setIcon( android.R.drawable.ic_search_category_default ).setAlphabeticShortcut( SearchManager.MENU_KEY );
+      menu.add( ContextMenu.NONE, MENU_VACUUM, ContextMenu.NONE, R.string.menu_vacuum ).setIcon( android.R.drawable.ic_menu_crop );
+      
       return result;
    }
 
@@ -160,11 +174,15 @@ public class TrackList extends ListActivity
             onSearchRequested();
             handled = true;
             break;
+         case MENU_VACUUM:
+            showDialog( DIALOG_VACUUM );
          default:
             handled = super.onOptionsItemSelected( item );
       }
       return handled;
    }
+   
+   
 
    @Override
    protected void onListItemClick( ListView l, View v, int position, long id )
@@ -277,17 +295,34 @@ public class TrackList extends ListActivity
             View view = factory.inflate( R.layout.namedialog, null );
             mTrackNameView = (EditText) view.findViewById( R.id.nameField );
 
-            builder = new AlertDialog.Builder( this ).setTitle( R.string.dialog_routename_title ).setMessage( R.string.dialog_routename_message ).setIcon( android.R.drawable.ic_dialog_alert )
-                  .setPositiveButton( R.string.btn_okay, mRenameOnClickListener ).setNegativeButton( R.string.btn_cancel, null ).setView( view );
+            builder = new AlertDialog.Builder( this )
+                        .setTitle( R.string.dialog_routename_title )
+                        .setMessage( R.string.dialog_routename_message )
+                        .setIcon( android.R.drawable.ic_dialog_alert )
+                        .setPositiveButton( R.string.btn_okay, mRenameOnClickListener )
+                        .setNegativeButton( R.string.btn_cancel, null )
+                        .setView( view );
             dialog = builder.create();
             return dialog;
          case DIALOG_DELETE:
-            builder = new AlertDialog.Builder( TrackList.this ).setTitle( R.string.dialog_delete_title ).setIcon( android.R.drawable.ic_dialog_alert ).setNegativeButton( android.R.string.cancel, null )
-                  .setPositiveButton( android.R.string.ok, mDeleteOnClickListener );
+            builder = new AlertDialog.Builder( TrackList.this )
+                        .setTitle( R.string.dialog_delete_title )
+                        .setIcon( android.R.drawable.ic_dialog_alert )
+                        .setNegativeButton( android.R.string.cancel, null )
+                        .setPositiveButton( android.R.string.ok, mDeleteOnClickListener );
             dialog = builder.create();
             String messageFormat = this.getResources().getString( R.string.dialog_delete_message );
             String message = String.format( messageFormat, "" );
             ( (AlertDialog) dialog ).setMessage( message );
+            return dialog;
+         case DIALOG_VACUUM:
+            builder = new AlertDialog.Builder( TrackList.this )
+            .setTitle( R.string.dialog_vacuum_title )
+            .setMessage( R.string.dialog_vacuum_message )
+            .setIcon( android.R.drawable.ic_dialog_alert )
+            .setNegativeButton( android.R.string.cancel, null )
+            .setPositiveButton( android.R.string.ok, mVacuumOnClickListener );
+            dialog = builder.create();
             return dialog;
          default:
             return super.onCreateDialog( id );

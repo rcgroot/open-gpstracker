@@ -164,6 +164,7 @@ public class NameTrack extends Activity
          showDialog( DIALOG_TRACKNAME );
       }
    }
+   
    @Override
    protected Dialog onCreateDialog( int id )
    {

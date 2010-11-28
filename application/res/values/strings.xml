@@ -41,6 +41,8 @@
     <string name="layer_location">My Location</string>
     <string name="dialog_notwidroid">twidroid not found</string>
     <string name="dialog_notwidroid_message">The application \"twidroid\" is required to tweet this line.</string>
+    <string name="dialog_vacuum_title">Crop data</string>
+    <string name="dialog_vacuum_message">Returns space lost due to fragmentation by a rebuilding the database.</string>
     
     <!-- Messages -->
     <string name="from">Tracked on: </string>
@@ -83,6 +85,7 @@
     <string name="graphtype_timealtitude">Altitude over time</string>
     <string name="graphtype_distancespeed">Speed over distance</string>
     <string name="graphtype_distancealtitude">Altitude over distance</string>
+    <string name="menu_vacuum">Crop data</string>
 
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Track data</string>
