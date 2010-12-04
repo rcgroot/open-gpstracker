@@ -19,7 +19,7 @@ public class MapControllerProxy
    
    public void setController(Object controller)
    {
-      if( controller instanceof OpenStreetMapViewController )
+      if( controller instanceof OpenStreetMapView )
       {
          mOpenStreetMapViewControllerSource = (OpenStreetMapView) controller;
          mMapController = null;
