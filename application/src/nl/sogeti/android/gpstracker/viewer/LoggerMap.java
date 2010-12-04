@@ -140,7 +140,7 @@ public class LoggerMap extends MapActivity
    private EditText mNoteNameView;
    private EditText mNoteTextView;
 
-   private double mAverageSpeed = 33.33d / 2d;
+   private double mAverageSpeed = 33.33d / 3d;
    private long mTrackId = -1;
    private long mLastSegment = -1;
    @SuppressWarnings("unused")
@@ -1099,10 +1099,17 @@ public class LoggerMap extends MapActivity
       Cursor waypointsCursor = null;
       try
       {
-         waypointsCursor = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/waypoints" ), new String[] { "avg(" + Waypoints.SPEED + ")" }, null, null, null );
+         waypointsCursor = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/waypoints" )
+                                          , new String[] { "avg(" + Waypoints.SPEED + ")", "max(" + Waypoints.SPEED + ")" }
+                                          , null
+                                          , null
+                                          , null );
+
          if( waypointsCursor != null && waypointsCursor.moveToLast() )
          {
-            mAverageSpeed = waypointsCursor.getDouble( 0 );
+            double average = waypointsCursor.getDouble( 0 );
+            double maxBasedAverage = waypointsCursor.getDouble( 1 ) / 2;
+            mAverageSpeed = Math.min( average, maxBasedAverage) ;
          }
          if( mAverageSpeed < 2 )
          {
