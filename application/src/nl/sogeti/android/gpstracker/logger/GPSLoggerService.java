@@ -469,7 +469,6 @@ public class GPSLoggerService extends Service
          setupNotification();
          crashProtectState();
       }
-      Log.d( TAG, "end startLogging()" );
    }
 
    public synchronized void pauseLogging()

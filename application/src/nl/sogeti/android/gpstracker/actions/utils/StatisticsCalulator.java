@@ -45,7 +45,6 @@ public class StatisticsCalulator
 
    public void updateCalculations( Uri trackUri )
    {
-      Log.d( TAG, "Updating calculations for "+trackUri );
       mStarttime = -1;
       mEndtime = -1;
       mMaxSpeed = 0;

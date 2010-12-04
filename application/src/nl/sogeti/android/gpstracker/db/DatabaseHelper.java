@@ -127,7 +127,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
    
    int bulkInsertWaypoint( long trackId, long segmentId, ContentValues[] valuesArray )
    {
-      Log.d( TAG, "start bulkInsert() : "+valuesArray.length );
       if( trackId < 0 || segmentId < 0 )
       {
          throw new IllegalArgumentException( "Track and segments may not the less then 0." );
@@ -155,8 +154,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
       {
          sqldb.endTransaction();
       }
-      
-      Log.d( TAG, "done bulkInsert() : "+inserted );
       
       return inserted;
    }

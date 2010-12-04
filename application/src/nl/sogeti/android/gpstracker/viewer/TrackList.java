@@ -441,7 +441,6 @@ public class TrackList extends ListActivity
       
       Uri trackUri = null;
       Uri segment = null;
-      Log.d( TAG, "Started doUglyXMLParsing" );
       try
       {
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();

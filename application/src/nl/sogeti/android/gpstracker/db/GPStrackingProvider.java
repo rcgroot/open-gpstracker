@@ -227,7 +227,6 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public int bulkInsert( Uri uri, ContentValues[] valuesArray )
    {
-      Log.d( TAG, "start bulkInsert() "+uri+ " : "+valuesArray.length );
       int inserted = 0;
       int match = GPStrackingProvider.sURIMatcher.match( uri );
       switch (match)
@@ -242,7 +241,6 @@ public class GPStrackingProvider extends ContentProvider
             inserted = super.bulkInsert( uri, valuesArray );
             break;
       }
-      Log.d( TAG, "done bulkInsert() "+uri+ " : "+inserted );
       return inserted;
    }
    
