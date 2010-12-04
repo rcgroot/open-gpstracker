@@ -1,5 +1,6 @@
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
+import org.andnav.osm.views.OpenStreetMapView;
 import org.andnav.osm.views.OpenStreetMapView.OpenStreetMapViewProjection;
 
 import android.graphics.Point;
@@ -11,7 +12,7 @@ public class ProjectionProxy
 {
 
    private Projection mProjection;
-   private OpenStreetMapViewProjection mOpenStreetMapViewProjection;
+   private OpenStreetMapView mOpenStreetMapViewProjectionSource;
 
    public ProjectionProxy()
    {
@@ -22,11 +23,11 @@ public class ProjectionProxy
       if( projection instanceof Projection )
       {
          mProjection = (Projection) projection;
-         mOpenStreetMapViewProjection = null;
+         mOpenStreetMapViewProjectionSource = null;
       } 
-      else if( projection instanceof OpenStreetMapViewProjection )
+      else if( projection instanceof OpenStreetMapView )
       {
-         mOpenStreetMapViewProjection = (OpenStreetMapViewProjection) projection;
+         mOpenStreetMapViewProjectionSource = (OpenStreetMapView) projection;
          mProjection = null;
       }
    }
@@ -37,9 +38,9 @@ public class ProjectionProxy
       {
          mProjection.toPixels( geoPoint, out );
       } 
-      else if( mOpenStreetMapViewProjection != null )
+      else if( mOpenStreetMapViewProjectionSource != null )
       {
-         mOpenStreetMapViewProjection.toMapPixels( MapViewProxy.convertMapGeoPoint(geoPoint), out );
+         mOpenStreetMapViewProjectionSource.getProjection().toMapPixels( MapViewProxy.convertMapGeoPoint(geoPoint), out );
       } 
       else 
       {
@@ -54,9 +55,9 @@ public class ProjectionProxy
       {
          point  = mProjection.fromPixels( i, j );
       } 
-      else if( mOpenStreetMapViewProjection != null )
+      else if( mOpenStreetMapViewProjectionSource != null )
       {
-         point = MapViewProxy.convertOSMGeoPoint( mOpenStreetMapViewProjection.fromPixels( i, j ) );
+         point = MapViewProxy.convertOSMGeoPoint( mOpenStreetMapViewProjectionSource.getProjection().fromPixels( i, j ) );
       }
       else
       {
@@ -72,9 +73,9 @@ public class ProjectionProxy
       {
          pixels  = mProjection.metersToEquatorPixels( i );
       } 
-      else if( mOpenStreetMapViewProjection != null )
+      else if( mOpenStreetMapViewProjectionSource != null )
       {
-         pixels = mOpenStreetMapViewProjection.metersToEquatorPixels( i ) ;
+         pixels = mOpenStreetMapViewProjectionSource.getProjection().metersToEquatorPixels( i ) ;
       }
       else
       {

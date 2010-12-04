@@ -47,8 +47,8 @@ public class MapViewProxy
       else if( newView instanceof OpenStreetMapView )
       {
          mOpenStreetMapView = (OpenStreetMapView) newView;
-         mMapControllerProxy.setController( mOpenStreetMapView.getController() );
-         mProjectionProxy.setProjection( mOpenStreetMapView.getProjection() );
+         mMapControllerProxy.setController( mOpenStreetMapView );
+         mProjectionProxy.setProjection( mOpenStreetMapView );
          
          if( mGoogleMapView != null )
          {
@@ -58,6 +58,11 @@ public class MapViewProxy
             mMapControllerProxy.setZoom( zoomLevel );
          }
          mGoogleMapView = null;
+      }
+      else 
+      {
+         Log.e( TAG, "Unusable map provided: "+ newView);
+         throw new IllegalStateException( "Unusable map provided" );
       }
       setBuiltInZoomControls( buildinzoom );
    }

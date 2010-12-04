@@ -1,5 +1,6 @@
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
+import org.andnav.osm.views.OpenStreetMapView;
 import org.andnav.osm.views.OpenStreetMapViewController;
 
 import com.google.android.maps.GeoPoint;
@@ -9,7 +10,7 @@ public class MapControllerProxy
 {
 
    private MapController mMapController;
-   private OpenStreetMapViewController mOpenStreetMapViewController;
+   private OpenStreetMapView mOpenStreetMapViewControllerSource;
 
    public MapControllerProxy()
    {
@@ -20,12 +21,12 @@ public class MapControllerProxy
    {
       if( controller instanceof OpenStreetMapViewController )
       {
-         mOpenStreetMapViewController = (OpenStreetMapViewController) controller;
+         mOpenStreetMapViewControllerSource = (OpenStreetMapView) controller;
          mMapController = null;
       } else if( controller instanceof MapController )
       {
          mMapController = (MapController) controller;
-         mOpenStreetMapViewController = null;
+         mOpenStreetMapViewControllerSource = null;
       }
    }
 
@@ -35,9 +36,9 @@ public class MapControllerProxy
       {
          mMapController.setZoom( i );
       }
-      if( mOpenStreetMapViewController != null )
+      if( mOpenStreetMapViewControllerSource != null )
       {
-         mOpenStreetMapViewController.setZoom( i );
+         mOpenStreetMapViewControllerSource.getController().setZoom( i );
       }
    }
 
@@ -47,9 +48,9 @@ public class MapControllerProxy
       {
          mMapController.animateTo( point );
       }
-      if( mOpenStreetMapViewController != null )
+      if( mOpenStreetMapViewControllerSource != null )
       {
-         mOpenStreetMapViewController.animateTo( new org.andnav.osm.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
+         mOpenStreetMapViewControllerSource.getController().animateTo( new org.andnav.osm.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
       }
    }
 
@@ -59,9 +60,9 @@ public class MapControllerProxy
       {
          return mMapController.zoomIn();
       }
-      if( mOpenStreetMapViewController != null )
+      if( mOpenStreetMapViewControllerSource != null )
       {
-         return mOpenStreetMapViewController.zoomIn();
+         return mOpenStreetMapViewControllerSource.getController().zoomIn();
       }
       return false;
    }
@@ -72,9 +73,9 @@ public class MapControllerProxy
       {
          return mMapController.zoomOut();
       }
-      if( mOpenStreetMapViewController != null )
+      if( mOpenStreetMapViewControllerSource != null )
       {
-         return mOpenStreetMapViewController.zoomOut();
+         return mOpenStreetMapViewControllerSource.getController().zoomOut();
       }
       return false;
    }
@@ -85,9 +86,9 @@ public class MapControllerProxy
       {
          mMapController.setCenter( point );
       }
-      if( mOpenStreetMapViewController != null )
+      if( mOpenStreetMapViewControllerSource != null )
       {
-         mOpenStreetMapViewController.setCenter( new org.andnav.osm.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
+         mOpenStreetMapViewControllerSource.getController().setCenter( new org.andnav.osm.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
       }
    }
 
