@@ -40,8 +40,12 @@ public class ProjectionProxy
       } 
       else if( mOpenStreetMapViewProjectionSource != null )
       {
-         mOpenStreetMapViewProjectionSource.getProjection().toMapPixels( MapViewProxy.convertMapGeoPoint(geoPoint), out );
-      } 
+         OpenStreetMapViewProjection projection = mOpenStreetMapViewProjectionSource.getProjection();
+         if( projection != null )
+         {
+            projection.toMapPixels( MapViewProxy.convertMapGeoPoint(geoPoint), out );
+         }
+      }
       else 
       {
          throw new IllegalStateException( "No working projection available" );
