@@ -201,7 +201,6 @@ public class LoggerMap extends MapActivity
          {
             if( !selfUpdate )
             {
-//               Log.d( TAG, "mTrackMediasObserver "+ mTrackId );
                if( mLastSegmentOverlay != null )
                {
                   mLastSegmentOverlay.calculateMedia();
@@ -475,6 +474,8 @@ public class LoggerMap extends MapActivity
          resolver.registerContentObserver( mediaUri,       true, this.mTrackMediasObserver );
       }
       updateDataOverlays();
+      
+      mMapView.executePostponedActions();
    }
 
    /*
@@ -517,25 +518,22 @@ public class LoggerMap extends MapActivity
    {
       if( load != null )
       {
-//         Log.d( TAG, "Restoring the prevoious map " );
          super.onRestoreInstanceState( load );
       }    
+      
       Uri data = this.getIntent().getData();
       if( load != null && load.containsKey( "track" ) ) // 1st track from a previous instance of this activity
       {
          long loadTrackId = load.getLong( "track" );
-//         Log.d( TAG, "Moving to restored track "+loadTrackId );
          moveToTrack( loadTrackId, false );
       }
       else if( data != null )                           // 2nd track ordered to make
       {
          long loadTrackId = Long.parseLong( data.getLastPathSegment() );
-//         Log.d( TAG, "Moving to intented track "+loadTrackId );
          moveToTrack( loadTrackId, true );
       }
       else 
       {
-//         Log.d( TAG, "Moving to last track " );
          moveToLastTrack();                             // 3rd just try the last track
       }
 
@@ -558,6 +556,11 @@ public class LoggerMap extends MapActivity
          GeoPoint lastPoint = getLastTrackPoint();
          this.mMapView.getController().animateTo( lastPoint );
       }
+   }
+   
+   private void restoreMapState( Bundle load )
+   {
+
    }
 
    @Override
@@ -1003,11 +1006,14 @@ public class LoggerMap extends MapActivity
                break;
             case MENU_TRACKING:
                trackUri = intent.getData();
-               trackId = Long.parseLong( trackUri.getLastPathSegment() );
-               moveToTrack( trackId, true );
-               Intent namingIntent = new Intent( this, NameTrack.class );
-               namingIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) );
-               startActivity( namingIntent );
+               if( trackUri != null )
+               {
+                  trackId = Long.parseLong( trackUri.getLastPathSegment() );
+                  moveToTrack( trackId, true );
+                  Intent namingIntent = new Intent( this, NameTrack.class );
+                  namingIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) );
+                  startActivity( namingIntent );
+               }
                break;
             default:
                Log.e( TAG, "Returned form unknow activity: " + requestCode );
@@ -1395,7 +1401,6 @@ public class LoggerMap extends MapActivity
       {
          ContentResolver resolver = this.getApplicationContext().getContentResolver();
          Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId );
-         Uri mediaUri = ContentUris.withAppendedId( Media.CONTENT_URI, trackId );
          track = resolver.query( trackUri, new String[] { Tracks.NAME }, null, null, null );
          if( track != null && track.moveToFirst() )
          {
@@ -1407,7 +1412,7 @@ public class LoggerMap extends MapActivity
             Uri tracksegmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" );
             
             resolver.registerContentObserver( tracksegmentsUri, false, this.mTrackSegmentsObserver );
-            resolver.registerContentObserver( mediaUri, false, this.mTrackMediasObserver );
+            resolver.registerContentObserver( Media.CONTENT_URI, true, this.mTrackMediasObserver );
             
             this.mMapView.clearOverlays();
 

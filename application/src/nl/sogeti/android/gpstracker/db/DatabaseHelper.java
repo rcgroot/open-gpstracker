@@ -187,14 +187,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
       args.put( WaypointsColumns.ACCURACY, location.getAccuracy() );
       args.put( WaypointsColumns.ALTITUDE, location.getAltitude() );
       args.put( WaypointsColumns.BEARING, location.getBearing() );
-      
-//      Log.d( TAG, "Waypoint time stored in the datebase"+ DateFormat.getInstance().format(new Date( args.getAsLong( Waypoints.TIME ) ) ) );
 
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
 
-      ContentResolver resolver = this.mContext.getContentResolver();
+      ContentResolver resolver = this.mContext.getApplicationContext().getContentResolver();
       resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints" ), null );
 
+//      Log.d( TAG, "Waypoint time stored in the database");
       return waypointId;
    }
    
@@ -217,10 +216,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
       long mediaId = sqldb.insert( Media.TABLE, null, args );
 
-      ContentResolver resolver = this.mContext.getContentResolver();
+      ContentResolver resolver = this.mContext.getApplicationContext().getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/media" );
       resolver.notifyChange( notifyUri, null );
-      resolver.notifyChange( ContentUris.withAppendedId( Media.CONTENT_URI, trackId ), null );
+      Uri mediaItemUri = Media.CONTENT_URI;
+      resolver.notifyChange( mediaItemUri, null );
 //      Log.d( TAG, "Notify: "+ContentUris.withAppendedId( Media.CONTENT_URI, trackId ).toString() );
       
       return mediaId;
@@ -267,7 +267,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ String.valueOf( trackId ) } );
       //sqldb.execSQL( "VACUUM" ); // Rebuilds the database and acctually frees up space, but locks/blocks the entire database 
       
-      ContentResolver resolver = this.mContext.getContentResolver();
+      ContentResolver resolver = this.mContext.getApplicationContext().getContentResolver();
       resolver.notifyChange( Tracks.CONTENT_URI, null );
       resolver.notifyChange( ContentUris.withAppendedId( Tracks.CONTENT_URI,  trackId), null );
       
@@ -310,7 +310,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       
       int affected = sqldb.delete( Media.TABLE, Media._ID+"= ?", new String[]{ String.valueOf( mediaId ) } );
       
-      ContentResolver resolver = this.mContext.getContentResolver();
+      ContentResolver resolver = this.mContext.getApplicationContext().getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/media" );
       resolver.notifyChange( notifyUri, null );
       notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/media" );
@@ -342,7 +342,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
             Media.TRACK + "= ? AND "+ Media.SEGMENT + "= ?" , 
             new String[]{ String.valueOf( trackId ), String.valueOf( segmentId ) } );
 
-      ContentResolver resolver = this.mContext.getContentResolver();
+      ContentResolver resolver = this.mContext.getApplicationContext().getContentResolver();
       resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId ), null );
       resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" ), null );
       
@@ -363,7 +363,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       SQLiteDatabase sqldb = getWritableDatabase();
       long trackId = sqldb.insert( Tracks.TABLE, null, args );
 
-      ContentResolver resolver = this.mContext.getContentResolver();
+      ContentResolver resolver = this.mContext.getApplicationContext().getContentResolver();
       resolver.notifyChange( Tracks.CONTENT_URI, null );
 
       return trackId;
@@ -381,7 +381,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       args.put( Segments.TRACK, trackId );
       long segmentId = sqldb.insert( Segments.TABLE, null, args );
 
-      ContentResolver resolver = this.mContext.getContentResolver();
+      ContentResolver resolver = this.mContext.getApplicationContext().getContentResolver();
       resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" ), null );
 
       return segmentId;

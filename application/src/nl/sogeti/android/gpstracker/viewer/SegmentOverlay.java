@@ -493,7 +493,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    public synchronized void calculateMedia()
    {
       mMediaPath.clear();
-      //         Log.d( TAG, "Searching for media on " + this.mMediaUri );
       if( mMediaCursor == null )
       {
          mMediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );

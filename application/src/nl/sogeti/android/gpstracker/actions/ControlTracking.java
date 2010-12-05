@@ -71,12 +71,11 @@ public class ControlTracking extends Activity
          public void onClick( View v )
          {
             int id = v.getId();
+            Intent intent = new Intent();
             switch( id )
             {
                case R.id.logcontrol_start:
                   long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
-
-                  Intent intent = new Intent();
                   intent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, loggerTrackId ) );
                   ComponentName caller = ControlTracking.this.getCallingActivity();
                   if( caller != null )
@@ -86,14 +85,18 @@ public class ControlTracking extends Activity
                   break;
                case R.id.logcontrol_pause:
                   mLoggerServiceManager.pauseGPSLogging();
+                  setResult( RESULT_OK, intent );
                   break;
                case R.id.logcontrol_resume:
                   mLoggerServiceManager.resumeGPSLogging();
+                  setResult( RESULT_OK, intent );
                   break;
                case R.id.logcontrol_stop:
                   mLoggerServiceManager.stopGPSLogging();
+                  setResult( RESULT_OK, intent );
                   break;
                default:
+                  setResult( RESULT_CANCELED, intent );
                   break;
             }
             finish();
@@ -103,6 +106,7 @@ public class ControlTracking extends Activity
       {
          public void onClick( DialogInterface dialog, int which )
          {
+            setResult( RESULT_CANCELED,  new Intent() );
             finish();
          }
       };

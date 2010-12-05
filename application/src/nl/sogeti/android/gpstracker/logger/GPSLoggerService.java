@@ -104,7 +104,6 @@ public class GPSLoggerService extends Service
    private static final int REQUEST_NORMALGPS_LOCATIONUPDATES = 2;
    private static final int REQUEST_COARSEGPS_LOCATIONUPDATES = 3;
    private static final int REQUEST_GLOBALGPS_LOCATIONUPDATES = 4;
-   private static final int REGISTERONSHAREDPREFERENCECHANGELISTENER = 5;
    private static final int STOPLOOPER = 6;
 
    private Context mContext;
@@ -142,8 +141,8 @@ public class GPSLoggerService extends Service
          {
             if( key.equals( Constants.PRECISION ) )
             {
-               requestLocationUpdates();
-               setupNotification();
+               sendRequestLocationUpdatesMessage();
+               updateNotification();
             }
             else if( key.equals( Constants.SPEEDSANITYCHECK ) )
             {
@@ -289,49 +288,6 @@ public class GPSLoggerService extends Service
    }
 
    /**
-    * Message handler method to do the work off-loaded by mHandler to GPSLoggerServiceThread
-    * 
-    * @param msg
-    */
-   private void _handleMessage( Message msg )
-   {
-      switch( msg.what )
-      {
-         case ADDGPSSTATUSLISTENER:
-            this.mLocationManager.addGpsStatusListener( mStatusListener );
-            break;
-         case REGISTERONSHAREDPREFERENCECHANGELISTENER:
-            PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
-            break;
-         case REQUEST_FINEGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 10f;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
-            break;
-         case REQUEST_NORMALGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 20f;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
-            break;
-         case REQUEST_COARSEGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 50f;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
-            break;
-         case REQUEST_GLOBALGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 1000f;
-            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 300000l, 500F, this.mLocationListener );
-            if( !isNetworkConnected() )
-            {
-               disabledProviderNotification( R.string.service_connectiondisabled );
-            }
-            break;
-         case STOPLOOPER:
-            mLocationManager.removeGpsStatusListener( mStatusListener );
-            mLocationManager.removeUpdates( mLocationListener );
-            Looper.myLooper().quit();
-            break;
-      }
-   }
-
-   /**
     * Called by the system when the service is first created. Do not call this method directly. Be sure to call super.onCreate().
     */
    @Override
@@ -460,10 +416,8 @@ public class GPSLoggerService extends Service
       if( this.mLoggingState == Constants.STOPPED )
       {
          startNewTrack();
-         requestLocationUpdates();
-         Message msg = Message.obtain();
-         msg.what = ADDGPSSTATUSLISTENER;
-         mHandler.sendMessage( msg );
+         sendRequestLocationUpdatesMessage();
+         sendRequestStatusUpdateMessage();
          this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
          setupNotification();
@@ -493,11 +447,9 @@ public class GPSLoggerService extends Service
          {
             mStartNextSegment = true;
          }
-         requestLocationUpdates();
+         sendRequestLocationUpdatesMessage();
 
-         Message msg = Message.obtain();
-         msg.what = ADDGPSSTATUSLISTENER;
-         mHandler.sendMessage( msg );
+         sendRequestStatusUpdateMessage();
 
          this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
@@ -592,11 +544,17 @@ public class GPSLoggerService extends Service
       mNoticationManager.notify( R.id.icon, gpsNotification );
    }
 
-   private void requestLocationUpdates()
+   private void sendRequestStatusUpdateMessage()
+   {
+      Message msg = Message.obtain();
+      msg.what = ADDGPSSTATUSLISTENER;
+      mHandler.sendMessage( msg );
+   }
+
+   private void sendRequestLocationUpdatesMessage()
    {
       this.mLocationManager.removeUpdates( mLocationListener );
       mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( Constants.PRECISION, "1" ) ).intValue();
-      //Log.d( TAG, "requestLocationUpdates to precision "+precision );
       Message msg = Message.obtain();
       switch( mPrecision )
       {
@@ -612,8 +570,8 @@ public class GPSLoggerService extends Service
             msg.what = REQUEST_COARSEGPS_LOCATIONUPDATES;
             mHandler.sendMessage( msg );
             break;
-         case ( REQUEST_GLOBALGPS_LOCATIONUPDATES ): // Global
-            msg.what = REQUEST_COARSEGPS_LOCATIONUPDATES;
+         case ( LOGGING_GLOBAL ): // Global
+            msg.what = REQUEST_GLOBALGPS_LOCATIONUPDATES;
             mHandler.sendMessage( msg );
             break;
          default:
@@ -622,13 +580,51 @@ public class GPSLoggerService extends Service
       }
    }
 
+   /**
+    * Message handler method to do the work off-loaded by mHandler to GPSLoggerServiceThread
+    * 
+    * @param msg
+    */
+   private void _handleMessage( Message msg )
+   {
+      switch( msg.what )
+      {
+         case ADDGPSSTATUSLISTENER:
+            this.mLocationManager.addGpsStatusListener( mStatusListener );
+            break;
+         case REQUEST_FINEGPS_LOCATIONUPDATES:
+            mMaxAcceptableAccuracy = 10f;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
+            break;
+         case REQUEST_NORMALGPS_LOCATIONUPDATES:
+            mMaxAcceptableAccuracy = 20f;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
+            break;
+         case REQUEST_COARSEGPS_LOCATIONUPDATES:
+            mMaxAcceptableAccuracy = 50f;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
+            break;
+         case REQUEST_GLOBALGPS_LOCATIONUPDATES:
+            mMaxAcceptableAccuracy = 1000f;
+            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 300000l, 500F, this.mLocationListener );
+            if( !isNetworkConnected() )
+            {
+               disabledProviderNotification( R.string.service_connectiondisabled );
+            }
+            break;
+         case STOPLOOPER:
+            mLocationManager.removeGpsStatusListener( mStatusListener );
+            mLocationManager.removeUpdates( mLocationListener );
+            Looper.myLooper().quit();
+            break;
+      }
+   }
+
    private void updateWakeLock()
    {
       if( this.mLoggingState == Constants.LOGGING )
       {
-         Message msg = Message.obtain();
-         msg.what = REGISTERONSHAREDPREFERENCECHANGELISTENER;
-         mHandler.sendMessage( msg );
+         PreferenceManager.getDefaultSharedPreferences( this.mContext.getApplicationContext() ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
          PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
          this.mWakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, TAG );

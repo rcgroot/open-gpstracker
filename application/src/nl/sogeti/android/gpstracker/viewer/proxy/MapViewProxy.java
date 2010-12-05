@@ -188,15 +188,16 @@ public class MapViewProxy
 
    public int getZoomLevel()
    {
+      int zoomlevel = -1;
       if( mGoogleMapView != null )
       {
-         return mGoogleMapView.getZoomLevel();
+         zoomlevel = mGoogleMapView.getZoomLevel();
       }
       else if( mOpenStreetMapView != null )
       {
-         return mOpenStreetMapView.getZoomLevel();
+         zoomlevel = mOpenStreetMapView.getZoomLevel();
       }
-      return 0;
+      return zoomlevel;
    }
 
    public int getMaxZoomLevel()
@@ -300,5 +301,10 @@ public class MapViewProxy
       {
          mGoogleMapView.setStreetView( b );
       }
+   }
+
+   public void executePostponedActions()
+   {
+      getController().executePostponedActions();
    }
 }
