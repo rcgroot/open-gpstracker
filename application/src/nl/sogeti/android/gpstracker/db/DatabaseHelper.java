@@ -219,9 +219,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
       ContentResolver resolver = this.mContext.getApplicationContext().getContentResolver();
       Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/media" );
       resolver.notifyChange( notifyUri, null );
-      Uri mediaItemUri = Media.CONTENT_URI;
-      resolver.notifyChange( mediaItemUri, null );
-//      Log.d( TAG, "Notify: "+ContentUris.withAppendedId( Media.CONTENT_URI, trackId ).toString() );
+//      Log.d( TAG, "Notify: "+notifyUri );
+      resolver.notifyChange( Media.CONTENT_URI, null );
+//      Log.d( TAG, "Notify: "+Media.CONTENT_URI );
       
       return mediaId;
    }

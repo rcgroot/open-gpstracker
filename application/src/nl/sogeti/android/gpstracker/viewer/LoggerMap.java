@@ -199,6 +199,7 @@ public class LoggerMap extends MapActivity
          @Override
          public void onChange( boolean selfUpdate )
          {
+//            Log.d( TAG, "mTrackMediasObserver received onChange()" );
             if( !selfUpdate )
             {
                if( mLastSegmentOverlay != null )

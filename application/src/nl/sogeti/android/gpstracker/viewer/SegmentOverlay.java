@@ -265,6 +265,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             this.mPrevDrawnScreenPoint = new Point();
             calculateTrack();
          }
+         
          switch( mTrackColoringMethod )
          {
             case ( DRAW_CALCULATED ):
@@ -497,6 +498,10 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          mMediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );
       }
+      else
+      {
+         mMediaCursor.requery();
+      }
       if( mProjection != null && mMediaCursor.moveToFirst() )
       {
          do
@@ -504,8 +509,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             MediaVO mediaVO = new MediaVO();
             mediaVO.waypointId = mMediaCursor.getLong( 0 );
             mediaVO.uri = Uri.parse( mMediaCursor.getString( 1 ) );
-
-            //               Log.d( TAG, mediaVO.uri.toString() );
 
             Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, mediaVO.waypointId );
             Cursor waypointCursor = null;
@@ -530,6 +533,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          }
          while( mMediaCursor.moveToNext() );
       }
+//      Log.d( TAG, "Calculated a media path for "+this.mMediaUri+" of size "+mMediaPath.size() );
    }
 
    private synchronized void drawMedia( Canvas canvas )
@@ -561,6 +565,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             lastPoint = mediaVO.geopoint;
          }
       }
+//      Log.d( TAG, "Drawn a media path of size "+mMediaPath.size() );
    }
 
    private static int getResourceForMedia( Uri uri )
