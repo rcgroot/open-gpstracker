@@ -14,7 +14,7 @@
     </string-array>
     
     <string-array name="mapprovider_choices">
-        <item>Google Maps (default)</item>
+        <item>Google Maps</item>
         <item>OpenStreetMap (experimental)</item>
     </string-array>   
     

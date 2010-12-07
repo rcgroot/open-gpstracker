@@ -43,6 +43,8 @@
     <string name="dialog_notwidroid_message">The application \"twidroid\" is required to tweet this line.</string>
     <string name="dialog_vacuum_title">Crop data</string>
     <string name="dialog_vacuum_message">Returns space lost due to fragmentation by a rebuilding the database.</string>
+    <string name="dialog_import_title">GPX import BETA</string>
+    <string name="dialog_import_message">Would you like to use the BETA GPX import function to import %1$s ?</string>
     
     <!-- Messages -->
     <string name="from">Tracked on: </string>
