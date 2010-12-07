@@ -147,7 +147,7 @@
             <path-permission android:path="/search_suggest_query"
                 android:readPermission="android.permission.GLOBAL_SEARCH" />
             <path-permission android:path="/live_folders/tracks"
-                android:readPermission="com.android.launcher.permission.WRITE_SETTINGS" />
+                android:readPermission="android.permission.BIND_APPWIDGET" />
 		</provider>
       
         <activity android:label="@string/menu_statistics" android:name=".actions.Statistics">
