@@ -2,8 +2,8 @@
 <resources>
 	<string name="app_name">打开 GPS 追踪器</string>
     <string name="service_start">启动日志服务中</string>
-	<string name="service_gpsstatus">日志： %s (%s 使用 %d 个卫星)</string>
-    <string name="service_networkstatus">日志： %s (%s 使用基站和WiFi)</string>
+	<string name="service_gpsstatus">日志： %1$s (%2$s 使用 %3$d 个卫星)</string>
+    <string name="service_networkstatus">日志： %1$s (%2$s 使用基站和WiFi)</string>
     <string name="service_gpsdisabled">GPS 已禁用，日志将是无效的。</string>
     <string name="service_gpsenabled">GPS 已启用， 开始记录。</string>
     <string name="service_connectiondisabled">网络被禁用，网络位置的日志将是无效的。</string>
@@ -16,7 +16,7 @@
     <string name="dialog_tracking_title">追踪控制</string>
 	<string name="dialog_routename_title">命名路线</string>
     <string name="dialog_routename_message">请输入此路线的名称</string>
-    <string name="dialog_routename_default">路线 %tY-%tm-%td %tH：%tM</string>
+    <string name="dialog_routename_default">路线 %1$tY-%2$tm-%3$td %4$tH：%5$tM</string>
     <string name="dialog_notrack_title">没有选择路线</string>
     <string name="dialog_notrack_message">在导出之前请选择一个路线</string>
     <string name="dialog_delete_title">删除路线</string>
@@ -52,7 +52,7 @@
     <string name="error_filename"> 原因：错误的文件名</string>
     <string name="error_buildxml"> 原因：创建 XML 时出错</string>
     <string name="error_writesdcard"> 原因：写入到 SD 卡时出错</string>
-    <string name="tweettext">%s： 已行进 %s 统计出的平均速度是 %s 在 %s #opengpstracker</string>
+    <string name="tweettext">%1$s： 已行进 %2$s 统计出的平均速度是 %3$s 在 %4$s #opengpstracker</string>
     
     <!-- Buttons -->
 	<string name="btn_okay">确认</string>

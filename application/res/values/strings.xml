@@ -2,8 +2,8 @@
 <resources>
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Activating logging service</string>
-	<string name="service_gpsstatus">Logging: %s (%s with %d satellites)</string>
-    <string name="service_networkstatus">Logging: %s (%s with cell tower and wifi)</string>
+	<string name="service_gpsstatus">Logging: %1$s (%2$s with %3$d satellites)</string>
+    <string name="service_networkstatus">Logging: %1$s (%2$s with cell tower and wifi)</string>
     <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
     <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
     <string name="service_connectiondisabled">Network is disabled, network location logging is without effect.</string>
@@ -16,7 +16,7 @@
     <string name="dialog_tracking_title">Tracking control</string>
 	<string name="dialog_routename_title">Name track</string>
     <string name="dialog_routename_message">Please enter the name of the track</string>
-    <string name="dialog_routename_default">Track %tY-%tm-%td %tH:%tM</string>
+    <string name="dialog_routename_default">Track %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">No track is selected</string>
     <string name="dialog_notrack_message">Please select a track first before exporting</string>
     <string name="dialog_delete_title">Delete track</string>
@@ -54,7 +54,7 @@
     <string name="error_filename"> reason: Incorrect filename</string>
     <string name="error_buildxml"> reason: Error building XML</string>
     <string name="error_writesdcard"> reason: Error writing to SD card</string>
-    <string name="tweettext">%s: Traveled %s with an average speed of %s during %s #opengpstracker</string>
+    <string name="tweettext">%1$s: Traveled %2$s with an average speed of %3$s during %4$s #opengpstracker</string>
     
     <!-- Buttons -->
 	<string name="btn_okay">OK</string>

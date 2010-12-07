@@ -2,8 +2,8 @@
 <resources>
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Opstarten opname service</string>
-	<string name="service_gpsstatus">Loggen: %s (%s met %d satellieten)</string>
-    <string name="service_networkstatus">Loggen: %s (%s met gsm and wifi )</string>
+	<string name="service_gpsstatus">Loggen: %1$s (%2$s met %3$d satellieten)</string>
+    <string name="service_networkstatus">Loggen: %1$s (%2$s met gsm and wifi )</string>
     <string name="service_gpsdisabled">GPS is uitgeschakeld, opnemen heeft geen effect.</string>
     <string name="service_gpsenabled">GPS is ingeschakeld, opnemen gaat van start.</string>
     <string name="service_connectiondisabled">Netwerk is uitgeschakeld, netwerk locaties opnemen heeft geen effect.</string>
@@ -16,7 +16,7 @@
     <string name="dialog_tracking_title">Opnemen</string>
 	<string name="dialog_routename_title">Naam</string>
     <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>
-    <string name="dialog_routename_default">Route %tY-%tm-%td %tH:%tM</string>
+    <string name="dialog_routename_default">Route %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">Geen route gekozen</string>
     <string name="dialog_notrack_message">Kiest u alstublieft eerst een route</string>
     <string name="dialog_delete_title">Verwijder</string>
@@ -52,7 +52,7 @@
     <string name="error_filename"> reden: Fout in de bestandsnaam</string>
     <string name="error_buildxml"> reden: Fout tijdens bouwen XML</string>
     <string name="error_writesdcard"> reden: Fout tijdens schrijven naar de SDcard</string>
-    <string name="tweettext">%s: Afgelegd %s met een gemiddelde snelheid van %s gedurende %s #opengpstracker</string>
+    <string name="tweettext">%1$s: Afgelegd %2$s met een gemiddelde snelheid van %3$s gedurende %4$s #opengpstracker</string>
     
 	<!-- Buttons -->
 	<string name="btn_okay">OK</string>
