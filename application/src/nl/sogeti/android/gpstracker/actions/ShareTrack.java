@@ -139,6 +139,8 @@ public class ShareTrack extends Activity
       setContentView(R.layout.sharedialog);
 
       mTrackUri = getIntent().getData();
+      calculator = new StatisticsCalulator(this, new UnitsI18n(this, null));
+      
       mFileNameView = (EditText) findViewById(R.id.fileNameField);
       mTweetView = (EditText) findViewById(R.id.tweetField);
 
@@ -164,7 +166,6 @@ public class ShareTrack extends Activity
       mShareTypeSpinner.setSelection(lastType);
       adjustTargetToType(lastType);   	  
 
-      calculator = new StatisticsCalulator(this, new UnitsI18n(this, null));
       mFileNameView.setText(createFileName());
 
       Button okay = (Button) findViewById(R.id.okayshare_button);
