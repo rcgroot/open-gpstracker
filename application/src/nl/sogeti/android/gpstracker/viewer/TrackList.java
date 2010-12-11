@@ -102,6 +102,7 @@ public class TrackList extends ListActivity
    private static final int DIALOG_VACUUM  = Menu.FIRST + 25;
    private static final int DIALOG_IMPORT  = Menu.FIRST + 26;
    private static final int DIALOG_INSTALL = Menu.FIRST + 27;
+   protected static final int DIALOG_ERROR = Menu.FIRST + 28;
    
    
    private static final int PICKER_OI      = Menu.FIRST + 27;
@@ -112,6 +113,8 @@ public class TrackList extends ListActivity
 
    private Uri mImportFileUri;
    private ProgressBar mImportProgress;
+   private String mErrorDialogMessage;
+   private Exception mErrorDialogException;
    private OnClickListener mDeleteOnClickListener = new DialogInterface.OnClickListener()
       {
          public void onClick( DialogInterface dialog, int which )
@@ -397,6 +400,15 @@ public class TrackList extends ListActivity
                .setNegativeButton( R.string.btn_cancel, null );
             dialog = builder.create();
             return dialog;
+         case DIALOG_ERROR:
+            builder = new AlertDialog.Builder( this );
+            builder
+               .setIcon( android.R.drawable.ic_dialog_alert )
+               .setTitle( android.R.string.dialog_alert_title)
+               .setMessage( mErrorDialogMessage +" ("+mErrorDialogException.getMessage()+") " )
+               .setNeutralButton( android.R.string.cancel, null);
+            dialog = builder.create();
+            return dialog;   
          default:
             return super.onCreateDialog( id );
       }
@@ -410,6 +422,7 @@ public class TrackList extends ListActivity
    protected void onPrepareDialog( int id, Dialog dialog )
    {
       super.onPrepareDialog( id, dialog );
+      AlertDialog alert;
       switch( id )
       {
          case DIALOG_RENAME:
@@ -417,10 +430,14 @@ public class TrackList extends ListActivity
             mTrackNameView.setSelection( 0, mDialogCurrentName.length() );
             break;
          case DIALOG_DELETE:
-            AlertDialog alert = (AlertDialog) dialog;
+            alert = (AlertDialog) dialog;
             String messageFormat = this.getResources().getString( R.string.dialog_delete_message );
             String message = String.format( messageFormat, mDialogCurrentName );
             alert.setMessage( message );
+            break;
+         case DIALOG_ERROR:
+            alert = (AlertDialog) dialog;
+            alert.setMessage( mErrorDialogMessage +" ("+mErrorDialogException.getMessage()+") " );
             break;
       }
    }
@@ -634,21 +651,45 @@ public class TrackList extends ListActivity
             }
             catch (XmlPullParserException e)
             {
-               Log.e( TAG, "Error", e );
+               mErrorDialogMessage = getString( R.string.error_importgpx_xml );
+               mErrorDialogException = e;
+               TrackList.this.runOnUiThread( new Runnable()
+                  {
+                     public void run()
+                     {
+                        showDialog( DIALOG_ERROR );
+                     }
+                  } );
+                  
             }
             catch (IOException e)
             {
-               Log.e( TAG, "Error", e );
+               mErrorDialogMessage = getString( R.string.error_importgpx_io );
+               mErrorDialogException = e;
+               TrackList.this.runOnUiThread( new Runnable()
+                  {
+                     public void run()
+                     {
+                        showDialog( DIALOG_ERROR );
+                     }
+                  } );
             }
             catch (ParseException e)
             {
-               Log.e( TAG, "Error", e );
+               mErrorDialogMessage = getString( R.string.error_importgpx_parse );
+               mErrorDialogException = e;
+               TrackList.this.runOnUiThread( new Runnable()
+                  {
+                     public void run()
+                     {
+                        showDialog( DIALOG_ERROR );
+                     }
+                  } );
             }
             finally
             {
                TrackList.this.runOnUiThread( new Runnable()
                   {
-
                      public void run()
                      {
                         mImportProgress.setVisibility( View.GONE );
