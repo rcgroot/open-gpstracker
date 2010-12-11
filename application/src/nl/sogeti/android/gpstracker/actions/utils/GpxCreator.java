@@ -123,7 +123,7 @@ public class GpxCreator extends XmlCreator
          XmlSerializer serializer = Xml.newSerializer();
          File xmlFile = new File( xmlFilePath );
          fos = new FileOutputStream( xmlFile );
-         buf = new BufferedOutputStream( fos, 8192 );
+         buf = new BufferedOutputStream( fos, 8*8192 );
          serializer.setOutput( buf, "UTF-8" );
 
          serializeTrack( mTrackUri, serializer );

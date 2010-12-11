@@ -45,6 +45,10 @@
     <string name="dialog_vacuum_message">Returns space lost due to fragmentation by a rebuilding the database.</string>
     <string name="dialog_import_title">GPX import BETA</string>
     <string name="dialog_import_message">Would you like to use the BETA GPX import function to import %1$s ?</string>
+    <string name="dialog_import_picker">Import GPX file</string>
+    <string name="menu_picker">Import</string>
+    <string name="dialog_nooipicker">OI File Manager</string>
+    <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files.</string>
     
     <!-- Messages -->
     <string name="from">Tracked on: </string>

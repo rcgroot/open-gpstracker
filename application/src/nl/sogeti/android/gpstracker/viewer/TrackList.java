@@ -28,28 +28,33 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import java.util.Vector;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.SearchManager;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -69,6 +74,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
@@ -81,24 +87,31 @@ import android.widget.TextView;
 public class TrackList extends ListActivity
 {
    private static final String TAG = "OGT.TrackList";
-   private static final int MENU_DETELE = Menu.FIRST+0;
-   private static final int MENU_SHARE  = Menu.FIRST+1;
-   private static final int MENU_RENAME = Menu.FIRST+2;
-   private static final int MENU_STATS  = Menu.FIRST+3;
-   private static final int MENU_SEARCH = Menu.FIRST+4;
-   private static final int MENU_VACUUM = Menu.FIRST+5;
+   private static final int MENU_DETELE = Menu.FIRST + 0;
+   private static final int MENU_SHARE = Menu.FIRST + 1;
+   private static final int MENU_RENAME = Menu.FIRST + 2;
+   private static final int MENU_STATS = Menu.FIRST + 3;
+   private static final int MENU_SEARCH = Menu.FIRST + 4;
+   private static final int MENU_VACUUM = Menu.FIRST + 5;
+   private static final int MENU_PICKER = Menu.FIRST + 6;
    
 
-   public  static final int DIALOG_FILENAME = Menu.FIRST+22;
-   private static final int DIALOG_RENAME   = Menu.FIRST+23;
-   private static final int DIALOG_DELETE   = Menu.FIRST+24;
-   private static final int DIALOG_VACUUM   = Menu.FIRST+25;
-   private static final int DIALOG_IMPORT   = Menu.FIRST+26;
-
+   public static final int DIALOG_FILENAME = Menu.FIRST + 22;
+   private static final int DIALOG_RENAME  = Menu.FIRST + 23;
+   private static final int DIALOG_DELETE  = Menu.FIRST + 24;
+   private static final int DIALOG_VACUUM  = Menu.FIRST + 25;
+   private static final int DIALOG_IMPORT  = Menu.FIRST + 26;
+   private static final int DIALOG_INSTALL = Menu.FIRST + 27;
+   
+   
+   private static final int PICKER_OI      = Menu.FIRST + 27;
+   
    private EditText mTrackNameView;
    private Uri mDialogUri;
    private String mDialogCurrentName = "";
 
+   private Uri mImportFileUri;
+   private ProgressBar mImportProgress;
    private OnClickListener mDeleteOnClickListener = new DialogInterface.OnClickListener()
       {
          public void onClick( DialogInterface dialog, int which )
@@ -122,24 +135,44 @@ public class TrackList extends ListActivity
       {
          public void onClick( DialogInterface dialog, int which )
          {
-            DatabaseHelper helper = new DatabaseHelper(TrackList.this);
+            DatabaseHelper helper = new DatabaseHelper( TrackList.this );
             helper.vacuum();
          }
       };
    private OnClickListener mImportOnClickListener = new DialogInterface.OnClickListener()
-   {
-      public void onClick( DialogInterface dialog, int which )
       {
-         new Thread(xmlParser).start();
-      }
-   };
-   private Uri mImportFileUri;
-
+         public void onClick( DialogInterface dialog, int which )
+         {
+            mImportProgress.setVisibility( View.VISIBLE );
+            new Thread( xmlParser ).start();
+         }
+      };
+   private final DialogInterface.OnClickListener mOiPickerDialogListener = new DialogInterface.OnClickListener()
+      {
+         public void onClick( DialogInterface dialog, int which )
+         {
+            Uri oiDownload = Uri.parse( "market://details?id=org.openintents.filemanager" );
+            Intent oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
+            try
+            {
+               startActivity( oiAboutIntent );
+            }
+            catch (ActivityNotFoundException e)
+            {
+               oiDownload = Uri.parse( "http://openintents.googlecode.com/files/FileManager-1.1.3.apk" );
+               oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
+               startActivity( oiAboutIntent );
+            }
+         }
+      };
+      
    @Override
    protected void onCreate( Bundle savedInstanceState )
    {
       super.onCreate( savedInstanceState );
       this.setContentView( R.layout.tracklist );
+      mImportProgress = (ProgressBar) findViewById( R.id.importProgress );
+
       displayIntent( getIntent() );
 
       // Add the context menu (the long press thing)
@@ -184,6 +217,7 @@ public class TrackList extends ListActivity
 
       menu.add( ContextMenu.NONE, MENU_SEARCH, ContextMenu.NONE, android.R.string.search_go ).setIcon( android.R.drawable.ic_search_category_default ).setAlphabeticShortcut( SearchManager.MENU_KEY );
       menu.add( ContextMenu.NONE, MENU_VACUUM, ContextMenu.NONE, R.string.menu_vacuum ).setIcon( android.R.drawable.ic_menu_crop );
+      menu.add( ContextMenu.NONE, MENU_PICKER, ContextMenu.NONE, R.string.menu_picker ).setIcon( android.R.drawable.ic_menu_add );
       
       return result;
    }
@@ -200,13 +234,25 @@ public class TrackList extends ListActivity
             break;
          case MENU_VACUUM:
             showDialog( DIALOG_VACUUM );
+            break;
+         case MENU_PICKER:
+            try
+            {
+               Intent intent = new Intent("org.openintents.action.PICK_FILE");
+               intent.putExtra("org.openintents.extra.TITLE", getString( R.string.dialog_import_picker ));
+               intent.putExtra("org.openintents.extra.BUTTON_TEXT", getString( R.string.menu_picker ));
+               startActivityForResult(intent, PICKER_OI );
+            }
+            catch (ActivityNotFoundException e) 
+            {
+               showDialog( DIALOG_INSTALL );
+            }
+            break;
          default:
             handled = super.onOptionsItemSelected( item );
       }
       return handled;
    }
-   
-   
 
    @Override
    protected void onListItemClick( ListView l, View v, int position, long id )
@@ -215,7 +261,7 @@ public class TrackList extends ListActivity
 
       Intent intent = new Intent();
       intent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, id ) );
-      
+
       ComponentName caller = this.getCallingActivity();
       if( caller != null )
       {
@@ -256,7 +302,7 @@ public class TrackList extends ListActivity
       {
          info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
       }
-      catch( ClassCastException e )
+      catch (ClassCastException e)
       {
          Log.e( TAG, "Bad menuInfo", e );
          return handled;
@@ -319,42 +365,36 @@ public class TrackList extends ListActivity
             LayoutInflater factory = LayoutInflater.from( this );
             View view = factory.inflate( R.layout.namedialog, null );
             mTrackNameView = (EditText) view.findViewById( R.id.nameField );
-            builder = new AlertDialog.Builder( this )
-                        .setTitle( R.string.dialog_routename_title )
-                        .setMessage( R.string.dialog_routename_message )
-                        .setIcon( android.R.drawable.ic_dialog_alert )
-                        .setPositiveButton( R.string.btn_okay, mRenameOnClickListener )
-                        .setNegativeButton( R.string.btn_cancel, null )
-                        .setView( view );
+            builder = new AlertDialog.Builder( this ).setTitle( R.string.dialog_routename_title ).setMessage( R.string.dialog_routename_message ).setIcon( android.R.drawable.ic_dialog_alert )
+                  .setPositiveButton( R.string.btn_okay, mRenameOnClickListener ).setNegativeButton( R.string.btn_cancel, null ).setView( view );
             dialog = builder.create();
             return dialog;
          case DIALOG_DELETE:
-            builder = new AlertDialog.Builder( TrackList.this )
-                        .setTitle( R.string.dialog_delete_title )
-                        .setIcon( android.R.drawable.ic_dialog_alert )
-                        .setNegativeButton( android.R.string.cancel, null )
-                        .setPositiveButton( android.R.string.ok, mDeleteOnClickListener );
+            builder = new AlertDialog.Builder( TrackList.this ).setTitle( R.string.dialog_delete_title ).setIcon( android.R.drawable.ic_dialog_alert )
+                  .setNegativeButton( android.R.string.cancel, null ).setPositiveButton( android.R.string.ok, mDeleteOnClickListener );
             dialog = builder.create();
             String messageFormat = this.getResources().getString( R.string.dialog_delete_message );
             String message = String.format( messageFormat, "" );
             ( (AlertDialog) dialog ).setMessage( message );
             return dialog;
          case DIALOG_VACUUM:
-            builder = new AlertDialog.Builder( TrackList.this )
-            .setTitle( R.string.dialog_vacuum_title )
-            .setMessage( R.string.dialog_vacuum_message )
-            .setIcon( android.R.drawable.ic_dialog_alert )
-            .setNegativeButton( android.R.string.cancel, null )
-            .setPositiveButton( android.R.string.ok, mVacuumOnClickListener );
+            builder = new AlertDialog.Builder( TrackList.this ).setTitle( R.string.dialog_vacuum_title ).setMessage( R.string.dialog_vacuum_message ).setIcon( android.R.drawable.ic_dialog_alert )
+                  .setNegativeButton( android.R.string.cancel, null ).setPositiveButton( android.R.string.ok, mVacuumOnClickListener );
             dialog = builder.create();
             return dialog;
          case DIALOG_IMPORT:
-            builder = new AlertDialog.Builder( TrackList.this )
-            .setTitle( R.string.dialog_import_title )
-            .setMessage( getString( R.string.dialog_import_message , mImportFileUri.getLastPathSegment() ) )
-            .setIcon( android.R.drawable.ic_dialog_alert )
-            .setNegativeButton( android.R.string.cancel, null )
-            .setPositiveButton( android.R.string.ok, mImportOnClickListener );
+            builder = new AlertDialog.Builder( TrackList.this ).setTitle( R.string.dialog_import_title ).setMessage( getString( R.string.dialog_import_message, mImportFileUri.getLastPathSegment() ) )
+                  .setIcon( android.R.drawable.ic_dialog_alert ).setNegativeButton( android.R.string.cancel, null ).setPositiveButton( android.R.string.ok, mImportOnClickListener );
+            dialog = builder.create();
+            return dialog;
+         case DIALOG_INSTALL:
+            builder = new AlertDialog.Builder( this );
+            builder
+               .setTitle( R.string.dialog_nooipicker )
+               .setMessage( R.string.dialog_nooipicker_message )
+               .setIcon( android.R.drawable.ic_dialog_alert )
+               .setPositiveButton( R.string.btn_install, mOiPickerDialogListener )
+               .setNegativeButton( R.string.btn_cancel, null );
             dialog = builder.create();
             return dialog;
          default:
@@ -385,6 +425,25 @@ public class TrackList extends ListActivity
       }
    }
 
+   @Override
+   protected void onActivityResult( int requestCode, int resultCode, Intent data )
+   {
+      if( resultCode != RESULT_CANCELED )
+      {
+         switch( requestCode )
+         {
+            case PICKER_OI:
+               mImportFileUri = data.getData();
+               mImportProgress.setVisibility( View.VISIBLE );
+               new Thread( xmlParser ).start();
+               break;
+            default:
+               super.onActivityResult( requestCode, resultCode, data );
+               break;
+         }
+      }
+   }
+   
    private void displayIntent( Intent intent )
    {
       final String queryAction = intent.getAction();
@@ -397,7 +456,7 @@ public class TrackList extends ListActivity
       else if( Intent.ACTION_VIEW.equals( queryAction ) )
       {
          Uri uri = intent.getData();
-         
+
          // Got to VIEW a GPX filename
          if( uri.getScheme().equals( "file" ) )
          {
@@ -419,7 +478,7 @@ public class TrackList extends ListActivity
          tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
       }
       displayCursor( tracksCursor );
-      
+
    }
 
    private void displayCursor( Cursor tracksCursor )
@@ -465,7 +524,17 @@ public class TrackList extends ListActivity
             {
                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
                XmlPullParser xmlParser = factory.newPullParser();
-               xmlParser.setInput( new FileReader( new File( mImportFileUri.getPath() ) ) );
+
+               File file = new File( mImportFileUri.getPath() );
+               int length = file.length() < Integer.MAX_VALUE ? (int) file.length() : Integer.MAX_VALUE;
+               mImportProgress.setMax( length );
+               mImportProgress.setProgress( 0 );
+               mImportProgress.setVisibility( View.VISIBLE );
+               FileInputStream fis = new FileInputStream( file );
+               ProgressFilterInputStream pfis = new ProgressFilterInputStream( fis, mImportProgress );
+               BufferedInputStream bis = new BufferedInputStream( pfis );
+               xmlParser.setInput( new InputStreamReader( bis ) );
+
                String filename = mImportFileUri.getLastPathSegment();
 
                eventType = xmlParser.getEventType();
@@ -574,6 +643,17 @@ public class TrackList extends ListActivity
             catch (ParseException e)
             {
                Log.e( TAG, "Error", e );
+            }
+            finally
+            {
+               TrackList.this.runOnUiThread( new Runnable()
+                  {
+
+                     public void run()
+                     {
+                        mImportProgress.setVisibility( View.GONE );
+                     }
+                  } );
             }
          }
       };
