@@ -241,6 +241,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       
       try 
       {
+         sqldb.beginTransaction();
          cursor = sqldb.query( Segments.TABLE, new String[] { Segments._ID }, Segments.TRACK + "= ?", new String[]{ String.valueOf( trackId ) }, null, null, null, null );
          if (cursor.moveToFirst())
          {  
@@ -255,6 +256,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
          {
             Log.e(TAG, "Did not find the last active segment");
          }
+         affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ String.valueOf( trackId ) } );
+         sqldb.setTransactionSuccessful();
       }
       finally
       {
@@ -262,10 +265,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
          {
             cursor.close();
          }
+         sqldb.endTransaction();
       }
-      
-      affected += sqldb.delete( Tracks.TABLE, Tracks._ID+"= ?", new String[]{ String.valueOf( trackId ) } );
-      //sqldb.execSQL( "VACUUM" ); // Rebuilds the database and acctually frees up space, but locks/blocks the entire database 
       
       ContentResolver resolver = this.mContext.getApplicationContext().getContentResolver();
       resolver.notifyChange( Tracks.CONTENT_URI, null );
