@@ -1557,13 +1557,27 @@ public class LoggerMap extends MapActivity
 //      Log.d( TAG, "Video requested at: " + file );
       i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
       i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
-      startActivityForResult( i, MENU_VIDEO );
+      try
+      {
+         startActivityForResult( i, MENU_VIDEO );
+      }
+      catch (ActivityNotFoundException e) 
+      {
+         Log.e(  TAG, "Unable to start Activity to record video", e );
+      }
    }
 
    private void addVoice()
    {
       Intent intent = new Intent( android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION );
-      startActivityForResult( intent, MENU_VOICE );
+      try
+      {
+         startActivityForResult( intent, MENU_VOICE );
+      }
+      catch (ActivityNotFoundException e) 
+      {
+         Log.e(  TAG, "Unable to start Activity to record audio", e );
+      }
    }
 
    /**
