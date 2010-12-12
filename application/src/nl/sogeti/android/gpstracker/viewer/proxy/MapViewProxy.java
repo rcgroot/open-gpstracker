@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.andnav.osm.views.OpenStreetMapView;
 import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
+import org.andnav.osm.views.util.IOpenStreetMapRendererInfo;
+import org.andnav.osm.views.util.OpenStreetMapRendererFactory;
 
 import android.util.Log;
 import android.view.View;
@@ -49,6 +51,9 @@ public class MapViewProxy
          mOpenStreetMapView = (OpenStreetMapView) newView;
          mMapControllerProxy.setController( mOpenStreetMapView );
          mProjectionProxy.setProjection( mOpenStreetMapView );
+         
+         mOpenStreetMapView.setRenderer(OpenStreetMapRendererFactory.CYCLEMAP);
+
          
          if( mGoogleMapView != null )
          {
@@ -294,12 +299,12 @@ public class MapViewProxy
          mGoogleMapView.setSatellite( b );
       }
    }
-
-   public void setStreetView( boolean b )
+   
+   public void setOSMType(IOpenStreetMapRendererInfo renderer )
    {
-      if( mGoogleMapView != null )
+      if( mOpenStreetMapView != null )
       {
-         mGoogleMapView.setStreetView( b );
+         mOpenStreetMapView.setRenderer( renderer );
       }
    }
 
