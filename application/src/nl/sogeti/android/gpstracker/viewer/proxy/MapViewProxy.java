@@ -2,6 +2,8 @@ package nl.sogeti.android.gpstracker.viewer.proxy;
 
 import java.util.List;
 
+import nl.sogeti.android.gpstracker.util.Constants;
+
 import org.andnav.osm.views.OpenStreetMapView;
 import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
 import org.andnav.osm.views.util.IOpenStreetMapRendererInfo;
@@ -52,8 +54,6 @@ public class MapViewProxy
          mMapControllerProxy.setController( mOpenStreetMapView );
          mProjectionProxy.setProjection( mOpenStreetMapView );
          
-         mOpenStreetMapView.setRenderer(OpenStreetMapRendererFactory.CYCLEMAP);
-
          
          if( mGoogleMapView != null )
          {
@@ -300,11 +300,25 @@ public class MapViewProxy
       }
    }
    
-   public void setOSMType(IOpenStreetMapRendererInfo renderer )
+   public void setOSMType(int renderer )
    {
       if( mOpenStreetMapView != null )
       {
-         mOpenStreetMapView.setRenderer( renderer );
+         switch( renderer )
+         {
+            case Constants.OSM_CLOUDMADE:
+               mOpenStreetMapView.setRenderer( OpenStreetMapRendererFactory.CLOUDMADESTANDARDTILES );
+               break;
+            case Constants.OSM_MAKNIK:
+               mOpenStreetMapView.setRenderer( OpenStreetMapRendererFactory.MAPNIK );
+               break;
+            case Constants.OSM_CYCLE:              
+               mOpenStreetMapView.setRenderer( OpenStreetMapRendererFactory.CYCLEMAP );
+               break;
+            default:
+               break;
+         }
+         
       }
    }
 

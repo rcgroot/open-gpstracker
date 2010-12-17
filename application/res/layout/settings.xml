@@ -61,19 +61,6 @@
             android:entryValues="@array/units_values"
             android:defaultValue="0"/>
         />
-        
-        <CheckBoxPreference
-            android:key="SATELLITE"
-            android:title="@string/showsatellite_title"
-            android:summary="@string/showsatellite_summary"
-            android:defaultValue="false" 
-         />
-         <CheckBoxPreference
-            android:key="TRAFFIC"
-            android:title="@string/showtraffic_title"
-            android:summary="@string/showtraffic_summary"
-            android:defaultValue="false" 
-         />
         <CheckBoxPreference
             android:key="showspeed"
             android:title="@string/showspeed_title"

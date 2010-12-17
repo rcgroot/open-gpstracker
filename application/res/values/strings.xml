@@ -42,7 +42,7 @@
     <string name="layer_location">My Location</string>
     <string name="layer_cloudmade">CloudMade maps</string>
     <string name="layer_maknik">Mapnik</string>
-    <string name="layer_bycicle">OpenCycleMap</string>
+    <string name="layer_bicycle">OpenCycleMap</string>
     <string name="dialog_notwidroid">twidroid not found</string>
     <string name="dialog_notwidroid_message">The application \"twidroid\" is required to tweet this line.</string>
     <string name="dialog_vacuum_title">Crop data</string>

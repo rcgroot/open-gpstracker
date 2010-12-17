@@ -130,8 +130,6 @@ public class LoggerMap extends MapActivity
    private static final int DIALOG_NAME = 33;
    private static final int DIALOG_URIS = 34;
    private static final String TAG = "OGT.LoggerMap";
-   private RadioButton mSatellite;
-   private RadioButton mRegular;
    private CheckBox mTraffic;
    private CheckBox mSpeed;
    private CheckBox mAltitude;
@@ -247,12 +245,42 @@ public class LoggerMap extends MapActivity
          }
       };
 
-   private final android.widget.RadioGroup.OnCheckedChangeListener mCheckedChangeListener = new android.widget.RadioGroup.OnCheckedChangeListener()
+   private final OnCheckedChangeListener mCheckedChangeListener = new OnCheckedChangeListener()
+      {
+         public void onCheckedChanged( CompoundButton buttonView, boolean isChecked )
+         {
+            int checkedId;
+            checkedId = buttonView.getId();
+            Log.d( TAG, "Checked button id "+checkedId);
+            switch (checkedId)
+            {
+               case R.id.layer_traffic:
+                  setTrafficOverlay( isChecked );
+                  break;
+               case R.id.layer_speed:
+                  setSpeedOverlay( isChecked );
+                  break;
+               case R.id.layer_altitude:
+                  setAltitudeOverlay( isChecked );
+                  break;
+               case R.id.layer_compass:
+                  setCompassOverlay( isChecked );
+                  break;
+               case R.id.layer_location:
+                  setLocationOverlay( isChecked );
+                  break;
+               default:
+                  break;
+            }
+         }
+      };
+
+   private final android.widget.RadioGroup.OnCheckedChangeListener mGroupCheckedChangeListener = new android.widget.RadioGroup.OnCheckedChangeListener()
       {
          public void onCheckedChanged( RadioGroup group, int checkedId )
          {
-            int which = checkedId;
-            switch (which)
+            Log.d( TAG, "Checked group "+group+" on id "+checkedId);
+            switch (checkedId)
             {
                case R.id.layer_google_satellite:
                   setSatelliteOverlay( true );
@@ -260,20 +288,14 @@ public class LoggerMap extends MapActivity
                case R.id.layer_google_regular:
                   setSatelliteOverlay( false );
                   break;
-               case R.id.layer_traffic:
-                  setTrafficOverlay( true );
+               case R.id.layer_osm_cloudmade:
+                  setOsmBaseOverlay( Constants.OSM_CLOUDMADE );
                   break;
-               case R.id.layer_speed:
-                  setSpeedOverlay( true );
+               case R.id.layer_osm_maknik:
+                  setOsmBaseOverlay( Constants.OSM_MAKNIK );
                   break;
-               case R.id.layer_altitude:
-                  setAltitudeOverlay( true );
-                  break;
-               case R.id.layer_compass:
-                  setCompassOverlay( true );
-                  break;
-               case R.id.layer_location:
-                  setLocationOverlay( true );
+               case R.id.layer_osm_bicycle:
+                  setOsmBaseOverlay( Constants.OSM_CYCLE );
                   break;
                default:
                   break;
@@ -306,11 +328,11 @@ public class LoggerMap extends MapActivity
             }
             else if( key.equals( Constants.TRAFFIC ) )
             {
-               LoggerMap.this.mMapView.setTraffic( sharedPreferences.getBoolean( key, false ) );
+               updateGoogleOverlays();
             }
             else if( key.equals( Constants.SATELLITE ) )
             {
-               LoggerMap.this.mMapView.setSatellite( sharedPreferences.getBoolean( key, false ) );
+               updateGoogleOverlays();
             }
             else if( key.equals( Constants.LOCATION ) )
             {
@@ -319,6 +341,10 @@ public class LoggerMap extends MapActivity
             else if( key.equals( Constants.MAPPROVIDER ) ) 
             {
                updateMapProvider();
+            }
+            else if( key.equals( Constants.OSMBASEOVERLAY ) )
+            {
+               updateOsmBaseOverlay();
             }
          }
       };
@@ -421,8 +447,6 @@ public class LoggerMap extends MapActivity
       mMylocation = new MyLocationOverlayProxy( this, mMapView ); 
       mMapView.setBuiltInZoomControls( true );
       mMapView.setClickable( true );
-      mMapView.setSatellite( mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
-      mMapView.setTraffic( mSharedPreferences.getBoolean( Constants.TRAFFIC, false ) );
 
       TextView[] speeds = { (TextView) findViewById( R.id.speedview05 ), (TextView) findViewById( R.id.speedview04 ), (TextView) findViewById( R.id.speedview03 ),
             (TextView) findViewById( R.id.speedview02 ), (TextView) findViewById( R.id.speedview01 ), (TextView) findViewById( R.id.speedview00 ) };
@@ -668,6 +692,13 @@ public class LoggerMap extends MapActivity
       editor.commit();
    }
 
+   private void setOsmBaseOverlay( int b )
+   {
+      Editor editor = mSharedPreferences.edit();
+      editor.putInt( Constants.OSMBASEOVERLAY, b );
+      editor.commit();
+   }
+
    @Override
    public boolean onCreateOptionsMenu( Menu menu )
    {
@@ -814,19 +845,22 @@ public class LoggerMap extends MapActivity
             builder = new AlertDialog.Builder( this );
             factory = LayoutInflater.from( this );
             view = factory.inflate( R.layout.layerdialog, null );
-            
-            mSatellite = (RadioButton) view.findViewById( R.id.layer_google_satellite );
-            mRegular   = (RadioButton) view.findViewById( R.id.layer_google_regular );
+                       
             mTraffic   = (CheckBox) view.findViewById( R.id.layer_traffic );
             mSpeed     = (CheckBox) view.findViewById( R.id.layer_speed );
             mAltitude  = (CheckBox) view.findViewById( R.id.layer_altitude );
             mCompass   = (CheckBox) view.findViewById( R.id.layer_compass );
             mLocation  = (CheckBox) view.findViewById( R.id.layer_location );
             
-            ( (RadioGroup) view.findViewById( R.id.google_backgrounds ) ).setOnCheckedChangeListener( mCheckedChangeListener );
-            ( (RadioGroup) view.findViewById( R.id.osm_backgrounds    ) ).setOnCheckedChangeListener( mCheckedChangeListener );
-            ( (RadioGroup) view.findViewById( R.id.shared_layers      ) ).setOnCheckedChangeListener( mCheckedChangeListener );
-            ( (RadioGroup) view.findViewById( R.id.google_overlays    ) ).setOnCheckedChangeListener( mCheckedChangeListener );
+            ( (RadioGroup) view.findViewById( R.id.google_backgrounds ) ).setOnCheckedChangeListener( mGroupCheckedChangeListener );
+            ( (RadioGroup) view.findViewById( R.id.osm_backgrounds    ) ).setOnCheckedChangeListener( mGroupCheckedChangeListener );
+
+            mTraffic.setOnCheckedChangeListener( mCheckedChangeListener );
+            mSpeed.setOnCheckedChangeListener( mCheckedChangeListener );
+            mAltitude.setOnCheckedChangeListener( mCheckedChangeListener );
+            mCompass.setOnCheckedChangeListener( mCheckedChangeListener );
+            mLocation.setOnCheckedChangeListener( mCheckedChangeListener );
+
             builder
                .setTitle( R.string.dialog_layer_title )
                .setIcon( android.R.drawable.ic_dialog_map )
@@ -908,11 +942,28 @@ public class LoggerMap extends MapActivity
    @Override
    protected void onPrepareDialog( int id, Dialog dialog )
    {
+      RadioButton satellite;
+      RadioButton regular;
+      RadioButton cloudmade;
+      RadioButton mapnik;
+      RadioButton cycle;
       switch (id)
       {
          case DIALOG_LAYERS:
-            mSatellite.setChecked( mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
-            mRegular.setChecked( !mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
+            
+            satellite = (RadioButton) dialog.findViewById( R.id.layer_google_satellite );
+            regular   = (RadioButton) dialog.findViewById( R.id.layer_google_regular );
+            satellite.setChecked(  mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
+            regular.setChecked(   !mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
+            
+            int osmbase = mSharedPreferences.getInt( Constants.OSMBASEOVERLAY, 0 );
+            cloudmade = (RadioButton) dialog.findViewById( R.id.layer_osm_cloudmade );
+            mapnik    = (RadioButton) dialog.findViewById( R.id.layer_osm_maknik );
+            cycle     = (RadioButton) dialog.findViewById( R.id.layer_osm_bicycle);
+            cloudmade.setChecked( osmbase == Constants.OSM_CLOUDMADE );
+            mapnik.setChecked(    osmbase == Constants.OSM_MAKNIK );
+            cycle.setChecked(     osmbase == Constants.OSM_CYCLE );
+            
             mTraffic.setChecked( mSharedPreferences.getBoolean( Constants.TRAFFIC, false ) );
             mSpeed.setChecked( mSharedPreferences.getBoolean( Constants.SPEED, false ) );
             mAltitude.setChecked( mSharedPreferences.getBoolean( Constants.ALTITUDE, false ) );
@@ -923,9 +974,9 @@ public class LoggerMap extends MapActivity
             {
                case Constants.GOOGLE:
                   dialog.findViewById( R.id.google_backgrounds ).setVisibility( View.VISIBLE );
+                  dialog.findViewById( R.id.osm_backgrounds ).setVisibility( View.GONE );
                   dialog.findViewById( R.id.shared_layers ).setVisibility( View.VISIBLE );
                   dialog.findViewById( R.id.google_overlays ).setVisibility( View.VISIBLE );
-                  dialog.findViewById( R.id.osm_backgrounds ).setVisibility( View.GONE );
                   break;
                case Constants.OSM:
                   dialog.findViewById( R.id.osm_backgrounds ).setVisibility( View.VISIBLE );
@@ -1095,16 +1146,30 @@ public class LoggerMap extends MapActivity
             findViewById( R.id.myOsmMapView ).setVisibility( View.INVISIBLE );
             findViewById( R.id.myMapView ).setVisibility( View.VISIBLE );
             mMapView.setMap( findViewById( R.id.myMapView ) );
+            updateGoogleOverlays();
             break;
          case Constants.OSM:
             findViewById( R.id.myMapView ).setVisibility( View.INVISIBLE );
             findViewById( R.id.myOsmMapView ).setVisibility( View.VISIBLE );
             mMapView.setMap( findViewById( R.id.myOsmMapView ) );
+            updateOsmBaseOverlay();
             break;
          default:
             Log.e( TAG, "Fault in value "+provider+" as MapProvider." );
             break;
       }
+   }
+   
+   private void updateGoogleOverlays()
+   {
+      LoggerMap.this.mMapView.setSatellite( mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
+      LoggerMap.this.mMapView.setTraffic( mSharedPreferences.getBoolean( Constants.TRAFFIC, false ) );
+   }
+   
+   private void updateOsmBaseOverlay()
+   {
+      int baselayer = mSharedPreferences.getInt( Constants.OSMBASEOVERLAY, 0 );
+      mMapView.setOSMType( baselayer );
    }
 
    private void updateBlankingBehavior()

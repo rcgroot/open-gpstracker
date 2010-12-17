@@ -41,8 +41,8 @@
              android:layout_width="fill_parent"
              android:layout_height="wrap_content" />
           <RadioButton
-             android:text="@string/layer_bycicle"
-             android:id="@+id/layer_osm_bycicle"
+             android:text="@string/layer_bicycle"
+             android:id="@+id/layer_osm_bicycle"
              android:layout_width="fill_parent"
              android:layout_height="wrap_content" />
       </RadioGroup>
