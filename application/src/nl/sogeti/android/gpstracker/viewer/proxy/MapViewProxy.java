@@ -6,7 +6,6 @@ import nl.sogeti.android.gpstracker.util.Constants;
 
 import org.andnav.osm.views.OpenStreetMapView;
 import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
-import org.andnav.osm.views.util.IOpenStreetMapRendererInfo;
 import org.andnav.osm.views.util.OpenStreetMapRendererFactory;
 
 import android.util.Log;
@@ -78,11 +77,14 @@ public class MapViewProxy
       {
          return mGoogleMapView;
       }
-      if( mOpenStreetMapView != null )
+      else if( mOpenStreetMapView != null )
       {
          return mOpenStreetMapView;
       }
-      return null;
+      else 
+      {
+         return null;
+      }
    }
    
    public void postInvalidate()
@@ -94,6 +96,18 @@ public class MapViewProxy
       if( mOpenStreetMapView != null )
       {
          mOpenStreetMapView.postInvalidate();
+      }
+   }
+   
+   public void invalidate()
+   {
+      if( mGoogleMapView != null )
+      {
+         mGoogleMapView.invalidate();
+      }
+      if( mOpenStreetMapView != null )
+      {
+         mOpenStreetMapView.invalidate();
       }
    }
 
@@ -321,7 +335,7 @@ public class MapViewProxy
          
       }
    }
-
+   
    public void executePostponedActions()
    {
       getController().executePostponedActions();

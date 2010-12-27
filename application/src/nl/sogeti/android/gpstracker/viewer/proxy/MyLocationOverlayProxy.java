@@ -6,6 +6,7 @@ import org.andnav.osm.views.OpenStreetMapView;
 import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
 
 import android.content.Context;
+import android.location.Location;
 import android.view.View;
 
 import com.google.android.maps.MapView;
@@ -51,6 +52,8 @@ public class MyLocationOverlayProxy implements OverlayProxy
       if( osmLocationOverlay != null )
       {
          osmLocationOverlay.disableMyLocation();
+         osmLocationOverlay.onLocationChanged( new Location( "STUB" ) );
+         mMapViewProxy.invalidate();
       }
    }
 
@@ -75,6 +78,7 @@ public class MyLocationOverlayProxy implements OverlayProxy
       if( osmLocationOverlay != null )
       {
          osmLocationOverlay.disableCompass();
+         mMapViewProxy.invalidate();
       }
    }
 

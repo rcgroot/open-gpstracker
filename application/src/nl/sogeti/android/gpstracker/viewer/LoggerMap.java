@@ -482,11 +482,7 @@ public class LoggerMap extends MapActivity
       super.onResume();
       updateTitleBar();
       updateBlankingBehavior();
-      updateSpeedColoring();
-      updateSpeedDisplayVisibility();
-      updateAltitudeDisplayVisibility();
-      updateCompassDisplayVisibility();
-      updateLocationDisplayVisibility();
+
       updateMapProvider();
 
       if( mTrackId >= 0 )
@@ -505,8 +501,16 @@ public class LoggerMap extends MapActivity
       }
       updateDataOverlays();
       
+      updateSpeedColoring();
+      updateSpeedDisplayVisibility();
+      updateAltitudeDisplayVisibility();
+      updateCompassDisplayVisibility();
+      updateLocationDisplayVisibility();
+      
       mMapView.executePostponedActions();
    }
+   
+   
 
    /*
     * (non-Javadoc)
@@ -950,7 +954,6 @@ public class LoggerMap extends MapActivity
       switch (id)
       {
          case DIALOG_LAYERS:
-            
             satellite = (RadioButton) dialog.findViewById( R.id.layer_google_satellite );
             regular   = (RadioButton) dialog.findViewById( R.id.layer_google_regular );
             satellite.setChecked(  mSharedPreferences.getBoolean( Constants.SATELLITE, false ) );
