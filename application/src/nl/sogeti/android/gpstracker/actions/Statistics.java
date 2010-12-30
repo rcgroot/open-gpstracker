@@ -263,7 +263,7 @@ public class Statistics extends Activity
       mGraphDistanceSpeed.clearData();
       mGraphTimeAltitude.clearData();
       mGraphDistanceAltitude.clearData();
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      ContentResolver resolver = this.getContentResolver();
       resolver.unregisterContentObserver( this.mTrackObserver );
    }
 
@@ -277,7 +277,7 @@ public class Statistics extends Activity
       super.onResume();
       drawTrackingStatistics();
       
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      ContentResolver resolver = this.getContentResolver();
       resolver.unregisterContentObserver( this.mTrackObserver );
       resolver.registerContentObserver( mTrackUri, true, this.mTrackObserver );
    }

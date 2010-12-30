@@ -128,28 +128,28 @@ public class KmzCreator extends XmlCreator
          fileName = new File( resultFilename ).getName();
 
          CharSequence text = mContext.getString( R.string.ticker_stored ) + " \"" + fileName + "\" ";
-         Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( IllegalArgumentException e )
       {
          Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_filename );
-         Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( IllegalStateException e )
       {
          Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_buildxml );
-         Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
          toast.show();
       }
       catch( IOException e )
       {
          Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_writesdcard );
-         Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
          toast.show();
       }
       finally

@@ -294,8 +294,8 @@ public class GraphCanvas extends View
     */
    private void drawDistanceAxisGraphOnCanvas( String[] params )
    {
-      ContentResolver resolver = mContext.getApplicationContext().getContentResolver();
-      Uri segmentsUri = Uri.withAppendedPath( mUri, "/segments" );
+      ContentResolver resolver = mContext.getContentResolver();
+      Uri segmentsUri = Uri.withAppendedPath( mUri, "segments" );
       Uri waypointsUri = null;
       Cursor segments = null;
       Cursor waypoints = null;
@@ -325,7 +325,8 @@ public class GraphCanvas extends View
                      params, 
                      null, null, null );
                   if( waypoints.moveToFirst() )
-                  {
+                  {                    
+                     Log.d( TAG, "Graphing distance segment "+segment+" with URI "+waypointsUri+" with count "+waypoints.getCount() );
                      Location lastLocation = null;
                      Location currentLocation = null;
                      do 
@@ -342,9 +343,6 @@ public class GraphCanvas extends View
                         if( value > Constants.MIN_STATISTICS_SPEED && segment < values.length )
                         {
                            int x = (int) ((distance)*(mWidth-1) / mDistance);
-                           
-                           //Log.d( TAG, waypoints.getPosition()+" will add "+value+" to bucket "+x+"/"+valueDepth[segment].length );
-                           
                            if( x < valueDepth[segment].length )
                            {
                               valueDepth[segment][x]++;
@@ -387,8 +385,8 @@ public class GraphCanvas extends View
    
    private void drawTimeAxisGraphOnCanvas( String[] params )
    {
-      ContentResolver resolver = mContext.getApplicationContext().getContentResolver();
-      Uri segmentsUri = Uri.withAppendedPath( mUri, "/segments" );
+      ContentResolver resolver = mContext.getContentResolver();
+      Uri segmentsUri = Uri.withAppendedPath( mUri, "segments" );
       Uri waypointsUri = null;
       Cursor segments = null;
       Cursor waypoints = null;

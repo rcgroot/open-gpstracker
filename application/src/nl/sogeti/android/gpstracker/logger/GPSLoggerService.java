@@ -310,7 +310,7 @@ public class GPSLoggerService extends Service
       mAltitudes = new LinkedList<Double>();
       mLoggingState = Constants.STOPPED;
       mStartNextSegment = false;
-      mContext = getApplicationContext();
+      mContext = this;
       mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
       mNoticationManager = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
       mNoticationManager.cancel( R.layout.map );
@@ -522,7 +522,7 @@ public class GPSLoggerService extends Service
    {
       mNoticationManager.cancel( R.id.icon );
       CharSequence text = mContext.getString( resId );
-      Toast toast = Toast.makeText( mContext.getApplicationContext(), text, Toast.LENGTH_LONG );
+      Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
       toast.show();
    }
 
@@ -624,7 +624,7 @@ public class GPSLoggerService extends Service
    {
       if( this.mLoggingState == Constants.LOGGING )
       {
-         PreferenceManager.getDefaultSharedPreferences( this.mContext.getApplicationContext() ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
+         PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
          PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
          this.mWakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, TAG );

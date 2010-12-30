@@ -424,27 +424,27 @@ public class ShareTrack extends Activity
       {
          Log.e(TAG, "Failed to upload to " + jogmap.toString(), e);
          CharSequence text = getString(R.string.jogmap_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
       }
       catch (URISyntaxException e)
       {
          Log.e(TAG, "Failed to use configured URI " + jogmap.toString(), e);
          CharSequence text = getString(R.string.jogmap_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
       }
       if (statusCode == 200)
       {
          CharSequence text = getString(R.string.jogmap_success) + jogmapResponseText;
-         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
       }
       else
       {
          Log.e(TAG, "Wrong status code " + statusCode);
          CharSequence text = getString(R.string.jogmap_failed) + jogmapResponseText;
-         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
       }
    }

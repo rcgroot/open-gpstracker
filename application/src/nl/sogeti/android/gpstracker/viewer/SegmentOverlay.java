@@ -170,7 +170,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mMapView = mapView;
       mTrackColoringMethod = color;
       mAvgSpeed = avgSpeed;
-      mResolver = mLoggerMap.getApplicationContext().getContentResolver();
+      mResolver = mLoggerMap.getContentResolver();
       mSegmentUri = segmentUri;
       mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
@@ -1056,7 +1056,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
          {
             String text = mediaUri.getLastPathSegment();
-            Toast toast = Toast.makeText( ctx.getApplicationContext(), text, Toast.LENGTH_LONG );
+            Toast toast = Toast.makeText( ctx, text, Toast.LENGTH_LONG );
             toast.show();
             return true;
          }

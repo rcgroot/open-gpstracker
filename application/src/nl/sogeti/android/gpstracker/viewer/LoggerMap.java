@@ -379,7 +379,7 @@ public class LoggerMap extends MapActivity
          {
             Log.e( TAG, "Note storing failed", e );
             CharSequence text = e.getLocalizedMessage();
-            Toast toast = Toast.makeText( LoggerMap.this.getApplicationContext(), text, Toast.LENGTH_LONG );
+            Toast toast = Toast.makeText( LoggerMap.this, text, Toast.LENGTH_LONG );
             toast.show();
          }
          finally
@@ -466,7 +466,7 @@ public class LoggerMap extends MapActivity
       }
       if( mTrackId > 0 )
       {
-         ContentResolver resolver = this.getApplicationContext().getContentResolver();
+         ContentResolver resolver = this.getContentResolver();
          resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
          resolver.unregisterContentObserver( this.mSegmentWaypointsObserver );
          resolver.unregisterContentObserver( this.mTrackMediasObserver );
@@ -487,7 +487,7 @@ public class LoggerMap extends MapActivity
 
       if( mTrackId >= 0 )
       {
-         ContentResolver resolver = this.getApplicationContext().getContentResolver();
+         ContentResolver resolver = this.getContentResolver();
          Uri trackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments" );
          Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+mLastSegment+"/waypoints" );
          Uri mediaUri = ContentUris.withAppendedId( Media.CONTENT_URI, mTrackId );
@@ -1120,7 +1120,7 @@ public class LoggerMap extends MapActivity
 
    private void updateTitleBar()
    {
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      ContentResolver resolver = this.getContentResolver();
       Cursor trackCursor = null;
       try
       {
@@ -1196,7 +1196,7 @@ public class LoggerMap extends MapActivity
    private void updateSpeedColoring()
    {
       int trackColoringMethod = new Integer( mSharedPreferences.getString( Constants.TRACKCOLORING, "3" ) ).intValue();
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      ContentResolver resolver = this.getContentResolver();
       Cursor waypointsCursor = null;
       try
       {
@@ -1314,7 +1314,7 @@ public class LoggerMap extends MapActivity
     */
    private void updateDisplayedSpeedViews()
    {
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      ContentResolver resolver = this.getContentResolver();
       Cursor waypointsCursor = null;
       try
       {
@@ -1363,7 +1363,7 @@ public class LoggerMap extends MapActivity
       mMapView.clearOverlays();
       mMapView.addOverlay( mMylocation );
 
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      ContentResolver resolver = this.getContentResolver();
       Cursor segments = null;
       int trackColoringMethod = new Integer( mSharedPreferences.getString( Constants.TRACKCOLORING, "2" ) ).intValue();
 
@@ -1411,7 +1411,7 @@ public class LoggerMap extends MapActivity
    
    private void updateDataOverlays()
    {
-      ContentResolver resolver = this.getApplicationContext().getContentResolver();
+      ContentResolver resolver = this.getContentResolver();
       Uri segmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/segments" );
       Cursor segmentsCursor = null;
       List<?> overlays = this.mMapView.getOverlays();
@@ -1494,7 +1494,7 @@ public class LoggerMap extends MapActivity
       Cursor track = null;
       try
       {
-         ContentResolver resolver = this.getApplicationContext().getContentResolver();
+         ContentResolver resolver = this.getContentResolver();
          Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId );
          track = resolver.query( trackUri, new String[] { Tracks.NAME }, null, null, null );
          if( track != null && track.moveToFirst() )
@@ -1611,7 +1611,7 @@ public class LoggerMap extends MapActivity
       Cursor track = null;
       try
       {
-         ContentResolver resolver = this.getApplicationContext().getContentResolver();
+         ContentResolver resolver = this.getContentResolver();
          track = resolver.query( Tracks.CONTENT_URI, new String[] { "max(" + Tracks._ID + ")", Tracks.NAME, }, null, null, null );
          if( track != null && track.moveToLast() )
          {
