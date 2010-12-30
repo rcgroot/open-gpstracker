@@ -540,6 +540,7 @@ public class TrackList extends ListActivity
             try
             {
                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+               factory.setNamespaceAware( false );
                XmlPullParser xmlParser = factory.newPullParser();
 
                File file = new File( mImportFileUri.getPath() );
@@ -618,6 +619,7 @@ public class TrackList extends ListActivity
                      else if( xmlParser.getName().equals( "trkseg" ) )
                      {
                         contentResolver.bulkInsert( Uri.withAppendedPath( segment, "waypoints" ), bulk.toArray( new ContentValues[bulk.size()] ) );
+                        bulk.clear();
                      }
                      else if( xmlParser.getName().equals( "trkpt" ) )
                      {
@@ -635,7 +637,7 @@ public class TrackList extends ListActivity
                      }
                      else if( lastPosition != null && speed )
                      {
-                        lastPosition.put( Waypoints.SPEED, new Float( xmlParser.getText() ) );
+                        lastPosition.put( Waypoints.SPEED, Double.parseDouble( xmlParser.getText() ) );
                      }
                      else if( lastPosition != null && elevation )
                      {
