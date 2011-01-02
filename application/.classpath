@@ -9,6 +9,6 @@
 	<classpathentry kind="lib" path="lib/httpclient-4.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/osmdroid-android-1.09.jar"/>
+	<classpathentry kind="lib" path="lib/osmdroid-android-1.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
