@@ -106,6 +106,8 @@ public class GPSLoggerService extends Service
    private static final int REQUEST_GLOBALGPS_LOCATIONUPDATES = 4;
    private static final int STOPLOOPER = 6;
 
+   private static final int LOGGING_UNAVAILABLE = R.string.service_connectiondisabled;
+
    private Context mContext;
    private LocationManager mLocationManager;
    private NotificationManager mNoticationManager;
@@ -157,6 +159,11 @@ public class GPSLoggerService extends Service
       {
          public void onLocationChanged( Location location )
          {
+            // Might be claiming GPS disabled but when we were paused this changed and this location proves so
+            if( mShowingGpsDisabled ) 
+            {
+               notifyOnEnabledProviderNotification( R.string.service_gpsenabled );
+            }
             Location filteredLocation = locationFilter( location );
             if( filteredLocation != null )
             {
@@ -174,11 +181,11 @@ public class GPSLoggerService extends Service
             //            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
             if( mPrecision != LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
-               disabledProviderNotification( R.string.service_gpsdisabled );
+               notifyOnDisabledProviderNotification( R.string.service_gpsdisabled );
             }
             else if( mPrecision == LOGGING_GLOBAL && provider.equals( LocationManager.NETWORK_PROVIDER ) )
             {
-               disabledProviderNotification( R.string.service_datadisabled );
+               notifyOnDisabledProviderNotification( R.string.service_datadisabled );
             }
 
          }
@@ -187,12 +194,12 @@ public class GPSLoggerService extends Service
          {
             if( mPrecision != LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
-               enabledProviderNotification( R.string.service_gpsenabled );
+               notifyOnEnabledProviderNotification( R.string.service_gpsenabled );
                mStartNextSegment = true;
             }
             else if( mPrecision == LOGGING_GLOBAL && provider.equals( LocationManager.NETWORK_PROVIDER ) )
             {
-               enabledProviderNotification( R.string.service_dataenabled );
+               notifyOnEnabledProviderNotification( R.string.service_dataenabled );
             }
          }
 
@@ -268,6 +275,8 @@ public class GPSLoggerService extends Service
             return GPSLoggerService.this.isMediaPrepared();
          }
       };
+
+   private boolean mShowingGpsDisabled;
 
    private class GPSLoggerServiceThread extends Thread
    {
@@ -518,15 +527,16 @@ public class GPSLoggerService extends Service
       mNoticationManager.notify( R.layout.map, mNotification );
    }
 
-   private void enabledProviderNotification( int resId )
+   private void notifyOnEnabledProviderNotification( int resId )
    {
-      mNoticationManager.cancel( R.id.icon );
+      mNoticationManager.cancel( LOGGING_UNAVAILABLE );
+      mShowingGpsDisabled = false;
       CharSequence text = mContext.getString( resId );
       Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
       toast.show();
    }
 
-   private void disabledProviderNotification( int resId )
+   private void notifyOnDisabledProviderNotification( int resId )
    {
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = getResources().getString( resId );
@@ -541,7 +551,8 @@ public class GPSLoggerService extends Service
       PendingIntent contentIntent = PendingIntent.getActivity( this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK );
       gpsNotification.setLatestEventInfo( this, contentTitle, contentText, contentIntent );
 
-      mNoticationManager.notify( R.id.icon, gpsNotification );
+      mNoticationManager.notify( LOGGING_UNAVAILABLE, gpsNotification );
+      mShowingGpsDisabled = true;
    }
 
    private void sendRequestStatusUpdateMessage()
@@ -609,7 +620,7 @@ public class GPSLoggerService extends Service
             mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 300000l, 500F, this.mLocationListener );
             if( !isNetworkConnected() )
             {
-               disabledProviderNotification( R.string.service_connectiondisabled );
+               notifyOnDisabledProviderNotification( R.string.service_connectiondisabled );
             }
             break;
          case STOPLOOPER:
