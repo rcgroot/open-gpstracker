@@ -32,6 +32,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -475,7 +476,7 @@ public class TrackList extends ListActivity
          Uri uri = intent.getData();
 
          // Got to VIEW a GPX filename
-         if( uri.getScheme().equals( "file" ) )
+         if( uri.getScheme().equals( "file" ) || uri.getScheme().equals( "content" ) )
          {
             mImportFileUri = uri;
             showDialog( DIALOG_IMPORT );
@@ -517,6 +518,7 @@ public class TrackList extends ListActivity
    }
 
    public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
+   protected static final int DEFAULT_UNKNOWN_FILESIZE = 1024 * 1024 * 10;
    static
    {
       TimeZone utc = TimeZone.getTimeZone( "UTC" );
@@ -543,12 +545,17 @@ public class TrackList extends ListActivity
                factory.setNamespaceAware( false );
                XmlPullParser xmlParser = factory.newPullParser();
 
-               File file = new File( mImportFileUri.getPath() );
-               int length = file.length() < Integer.MAX_VALUE ? (int) file.length() : Integer.MAX_VALUE;
+               int length = DEFAULT_UNKNOWN_FILESIZE;
+               if( mImportFileUri.getScheme().equals( "file" ))
+               {
+                  File file = new File( mImportFileUri.getPath() );
+                  length = file.length() < (long) Integer.MAX_VALUE ? (int) file.length() : Integer.MAX_VALUE;
+               }
                mImportProgress.setMax( length );
                mImportProgress.setProgress( 0 );
                mImportProgress.setVisibility( View.VISIBLE );
-               FileInputStream fis = new FileInputStream( file );
+               
+               InputStream fis = getContentResolver().openInputStream( mImportFileUri );
                ProgressFilterInputStream pfis = new ProgressFilterInputStream( fis, mImportProgress );
                BufferedInputStream bis = new BufferedInputStream( pfis );
                xmlParser.setInput( new InputStreamReader( bis ) );
