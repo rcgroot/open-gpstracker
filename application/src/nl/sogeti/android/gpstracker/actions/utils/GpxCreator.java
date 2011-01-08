@@ -358,7 +358,7 @@ public class GpxCreator extends XmlCreator
                }
                if( bearing != 0.0 )
                {
-                  quickTag( serializer, NS_OGT_10, "bearing", Double.toString( bearing ) );
+                  quickTag( serializer, NS_GPX_10, "course", Double.toString( bearing ) );
                }
                serializer.endTag( "", "extensions" );
                serializer.text( "\n" );

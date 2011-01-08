@@ -88,6 +88,16 @@ import android.widget.TextView;
  */
 public class TrackList extends ListActivity
 {
+   private static final String LATITUDE_ATRIBUTE = "lat";
+   private static final String LONGITUDE_ATTRIBUTE = "lon";
+   private static final String TRACK_ELEMENT = "trkpt";
+   private static final String SEGMENT_ELEMENT = "trkseg";
+   private static final String NAME_ELEMENT = "name";
+   private static final String TIME_ELEMENT = "time";
+   private static final String ELEVATION_ELEMENT = "ele";
+   private static final String COURSE_ELEMENT = "course";
+   private static final String ACCURACY_ELEMENT = "accuracy";
+   private static final String SPEED_ELEMENT = "speed";
    private static final String TAG = "OGT.TrackList";
    private static final int MENU_DETELE = Menu.FIRST + 0;
    private static final int MENU_SHARE = Menu.FIRST + 1;
@@ -578,7 +588,7 @@ public class TrackList extends ListActivity
                   ContentResolver contentResolver = TrackList.this.getContentResolver();
                   if( eventType == XmlPullParser.START_TAG )
                   {
-                     if( xmlParser.getName().equals( "name" ) )
+                     if( xmlParser.getName().equals( NAME_ELEMENT ) )
                      {
                         name = true;
                      }
@@ -590,43 +600,43 @@ public class TrackList extends ListActivity
                         {
                            trackUri = contentResolver.insert( Tracks.CONTENT_URI, trackContent );
                         }
-                        else if( xmlParser.getName().equals( "trkseg" ) )
+                        else if( xmlParser.getName().equals( SEGMENT_ELEMENT ) )
                         {
                            segment = contentResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), trackContent );
                         }
-                        else if( xmlParser.getName().equals( "trkpt" ) )
+                        else if( xmlParser.getName().equals( TRACK_ELEMENT ) )
                         {
                            lastPosition = new ContentValues();
                            for( int i = 0; i<2; i++ )
                            {
                               attributeName = xmlParser.getAttributeName( i );
-                              if( attributeName.equals( "lat" ) )
+                              if( attributeName.equals( LATITUDE_ATRIBUTE ) )
                               {
                                  lastPosition.put( Waypoints.LATITUDE, new Double( xmlParser.getAttributeValue( i ) ) );
                               }
-                              else if( attributeName.equals( "lon" ) )
+                              else if( attributeName.equals( LONGITUDE_ATTRIBUTE ) )
                               {
                                  lastPosition.put( Waypoints.LONGITUDE, new Double( xmlParser.getAttributeValue( i ) ) );
                               }
                            }
                         }
-                        else if( xmlParser.getName().equals( "speed" ) )
+                        else if( xmlParser.getName().equals( SPEED_ELEMENT ) )
                         {
                            speed = true;
                         }
-                        else if( xmlParser.getName().equals( "accuracy" ) )
+                        else if( xmlParser.getName().equals( ACCURACY_ELEMENT ) )
                         {
                            accuracy = true;
                         }
-                        else if( xmlParser.getName().equals( "bearing" ) )
+                        else if( xmlParser.getName().equals( COURSE_ELEMENT ) )
                         {
                            bearing = true;
                         }
-                        else if( xmlParser.getName().equals( "ele" ) )
+                        else if( xmlParser.getName().equals( ELEVATION_ELEMENT ) )
                         {
                            elevation = true;
                         }
-                        else if( xmlParser.getName().equals( "time" ) )
+                        else if( xmlParser.getName().equals( TIME_ELEMENT ) )
                         {
                            time = true;
                         }
@@ -634,36 +644,36 @@ public class TrackList extends ListActivity
                   }
                   else if( eventType == XmlPullParser.END_TAG )
                   {
-                     if( xmlParser.getName().equals( "name" ) )
+                     if( xmlParser.getName().equals( NAME_ELEMENT ) )
                      {
                         name = false;
                      }
-                     else if( xmlParser.getName().equals( "speed" ) )
+                     else if( xmlParser.getName().equals( SPEED_ELEMENT ) )
                      {
                         speed = false;
                      }
-                     else if( xmlParser.getName().equals( "accuracy" ) )
+                     else if( xmlParser.getName().equals( ACCURACY_ELEMENT ) )
                      {
                         accuracy = false;
                      }
-                     else if( xmlParser.getName().equals( "bearing" ) )
+                     else if( xmlParser.getName().equals( COURSE_ELEMENT ) )
                      {
                         bearing = false;
                      }
-                     else if( xmlParser.getName().equals( "ele" ) )
+                     else if( xmlParser.getName().equals( ELEVATION_ELEMENT ) )
                      {
                         elevation = false;
                      }
-                     else if( xmlParser.getName().equals( "time" ) )
+                     else if( xmlParser.getName().equals( TIME_ELEMENT ) )
                      {
                         time = false;
                      }
-                     else if( xmlParser.getName().equals( "trkseg" ) )
+                     else if( xmlParser.getName().equals( SEGMENT_ELEMENT ) )
                      {
                         contentResolver.bulkInsert( Uri.withAppendedPath( segment, "waypoints" ), bulk.toArray( new ContentValues[bulk.size()] ) );
                         bulk.clear();
                      }
-                     else if( xmlParser.getName().equals( "trkpt" ) )
+                     else if( xmlParser.getName().equals( TRACK_ELEMENT ) )
                      {
                         bulk.add( lastPosition );
                         lastPosition = null;
