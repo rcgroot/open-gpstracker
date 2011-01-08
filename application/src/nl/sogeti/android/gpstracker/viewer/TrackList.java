@@ -518,11 +518,14 @@ public class TrackList extends ListActivity
    }
 
    public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
+   public static final SimpleDateFormat ZULU_DATE_FORMAT_MS = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" );
    protected static final int DEFAULT_UNKNOWN_FILESIZE = 1024 * 1024 * 10;
    static
    {
       TimeZone utc = TimeZone.getTimeZone( "UTC" );
       ZULU_DATE_FORMAT.setTimeZone( utc ); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
+      ZULU_DATE_FORMAT_MS.setTimeZone( utc );
+      
    }
 
    private Runnable xmlParser = new Runnable()
@@ -533,6 +536,8 @@ public class TrackList extends ListActivity
             ContentValues lastPosition = null;
             Vector<ContentValues> bulk = new Vector<ContentValues>();
             boolean speed = false;
+            boolean accuracy = false;
+            boolean bearing = false;
             boolean elevation = false;
             boolean name = false;
             boolean time = false;
@@ -563,6 +568,8 @@ public class TrackList extends ListActivity
                String filename = mImportFileUri.getLastPathSegment();
 
                eventType = xmlParser.getEventType();
+               
+               String attributeName;
 
                while (eventType != XmlPullParser.END_DOCUMENT)
                {
@@ -588,12 +595,30 @@ public class TrackList extends ListActivity
                         else if( xmlParser.getName().equals( "trkpt" ) )
                         {
                            lastPosition = new ContentValues();
-                           lastPosition.put( Waypoints.LATITUDE, new Double( xmlParser.getAttributeValue( 0 ) ) );
-                           lastPosition.put( Waypoints.LONGITUDE, new Double( xmlParser.getAttributeValue( 1 ) ) );
+                           for( int i = 0; i<2; i++ )
+                           {
+                              attributeName = xmlParser.getAttributeName( i );
+                              if( attributeName.equals( "lat" ) )
+                              {
+                                 lastPosition.put( Waypoints.LATITUDE, new Double( xmlParser.getAttributeValue( i ) ) );
+                              }
+                              else if( attributeName.equals( "lon" ) )
+                              {
+                                 lastPosition.put( Waypoints.LONGITUDE, new Double( xmlParser.getAttributeValue( i ) ) );
+                              }
+                           }
                         }
                         else if( xmlParser.getName().equals( "speed" ) )
                         {
                            speed = true;
+                        }
+                        else if( xmlParser.getName().equals( "accuracy" ) )
+                        {
+                           accuracy = true;
+                        }
+                        else if( xmlParser.getName().equals( "bearing" ) )
+                        {
+                           bearing = true;
                         }
                         else if( xmlParser.getName().equals( "ele" ) )
                         {
@@ -614,6 +639,14 @@ public class TrackList extends ListActivity
                      else if( xmlParser.getName().equals( "speed" ) )
                      {
                         speed = false;
+                     }
+                     else if( xmlParser.getName().equals( "accuracy" ) )
+                     {
+                        accuracy = false;
+                     }
+                     else if( xmlParser.getName().equals( "bearing" ) )
+                     {
+                        bearing = false;
                      }
                      else if( xmlParser.getName().equals( "ele" ) )
                      {
@@ -636,23 +669,32 @@ public class TrackList extends ListActivity
                   }
                   else if( eventType == XmlPullParser.TEXT )
                   {
+                     String text = xmlParser.getText();
                      if( name )
                      {
                         ContentValues nameValues = new ContentValues();
-                        nameValues.put( Tracks.NAME, xmlParser.getText() );
+                        nameValues.put( Tracks.NAME, text );
                         contentResolver.update( trackUri, nameValues, null, null );
                      }
                      else if( lastPosition != null && speed )
                      {
-                        lastPosition.put( Waypoints.SPEED, Double.parseDouble( xmlParser.getText() ) );
+                        lastPosition.put( Waypoints.SPEED, Double.parseDouble( text ) );
+                     }
+                     else if( lastPosition != null && accuracy )
+                     {
+                        lastPosition.put( Waypoints.ACCURACY, Double.parseDouble( text ) );
+                     }
+                     else if( lastPosition != null && bearing )
+                     {
+                        lastPosition.put( Waypoints.BEARING, Double.parseDouble( text ) );
                      }
                      else if( lastPosition != null && elevation )
                      {
-                        lastPosition.put( Waypoints.ALTITUDE, Double.parseDouble( xmlParser.getText() ) );
+                        lastPosition.put( Waypoints.ALTITUDE, Double.parseDouble( text ) );
                      }
                      else if( lastPosition != null && time )
                      {
-                        lastPosition.put( Waypoints.TIME, new Long( ZULU_DATE_FORMAT.parse( xmlParser.getText() ).getTime() ) );
+                        lastPosition.put( Waypoints.TIME, parseXmlDateTime( text ) );
                      }
                   }
                   eventType = xmlParser.next();
@@ -707,4 +749,23 @@ public class TrackList extends ListActivity
             }
          }
       };
+      
+      public static Long parseXmlDateTime( String text ) throws ParseException
+      {
+         Long dateTime = null;
+         int length = text.length();
+         switch( length )
+         {
+            case 20:
+               dateTime = new Long( ZULU_DATE_FORMAT.parse( text ).getTime() );
+               break;
+            case 24:
+               dateTime = new Long( ZULU_DATE_FORMAT_MS.parse( text ).getTime() );
+            default:
+               break;
+         }
+         return dateTime;
+      }
+      
+      
 }
