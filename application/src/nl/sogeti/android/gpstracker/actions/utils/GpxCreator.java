@@ -46,6 +46,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
 import nl.sogeti.android.gpstracker.util.Constants;
 
 import org.xmlpull.v1.XmlSerializer;
@@ -72,6 +73,7 @@ public class GpxCreator extends XmlCreator
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
    public static final String NS_GPX_10 = "http://www.topografix.com/GPX/1/0";
+   public static final String NS_OGT_10 = "http://gpstracker.android.sogeti.nl/GPX/1/0";
    public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
    static
    {
@@ -216,6 +218,7 @@ public class GpxCreator extends XmlCreator
       serializer.startDocument( "UTF-8", true );
       serializer.setPrefix( "xsi", NS_SCHEMA );
       serializer.setPrefix( "gpx10", NS_GPX_10 );
+      serializer.setPrefix( "ogt10", NS_OGT_10 );
       serializer.text( "\n" );
       serializer.startTag( "", "gpx" );
       serializer.attribute( null, "version", "1.1" );
@@ -312,7 +315,7 @@ public class GpxCreator extends XmlCreator
       ContentResolver resolver = mContext.getContentResolver();
       try
       {
-         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID, Waypoints.SPEED }, null, null, null );
+         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID, Waypoints.SPEED, Waypoints.ACCURACY, Waypoints.BEARING }, null, null, null );
          if( waypointsCursor.moveToFirst() )
          {
             do
@@ -341,8 +344,22 @@ public class GpxCreator extends XmlCreator
                }
                serializer.text( "\n" );
                serializer.startTag( "", "extensions" );
-               quickTag( serializer, NS_GPX_10, "speed", Double.toString( waypointsCursor.getDouble( 5 ) ) );
-
+               
+               double speed = waypointsCursor.getDouble( 5 );
+               double accuracy = waypointsCursor.getDouble( 6 );
+               double bearing = waypointsCursor.getDouble( 7 );
+               if( speed > 0.0 )
+               {
+                  quickTag( serializer, NS_GPX_10, "speed", Double.toString( speed ) );
+               }
+               if( accuracy > 0.0 )
+               {
+                  quickTag( serializer, NS_OGT_10, "accuracy", Double.toString( accuracy ) );
+               }
+               if( bearing != 0.0 )
+               {
+                  quickTag( serializer, NS_OGT_10, "bearing", Double.toString( bearing ) );
+               }
                serializer.endTag( "", "extensions" );
                serializer.text( "\n" );
                serializer.endTag( "", "trkpt" );
