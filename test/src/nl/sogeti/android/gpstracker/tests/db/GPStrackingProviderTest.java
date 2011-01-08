@@ -157,6 +157,68 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       trackCursor.close();
    }
 
+   @SmallTest
+   public void testTrackAltitudeWaypoint()
+   {
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
+      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
+      wp.put( Waypoints.ALTITUDE, new Double( -123.456d ) );
+      
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
+      Uri waypoint = this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
+      
+      Cursor waypointCursor = this.mResolver.query( waypoint, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null );
+      Assert.assertEquals( "This segment should list waypoints", 1, waypointCursor.getCount() );
+      Assert.assertTrue( "Should be possble to move to the first waypoint", waypointCursor.moveToFirst() );
+      Assert.assertEquals( "Longitude", 200d, waypointCursor.getDouble( 0 ) );
+      Assert.assertEquals( "Latitude", 100d, waypointCursor.getDouble( 1 ) );
+      Assert.assertEquals( "Altitude", -123.456d, waypointCursor.getDouble( 2 ) );
+      waypointCursor.close();
+   }
+
+   @SmallTest
+   public void testTrackBearingWaypoint()
+   {
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
+      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
+      wp.put( Waypoints.BEARING, new Float( 23.456f ) );
+      
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
+      Uri waypoint = this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
+      
+      Cursor waypointCursor = this.mResolver.query( waypoint, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.BEARING }, null, null, null );
+      Assert.assertEquals( "This segment should list waypoints", 1, waypointCursor.getCount() );
+      Assert.assertTrue( "Should be possble to move to the first waypoint", waypointCursor.moveToFirst() );
+      Assert.assertEquals( "Longitude", 200d, waypointCursor.getDouble( 0 ) );
+      Assert.assertEquals( "Latitude", 100d, waypointCursor.getDouble( 1 ) );
+      Assert.assertEquals( "Bearing", 23.456f, waypointCursor.getFloat( 2 ) );
+      waypointCursor.close();
+   }
+   
+   @SmallTest
+   public void testTrackAccuracyWaypoint()
+   {
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
+      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
+      wp.put( Waypoints.ACCURACY, new Float( -123.456f ) );
+      
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
+      Uri waypoint = this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
+      
+      Cursor waypointCursor = this.mResolver.query( waypoint, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ACCURACY }, null, null, null );
+      Assert.assertEquals( "This segment should list waypoints", 1, waypointCursor.getCount() );
+      Assert.assertTrue( "Should be possble to move to the first waypoint", waypointCursor.moveToFirst() );
+      Assert.assertEquals( "Longitude", 200d, waypointCursor.getDouble( 0 ) );
+      Assert.assertEquals( "Latitude", 100d, waypointCursor.getDouble( 1 ) );
+      Assert.assertEquals( "Accuracy", -123.456f, waypointCursor.getFloat( 2 ) );
+      waypointCursor.close();
+   }
    /**
     * Start a track, 1 segment ,insert 2 waypoints and expect 1 track with 1 segment with the 2 waypoints that where inserted
     */
