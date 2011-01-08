@@ -498,28 +498,6 @@ public class GraphCanvas extends View
       mRenderCanvas.drawText( String.format( "%d %s", mMaxAxis, mUnits.getSpeedUnit() )              , 8,  7+whiteText.getTextSize(), whiteText );
    }
    
-   private void drawTimeTexts()
-   {
-      DateFormat timeInstance = DateFormat.getTimeInstance( DateFormat.SHORT );
-      String start = timeInstance.format( new Date( mStartTime ) );
-      String half  = timeInstance.format( new Date( (mEndTime+mStartTime)/2 ) );
-      String end   = timeInstance.format( new Date( mEndTime ) );
-           
-      Path yAxis;
-      yAxis = new Path();
-      yAxis.moveTo( 5, 5+mHeight/2 );
-      yAxis.lineTo( 5, 5 );
-      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, whiteCenteredText.getTextSize(), whiteCenteredText );
-      yAxis = new Path();
-      yAxis.moveTo( 5+mWidth/2  , 5+mHeight/2 );
-      yAxis.lineTo( 5+mWidth/2  , 5 );
-      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, whiteCenteredText );
-      yAxis = new Path();
-      yAxis.moveTo( 5+mWidth-1  , 5+mHeight/2  );
-      yAxis.lineTo( 5+mWidth-1  , 5 );
-      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, whiteCenteredText );
-   }
-   
    private void drawGraphType()
    {
       //float density = Resources.getSystem().getDisplayMetrics().density;
@@ -545,6 +523,28 @@ public class GraphCanvas extends View
       mRenderCanvas.drawText( text, 5+mWidth/2, 5+mHeight/8, dkgrayLargeType );
       
    }
+   private void drawTimeTexts()
+   {
+      DateFormat timeInstance = DateFormat.getTimeInstance( DateFormat.SHORT );
+      String start = timeInstance.format( new Date( mStartTime ) );
+      String half  = timeInstance.format( new Date( (mEndTime+mStartTime)/2 ) );
+      String end   = timeInstance.format( new Date( mEndTime ) );
+           
+      Path yAxis;
+      yAxis = new Path();
+      yAxis.moveTo( 5, 5+mHeight/2 );
+      yAxis.lineTo( 5, 5 );
+      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, whiteCenteredText.getTextSize(), whiteCenteredText );
+      yAxis = new Path();
+      yAxis.moveTo( 5+mWidth/2  , 5+mHeight/2 );
+      yAxis.lineTo( 5+mWidth/2  , 5 );
+      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, whiteCenteredText );
+      yAxis = new Path();
+      yAxis.moveTo( 5+mWidth-1  , 5+mHeight/2  );
+      yAxis.lineTo( 5+mWidth-1  , 5 );
+      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, whiteCenteredText );
+   }
+
    private void drawDistanceTexts()
    {
       String start = String.format( "%.0f %s", mUnits.conversionFromMeter(0), mUnits.getDistanceUnit() ) ;
@@ -555,7 +555,7 @@ public class GraphCanvas extends View
       yAxis = new Path();
       yAxis.moveTo( 5, 5+mHeight/2 );
       yAxis.lineTo( 5, 5 );
-      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, whiteText.getTextSize(), whiteText );
+      mRenderCanvas.drawTextOnPath( String.format( start ), yAxis, 0, whiteText.getTextSize(), whiteCenteredText );
       yAxis = new Path();
       yAxis.moveTo( 5+mWidth/2  , 5+mHeight/2 );
       yAxis.lineTo( 5+mWidth/2  , 5 );
