@@ -559,11 +559,11 @@ public class GraphCanvas extends View
       yAxis = new Path();
       yAxis.moveTo( 5+mWidth/2  , 5+mHeight/2 );
       yAxis.lineTo( 5+mWidth/2  , 5 );
-      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, whiteText );
+      mRenderCanvas.drawTextOnPath( String.format( half  ), yAxis, 0, -3, whiteCenteredText );
       yAxis = new Path();
       yAxis.moveTo( 5+mWidth-1  , 5+mHeight/2  );
       yAxis.lineTo( 5+mWidth-1  , 5 );
-      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, whiteText );
+      mRenderCanvas.drawTextOnPath( String.format( end   ), yAxis, 0, -3, whiteCenteredText );
    }
 
    private double translateValue( double val )
