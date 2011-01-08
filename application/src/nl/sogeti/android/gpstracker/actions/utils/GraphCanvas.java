@@ -252,28 +252,28 @@ public class GraphCanvas extends View
             case( TIMESPEEDGRAPH ):
                setupSpeedAxis();
                drawGraphType();
-               drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.SPEED } );
+               drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.SPEED }, Constants.MIN_STATISTICS_SPEED );
                drawSpeedsTexts();
                drawTimeTexts();
                break;
             case( DISTANCESPEEDGRAPH ):
                setupSpeedAxis();
                drawGraphType();
-               drawDistanceAxisGraphOnCanvas(  new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.SPEED } );
+               drawDistanceAxisGraphOnCanvas(  new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.SPEED }, Constants.MIN_STATISTICS_SPEED );
                drawSpeedsTexts();
                drawDistanceTexts();
                break;
             case( TIMEALTITUDEGRAPH ):
                setupAltitudeAxis();
                drawGraphType();
-               drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.ALTITUDE } );
+               drawTimeAxisGraphOnCanvas( new String[] { Waypoints.TIME, Waypoints.ALTITUDE }, -1000d );
                drawAltitudesTexts();
                drawTimeTexts();
                break;
             case( DISTANCEALTITUDEGRAPH ):
                setupAltitudeAxis();
                drawGraphType();
-               drawDistanceAxisGraphOnCanvas( new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE } );
+               drawDistanceAxisGraphOnCanvas( new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, -1000d );
                drawAltitudesTexts();
                drawDistanceTexts();
                break;
@@ -291,8 +291,9 @@ public class GraphCanvas extends View
    /**
     * 
     * @param params
+    * @param minValue Minimum value of params[1] that will be drawn
     */
-   private void drawDistanceAxisGraphOnCanvas( String[] params )
+   private void drawDistanceAxisGraphOnCanvas( String[] params, double minValue )
    {
       ContentResolver resolver = mContext.getContentResolver();
       Uri segmentsUri = Uri.withAppendedPath( mUri, "segments" );
@@ -340,7 +341,7 @@ public class GraphCanvas extends View
                         }
                         lastLocation = currentLocation;
                         double value = waypoints.getDouble( 2 );
-                        if( value > Constants.MIN_STATISTICS_SPEED && segment < values.length )
+                        if( value > minValue && segment < values.length )
                         {
                            int x = (int) ((distance)*(mWidth-1) / mDistance);
                            if( x < valueDepth[segment].length )
@@ -383,7 +384,7 @@ public class GraphCanvas extends View
       drawGraph( values, valueDepth );      
    }
    
-   private void drawTimeAxisGraphOnCanvas( String[] params )
+   private void drawTimeAxisGraphOnCanvas( String[] params, double minValue )
    {
       ContentResolver resolver = mContext.getContentResolver();
       Uri segmentsUri = Uri.withAppendedPath( mUri, "segments" );
@@ -421,7 +422,7 @@ public class GraphCanvas extends View
                      {
                         long time = waypoints.getLong( 0 );
                         double value = waypoints.getDouble( 1 );
-                        if( value > Constants.MIN_STATISTICS_SPEED && segment < values.length )
+                        if( value > minValue && segment < values.length )
                         {
                            int x = (int) ((time-mStartTime)*(mWidth-1) / duration);
                            if( x < valueDepth[segment].length )
