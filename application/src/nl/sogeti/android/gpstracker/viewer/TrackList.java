@@ -45,6 +45,7 @@ import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
+import nl.sogeti.android.gpstracker.util.UnicodeReader;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -563,7 +564,8 @@ public class TrackList extends ListActivity
                InputStream fis = getContentResolver().openInputStream( mImportFileUri );
                ProgressFilterInputStream pfis = new ProgressFilterInputStream( fis, mImportProgress );
                BufferedInputStream bis = new BufferedInputStream( pfis );
-               xmlParser.setInput( new InputStreamReader( bis ) );
+               UnicodeReader ur  = new UnicodeReader( bis, "UTF-8" );
+               xmlParser.setInput( ur );
 
                String filename = mImportFileUri.getLastPathSegment();
 
