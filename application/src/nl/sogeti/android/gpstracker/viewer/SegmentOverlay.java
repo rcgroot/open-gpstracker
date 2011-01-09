@@ -683,7 +683,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          int x_circle = ( this.mPrevDrawnScreenPoint.x + this.mScreenPoint.x ) / 2;
          int y_circle = ( this.mPrevDrawnScreenPoint.y + this.mScreenPoint.y ) / 2;
          float radius_factor = 0.4f;
-         Shader lastShader = new RadialGradient( x_circle, y_circle, distance, new int[] { mCurrentColor, mCurrentColor, Color.TRANSPARENT }, new float[] { 0, radius_factor, 1 }, TileMode.CLAMP );
+         Shader lastShader = new RadialGradient( x_circle, y_circle, distance, new int[] { mCurrentColor, mCurrentColor, Color.TRANSPARENT }, new float[] { 0, radius_factor, 0.6f }, TileMode.CLAMP );
          //            Paint debug = new Paint();
          //            debug.setStyle( Paint.Style.FILL_AND_STROKE );
          //            this.mDebugCanvas.drawCircle(
@@ -702,7 +702,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          //            }
          if( this.mShader != null )
          {
-            this.mShader = new ComposeShader( lastShader, this.mShader, Mode.SRC_OVER );
+            this.mShader = new ComposeShader( this.mShader, lastShader, Mode.DST_OVER );
          }
          else
          {
