@@ -468,8 +468,8 @@ public class GraphCanvas extends View
 
    private void setupAltitudeAxis()
    {
-      mMinAxis = 4 *     (int)(mMinAlititude / 4);
-      mMaxAxis = 4 + 4 * (int)(mMaxAlititude / 4);
+      mMinAxis = -4 + 4 * (int)(mMinAlititude / 4);
+      mMaxAxis =  4 + 4 * (int)(mMaxAlititude / 4);
 
       mWidth = mRenderCanvas.getWidth()-5;
       mHeight = mRenderCanvas.getHeight()-10;
