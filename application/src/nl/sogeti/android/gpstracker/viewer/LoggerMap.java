@@ -76,6 +76,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -121,12 +122,14 @@ public class LoggerMap extends MapActivity
    private static final int MENU_VOICE = 11;
    private static final int MENU_VIDEO = 12;
    private static final int MENU_SHARE = 13;
+   private static final int MENU_CONTRIB = 14;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
    private static final int DIALOG_TEXT = 32;
    private static final int DIALOG_NAME = 33;
    private static final int DIALOG_URIS = 34;
+   private static final int DIALOG_CONTRIB = 35;
    private static final String TAG = "OGT.LoggerMap";
    private CheckBox mTraffic;
    private CheckBox mSpeed;
@@ -717,7 +720,8 @@ public class LoggerMap extends MapActivity
       menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'P' );
       menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
       menu.add( ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
-            
+      menu.add( ContextMenu.NONE, MENU_CONTRIB, ContextMenu.NONE, R.string.menu_contrib ).setIcon( R.drawable.ic_menu_allfriends );
+      
       notemenu.add( ContextMenu.NONE, MENU_NAME, ContextMenu.NONE, R.string.menu_notename );
       notemenu.add( ContextMenu.NONE, MENU_TEXT, ContextMenu.NONE, R.string.menu_notetext );
       notemenu.add( ContextMenu.NONE, MENU_VOICE, ContextMenu.NONE, R.string.menu_notespeech );
@@ -823,6 +827,8 @@ public class LoggerMap extends MapActivity
             showDialog( DIALOG_NAME );
             handled = true;
             break;
+         case MENU_CONTRIB:
+            showDialog( DIALOG_CONTRIB );
          default:
             handled = super.onOptionsItemSelected( item );
             break;
@@ -930,6 +936,19 @@ public class LoggerMap extends MapActivity
                .setNegativeButton( R.string.btn_cancel, null )
                .setPositiveButton( R.string.btn_okay, mNoteSelectDialogListener )
                .setView( view );
+            dialog = builder.create();
+            return dialog;
+         case DIALOG_CONTRIB:
+            builder = new AlertDialog.Builder( this );
+            factory = LayoutInflater.from( this );
+            view = factory.inflate( R.layout.contrib, null );
+            TextView contribView = (TextView) view.findViewById( R.id.contrib_view );
+            contribView.setText ( R.string.dialog_contrib_message );
+            builder
+            .setTitle( R.string.dialog_contrib_title )
+            .setView( view )
+            .setIcon( android.R.drawable.ic_dialog_email )
+            .setPositiveButton( R.string.btn_okay, null );
             dialog = builder.create();
             return dialog;
          default:

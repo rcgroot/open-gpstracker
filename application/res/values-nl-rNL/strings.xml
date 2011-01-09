@@ -96,6 +96,7 @@
     <string name="graphtype_distancespeed">Snelheid tegen afstand</string>
     <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
     <string name="menu_vacuum">Snoei data</string>
+    <string name="menu_contrib">Bijdragen</string>
 
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
