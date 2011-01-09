@@ -16,7 +16,6 @@
    <uses-feature android:name="android.hardware.location.network"/> <!--  android:required="false" /> -->
    <uses-feature android:name="android.hardware.sensor.compass"  /> <!--  android:required="false" /> -->
    
-   <uses-library android:name="com.google.android.maps"  />
 
    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -34,6 +33,9 @@
       android:description="@string/app_name" 
       android:allowClearUserData="true" 
       android:debuggable="true">
+      
+         <uses-library android:name="com.google.android.maps"  />
+      
          <meta-data
             android:name="org.openintents.metadata.COMMENTS"
             android:value="@string/about_comments" />
@@ -140,7 +142,22 @@
                  <category android:name="android.intent.category.DEFAULT" />
              </intent-filter>
          </activity>
+      
+        <activity 
+            android:label="@string/menu_statistics" 
+            android:name=".actions.Statistics">
+        </activity> 
 
+         <activity
+            android:label="@string/share_track"
+            android:name=".actions.ShareTrack" >
+            <intent-filter>
+               <action android:name="android.intent.action.RUN" />
+               <category android:name="android.intent.category.DEFAULT" />
+               <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
+            </intent-filter>
+         </activity>
+         
 		<service 
 		      android:enabled="true" 
 		      android:name=".logger.GPSLoggerService"
@@ -160,19 +177,6 @@
             <path-permission android:path="/live_folders/tracks"
                 android:readPermission="android.permission.BIND_APPWIDGET" />
 		</provider>
-      
-        <activity android:label="@string/menu_statistics" android:name=".actions.Statistics">
-        </activity> 
-
-         <activity
-            android:label="@string/share_track"
-            android:name=".actions.ShareTrack" >
-            <intent-filter>
-               <action android:name="android.intent.action.RUN" />
-               <category android:name="android.intent.category.DEFAULT" />
-               <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
-            </intent-filter>
-         </activity>
          
          <!--  This is used to auto start the application at boot -->
          <receiver android:name=".util.BootReceiver">
