@@ -49,8 +49,6 @@ import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
 import nl.sogeti.android.gpstracker.viewer.proxy.MyLocationOverlayProxy;
 
-import org.openintents.intents.AboutIntents;
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -787,7 +785,7 @@ public class LoggerMap extends MapActivity
             handled = true;
             break;
          case MENU_ABOUT:
-            Intent intent = new Intent( AboutIntents.ACTION_SHOW_ABOUT_DIALOG );
+            Intent intent = new Intent( "org.openintents.action.SHOW_ABOUT_DIALOG" );
             try
             {
                startActivityForResult( intent, MENU_ABOUT );
