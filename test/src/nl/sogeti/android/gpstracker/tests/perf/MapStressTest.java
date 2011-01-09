@@ -30,7 +30,6 @@ package nl.sogeti.android.gpstracker.tests.perf;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
@@ -83,8 +82,8 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    @LargeTest
    public void testCreateTestData() throws XmlPullParserException, IOException
    {
-      createTrackBigTest( 6000 );
-//      createTrackFromKMLData( "/mnt/sdcard/estland50k.xml" );
+      //createTrackBigTest( 2000 );
+      //createTrackFromKMLData( "/mnt/sdcard/estland50k.xml" );
    }
 
    private void createTrackFromKMLData( String xmlResource ) throws XmlPullParserException, IOException
@@ -183,7 +182,7 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
    public void testBrowseFirstTrack() throws InterruptedException
    {
       int actions = 0;
-      String[] timeActions = { "G", "G", "T", "T" };
+      String[] timeActions = { "G", "G", "T", "T", "T" };
 
       // Start method tracing for Issue 18
       Debug.startMethodTracing( "testBrowseFirstTrack" );
