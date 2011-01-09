@@ -189,8 +189,8 @@ public class MockGPSLoggerDriver implements Runnable
    }
 
    /**
+    * Create a NMEA GPRMC sentence
     * 
-    * TODO
     * @param longitude
     * @param latitude
     * @param elevation
