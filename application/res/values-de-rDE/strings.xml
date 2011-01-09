@@ -33,15 +33,27 @@
     <string name="logcontrol_pause">Tracking-Pause</string>
     <string name="logcontrol_resume">Tracking fortsetzen</string>
     <string name="logcontrol_stop">Tracking-Stop</string>
+    <string name="layer_regular">Normal</string>
     <string name="layer_satellite">Satellit</string>
     <string name="layer_traffic">Verkehr</string>
     <string name="layer_speed">Geschwindigkeit</string>
     <string name="layer_altitude">Höhe</string>
     <string name="layer_compass">Lompass</string>
     <string name="layer_location">Mein Standort</string>
+    <string name="layer_cloudmade">CloudMade maps</string>
+    <string name="layer_maknik">Mapnik</string>
+    <string name="layer_bicycle">OpenCycleMap</string>
     <string name="dialog_notwidroid">App Twidroid nicht gefunden</string>
     <string name="dialog_notwidroid_message">Die App \"twidroid\" ist erforderlich, um diese Message zu posten.</string>
-    
+    <string name="dialog_vacuum_title">Aufräumen</string>
+    <string name="dialog_vacuum_message">Erstellt die Datenbank und gibt leeren Raum auf das System.</string>
+    <string name="dialog_import_title">GPX Import</string>
+    <string name="dialog_import_message">Möchten Sie %1$s importieren?</string>
+    <string name="dialog_import_picker">Import GPX-Datei</string>
+    <string name="menu_picker">Import</string>
+    <string name="dialog_nooipicker">OI File Manager</string>
+    <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files.</string>
+
     <!-- Messages -->
     <string name="from">Aufgezeichnet auf: </string>
     <string name="no_tracks">Keine gespeicherten Tracks</string>
@@ -53,7 +65,10 @@
     <string name="error_buildxml"> Grund: Fehler beim Erzeugen von XML</string>
     <string name="error_writesdcard"> Grund: Fehler beim Schreiben auf SD-Karte</string>
     <string name="tweettext">%1$s: Strecke %2$s mit durchschnittlichem Speed von of %3$s in Zeit %4$s gelaufen. #opengpstracker</string>
-    
+    <string name="error_importgpx_xml">Failed reading the XML during import.</string>
+    <string name="error_importgpx_io">Failed reading the file during import.</string>
+    <string name="error_importgpx_parse">Failed reading a number during import.</string>
+        
     <!-- Buttons -->
 	<string name="btn_okay">OK</string>
 	<string name="btn_cancel">Abbrechen</string>
@@ -83,6 +98,7 @@
     <string name="graphtype_timealtitude">Höhe/Zeit</string>
     <string name="graphtype_distancespeed">Geschwindigkeit/Länge</string>
     <string name="graphtype_distancealtitude">Höhe/Länge</string>
+    <string name="menu_vacuum">Aufräumen</string>
 
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Track data</string>
@@ -150,6 +166,7 @@
     <string name="jogmap_summary">jogmap-Zugangskey, um zu einem jogmap.de Account hochzuladen</string>
     <string name="jogmap_failed">Fehler beim Upload zu jogmap.de: </string>
     <string name="jogmap_success">Track wurde zu jogmap.de hochgeladen: </string>
+    <string name="import_track">Importieren eines Track in Open GPS Tracker</string>
 
 <!-- ***************************
    About information

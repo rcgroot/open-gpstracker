@@ -33,6 +33,7 @@
     <string name="logcontrol_pause">Pauzeer opnemen</string>
     <string name="logcontrol_resume">Vervolg opnemen</string>
     <string name="logcontrol_stop">Stop opnemen</string>
+    <string name="layer_regular">Normaal</string>
     <string name="layer_satellite">Satelliet</string>
     <string name="layer_traffic">Verkeer</string>
     <string name="layer_speed">Snelheid</string>
@@ -41,6 +42,14 @@
     <string name="layer_location">Mijn locatie</string>
     <string name="dialog_notwidroid">twidroid nodig</string>
     <string name="dialog_notwidroid_message">De applicatie \"twidroid\" is nodig om deze regel te tweeten.</string>
+    <string name="dialog_vacuum_title">Snoei data</string>
+    <string name="dialog_vacuum_message">Geeft ruimte terug aan het systeem verloren door fragmentatie.</string>
+    <string name="dialog_import_title">GPX import</string>
+    <string name="dialog_import_message">Wilt u de GPX %1$s importeren?</string>
+    <string name="dialog_import_picker">Import GPX file</string>
+    <string name="menu_picker">Import</string>
+    <string name="dialog_nooipicker">OI File Manager</string>
+    <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files.</string>
     
     <!-- Messages -->
     <string name="from">Opgenomen op: </string>
@@ -53,7 +62,10 @@
     <string name="error_buildxml"> reden: Fout tijdens bouwen XML</string>
     <string name="error_writesdcard"> reden: Fout tijdens schrijven naar de SDcard</string>
     <string name="tweettext">%1$s: Afgelegd %2$s met een gemiddelde snelheid van %3$s gedurende %4$s #opengpstracker</string>
-    
+    <string name="error_importgpx_xml">Failed reading the XML during import.</string>
+    <string name="error_importgpx_io">Failed reading the file during import.</string>
+    <string name="error_importgpx_parse">Failed reading a number during import.</string>
+
 	<!-- Buttons -->
 	<string name="btn_okay">OK</string>
     <string name="btn_cancel">Annuleren</string>
@@ -83,6 +95,7 @@
     <string name="graphtype_timealtitude">Hoogte tegen tijd</string>
     <string name="graphtype_distancespeed">Snelheid tegen afstand</string>
     <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
+    <string name="menu_vacuum">Snoei data</string>
 
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
@@ -109,7 +122,9 @@
     <string name="disableblanking_title">Voorkom scherm uitzetten</string>
     <string name="disableblanking_summary">Houd het scherm aan tijdens het opnemen.</string>       
     <string name="precision_title">Meetprecisie</string>
-    <string name="precision_summary">De interval en frequentie van meten.</string>      
+    <string name="precision_summary">De interval en frequentie van meten.</string>     
+    <string name="mapprovider_title">Map provider</string>
+    <string name="mapprovider_summary">De bron vanwaar het kaartmateriaal te downloaden.</string>       
     <string name="trackcoloring_title">Route kleur</string>
     <string name="trackcoloring_summary">De kleur en tekenmethode van de route</string>
     <string name="showsatellite_title">Satellietbeelden</string>
@@ -148,7 +163,8 @@
     <string name="jogmap_summary">De authentication code om the uploaden naar een jogmap.de account</string>
     <string name="jogmap_failed">Het is mislukt om de route te uploaden naar jogmap.de: </string>
     <string name="jogmap_success">Succesvol gestuurd naar jogmap.de: </string>
-
+    <string name="import_track">Import een route naar Open GPS Tracker</string>
+    
 <!-- ***************************
    About information
    ***************************-->
