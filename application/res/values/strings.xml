@@ -52,7 +52,7 @@
     <string name="dialog_import_picker">Import GPX file</string>
     <string name="menu_picker">Import</string>
     <string name="dialog_nooipicker">OI File Manager</string>
-    <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files.</string>
+    <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files. After accepting OI File Manager EULA the import button works.</string>
     
     <!-- Messages -->
     <string name="from">Tracked on: </string>
