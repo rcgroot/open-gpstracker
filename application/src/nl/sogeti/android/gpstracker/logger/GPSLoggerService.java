@@ -108,7 +108,6 @@ public class GPSLoggerService extends Service
 
    private static final int LOGGING_UNAVAILABLE = R.string.service_connectiondisabled;
 
-   private Context mContext;
    private LocationManager mLocationManager;
    private NotificationManager mNoticationManager;
    private PowerManager.WakeLock mWakeLock;
@@ -319,14 +318,13 @@ public class GPSLoggerService extends Service
       mAltitudes = new LinkedList<Double>();
       mLoggingState = Constants.STOPPED;
       mStartNextSegment = false;
-      mContext = this;
-      mLocationManager = (LocationManager) this.mContext.getSystemService( Context.LOCATION_SERVICE );
-      mNoticationManager = (NotificationManager) this.mContext.getSystemService( Context.NOTIFICATION_SERVICE );
+      mLocationManager = (LocationManager) this.getSystemService( Context.LOCATION_SERVICE );
+      mNoticationManager = (NotificationManager) this.getSystemService( Context.NOTIFICATION_SERVICE );
       mNoticationManager.cancel( R.layout.map );
 
-      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this.mContext );
+      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
       mSpeedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
-      boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this.mContext ).getBoolean( Constants.LOGATSTARTUP, false );
+      boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean( Constants.LOGATSTARTUP, false );
 
       crashRestoreState();
       if( startImmidiatly && mLoggingState == Constants.STOPPED )
@@ -355,7 +353,7 @@ public class GPSLoggerService extends Service
 
    private void crashProtectState()
    {
-      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mContext );
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( this );
       Editor editor = preferences.edit();
       editor.putLong( SERVICESTATE_TRACKID, mTrackId );
       editor.putLong( SERVICESTATE_SEGMENTID, mSegmentId );
@@ -366,7 +364,7 @@ public class GPSLoggerService extends Service
 
    private synchronized void crashRestoreState()
    {
-      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mContext );
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( this );
       long previousState = preferences.getInt( SERVICESTATE_STATE, Constants.STOPPED );
       if( previousState == Constants.LOGGING || previousState == Constants.PAUSED )
       {
@@ -476,7 +474,7 @@ public class GPSLoggerService extends Service
    {
       if( this.mLoggingState == Constants.PAUSED || this.mLoggingState == Constants.LOGGING )
       {
-         PreferenceManager.getDefaultSharedPreferences( this.mContext ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+         PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
 
          mLocationManager.removeGpsStatusListener( mStatusListener );
          mLocationManager.removeUpdates( mLocationListener );
@@ -531,8 +529,8 @@ public class GPSLoggerService extends Service
    {
       mNoticationManager.cancel( LOGGING_UNAVAILABLE );
       mShowingGpsDisabled = false;
-      CharSequence text = mContext.getString( resId );
-      Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
+      CharSequence text = this.getString( resId );
+      Toast toast = Toast.makeText( this, text, Toast.LENGTH_LONG );
       toast.show();
    }
 
@@ -565,7 +563,7 @@ public class GPSLoggerService extends Service
    private void sendRequestLocationUpdatesMessage()
    {
       this.mLocationManager.removeUpdates( mLocationListener );
-      mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this.mContext ).getString( Constants.PRECISION, "1" ) ).intValue();
+      mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.PRECISION, "1" ) ).intValue();
       Message msg = Message.obtain();
       switch( mPrecision )
       {
@@ -635,9 +633,9 @@ public class GPSLoggerService extends Service
    {
       if( this.mLoggingState == Constants.LOGGING )
       {
-         PreferenceManager.getDefaultSharedPreferences( this.mContext ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
+         PreferenceManager.getDefaultSharedPreferences( this ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
-         PowerManager pm = (PowerManager) this.mContext.getSystemService( Context.POWER_SERVICE );
+         PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
          this.mWakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, TAG );
          this.mWakeLock.acquire();
       }
@@ -784,7 +782,7 @@ public class GPSLoggerService extends Service
     */
    private void startNewTrack()
    {
-      Uri newTrack = this.mContext.getContentResolver().insert( Tracks.CONTENT_URI, new ContentValues( 0 ) );
+      Uri newTrack = this.getContentResolver().insert( Tracks.CONTENT_URI, new ContentValues( 0 ) );
       mTrackId = new Long( newTrack.getLastPathSegment() ).longValue();
       startNewSegment();
    }
@@ -795,7 +793,7 @@ public class GPSLoggerService extends Service
    private void startNewSegment()
    {
       this.mPreviousLocation = null;
-      Uri newSegment = this.mContext.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments" ), new ContentValues( 0 ) );
+      Uri newSegment = this.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments" ), new ContentValues( 0 ) );
       mSegmentId = new Long( newSegment.getLastPathSegment() ).longValue();
    }
 
@@ -807,7 +805,7 @@ public class GPSLoggerService extends Service
          Uri mediaInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints/" + mWaypointId + "/media" );
          ContentValues args = new ContentValues();
          args.put( Media.URI, mediaUri.toString() );
-         mContext.getContentResolver().insert( mediaInsertUri, args );
+         this.getContentResolver().insert( mediaInsertUri, args );
       }
       else
       {
@@ -850,7 +848,7 @@ public class GPSLoggerService extends Service
       }
 
       Uri waypointInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints" );
-      Uri inserted = mContext.getContentResolver().insert( waypointInsertUri, args );
+      Uri inserted = this.getContentResolver().insert( waypointInsertUri, args );
       mWaypointId = Long.parseLong( inserted.getLastPathSegment() );
    }
 
