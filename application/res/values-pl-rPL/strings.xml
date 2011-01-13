@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Open GPS Tracker</string>
+    <string name="service_start">Aktywuję usługę zapisywania</string>
+	<string name="service_gpsstatus">Zapisywanie: %1$s (%2$s z %3$d satelitami)</string>
+    <string name="service_networkstatus">Zapisywanie: %1$s (%2$s z nadajników sieci komórkowej i wifi)</string>
+    <string name="service_gpsdisabled">GPS jest wyłączony, zapisywanie niemożliwe.</string>
+    <string name="service_gpsenabled">GPS jest włączony, zaczynam zapisywanie.</string>
+    <string name="service_connectiondisabled">Sieć komórkowa jest wyłączona, zapisywanie przy pomocy sieci komórkowej niemożliwe.</string>
+    <string name="service_datadisabled">Pozycjonowanie przy pomocy sieci komórkowej jest wyłączone, zapisywanie niemożliwe.</string>
+    <string name="service_dataenabled">Pozycjonowanie przy pomocy sieci komórkowej jest włączone, zaczynam zapisywanie.</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_select_media_title">Wybierz notatkę</string>
+    <string name="dialog_select_media_message">Znaleziono wiele notatek dla tej lokalizacji, wybierz jedną do otwarcia</string>
+    <string name="dialog_tracking_title">Kontrola śledzenia</string>
+	<string name="dialog_routename_title">Nazwa scieżki</string>
+    <string name="dialog_routename_message">Podaj nazwę ścieżki</string>
+    <string name="dialog_routename_default">Ścieżka %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
+    <string name="dialog_notrack_title">Nie wybrano ścieżki</string>
+    <string name="dialog_notrack_message">Wybierz ścieżkę przed eksportem</string>
+    <string name="dialog_delete_title">Usuń ścieżkę</string>
+    <string name="dialog_delete_message">Potwierdź usunięcie ścieżki %s</string>
+    <string name="dialog_nooiabout">Brak OI About</string>
+    <string name="dialog_nooiabout_message">Aplikacja \"OI About\" z projektu OpenIntents jest wymagana do wyświetlenia informacji.</string>
+    <string name="dialog_layer_title">Włącz warstwy</string>
+    <string name="dialog_graphtype_title">Rodzaj wykresu</string>
+    <string name="dialog_notetext_title">Notatka tekstowa</string>
+    <string name="dialog_notetext_message">Wprowadź notatkę tekstową dla bieżącej lokalizacji</string>
+    <string name="dialog_notename_title">Oznaczenie</string>
+    <string name="dialog_notename_message">Wprowadź nazwę lokalizacji</string>
+    <string name="logcontrol_start">Rozpocznij śledzenie</string>
+    <string name="logcontrol_pause">Zatrzymaj śledzenie</string>
+    <string name="logcontrol_resume">Wznów śledzenie</string>
+    <string name="logcontrol_stop">Zakończ śledzenie</string>
+    <string name="layer_regular">Zwykła mapa</string>
+    <string name="layer_satellite">Satelita</string>
+    <string name="layer_traffic">Warunki drogowe</string>
+    <string name="layer_speed">Prędkość</string>
+    <string name="layer_altitude">Wysokość</string>
+    <string name="layer_compass">Kompas</string>
+    <string name="layer_location">Moja lokalizacja</string>
+    <string name="layer_cloudmade">Mapy CloudMade</string>
+    <string name="layer_maknik">Mapnik</string>
+    <string name="layer_bicycle">OpenCycleMap</string>
+    <string name="dialog_notwidroid">Brak twidroid</string>
+    <string name="dialog_notwidroid_message">Aplikacja \"twidroid\" jest wymagana do tweetowania.</string>
+    <string name="dialog_vacuum_title">Porządkuj dane</string>
+    <string name="dialog_vacuum_message">Odzyskuje miejsce utracone z powodu fragmentacji poprzez odbudowę bazy danych.</string>
+    <string name="dialog_import_title">Import plików GPX</string>
+    <string name="dialog_import_message">Czy chcesz zaimportować plik GPX %1$s ?</string>
+    <string name="dialog_import_picker">Importuj plik GPX</string>
+    <string name="menu_picker">Import</string>
+    <string name="dialog_nooipicker">OI File Manager</string>
+    <string name="dialog_nooipicker_message">Aplikacja \"OI File Manager\" z projektu OpenIntents jest wymagana do wyboru plików. Przycisk importu będzie działał po zaakceptowaniu umowy EULA aplikacji OI File Manager.</string>
+    <string name="dialog_contrib_title">Przyłącz się</string>
+    <string name="dialog_contrib_message">
+    <b>Kod</b>
+    \n
+    Aplikacja i jej kod źródłowy są publicznie dostępne. Zapraszamy do przesyłania
+    poprawek. Każda pomoc w tej postaci jest mile widziana. Pełny kod źródłowy jest 
+    dostępny na licencji GPL na http://code.google.com/p/open-gpstracker/source
+    \n\n
+    <b>Błędy</b>
+    \n
+    W razie znalezienia błędów prosimy o informacje. Prześlij informacje o błędzie 
+    na http://code.google.com/p/open-gpstracker/issues/entry i wnieś znaczący wkład 
+    w rozwój tej aplikacji.  
+    \n\n
+    <b>Pomysły</b>
+    \n
+    Masz pomysł jak usprawnić aplikację? Podziel się nim na
+    http://code.google.com/p/open-gpstracker/issues/entry
+    \n\n
+    <b>Wspomóż</b>
+    \n
+    Mamy nadzieję, że podoba Ci się nasza aplikacja, jeśli tak, powiedz nam o tym. 
+    Podziękowania lub dotacje PayPal można przesyłać na rcgroot@gmail.com
+    \n\n
+</string>
+    
+    
+    <!-- Messages -->
+    <string name="from">Śledzono dnia: </string>
+    <string name="no_tracks">Nie zapisano żadnych ścieżek</string>
+    <string name="ticker_saving">Zapisuję: </string>
+    <string name="ticker_stored">Zapisano: </string>
+    <string name="ticker_failed">Nie można zapisać trasy: </string>
+    <string name="error_filenotfound"> powód: Brak pliku lub katalogu na karcie SD</string>
+    <string name="error_filename"> powód: Błędna nazwa pliku</string>
+    <string name="error_buildxml"> powód: Błąd przy tworzeniu XML</string>
+    <string name="error_writesdcard"> powód: Błąd zapisu na kartę SD</string>
+    <string name="tweettext">%1$s: Przebył %2$s ze średnią prędkością %3$s w czasie %4$s #opengpstracker</string>
+    <string name="error_importgpx_xml">Błąd odczytu XML podczas importu.</string>
+    <string name="error_importgpx_io">Błąd odczytu pliku podczas importu.</string>
+    <string name="error_importgpx_parse">Błąd odczytu liczby podczas importu.</string>
+    
+    <!-- Buttons -->
+	<string name="btn_okay">OK</string>
+	<string name="btn_cancel">Anuluj</string>
+	<string name="btn_save">Zapisz</string>
+	<string name="btn_selecttrack">Wybierz ścieżkę</string>
+    <string name="btn_install">Instaluj</string>
+    <string name="btn_skip">Pomiń</string>
+	
+    <!-- Menu's -->
+	<string name="menu_settings">Ustawienia</string>
+    <string name="menu_tracking">Śledzenie</string>
+	<string name="menu_tracklist">Lista ścieżek</string>
+	<string name="menu_shareTrack">Udostępnij ścieżkę</string>
+	<string name="menu_deleteTrack">Usuń ścieżkę</string>
+    <string name="menu_renameTrack">Zmień nazwę ścieżki</string>
+    <string name="menu_statistics">Statystyki</string>
+    <string name="menu_about">O...</string>
+    <string name="menu_showLayers">Warstwy</string>
+    <string name="menu_graphtype">Typ wykresu</string>
+    <string name="menu_insertnote">Dodaj notatkę</string>
+    <string name="menu_notename">Oznacz nazwą</string>
+    <string name="menu_notepicture">Zrób zdjęcie</string>
+    <string name="menu_notetext">Wprowadź tekst</string>
+    <string name="menu_notespeech">Zapisz mowę</string>
+    <string name="menu_notevideo">Zapisz film</string>
+    <string name="graphtype_timespeed">Prędkość w czasie</string>
+    <string name="graphtype_timealtitude">Wysokość w czasie</string>
+    <string name="graphtype_distancespeed">Prędkość na dystansie</string>
+    <string name="graphtype_distancealtitude">Wysokość na dystansie</string>
+    <string name="menu_vacuum">Uporządkuj dane</string>
+    <string name="menu_contrib">Przyłącz się</string>
+    
+    <!-- Communicated -->
+    <string name="email_subject">Open GPS Tracker - Dane ścieżki</string>
+    <string name="email_gpxbody">W załączeniu ścieżka w formacie GPS Exchange Format (GPX) opisanym na http://www.topografix.com/gpx.asp</string>
+    <string name="email_kmzbody">W załączeniu ścieżka w formacie KMZ opisanym na http://code.google.com/apis/kml/documentation/kml_tut.html</string>
+    <string name="kmlVideoUnsupported">Osadzony film nie jest obsługiwany, użyj narzędzi zip aby wydobyć film %s z pliku KMZ.</string>
+    <string name="kmlAudioUnsupported">Osadzony dźwięk nie jest obsługiwany, użyj narzędzi zip aby wydobyć dźwięk %s z pliku KMZ.</string>
+    
+    <!-- Screens -->
+    <string name="share_track">Udostępnij ściężkę</string>
+    <string name="share_explained">Udostępnianie eksportuje ścieżkę z tak wieloma danymi jak to możliwe.</string>
+    <string name="share_type">Wybierz format udostępnianej ściezki:</string>
+    <string name="share_name">Nazwa:</string>
+    <string name="share_target">Sposób udostępniania:</string>
+    <string name="sender_chooser">Wybierz aplikację do wysłania ścieżki</string>
+    <string name="opengpstracker_title">Open GPS Tracker</string>
+    <string name="opengpstracker_settings">Ustawienia</string>
+    <string name="preference_display">Ustawienia wyświetlania</string>
+    <string name="preference_behavior">Ustawienia działania</string>
+    <string name="logatstartup">Zapisuj od uruchomienia</string>
+    <string name="logatstartup_summary">Po uruchomieniu natychmiast rozpocznij zapisywanie.</string>   
+    <string name="startupatboot">Uruchom przy włączeniu</string>
+    <string name="startupatboot_summary">Po włączeniu urządzenia uruchom program i rozpocznij zapisywanie.</string>   
+    <string name="disableblanking_title">Wyłącz wygaszanie ekranu</string>
+    <string name="disableblanking_summary">Pozostawia ekran włączony podczas śledzenia.</string>       
+    <string name="precision_title">Precyzja zapisywania</string>
+    <string name="precision_summary">Rozmiar przerwy pomiędzy namiarami GPS.</string>
+    <string name="mapprovider_title">Dostawca mapy</string>
+    <string name="mapprovider_summary">Źródło, z którego pobierana jest mapa.</string>      
+    <string name="trackcoloring_title">Kolor ścieżki</string>
+    <string name="trackcoloring_summary">Kolory używane do kreślenia ścieżki.</string>
+    <string name="showsatellite_title">Obrazy satelitarne</string>
+    <string name="showsatellite_summary">Pokaż obrazy satelitarne z Google Maps.</string>
+    <string name="showtraffic_title">Warunki drogowe</string>
+    <string name="showtraffic_summary">Pokaż informacje o warunkach drogowych z Google Maps.</string>
+    <string name="showspeed_title">Prędkość GPS</string>
+    <string name="showspeed_summary">Pokaż prędkość z ostatniego namiaru GPS.</string>
+    <string name="showaltitude_title">Wysokość GPS</string>
+    <string name="showaltitude_summary">Pokaż wysokość z ostatniego namiaru GPS.</string>
+    <string name="showcompass_title">Kompas</string>
+    <string name="showcompass_summary">Pokaż kompas z igłą wskazującą północ.</string>
+    <string name="sanitycheck_title">Kontrola poprawności prędkości i wysokości</string>
+    <string name="sanitycheck_summary">Akceptuj tylko racjonalne dane o prędkości i wysokości z GPS.</string>
+    <string name="showlocation_title">Moja lokalizacja</string>
+    <string name="showlocation_summary">Pokaż moją lokalizację na mapie.</string>
+    <string name="units_title">Jednostki</string>
+    <string name="units_summary">Określ czy używać metrycznego czy imperialnego systemu miar.</string>
+    <string name="stat_title">Statystyki - %s</string>
+    <string name="stat_maximumspeed">Prędkość maksymalna</string>
+    <string name="stat_maximumaltitude">Wysokość maksymalna</string>
+    <string name="stat_minimalaltitide">Wysokość minimalna</string>
+    <string name="stat_overallaveragespeed">Prędkość podróży</string>
+    <string name="stat_averagespeed">Prędkość średnia</string>    
+    <string name="stat_distance">Śledzony dystans</string>    
+    <string name="stat_endtime">Ostatni czas</string>    
+    <string name="stat_starttime">Czas początkowy</string>    
+    <string name="stat_trackname">Nazwa ścieżki</string>
+    <string name="stat_waypoints">Punkty orientacyjne</string>
+    <string name="track_list">Ścieżki</string>
+    <string name="search_label">Ścieżki</string>
+    <string name="search_description">Nazwy ścieżek Open GPS Tracker</string>
+    <string name="search_hint">Szukaj ścieżek</string>
+    <string name="preference_sharing">Ustawienia udostępniania</string>
+    <string name="jogmap_title">Kod wysyłania jogmap.de</string>
+    <string name="jogmap_summary">Kod wymagany do wysłania danych na konto w jogmap.de</string>
+    <string name="jogmap_failed">Nieudane wysyłanie danych do jogmap.de: </string>
+    <string name="jogmap_success">Udane wysyłanie danych do jogmap.de: </string>
+    <string name="import_track">Importuj ścieżke do Open GPS Tracker</string>
+
+<!-- ***************************
+   About information
+   ***************************-->
+   <string name="about_comments">Aplikacja zapisująca podróże twojego urządzenia na podstawie GPS.</string>
+   <string name="about_activity_name_extended">O %s</string>
+   <string name="no_information_available">Brak dostępnych informacji.</string>
+   
+</resources>
