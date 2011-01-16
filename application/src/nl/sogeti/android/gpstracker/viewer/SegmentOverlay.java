@@ -190,7 +190,12 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       routePaint.setAntiAlias( true );
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
       defaultPaint = new Paint();
-
+      mScreenPoint = new Point();
+      mPrevDrawnScreenPoint = new Point();
+      
+      mDotPath = new Vector<DotVO>();
+      mPath = new Path();
+      
       Cursor waypointsCursor = null;
       try
       {
@@ -238,77 +243,75 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    public void draw( Canvas canvas, MapView mapView, boolean shadow )
    {
       super.draw( canvas, mapView, shadow );
-      mProjection.setProjection( mapView.getProjection() ); 
-      draw( canvas, shadow );
+      if( !shadow )
+      {
+         mProjection.setProjection( mapView.getProjection() ); 
+         draw( canvas );
+      }
    }
-
-   public void draw( Canvas canvas, boolean shadow )
+   
+   /** 
+    * Private draw method called by both the draw from Google Overlay and the OSM Overlay  
+    * 
+    * @param canvas
+    */
+   private void draw( Canvas canvas )
    {
-      //      this.mDebugCanvas = canvas;
-      if( shadow )
-      {
-         //                  Log.d( TAG, "No shadows to draw" );
-      }
-      else
-      {
-         GeoPoint oldTopLeft = mTopLeft;
-         GeoPoint oldBottumRight = mBottumRight;
-         mTopLeft = mProjection.fromPixels( 0, 0 );
-         mWidth = canvas.getWidth();
-         mHeight = canvas.getHeight();
-         mBottumRight = mProjection.fromPixels( mWidth, mHeight );
+      GeoPoint oldTopLeft = mTopLeft;
+      GeoPoint oldBottumRight = mBottumRight;
+      mTopLeft = mProjection.fromPixels( 0, 0 );
+      mWidth = canvas.getWidth();
+      mHeight = canvas.getHeight();
+      mBottumRight = mProjection.fromPixels( mWidth, mHeight );
 
-         if( oldTopLeft == null || oldBottumRight == null || mTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 || mTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
-               || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 || mBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
-         {
-            this.mScreenPoint = new Point();
-            this.mPrevDrawnScreenPoint = new Point();
-            calculateTrack();
-         }
-         
-         switch( mTrackColoringMethod )
-         {
-            case ( DRAW_CALCULATED ):
-            case ( DRAW_MEASURED ):
-            case ( DRAW_RED ):
-            case ( DRAW_GREEN ):
-               if( mPath == null )
-               {
-                  calculatePath();
-               }
-               drawPath( canvas );
-               break;
-            case ( DRAW_DOTS ):
-               if( mDotPath == null )
-               {
-                  calculateDots();
-               }
-               drawDots( canvas );
-               break;
-         }
-         drawStartStopCircles( canvas );
-         calculateMedia();
-         drawMedia( canvas );
+      if( oldTopLeft == null || oldBottumRight == null 
+              || mTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 
+              || mTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
+              || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 
+              || mBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
+      {
+         mScreenPoint.x = -1;
+         mScreenPoint.y = -1;
+         this.mPrevDrawnScreenPoint.x = -1;
+         this.mPrevDrawnScreenPoint.y = -1;
+         calculateTrack();
       }
+      
+      switch( mTrackColoringMethod )
+      {
+         case ( DRAW_CALCULATED ):
+         case ( DRAW_MEASURED ):
+         case ( DRAW_RED ):
+         case ( DRAW_GREEN ):
+            drawPath( canvas );
+            break;
+         case ( DRAW_DOTS ):
+            drawDots( canvas );
+            break;
+      }
+      drawStartStopCircles( canvas );
+      calculateMedia();
+      drawMedia( canvas );
    }
 
+   /**
+    * Either the Path or the Dots are calculated based ont he current track coloring method
+    * 
+    */
    public void calculateTrack()
    {
-      if( this.mScreenPoint != null ) // No screen point allocate means no draw yet called
+      calculateStepSize();
+      switch( mTrackColoringMethod )
       {
-         calculateStepSize();
-         switch( mTrackColoringMethod )
-         {
-            case ( DRAW_CALCULATED ):
-            case ( DRAW_MEASURED ):
-            case ( DRAW_RED ):
-            case ( DRAW_GREEN ):
-               calculatePath();
-               break;
-            case ( DRAW_DOTS ):
-               calculateDots();
-               break;
-         }
+         case ( DRAW_CALCULATED ):
+         case ( DRAW_MEASURED ):
+         case ( DRAW_RED ):
+         case ( DRAW_GREEN ):
+            calculatePath();
+            break;
+         case ( DRAW_DOTS ):
+            calculateDots();
+            break;
       }
    }
 
@@ -320,15 +323,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private synchronized void calculateDots()
    {
-      mPath = null;
-      if( mDotPath == null )
-      {
-         mDotPath = new Vector<DotVO>();
-      }
-      else
-      {
-         mDotPath.clear();
-      }
+      mPath.reset();
+      mDotPath.clear();
+      
       mCalculatedPoints = 0;
 
       if( mWaypointsCursor == null )
@@ -390,15 +387,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    private synchronized void calculatePath()
    {
-      mDotPath = null;
-      if( this.mPath == null )
-      {
-         this.mPath = new Path();
-      }
-      else
-      {
-         this.mPath.rewind();
-      }
+      mDotPath.clear();
+      this.mPath.rewind();
+      
       this.mShader = null;
 
       GeoPoint geoPoint;
@@ -1181,7 +1172,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       @Override
       protected void onDraw( Canvas canvas, OpenStreetMapView view )
       {
-         SegmentOverlay.this.draw( canvas, false );
+         SegmentOverlay.this.draw( canvas );
          mProjection.setProjection(view.getProjection());
       }
 
