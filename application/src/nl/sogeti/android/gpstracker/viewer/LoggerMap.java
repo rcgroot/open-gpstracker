@@ -186,7 +186,7 @@ public class LoggerMap extends MapActivity
                if( mLastSegmentOverlay != null )
                {
                   moveActiveViewWindow();
-                  mLastSegmentOverlay.calculateTrack();
+                  mLastSegmentOverlay.calculateTrack(); // New 
                   mMapView.postInvalidate();
                }
             }

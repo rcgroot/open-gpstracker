@@ -109,9 +109,12 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private GeoPoint mBottumRight;
 
    private Vector<DotVO> mDotPath;
-   private Vector<MediaVO> mMediaPath;
+   private Vector<DotVO> mDotPathCalculation;
    private Path mPath;
+   private Path mPathCalculation;
    private Shader mShader;
+   private Vector<MediaVO> mMediaPath;
+   private Vector<MediaVO> mMediaPathCalculation;
 
    private GeoPoint mStartPoint;
    private GeoPoint mEndPoint;
@@ -174,7 +177,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mSegmentUri = segmentUri;
       mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
-      mMediaPath = new Vector<MediaVO>();
       mCurrentColor = Color.rgb( 255, 0, 0 );
       mProjection = mapView.getProjection();
       
@@ -194,7 +196,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mPrevDrawnScreenPoint = new Point();
       
       mDotPath = new Vector<DotVO>();
+      mDotPathCalculation = new Vector<DotVO>();
       mPath = new Path();
+      mPathCalculation = new Path();
+      mMediaPath = new Vector<MediaVO>();
+      mMediaPathCalculation = new Vector<MediaVO>();
       
       Cursor waypointsCursor = null;
       try
@@ -274,7 +280,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          mScreenPoint.y = -1;
          this.mPrevDrawnScreenPoint.x = -1;
          this.mPrevDrawnScreenPoint.y = -1;
-         calculateTrack();
+         calculateTrack(); // Screen changed, need to adjust the path to match the screen
       }
       
       switch( mTrackColoringMethod )
@@ -295,10 +301,10 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    }
 
    /**
-    * Either the Path or the Dots are calculated based ont he current track coloring method
+    * Either the Path or the Dots are calculated based on he current track coloring method
     * 
     */
-   public void calculateTrack()
+   public synchronized void calculateTrack()
    {
       calculateStepSize();
       switch( mTrackColoringMethod )
@@ -308,11 +314,94 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          case ( DRAW_RED ):
          case ( DRAW_GREEN ):
             calculatePath();
+            synchronized (mPath) // Switch the fresh path with the old Path object
+            {
+               Path oldPath = mPath;
+               mPath = mPathCalculation;
+               mPathCalculation = oldPath;
+            }
             break;
          case ( DRAW_DOTS ):
             calculateDots();
+            synchronized (mDotPath) // Switch the fresh path with the old Path object
+            {
+               Vector<DotVO> oldDotPath = mDotPath;
+               mDotPath = mDotPathCalculation;
+               mDotPathCalculation = oldDotPath;
+            }
             break;
       }
+   }
+
+   /**
+    * Calculated the new contents of segment in the mDotPathCalculation
+    */
+   private void calculatePath()
+   {
+      mDotPathCalculation.clear();
+      this.mPathCalculation.rewind();
+      
+      this.mShader = null;
+   
+      GeoPoint geoPoint;
+      mCalculatedPoints = 0;
+      this.mPrevLocation = null;
+      int moves = 0;
+   
+      if( mWaypointsCursor == null )
+      {
+         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+      }
+      if( mRequeryFlag )
+      {
+         mWaypointsCursor.requery();
+      }
+      if( mProjection != null && mWaypointsCursor.moveToFirst() )
+      {
+         // Start point of the segments, possible a dot
+         this.mStartPoint = extractGeoPoint();
+         mPrevGeoPoint = mStartPoint;
+         this.mLocation = new Location( this.getClass().getName() );
+         this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+         this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+         this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
+   
+         moveToGeoPoint( this.mStartPoint );
+   
+         do
+         {
+            geoPoint = extractGeoPoint();
+            double speed = -1d;
+            switch( mTrackColoringMethod )
+            {
+               case DRAW_GREEN:
+               case DRAW_RED:
+                  lineToGeoPoint( geoPoint, speed );
+                  break;
+               case DRAW_MEASURED:
+                  lineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
+                  break;
+               case DRAW_CALCULATED:
+                  this.mPrevLocation = this.mLocation;
+                  this.mLocation = new Location( this.getClass().getName() );
+                  this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
+                  this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
+                  this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
+                  speed = calculateSpeedBetweenLocations( this.mPrevLocation, this.mLocation );
+                  lineToGeoPoint( geoPoint, speed );
+                  break;
+               default:
+                  lineToGeoPoint( geoPoint, speed );
+                  break;
+            }
+            moves++;
+         }
+         while( moveToNextWayPoint() );
+   
+         this.mEndPoint = extractGeoPoint(); // End point of the segments, possible a dot
+   
+      }
+      //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
 
    /**
@@ -321,10 +410,10 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     * @param shadow
     * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
-   private synchronized void calculateDots()
+   private void calculateDots()
    {
-      mPath.reset();
-      mDotPath.clear();
+      mPathCalculation.reset();
+      mDotPathCalculation.clear();
       
       mCalculatedPoints = 0;
 
@@ -355,7 +444,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                dotVO.x = this.mScreenPoint.x;
                dotVO.y = this.mScreenPoint.y;
                dotVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
-               mDotPath.add( dotVO );
+               mDotPathCalculation.add( dotVO );
 
                this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
                this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
@@ -368,89 +457,59 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          pointVO.x = this.mScreenPoint.x;
          pointVO.y = this.mScreenPoint.y;
          pointVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
-         mDotPath.add( pointVO );
+         mDotPathCalculation.add( pointVO );
       }
    }
 
-   private synchronized void drawDots( Canvas canvas )
+   public void calculateMedia()
    {
-      for( DotVO dotVO : mDotPath )
+      mMediaPathCalculation.clear();
+      if (mMediaCursor == null)
       {
-         Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
-         canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
-         if( dotVO.radius > 8f )
-         {
-            canvas.drawCircle( dotVO.x, dotVO.y, dotVO.radius, radiusPaint );
-         }
+         mMediaCursor = this.mResolver.query(this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null);
       }
-   }
-
-   private synchronized void calculatePath()
-   {
-      mDotPath.clear();
-      this.mPath.rewind();
-      
-      this.mShader = null;
-
-      GeoPoint geoPoint;
-      mCalculatedPoints = 0;
-      this.mPrevLocation = null;
-      int moves = 0;
-
-      if( mWaypointsCursor == null )
+      else
       {
-         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+         mMediaCursor.requery();
       }
-      if( mRequeryFlag )
+      if (mProjection != null && mMediaCursor.moveToFirst())
       {
-         mWaypointsCursor.requery();
-      }
-      if( mProjection != null && mWaypointsCursor.moveToFirst() )
-      {
-         // Start point of the segments, possible a dot
-         this.mStartPoint = extractGeoPoint();
-         mPrevGeoPoint = mStartPoint;
-         this.mLocation = new Location( this.getClass().getName() );
-         this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
-         this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
-         this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
-
-         moveToGeoPoint( this.mStartPoint );
-
          do
          {
-            geoPoint = extractGeoPoint();
-            double speed = -1d;
-            switch( mTrackColoringMethod )
+            MediaVO mediaVO = new MediaVO();
+            mediaVO.waypointId = mMediaCursor.getLong(0);
+            mediaVO.uri = Uri.parse(mMediaCursor.getString(1));
+
+            Uri mediaWaypoint = ContentUris.withAppendedId(mWaypointsUri, mediaVO.waypointId);
+            Cursor waypointCursor = null;
+            try
             {
-               case DRAW_GREEN:
-               case DRAW_RED:
-                  lineToGeoPoint( geoPoint, speed );
-                  break;
-               case DRAW_MEASURED:
-                  lineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
-                  break;
-               case DRAW_CALCULATED:
-                  this.mPrevLocation = this.mLocation;
-                  this.mLocation = new Location( this.getClass().getName() );
-                  this.mLocation.setLatitude( mWaypointsCursor.getDouble( 0 ) );
-                  this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
-                  this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
-                  speed = calculateSpeedBetweenLocations( this.mPrevLocation, this.mLocation );
-                  lineToGeoPoint( geoPoint, speed );
-                  break;
-               default:
-                  lineToGeoPoint( geoPoint, speed );
-                  break;
+               waypointCursor = this.mResolver.query(mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null);
+               if (waypointCursor != null && waypointCursor.moveToFirst())
+               {
+                  int microLatitude = (int) (waypointCursor.getDouble(0) * 1E6d);
+                  int microLongitude = (int) (waypointCursor.getDouble(1) * 1E6d);
+                  mediaVO.geopoint = new GeoPoint(microLatitude, microLongitude);
+               }
             }
-            moves++;
+            finally
+            {
+               if (waypointCursor != null)
+               {
+                  waypointCursor.close();
+               }
+            }
+            mMediaPathCalculation.add(mediaVO);
          }
-         while( moveToNextWayPoint() );
-
-         this.mEndPoint = extractGeoPoint(); // End point of the segments, possible a dot
-
+         while (mMediaCursor.moveToNext());
       }
-      //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
+      synchronized (mMediaPath) // Switch the fresh path with the old Path object
+      {
+         Vector<MediaVO> oldmMediaPath = mMediaPath;
+         mMediaPath = mMediaPathCalculation;
+         mMediaPathCalculation = oldmMediaPath;
+      }
+      //      Log.d( TAG, "Calculated a media path for "+this.mMediaUri+" of size "+mMediaPath.size() );
    }
 
    /**
@@ -458,7 +517,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     * 
     * @see SegmentOverlay#draw(Canvas, MapView, boolean)
     */
-   private synchronized void drawPath( Canvas canvas )
+   private void drawPath( Canvas canvas )
    {
       switch( mTrackColoringMethod )
       {
@@ -479,84 +538,60 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             routePaint.setColor( Color.YELLOW );
             break;
       }
-      canvas.drawPath( this.mPath, routePaint );
+      synchronized ( mPath )
+      {
+         canvas.drawPath( mPath, routePaint );         
+      }
    }
 
-   public synchronized void calculateMedia()
+   private void drawDots( Canvas canvas )
    {
-      mMediaPath.clear();
-      if( mMediaCursor == null )
-      {
-         mMediaCursor = this.mResolver.query( this.mMediaUri, new String[] { Media.WAYPOINT, Media.URI }, null, null, null );
-      }
-      else
-      {
-         mMediaCursor.requery();
-      }
-      if( mProjection != null && mMediaCursor.moveToFirst() )
-      {
-         do
+      synchronized ( mDotPath )
+      {         
+         for( DotVO dotVO : mDotPath )
          {
-            MediaVO mediaVO = new MediaVO();
-            mediaVO.waypointId = mMediaCursor.getLong( 0 );
-            mediaVO.uri = Uri.parse( mMediaCursor.getString( 1 ) );
-
-            Uri mediaWaypoint = ContentUris.withAppendedId( mWaypointsUri, mediaVO.waypointId );
-            Cursor waypointCursor = null;
-            try
+            Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
+            canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
+            if( dotVO.radius > 8f )
             {
-               waypointCursor = this.mResolver.query( mediaWaypoint, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE }, null, null, null );
-               if( waypointCursor != null && waypointCursor.moveToFirst() )
-               {
-                  int microLatitude = (int) ( waypointCursor.getDouble( 0 ) * 1E6d );
-                  int microLongitude = (int) ( waypointCursor.getDouble( 1 ) * 1E6d );
-                  mediaVO.geopoint = new GeoPoint( microLatitude, microLongitude );
-               }
+               canvas.drawCircle( dotVO.x, dotVO.y, dotVO.radius, radiusPaint );
             }
-            finally
-            {
-               if( waypointCursor != null )
-               {
-                  waypointCursor.close();
-               }
-            }
-            mMediaPath.add( mediaVO );
          }
-         while( mMediaCursor.moveToNext() );
       }
-//      Log.d( TAG, "Calculated a media path for "+this.mMediaUri+" of size "+mMediaPath.size() );
    }
 
-   private synchronized void drawMedia( Canvas canvas )
+   private void drawMedia( Canvas canvas )
    {
-      GeoPoint lastPoint = null;
-      int wiggle = 0;
-      for( MediaVO mediaVO : mMediaPath )
+      synchronized( mMediaPath )
       {
-         if( isOnScreen( mediaVO.geopoint ) )
+         GeoPoint lastPoint = null;
+         int wiggle = 0;
+         for( MediaVO mediaVO : mMediaPath )
          {
-            setScreenPoint( mediaVO.geopoint );
-            int drawable = getResourceForMedia( mediaVO.uri );
-            if( mediaVO.geopoint.equals( lastPoint ) )
+            if( isOnScreen( mediaVO.geopoint ) )
             {
-               wiggle += 4;
+               setScreenPoint( mediaVO.geopoint );
+               int drawable = getResourceForMedia( mediaVO.uri );
+               if( mediaVO.geopoint.equals( lastPoint ) )
+               {
+                  wiggle += 4;
+               }
+               else
+               {
+                  wiggle = 0;
+               }
+               Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), drawable );
+               mediaVO.w = bitmap.getWidth();
+               mediaVO.h = bitmap.getHeight();
+               int left = ( mediaVO.w * 3 ) / 7 + wiggle;
+               int up = ( mediaVO.h * 6 ) / 7 - wiggle;
+               mediaVO.x = mScreenPoint.x - left;
+               mediaVO.y = mScreenPoint.y - up;
+               canvas.drawBitmap( bitmap, mediaVO.x, mediaVO.y, defaultPaint );
+               lastPoint = mediaVO.geopoint;
             }
-            else
-            {
-               wiggle = 0;
-            }
-            Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), drawable );
-            mediaVO.w = bitmap.getWidth();
-            mediaVO.h = bitmap.getHeight();
-            int left = ( mediaVO.w * 3 ) / 7 + wiggle;
-            int up = ( mediaVO.h * 6 ) / 7 - wiggle;
-            mediaVO.x = mScreenPoint.x - left;
-            mediaVO.y = mScreenPoint.y - up;
-            canvas.drawBitmap( bitmap, mediaVO.x, mediaVO.y, defaultPaint );
-            lastPoint = mediaVO.geopoint;
          }
       }
-//      Log.d( TAG, "Drawn a media path of size "+mMediaPath.size() );
    }
 
    private static int getResourceForMedia( Uri uri )
@@ -640,9 +675,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    {
       setScreenPoint( geoPoint );
 
-      if( this.mPath != null )
+      if( this.mPathCalculation != null )
       {
-         this.mPath.moveTo( this.mScreenPoint.x, this.mScreenPoint.y );
+         this.mPathCalculation.moveTo( this.mScreenPoint.x, this.mScreenPoint.y );
          this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
          this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
       }
@@ -703,7 +738,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
       }
 
-      this.mPath.lineTo( this.mScreenPoint.x, this.mScreenPoint.y );
+      this.mPathCalculation.lineTo( this.mScreenPoint.x, this.mScreenPoint.y );
    }
 
    /**
