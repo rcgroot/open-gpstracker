@@ -8,5 +8,6 @@ public interface OverlayProxy
 {
    public Overlay getGoogleOverlay();
    public OpenStreetMapViewOverlay getOSMOverlay();
+   public void stopCalculations(); 
    
 }

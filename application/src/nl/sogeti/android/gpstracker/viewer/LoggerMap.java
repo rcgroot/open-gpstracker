@@ -521,6 +521,7 @@ public class LoggerMap extends MapActivity
    protected void onDestroy()
    {
       super.onDestroy();
+      mMapView.clearOverlays();     
       this.mLoggerServiceManager.shutdown();
       if( mWakeLock != null && mWakeLock.isHeld() )
       {

@@ -95,4 +95,9 @@ public class MyLocationOverlayProxy implements OverlayProxy
       osmLocationOverlay = new org.andnav.osm.views.overlay.MyLocationOverlay( mContext, (OpenStreetMapView) mapview );
       return osmLocationOverlay;
    }
+
+   public void stopCalculations()
+   {
+      // noop no calculations going on here
+   }
 }

@@ -1,7 +1,6 @@
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
 import org.andnav.osm.views.OpenStreetMapView;
-import org.andnav.osm.views.OpenStreetMapViewController;
 
 import android.util.Log;
 

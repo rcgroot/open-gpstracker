@@ -133,6 +133,8 @@ public class GPSLoggerService extends Service
    private float mMaxAcceptableAccuracy = 20;
    private int mSatellites = 0;
 
+   private boolean mShowingGpsDisabled;
+
    /**
     * Listens to changes in preference to precision and sanity checks
     */
@@ -275,11 +277,15 @@ public class GPSLoggerService extends Service
          }
       };
 
-   private boolean mShowingGpsDisabled;
-
    private class GPSLoggerServiceThread extends Thread
    {
       public Semaphore ready = new Semaphore( 0 );
+      
+      GPSLoggerServiceThread()
+      {
+         this.setName("GPSLoggerServiceThread");
+      }
+      
       public void run()
       {
          Looper.prepare();

@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
+import com.google.android.maps.Overlay;
 
 public class MapViewProxy
 {
@@ -127,12 +128,26 @@ public class MapViewProxy
    {
       if( mGoogleMapView != null )
       {
+         for( Overlay overlay : mGoogleMapView.getOverlays() )
+         {
+            if( overlay instanceof OverlayProxy )
+            {
+               ((OverlayProxy) overlay).stopCalculations();
+            }
+         }
          mGoogleMapView.getOverlays().clear();
       }
       if( mOpenStreetMapView != null )
       {
          List<OpenStreetMapViewOverlay> overlays = mOpenStreetMapView.getOverlays();
          OpenStreetMapViewOverlay baseLayar = overlays.get(0);
+         for( OpenStreetMapViewOverlay overlay : mOpenStreetMapView.getOverlays() )
+         {
+            if( overlay instanceof OverlayProxy )
+            {
+               ((OverlayProxy) overlay).stopCalculations();
+            }
+         }
          overlays.clear();
          overlays.add(baseLayar);
       }
