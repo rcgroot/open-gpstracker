@@ -1,8 +1,5 @@
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
-import org.andnav.osm.views.OpenStreetMapView;
-import org.andnav.osm.views.OpenStreetMapView.OpenStreetMapViewProjection;
-
 import android.graphics.Point;
 
 import com.google.android.maps.GeoPoint;
@@ -12,7 +9,7 @@ public class ProjectionProxy
 {
 
    private Projection mProjection;
-   private OpenStreetMapView mOpenStreetMapViewProjectionSource;
+   private org.osmdroid.views.MapView mOpenStreetMapViewProjectionSource;
 
    public ProjectionProxy()
    {
@@ -25,9 +22,9 @@ public class ProjectionProxy
          mProjection = (Projection) projection;
          mOpenStreetMapViewProjectionSource = null;
       } 
-      else if( projection instanceof OpenStreetMapView )
+      else if( projection instanceof org.osmdroid.views.MapView )
       {
-         mOpenStreetMapViewProjectionSource = (OpenStreetMapView) projection;
+         mOpenStreetMapViewProjectionSource = (org.osmdroid.views.MapView) projection;
          mProjection = null;
       }
    }
@@ -40,7 +37,7 @@ public class ProjectionProxy
       } 
       else if( mOpenStreetMapViewProjectionSource != null )
       {
-         OpenStreetMapViewProjection projection = mOpenStreetMapViewProjectionSource.getProjection();
+         org.osmdroid.views.MapView.Projection projection = mOpenStreetMapViewProjectionSource.getProjection();
          if( projection != null )
          {
             projection.toMapPixels( MapViewProxy.convertMapGeoPoint(geoPoint), out );

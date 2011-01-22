@@ -16,7 +16,7 @@
    <!--  Emulator        : 0bmdf4-ggC51rlDKzrxXimRiQ2pEd0x_ut6292w -->
    <!--  Mac emulator    : 0bmdf4-ggC527Bi-Ac3W30MvwmhnL-5CBRo6Slg -->
 
-   <org.andnav.osm.views.OpenStreetMapView
+   <org.osmdroid.views.MapView
       android:id="@+id/myOsmMapView"
       android:layout_width="fill_parent"
       android:layout_height="fill_parent"

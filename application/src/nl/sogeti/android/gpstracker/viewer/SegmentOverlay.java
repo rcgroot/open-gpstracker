@@ -32,9 +32,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 
-import org.andnav.osm.views.OpenStreetMapView;
-import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -1279,27 +1276,27 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       return this;
    }
 
-   public OpenStreetMapViewOverlay getOSMOverlay()
+   public org.osmdroid.views.overlay.Overlay getOSMOverlay()
    {
       return osmOverlay;
    }
    
-   OpenStreetMapViewOverlay osmOverlay = new OpenStreetMapViewOverlay(mLoggerMap) {
+   org.osmdroid.views.overlay.Overlay osmOverlay = new org.osmdroid.views.overlay.Overlay(mLoggerMap) {
 
       @Override
-      protected void onDraw( Canvas canvas, OpenStreetMapView view )
+      protected void onDraw( Canvas canvas, org.osmdroid.views.MapView view )
       {
          SegmentOverlay.this.draw( canvas );
          mProjection.setProjection(view.getProjection());
       }
 
       @Override
-      protected void onDrawFinished( Canvas arg0, OpenStreetMapView arg1 )
+      protected void onDrawFinished( Canvas arg0, org.osmdroid.views.MapView arg1 )
       {
          // noop
       }
       
-      public boolean onSingleTapUp(MotionEvent e, OpenStreetMapView openStreetMapView) 
+      public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView) 
       {
          int x = (int) e.getX();
          int y = (int) e.getY();

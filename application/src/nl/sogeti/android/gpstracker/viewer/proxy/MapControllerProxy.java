@@ -1,7 +1,5 @@
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
-import org.andnav.osm.views.OpenStreetMapView;
-
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
@@ -12,7 +10,7 @@ public class MapControllerProxy
 
    private static final String TAG = "OGT.MapControllerProxy";
    private MapController mMapController;
-   private OpenStreetMapView mOpenStreetMapViewControllerSource;
+   private org.osmdroid.views.MapView mOpenStreetMapViewControllerSource;
    private GeoPoint mPostponedSetCenterPoint = null;
    private int mPostponedSetZoom = -1;
 
@@ -23,9 +21,9 @@ public class MapControllerProxy
    
    public void setController(Object controller)
    {
-      if( controller instanceof OpenStreetMapView )
+      if( controller instanceof org.osmdroid.views.MapView )
       {
-         mOpenStreetMapViewControllerSource = (OpenStreetMapView) controller;
+         mOpenStreetMapViewControllerSource = (org.osmdroid.views.MapView) controller;
          mMapController = null;
       } else if( controller instanceof MapController )
       {
@@ -61,7 +59,7 @@ public class MapControllerProxy
          }
          else if( mOpenStreetMapViewControllerSource != null )
          {
-            mOpenStreetMapViewControllerSource.getController().animateTo( new org.andnav.osm.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
+            mOpenStreetMapViewControllerSource.getController().animateTo( new org.osmdroid.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
             mPostponedSetCenterPoint = point;
          }
          else 
@@ -81,7 +79,7 @@ public class MapControllerProxy
          }
          else if( mOpenStreetMapViewControllerSource != null )
          {
-            mOpenStreetMapViewControllerSource.getController().setCenter( new org.andnav.osm.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
+            mOpenStreetMapViewControllerSource.getController().setCenter( new org.osmdroid.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
             mPostponedSetCenterPoint = point;
          }
       }

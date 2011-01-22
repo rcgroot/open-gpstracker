@@ -4,9 +4,7 @@ import java.util.List;
 
 import nl.sogeti.android.gpstracker.util.Constants;
 
-import org.andnav.osm.views.OpenStreetMapView;
-import org.andnav.osm.views.overlay.OpenStreetMapViewOverlay;
-import org.andnav.osm.views.util.OpenStreetMapRendererFactory;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 
 import android.util.Log;
 import android.view.View;
@@ -22,7 +20,7 @@ public class MapViewProxy
    private MapControllerProxy mMapControllerProxy;
    private ProjectionProxy mProjectionProxy;
    
-   private OpenStreetMapView mOpenStreetMapView;
+   private org.osmdroid.views.MapView mOpenStreetMapView;
    private boolean buildinzoom;
 
    public MapViewProxy()
@@ -48,9 +46,9 @@ public class MapViewProxy
          }
          mOpenStreetMapView = null;
       }
-      else if( newView instanceof OpenStreetMapView )
+      else if( newView instanceof org.osmdroid.views.MapView )
       {
-         mOpenStreetMapView = (OpenStreetMapView) newView;
+         mOpenStreetMapView = (org.osmdroid.views.MapView) newView;
          mMapControllerProxy.setController( mOpenStreetMapView );
          mProjectionProxy.setProjection( mOpenStreetMapView );
          
@@ -139,9 +137,9 @@ public class MapViewProxy
       }
       if( mOpenStreetMapView != null )
       {
-         List<OpenStreetMapViewOverlay> overlays = mOpenStreetMapView.getOverlays();
-         OpenStreetMapViewOverlay baseLayar = overlays.get(0);
-         for( OpenStreetMapViewOverlay overlay : mOpenStreetMapView.getOverlays() )
+         List<org.osmdroid.views.overlay.Overlay> overlays = mOpenStreetMapView.getOverlays();
+         org.osmdroid.views.overlay.Overlay baseLayar = overlays.get(0);
+         for( org.osmdroid.views.overlay.Overlay overlay : mOpenStreetMapView.getOverlays() )
          {
             if( overlay instanceof OverlayProxy )
             {
@@ -285,14 +283,14 @@ public class MapViewProxy
       
    }
 
-   static GeoPoint convertOSMGeoPoint( org.andnav.osm.util.GeoPoint point )
+   static GeoPoint convertOSMGeoPoint( org.osmdroid.util.GeoPoint point )
    {
       return new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
    }
    
-   static org.andnav.osm.util.GeoPoint convertMapGeoPoint( GeoPoint point )
+   static org.osmdroid.util.GeoPoint convertMapGeoPoint( GeoPoint point )
    {
-      return new org.andnav.osm.util.GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
+      return new org.osmdroid.util.GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
    }
 
    public boolean isSatellite()
@@ -336,13 +334,13 @@ public class MapViewProxy
          switch( renderer )
          {
             case Constants.OSM_CLOUDMADE:
-               mOpenStreetMapView.setRenderer( OpenStreetMapRendererFactory.CLOUDMADESTANDARDTILES );
+               mOpenStreetMapView.setTileSource(TileSourceFactory.CLOUDMADESTANDARDTILES);
                break;
             case Constants.OSM_MAKNIK:
-               mOpenStreetMapView.setRenderer( OpenStreetMapRendererFactory.MAPNIK );
+               mOpenStreetMapView.setTileSource(TileSourceFactory.MAPNIK);
                break;
-            case Constants.OSM_CYCLE:              
-               mOpenStreetMapView.setRenderer( OpenStreetMapRendererFactory.CYCLEMAP );
+            case Constants.OSM_CYCLE:
+               mOpenStreetMapView.setTileSource(TileSourceFactory.CYCLEMAP);
                break;
             default:
                break;
