@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
+import org.osmdroid.tileprovider.util.CloudmadeUtil;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.NameTrack;
@@ -1170,6 +1172,7 @@ public class LoggerMap extends MapActivity
             updateGoogleOverlays();
             break;
          case Constants.OSM:
+            CloudmadeUtil.retrieveCloudmadeKey(this);
             findViewById( R.id.myMapView ).setVisibility( View.INVISIBLE );
             findViewById( R.id.myOsmMapView ).setVisibility( View.VISIBLE );
             mMapView.setMap( findViewById( R.id.myOsmMapView ) );
