@@ -122,6 +122,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private GeoPoint mEndPoint;
    private int mCalculatedPoints;
    private Point mPrevDrawnScreenPoint;
+   private Point mScreenPointBackup;
    private Point mScreenPoint;
    private int mStepSize = 1;
    private MapViewProxy mMapView;
@@ -230,6 +231,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
       defaultPaint = new Paint();
       mScreenPoint = new Point();
+      mScreenPointBackup = new Point();
       mPrevDrawnScreenPoint = new Point();
       
       mDotPath = new Vector<DotVO>();
@@ -817,7 +819,15 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private void setScreenPoint( GeoPoint geoPoint )
    {
+      mScreenPointBackup.x = this.mScreenPoint.x;
+      mScreenPointBackup.y = this.mScreenPoint.x;
+      
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );
+      if( mScreenPoint.x == -1 && mScreenPoint.y == -1 )
+      {
+         mScreenPoint.x = mScreenPointBackup.x;
+         mScreenPoint.y = mScreenPointBackup.y;
+      }
       mCalculatedPoints++;
    }
 
