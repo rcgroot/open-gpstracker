@@ -541,6 +541,11 @@ public class TrackList extends ListActivity
 
    private Runnable xmlParser = new Runnable()
       {
+
+         Uri trackUri = null;
+         Uri segmentUri = null;
+         ContentResolver contentResolver;
+      
          public void run()
          {
             int eventType;
@@ -553,8 +558,6 @@ public class TrackList extends ListActivity
             boolean name = false;
             boolean time = false;
 
-            Uri trackUri = null;
-            Uri segment = null;
             try
             {
                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -585,7 +588,7 @@ public class TrackList extends ListActivity
 
                while (eventType != XmlPullParser.END_DOCUMENT)
                {
-                  ContentResolver contentResolver = TrackList.this.getContentResolver();
+                  contentResolver = TrackList.this.getContentResolver();
                   if( eventType == XmlPullParser.START_TAG )
                   {
                      if( xmlParser.getName().equals( NAME_ELEMENT ) )
@@ -598,11 +601,11 @@ public class TrackList extends ListActivity
                         trackContent.put( Tracks.NAME, filename );
                         if( xmlParser.getName().equals( "trk" ) )
                         {
-                           trackUri = contentResolver.insert( Tracks.CONTENT_URI, trackContent );
+                           startTrack(trackContent);
                         }
                         else if( xmlParser.getName().equals( SEGMENT_ELEMENT ) )
                         {
-                           segment = contentResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), trackContent );
+                           startSegment();
                         }
                         else if( xmlParser.getName().equals( TRACK_ELEMENT ) )
                         {
@@ -670,7 +673,11 @@ public class TrackList extends ListActivity
                      }
                      else if( xmlParser.getName().equals( SEGMENT_ELEMENT ) )
                      {
-                        contentResolver.bulkInsert( Uri.withAppendedPath( segment, "waypoints" ), bulk.toArray( new ContentValues[bulk.size()] ) );
+                        if( segmentUri == null )
+                        {
+                           startSegment();
+                        }
+                        contentResolver.bulkInsert( Uri.withAppendedPath( segmentUri, "waypoints" ), bulk.toArray( new ContentValues[bulk.size()] ) );
                         bulk.clear();
                      }
                      else if( xmlParser.getName().equals( TRACK_ELEMENT ) )
@@ -686,6 +693,10 @@ public class TrackList extends ListActivity
                      {
                         ContentValues nameValues = new ContentValues();
                         nameValues.put( Tracks.NAME, text );
+                        if( trackUri == null )
+                        {
+                           startTrack( new ContentValues() );
+                        }
                         contentResolver.update( trackUri, nameValues, null, null );
                      }
                      else if( lastPosition != null && speed )
@@ -759,6 +770,20 @@ public class TrackList extends ListActivity
                      }
                   } );
             }
+         }
+
+         private void startSegment()
+         {
+            if( trackUri == null )
+            {
+               startTrack( new ContentValues() );
+            }
+            segmentUri = contentResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), new ContentValues() );
+         }
+
+         private void startTrack(ContentValues trackContent)
+         {
+            trackUri = contentResolver.insert( Tracks.CONTENT_URI, trackContent );
          }
       };
       
