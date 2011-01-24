@@ -216,7 +216,7 @@ public final class GPStracking
    }
    
    /**
-    * Columns from the meia table.
+    * Columns from the media table.
     * 
     * @author rene
     */

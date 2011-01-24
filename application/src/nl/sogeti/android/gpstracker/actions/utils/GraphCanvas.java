@@ -327,7 +327,6 @@ public class GraphCanvas extends View
                      null, null, null );
                   if( waypoints.moveToFirst() )
                   {                    
-                     Log.d( TAG, "Graphing distance segment "+segment+" with URI "+waypointsUri+" with count "+waypoints.getCount() );
                      Location lastLocation = null;
                      Location currentLocation = null;
                      do 

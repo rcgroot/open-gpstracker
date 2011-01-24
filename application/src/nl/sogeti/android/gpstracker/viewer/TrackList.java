@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -557,6 +558,7 @@ public class TrackList extends ListActivity
             boolean elevation = false;
             boolean name = false;
             boolean time = false;
+            Long importDate = new Long( new Date().getTime() );
 
             try
             {
@@ -682,6 +684,14 @@ public class TrackList extends ListActivity
                      }
                      else if( xmlParser.getName().equals( TRACK_ELEMENT ) )
                      {
+                        if( !lastPosition.containsKey(Waypoints.TIME) )
+                        {
+                           lastPosition.put( Waypoints.TIME, importDate );
+                        }
+                        if( !lastPosition.containsKey(Waypoints.SPEED) )
+                        {
+                           lastPosition.put( Waypoints.SPEED, 0 );
+                        }
                         bulk.add( lastPosition );
                         lastPosition = null;
                      }

@@ -254,7 +254,6 @@ public class LoggerMap extends MapActivity
          {
             int checkedId;
             checkedId = buttonView.getId();
-            Log.d( TAG, "Checked button id "+checkedId);
             switch (checkedId)
             {
                case R.id.layer_traffic:
@@ -282,7 +281,6 @@ public class LoggerMap extends MapActivity
       {
          public void onCheckedChanged( RadioGroup group, int checkedId )
          {
-            Log.d( TAG, "Checked group "+group+" on id "+checkedId);
             switch (checkedId)
             {
                case R.id.layer_google_satellite:
