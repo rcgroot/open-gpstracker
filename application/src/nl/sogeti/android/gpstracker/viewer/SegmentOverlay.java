@@ -124,7 +124,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Point mPrevDrawnScreenPoint;
    private Point mScreenPointBackup;
    private Point mScreenPoint;
-   private int mStepSize = 1;
+   private int mStepSize = -1;
    private MapViewProxy mMapView;
    private Location mLocation;
    private Location mPrevLocation;
@@ -931,16 +931,18 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private void calculateStepSize()
    {
       Cursor waypointsCursor = null;
-      try
+      if( mRequeryFlag || mStepSize < 1 || mWaypointCount == 0 )
       {
-         waypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints._ID }, null, null, null );
-         mWaypointCount = waypointsCursor.getCount();
+         try
+         {
+            waypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints._ID }, null, null, null );
+            mWaypointCount = waypointsCursor.getCount();
+         }
+         finally
+         {
+            waypointsCursor.close();
+         }
       }
-      finally
-      {
-         waypointsCursor.close();
-      }
-
       if( mWaypointCount < 250 )
       {
          mStepSize = 1;
