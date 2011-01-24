@@ -312,25 +312,10 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private void draw( Canvas canvas )
    {
-      GeoPoint oldTopLeft = mTopLeft;
-      GeoPoint oldBottumRight = mBottumRight;
-      mTopLeft = mProjection.fromPixels( 0, 0 );
       mWidth = canvas.getWidth();
       mHeight = canvas.getHeight();
-      mBottumRight = mProjection.fromPixels( mWidth, mHeight );
-
-      if( oldTopLeft == null || oldBottumRight == null 
-              || mTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 
-              || mTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
-              || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 
-              || mBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
-      {
-         mScreenPoint.x = -1;
-         mScreenPoint.y = -1;
-         this.mPrevDrawnScreenPoint.x = -1;
-         this.mPrevDrawnScreenPoint.y = -1;
-         calculateTrack(); // Screen changed, need to adjust the path to match the screen
-      }
+      
+      calculateTrack(); // Screen changed, need to adjust the path to match the screen
       
       switch( mTrackColoringMethod )
       {
@@ -366,31 +351,48 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private synchronized void calculateTrackAsync()
    {
-      calculateStepSize();
-     
-      switch( mTrackColoringMethod )
+      GeoPoint oldTopLeft = mTopLeft;
+      GeoPoint oldBottumRight = mBottumRight;
+      mTopLeft = mProjection.fromPixels( 0, 0 );
+      mBottumRight = mProjection.fromPixels( mWidth, mHeight );
+
+      if( oldTopLeft == null || oldBottumRight == null 
+              || mTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 
+              || mTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
+              || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 
+              || mBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
       {
-         case ( DRAW_CALCULATED ):
-         case ( DRAW_MEASURED ):
-         case ( DRAW_RED ):
-         case ( DRAW_GREEN ):
-            calculatePath();
-            synchronized (mPath) // Switch the fresh path with the old Path object
-            {
-               Path oldPath = mPath;
-               mPath = mPathCalculation;
-               mPathCalculation = oldPath;
-            }
-            break;
-         case ( DRAW_DOTS ):
-            calculateDots();
-            synchronized (mDotPath) // Switch the fresh path with the old Path object
-            {
-               Vector<DotVO> oldDotPath = mDotPath;
-               mDotPath = mDotPathCalculation;
-               mDotPathCalculation = oldDotPath;
-            }
-            break;
+         calculateStepSize();
+        
+         mScreenPoint.x = -1;
+         mScreenPoint.y = -1;
+         this.mPrevDrawnScreenPoint.x = -1;
+         this.mPrevDrawnScreenPoint.y = -1;
+         
+         switch( mTrackColoringMethod )
+         {
+            case ( DRAW_CALCULATED ):
+            case ( DRAW_MEASURED ):
+            case ( DRAW_RED ):
+            case ( DRAW_GREEN ):
+               calculatePath();
+               synchronized (mPath) // Switch the fresh path with the old Path object
+               {
+                  Path oldPath = mPath;
+                  mPath = mPathCalculation;
+                  mPathCalculation = oldPath;
+               }
+               break;
+            case ( DRAW_DOTS ):
+               calculateDots();
+               synchronized (mDotPath) // Switch the fresh path with the old Path object
+               {
+                  Vector<DotVO> oldDotPath = mDotPath;
+                  mDotPath = mDotPathCalculation;
+                  mDotPathCalculation = oldDotPath;
+               }
+               break;
+         }
       }
    }
 
@@ -823,11 +825,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mScreenPointBackup.y = this.mScreenPoint.x;
       
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );
-      if( mScreenPoint.x == -1 && mScreenPoint.y == -1 )
-      {
-         mScreenPoint.x = mScreenPointBackup.x;
-         mScreenPoint.y = mScreenPointBackup.y;
-      }
       mCalculatedPoints++;
    }
 
