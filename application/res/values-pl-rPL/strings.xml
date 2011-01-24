@@ -90,7 +90,7 @@
     <string name="error_filename"> powód: Błędna nazwa pliku</string>
     <string name="error_buildxml"> powód: Błąd przy tworzeniu XML</string>
     <string name="error_writesdcard"> powód: Błąd zapisu na kartę SD</string>
-    <string name="tweettext">%1$s: Przebył %2$s ze średnią prędkością %3$s w czasie %4$s #opengpstracker</string>
+    <string name="tweettext">%1$s: Przebyto %2$s ze średnią prędkością %3$s w czasie %4$s #opengpstracker</string>
     <string name="error_importgpx_xml">Błąd odczytu XML podczas importu.</string>
     <string name="error_importgpx_io">Błąd odczytu pliku podczas importu.</string>
     <string name="error_importgpx_parse">Błąd odczytu liczby podczas importu.</string>
@@ -146,9 +146,9 @@
     <string name="preference_display">Ustawienia wyświetlania</string>
     <string name="preference_behavior">Ustawienia działania</string>
     <string name="logatstartup">Zapisuj od uruchomienia</string>
-    <string name="logatstartup_summary">Po uruchomieniu natychmiast rozpocznij zapisywanie.</string>   
+    <string name="logatstartup_summary">Po uruchomieniu programu natychmiast rozpocznij zapisywanie ścieżki.</string>   
     <string name="startupatboot">Uruchom przy włączeniu</string>
-    <string name="startupatboot_summary">Po włączeniu urządzenia uruchom program i rozpocznij zapisywanie.</string>   
+    <string name="startupatboot_summary">Po włączeniu urządzenia uruchom program i rozpocznij zapisywanie ścieżki.</string>   
     <string name="disableblanking_title">Wyłącz wygaszanie ekranu</string>
     <string name="disableblanking_summary">Pozostawia ekran włączony podczas śledzenia.</string>       
     <string name="precision_title">Precyzja zapisywania</string>
@@ -167,7 +167,7 @@
     <string name="showaltitude_summary">Pokaż wysokość z ostatniego namiaru GPS.</string>
     <string name="showcompass_title">Kompas</string>
     <string name="showcompass_summary">Pokaż kompas z igłą wskazującą północ.</string>
-    <string name="sanitycheck_title">Kontrola poprawności prędkości i wysokości</string>
+    <string name="sanitycheck_title">Kontrola poprawności danych</string>
     <string name="sanitycheck_summary">Akceptuj tylko racjonalne dane o prędkości i wysokości z GPS.</string>
     <string name="showlocation_title">Moja lokalizacja</string>
     <string name="showlocation_summary">Pokaż moją lokalizację na mapie.</string>

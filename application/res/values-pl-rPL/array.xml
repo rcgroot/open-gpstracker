@@ -27,7 +27,7 @@
     </string-array>
     
     <string-array name="units_choices">
-        <item>Ustawienia urządzenia</item>
+        <item>Z ustawień urządzenia</item>
         <item>Imperialne (mile)</item>
         <item>Metryczne (metry)</item>
         <item>Morskie (węzły)</item>
