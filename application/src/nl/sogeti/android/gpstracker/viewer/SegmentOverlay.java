@@ -30,7 +30,6 @@ package nl.sogeti.android.gpstracker.viewer;
 
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.Semaphore;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
@@ -55,14 +54,13 @@ import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.RadialGradient;
 import android.graphics.Shader;
-import android.graphics.PorterDuff.Mode;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -161,53 +159,36 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          }
       };
       
-   private class SegmentCalculationThread extends Thread
+   private final Runnable mediaCalculator = new Runnable()
    {
-      public Semaphore ready = new Semaphore( 0 );
-      
-      SegmentCalculationThread()
-      {
-         this.setName("SegmentCalculationThread");
-      }
-      
       public void run()
       {
-         Looper.prepare();
-         mHandler = new Handler()
-            {
-               public void handleMessage( Message msg )
-               {
-                  _handleMessage( msg );
-               }
-            };
-         ready.release(); // Signal the looper and handler are created 
-         Looper.loop();
+         SegmentOverlay.this.calculateMediaAsync();
       }
-   }
-
+   };
+   
+   private final Runnable mTrackCalculator = new Runnable()
+   {
+      public void run()
+      {
+         SegmentOverlay.this.calculateTrackAsync();
+      }
+   };
    /**
     * Constructor: create a new TrackingOverlay.
     * 
-    * @param cxt
+    * @param loggermap
     * @param segmentUri
     * @param color
     * @param avgSpeed
     * @param mMapView
     */
-   public SegmentOverlay(LoggerMap cxt, Uri segmentUri, int color, double avgSpeed, MapViewProxy mapView)
+   public SegmentOverlay(LoggerMap loggermap, Uri segmentUri, int color, double avgSpeed, MapViewProxy mapView, Handler handler)
    {
       super();
-      SegmentCalculationThread looper = new SegmentCalculationThread();
-      looper.start();
-      try
-      {
-         looper.ready.acquire();
-      }
-      catch (InterruptedException e)
-      {
-         Log.e( TAG, "Interrupted during wait for the SegmentCalculationThread to start, prepare for trouble!", e );
-      }
-      mLoggerMap = cxt;
+      mHandler = handler;
+      Log.d( TAG, "Got calculation handler with thread: "+mHandler.getLooper().getThread() );
+      mLoggerMap = loggermap;
       mMapView = mapView;
       mTrackColoringMethod = color;
       mAvgSpeed = avgSpeed;
@@ -283,28 +264,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          draw( canvas );
       }
    }
-   
-   /**
-    * Message handler method to do the work off-loaded by mHandler to GPSLoggerServiceThread
-    * 
-    * @param msg
-    */
-   private void _handleMessage( Message msg )
-   {
-      switch( msg.what )
-      {
-         case CALCULATE_TRACK:
-            this.calculateTrackAsync();
-            break;
-         case CALCULATE_MEDIA:
-            this.calculateMediaAsync();
-            break;
-         default:
-            Log.w( TAG, "Unknown message received.");
-            break;
-      }
-   }
-   
+      
    /** 
     * Private draw method called by both the draw from Google Overlay and the OSM Overlay  
     * 
@@ -336,12 +296,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    
    public synchronized void calculateTrack()
    {
-      if( !mHandler.hasMessages(CALCULATE_TRACK))
-      {
-         Message msg = Message.obtain();
-         msg.what = CALCULATE_TRACK;
-         mHandler.sendMessage( msg );         
-      }
+      Log.d( TAG, "Message calculateTrack     "+ mWaypointsUri );
+      mHandler.removeCallbacks(mTrackCalculator);
+      mHandler.post(mTrackCalculator);
    }
    
 
@@ -351,6 +308,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private synchronized void calculateTrackAsync()
    {
+      Log.d( TAG, "calculateTrackAsync()      "+ mWaypointsUri );
       GeoPoint oldTopLeft = mTopLeft;
       GeoPoint oldBottumRight = mBottumRight;
       mTopLeft = mProjection.fromPixels( 0, 0 );
@@ -393,7 +351,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                }
                break;
          }
+         mLoggerMap.onDateOverlayChanged();
       }
+      Log.d( TAG, "Done calculateTrackAsync() "+ mWaypointsUri );
    }
 
    /**
@@ -526,12 +486,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    public void calculateMedia()
    {
-      if( !mHandler.hasMessages(CALCULATE_MEDIA))
-      {
-         Message msg = Message.obtain();
-         msg.what = CALCULATE_MEDIA;
-         mHandler.sendMessage( msg );         
-      }
+      mHandler.removeCallbacks(mediaCalculator);
+      mHandler.post(mediaCalculator);
    }
    
    public void calculateMediaAsync()
@@ -575,6 +531,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             mMediaPathCalculation.add(mediaVO);
          }
          while (mMediaCursor.moveToNext());
+
+         mLoggerMap.onDateOverlayChanged();
       }
       synchronized (mMediaPath) // Switch the fresh path with the old Path object
       {
@@ -930,6 +888,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private void calculateStepSize()
    {
+      Log.d( TAG, "calculateStepSize()        "+ mWaypointsUri );
       Cursor waypointsCursor = null;
       if( mRequeryFlag || mStepSize < 1 || mWaypointCount == 0 )
       {
@@ -960,6 +919,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             mStepSize = maxZoomLevel - zoomLevel;
          }
       }
+      Log.d( TAG, "Done calculateStepSize()   "+ mWaypointsUri );
    }
 
    /**
@@ -1315,9 +1275,4 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
       
    };
-
-   public void stopCalculations()
-   {
-      mHandler.getLooper().quit();
-   }
 }

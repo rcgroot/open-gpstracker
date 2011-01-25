@@ -126,26 +126,12 @@ public class MapViewProxy
    {
       if( mGoogleMapView != null )
       {
-         for( Overlay overlay : mGoogleMapView.getOverlays() )
-         {
-            if( overlay instanceof OverlayProxy )
-            {
-               ((OverlayProxy) overlay).stopCalculations();
-            }
-         }
          mGoogleMapView.getOverlays().clear();
       }
       if( mOpenStreetMapView != null )
       {
          List<org.osmdroid.views.overlay.Overlay> overlays = mOpenStreetMapView.getOverlays();
          org.osmdroid.views.overlay.Overlay baseLayar = overlays.get(0);
-         for( org.osmdroid.views.overlay.Overlay overlay : mOpenStreetMapView.getOverlays() )
-         {
-            if( overlay instanceof OverlayProxy )
-            {
-               ((OverlayProxy) overlay).stopCalculations();
-            }
-         }
          overlays.clear();
          overlays.add(baseLayar);
       }

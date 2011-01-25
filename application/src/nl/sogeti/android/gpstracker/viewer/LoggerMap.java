@@ -75,6 +75,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
@@ -159,6 +160,7 @@ public class LoggerMap extends MapActivity
    
    private MapViewProxy mMapView = null;
    private MyLocationOverlayProxy mMylocation;
+   private Handler mHandler;
    
    private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
@@ -422,7 +424,21 @@ public class LoggerMap extends MapActivity
    protected void onCreate( Bundle load )
    {
       super.onCreate( load );
-      this.startService( new Intent( Constants.SERVICENAME ) );
+      
+      setContentView( R.layout.map );
+      
+      this.startService(new Intent(Constants.SERVICENAME));
+      Thread calulator = new Thread("OverlayCalculator")
+      {
+         public void run()
+         {
+            Looper.prepare();
+            mHandler = new Handler();
+            Looper.loop();
+         }
+      };
+      calulator.start();
+      Thread.yield();
 
       Object previousInstanceData = getLastNonConfigurationInstance();
       if( previousInstanceData != null && previousInstanceData instanceof GPSLoggerServiceManager )
@@ -439,12 +455,8 @@ public class LoggerMap extends MapActivity
 
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
       mSharedPreferences.registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
-
-      setContentView( R.layout.map );
-
       mMapView = new MapViewProxy();
       updateMapProvider();
-
       mMylocation = new MyLocationOverlayProxy( this, mMapView ); 
       mMapView.setBuiltInZoomControls( true );
       mMapView.setClickable( true );
@@ -475,12 +487,14 @@ public class LoggerMap extends MapActivity
       mMylocation.disableMyLocation();
       mMylocation.disableCompass();
       
+      
       super.onPause();
    }
 
    protected void onResume()
    {
       super.onResume();
+            
       updateTitleBar();
       updateBlankingBehavior();
 
@@ -521,7 +535,10 @@ public class LoggerMap extends MapActivity
    protected void onDestroy()
    {
       super.onDestroy();
+
       mMapView.clearOverlays();     
+      mHandler.getLooper().quit();
+      
       this.mLoggerServiceManager.shutdown();
       if( mWakeLock != null && mWakeLock.isHeld() )
       {
@@ -1396,7 +1413,7 @@ public class LoggerMap extends MapActivity
             {
                long segmentsId = segments.getLong( 0 );
                Uri segmentUri = ContentUris.withAppendedId( segmentsUri, segmentsId );
-               SegmentOverlay segmentOverlay = new SegmentOverlay( this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView );
+               SegmentOverlay segmentOverlay = new SegmentOverlay( this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView, mHandler );
                mMapView.addOverlay( segmentOverlay );
                mLastSegmentOverlay = segmentOverlay;
                if( segments.isFirst() )
@@ -1460,6 +1477,14 @@ public class LoggerMap extends MapActivity
          if( segmentsCursor != null ) { segmentsCursor.close(); }
       }
       moveActiveViewWindow();
+   }
+   
+   /**
+    * Call when an overlay has recalulated and has new information to be redrawn
+    */
+   public void onDateOverlayChanged()
+   {
+      this.mMapView.postInvalidate();
    }
 
    private void moveActiveViewWindow()
