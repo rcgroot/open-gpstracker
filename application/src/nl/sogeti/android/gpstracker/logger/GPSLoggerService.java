@@ -56,6 +56,7 @@ import android.location.GpsStatus.Listener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -170,7 +171,7 @@ public class GPSLoggerService extends Service
       {
          public void onLocationChanged( Location location )
          {
-            Log.d( TAG, "onLocationChanged( Location "+location+" )");
+//            Log.d( TAG, "onLocationChanged( Location "+location+" )");
             // Might be claiming GPS disabled but when we were paused this changed and this location proves so
             if( mShowingGpsDisabled ) 
             {
@@ -190,7 +191,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderDisabled( String provider )
          {
-            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
+//            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
             if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnDisabledProviderNotification( R.string.service_gpsdisabled );
@@ -204,7 +205,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderEnabled( String provider )
          {
-            Log.d( TAG, "onProviderEnabled( String " + provider + " )" );
+//            Log.d( TAG, "onProviderEnabled( String " + provider + " )" );
             if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnEnabledProviderNotification( R.string.service_gpsenabled );
@@ -218,7 +219,10 @@ public class GPSLoggerService extends Service
 
          public void onStatusChanged( String provider, int status, Bundle extras )
          {
-            Log.w( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
+            if( status == LocationProvider.OUT_OF_SERVICE )
+            {
+               Log.e( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
+            }
          }
       };
    /**
@@ -228,7 +232,7 @@ public class GPSLoggerService extends Service
       {
          public synchronized void onGpsStatusChanged( int event )
          {
-            Log.d( TAG, "onGpsStatusChanged( int "+event+" )");
+//            Log.d( TAG, "onGpsStatusChanged( int "+event+" )");
             switch( event )
             {
                case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
@@ -321,7 +325,6 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
-      Log.d( TAG, "onCreate()" ); 
       
       GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
       looper.start();
@@ -365,7 +368,6 @@ public class GPSLoggerService extends Service
    public void onDestroy()
    {
       super.onDestroy();
-      Log.d( TAG, "onDestroy()" ); 
       
       stopLogging();
       Message msg = Message.obtain();
@@ -670,7 +672,7 @@ public class GPSLoggerService extends Service
          case REQUEST_CUSTOMGPS_LOCATIONUPDATES:
             intervaltime = 60 * 1000 *  new Long( PreferenceManager.getDefaultSharedPreferences( this ).getString(Constants.LOGGING_INTERVAL, "15000") );
             distance = new Float( PreferenceManager.getDefaultSharedPreferences( this ).getString(Constants.LOGGING_DISTANCE, "10") );
-            mMaxAcceptableAccuracy = Math.min(50f, distance);
+            mMaxAcceptableAccuracy = Math.max(10f, Math.min(distance, 50f));
             mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
             break;
          case STOPLOOPER:

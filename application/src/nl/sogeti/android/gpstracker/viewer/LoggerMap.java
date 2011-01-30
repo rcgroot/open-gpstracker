@@ -169,7 +169,6 @@ public class LoggerMap extends MapActivity
          {
             if( !selfUpdate )
             {
-//               Log.d( TAG, "mTrackSegmentsObserver "+ mTrackId );
                LoggerMap.this.updateDataOverlays();
             }
             else
@@ -185,13 +184,15 @@ public class LoggerMap extends MapActivity
          {
             if( !selfUpdate  )
             {
-               Log.d( TAG, "mSegmentWaypointsObserver "+ mLastSegment );
                LoggerMap.this.updateDisplayedSpeedViews();
                if( mLastSegmentOverlay != null )
                {
                   moveActiveViewWindow();
-                  mLastSegmentOverlay.calculateTrack(); // New 
-                  mMapView.postInvalidate();
+                  mLastSegmentOverlay.calculateTrack();
+               }
+               else
+               {
+                  Log.e( TAG, "Error the last segment changed but it is not on screen! "+ mLastSegment );
                }
             }
             else
@@ -205,7 +206,6 @@ public class LoggerMap extends MapActivity
          @Override
          public void onChange( boolean selfUpdate )
          {
-//            Log.d( TAG, "mTrackMediasObserver received onChange()" );
             if( !selfUpdate )
             {
                if( mLastSegmentOverlay != null )

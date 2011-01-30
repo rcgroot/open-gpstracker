@@ -189,15 +189,15 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mMapView = mapView;
       mTrackColoringMethod = color;
       mAvgSpeed = avgSpeed;
-      mResolver = mLoggerMap.getContentResolver();
       mSegmentUri = segmentUri;
       mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
+      mResolver = mLoggerMap.getContentResolver();
+      mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
+      mRequeryFlag = true;
       mCurrentColor = Color.rgb( 255, 0, 0 );
       mProjection = mapView.getProjection();
       
-      mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
-
       dotpaint = new Paint();
       radiusPaint = new Paint();
       radiusPaint.setColor( Color.YELLOW );
@@ -310,7 +310,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mTopLeft = mProjection.fromPixels( 0, 0 );
       mBottumRight = mProjection.fromPixels( mWidth, mHeight );
 
-      if( oldTopLeft == null || oldBottumRight == null 
+      if( mRequeryFlag
+              || oldTopLeft == null 
+              || oldBottumRight == null 
               || mTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 
               || mTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
               || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 
@@ -369,10 +371,12 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       if( mWaypointsCursor == null )
       {
          mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+         mRequeryFlag = false;
       }
       if( mRequeryFlag )
       {
          mWaypointsCursor.requery();
+         mRequeryFlag = false;
       }
       if( mProjection != null && mWaypointsCursor.moveToFirst() )
       {
@@ -442,6 +446,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       if( mRequeryFlag )
       {
          mWaypointsCursor.requery();
+         mRequeryFlag = false;
       }
       if( mProjection != null && mWaypointsCursor.moveToFirst() )
       {

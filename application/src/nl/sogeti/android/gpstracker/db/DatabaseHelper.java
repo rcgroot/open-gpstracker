@@ -194,7 +194,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints" );
       resolver.notifyChange( notifyUri, null );
 
-      Log.d( TAG, "Waypoint stored: "+notifyUri);
+//      Log.d( TAG, "Waypoint stored: "+notifyUri);
       return waypointId;
    }
    
