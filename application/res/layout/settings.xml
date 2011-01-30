@@ -31,6 +31,11 @@
             android:title="@string/sanitycheck_title"
             android:summary="@string/sanitycheck_summary"
             android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="gpsstatusmonitor"
+            android:title="@string/gpsstatusmonitor_title"
+            android:summary="@string/gpsstatusmonitor_summary"
+            android:defaultValue="true" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/preference_behavior">

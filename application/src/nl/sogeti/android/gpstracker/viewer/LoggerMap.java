@@ -185,7 +185,7 @@ public class LoggerMap extends MapActivity
          {
             if( !selfUpdate  )
             {
-//               Log.d( TAG, "mSegmentWaypointsObserver "+ mLastSegment );
+               Log.d( TAG, "mSegmentWaypointsObserver "+ mLastSegment );
                LoggerMap.this.updateDisplayedSpeedViews();
                if( mLastSegmentOverlay != null )
                {

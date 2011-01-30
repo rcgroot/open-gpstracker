@@ -133,6 +133,11 @@ public class GPSLoggerService extends Service
    private boolean mShowingGpsDisabled;
 
    /**
+    * Should the GPS Status monitor be active
+    */
+   private boolean mStatusMonitor;
+
+   /**
     * Listens to changes in preference to precision and sanity checks
     */
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
@@ -150,6 +155,12 @@ public class GPSLoggerService extends Service
             {
                mSpeedSanityCheck = sharedPreferences.getBoolean( Constants.SPEEDSANITYCHECK, true );
             }
+            else if( key.equals( Constants.STATUS_MONITOR ) )
+            {
+               mLocationManager.removeGpsStatusListener( mStatusListener );
+               sendRequestStatusUpdateMessage();
+               updateNotification();
+            }
          }
       };
    /**
@@ -159,6 +170,7 @@ public class GPSLoggerService extends Service
       {
          public void onLocationChanged( Location location )
          {
+            Log.d( TAG, "onLocationChanged( Location "+location+" )");
             // Might be claiming GPS disabled but when we were paused this changed and this location proves so
             if( mShowingGpsDisabled ) 
             {
@@ -178,7 +190,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderDisabled( String provider )
          {
-            //            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
+            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
             if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnDisabledProviderNotification( R.string.service_gpsdisabled );
@@ -192,6 +204,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderEnabled( String provider )
          {
+            Log.d( TAG, "onProviderEnabled( String " + provider + " )" );
             if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnEnabledProviderNotification( R.string.service_gpsenabled );
@@ -215,6 +228,7 @@ public class GPSLoggerService extends Service
       {
          public synchronized void onGpsStatusChanged( int event )
          {
+            Log.d( TAG, "onGpsStatusChanged( int "+event+" )");
             switch( event )
             {
                case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
@@ -307,6 +321,7 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
+      Log.d( TAG, "onCreate()" ); 
       
       GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
       looper.start();
@@ -350,6 +365,8 @@ public class GPSLoggerService extends Service
    public void onDestroy()
    {
       super.onDestroy();
+      Log.d( TAG, "onDestroy()" ); 
+      
       stopLogging();
       Message msg = Message.obtain();
       msg.what = STOPLOOPER;
@@ -460,7 +477,6 @@ public class GPSLoggerService extends Service
             mStartNextSegment = true;
          }
          sendRequestLocationUpdatesMessage();
-
          sendRequestStatusUpdateMessage();
 
          this.mLoggingState = Constants.LOGGING;
@@ -518,7 +534,14 @@ public class GPSLoggerService extends Service
             contentText = getResources().getString( R.string.service_networkstatus, state, precision );
             break;
          default:
-            contentText = getResources().getString( R.string.service_gpsstatus, state, precision, mSatellites );
+            if( mStatusMonitor )
+            {
+               contentText = getResources().getString( R.string.service_gpsstatus, state, precision, mSatellites );
+            }
+            else
+            {
+               contentText = getResources().getString( R.string.service_gpsnostatus, state, precision );
+            }
             break;
       }
       Intent notificationIntent = new Intent( this, LoggerMap.class );
@@ -560,9 +583,13 @@ public class GPSLoggerService extends Service
 
    private void sendRequestStatusUpdateMessage()
    {
-      Message msg = Message.obtain();
-      msg.what = ADDGPSSTATUSLISTENER;
-      mHandler.sendMessage( msg );
+      mStatusMonitor = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean(Constants.STATUS_MONITOR, true);
+      if( mStatusMonitor )
+      {
+         Message msg = Message.obtain();
+         msg.what = ADDGPSSTATUSLISTENER;
+         mHandler.sendMessage( msg );
+      }
    }
 
    private void sendRequestLocationUpdatesMessage()

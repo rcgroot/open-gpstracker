@@ -3,6 +3,7 @@
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Activating logging service</string>
 	<string name="service_gpsstatus">Logging: %1$s (%2$s with %3$d satellites)</string>
+	<string name="service_gpsnostatus">Logging: %1$s (Precision %2$s)</string>
     <string name="service_networkstatus">Logging: %1$s (%2$s with cell tower and wifi)</string>
     <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
     <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
@@ -199,6 +200,9 @@
     <string name="customprecisiontime_summary">The time the GPS receiver should sleep between waypoints.</string>
     <string name="customprecisiondistance_title">Target waypoint distance in meters</string>
     <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
+    <string name="gpsstatusmonitor_title">Monitor GPS status</string>
+    <string name="gpsstatusmonitor_summary">Displays the number of satellites used.</string>
+    
 <!-- ***************************
    About information
    ***************************-->

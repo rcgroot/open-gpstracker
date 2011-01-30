@@ -191,9 +191,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
       long waypointId = sqldb.insert( Waypoints.TABLE, null, args );
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      resolver.notifyChange( Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints" ), null );
+      Uri notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints" );
+      resolver.notifyChange( notifyUri, null );
 
-//      Log.d( TAG, "Waypoint time stored in the database");
+      Log.d( TAG, "Waypoint stored: "+notifyUri);
       return waypointId;
    }
    

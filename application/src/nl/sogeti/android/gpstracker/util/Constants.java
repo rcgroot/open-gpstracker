@@ -89,5 +89,6 @@ public class Constants
    public static final int LOGGING_GLOBAL = 4;
    public static final String LOGGING_INTERVAL = "customprecisiontime";
    public static final String LOGGING_DISTANCE = "customprecisiondistance";
+   public static final String STATUS_MONITOR = "gpsstatusmonitor";
    
 }
