@@ -17,14 +17,14 @@
             android:title="@string/customprecisiontime_title"
             android:summary="@string/customprecisiontime_summary"
             android:defaultValue="50"
-            android:digits="true"
+            android:inputType="number"
             android:singleLine="true" />
         <EditTextPreference
             android:key="customprecisiondistance"
             android:title="@string/customprecisiondistance_title"
             android:summary="@string/customprecisiondistance_summary"
             android:defaultValue="30"
-            android:digits="true"
+            android:inputType="number"
             android:singleLine="true" />
         <CheckBoxPreference
             android:key="speedsanitycheck"

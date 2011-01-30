@@ -82,4 +82,12 @@ public class Constants
    public static final int OSM_CYCLE   = 2;
    public static final String OSMBASEOVERLAY = "OSM_BASE_OVERLAY";
    
+   public static final int LOGGING_FINE   = 0;
+   public static final int LOGGING_NORMAL = 1;
+   public static final int LOGGING_COARSE = 2;
+   public static final int LOGGING_GLOBAL = 3;
+   public static final int LOGGING_CUSTOM = 4;
+   public static final String LOGGING_INTERVAL = "customprecisiontime";
+   public static final String LOGGING_DISTANCE = "customprecisiondistance";
+   
 }

@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.logger;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.util.Constants;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -44,7 +45,6 @@ import android.preference.PreferenceActivity;
 public class ApplicationPreferenceActivity extends PreferenceActivity
 {
 
-   private static final String CUSTOM = "custom";
    private EditTextPreference time;
    private EditTextPreference distance;
 
@@ -73,7 +73,7 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
    
    private void setEnabledCustomValues(Object newValue)
    {
-      boolean customPresicion = CUSTOM.equals(newValue);
+      boolean customPresicion = Integer.toString( Constants.LOGGING_CUSTOM ).equals(newValue);
       time.setEnabled(customPresicion);
       distance.setEnabled(customPresicion);
    }

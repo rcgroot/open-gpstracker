@@ -90,10 +90,6 @@ public class GPSLoggerService extends Service
    private static final int MAX_REASONABLE_ALTITUDECHANGE = 200;
 
    private static final String TAG = "OGT.GPSLoggerService";
-   private static final int LOGGING_FINE = 0;
-   private static final int LOGGING_NORMAL = 1;
-   private static final int LOGGING_COARSE = 2;
-   private static final int LOGGING_GLOBAL = 3;
    private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
    private static final String SERVICESTATE_PRECISION = "SERVICESTATE_PRECISION";
    private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
@@ -103,7 +99,8 @@ public class GPSLoggerService extends Service
    private static final int REQUEST_FINEGPS_LOCATIONUPDATES = 1;
    private static final int REQUEST_NORMALGPS_LOCATIONUPDATES = 2;
    private static final int REQUEST_COARSEGPS_LOCATIONUPDATES = 3;
-   private static final int REQUEST_GLOBALGPS_LOCATIONUPDATES = 4;
+   private static final int REQUEST_GLOBALNETWORK_LOCATIONUPDATES = 4;
+   private static final int REQUEST_CUSTOMGPS_LOCATIONUPDATES = 5;
    private static final int STOPLOOPER = 6;
 
    private static final int LOGGING_UNAVAILABLE = R.string.service_connectiondisabled;
@@ -180,11 +177,11 @@ public class GPSLoggerService extends Service
          public void onProviderDisabled( String provider )
          {
             //            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
-            if( mPrecision != LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
+            if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnDisabledProviderNotification( R.string.service_gpsdisabled );
             }
-            else if( mPrecision == LOGGING_GLOBAL && provider.equals( LocationManager.NETWORK_PROVIDER ) )
+            else if( mPrecision == Constants.LOGGING_GLOBAL && provider.equals( LocationManager.NETWORK_PROVIDER ) )
             {
                notifyOnDisabledProviderNotification( R.string.service_datadisabled );
             }
@@ -193,12 +190,12 @@ public class GPSLoggerService extends Service
 
          public void onProviderEnabled( String provider )
          {
-            if( mPrecision != LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
+            if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnEnabledProviderNotification( R.string.service_gpsenabled );
                mStartNextSegment = true;
             }
-            else if( mPrecision == LOGGING_GLOBAL && provider.equals( LocationManager.NETWORK_PROVIDER ) )
+            else if( mPrecision == Constants.LOGGING_GLOBAL && provider.equals( LocationManager.NETWORK_PROVIDER ) )
             {
                notifyOnEnabledProviderNotification( R.string.service_dataenabled );
             }
@@ -456,7 +453,7 @@ public class GPSLoggerService extends Service
    {
       if( this.mLoggingState == Constants.PAUSED )
       {
-         if( mPrecision != LOGGING_GLOBAL )
+         if( mPrecision != Constants.LOGGING_GLOBAL )
          {
             mStartNextSegment = true;
          }
@@ -515,7 +512,7 @@ public class GPSLoggerService extends Service
       CharSequence contentText;
       switch( mPrecision )
       {
-         case ( LOGGING_GLOBAL ):
+         case ( Constants.LOGGING_GLOBAL ):
             contentText = getResources().getString( R.string.service_networkstatus, state, precision );
             break;
          default:
@@ -573,20 +570,24 @@ public class GPSLoggerService extends Service
       Message msg = Message.obtain();
       switch( mPrecision )
       {
-         case ( LOGGING_FINE ): // Fine
+         case ( Constants.LOGGING_FINE ): // Fine
             msg.what = REQUEST_FINEGPS_LOCATIONUPDATES;
             mHandler.sendMessage( msg );
             break;
-         case ( LOGGING_NORMAL ): // Normal
+         case ( Constants.LOGGING_NORMAL ): // Normal
             msg.what = REQUEST_NORMALGPS_LOCATIONUPDATES;
             mHandler.sendMessage( msg );
             break;
-         case ( LOGGING_COARSE ): // Coarse
+         case ( Constants.LOGGING_COARSE ): // Coarse
             msg.what = REQUEST_COARSEGPS_LOCATIONUPDATES;
             mHandler.sendMessage( msg );
             break;
-         case ( LOGGING_GLOBAL ): // Global
-            msg.what = REQUEST_GLOBALGPS_LOCATIONUPDATES;
+         case ( Constants.LOGGING_GLOBAL ): // Global
+            msg.what = REQUEST_GLOBALNETWORK_LOCATIONUPDATES;
+            mHandler.sendMessage( msg );
+            break;
+         case ( Constants.LOGGING_CUSTOM ): // Global
+            msg.what = REQUEST_CUSTOMGPS_LOCATIONUPDATES;
             mHandler.sendMessage( msg );
             break;
          default:
@@ -602,6 +603,8 @@ public class GPSLoggerService extends Service
     */
    private void _handleMessage( Message msg )
    {
+      long intervaltime = 0;
+      float distance = 0;
       switch( msg.what )
       {
          case ADDGPSSTATUSLISTENER:
@@ -609,23 +612,37 @@ public class GPSLoggerService extends Service
             break;
          case REQUEST_FINEGPS_LOCATIONUPDATES:
             mMaxAcceptableAccuracy = 10f;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000l, 5F, this.mLocationListener );
+            intervaltime = 1000l ;
+            distance = 5F;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
             break;
          case REQUEST_NORMALGPS_LOCATIONUPDATES:
             mMaxAcceptableAccuracy = 20f;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 15000l, 10F, this.mLocationListener );
+            intervaltime = 15000l ;
+            distance = 10F;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
             break;
          case REQUEST_COARSEGPS_LOCATIONUPDATES:
             mMaxAcceptableAccuracy = 50f;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 30000l, 25F, this.mLocationListener );
+            intervaltime = 30000l ;
+            distance = 25F;
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
             break;
-         case REQUEST_GLOBALGPS_LOCATIONUPDATES:
+         case REQUEST_GLOBALNETWORK_LOCATIONUPDATES:
             mMaxAcceptableAccuracy = 1000f;
-            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 300000l, 500F, this.mLocationListener );
+            intervaltime = 300000l ;
+            distance = 500F;
+            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, intervaltime, distance, this.mLocationListener );
             if( !isNetworkConnected() )
             {
                notifyOnDisabledProviderNotification( R.string.service_connectiondisabled );
             }
+            break;
+         case REQUEST_CUSTOMGPS_LOCATIONUPDATES:
+            mMaxAcceptableAccuracy = 50f;
+            intervaltime = 60 * 1000 *  new Long( PreferenceManager.getDefaultSharedPreferences( this ).getString(Constants.LOGGING_INTERVAL, "15000") );
+            distance = new Float( PreferenceManager.getDefaultSharedPreferences( this ).getString(Constants.LOGGING_DISTANCE, "10") );
+            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
             break;
          case STOPLOOPER:
             mLocationManager.removeGpsStatusListener( mStatusListener );
@@ -633,6 +650,7 @@ public class GPSLoggerService extends Service
             Looper.myLooper().quit();
             break;
       }
+      Log.d( TAG, "Enabled logging at distance "+distance+" on interval "+intervaltime+"");
    }
 
    private void updateWakeLock()
@@ -681,7 +699,7 @@ public class GPSLoggerService extends Service
       }
 
       // Speed checks for NETWORK logging, check if the proposed location could be reached from the previous one in sane speed
-      if( mSpeedSanityCheck && proposedLocation != null && mPreviousLocation != null && mPrecision == LOGGING_GLOBAL )
+      if( mSpeedSanityCheck && proposedLocation != null && mPreviousLocation != null && mPrecision == Constants.LOGGING_GLOBAL )
       {
          // To avoid near instant teleportation on network location or glitches cause continent hopping
          float meters = proposedLocation.distanceTo( mPreviousLocation );
