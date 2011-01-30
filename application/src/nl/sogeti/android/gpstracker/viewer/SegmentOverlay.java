@@ -119,6 +119,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Point mPrevDrawnScreenPoint;
    private Point mScreenPointBackup;
    private Point mScreenPoint;
+   private Point startStopCirclePoint;
    private int mStepSize = -1;
    private MapViewProxy mMapView;
    private Location mLocation;
@@ -209,6 +210,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
       defaultPaint = new Paint();
       mScreenPoint = new Point();
+      startStopCirclePoint = new Point();
       mScreenPointBackup = new Point();
       mPrevDrawnScreenPoint = new Point();
       
@@ -662,13 +664,13 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       Bitmap bitmap;
       if( ( this.mPlacement == FIRST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mStartPoint != null )
       {
-         setScreenPoint( this.mStartPoint );
+         this.mProjection.toPixels( this.mStartPoint, startStopCirclePoint );
          bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
-         canvas.drawBitmap( bitmap, mScreenPoint.x - 8, mScreenPoint.y - 8, defaultPaint );
+         canvas.drawBitmap( bitmap, startStopCirclePoint.x - 8, startStopCirclePoint.y - 8, defaultPaint );
       }
       if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
       {
-         setScreenPoint( this.mEndPoint );
+         this.mProjection.toPixels( this.mEndPoint, startStopCirclePoint );
          bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip );
          canvas.drawBitmap( bitmap, mScreenPoint.x - 5, mScreenPoint.y - 5, defaultPaint );
       }
