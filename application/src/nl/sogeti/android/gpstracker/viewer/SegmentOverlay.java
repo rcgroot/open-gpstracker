@@ -185,7 +185,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    {
       super();
       mHandler = handler;
-      Log.d( TAG, "Got calculation handler with thread: "+mHandler.getLooper().getThread() );
       mLoggerMap = loggermap;
       mMapView = mapView;
       mTrackColoringMethod = color;
@@ -295,7 +294,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    
    public void calculateTrack()
    {
-      Log.d( TAG, "Message calculateTrack     "+ mWaypointsUri );
       mHandler.removeCallbacks(mTrackCalculator);
       mHandler.post(mTrackCalculator);
    }
@@ -307,7 +305,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private synchronized void calculateTrackAsync()
    {
-      Log.d( TAG, "calculateTrackAsync()      "+ mWaypointsUri );
       GeoPoint oldTopLeft = mTopLeft;
       GeoPoint oldBottumRight = mBottumRight;
       mTopLeft = mProjection.fromPixels( 0, 0 );
@@ -352,7 +349,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          }
          mLoggerMap.onDateOverlayChanged();
       }
-      Log.d( TAG, "Done calculateTrackAsync() "+ mWaypointsUri );
    }
 
    /**
@@ -890,7 +886,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private void calculateStepSize()
    {
-      Log.d( TAG, "calculateStepSize()        "+ mWaypointsUri );
       Cursor waypointsCursor = null;
       if( mRequeryFlag || mStepSize < 1 || mWaypointCount == 0 )
       {
@@ -921,7 +916,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             mStepSize = maxZoomLevel - zoomLevel;
          }
       }
-      Log.d( TAG, "Done calculateStepSize()   "+ mWaypointsUri );
    }
 
    /**
