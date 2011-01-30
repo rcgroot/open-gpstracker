@@ -38,7 +38,7 @@ import android.preference.PreferenceActivity;
  * @version $Id$
  * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */
-public class SettingsDialog extends PreferenceActivity
+public class ApplicationPreferenceActivity extends PreferenceActivity
 {
 
    @Override
