@@ -85,7 +85,7 @@
 		        
          <activity 
             android:label="@string/menu_settings" 
-            android:name=".logger.SettingsDialog"/>
+            android:name=".logger.ApplicationPreferenceActivity"/>
 
          <activity 
             android:label="@string/dialog_routename_title" 

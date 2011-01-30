@@ -2,8 +2,9 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/opengpstracker_title">
+
     <PreferenceCategory
-        android:title="@string/preference_behavior">
+        android:title="@string/preference_logging">
         <ListPreference
             android:key="precision"
             android:title="@string/precision_title"
@@ -11,18 +12,40 @@
             android:entries="@array/precision_choices"
             android:entryValues="@array/precision_values"
             android:defaultValue="1"/>
+        <EditTextPreference
+            android:key="customprecisiontime"
+            android:title="@string/customprecisiontime_title"
+            android:summary="@string/customprecisiontime_summary"
+            android:defaultValue="50"
+            android:digits="true"
+            android:singleLine="true" />
+        <EditTextPreference
+            android:key="customprecisiondistance"
+            android:title="@string/customprecisiondistance_title"
+            android:summary="@string/customprecisiondistance_summary"
+            android:defaultValue="30"
+            android:digits="true"
+            android:singleLine="true" />
         <CheckBoxPreference
             android:key="speedsanitycheck"
             android:title="@string/sanitycheck_title"
             android:summary="@string/sanitycheck_summary"
-            android:defaultValue="true" 
-            />
+            android:defaultValue="true" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/preference_behavior">
+        <ListPreference
+            android:key="mapprovider"
+            android:title="@string/mapprovider_title"
+            android:summary="@string/mapprovider_summary"
+            android:entries="@array/mapprovider_choices"
+            android:entryValues="@array/mapprovider_values"
+            android:defaultValue="0"/>
         <CheckBoxPreference
             android:key="disableblanking"
             android:title="@string/disableblanking_title"
             android:summary="@string/disableblanking_summary"
-            android:defaultValue="false" 
-            />
+            android:defaultValue="false" />
         <CheckBoxPreference
             android:key="startupatboot"
             android:title="@string/startupatboot"
@@ -33,13 +56,6 @@
             android:title="@string/logatstartup"
             android:summary="@string/logatstartup_summary"
             android:defaultValue="false" />
-        <ListPreference
-            android:key="mapprovider"
-            android:title="@string/mapprovider_title"
-            android:summary="@string/mapprovider_summary"
-            android:entries="@array/mapprovider_choices"
-            android:entryValues="@array/mapprovider_values"
-            android:defaultValue="0"/>
     </PreferenceCategory>
     
     <PreferenceCategory

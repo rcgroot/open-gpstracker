@@ -194,7 +194,11 @@
     <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
     <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
     <string name="import_track">Import a track into Open GPS Tracker</string>
-
+    <string name="preference_logging">Logging and GPS usage settings</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in seconds</string>
+    <string name="customprecisiontime_summary">The time the GPS receiver should sleep between waypoints.</string>
+    <string name="customprecisiondistance_title">Target waypoint distance in meters</string>
+    <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
 <!-- ***************************
    About information
    ***************************-->

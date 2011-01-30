@@ -30,6 +30,9 @@ package nl.sogeti.android.gpstracker.logger;
 
 import nl.sogeti.android.gpstracker.R;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 
 /**
@@ -41,12 +44,38 @@ import android.preference.PreferenceActivity;
 public class ApplicationPreferenceActivity extends PreferenceActivity
 {
 
+   private static final String CUSTOM = "custom";
+   private EditTextPreference time;
+   private EditTextPreference distance;
+
    @Override
    protected void onCreate( Bundle savedInstanceState ) 
    {
        super.onCreate( savedInstanceState );
 
        addPreferencesFromResource( R.layout.settings );
+       
+       ListPreference precision = (ListPreference)findPreference("precision");
+       time = (EditTextPreference)findPreference("customprecisiontime");
+       distance = (EditTextPreference)findPreference("customprecisiondistance");
+       setEnabledCustomValues(precision.getValue());
+       
+       precision.setOnPreferenceChangeListener( new Preference.OnPreferenceChangeListener()
+       {
+         
+         public boolean onPreferenceChange(Preference preference, Object newValue)
+         {  
+            setEnabledCustomValues(newValue);
+            return true;
+         }
+       });
+   }
+   
+   private void setEnabledCustomValues(Object newValue)
+   {
+      boolean customPresicion = CUSTOM.equals(newValue);
+      time.setEnabled(customPresicion);
+      distance.setEnabled(customPresicion);
    }
 
 }

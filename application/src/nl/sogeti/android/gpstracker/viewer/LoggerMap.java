@@ -45,7 +45,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.logger.SettingsDialog;
+import nl.sogeti.android.gpstracker.logger.ApplicationPreferenceActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
@@ -781,7 +781,7 @@ public class LoggerMap extends MapActivity
             handled = true;
             break;
          case MENU_SETTINGS:
-            Intent settingsIntent = new Intent( this, SettingsDialog.class );
+            Intent settingsIntent = new Intent( this, ApplicationPreferenceActivity.class );
             startActivity( settingsIntent );
             handled = true;
             break;
