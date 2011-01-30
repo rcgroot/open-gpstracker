@@ -672,7 +672,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          this.mProjection.toPixels( this.mEndPoint, startStopCirclePoint );
          bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip );
-         canvas.drawBitmap( bitmap, mScreenPoint.x - 5, mScreenPoint.y - 5, defaultPaint );
+         canvas.drawBitmap( bitmap, startStopCirclePoint.x - 5, startStopCirclePoint.y - 5, defaultPaint );
       }
    }
 
