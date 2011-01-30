@@ -61,7 +61,6 @@ import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -92,8 +91,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    public static final int DRAW_DOTS = 4;
    private static final String TAG = "OGT.SegmentOverlay";
    private static final float MINIMUM_PX_DISTANCE = 15;
-   private static final int CALCULATE_TRACK = 11;
-   private static final int CALCULATE_MEDIA = 12;
    
    private int mTrackColoringMethod = DRAW_CALCULATED;
 
@@ -294,7 +291,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       drawMedia( canvas );
    }
    
-   public synchronized void calculateTrack()
+   public void calculateTrack()
    {
       Log.d( TAG, "Message calculateTrack     "+ mWaypointsUri );
       mHandler.removeCallbacks(mTrackCalculator);
@@ -490,7 +487,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mHandler.post(mediaCalculator);
    }
    
-   public void calculateMediaAsync()
+   public synchronized void calculateMediaAsync()
    {
       mMediaPathCalculation.clear();
       if (mMediaCursor == null)
@@ -531,14 +528,17 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             mMediaPathCalculation.add(mediaVO);
          }
          while (mMediaCursor.moveToNext());
-
-         mLoggerMap.onDateOverlayChanged();
       }
+      
       synchronized (mMediaPath) // Switch the fresh path with the old Path object
       {
          Vector<MediaVO> oldmMediaPath = mMediaPath;
          mMediaPath = mMediaPathCalculation;
          mMediaPathCalculation = oldmMediaPath;
+      }
+      if( mMediaPathCalculation.size() != mMediaPath.size() )
+      {
+         mLoggerMap.onDateOverlayChanged();
       }
       //      Log.d( TAG, "Calculated a media path for "+this.mMediaUri+" of size "+mMediaPath.size() );
    }

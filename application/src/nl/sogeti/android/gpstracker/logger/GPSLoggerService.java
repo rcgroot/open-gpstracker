@@ -139,7 +139,9 @@ public class GPSLoggerService extends Service
       {
          public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
          {
-            if( key.equals( Constants.PRECISION ) )
+            if( key.equals( Constants.PRECISION ) 
+                  || key.equals( Constants.LOGGING_DISTANCE ) 
+                  || key.equals( Constants.LOGGING_INTERVAL ) )
             {
                sendRequestLocationUpdatesMessage();
                updateNotification();
@@ -639,9 +641,9 @@ public class GPSLoggerService extends Service
             }
             break;
          case REQUEST_CUSTOMGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 50f;
             intervaltime = 60 * 1000 *  new Long( PreferenceManager.getDefaultSharedPreferences( this ).getString(Constants.LOGGING_INTERVAL, "15000") );
             distance = new Float( PreferenceManager.getDefaultSharedPreferences( this ).getString(Constants.LOGGING_DISTANCE, "10") );
+            mMaxAcceptableAccuracy = Math.min(50f, distance);
             mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
             break;
          case STOPLOOPER:
@@ -650,7 +652,6 @@ public class GPSLoggerService extends Service
             Looper.myLooper().quit();
             break;
       }
-      Log.d( TAG, "Enabled logging at distance "+distance+" on interval "+intervaltime+"");
    }
 
    private void updateWakeLock()
