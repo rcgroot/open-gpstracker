@@ -6,5 +6,9 @@
    <string name="about_email">rcgroot@gmail.com</string>
    <string name="about_website_label">Open GPS Tracker</string>
    <string name="jogmap_post_url">http://www.laufstrecken.net/civic4/?q=gpxmark</string>
-   
+<!--  <string name="osm_post_host">api.openstreetmap.org</string> -->
+   <string name="osm_post_host">api06.dev.openstreetmap.org</string>
+   <string name="osm_post_port">80</string>
+   <string name="osm_post_context">/api/0.6/gpx/create</string>
+    
 </resources>

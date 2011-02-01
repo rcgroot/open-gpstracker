@@ -43,18 +43,26 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
+import nl.sogeti.android.gpstracker.db.GPStracking;
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -93,6 +101,7 @@ public class ShareTrack extends Activity
    private static final int EXPORT_TARGET_SAVE = 0;
    private static final int EXPORT_TARGET_SEND = 1;
    private static final int EXPORT_TARGET_JOGRUN = 2;
+   private static final int EXPORT_TARGET_OSM = 3;
    private static final int EXPORT_TYPE_TWITDRIOD = 0;
    private static final int EXPORT_TYPE_SMS = 1;
    private static final int EXPORT_TYPE_TEXT = 2;
@@ -166,7 +175,7 @@ public class ShareTrack extends Activity
       mShareTypeSpinner.setSelection(lastType);
       adjustTargetToType(lastType);   	  
 
-      mFileNameView.setText(createFileName());
+      mFileNameView.setText(queryForTrackName());
 
       Button okay = (Button) findViewById(R.id.okayshare_button);
       okay.setOnClickListener(new View.OnClickListener()
@@ -338,6 +347,15 @@ public class ShareTrack extends Activity
                }
             };
          break;
+         case EXPORT_TARGET_OSM:
+            attachments = false;
+            endJob = new EndJob()
+            {
+               public void shareFile(Uri fileUri, String contentType)
+               {
+                  sendToOsm(fileUri, contentType);
+               }
+            };
          default:
             Log.e(TAG, "Unable to determine target for sharing GPX " + target);
             break;
@@ -448,6 +466,61 @@ public class ShareTrack extends Activity
          toast.show();
       }
    }
+   
+   private void sendToOsm(Uri fileUri, String contentType)
+   {
+      //TODO: Check or warn for using Google Maps derived tracks data
+      
+      String username = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_USERNAME, "");
+      String password = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_PASSWORD, "");
+      String visibility = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_VISIBILITY, "trackable");
+      File gpxFile = new File(fileUri.getEncodedPath());
+      DefaultHttpClient httpclient = new DefaultHttpClient();
+      
+      HttpHost targetHost = new HttpHost(getString(R.string.osm_post_host), new Integer(R.string.osm_post_port), "http"); 
+      httpclient.getCredentialsProvider().setCredentials(
+            new AuthScope(targetHost.getHostName(), targetHost.getPort()), 
+            new UsernamePasswordCredentials(username, password));      
+      HttpResponse response = null;
+      String jogmapResponseText = "";
+      int statusCode = 0;
+      try
+      {
+         HttpPost method = new HttpPost( getString(R.string.osm_post_context) );
+         
+         MultipartEntity entity = new MultipartEntity();
+         entity.addPart("file", new FileBody(gpxFile));
+         entity.addPart("description", new StringBody(queryForTrackName()));
+         entity.addPart("tags", new StringBody(queryForNotes()));
+         entity.addPart("visibility", new StringBody(visibility));
+         method.setEntity(entity);
+         response = httpclient.execute(targetHost, method);
+
+         statusCode = response.getStatusLine().getStatusCode();
+         InputStream stream = response.getEntity().getContent();
+         jogmapResponseText = convertStreamToString(stream);
+      }
+      catch (IOException e)
+      {
+         Log.e(TAG, "Failed to upload to " + targetHost.getHostName(), e);
+         CharSequence text = getString(R.string.osm_failed) + e.getLocalizedMessage();
+         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
+         toast.show();
+      }
+      if (statusCode == 200)
+      {
+         CharSequence text = getString(R.string.osm_success) + jogmapResponseText;
+         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
+         toast.show();
+      }
+      else
+      {
+         Log.e(TAG, "Wrong status code " + statusCode);
+         CharSequence text = getString(R.string.osm_failed) + jogmapResponseText;
+         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
+         toast.show();
+      }
+   }
 
    public String convertStreamToString( InputStream is ) throws IOException
    {
@@ -501,14 +574,14 @@ public class ShareTrack extends Activity
    private String createTweetText()
    {
       calculator.updateCalculations(mTrackUri);
-      String name = createFileName();
+      String name = queryForTrackName();
       String distString = calculator.getDistanceText();
       String avgSpeed = calculator.getAvgSpeedText();
       String duration = calculator.getDurationText();
       return String.format(getString(R.string.tweettext, name, distString, avgSpeed, duration));
    }
 
-   private String createFileName()
+   private String queryForTrackName()
    {
       ContentResolver resolver = getContentResolver();
       Cursor trackCursor = null;
@@ -532,6 +605,48 @@ public class ShareTrack extends Activity
       return name;
    }
 
+   private String queryForNotes()
+   {
+      StringBuilder tags = new StringBuilder();
+      ContentResolver resolver = getContentResolver();
+      Cursor mediaCursor = null;
+      String name = null;
+      Uri mediaUri = Uri.withAppendedPath( mTrackUri, "media"); 
+      try
+      {
+         mediaCursor = resolver.query(mediaUri, new String[] { Media.URI }, null, null, null);
+         if (mediaCursor.moveToFirst())
+         {
+            do
+            {
+               Uri noteUri = Uri.parse( mediaCursor.getString( 0 ) );
+               if( noteUri.getScheme().equals( "content" ) && noteUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+               {
+                  String tag = noteUri.getLastPathSegment().trim();
+                  if( !tag.contains(", ") )
+                  {
+                     if( tags.length() > 0 )
+                     {
+                        tags.append(",");
+                     }
+                     tags.append(tag);
+                  }
+               }
+            }
+            while( mediaCursor.moveToNext() );
+         }
+      }
+      finally
+      {
+         if (mediaCursor != null)
+         {
+            mediaCursor.close();
+         }
+      }
+      return name;
+   }
+
+   
    private void adjustTargetToType(int position) {
 	switch (position)
 	   {

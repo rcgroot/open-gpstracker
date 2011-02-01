@@ -113,8 +113,30 @@
             android:key="JOGRUNNER_AUTH"
             android:title="@string/jogmap_title"
             android:summary="@string/jogmap_summary"
-            android:dialogMessage="Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo."
+            android:dialogMessage="@string/jogrunner_message"
             android:defaultValue=""
             />
+        <EditTextPreference
+            android:key="OSM_USERNAME"
+            android:title="@string/osmusername_title"
+            android:summary="@string/osmusername_summary"
+            android:dialogMessage="@string/osmusername_message"
+            android:defaultValue=""
+            />
+        <EditTextPreference
+            android:key="OSM_PASSWORD"
+            android:title="@string/osmpassword_title"
+            android:summary="@string/osmpassword_summary"
+            android:dialogMessage="@string/osmpassword_message"
+            android:defaultValue=""
+            />
+        <ListPreference
+            android:key="OSM_VISIBILITY"
+            android:title="@string/osmvisibility_title"
+            android:summary="@string/osmvisibility_summary"
+            android:entries="@array/osmvisibility_choices"
+            android:entryValues="@array/osmvisibility_values"
+            android:defaultValue="trackable"/>
+        />
     </PreferenceCategory>
 </PreferenceScreen>

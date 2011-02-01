@@ -90,5 +90,8 @@ public class Constants
    public static final String LOGGING_INTERVAL = "customprecisiontime";
    public static final String LOGGING_DISTANCE = "customprecisiondistance";
    public static final String STATUS_MONITOR = "gpsstatusmonitor";
+   public static final String OSM_USERNAME = "OSM_USERNAME";
+   public static final String OSM_PASSWORD = "OSM_PASSWORD";
+   public static final String OSM_VISIBILITY = "OSM_VISIBILITY";
    
 }

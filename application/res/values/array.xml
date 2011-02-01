@@ -46,6 +46,7 @@
         <item>Store to SD Card</item>
         <item>Send with an (email) application</item>
         <item>Publish to www.jogmap.de</item>
+        <item>Publish as OpenStreetMap trace</item>
     </string-array>
     
     <string-array name="sharekmztarget_choices">
@@ -57,6 +58,13 @@
         <item>Twidroid tweet</item>
         <item>SMS</item>
         <item>Generic text send</item>
+    </string-array>
+    
+    <string-array name="osmvisibility_choices">
+        <item>Identifiable (Recommended)</item>
+        <item>Public</item>
+        <item>Trackable (Preferred over \'Private\' Option)</item>
+        <item>Private</item>
     </string-array>
     
     <string-array name="precision_values" translatable="false">
@@ -88,6 +96,13 @@
         <item>4</item>
         <item>5</item>
     </string-array>
+
+    <string-array name="osmvisibility_values" translatable="false">
+        <item>identifiable</item>
+        <item>public</item>
+        <item>trackable</item>
+        <item>private</item>
+    </string-array>  
 
     <string-array name="about_authors" translatable="false"><!-- Add your name here if you helped out -->
         <item>René de Groot</item>

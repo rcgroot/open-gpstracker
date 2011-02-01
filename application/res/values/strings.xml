@@ -194,6 +194,7 @@
     <string name="jogmap_summary">The authentication code to upload to a jogmap.de account</string>
     <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
     <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
+    <string name="jogrunner_message">"Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo. </string>
     <string name="import_track">Import a track into Open GPS Tracker</string>
     <string name="preference_logging">Logging and GPS usage settings</string>
     <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
@@ -202,7 +203,17 @@
     <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
     <string name="gpsstatusmonitor_summary">Displays the number of satellites used.</string>
-    
+	<string name="osmusername_title">OpenStreetMap username</string>
+	<string name="osmusername_summary">The username created at http://www.openstreetmap.org/user/new</string>
+	<string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
+	<string name="osmpassword_title">OpenStreetMap password</string>
+	<string name="osmpassword_summary">The password used at http://www.openstreetmap.org/user/new</string>
+	<string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
+	<string name="osmvisibility_title"></string>
+	<string name="osmvisibility_summary"></string>
+    <string name="osm_success"></string>
+    <string name="osm_failed"></string>
+
 <!-- ***************************
    About information
    ***************************-->
