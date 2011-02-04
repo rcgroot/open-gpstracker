@@ -3,6 +3,7 @@
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Aktywuję usługę zapisywania</string>
 	<string name="service_gpsstatus">Zapisywanie: %1$s (%2$s z %3$d satelitami)</string>
+	<string name="service_gpsnostatus">Zapisywanie: %1$s (Precyzja - %2$s)</string>
     <string name="service_networkstatus">Zapisywanie: %1$s (%2$s z nadajników sieci komórkowej i wifi)</string>
     <string name="service_gpsdisabled">GPS jest wyłączony, zapisywanie niemożliwe.</string>
     <string name="service_gpsenabled">GPS jest włączony, zaczynam zapisywanie.</string>
@@ -193,7 +194,25 @@
     <string name="jogmap_summary">Kod wymagany do wysłania danych na konto w jogmap.de</string>
     <string name="jogmap_failed">Nieudane wysyłanie danych do jogmap.de: </string>
     <string name="jogmap_success">Udane wysyłanie danych do jogmap.de: </string>
-    <string name="import_track">Importuj ścieżke do Open GPS Tracker</string>
+	<string name="jogrunner_message">Wprowadź Zugangskey otrzymany z http://www.jogmap.de/civic4/?q=mobilinfo</string>
+    <string name="import_track">Importuj ścieżkę do Open GPS Tracker</string>
+	<string name="preference_logging">Ustawienia zapisywania i wykorzystania GPS</string>
+    <string name="customprecisiontime_title">Przedział czasu (w minutach) pomiędzy punktami orientacyjnymi</string>
+    <string name="customprecisiontime_summary">Czas, który powinien upłynąć pomiędzy kolejnymi punktami orientacyjnymi.</string>
+    <string name="customprecisiondistance_title">Odległość (w metrach) pomiędzy punktami orientacyjnymi</string>
+    <string name="customprecisiondistance_summary">Odległość, którą należy przebyć pomiędzy kolejnymi punktami orientacyjnymi.</string>
+	<string name="gpsstatusmonitor_title">Monitorowanie statusu GPS</string>
+    <string name="gpsstatusmonitor_summary">Wyświetla liczbę używanych satelit.</string>
+	<string name="osmusername_title">Nazwa użytkownika OpenStreetMap</string>
+	<string name="osmusername_summary">Nazwa użytkownika utworzona na http://www.openstreetmap.org/user/new</string>
+	<string name="osmusername_message">Konto OpenStreetMap umożliwia edycję mapy aby wspomóc projekt. Open GPS Tracker umożliwia dodanie nowych danych GPS za pomocą tego konta.</string>
+	<string name="osmpassword_title">Hasło OpenStreetMap</string>
+	<string name="osmpassword_summary">Hasło podane przy tworzeniu konta na http://www.openstreetmap.org/user/new</string>
+	<string name="osmpassword_message">Hasło będzie użyte do podstawowego uwierzytelniania HTTP na serwerze openstreetmap.org</string>
+	<string name="osmvisibility_title"></string>
+	<string name="osmvisibility_summary"></string>
+    <string name="osm_success"></string>
+    <string name="osm_failed"></string>
 
 <!-- ***************************
    About information
