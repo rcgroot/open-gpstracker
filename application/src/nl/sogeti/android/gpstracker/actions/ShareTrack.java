@@ -56,6 +56,7 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -498,7 +499,7 @@ public class ShareTrack extends Activity
          method.addHeader(new BasicScheme().authenticate(new UsernamePasswordCredentials(username, password), method));
 
          // Build the multipart body with the upload data
-         MultipartEntity entity = new MultipartEntity();
+         MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
          entity.addPart("file",        new FileBody(gpxFile));
          entity.addPart("description", new StringBody(queryForTrackName()) );
          entity.addPart("tags",        new StringBody(queryForNotes()));
