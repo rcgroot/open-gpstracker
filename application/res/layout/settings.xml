@@ -121,6 +121,7 @@
             android:title="@string/osmusername_title"
             android:summary="@string/osmusername_summary"
             android:dialogMessage="@string/osmusername_message"
+            android:singleLine="true"
             android:defaultValue=""
             />
         <EditTextPreference
@@ -128,6 +129,7 @@
             android:title="@string/osmpassword_title"
             android:summary="@string/osmpassword_summary"
             android:dialogMessage="@string/osmpassword_message"
+            android:password="true"
             android:defaultValue=""
             />
         <ListPreference

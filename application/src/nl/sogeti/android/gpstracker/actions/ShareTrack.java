@@ -53,8 +53,10 @@ import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -356,6 +358,7 @@ public class ShareTrack extends Activity
                   sendToOsm(fileUri, contentType);
                }
             };
+            break;
          default:
             Log.e(TAG, "Unable to determine target for sharing GPX " + target);
             break;
@@ -475,48 +478,61 @@ public class ShareTrack extends Activity
       String password = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_PASSWORD, "");
       String visibility = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_VISIBILITY, "trackable");
       File gpxFile = new File(fileUri.getEncodedPath());
-      DefaultHttpClient httpclient = new DefaultHttpClient();
       
-      HttpHost targetHost = new HttpHost(getString(R.string.osm_post_host), new Integer(R.string.osm_post_port), "http"); 
-      httpclient.getCredentialsProvider().setCredentials(
-            new AuthScope(targetHost.getHostName(), targetHost.getPort()), 
-            new UsernamePasswordCredentials(username, password));      
+      // Setup preemptive authentication
+      DefaultHttpClient httpclient = new DefaultHttpClient();
+      String hostname = getString(R.string.osm_post_host);
+      Integer port = new Integer(getString(R.string.osm_post_port));
+      HttpHost targetHost = new HttpHost(hostname, port, "http");
+      
       HttpResponse response = null;
-      String jogmapResponseText = "";
+      String responseText = "";
       int statusCode = 0;
       try
-      {
+      {                  
          HttpPost method = new HttpPost( getString(R.string.osm_post_context) );
-         
+         method.addHeader(new BasicScheme().authenticate(new UsernamePasswordCredentials(username, password), method));
+
          MultipartEntity entity = new MultipartEntity();
          entity.addPart("file", new FileBody(gpxFile));
          entity.addPart("description", new StringBody(queryForTrackName()));
          entity.addPart("tags", new StringBody(queryForNotes()));
          entity.addPart("visibility", new StringBody(visibility));
          method.setEntity(entity);
+         
+
+         Log.d(TAG, String.format("Connecting to %s:%d with %s %s  ", targetHost.getHostName(),targetHost.getPort(), username, password ));
          response = httpclient.execute(targetHost, method);
 
          statusCode = response.getStatusLine().getStatusCode();
          InputStream stream = response.getEntity().getContent();
-         jogmapResponseText = convertStreamToString(stream);
+         responseText = convertStreamToString(stream);
       }
       catch (IOException e)
       {
-         Log.e(TAG, "Failed to upload to " + targetHost.getHostName(), e);
+         Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: "+responseText, e);
+         CharSequence text = getString(R.string.osm_failed) + e.getLocalizedMessage();
+         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
+         toast.show();
+      }
+      catch (AuthenticationException e)
+      {
+         Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: "+responseText, e);
          CharSequence text = getString(R.string.osm_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
       }
       if (statusCode == 200)
       {
-         CharSequence text = getString(R.string.osm_success) + jogmapResponseText;
+         Log.i(TAG, responseText);
+         CharSequence text = getString(R.string.osm_success) + responseText;
          Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
       }
       else
       {
-         Log.e(TAG, "Wrong status code " + statusCode);
-         CharSequence text = getString(R.string.osm_failed) + jogmapResponseText;
+         Log.e(TAG, "Failed to upload to error code " + statusCode +" "+ responseText);
+         CharSequence text = getString(R.string.osm_failed) + responseText;
          Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
       }
@@ -610,7 +626,6 @@ public class ShareTrack extends Activity
       StringBuilder tags = new StringBuilder();
       ContentResolver resolver = getContentResolver();
       Cursor mediaCursor = null;
-      String name = null;
       Uri mediaUri = Uri.withAppendedPath( mTrackUri, "media"); 
       try
       {
@@ -623,7 +638,7 @@ public class ShareTrack extends Activity
                if( noteUri.getScheme().equals( "content" ) && noteUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
                {
                   String tag = noteUri.getLastPathSegment().trim();
-                  if( !tag.contains(", ") )
+                  if( !tag.contains(" ") )
                   {
                      if( tags.length() > 0 )
                      {
@@ -643,7 +658,7 @@ public class ShareTrack extends Activity
             mediaCursor.close();
          }
       }
-      return name;
+      return tags.toString();
    }
 
    

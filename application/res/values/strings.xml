@@ -209,10 +209,10 @@
 	<string name="osmpassword_title">OpenStreetMap password</string>
 	<string name="osmpassword_summary">The password used at http://www.openstreetmap.org/user/new</string>
 	<string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
-	<string name="osmvisibility_title"></string>
-	<string name="osmvisibility_summary"></string>
-    <string name="osm_success"></string>
-    <string name="osm_failed"></string>
+	<string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
+	<string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
+    <string name="osm_success">Successfully uploading the track to www.openstreetmap.org: </string>
+    <string name="osm_failed">Failed uploading the track to www.openstreetmap.org: </string>
 
 <!-- ***************************
    About information
