@@ -140,5 +140,12 @@
             android:entryValues="@array/osmvisibility_values"
             android:defaultValue="trackable"/>
         />
+        <EditTextPreference
+            android:key="SDDIR_DIR"
+            android:title="@string/sddirectory_title"
+            android:summary="@string/sddirectory_summary"
+            android:dialogMessage="@string/sddirectory_message"
+            android:defaultValue="/OpenGPSTracker/"
+            />        
     </PreferenceCategory>
 </PreferenceScreen>

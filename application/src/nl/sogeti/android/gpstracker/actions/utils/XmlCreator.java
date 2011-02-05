@@ -248,11 +248,11 @@ public abstract class XmlCreator extends Thread
       String zipFilePath;
       if( fileName.endsWith( ".zip" ) || fileName.endsWith( extension ) )
       {
-         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName;
+         zipFilePath = Constants.getSdCardDirectory(mContext) + fileName;
       }
       else
       {
-         zipFilePath = Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName + extension;
+         zipFilePath = Constants.getSdCardDirectory(mContext)  + fileName + extension;
       }
       String[] filenames = new File( mExportDirectoryPath ).list();
       byte[] buf = new byte[1024];

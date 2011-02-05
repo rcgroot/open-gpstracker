@@ -97,13 +97,13 @@ public class GpxCreator extends XmlCreator
       String xmlFilePath;
       if( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) )
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 ) );
+         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + fileName.substring( 0, fileName.length() - 4 ) );
 
          xmlFilePath = getExportDirectoryPath() + "/" + fileName;
       }
       else
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
+         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + fileName );
          xmlFilePath = getExportDirectoryPath() + "/" + fileName + ".gpx";
       }
       
@@ -140,7 +140,7 @@ public class GpxCreator extends XmlCreator
          }
          else
          {
-            File finalFile = new File( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + "/" + xmlFile.getName() );
+            File finalFile = new File( Constants.getSdCardDirectory(mContext) + xmlFile.getName() );
             xmlFile.renameTo( finalFile );
             resultFilename = finalFile.getAbsolutePath();
 
@@ -379,7 +379,7 @@ public class GpxCreator extends XmlCreator
 
    private void serializeWaypointDescription( Context context, XmlSerializer serializer, Uri media ) throws IOException
    {
-      String mediaPathPrefix = Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.EXTERNAL_DIR;
+      String mediaPathPrefix =  Constants.getSdCardDirectory(context);
       Cursor mediaCursor = null;
       ContentResolver resolver = context.getContentResolver();
       try

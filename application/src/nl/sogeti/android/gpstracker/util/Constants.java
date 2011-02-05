@@ -28,8 +28,14 @@
  */
 package nl.sogeti.android.gpstracker.util;
 
+import java.io.File;
+
+import nl.sogeti.android.gpstracker.actions.utils.XmlCreator;
 import nl.sogeti.android.gpstracker.db.GPStracking;
+import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 
 
 /**
@@ -65,8 +71,9 @@ public class Constants
    public static final int UNITS_NAUTIC       = 3;
    public static final int UNITS_METRICPACE   = 4;
    public static final int UNITS_IMPERIALPACE = 5;
-   public static final String EXTERNAL_DIR = "/OpenGPSTracker/";
-   public static final String TMPICTUREFILE_PATH = EXTERNAL_DIR+"media_tmp";
+   public static final String SDDIR_DIR             = "SDDIR_DIR";
+   public static final String DEFAULT_EXTERNAL_DIR  = "/OpenGPSTracker/";
+   public static final String TMPICTUREFILE_SUBPATH = "media_tmp.tmp";
    public static final Uri NAME_URI = Uri.parse( "content://" + GPStracking.AUTHORITY+".string" );
    public static final int GOOGLE = 0;
    public static final int OSM = 1;
@@ -93,5 +100,41 @@ public class Constants
    public static final String OSM_USERNAME = "OSM_USERNAME";
    public static final String OSM_PASSWORD = "OSM_PASSWORD";
    public static final String OSM_VISIBILITY = "OSM_VISIBILITY";
+   
+   /**
+    * Based on preference return the SD-Card directory in which Open GPS Tracker creates and stores files
+    * shared tracks,
+    * 
+    * @param ctx
+    * @return 
+    */
+   public static String getSdCardDirectory( Context ctx )
+   {
+      // Read preference and ensure start and end with '/' symbol
+      String dir = PreferenceManager.getDefaultSharedPreferences(ctx).getString(SDDIR_DIR, DEFAULT_EXTERNAL_DIR);
+      if( !dir.startsWith("/") )
+      {
+         dir = "/" + dir;
+      }
+      if( !dir.endsWith("/") )
+      {
+         dir = dir + "/" ;
+      }
+      dir = Environment.getExternalStorageDirectory().getAbsolutePath() + dir;
+      
+      // If neither exists or can be created fall back to default
+      File dirHandle = new File(dir);
+      if( !dirHandle.exists() && !dirHandle.mkdirs() )
+      {
+         dir = Environment.getExternalStorageDirectory().getAbsolutePath() + DEFAULT_EXTERNAL_DIR;
+      }
+      return dir;
+   }
+   
+   public static String getSdCardTmpFile( Context ctx )
+   {
+      String dir = getSdCardDirectory( ctx ) + TMPICTUREFILE_SUBPATH;
+      return dir;
+   }
    
 }

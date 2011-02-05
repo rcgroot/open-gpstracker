@@ -89,11 +89,11 @@ public class KmzCreator extends XmlCreator
 
       if(  fileName.endsWith( ".kmz" ) || fileName.endsWith( ".zip" ) )
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName.substring( 0, fileName.length() - 4 ) );
+         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + fileName.substring( 0, fileName.length() - 4 ) );
       }
       else
       {
-         setExportDirectoryPath( Environment.getExternalStorageDirectory() + Constants.EXTERNAL_DIR + fileName );
+         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + fileName );
       }
       
       new File( getExportDirectoryPath() ).mkdirs();
@@ -467,7 +467,7 @@ public class KmzCreator extends XmlCreator
 
    private void serializeWaypointDescription( XmlSerializer serializer, Uri media ) throws IOException
    {
-      String mediaPathPrefix = Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.EXTERNAL_DIR;
+      String mediaPathPrefix = Constants.getSdCardDirectory(mContext);
       Cursor mediaCursor = null;
       ContentResolver resolver = mContext.getContentResolver();
       try

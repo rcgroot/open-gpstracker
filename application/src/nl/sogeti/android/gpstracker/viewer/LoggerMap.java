@@ -367,8 +367,7 @@ public class LoggerMap extends MapActivity
          String noteText = mNoteTextView.getText().toString();
          Calendar c = Calendar.getInstance();
          String newName = String.format( "Textnote_%tY-%tm-%td_%tH%tM%tS.txt", c, c, c, c, c, c );
-         String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
-         File file = new File( sdcard + Constants.EXTERNAL_DIR + newName );
+         File file = new File( Constants.getSdCardDirectory(LoggerMap.this) + newName );
          FileWriter filewriter = null;
          try
          {
@@ -1045,7 +1044,6 @@ public class LoggerMap extends MapActivity
       super.onActivityResult( requestCode, resultCode, intent );
       if( resultCode != RESULT_CANCELED )
       {
-         String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
          File file;
          Uri uri;
          File newFile;
@@ -1064,10 +1062,10 @@ public class LoggerMap extends MapActivity
             case MENU_ABOUT:
                break;
             case MENU_PICTURE:
-               file = new File( sdcard + Constants.TMPICTUREFILE_PATH );
+               file = new File( Constants.getSdCardTmpFile( this ) );
                Calendar c = Calendar.getInstance();
                newName =  String.format( "Picture_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c );
-               newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
+               newFile = new File( Constants.getSdCardDirectory( this ) + newName );
                file.getParentFile().mkdirs();
                boolean isRenamed = file.renameTo( newFile );
                if( isRenamed )
@@ -1101,10 +1099,10 @@ public class LoggerMap extends MapActivity
                }
                break;
             case MENU_VIDEO:
-               file = new File( sdcard + Constants.TMPICTUREFILE_PATH );               
+               file = new File( Constants.getSdCardTmpFile( this ) );          
                c = Calendar.getInstance();
                newName =  String.format( "Video_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c );
-               newFile = new File( sdcard + Constants.EXTERNAL_DIR + newName );
+               newFile = new File( Constants.getSdCardDirectory( this ) + newName );
                file.getParentFile().mkdirs();
                file.renameTo( newFile );
                builder = new Uri.Builder();
@@ -1678,7 +1676,7 @@ public class LoggerMap extends MapActivity
    private void addPicture()
    {
       Intent i = new Intent( android.provider.MediaStore.ACTION_IMAGE_CAPTURE );
-      File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.TMPICTUREFILE_PATH );
+      File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.getSdCardTmpFile( this ) );
 //      Log.d( TAG, "Picture requested at: " + file );
       i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
       i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
@@ -1691,7 +1689,7 @@ public class LoggerMap extends MapActivity
    private void addVideo()
    {
       Intent i = new Intent( android.provider.MediaStore.ACTION_VIDEO_CAPTURE );
-      File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.TMPICTUREFILE_PATH );
+      File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.getSdCardTmpFile( this ) );
 //      Log.d( TAG, "Video requested at: " + file );
       i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
       i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
