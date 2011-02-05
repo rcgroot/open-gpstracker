@@ -7,7 +7,7 @@
     </string-array>
     
     <string-array name="precision_choices">
-		<itme>Własna</item>
+		<item>Własna</item>
         <item>Dokładnie</item>
         <item>Normalnie</item>
         <item>Z grubsza</item>
