@@ -466,6 +466,13 @@ public class ShareTrack extends Activity
       }
    }
    
+   /**
+    * POST a (GPX) file to the 0.6 API of the OpenStreetMap.org website publishing 
+    * this track to the public.
+    * 
+    * @param fileUri
+    * @param contentType
+    */
    private void sendToOsm(Uri fileUri, String contentType)
    {
       //TODO: Check or warn for using Google Maps derived tracks data
@@ -490,13 +497,12 @@ public class ShareTrack extends Activity
          // Preemptive basic auth on the first request 
          method.addHeader(new BasicScheme().authenticate(new UsernamePasswordCredentials(username, password), method));
 
-         // Build the multipart body the upload data
+         // Build the multipart body with the upload data
          MultipartEntity entity = new MultipartEntity();
-         entity.addPart("file", new FileBody(gpxFile));
-         StringBody description = new StringBody(queryForTrackName());
-         entity.addPart("description", description);
-         entity.addPart("tags", new StringBody(queryForNotes()));
-         entity.addPart("visibility", new StringBody(visibility));
+         entity.addPart("file",        new FileBody(gpxFile));
+         entity.addPart("description", new StringBody(queryForTrackName()) );
+         entity.addPart("tags",        new StringBody(queryForNotes()));
+         entity.addPart("visibility",  new StringBody(visibility));
          method.setEntity(entity);
          
          // Execute the POST to OpenStreetMap
