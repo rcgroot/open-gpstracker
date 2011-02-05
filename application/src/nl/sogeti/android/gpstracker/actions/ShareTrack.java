@@ -52,19 +52,15 @@ import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -478,32 +474,35 @@ public class ShareTrack extends Activity
       String password = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_PASSWORD, "");
       String visibility = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_VISIBILITY, "trackable");
       File gpxFile = new File(fileUri.getEncodedPath());
-      
-      // Setup preemptive authentication
-      DefaultHttpClient httpclient = new DefaultHttpClient();
       String hostname = getString(R.string.osm_post_host);
       Integer port = new Integer(getString(R.string.osm_post_port));
       HttpHost targetHost = new HttpHost(hostname, port, "http");
       
+      DefaultHttpClient httpclient = new DefaultHttpClient();
       HttpResponse response = null;
       String responseText = "";
       int statusCode = 0;
       try
       {                  
+         // The POST to the create node
          HttpPost method = new HttpPost( getString(R.string.osm_post_context) );
+         
+         // Preemptive basic auth on the first request 
          method.addHeader(new BasicScheme().authenticate(new UsernamePasswordCredentials(username, password), method));
 
+         // Build the multipart body the upload data
          MultipartEntity entity = new MultipartEntity();
          entity.addPart("file", new FileBody(gpxFile));
-         entity.addPart("description", new StringBody(queryForTrackName()));
+         StringBody description = new StringBody(queryForTrackName());
+         entity.addPart("description", description);
          entity.addPart("tags", new StringBody(queryForNotes()));
          entity.addPart("visibility", new StringBody(visibility));
          method.setEntity(entity);
          
-
-         Log.d(TAG, String.format("Connecting to %s:%d with %s %s  ", targetHost.getHostName(),targetHost.getPort(), username, password ));
+         // Execute the POST to OpenStreetMap
          response = httpclient.execute(targetHost, method);
 
+         // Read the response
          statusCode = response.getStatusLine().getStatusCode();
          InputStream stream = response.getEntity().getContent();
          responseText = convertStreamToString(stream);
@@ -642,7 +641,7 @@ public class ShareTrack extends Activity
                   {
                      if( tags.length() > 0 )
                      {
-                        tags.append(",");
+                        tags.append(" ");
                      }
                      tags.append(tag);
                   }
