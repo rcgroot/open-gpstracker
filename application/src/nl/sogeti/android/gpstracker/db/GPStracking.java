@@ -46,7 +46,7 @@ public final class GPStracking
    /** The name of the database file */
    static final String DATABASE_NAME = "GPSLOG.db";
    /** The version of the database schema */
-   static final int DATABASE_VERSION = 9;
+   static final int DATABASE_VERSION = 10;
 
    /**
     * This table contains tracks.
@@ -153,6 +153,32 @@ public final class GPStracking
    }
    
    /**
+    * This table contains media URI's.
+    * 
+    * @author rene
+    */
+   public static final class MetaData extends MetaDataColumns implements android.provider.BaseColumns
+   {
+
+      /** The MIME type of a CONTENT_URI subdirectory of a single metadata entry. */
+      public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.nl.sogeti.android.metadata";
+      /** The MIME type of CONTENT_URI providing a directory of media entry. */
+      public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.metadata";
+      
+      /** The name of this table */
+      public static final String TABLE = "metadata";
+      static final String CREATE_STATEMENT = "CREATE TABLE " + MetaData.TABLE + 
+      "(" + " " + BaseColumns._ID          + " " + MetaDataColumns._ID_TYPE + 
+      "," + " " + MetaDataColumns.TRACK    + " " + MetaDataColumns.TRACK_TYPE + 
+      "," + " " + MetaDataColumns.SEGMENT  + " " + MetaDataColumns.SEGMENT_TYPE + 
+      "," + " " + MetaDataColumns.WAYPOINT + " " + MetaDataColumns.WAYPOINT_TYPE + 
+      "," + " " + MetaDataColumns.KEY      + " " + MetaDataColumns.KEY_TYPE + 
+      "," + " " + MetaDataColumns.VALUE    + " " + MetaDataColumns.VALUE_TYPE + 
+      ");";
+      public static final Uri CONTENT_URI = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + MetaData.TABLE );
+   }
+   
+   /**
     * Columns from the tracks table.
     * 
     * @author rene
@@ -231,6 +257,27 @@ public final class GPStracking
       static final String WAYPOINT_TYPE   = "INTEGER NOT NULL";
       public static final String URI      = "uri";     
       static final String URI_TYPE        = "TEXT";
+      static final String _ID_TYPE        = "INTEGER PRIMARY KEY AUTOINCREMENT";
+   }
+   
+   /**
+    * Columns from the media table.
+    * 
+    * @author rene
+    */
+   public static class MetaDataColumns
+   {
+      /** The track _id to which this segment belongs */
+      public static final String TRACK    = "track";     
+      static final String TRACK_TYPE      = "INTEGER NOT NULL";
+      public static final String SEGMENT  = "segment";     
+      static final String SEGMENT_TYPE    = "INTEGER";
+      public static final String WAYPOINT = "waypoint";     
+      static final String WAYPOINT_TYPE   = "INTEGER";
+      public static final String KEY      = "key";          
+      static final String KEY_TYPE        = "TEXT NOT NULL";
+      public static final String VALUE    = "value";        
+      static final String VALUE_TYPE      = "TEXT NOT NULL";
       static final String _ID_TYPE        = "INTEGER PRIMARY KEY AUTOINCREMENT";
    }
 }

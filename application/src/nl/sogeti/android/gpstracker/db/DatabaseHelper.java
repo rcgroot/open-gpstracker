@@ -32,6 +32,7 @@ import java.util.Date;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.MediaColumns;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;
@@ -76,6 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       db.execSQL( Segments.CREATE_STATMENT );
       db.execSQL( Tracks.CREATE_STATEMENT );
       db.execSQL( Media.CREATE_STATEMENT );
+      db.execSQL( MetaData.CREATE_STATEMENT );
    }
 
    /**
@@ -109,6 +111,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
       {
          db.execSQL( Media.CREATE_STATEMENT );
          current = 9;
+      }
+      if( current == 9)                     // From 9 to 10 ( metadata ) 
+      {
+         db.execSQL( Media.CREATE_STATEMENT );
+         current = 10;
       }
    }
    
