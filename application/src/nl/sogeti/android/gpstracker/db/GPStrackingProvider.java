@@ -28,10 +28,10 @@
  */
 package nl.sogeti.android.gpstracker.db;
 
-import java.util.Iterator;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -87,6 +87,8 @@ import android.util.Log;
  * Media is stored under a waypoint and may be queried as:<br>
  * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/3/waypoints/22/media</code>
  * <p>
+ * 
+ * 
  * All media for a segment can be queried with:<br>
  * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/3/media</code>
  * <p>
@@ -98,7 +100,21 @@ import android.util.Log;
  * <p>
  * A single media is stored with an ID, for instance ID = 12:<br>
  * <code>content://nl.sogeti.android.gpstracker/media/12</code>
+ * <p>
+ * The whole set of collected media may be queried as:<br>
+ * <code>content://nl.sogeti.android.gpstracker/media</code>
+ * <p>
  * 
+ * 
+ * Meta-data regarding a single waypoint may be queried as:<br>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/3/waypoints/22/metadata</code>
+ * <p>
+ * Meta-data regarding a single segment as whole may be queried as:<br>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/segments/3/metadata</code>
+ * <p>
+ * Meta-data regarding a single track as a whole may be queried as:<br>
+ * <code>content://nl.sogeti.android.gpstracker/tracks/2/metadata</code>
+ *
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
@@ -108,20 +124,23 @@ public class GPStrackingProvider extends ContentProvider
    private static final String TAG = "OGT.GPStrackingProvider";
 
    /* Action types as numbers for using the UriMatcher */
-   private static final int TRACKS = 1;
-   private static final int TRACK_ID = 2;   
-   private static final int TRACK_MEDIA = 3;
-   private static final int TRACK_WAYPOINTS = 4;
-   private static final int SEGMENTS = 5;
-   private static final int SEGMENT_ID = 6;
-   private static final int SEGMENT_MEDIA = 7;
-   private static final int WAYPOINTS = 8;
-   private static final int WAYPOINT_ID = 9;
-   private static final int WAYPOINT_MEDIA = 10;
+   private static final int TRACKS            = 1;
+   private static final int TRACK_ID          = 2;   
+   private static final int TRACK_MEDIA       = 3;
+   private static final int TRACK_WAYPOINTS   = 4;
+   private static final int SEGMENTS          = 5;
+   private static final int SEGMENT_ID        = 6;
+   private static final int SEGMENT_MEDIA     = 7;
+   private static final int WAYPOINTS         = 8;
+   private static final int WAYPOINT_ID       = 9;
+   private static final int WAYPOINT_MEDIA    = 10;
    private static final int SEARCH_SUGGEST_ID = 11;
-   private static final int LIVE_FOLDERS = 12;
-   private static final int MEDIA = 13;
-   private static final int MEDIA_ID = 14;   
+   private static final int LIVE_FOLDERS      = 12;
+   private static final int MEDIA             = 13;
+   private static final int MEDIA_ID          = 14;   
+   private static final int TRACK_METADATA    = 15;
+   private static final int SEGMENT_METADATA  = 16;
+   private static final int WAYPOINT_METADATA = 17;
    private static final String[] SUGGEST_PROJECTION = 
       new String[] 
         { 
@@ -150,13 +169,16 @@ public class GPStrackingProvider extends ContentProvider
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks", GPStrackingProvider.TRACKS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#", GPStrackingProvider.TRACK_ID );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/media", GPStrackingProvider.TRACK_MEDIA );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/metadata", GPStrackingProvider.TRACK_METADATA );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/waypoints", GPStrackingProvider.TRACK_WAYPOINTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments", GPStrackingProvider.SEGMENTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#", GPStrackingProvider.SEGMENT_ID );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/media", GPStrackingProvider.SEGMENT_MEDIA );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/metadata", GPStrackingProvider.SEGMENT_METADATA );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints", GPStrackingProvider.WAYPOINTS );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#", GPStrackingProvider.WAYPOINT_ID );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#/media", GPStrackingProvider.WAYPOINT_MEDIA );
+      GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#/metadata", GPStrackingProvider.WAYPOINT_METADATA );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "media", GPStrackingProvider.MEDIA );
       GPStrackingProvider.sURIMatcher.addURI( GPStracking.AUTHORITY, "media/#", GPStrackingProvider.MEDIA_ID );
       
@@ -220,6 +242,20 @@ public class GPStrackingProvider extends ContentProvider
          case WAYPOINT_ID:
             mime = Waypoints.CONTENT_ITEM_TYPE;
             break;
+         case TRACK_MEDIA:
+         case SEGMENT_MEDIA:
+         case WAYPOINT_MEDIA:
+            mime = Media.CONTENT_ITEM_TYPE;
+            break;
+         case TRACK_METADATA:
+         case SEGMENT_METADATA:
+         case WAYPOINT_METADATA:
+            mime = MetaData.CONTENT_ITEM_TYPE;
+            break;
+         case UriMatcher.NO_MATCH:
+         default:
+            Log.w(TAG, "There is not MIME type defined for URI "+uri);
+            break;
       }
       return mime;
    }
@@ -255,22 +291,23 @@ public class GPStrackingProvider extends ContentProvider
       Uri insertedUri = null;
       int match = GPStrackingProvider.sURIMatcher.match( uri );
       List<String> pathSegments = null;
-      long trackId;
-      long segmentId;
+      long trackId = -1;
+      long segmentId = -1;
       long waypointId = -1;
-      long mediaId;
+      long mediaId = -1;
+      String key;
+      String value;
       switch (match)
       {
          case WAYPOINTS:
-            pathSegments = uri.getPathSegments();
-            trackId = Integer.parseInt( pathSegments.get( 1 ) );
-            segmentId = Integer.parseInt( pathSegments.get( 3 ) );
-            
-            Location loc = new Location( TAG );
-            Double latitude = values.getAsDouble( Waypoints.LATITUDE );
+            pathSegments     = uri.getPathSegments();
+            trackId          = Long.parseLong( pathSegments.get( 1 ) );
+            segmentId        = Long.parseLong( pathSegments.get( 3 ) );
+            Location loc     = new Location( TAG );
+            Double latitude  = values.getAsDouble( Waypoints.LATITUDE );
             Double longitude = values.getAsDouble( Waypoints.LONGITUDE );
-            Long time = values.getAsLong( Waypoints.TIME );
-            Float speed = values.getAsFloat( Waypoints.SPEED );
+            Long time        = values.getAsLong( Waypoints.TIME );
+            Float speed      = values.getAsFloat( Waypoints.SPEED );
             if( time == null )
             {
                time = System.currentTimeMillis();
@@ -305,24 +342,51 @@ public class GPStrackingProvider extends ContentProvider
             insertedUri = ContentUris.withAppendedId( uri, waypointId );
             break;
          case WAYPOINT_MEDIA:
-            pathSegments = uri.getPathSegments();
-            trackId = Integer.parseInt( pathSegments.get( 1 ) );
-            segmentId = Integer.parseInt( pathSegments.get( 3 ) );
-            waypointId = Integer.parseInt( pathSegments.get( 5 ) );
+            pathSegments    = uri.getPathSegments();
+            trackId         = Long.parseLong( pathSegments.get( 1 ) );
+            segmentId       = Long.parseLong( pathSegments.get( 3 ) );
+            waypointId      = Long.parseLong( pathSegments.get( 5 ) );
             String mediaUri = values.getAsString( Media.URI );
-            mediaId = this.mDbHelper.insertMedia( trackId, segmentId, waypointId, mediaUri );
-            insertedUri = ContentUris.withAppendedId( Media.CONTENT_URI, mediaId );
+            mediaId         = this.mDbHelper.insertMedia( trackId, segmentId, waypointId, mediaUri );
+            insertedUri     = ContentUris.withAppendedId( Media.CONTENT_URI, mediaId );
             break;
          case SEGMENTS:
             pathSegments = uri.getPathSegments();
-            trackId = Integer.parseInt( pathSegments.get( 1 ) );
-            segmentId = this.mDbHelper.toNextSegment( trackId );
-            insertedUri = ContentUris.withAppendedId( uri, segmentId );
+            trackId      = Integer.parseInt( pathSegments.get( 1 ) );
+            segmentId    = this.mDbHelper.toNextSegment( trackId );
+            insertedUri  = ContentUris.withAppendedId( uri, segmentId );
             break;
          case TRACKS:
             String name = ( values == null ) ? "" : values.getAsString( Tracks.NAME );
-            trackId = this.mDbHelper.toNextTrack( name );
+            trackId     = this.mDbHelper.toNextTrack( name );
             insertedUri = ContentUris.withAppendedId( uri, trackId );
+            break;
+         case TRACK_METADATA:
+            pathSegments = uri.getPathSegments();
+            trackId      = Long.parseLong( pathSegments.get( 1 ) );
+            key          = values.getAsString( MetaData.KEY );
+            value        = values.getAsString( MetaData.VALUE );
+            mediaId      = this.mDbHelper.insertMetaData( trackId, -1L, -1L, key, value );
+            insertedUri  = ContentUris.withAppendedId( MetaData.CONTENT_URI, mediaId );
+            break;
+         case SEGMENT_METADATA:
+            pathSegments = uri.getPathSegments();
+            trackId      = Long.parseLong( pathSegments.get( 1 ) );
+            segmentId    = Long.parseLong( pathSegments.get( 3 ) );
+            key          = values.getAsString( MetaData.KEY );
+            value        = values.getAsString( MetaData.VALUE );
+            mediaId      = this.mDbHelper.insertMetaData( trackId, segmentId, -1L, key, value );
+            insertedUri  = ContentUris.withAppendedId( MetaData.CONTENT_URI, mediaId );
+            break;
+         case WAYPOINT_METADATA:
+            pathSegments = uri.getPathSegments();
+            trackId      = Long.parseLong( pathSegments.get( 1 ) );
+            segmentId    = Long.parseLong( pathSegments.get( 3 ) );
+            waypointId   = Long.parseLong( pathSegments.get( 5 ) );
+            key          = values.getAsString( MetaData.KEY );
+            value        = values.getAsString( MetaData.VALUE );
+            mediaId      = this.mDbHelper.insertMetaData( trackId, segmentId, waypointId, key, value );
+            insertedUri  = ContentUris.withAppendedId( MetaData.CONTENT_URI, mediaId );
             break;
          default:
             Log.e( GPStrackingProvider.TAG, "Unable to match the insert URI: " + uri.toString() );
