@@ -375,7 +375,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
          }
          else 
          {
-            Log.e(TAG, "Did not find the last active segment");
+            Log.e(TAG, "Did not find the media element to delete");
          }
       }
       finally
@@ -400,6 +400,57 @@ public class DatabaseHelper extends SQLiteOpenHelper
       return affected ;
    }
    
+   int deleteMetaData(long metadataId)
+   {
+      SQLiteDatabase sqldb = getWritableDatabase();
+
+      Cursor cursor = null;
+      long trackId = -1;
+      long segmentId = -1;
+      long waypointId = -1;
+      try 
+      {
+         cursor  = sqldb.query( MetaData.TABLE, new String[] { MetaData.TRACK, MetaData.SEGMENT, MetaData.WAYPOINT }, MetaData._ID + "= ?", new String[]{ String.valueOf( metadataId ) }, null, null, null, null );
+         if (cursor.moveToFirst())
+         {
+            trackId = cursor.getLong( 0 ) ;
+            segmentId = cursor.getLong( 0 ) ;
+            waypointId = cursor.getLong( 0 ) ;
+         }
+         else 
+         {
+            Log.e(TAG, "Did not find the media element to delete");
+         }
+      }
+      finally
+      {
+         if( cursor!= null )
+         {
+            cursor.close();
+         }
+      }
+      
+      int affected = sqldb.delete( MetaData.TABLE, MetaData._ID+"= ?", new String[]{ String.valueOf( metadataId ) } );
+      
+      ContentResolver resolver = this.mContext.getContentResolver();
+      Uri notifyUri;
+      if( trackId >= 0 && segmentId >= 0 && waypointId >= 0 )
+      {
+         notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/media" );
+         resolver.notifyChange( notifyUri, null );
+      }
+      if( trackId >= 0 && segmentId >= 0 )
+      {
+         notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/segments/"+segmentId+"/media" );
+         resolver.notifyChange( notifyUri, null );
+      }
+      notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI,  trackId+"/media" );
+      resolver.notifyChange( notifyUri, null );
+      resolver.notifyChange( ContentUris.withAppendedId( Media.CONTENT_URI,  metadataId ), null );
+      
+      return affected ;
+   }
+
    /**
     * Delete a segment and all member waypoints
     * 
@@ -433,6 +484,102 @@ public class DatabaseHelper extends SQLiteOpenHelper
       return affected ;
    }
   
+   int updateTrack( long trackId, String name )
+   {
+      int updates;
+      String whereclause = Tracks._ID + " = " + trackId;
+      ContentValues args = new ContentValues();
+      args.put( Tracks.NAME, name );
+      
+      // Execute the query.
+      SQLiteDatabase mDb = getWritableDatabase();
+      updates = mDb.update(Tracks.TABLE, args , whereclause, null) ;
+      
+      ContentResolver resolver = this.mContext.getContentResolver();
+      Uri notifyUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) ;
+      resolver.notifyChange( notifyUri, null );
+      
+      return updates;
+   }
+   
+   /**
+    * Insert a key/value pair as meta-data for a track and optionally narrow the scope by segment or segment/waypoint
+    * 
+    * @param trackId
+    * @param segmentId
+    * @param waypointId
+    * @param key
+    * @param value
+    * @return
+    */
+   int updateMetaData(long trackId, long segmentId, long waypointId, long metadataId, String key, String value)
+   {
+      {
+         if( (metadataId < 0 && trackId < 0) || key == null || value == null )
+         {
+            throw new IllegalArgumentException( "Track or meta-data id, and key plus value must be provided" );
+         }
+         if( trackId >= 0 && waypointId >= 0 && segmentId < 0)
+         {
+            throw new IllegalArgumentException( "Waypoint must have segment" );
+         }
+         
+         SQLiteDatabase sqldb = getWritableDatabase();
+         
+         String[] whereParams;
+         String whereclause;
+         if( waypointId >= 0 )
+         {
+            whereclause = MetaData._ID + " = ? ";
+            whereParams = new String[]{ Long.toString(metadataId) };
+         }
+         else
+         {
+
+            whereclause =
+               MetaData.TRACK + " = ? " +
+               MetaData.SEGMENT + " = ? " +
+               MetaData.WAYPOINT + " = ?";
+            whereParams = new String[]{ Long.toString(trackId), Long.toString(segmentId), Long.toString(waypointId) };
+            
+         }
+         ContentValues args = new ContentValues();
+         args.put( MetaData.KEY, key );
+         args.put( MetaData.VALUE, value );
+
+         
+         int updates = sqldb.update(MetaData.TABLE
+               , args 
+               , whereclause
+               , whereParams ) ;
+
+         ContentResolver resolver = this.mContext.getContentResolver();
+         Uri notifyUri;
+         if( trackId >= 0 && segmentId >= 0 && waypointId >= 0 )
+         {
+            notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId+"/waypoints/"+waypointId+"/metadata" );
+         }
+         else if(  trackId >= 0 && segmentId >= 0 )
+         {
+            notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments/"+segmentId+"/metadata" );
+         }
+         else if(  trackId >= 0 )
+         {
+            notifyUri = Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/metadata" );
+         } 
+         else
+         {
+            notifyUri = Uri.withAppendedPath( MetaData.CONTENT_URI, ""+metadataId );
+         }
+         
+         resolver.notifyChange( notifyUri, null );
+         resolver.notifyChange( MetaData.CONTENT_URI, null );
+         
+         return updates;
+      }
+   }
+
+   
    /**
     * Move to a fresh track with a new first segment for this track
     * @return
