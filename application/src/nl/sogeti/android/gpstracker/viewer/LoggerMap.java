@@ -1153,7 +1153,7 @@ public class LoggerMap extends MapActivity
    @Override
    protected boolean isLocationDisplayed()
    {
-      return mSharedPreferences.getBoolean( Constants.LOCATION, false );
+      return mSharedPreferences.getBoolean( Constants.LOCATION, false ) || mLoggerServiceManager.getLoggingState() == Constants.LOGGING;
    }
    
 
