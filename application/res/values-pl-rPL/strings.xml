@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">Open GPS Tracker</string>
+    <string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Aktywuję usługę zapisywania</string>
-	<string name="service_gpsstatus">Zapisywanie: %1$s (%2$s z %3$d satelitami)</string>
-	<string name="service_gpsnostatus">Zapisywanie: %1$s (Precyzja - %2$s)</string>
+    <string name="service_gpsstatus">Zapisywanie: %1$s (%2$s z %3$d satelitami)</string>
+    <string name="service_gpsnostatus">Zapisywanie: %1$s (Precyzja - %2$s)</string>
     <string name="service_networkstatus">Zapisywanie: %1$s (%2$s z nadajników sieci komórkowej i wifi)</string>
     <string name="service_gpsdisabled">GPS jest wyłączony, zapisywanie niemożliwe.</string>
     <string name="service_gpsenabled">GPS jest włączony, zaczynam zapisywanie.</string>
@@ -15,7 +15,7 @@
     <string name="dialog_select_media_title">Wybierz notatkę</string>
     <string name="dialog_select_media_message">Znaleziono wiele notatek dla tej lokalizacji, wybierz jedną do otwarcia</string>
     <string name="dialog_tracking_title">Kontrola śledzenia</string>
-	<string name="dialog_routename_title">Nazwa scieżki</string>
+    <string name="dialog_routename_title">Nazwa scieżki</string>
     <string name="dialog_routename_message">Podaj nazwę ścieżki</string>
     <string name="dialog_routename_default">Ścieżka %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">Nie wybrano ścieżki</string>
@@ -97,19 +97,19 @@
     <string name="error_importgpx_parse">Błąd odczytu liczby podczas importu.</string>
     
     <!-- Buttons -->
-	<string name="btn_okay">OK</string>
-	<string name="btn_cancel">Anuluj</string>
-	<string name="btn_save">Zapisz</string>
-	<string name="btn_selecttrack">Wybierz ścieżkę</string>
+    <string name="btn_okay">OK</string>
+    <string name="btn_cancel">Anuluj</string>
+    <string name="btn_save">Zapisz</string>
+    <string name="btn_selecttrack">Wybierz ścieżkę</string>
     <string name="btn_install">Instaluj</string>
     <string name="btn_skip">Pomiń</string>
 	
     <!-- Menu's -->
-	<string name="menu_settings">Ustawienia</string>
+    <string name="menu_settings">Ustawienia</string>
     <string name="menu_tracking">Śledzenie</string>
-	<string name="menu_tracklist">Lista ścieżek</string>
-	<string name="menu_shareTrack">Udostępnij ścieżkę</string>
-	<string name="menu_deleteTrack">Usuń ścieżkę</string>
+    <string name="menu_tracklist">Lista ścieżek</string>
+    <string name="menu_shareTrack">Udostępnij ścieżkę</string>
+    <string name="menu_deleteTrack">Usuń ścieżkę</string>
     <string name="menu_renameTrack">Zmień nazwę ścieżki</string>
     <string name="menu_statistics">Statystyki</string>
     <string name="menu_about">O...</string>
@@ -190,29 +190,33 @@
     <string name="search_description">Nazwy ścieżek Open GPS Tracker</string>
     <string name="search_hint">Szukaj ścieżek</string>
     <string name="preference_sharing">Ustawienia udostępniania</string>
-    <string name="jogmap_title">Kod wysyłania jogmap.de</string>
+    <string name="jogmap_title">Kod wysyłania Jogmap.de</string>
     <string name="jogmap_summary">Kod wymagany do wysłania danych na konto w jogmap.de</string>
     <string name="jogmap_failed">Nieudane wysyłanie danych do jogmap.de: </string>
     <string name="jogmap_success">Udane wysyłanie danych do jogmap.de: </string>
-	<string name="jogrunner_message">Wprowadź Zugangskey otrzymany z http://www.jogmap.de/civic4/?q=mobilinfo</string>
+    <string name="jogrunner_message">Wprowadź Zugangskey otrzymany z http://www.jogmap.de/civic4/?q=mobilinfo</string>
     <string name="import_track">Importuj ścieżkę do Open GPS Tracker</string>
-	<string name="preference_logging">Ustawienia zapisywania i wykorzystania GPS</string>
+    <string name="preference_logging">Ustawienia zapisywania i wykorzystania GPS</string>
     <string name="customprecisiontime_title">Przedział czasu (w minutach) pomiędzy punktami orientacyjnymi</string>
     <string name="customprecisiontime_summary">Czas, który powinien upłynąć pomiędzy kolejnymi punktami orientacyjnymi.</string>
     <string name="customprecisiondistance_title">Odległość (w metrach) pomiędzy punktami orientacyjnymi</string>
     <string name="customprecisiondistance_summary">Odległość, którą należy przebyć pomiędzy kolejnymi punktami orientacyjnymi.</string>
-	<string name="gpsstatusmonitor_title">Monitorowanie statusu GPS</string>
+    <string name="gpsstatusmonitor_title">Monitorowanie statusu GPS</string>
     <string name="gpsstatusmonitor_summary">Wyświetla liczbę używanych satelit.</string>
-	<string name="osmusername_title">Nazwa użytkownika OpenStreetMap</string>
-	<string name="osmusername_summary">Nazwa użytkownika utworzona na http://www.openstreetmap.org/user/new</string>
-	<string name="osmusername_message">Konto OpenStreetMap umożliwia edycję mapy aby wspomóc projekt. Open GPS Tracker umożliwia dodanie nowych danych GPS za pomocą tego konta.</string>
-	<string name="osmpassword_title">Hasło OpenStreetMap</string>
-	<string name="osmpassword_summary">Hasło podane przy tworzeniu konta na http://www.openstreetmap.org/user/new</string>
-	<string name="osmpassword_message">Hasło będzie użyte do podstawowego uwierzytelniania HTTP na serwerze openstreetmap.org</string>
-	<string name="osmvisibility_title"></string>
-	<string name="osmvisibility_summary"></string>
-    <string name="osm_success"></string>
-    <string name="osm_failed"></string>
+    <string name="osmusername_title">Nazwa użytkownika OpenStreetMap</string>
+    <string name="osmusername_summary">Nazwa użytkownika utworzona na http://www.openstreetmap.org/user/new</string>
+    <string name="osmusername_message">Konto OpenStreetMap umożliwia edycję mapy aby wspomóc projekt. Open GPS Tracker umożliwia dodanie nowych danych GPS za pomocą tego konta.</string>
+    <string name="osmpassword_title">Hasło OpenStreetMap</string>
+    <string name="osmpassword_summary">Hasło podane przy tworzeniu konta na http://www.openstreetmap.org/user/new</string>
+    <string name="osmpassword_message">Hasło będzie użyte do podstawowego uwierzytelniania HTTP na serwerze openstreetmap.org</string>
+    <string name="osmvisibility_title">Widoczność ścieżek na openstreetmap.org</string>
+    <string name="osmvisibility_summary">Informacje o poszczególnych poziomach widoczności można znaleźć w wiki na openstreetmap.org</string>
+    <string name="osm_success">Udane wysyłanie ścieżki na openstreetmap.org: </string>
+    <string name="osm_failed">Nieudane wysyłanie ścieżki na openstreetmap.org: </string>
+    <string name="sddirectory_title">Folder na karcie SD służący do przechowywania ścieżek</string>
+    <string name="sddirectory_summary">Utworzone ścieżki i pliki multimedialne będą przechowywane w tym folderze na karcie SD.</string>
+    <string name="sddirectory_message">Wprowadź ścieżkę na karcie SD, która będzie używana dla plików. Domyślna wartość /OpenGPSTracker/ utworzy jeden folder na karcie SD w lokalizacji /Apps/OpenGPSTracker/.</string>
+
 
 <!-- ***************************
    About information
