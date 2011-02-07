@@ -115,7 +115,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       }
       if( current == 9)                     // From 9 to 10 ( metadata ) 
       {
-         db.execSQL( Media.CREATE_STATEMENT );
+         db.execSQL( MetaData.CREATE_STATEMENT );
          current = 10;
       }
    }
