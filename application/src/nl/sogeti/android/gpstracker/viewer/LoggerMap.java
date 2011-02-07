@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
-import org.osmdroid.tileprovider.util.CloudmadeUtil;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.NameTrack;
@@ -44,12 +42,14 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.logger.ApplicationPreferenceActivity;
+import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
 import nl.sogeti.android.gpstracker.viewer.proxy.MyLocationOverlayProxy;
+
+import org.osmdroid.tileprovider.util.CloudmadeUtil;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -79,7 +79,6 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -608,11 +607,6 @@ public class LoggerMap extends MapActivity
          GeoPoint lastPoint = getLastTrackPoint();
          this.mMapView.getController().animateTo( lastPoint );
       }
-   }
-   
-   private void restoreMapState( Bundle load )
-   {
-
    }
 
    @Override
@@ -1150,6 +1144,18 @@ public class LoggerMap extends MapActivity
    {
       return true;
    }
+   
+   /**
+    * (non-Javadoc)
+    * 
+    * @see com.google.android.maps.MapActivity#isLocationDisplayed()
+    */
+   @Override
+   protected boolean isLocationDisplayed()
+   {
+      return mSharedPreferences.getBoolean( Constants.LOCATION, false );
+   }
+   
 
    private void updateTitleBar()
    {
