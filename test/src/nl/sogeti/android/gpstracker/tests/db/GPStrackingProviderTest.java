@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.tests.db;
 
 import junit.framework.Assert;
 import nl.sogeti.android.gpstracker.db.GPStracking;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStrackingProvider;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -42,6 +43,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.view.View.MeasureSpec;
 
 /**
  * Basically test that the functions offered by the content://nl.sogeti.android.gpstracker does what is documented.
@@ -589,7 +591,125 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       segmentMedia.close();
       waypointMedia.close();
       media.close();
-
    }
 
+   @SmallTest
+   public void testInsertMetaData()
+   {
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
+      Uri waypointsUri = Uri.withAppendedPath( segmentUri, "waypoints" );
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.LONGITUDE, new Double( 37.8657d ) );
+      wp.put( Waypoints.LATITUDE, new Double( -122.305d ) );
+      Uri waypointUri = this.mResolver.insert( waypointsUri, wp );
+
+      Uri trackMetaDataUri = Uri.withAppendedPath( trackUri, "metadata" );
+      Uri segmentMetaDatari = Uri.withAppendedPath( segmentUri, "metadata" );
+      Uri waypointsMetaDataUri = Uri.withAppendedPath( waypointUri, "metadata" );
+      Cursor trackMetaData = this.mResolver.query( trackMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Cursor segmentMetaData = this.mResolver.query( segmentMetaDatari, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Cursor waypointMetaData = this.mResolver.query( waypointsMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+
+      Assert.assertEquals( "No track metadata", 0, trackMetaData.getCount() );
+      Assert.assertEquals( "No segment metadata", 0, segmentMetaData.getCount() );
+      Assert.assertEquals( "No waypoint metadata", 0, waypointMetaData.getCount() );
+
+      Cursor metaData;
+      Uri metaDataInsertUri;
+      Uri mediaUri;
+      ContentValues args = new ContentValues();
+      args.put( MetaData.KEY, "A key" );
+      args.put( MetaData.VALUE, "A value" );
+      
+      metaDataInsertUri = Uri.withAppendedPath( waypointUri, "metadata" );
+      mediaUri = this.mResolver.insert( metaDataInsertUri, args );
+      Assert.assertNotNull( "Uri returned", mediaUri );
+      
+      metaData = this.mResolver.query( mediaUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Assert.assertEquals( "Insert successful", 1, metaData.getCount() );
+      trackMetaData.requery();
+      segmentMetaData.requery();
+      waypointMetaData.requery();
+      Assert.assertEquals( "Single waypoint media", 1, waypointMetaData.getCount() );
+      Assert.assertEquals( "No segment media", 0, segmentMetaData.getCount() );
+      Assert.assertEquals( "No track media", 0, trackMetaData.getCount() );
+      metaData.close();
+      
+      metaDataInsertUri = Uri.withAppendedPath( segmentUri, "metadata" );
+      mediaUri = this.mResolver.insert( metaDataInsertUri, args );
+      Assert.assertNotNull( "Uri returned", mediaUri );
+      
+      Assert.assertNotNull( "Uri returned", mediaUri );
+      metaData = this.mResolver.query( mediaUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Assert.assertEquals( "Insert successful", 1, metaData.getCount() );
+      trackMetaData.requery();
+      segmentMetaData.requery();
+      waypointMetaData.requery();
+      Assert.assertEquals( "Single waypoint media", 1, waypointMetaData.getCount() );
+      Assert.assertEquals( "Single segment media", 1, segmentMetaData.getCount() );
+      Assert.assertEquals( "No track media", 0, trackMetaData.getCount() );
+      metaData.close();
+      
+      metaDataInsertUri = Uri.withAppendedPath( trackUri, "metadata" );
+      mediaUri = this.mResolver.insert( metaDataInsertUri, args );
+      Assert.assertNotNull( "Uri returned", mediaUri );
+      
+      Assert.assertNotNull( "Uri returned", mediaUri );
+      metaData = this.mResolver.query( mediaUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Assert.assertEquals( "Insert successful", 1, metaData.getCount() );
+      trackMetaData.requery();
+      segmentMetaData.requery();
+      waypointMetaData.requery();
+      Assert.assertEquals( "Single waypoint media", 1, waypointMetaData.getCount() );
+      Assert.assertEquals( "Single segment media", 1, segmentMetaData.getCount() );
+      Assert.assertEquals( "Single track media", 1, trackMetaData.getCount() );
+      metaData.close();
+      
+      trackMetaData.close();
+      segmentMetaData.close();
+      waypointMetaData.close();
+   }
+   
+   @SmallTest
+   public void testDeleteTrackWithMetaData()
+   {
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.LONGITUDE, new Double( 37.8657d ) );
+      wp.put( Waypoints.LATITUDE, new Double( -122.305d ) );
+      ContentValues args = new ContentValues();
+      args.put( MetaData.KEY, "a test" );
+      args.put( MetaData.VALUE, "value" );
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
+      Uri waypointsUri = Uri.withAppendedPath( segmentUri, "waypoints" );
+      Uri waypointUri = this.mResolver.insert( waypointsUri, wp );
+
+      Uri trackMetaDataUri = Uri.withAppendedPath( trackUri, "metadata" );
+      Uri segmentMetaDataUri = Uri.withAppendedPath( segmentUri, "metadata" );
+      Uri waypointsMetaDataUri = Uri.withAppendedPath( waypointUri, "metadata" );
+      
+      this.mResolver.insert( trackMetaDataUri, args );
+      this.mResolver.insert( segmentMetaDataUri, args );
+      this.mResolver.insert( waypointsMetaDataUri, args );
+      Cursor media = this.mResolver.query( MetaData.CONTENT_URI, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Assert.assertTrue( "Enough media", media.getCount() >= 3 );
+      
+      this.mResolver.delete( trackUri, null, null );
+
+      Cursor trackMedia = this.mResolver.query( trackMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Cursor segmentMedia = this.mResolver.query( segmentMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Cursor waypointMedia = this.mResolver.query( waypointsMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      media.requery();
+
+      Assert.assertEquals( "No track media", 0, trackMedia.getCount() );
+      Assert.assertEquals( "No segment media", 0, segmentMedia.getCount() );
+      Assert.assertEquals( "No waypoint media", 0, waypointMedia.getCount() );
+      Assert.assertEquals( "No media", 0, media.getCount() );
+
+      trackMedia.close();
+      segmentMedia.close();
+      waypointMedia.close();
+      media.close();
+   }
 }

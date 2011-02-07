@@ -61,14 +61,14 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner
    {
       TestSuite suite = new InstrumentationTestSuite( this );
       suite.setName( "GPS Tracking Testsuite" );
-//      suite.addTestSuite( GPStrackingProviderTest.class );
-//      suite.addTestSuite( MockGPSLoggerServiceTest.class );
-//      suite.addTestSuite( GPSLoggerServiceTest.class );
-//      suite.addTestSuite( ExportGPXTest.class );
-//      suite.addTestSuite( LoggerMapTest.class );
+      suite.addTestSuite( GPStrackingProviderTest.class );
+      suite.addTestSuite( MockGPSLoggerServiceTest.class );
+      suite.addTestSuite( GPSLoggerServiceTest.class );
+      suite.addTestSuite( ExportGPXTest.class );
+      suite.addTestSuite( LoggerMapTest.class );
       
 //      suite.addTestSuite( OpenGPSTrackerDemo.class );   // The demo recorded for youtube
-      suite.addTestSuite( MapStressTest.class );       // The stress test of the map viewer
+//      suite.addTestSuite( MapStressTest.class );       // The stress test of the map viewer
       return suite;
    }
 

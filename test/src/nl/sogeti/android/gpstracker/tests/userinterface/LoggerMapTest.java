@@ -37,6 +37,7 @@ import android.content.pm.ActivityInfo;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.FlakyTest;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.google.android.maps.MapView;
 
@@ -79,6 +80,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
     * 
     */
    @MediumTest
+   @Suppress
    public void testStartTracking() throws InterruptedException
    {
       GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(  this.getInstrumentation().getContext() );
@@ -103,6 +105,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
     */
    @FlakyTest
    @MediumTest
+   @Suppress
    public void testBackgroundTracking() throws Exception
    {
       GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(  this.getInstrumentation().getContext() );
@@ -133,6 +136,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
     * 
     */
    @MediumTest
+   @Suppress
    public void testMapKeyControls()
    {     
       //1. Applicatie starten
@@ -158,6 +162,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
     * 
     */
    @MediumTest
+   @Suppress
    public void testOrientationSwitch()
    {
       this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
