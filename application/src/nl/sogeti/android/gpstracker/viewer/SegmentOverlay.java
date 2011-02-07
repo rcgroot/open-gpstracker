@@ -119,6 +119,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Point mPrevDrawnScreenPoint;
    private Point mScreenPointBackup;
    private Point mScreenPoint;
+   private Point mMediaScreenPoint;
    private Point startStopCirclePoint;
    private int mStepSize = -1;
    private MapViewProxy mMapView;
@@ -172,6 +173,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          SegmentOverlay.this.calculateTrackAsync();
       }
    };
+   
    /**
     * Constructor: create a new TrackingOverlay.
     * 
@@ -209,6 +211,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       routePaint.setPathEffect( new CornerPathEffect( 10 ) );
       defaultPaint = new Paint();
       mScreenPoint = new Point();
+      mMediaScreenPoint = new Point();
       startStopCirclePoint = new Point();
       mScreenPointBackup = new Point();
       mPrevDrawnScreenPoint = new Point();
@@ -413,7 +416,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                   lineToGeoPoint( geoPoint, speed );
                   break;
                default:
-                  lineToGeoPoint( geoPoint, speed );
+                  Log.w( TAG, "Unknown coloring method" );
                   break;
             }
             moves++;
@@ -604,7 +607,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          {
             if( isOnScreen( mediaVO.geopoint ) )
             {
-               setScreenPoint( mediaVO.geopoint );
+               this.mProjection.toPixels( mediaVO.geopoint, this.mMediaScreenPoint );
+               mCalculatedPoints++;
                int drawable = getResourceForMedia( mediaVO.uri );
                if( mediaVO.geopoint.equals( lastPoint ) )
                {
@@ -619,8 +623,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                mediaVO.h = bitmap.getHeight();
                int left = ( mediaVO.w * 3 ) / 7 + wiggle;
                int up = ( mediaVO.h * 6 ) / 7 - wiggle;
-               mediaVO.x = mScreenPoint.x - left;
-               mediaVO.y = mScreenPoint.y - up;
+               mediaVO.x = mMediaScreenPoint.x - left;
+               mediaVO.y = mMediaScreenPoint.y - up;
                canvas.drawBitmap( bitmap, mediaVO.x, mediaVO.y, defaultPaint );
                lastPoint = mediaVO.geopoint;
             }
