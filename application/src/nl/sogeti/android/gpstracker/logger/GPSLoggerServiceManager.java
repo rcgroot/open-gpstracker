@@ -201,6 +201,31 @@ public class GPSLoggerServiceManager
          }
       }
    }
+   
+   public void storeDerivedDataSource( String datasource )
+   {
+      synchronized (mStartLock)
+      {
+         if( mStarted )
+         {
+            try
+            {
+               if( this.mGPSLoggerRemote != null )
+               {
+                  this.mGPSLoggerRemote.storeDerivedDataSource( datasource );
+               }
+            }
+            catch (RemoteException e)
+            {
+               Log.e( GPSLoggerServiceManager.REMOTE_EXCEPTION, "Could not send datasource to GPSLoggerService.", e );
+            }
+         }
+         else
+         {
+            Log.e( TAG, "No GPSLoggerRemote service connected to this manager" );
+         }
+      }
+   }
 
    public void storeMediaUri( Uri mediaUri )
    {

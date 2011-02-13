@@ -35,6 +35,7 @@ import java.util.concurrent.Semaphore;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -118,6 +119,9 @@ public class GPSLoggerService extends Service
    private int mPrecision;
    private int mLoggingState = Constants.STOPPED;
    private boolean mStartNextSegment;
+
+   private String mSources = "";
+
 
    private Location mPreviousLocation;
    private Notification mNotification;
@@ -291,6 +295,11 @@ public class GPSLoggerService extends Service
          public boolean isMediaPrepared() throws RemoteException
          {
             return GPSLoggerService.this.isMediaPrepared();
+         }
+
+         public void storeDerivedDataSource(String sourceName) throws RemoteException
+         {
+            GPSLoggerService.this.storeDerivedDataSource(sourceName);
          }
       };
 
@@ -506,6 +515,26 @@ public class GPSLoggerService extends Service
          updateWakeLock();
          mNoticationManager.cancel( R.layout.map );
          crashProtectState();
+      }
+   }
+
+   /**
+    * (non-Javadoc)
+    * 
+    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#storeDerivedDataSource(java.lang.String)
+    */
+   public void storeDerivedDataSource(String sourceName)
+   {
+      if( this.mLoggingState == Constants.PAUSED || this.mLoggingState == Constants.LOGGING )
+      {
+         if( !mSources.contains(sourceName) )
+         {
+            mSources += ","+sourceName;
+            Uri trackMetaDataUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/metadata" );
+            ContentValues args = new ContentValues();
+            args.put( MetaData.VALUE, "firstvalue" );
+            this.getContentResolver().update( trackMetaDataUri, args, MetaData.KEY+" = ? ", new String[]{"DATASOURCES"} );
+         }
       }
    }
 

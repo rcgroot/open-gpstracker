@@ -188,6 +188,7 @@ public class LoggerMap extends MapActivity
                {
                   moveActiveViewWindow();
                   mLastSegmentOverlay.calculateTrack();
+                  LoggerMap.this.updateMapProviderAdministration();
                }
                else
                {
@@ -1213,6 +1214,19 @@ public class LoggerMap extends MapActivity
    {
       int baselayer = mSharedPreferences.getInt( Constants.OSMBASEOVERLAY, 0 );
       mMapView.setOSMType( baselayer );
+   }
+
+   protected void updateMapProviderAdministration()
+   {
+      if( findViewById( R.id.myMapView ).getVisibility() == View.VISIBLE )
+      {
+         mLoggerServiceManager.storeDerivedDataSource("GOOGLE");
+      }
+      if( findViewById( R.id.myOsmMapView ).getVisibility() == View.VISIBLE )
+      {
+         mLoggerServiceManager.storeDerivedDataSource("OSM");
+         
+      }
    }
 
    private void updateBlankingBehavior()
