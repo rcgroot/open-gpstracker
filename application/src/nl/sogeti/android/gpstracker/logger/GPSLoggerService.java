@@ -664,7 +664,7 @@ public class GPSLoggerService extends Service
 
    private void sendRequestLocationUpdatesMessage()
    {
-      this.mLocationManager.removeUpdates( mLocationListener );
+      mLocationManager.removeUpdates( mLocationListener );
       mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.PRECISION, "1" ) ).intValue();
       Message msg = Message.obtain();
       switch( mPrecision )
@@ -810,6 +810,8 @@ public class GPSLoggerService extends Service
             // Might be a messed up Samsung Galaxy S GPS, reset the logging
             if( mPrecision != Constants.LOGGING_GLOBAL )
             {
+               Log.w( TAG, "A strange location was recieved on GPS, reset the GPS listeners" );
+               mLocationManager.removeUpdates( mLocationListener );
                mLocationManager.removeGpsStatusListener( mStatusListener );
                mLocationManager = (LocationManager) this.getSystemService( Context.LOCATION_SERVICE );
                sendRequestStatusUpdateMessage();
