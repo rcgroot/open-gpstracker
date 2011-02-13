@@ -533,15 +533,15 @@ public class ShareTrack extends Activity
       catch (IOException e)
       {
          Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: "+responseText, e);
-         CharSequence text = getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
+         responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
+         Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
          toast.show();
       }
       catch (AuthenticationException e)
       {
          Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: "+responseText, e);
-         CharSequence text = getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
+         responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
+         Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
          toast.show();
       }
       finally
