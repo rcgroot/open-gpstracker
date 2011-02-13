@@ -7,6 +7,7 @@
     </string-array>
     
     <string-array name="precision_choices">
+        <item>Custom</item>
         <item>極好</item>
         <item>正常</item>
         <item>粗糙</item>
@@ -40,6 +41,7 @@
         <item>儲存到SD卡</item>
         <item>使用一個(Email)程式傳送</item>
         <item>http://www.jogmap.de</item>
+        <item>http://www.openstreetmap.org/</item>
     </string-array>
 
     <string-array name="sharekmztarget_choices">
@@ -52,12 +54,14 @@
         <item>短信</item>
         <item>通用文字傳送</item>
     </string-array>
-
-    <string-array name="about_artists" translatable="false">
-        <item>程式圖示：Android 開源項目</item>
-        <item>泡沫圖示：ICONS etc. MySiteMyWay</item>
+    
+    <string-array name="osmvisibility_choices">
+        <item>Identifiable (Recommended)</item>
+        <item>Public</item>
+        <item>Trackable (Preferred over \'Private\' option)</item>
+        <item>Private</item>
     </string-array>
-
+    
     <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
         <item>安智網中文化 (bbs.goapk.com)</item>
         <item>NetDragon Websoft Inc. http://www.nd.com.cn/</item>

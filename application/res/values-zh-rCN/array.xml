@@ -7,10 +7,16 @@
     </string-array>
     
     <string-array name="precision_choices">
+		<item>Custom</item>
         <item>极好</item>
         <item>正常</item>
         <item>粗糙</item>
         <item>总的</item>
+    </string-array>
+    
+    <string-array name="mapprovider_choices">
+        <item>Google Maps</item>
+        <item>OpenStreetMap</item>
     </string-array>   
     
     <string-array name="trackcoloring_choices">
@@ -39,7 +45,8 @@
     <string-array name="sharegpxtarget_choices">
         <item>保存到SD卡</item>
         <item>使用一个(Email)程序发送</item>
-        <item>http://www.jogmap.de</item>
+        <item>http://www.jogmap.de/</item>
+        <item>http://www.openstreetmap.org/</item>
     </string-array>
     
     <string-array name="sharekmztarget_choices">
@@ -53,9 +60,11 @@
         <item>通用文本发送</item>
     </string-array>
 
-    <string-array name="about_artists" translatable="false">
-        <item>程序图标：Android 开源项目</item>
-        <item>泡沫图标：ICONS etc. MySiteMyWay</item>
+    <string-array name="osmvisibility_choices">
+        <item>Identifiable (Recommended)</item>
+        <item>Public</item>
+        <item>Trackable (Preferred over \'Private\' option)</item>
+        <item>Private</item>
     </string-array>
 
     <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
