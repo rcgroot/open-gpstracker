@@ -187,7 +187,6 @@ public class LoggerMap extends MapActivity
                if( mLastSegmentOverlay != null )
                {
                   moveActiveViewWindow();
-                  mLastSegmentOverlay.calculateTrack();
                   LoggerMap.this.updateMapProviderAdministration();
                }
                else

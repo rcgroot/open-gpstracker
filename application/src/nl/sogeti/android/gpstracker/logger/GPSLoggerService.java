@@ -51,6 +51,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.database.Cursor;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.GpsStatus.Listener;
@@ -120,7 +121,7 @@ public class GPSLoggerService extends Service
    private int mLoggingState = Constants.STOPPED;
    private boolean mStartNextSegment;
 
-   private String mSources = "";
+   private String mSources ;
 
 
    private Location mPreviousLocation;
@@ -525,15 +526,55 @@ public class GPSLoggerService extends Service
     */
    public void storeDerivedDataSource(String sourceName)
    {
-      if( this.mLoggingState == Constants.PAUSED || this.mLoggingState == Constants.LOGGING )
+      String keyValue = "DATASOURCES";
+      Uri trackMetaDataUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/metadata" );
+
+      if( mTrackId >= 0 )
       {
+         if( mSources == null )
+         {
+            Cursor metaData = null;
+            String source = null;
+            try
+            {
+               metaData = this.getContentResolver().query(
+                     trackMetaDataUri, 
+                     new String[]{ MetaData.VALUE }, 
+                     MetaData.KEY+" = ? ", 
+                     new String[]{keyValue}, 
+                     null );
+               if( metaData.moveToFirst() )
+               {
+                  source = metaData.getString(0);
+               }
+            }
+            finally
+            {
+               if( metaData != null )
+               {
+                  metaData.close();
+               }
+            }
+            if( source != null )
+            {
+               mSources = source;        
+            }
+            else
+            {
+               mSources = sourceName;
+               ContentValues args = new ContentValues();
+               args.put( MetaData.KEY, keyValue );
+               args.put( MetaData.VALUE, mSources);
+               this.getContentResolver().insert( trackMetaDataUri, args );
+            }
+         }
+         
          if( !mSources.contains(sourceName) )
          {
             mSources += ","+sourceName;
-            Uri trackMetaDataUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/metadata" );
             ContentValues args = new ContentValues();
-            args.put( MetaData.VALUE, "firstvalue" );
-            this.getContentResolver().update( trackMetaDataUri, args, MetaData.KEY+" = ? ", new String[]{"DATASOURCES"} );
+            args.put( MetaData.VALUE, mSources );
+            this.getContentResolver().update( trackMetaDataUri, args, MetaData.KEY+" = ? ", new String[]{keyValue} );
          }
       }
    }
