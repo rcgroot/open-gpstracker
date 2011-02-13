@@ -191,8 +191,11 @@ public class TrackList extends ListActivity
 
       displayIntent( getIntent() );
 
+      ListView listView = getListView();
+      listView.setItemsCanFocus(false);
       // Add the context menu (the long press thing)
-      registerForContextMenu( getListView() );
+      registerForContextMenu( listView );
+
    }
 
    @Override

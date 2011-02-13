@@ -1,24 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" 
+    android:layout_height="?android:attr/listPreferredItemHeight">
 
-	<TextView android:id="@+id/listitem_name"
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:textStyle="bold" android:textSize="18sp"/>
+	<TextView 
+	    android:id="@+id/listitem_name"
+        android:layout_height="wrap_content" 
+		android:layout_width="fill_parent" 
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_alignParentTop="true" 
+        android:paddingLeft="6dip"
+        android:paddingRight="6dip"
+        />
 
-	<TableRow android:id="@+id/TableRow01" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" >>
-		
-        <TextView android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="@string/from">
-        </TextView>
-		
-		<nl.sogeti.android.gpstracker.util.DateView 
-		    android:layout_height="wrap_content"
-			android:layout_width="wrap_content" 
-			android:id="@+id/listitem_from" />
-		
-	</TableRow>
-</LinearLayout>
+	<TextView 
+        android:id="@+id/from_textview"
+	    android:layout_height="wrap_content"
+		android:layout_width="wrap_content" 
+		android:text="@string/from"
+		android:layout_below="@+id/listitem_name"
+	    android:paddingLeft="6dip"
+        android:paddingTop="3dip"
+		/>
+
+	<nl.sogeti.android.gpstracker.util.DateView
+		android:layout_height="wrap_content" 
+		android:layout_width="wrap_content"
+		android:id="@+id/listitem_from" 
+        android:layout_below="@+id/listitem_name"
+		android:layout_toRightOf="@+id/from_textview"
+        android:paddingLeft="3dip"
+		android:paddingTop="3dip"
+		/>
+
+</RelativeLayout>
