@@ -101,6 +101,11 @@ public class Constants
    public static final String OSM_PASSWORD = "OSM_PASSWORD";
    public static final String OSM_VISIBILITY = "OSM_VISIBILITY";
    
+
+   public static final String DATASOURCES_KEY = "DATASOURCES";
+
+
+   
    /**
     * Based on preference return the SD-Card directory in which Open GPS Tracker creates and stores files
     * shared tracks,

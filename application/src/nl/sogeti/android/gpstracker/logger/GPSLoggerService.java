@@ -81,7 +81,6 @@ import android.widget.Toast;
  */
 public class GPSLoggerService extends Service
 {
-
    /**
     * <code>MAX_REASONABLE_SPEED</code> is about 216 kilometer per hour or 134 mile per hour.
     */
@@ -526,7 +525,6 @@ public class GPSLoggerService extends Service
     */
    public void storeDerivedDataSource(String sourceName)
    {
-      String keyValue = "DATASOURCES";
       Uri trackMetaDataUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/metadata" );
 
       if( mTrackId >= 0 )
@@ -541,7 +539,7 @@ public class GPSLoggerService extends Service
                      trackMetaDataUri, 
                      new String[]{ MetaData.VALUE }, 
                      MetaData.KEY+" = ? ", 
-                     new String[]{keyValue}, 
+                     new String[]{Constants.DATASOURCES_KEY}, 
                      null );
                if( metaData.moveToFirst() )
                {
@@ -563,7 +561,7 @@ public class GPSLoggerService extends Service
             {
                mSources = sourceName;
                ContentValues args = new ContentValues();
-               args.put( MetaData.KEY, keyValue );
+               args.put( MetaData.KEY, Constants.DATASOURCES_KEY );
                args.put( MetaData.VALUE, mSources);
                this.getContentResolver().insert( trackMetaDataUri, args );
             }
@@ -574,7 +572,7 @@ public class GPSLoggerService extends Service
             mSources += ","+sourceName;
             ContentValues args = new ContentValues();
             args.put( MetaData.VALUE, mSources );
-            this.getContentResolver().update( trackMetaDataUri, args, MetaData.KEY+" = ? ", new String[]{keyValue} );
+            this.getContentResolver().update( trackMetaDataUri, args, MetaData.KEY+" = ? ", new String[]{Constants.DATASOURCES_KEY} );
          }
       }
    }

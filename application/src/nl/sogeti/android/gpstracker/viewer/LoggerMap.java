@@ -109,6 +109,8 @@ import com.google.android.maps.MapActivity;
  */
 public class LoggerMap extends MapActivity
 {
+   private static final String OSM_PROVIDER = "OSM";
+   public static final String GOOGLE_PROVIDER = "GOOGLE";
    private static final int ZOOM_LEVEL = 16;
    // MENU'S
    private static final int MENU_SETTINGS = 1;
@@ -1219,11 +1221,11 @@ public class LoggerMap extends MapActivity
    {
       if( findViewById( R.id.myMapView ).getVisibility() == View.VISIBLE )
       {
-         mLoggerServiceManager.storeDerivedDataSource("GOOGLE");
+         mLoggerServiceManager.storeDerivedDataSource(GOOGLE_PROVIDER);
       }
       if( findViewById( R.id.myOsmMapView ).getVisibility() == View.VISIBLE )
       {
-         mLoggerServiceManager.storeDerivedDataSource("OSM");
+         mLoggerServiceManager.storeDerivedDataSource(OSM_PROVIDER);
          
       }
    }

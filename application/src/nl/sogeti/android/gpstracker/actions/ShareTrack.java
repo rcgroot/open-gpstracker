@@ -45,6 +45,7 @@ import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
@@ -352,7 +353,7 @@ public class ShareTrack extends Activity
             {
                public void shareFile(Uri fileUri, String contentType)
                {
-                  sendToOsm(fileUri, contentType);
+                  sendToOsm(fileUri, mTrackUri, contentType);
                }
             };
             break;
@@ -474,10 +475,8 @@ public class ShareTrack extends Activity
     * @param fileUri
     * @param contentType
     */
-   private void sendToOsm(Uri fileUri, String contentType)
+   private void sendToOsm(Uri fileUri, Uri trackUri, String contentType)
    {
-      //TODO: Check or warn for using Google Maps derived tracks data
-      
       String username = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_USERNAME, "");
       String password = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_PASSWORD, "");
       String visibility = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_VISIBILITY, "trackable");
@@ -490,8 +489,25 @@ public class ShareTrack extends Activity
       HttpResponse response = null;
       String responseText = "";
       int statusCode = 0;
+      Cursor metaData = null;
+      String sources = null;
       try
-      {                  
+      {
+         metaData = this.getContentResolver().query(
+               Uri.withAppendedPath( trackUri, "metadata" ), 
+               new String[]{ MetaData.VALUE }, 
+               MetaData.KEY+" = ? ", 
+               new String[]{Constants.DATASOURCES_KEY}, 
+               null );
+         if( metaData.moveToFirst() )
+         {
+            sources = metaData.getString(0);
+         }
+         if( sources != null && sources.contains(LoggerMap.GOOGLE_PROVIDER) )
+         {
+            throw new IOException( "Unable to upload track with materials derived from Google Maps." );
+         }
+         
          // The POST to the create node
          HttpPost method = new HttpPost( getString(R.string.osm_post_context) );
          
@@ -528,6 +544,14 @@ public class ShareTrack extends Activity
          Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
       }
+      finally
+      {
+         if( metaData != null )
+         {
+            metaData.close();
+         }
+      }
+      
       if (statusCode == 200)
       {
          Log.i(TAG, responseText);
