@@ -7,6 +7,7 @@
     </string-array>
     
     <string-array name="precision_choices">
+        <item>Eigene Werte</item>
         <item>Fein</item>
         <item>Normal</item>
         <item>Mittel</item>
@@ -14,8 +15,8 @@
     </string-array>
     
     <string-array name="mapprovider_choices">
-        <item>Google Maps (Voreinstellung)</item>
-        <item>OpenStreetMap (experimental)</item>
+        <item>Google Maps</item>
+        <item>OpenStreetMap</item>
     </string-array>   
     
     <string-array name="trackcoloring_choices">
@@ -45,6 +46,7 @@
         <item>Auf SD-Karte speichern</item>
         <item>Mit E-Mail-App senden</item>
         <item>Zu www.jogmap.de hochladen</item>
+        <item>Zu OpenStreetMap traces hochladen</item>
     </string-array>
     
     <string-array name="sharekmztarget_choices">
@@ -58,18 +60,11 @@
         <item>Text senden</item>
     </string-array>
 
-    <string-array name="about_authors" translatable="false"><!-- Add your name here if you helped out -->
-        <item>René de Groot</item>
-        <item>Tom Van Braeckel</item>        
-    </string-array>
-
-    <string-array name="about_documenters" translatable="false">
-        <item>René de Groot</item>
-    </string-array>
-
-    <string-array name="about_artists" translatable="false">
-        <item>Program icons: The Android Open Source Project</item>
-        <item>Bubbles icons: ICONS etc. MySiteMyWay</item>
+    <string-array name="osmvisibility_choices">
+        <item>Identifiable (Empfohlen)</item>
+        <item>Public</item>
+        <item>Trackable (Bevorzugte Option über \'Private\')</item>
+        <item>Private</item>
     </string-array>
 
     <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->

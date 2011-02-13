@@ -7,11 +7,17 @@
     </string-array>
     
     <string-array name="precision_choices">
+    	<item>Aangepast</item>
         <item>Fijn</item>
         <item>Normaal</item>
         <item>Grof</item>
         <item>Globaal</item>
     </string-array>
+
+    <string-array name="mapprovider_choices">
+        <item>Google Maps</item>
+        <item>OpenStreetMap</item>
+    </string-array>   
     
     <string-array name="trackcoloring_choices">
         <item>Groen</item>
@@ -52,7 +58,14 @@
         <item>SMS</item>
         <item>Overige tekst applicaties</item>
     </string-array>
-    
+
+    <string-array name="osmvisibility_choices">
+        <item>Identifiable (aanbevolen)</item>
+        <item>Public</item>
+        <item>Trackable (Beter dan \'Private\' optie)</item>
+        <item>Private</item>
+    </string-array>
+
     <string-array name="about_translators" translatable="false">
         <item>René de Groot</item>
     </string-array>

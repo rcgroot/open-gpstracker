@@ -16,7 +16,7 @@
     
     <string-array name="mapprovider_choices">
         <item>Google Maps</item>
-        <item>OpenStreetMap (experimental)</item>
+        <item>OpenStreetMap</item>
     </string-array>   
     
     <string-array name="trackcoloring_choices">
@@ -63,63 +63,11 @@
     <string-array name="osmvisibility_choices">
         <item>Identifiable (Recommended)</item>
         <item>Public</item>
-        <item>Trackable (Preferred over \'Private\' Option)</item>
+        <item>Trackable (Preferred over \'Private\' option)</item>
         <item>Private</item>
     </string-array>
     
-    <string-array name="precision_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-    </string-array>
-    
-    <string-array name="mapprovider_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
-    
-    <string-array name="trackcoloring_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-    </string-array>  
-
-    <string-array name="units_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-    </string-array>
-
-    <string-array name="osmvisibility_values" translatable="false">
-        <item>identifiable</item>
-        <item>public</item>
-        <item>trackable</item>
-        <item>private</item>
-    </string-array>  
-
-    <string-array name="about_authors" translatable="false"><!-- Add your name here if you helped out -->
-        <item>René de Groot</item>
-        <item>Tom Van Braeckel</item>
-    </string-array>
-
-    <string-array name="about_documenters" translatable="false">
-        <item>René de Groot</item>
-    </string-array>
-
-    <string-array name="about_artists" translatable="false">
-        <item>Program icons: The Android Open Source Project</item>
-        <item>Bubbles icons: ICONS etc. MySiteMyWay</item>
-    </string-array>
-
     <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
         <item>René de Groot</item>
     </string-array>
-    
 </resources>

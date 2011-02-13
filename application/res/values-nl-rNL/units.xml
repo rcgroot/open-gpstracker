@@ -3,8 +3,10 @@
 <string name="speed_unitname">km/u</string>
 <string name="distance_unitname">km</string>
 <string name="distance_smallunitname">meter</string>
+
 <string name="knot_unitname">knopen</string>
 <string name="nautic_unitname">zeemijl</string>
+
 <string name="pace_unitname">min/km</string>
 <string name="pace_unitname_imperial">min/mile</string>
 </resources>

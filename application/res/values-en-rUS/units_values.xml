@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<item name="conversion_from_mps"                 type="raw" format="float">2.236936292</item>
+	<item name="conversion_from_meter"               type="raw" format="float">0.000621371</item>
+	<item name="conversion_from_meter_to_height"     type="raw" format="float">3.2808</item>
+</resources>

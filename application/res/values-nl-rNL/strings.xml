@@ -3,6 +3,7 @@
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Opstarten opname service</string>
 	<string name="service_gpsstatus">Loggen: %1$s (%2$s met %3$d satellieten)</string>
+    <string name="service_gpsnostatus">Logging: %1$s (Nauwkeurigheid %2$s)</string>
     <string name="service_networkstatus">Loggen: %1$s (%2$s met gsm and wifi )</string>
     <string name="service_gpsdisabled">GPS is uitgeschakeld, opnemen heeft geen effect.</string>
     <string name="service_gpsenabled">GPS is ingeschakeld, opnemen gaat van start.</string>
@@ -40,6 +41,9 @@
     <string name="layer_altitude">Hoogte</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">Mijn locatie</string>
+    <string name="layer_cloudmade">CloudMade maps</string>
+    <string name="layer_maknik">Mapnik</string>
+    <string name="layer_bicycle">OpenCycleMap</string>
     <string name="dialog_notwidroid">twidroid nodig</string>
     <string name="dialog_notwidroid_message">De applicatie \"twidroid\" is nodig om deze regel te tweeten.</string>
     <string name="dialog_vacuum_title">Snoei data</string>
@@ -50,6 +54,31 @@
     <string name="menu_picker">Import</string>
     <string name="dialog_nooipicker">OI File Manager</string>
     <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files.</string>
+    <string name="dialog_contrib_title">Bijdrage</string>
+    <string name="dialog_contrib_message">
+    <b>Code</b>
+    \n
+    De applicatie en de bijbehorende broncodes zijn publiek beschikbaar. Bijdrage in de 
+    vorm zijn patches en code zijn zeer welkom. De complete applicatie is met GPL
+    licentie beschikbaar op http://code.google.com/p/open-gpstracker/source
+    \n\n
+    <b>Fouten</b>
+    \n
+    Stuur alstublieft een bericht in het geval van een fout, vastloper of probleem.
+    Door problemen te loggen het probleem op 
+    http://code.google.com/p/open-gpstracker/issues/entry kunt u een belangrijke 
+    bijdragen leveren aan deze applicatie.
+    \n\n
+    <b>Ideeën</b>
+    \n
+    Heeft u ideeën die deze applicatie kunnen verbeteren? Plaats een uitleg
+    op http://code.google.com/p/open-gpstracker/issues/entry
+    \n\n
+    <b>Donaties</b>
+    \n
+    Hopelijk bevalt de applicatie. PayPal donaties worden gewaardeerd op rcgroot@gmail.com
+    \n\n
+    </string>
     
     <!-- Messages -->
     <string name="from">Opgenomen op: </string>
@@ -62,9 +91,9 @@
     <string name="error_buildxml"> reden: Fout tijdens bouwen XML</string>
     <string name="error_writesdcard"> reden: Fout tijdens schrijven naar de SDcard</string>
     <string name="tweettext">%1$s: Afgelegd %2$s met een gemiddelde snelheid van %3$s gedurende %4$s #opengpstracker</string>
-    <string name="error_importgpx_xml">Failed reading the XML during import.</string>
-    <string name="error_importgpx_io">Failed reading the file during import.</string>
-    <string name="error_importgpx_parse">Failed reading a number during import.</string>
+    <string name="error_importgpx_xml">Er was een probleem met het lezen van de XML.</string>
+    <string name="error_importgpx_io">Er was een probleem bij het lezen van het bestand.</string>
+    <string name="error_importgpx_parse">Er was een probleem met het lezen van een getal.</string>
 
 	<!-- Buttons -->
 	<string name="btn_okay">OK</string>
@@ -164,8 +193,29 @@
     <string name="jogmap_summary">De authentication code om the uploaden naar een jogmap.de account</string>
     <string name="jogmap_failed">Het is mislukt om de route te uploaden naar jogmap.de: </string>
     <string name="jogmap_success">Succesvol gestuurd naar jogmap.de: </string>
+    <string name="jogrunner_message">Vul de toegangscode uit http://www.jogmap.de/civic4/?q=mobilinfo in.</string>
     <string name="import_track">Import een route naar Open GPS Tracker</string>
-    
+    <string name="preference_logging">Loggen en GPS gebruik instellingen</string>
+    <string name="customprecisiontime_title">Doel tijdsinterval in minuten</string>
+    <string name="customprecisiontime_summary">De tijd die de GPS ontvangen kan slapen tussen opname punten.</string>
+    <string name="customprecisiondistance_title">Doel afstandsinterval in meters</string>
+    <string name="customprecisiondistance_summary">De afstand die tussen opname punten past.</string>
+    <string name="gpsstatusmonitor_title">Monitor GPS status</string>
+    <string name="gpsstatusmonitor_summary">Toont het aantal satelieten waar signaal van komt.</string>
+	<string name="osmusername_title">OpenStreetMap gebruikersnaam</string>
+	<string name="osmusername_summary">De gebruikersnaam aangemaakt op http://www.openstreetmap.org/user/new</string>
+	<string name="osmusername_message">Een OpenStreetMap account maakt het mogelijk om map data contributies te maken. Open GPS Tracker kan alleen routes oploaden die zonder Google kaartmateriaal zijn opgenomen.</string>
+	<string name="osmpassword_title">OpenStreetMap wachtwoord</string>
+	<string name="osmpassword_summary">Het wachtwoord aangemaakt op http://www.openstreetmap.org/user/new</string>
+	<string name="osmpassword_message">Dit wachtwoord zal met HTTP en Basic Authorization op de openstreetmap.org server gebruikt worden.</string>
+	<string name="osmvisibility_title">De publieke zichtbaarheid van de GPS route on openstreetmap.org</string>
+	<string name="osmvisibility_summary">Raadpleeg de openstreetmap.org wiki voor informatie over de zichtbaarheid niveau\'s.</string>
+    <string name="osm_success">Uploaden naar www.openstreetmap.org is gelukt: </string>
+    <string name="osm_failed">Uploaden naar www.openstreetmap.org is mislukt: </string>
+    <string name="sddirectory_title">SD-Card folder om gedeelde routes op te slaan.</string>
+    <string name="sddirectory_summary">Route bestanden en media bestanden worden in deze SD kaart folder opgeslagen.</string>
+    <string name="sddirectory_message">Vul de verlenging van het SD kaart pad. Het pad /OpenGPSTracker/ zal een enkele directory aanmaken op SD kaart en /Apps/OpenGPSTracker/ zal er eentje twee diep aanmaken.</string>
+
 <!-- ***************************
    About information
    ***************************-->

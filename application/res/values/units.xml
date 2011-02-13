@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<item name="conversion_from_mps"                 type="raw" format="float">3.6</item>
-<item name="conversion_from_meter"               type="raw" format="float">0.001</item>
-<item name="conversion_from_meter_to_height"     type="raw" format="float">1.0</item>
 <string name="speed_unitname">km/h</string>
 <string name="distance_unitname">km</string>
 <string name="distance_smallunitname">meter</string>
 
-<item name="conversion_from_mps_to_knot"         type="raw" format="float">1.943844</item>
-<item name="conversion_from_meter_to_nauticmile" type="raw" format="float">0.000539957</item>
 <string name="knot_unitname">knot</string>
 <string name="nautic_unitname">nautic mile</string>
 
