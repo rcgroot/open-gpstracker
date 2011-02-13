@@ -512,12 +512,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
     * @param value
     * @return
     */
-   int updateMetaData(long trackId, long segmentId, long waypointId, long metadataId, String key, String value)
+   int updateMetaData(long trackId, long segmentId, long waypointId, long metadataId, String selection, String[] selectionArgs, String value)
    {
       {
-         if( (metadataId < 0 && trackId < 0) || key == null || value == null )
+         if( (metadataId < 0 && trackId < 0 )  )
          {
-            throw new IllegalArgumentException( "Track or meta-data id, and key plus value must be provided" );
+            throw new IllegalArgumentException( "Track or meta-data id be provided" );
+         }
+         if( trackId >= 0 && (selection == null || !selection.contains("?") || selectionArgs.length != 1 ) )
+         {
+            throw new IllegalArgumentException( "A where clause selection must be provided to select the correct KEY" );
          }
          if( trackId >= 0 && waypointId >= 0 && segmentId < 0)
          {
@@ -528,23 +532,21 @@ public class DatabaseHelper extends SQLiteOpenHelper
          
          String[] whereParams;
          String whereclause;
-         if( waypointId >= 0 )
+         if( metadataId >= 0 )
          {
             whereclause = MetaData._ID + " = ? ";
             whereParams = new String[]{ Long.toString(metadataId) };
          }
          else
          {
-
             whereclause =
-               MetaData.TRACK + " = ? " +
-               MetaData.SEGMENT + " = ? " +
-               MetaData.WAYPOINT + " = ?";
-            whereParams = new String[]{ Long.toString(trackId), Long.toString(segmentId), Long.toString(waypointId) };
-            
+               MetaData.TRACK + " = ? AND " +
+               MetaData.SEGMENT + " = ? AND " +
+               MetaData.WAYPOINT + " = ? AND "+
+               MetaData.KEY + " = ? ";
+            whereParams = new String[]{ Long.toString(trackId), Long.toString(segmentId), Long.toString(waypointId), selectionArgs[0] };
          }
          ContentValues args = new ContentValues();
-         args.put( MetaData.KEY, key );
          args.put( MetaData.VALUE, value );
 
          
@@ -579,7 +581,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
       }
    }
 
-   
    /**
     * Move to a fresh track with a new first segment for this track
     * @return

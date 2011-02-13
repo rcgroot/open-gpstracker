@@ -107,7 +107,6 @@ public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> i
             if( "coordinates".equals( xpp.getName() ) )
             {
                //Start new Segment
-               Log.d( TAG, "Insert segment " );
                Uri segmentUri = resolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
                Uri waypointUri = Uri.withAppendedPath( segmentUri, "waypoints" );
                //Insert all coordinates as waypoints

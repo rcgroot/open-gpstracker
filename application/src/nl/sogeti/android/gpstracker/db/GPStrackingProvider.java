@@ -530,7 +530,6 @@ public class GPStrackingProvider extends ContentProvider
       List<String> pathSegments;
 
       int match = GPStrackingProvider.sURIMatcher.match( uri );
-      String key;
       String value;
       switch (match)
       {
@@ -542,33 +541,29 @@ public class GPStrackingProvider extends ContentProvider
          case TRACK_METADATA:
             pathSegments = uri.getPathSegments();
             trackId      = Long.parseLong( pathSegments.get( 1 ) );
-            key = givenValues.getAsString( MetaData.KEY );
             value = givenValues.getAsString( MetaData.VALUE );
-            updates = mDbHelper.updateMetaData( trackId, -1L, -1L, -1L, key, value);
+            updates = mDbHelper.updateMetaData( trackId, -1L, -1L, -1L, selection, selectionArgs, value);
             break;
          case SEGMENT_METADATA:
             pathSegments = uri.getPathSegments();
             trackId      = Long.parseLong( pathSegments.get( 1 ) );
             segmentId    = Long.parseLong( pathSegments.get( 3 ) );
-            key = givenValues.getAsString( MetaData.KEY );
             value = givenValues.getAsString( MetaData.VALUE );
-            updates = mDbHelper.updateMetaData( trackId, segmentId, -1L, -1L, key, value);
+            updates = mDbHelper.updateMetaData( trackId, segmentId, -1L, -1L, selection, selectionArgs, value);
             break;
          case WAYPOINT_METADATA:
             pathSegments = uri.getPathSegments();
             trackId      = Long.parseLong( pathSegments.get( 1 ) );
             segmentId    = Long.parseLong( pathSegments.get( 3 ) );
             waypointId   = Long.parseLong( pathSegments.get( 5 ) );
-            key = givenValues.getAsString( MetaData.KEY );
             value = givenValues.getAsString( MetaData.VALUE );
-            updates = mDbHelper.updateMetaData( trackId, segmentId, waypointId, -1L, key, value);
+            updates = mDbHelper.updateMetaData( trackId, segmentId, waypointId, -1L, selection, selectionArgs, value);
             break;
          case METADATA_ID:
             pathSegments = uri.getPathSegments();
             metaDataId   = Long.parseLong( pathSegments.get( 1 ) );
-            key = givenValues.getAsString( MetaData.KEY );
             value = givenValues.getAsString( MetaData.VALUE );
-            updates = mDbHelper.updateMetaData( -1L, -1L, -1L, metaDataId, key, value);
+            updates = mDbHelper.updateMetaData( -1L, -1L, -1L, metaDataId, selection, selectionArgs, value);
             break;
          default:
             Log.e( GPStrackingProvider.TAG, "Unable to come to an action in the query uri" + uri.toString() );

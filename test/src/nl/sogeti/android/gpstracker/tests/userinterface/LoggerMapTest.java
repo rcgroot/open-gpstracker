@@ -30,12 +30,19 @@ package nl.sogeti.android.gpstracker.tests.userinterface;
 
 import junit.framework.Assert;
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.FlakyTest;
+import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.Suppress;
 
@@ -183,5 +190,52 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
 
       // Switch orientation
       this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+   }
+   
+   /**
+    * @throws InterruptedException 
+    * 
+    * 
+    */
+   @LargeTest
+   @Suppress
+   public void testSpeedIncreaseColoring() throws InterruptedException
+   {
+      final int total = 250;
+      final double lat1 = 52.195d;
+      final double lon1 = 5.040d;
+      final double lat2 = 51.882d;
+      final double lon2 = 5.040d;
+      final ContentResolver resolver = this.getActivity().getContentResolver();
+
+      // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
+      final Uri trackUri = resolver.insert( Tracks.CONTENT_URI, null );
+      final Uri segmentUri = resolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
+      final Uri waypointUri = Uri.withAppendedPath( segmentUri, "waypoints" );
+      
+      mLoggermap.runOnUiThread(
+            new Runnable()
+               {
+                  public void run()
+                  {
+                     Intent newTrack = new Intent( Intent.ACTION_VIEW, trackUri );
+                     mLoggermap.onNewIntent( newTrack );
+                  }
+               }
+            );
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.ACCURACY, new Double( 1d ) );
+      wp.put( Waypoints.ALTITUDE, new Double( 5d ) );
+      
+      for( int step = 0; step < total / 2; step++ )
+      {
+         Thread.sleep( 1750 );
+         double latitude = lat1 + ( ( lat1 - lat2 ) / total ) * step;
+         double longtitude = lon1 + ( ( lon2 - lon1 ) / total ) * step;
+         wp.put( Waypoints.LATITUDE, new Double( latitude ) );
+         wp.put( Waypoints.LONGITUDE, new Double( longtitude ) );
+         wp.put( Waypoints.SPEED, new Double( step / 5d ) );
+         resolver.insert( waypointUri, wp );
+      }
    }
 }

@@ -692,24 +692,82 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       this.mResolver.insert( trackMetaDataUri, args );
       this.mResolver.insert( segmentMetaDataUri, args );
       this.mResolver.insert( waypointsMetaDataUri, args );
-      Cursor media = this.mResolver.query( MetaData.CONTENT_URI, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
-      Assert.assertTrue( "Enough media", media.getCount() >= 3 );
+      Cursor metadata = this.mResolver.query( MetaData.CONTENT_URI, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Assert.assertTrue( "Enough media", metadata.getCount() >= 3 );
       
       this.mResolver.delete( trackUri, null, null );
 
-      Cursor trackMedia = this.mResolver.query( trackMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
-      Cursor segmentMedia = this.mResolver.query( segmentMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
-      Cursor waypointMedia = this.mResolver.query( waypointsMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
-      media.requery();
+      Cursor trackMetadata = this.mResolver.query( trackMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Cursor segmentMetadata = this.mResolver.query( segmentMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      Cursor waypointMetadata = this.mResolver.query( waypointsMetaDataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null );
+      metadata.requery();
 
-      Assert.assertEquals( "No track media", 0, trackMedia.getCount() );
-      Assert.assertEquals( "No segment media", 0, segmentMedia.getCount() );
-      Assert.assertEquals( "No waypoint media", 0, waypointMedia.getCount() );
-      Assert.assertEquals( "No media", 0, media.getCount() );
+      Assert.assertEquals( "No track media", 0, trackMetadata.getCount() );
+      Assert.assertEquals( "No segment media", 0, segmentMetadata.getCount() );
+      Assert.assertEquals( "No waypoint media", 0, waypointMetadata.getCount() );
+      Assert.assertEquals( "No media", 0, metadata.getCount() );
 
-      trackMedia.close();
-      segmentMedia.close();
-      waypointMedia.close();
-      media.close();
+      trackMetadata.close();
+      segmentMetadata.close();
+      waypointMetadata.close();
+      metadata.close();
+   }
+   
+   @SmallTest
+   public void testUpdateTrackWithMetaData()
+   {
+      ContentValues wp = new ContentValues();
+      wp.put( Waypoints.LONGITUDE, new Double( 37.8657d ) );
+      wp.put( Waypoints.LATITUDE, new Double( -122.305d ) );
+      ContentValues args = new ContentValues();
+      args.put( MetaData.KEY, "a test" );
+      args.put( MetaData.VALUE, "firstvalue" );
+      Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
+      Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
+      Uri waypointsUri = Uri.withAppendedPath( segmentUri, "waypoints" );
+      Uri waypointUri = this.mResolver.insert( waypointsUri, wp );
+
+      Uri trackMetaDataUri = Uri.withAppendedPath( trackUri, "metadata" );
+      Uri segmentMetaDataUri = Uri.withAppendedPath( segmentUri, "metadata" );
+      Uri waypointsMetaDataUri = Uri.withAppendedPath( waypointUri, "metadata" );
+      
+      this.mResolver.insert( trackMetaDataUri, args );
+      this.mResolver.insert( segmentMetaDataUri, args );
+      this.mResolver.insert( waypointsMetaDataUri, args );
+      Cursor metadata = this.mResolver.query( MetaData.CONTENT_URI, new String[] { MetaData.VALUE }, null, null, null );
+      Assert.assertTrue( "Enough media", metadata.getCount() >= 3 );
+      
+      args = new ContentValues();
+      args.put( MetaData.VALUE, "secondvalue" );
+      int trackRows = this.mResolver.update( trackMetaDataUri,        args, MetaData.KEY +" = ? ", new String[]{"a test"} );
+      int segmentRows = this.mResolver.update( segmentMetaDataUri,    args, MetaData.KEY +" = ? ", new String[]{"a test"} );
+      int waypointRows = this.mResolver.update( waypointsMetaDataUri, args, MetaData.KEY +" = ? ", new String[]{"a test"} );
+
+      Assert.assertEquals( "Track meta-data updates", trackRows, 1 );
+      Assert.assertEquals( "Segment meta-data updates", segmentRows, 1 );
+      Assert.assertEquals( "Waypoint meta-data updates", waypointRows, 1 );
+      
+      Cursor trackMetadata    = this.mResolver.query( trackMetaDataUri, new String[] {  MetaData.VALUE }, MetaData.KEY +" = ? ", new String[]{"a test"}, null );
+      Cursor segmentMetadata  = this.mResolver.query( segmentMetaDataUri, new String[] { MetaData.VALUE }, MetaData.KEY +" = ? ", new String[]{"a test"}, null );
+      Cursor waypointMetadata = this.mResolver.query( waypointsMetaDataUri, new String[] { MetaData.VALUE }, MetaData.KEY +" = ? ", new String[]{"a test"}, null );
+      metadata.requery();
+      
+      Assert.assertEquals( "A track metadata", 1, trackMetadata.getCount() );
+      Assert.assertEquals( "A segment metadata", 1, segmentMetadata.getCount() );
+      Assert.assertEquals( "A waypoint metadata", 1, waypointMetadata.getCount() );
+      Assert.assertTrue( "Enough media", metadata.getCount() >= 3 );
+
+      Assert.assertTrue( "track metadata", trackMetadata.moveToFirst() );
+      Assert.assertTrue( "segment metadata", segmentMetadata.moveToFirst() );
+      Assert.assertTrue( "waypoint metadata", waypointMetadata.moveToFirst() );
+      
+      Assert.assertEquals( "Tack meta", trackMetadata.getString( 0 ), "secondvalue" );
+      Assert.assertEquals( "segment meta", segmentMetadata.getString( 0 ), "secondvalue" );
+      Assert.assertEquals( "waypoint meta", waypointMetadata.getString( 0 ), "secondvalue" );
+      
+      trackMetadata.close();
+      segmentMetadata.close();
+      waypointMetadata.close();
+      metadata.close();
    }
 }
