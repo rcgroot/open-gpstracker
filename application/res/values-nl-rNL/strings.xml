@@ -203,10 +203,10 @@
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
     <string name="gpsstatusmonitor_summary">Toont het aantal satelieten waar signaal van komt.</string>
 	<string name="osmusername_title">OpenStreetMap gebruikersnaam</string>
-	<string name="osmusername_summary">De gebruikersnaam aangemaakt op http://www.openstreetmap.org/user/new</string>
+	<string name="osmusername_summary">De gebruikersnaam zoals aangemaakt op http://www.openstreetmap.org/user/new</string>
 	<string name="osmusername_message">Een OpenStreetMap account maakt het mogelijk om map data contributies te maken. Open GPS Tracker kan alleen routes oploaden die zonder Google kaartmateriaal zijn opgenomen.</string>
 	<string name="osmpassword_title">OpenStreetMap wachtwoord</string>
-	<string name="osmpassword_summary">Het wachtwoord aangemaakt op http://www.openstreetmap.org/user/new</string>
+	<string name="osmpassword_summary">Het wachtwoord zoals aangemaakt op http://www.openstreetmap.org/user/new</string>
 	<string name="osmpassword_message">Dit wachtwoord zal met HTTP en Basic Authorization op de openstreetmap.org server gebruikt worden.</string>
 	<string name="osmvisibility_title">De publieke zichtbaarheid van de GPS route on openstreetmap.org</string>
 	<string name="osmvisibility_summary">Raadpleeg de openstreetmap.org wiki voor informatie over de zichtbaarheid niveau\'s.</string>
