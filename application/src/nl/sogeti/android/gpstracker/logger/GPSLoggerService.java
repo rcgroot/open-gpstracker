@@ -82,9 +82,9 @@ import android.widget.Toast;
 public class GPSLoggerService extends Service
 {
    /**
-    * <code>MAX_REASONABLE_SPEED</code> is about 216 kilometer per hour or 134 mile per hour.
+    * <code>MAX_REASONABLE_SPEED</code> is about 324 kilometer per hour or 201 mile per hour.
     */
-   private static final int MAX_REASONABLE_SPEED = 60;
+   private static final int MAX_REASONABLE_SPEED = 90;
 
    /**
     * <code>MAX_REASONABLE_ALTITUDECHANGE</code> between the last few waypoints and a new one the difference should be less then 200 meter.
@@ -796,8 +796,9 @@ public class GPSLoggerService extends Service
          proposedLocation = addBadLocation( proposedLocation );
       }
 
-      // Speed checks for NETWORK logging, check if the proposed location could be reached from the previous one in sane speed
-      if( mSpeedSanityCheck && proposedLocation != null && mPreviousLocation != null && mPrecision == Constants.LOGGING_GLOBAL )
+      // Speed checks, check if the proposed location could be reached from the previous one in sane speed
+      // Common to jump on network logging and sometimes jumps on Samsung Galaxy S type of devices
+      if( mSpeedSanityCheck && proposedLocation != null && mPreviousLocation != null )
       {
          // To avoid near instant teleportation on network location or glitches cause continent hopping
          float meters = proposedLocation.distanceTo( mPreviousLocation );
@@ -806,6 +807,14 @@ public class GPSLoggerService extends Service
          {
             Log.w( TAG, "A strange location was recieved, a really high speed, prob wrong..." );
             proposedLocation = addBadLocation( proposedLocation );
+            // Might be a messed up Samsung Galaxy S GPS, reset the logging
+            if( mPrecision != Constants.LOGGING_GLOBAL )
+            {
+               mLocationManager.removeGpsStatusListener( mStatusListener );
+               mLocationManager = (LocationManager) this.getSystemService( Context.LOCATION_SERVICE );
+               sendRequestStatusUpdateMessage();
+               sendRequestLocationUpdatesMessage();
+            }
          }
       }
 
