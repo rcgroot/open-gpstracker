@@ -1,0 +1,74 @@
+﻿<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<string-array name="state_choices">
+		<item>Actif</item>
+		<item>Pause</item>
+		<item>Arrêt</item>
+	</string-array>
+
+	<string-array name="precision_choices">
+		<item>Personalisé</item>
+		<item>Fin</item>
+		<item>Normal</item>
+		<item>Brut</item>
+		<item>Global</item>
+	</string-array>
+
+	<string-array name="mapprovider_choices">
+		<item>Google Maps</item>
+		<item>OpenStreetMap</item>
+	</string-array>
+
+	<string-array name="trackcoloring_choices">
+		<item>Vert</item>
+		<item>Rouge</item>
+		<item>Vitesse</item>
+		<item>Vitesse moyenne</item>
+		<item>Points de parcours</item>
+	</string-array>
+
+	<string-array name="units_choices">
+		<item>Défaut dispositif</item>
+		<item>Impériale (milles)</item>
+		<item>Métrique (mètres)</item>
+		<item>Nautique (noeuds)</item>
+		<item>Vitesse (min/km)</item>
+		<item>Vitesse (min/noeuds)</item>
+	</string-array>
+
+	<string-array name="sharetype_choices">
+		<item>KMZ - Google Earth, etc.</item>
+		<item>GPX - Format échange GPS</item>
+		<item>Texte - Sommaire vitesse et distance</item>
+	</string-array>
+
+	<string-array name="sharegpxtarget_choices">
+		<item>Enregistrer sur Carte SD</item>
+		<item>Envoyer par email</item>
+		<item>Publier sur www.jogmap.de</item>
+		<item>Publier sur OpenStreetMap trace</item>
+	</string-array>
+
+	<string-array name="sharekmztarget_choices">
+		<item>Enregistrer sur Carte SD</item>
+		<item>Envoyer par email</item>
+	</string-array>
+
+	<string-array name="sharetexttarget_choices">
+		<item>Twidroid tweet</item>
+		<item>SMS</item>
+		<item>Envoyer par texte</item>
+	</string-array>
+
+	<string-array name="osmvisibility_choices">
+		<item>Identifiables (recommandé)</item>
+		<item>Publique</item>
+		<item>Traceable (préféré en lieu de option \'Privé\' )</item>
+		<item>Privé</item>
+	</string-array>
+
+	<string-array name="about_translators" translatable="false"><!-- Add 
+			your name here if you translated -->
+		<item>Paul Meijer</item>
+	</string-array>
+</resources>
