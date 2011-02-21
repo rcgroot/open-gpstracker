@@ -63,7 +63,7 @@
     <string-array name="osmvisibility_choices">
         <item>Identifiable (Recommended)</item>
         <item>Public</item>
-        <item>Trackable (Preferred over \'Private\' option)</item>
+        <item>Trackable (Preferred over Private)</item>
         <item>Private</item>
     </string-array>
     
