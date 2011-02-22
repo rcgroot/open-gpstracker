@@ -1,17 +1,17 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <string-array name="state_choices">
-        <item>Active</item>
-        <item>Paused</item>
-        <item>Stopped</item>
+        <item>Attivo</item>
+        <item>Pausa</item>
+        <item>Fermo</item>
     </string-array>
     
     <string-array name="precision_choices">
-        <item>Custom</item>
+        <item>Personalizzato</item>
         <item>Fine</item>
-        <item>Normal</item>
-        <item>Coarse</item>
-        <item>Global network</item>
+        <item>Normale</item>
+        <item>Grezzo</item>
+        <item>Rete globale</item>
     </string-array>
     
     <string-array name="mapprovider_choices">
@@ -20,11 +20,11 @@
     </string-array>   
     
     <string-array name="trackcoloring_choices">
-        <item>Green</item>
-        <item>Red</item>
-        <item>Speed</item>
-        <item>Average speed</item>
-        <item>Waypoints</item>
+        <item>Verde</item>
+        <item>Rosso</item>
+        <item>Velocitá</item>
+        <item>Velocitá media</item>
+        <item>Punto</item>
     </string-array>
     
     <string-array name="units_choices">
