@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Activer service logging</string>
@@ -27,7 +27,8 @@
     <string name="dialog_layer_title">Activer superpositions</string>
     <string name="dialog_graphtype_title">Type du graphique</string>
     <string name="dialog_notetext_title">Note texte</string>
-    <string name="dialog_notetext_message">Taper note pour location courantename="dialog_notename_title">Marquer</string>
+    <string name="dialog_notetext_message">Taper note pour location courante</string>
+    <string name="dialog_notename_title">Marquer</string>
     <string name="dialog_notename_message">Taper le nom de la location</string>
     <string name="logcontrol_start">Démarrer localisation</string>
     <string name="logcontrol_pause">Pause localisation</string>
@@ -197,20 +198,17 @@
     <string name="import_track">Importer parcours dans Open GPS Tracker</string>
     <string name="preference_logging">Paramètres localisation et usage GPS</string>
     <string name="customprecisiontime_title">Intervalle de temps en minutes du point de parcours cible</string>
-    <string name="customprecisiontime_summary">Le temps en
-veille du récepteur GPS entre les points de parcours.</string>
+    <string name="customprecisiontime_summary">Le temps en veille du récepteur GPS entre les points de parcours.</string>
     <string name="customprecisiondistance_title">Distance du point de parcours cible en mètres</string>
     <string name="customprecisiondistance_summary">La distance qui devraient être couverte entre les points de parcours</string>
     <string name="gpsstatusmonitor_title">Moniteur statut GPS</string>
-    <string name="gpsstatusmonitor_summary">Affiche le nombre de satellites
-utilisé.</string>
+    <string name="gpsstatusmonitor_summary">Affiche le nombre de satellites utilisé.</string>
 	<string name="osmusername_title">Nom utilisateur OpenStreetMap</string>
 	<string name="osmusername_summary">Le nom utilisateur crée à http://www.openstreetmap.org/user/new</string>
 	<string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
 	<string name="osmpassword_title">Mot de passe OpenStreetMap</string>
 	<string name="osmpassword_summary">Le mot de passe utilisé à http://www.openstreetmap.org/user/new</string>
-	<string name="osmpassword_message">Ce mot de passe sera utilisé avec HTTP et
-Autorisation de Base sur le serveur openstreetmap.org.</string>
+	<string name="osmpassword_message">Ce mot de passe sera utilisé avec HTTP et Autorisation de Base sur le serveur openstreetmap.org.</string>
 	<string name="osmvisibility_title">La visibilité publique des traces GPS sur openstreetmap.org</string>
 	<string name="osmvisibility_summary">Consultez la wiki openstreetmap.org pour plus d\'informations sur les niveaux de visibilité.</string>
     <string name="osm_success">Téléchargement du parcours réussi sur www.openstreetmap.org:</string>
