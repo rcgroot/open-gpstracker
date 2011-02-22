@@ -1,27 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">Open GPS Tracker</string>
-    <string name="service_start">Activating logging service</string>
-	<string name="service_gpsstatus">Logging: %1$s (%2$s with %3$d satellites)</string>
-	<string name="service_gpsnostatus">Logging: %1$s (Precision %2$s)</string>
-    <string name="service_networkstatus">Logging: %1$s (%2$s with cell tower and wifi)</string>
-    <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
-    <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
-    <string name="service_connectiondisabled">Network is disabled, network location logging is without effect.</string>
-    <string name="service_datadisabled">Network positioning is disabled, logging is without effect.</string>
-    <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
+        <string name="app_name">Open GPS Tracker</string>
+    <string name="service_start">Attivare servizio localizzazione</string>
+        <string name="service_gpsstatus">Localizzazione: %1$s (%2$s con %3$d satelliti)</string>
+        <string name="service_gpsnostatus">Localizzazione: %1$s (Precisione %2$s)</string>
+    <string name="service_networkstatus">Localizzazione: %1$s (%2$s con torri cellulari e wifi)</string>
+    <string name="service_gpsdisabled">GPS disabilitato, localizzazione senza effetto.</string>
+    <string name="service_gpsenabled">GPS abilitato, inizio localizzazione.</string>
+    <string name="service_connectiondisabled">Rete disabilitata, localizzazione con rete senza effetto.</string>
+    <string name="service_datadisabled">Localizzazione rete disabilitata, localizzazione con rete senza effetto.</string>
+    <string name="service_dataenabled">Localizzazione rete abilitata, inizio localizzazione.</string>
     
     <!-- Dialogs -->
-    <string name="dialog_select_media_title">Select note</string>
-    <string name="dialog_select_media_message">Multiple notes were found at this location, please select one to open</string>
-    <string name="dialog_tracking_title">Tracking control</string>
-	<string name="dialog_routename_title">Name track</string>
-    <string name="dialog_routename_message">Please enter the name of the track</string>
-    <string name="dialog_routename_default">Track %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
-    <string name="dialog_notrack_title">No track is selected</string>
-    <string name="dialog_notrack_message">Please select a track first before exporting</string>
-    <string name="dialog_delete_title">Delete track</string>
-    <string name="dialog_delete_message">Please confirm the deletion of the track %s</string>
+    <string name="dialog_select_media_title">Selezionare nota</string>
+    <string name="dialog_select_media_message">Note multiple trovate per questa localizzazione, selezionarne una per aprire</string>
+    <string name="dialog_tracking_title">Controllo tracce</string>
+        <string name="dialog_routename_title">Nome traccia</string>
+    <string name="dialog_routename_message">Entrare nome traccia</string>
+    <string name="dialog_routename_default">Traccia %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
+    <string name="dialog_notrack_title">Nessuna traccia selezionata</string>
+    <string name="dialog_notrack_message">Selezionare traccia prima di esportare</string>
+    <string name="dialog_delete_title">Cancellare traccia</string>
+    <string name="dialog_delete_message">Confermare cancellazione traccia %s</string>
     <string name="dialog_nooiabout">OI About missing</string>
     <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
     <string name="dialog_layer_title">Activate overlays</string>
