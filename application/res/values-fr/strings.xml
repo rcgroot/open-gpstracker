@@ -53,7 +53,7 @@
     <string name="dialog_import_picker">Importation fichier GPX</string>
     <string name="menu_picker">Importation</string>
     <string name="dialog_nooipicker">Gestionnaire de fichiers OI</string>
-    <string name="dialog_nooipicker_message">Application \"Gestionnaire de fichiers OI\" du projet OpenIntents requis pour choix fichier. Apres approvation EULA du Gestionnaire de fichiers OI buton importation sera actif.</string>
+    <string name="dialog_nooipicker_message">Application \"Gestionnaire de fichiers OI\" du projet OpenIntents requis pour choix fichier. Après approvation EULA du Gestionnaire de fichiers OI buton importation sera actif.</string>
     <string name="dialog_contrib_title">Contribuer</string>
     <string name="dialog_contrib_message">
     <b>Code</b>
@@ -146,10 +146,10 @@
     <string name="opengpstracker_settings">Paramètres</string>
     <string name="preference_display">Paramètres écran</string>
     <string name="preference_behavior">Executer paramètres</string>
-    <string name="logatstartup">Localisation au démarrage de l\' application</string>
-    <string name="logatstartup_summary">Enregistrements localisation immédiat apres déclenchement.</string>   
+    <string name="logatstartup">Déclencher localisation au démarrage de l\' application</string>
+    <string name="logatstartup_summary">Enregistrements localisation immédiat après déclenchement.</string>   
     <string name="startupatboot">Déclencher application au démarrage du dispositif</string>
-    <string name="startupatboot_summary">Enregistrements localisation immédiat apres déclenchement.</string>   
+    <string name="startupatboot_summary">Déclencher application immédiatement après démarrage dispositif.</string>   
     <string name="disableblanking_title">Désactiver veille écran</string>
     <string name="disableblanking_summary">Maintien l\' écran allumé pendant localisation .</string>       
     <string name="precision_title">Précision localisation</string>
@@ -215,7 +215,7 @@
     <string name="osm_failed">Erreaur téléchargement du parcours sur www.openstreetmap.org:</string>
     <string name="sddirectory_title">Répertoire carte SD utilisé pour enregistrer les parcours partagées.</string>
     <string name="sddirectory_summary">Parcours et fichiers multimédias créé sont enregistrés dans ce répertoire carte SD.</string>
-    <string name="sddirectory_message">Entrez le chemin ajouté à la carte SD à utiliser pour les fichiers. Par exemple, le défaut /OpenGPSTracker/ va ajouter un dossier unique pour la carte SD et /Apps/OpenGPSTracker / vas abriter les deux.?</string>
+    <string name="sddirectory_message">Entrez le chemin ajouté à la carte SD à utiliser pour les fichiers. Par exemple, le défaut /OpenGPSTracker/ va ajouter un dossier unique pour la carte SD et /Apps/OpenGPSTracker / vas abriter les deux.</string>
 
 <!-- ***************************
    About information
