@@ -37,7 +37,7 @@
     <string name="layer_regular">Mappa normale</string>
     <string name="layer_satellite">Satellite</string>
     <string name="layer_traffic">Traffico</string>
-    <string name="layer_speed">Velocitá</string>
+    <string name="layer_speed">Velocità</string>
     <string name="layer_altitude">Altitudine</string>
     <string name="layer_compass">Compasso</string>
     <string name="layer_location">Mia Localizzazione</string>
@@ -141,7 +141,7 @@
     <string name="share_type">Scegliere formato traccia condivisa:</string>
     <string name="share_name">Nome dell\'esporto:</string>
     <string name="share_target">Mezzi di condivisione:</string>
-    <string name="sender_chooser">Scegliere applicazione emettrice</string>
+    <string name="sender_chooser">Scegliere applicazione emettitrice</string>
     <string name="opengpstracker_title">Open GPS Tracker</string>
     <string name="opengpstracker_settings">Parametri</string>
     <string name="preference_display">Parametri display</string>
@@ -152,7 +152,7 @@
     <string name="startupatboot_summary">Dopo l\'avvio del cellulare,  il servizio tracciatura comincia a registrare.</string>   
     <string name="disableblanking_title">Disabilitare oscuramento dello schermo</string>
     <string name="disableblanking_summary">Mantenere schermo attivo durante tracciatura.</string>       
-    <string name="precision_title">Pprecisione tracciatura</string>
+    <string name="precision_title">Precisione tracciatura</string>
     <string name="precision_summary">Intervalli entro fissi GPS.</string>
     <string name="mapprovider_title">Prestatore mappe</string>
     <string name="mapprovider_summary">Origine recupero dati mappe.</string>      
@@ -162,24 +162,24 @@
     <string name="showsatellite_summary">Mostra vista satelliti Google Maps.</string>
     <string name="showtraffic_title">Traffico</string>
     <string name="showtraffic_summary">Mostra informazioni vista traffico Google Maps</string>
-    <string name="showspeed_title">Velocitá GPS</string>
-    <string name="showspeed_summary">Mostra velocitá dell\'ultimo fisso GPS.</string>
+    <string name="showspeed_title">Velocità GPS</string>
+    <string name="showspeed_summary">Mostra velocità dell\'ultimo fisso GPS.</string>
     <string name="showaltitude_title">Altitudine GPS</string>
     <string name="showaltitude_summary">Mostra altitudine dell\'ultimo fisso GPS.</string>
     <string name="showcompass_title">Compasso</string>
     <string name="showcompass_summary">Mostra compasso con ago puntato Nord.</string>
-    <string name="sanitycheck_title">Controllo precisione velocitá e altitudine</string>
-    <string name="sanitycheck_summary">Accetta solo misure ragionevoli di velocitá e altitudine.</string>
+    <string name="sanitycheck_title">Controllo precisione velocità e altitudine</string>
+    <string name="sanitycheck_summary">Accetta solo misure ragionevoli di velocità e altitudine.</string>
     <string name="showlocation_title">Mia locazione</string>
     <string name="showlocation_summary">Mostra Mia locazione sulla mappa</string>
-    <string name="units_title">Unitá</string>
-    <string name="units_summary">Determina uso unitá metriche o imperiali.</string>
+    <string name="units_title">Unità</string>
+    <string name="units_summary">Determina uso unità metriche o imperiali.</string>
     <string name="stat_title">Statistiche - %s</string>
-    <string name="stat_maximumspeed">Velocitá massima</string>
+    <string name="stat_maximumspeed">Velocità massima</string>
     <string name="stat_maximumaltitude">Altitudine massima</string>
     <string name="stat_minimalaltitide">Altitudine minima</string>
-    <string name="stat_overallaveragespeed">Velocitá media generale</string>
-    <string name="stat_averagespeed">Velocitá media</string>    
+    <string name="stat_overallaveragespeed">Velocità media generale</string>
+    <string name="stat_averagespeed">Velocità media</string>    
     <string name="stat_distance">Distanza tracciata</string>    
     <string name="stat_endtime">Ora fine</string>    
     <string name="stat_starttime">Ora inizio</string>    
@@ -208,8 +208,8 @@
 	  <string name="osmusername_message">Acconto OpenStreetMap permette di redigere dati mappa per contribuire alla mappa. Open GPS Tracker lo utilizza per caricare nuovi dati GPS.</string>
 	  <string name="osmpassword_title">Password OpenStreetMap</string>
 	  <string name="osmpassword_summary">Password utilizzato su http://www.openstreetmap.org/user/new.</string>
-	  <string name="osmpassword_message">Questa password verrá utilizzata su HTTP e Basic Authorization su openstreetmap.org server.</string>
-	  <string name="osmvisibility_title">Visibilitá pubblica tracce GPS su openstreetmap.org</string>
+	  <string name="osmpassword_message">Questa password verrà utilizzata su HTTP e Basic Authorization su openstreetmap.org server.</string>
+	  <string name="osmvisibility_title">Visibilità pubblica tracce GPS su openstreetmap.org</string>
 	  <string name="osmvisibility_summary">Consultare wiki openstreetmap.org wiki per maggiore informazione sui livelli visibili.</string>
     <string name="osm_success">Caricamento riuscito della traccia su www.openstreetmap.org: </string>
     <string name="osm_failed">Caricamento impossibile della traccia su www.openstreetmap.org: </string>
@@ -220,7 +220,7 @@
 <!-- ***************************
    About information
    ***************************-->
-   <string name="about_comments">Application che registra, mediante GPS, l\'itinerario del vostro cellulare.</string>
+   <string name="about_comments">Applicazione che registra, mediante GPS, l\'itinerario del vostro cellulare.</string>
    <string name="about_activity_name_extended">A proposito %s</string>
    <string name="no_information_available">Nessuna informazione disponibile.</string>
    
