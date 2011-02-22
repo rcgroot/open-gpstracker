@@ -29,45 +29,45 @@
     
     <string-array name="units_choices">
         <item>Device locale</item>
-        <item>Imperial (miles)</item>
-        <item>Metric (meters)</item>
-        <item>Nautical (knots)</item>
-        <item>Pace (minutes per kilometer)</item>
-        <item>Pace (minutes per mile)</item>
+        <item>Imperiale (miglie)</item>
+        <item>Metrico (metri)</item>
+        <item>Nautico (nodi)</item>
+        <item>Andatura (minuti per chilometro)</item>
+        <item>Andatura (minuti per miglia)</item>
     </string-array>
     
     <string-array name="sharetype_choices">
         <item>KMZ - Google Earth, etc.</item>
-        <item>GPX - the GPS Exchange Format</item>
-        <item>Text - Speed and distance summary</item>
+        <item>GPX - Formato scambio GPS</item>
+        <item>Testo - Sommario distanza e velocitá</item>
     </string-array>
     
     <string-array name="sharegpxtarget_choices">
-        <item>Store to SD Card</item>
-        <item>Send with an (email) application</item>
-        <item>Publish to www.jogmap.de</item>
-        <item>Publish as OpenStreetMap trace</item>
+        <item>Salvare su carta SD</item>
+        <item>Invio con applicazione (email)</item>
+        <item>Pubblicare su www.jogmap.de</item>
+        <item>Pubblicare su OpenStreetMap trace</item>
     </string-array>
     
     <string-array name="sharekmztarget_choices">
-        <item>Store to SD Card</item>
-        <item>Send with an (email) application</item>
+        <item>Salvare su carta SD</item>
+        <item>Invio con applicazione (email)</item>
     </string-array>
     
     <string-array name="sharetexttarget_choices">
         <item>Twidroid tweet</item>
         <item>SMS</item>
-        <item>Generic text send</item>
+        <item>Invio testo generico</item>
     </string-array>
     
     <string-array name="osmvisibility_choices">
-        <item>Identifiable (Recommended)</item>
-        <item>Public</item>
+        <item>Identificabile (Raccomandato)</item>
+        <item>Pubblico</item>
         <item>Trackable (Preferred over \'Private\' option)</item>
-        <item>Private</item>
+        <item>Privato</item>
     </string-array>
     
     <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
-        <item>René de Groot</item>
+        <item>Paul Meier</item>
     </string-array>
 </resources>
