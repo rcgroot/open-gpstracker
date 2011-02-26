@@ -28,7 +28,9 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
@@ -112,6 +114,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Shader mShader;
    private Vector<MediaVO> mMediaPath;
    private Vector<MediaVO> mMediaPathCalculation;
+   private Map<Integer, Bitmap> mBitmapCache;
 
    private GeoPoint mStartPoint;
    private GeoPoint mEndPoint;
@@ -216,6 +219,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mScreenPointBackup = new Point();
       mPrevDrawnScreenPoint = new Point();
       
+      mBitmapCache = new HashMap<Integer, Bitmap>();
       mDotPath = new Vector<DotVO>();
       mDotPathCalculation = new Vector<DotVO>();
       mPath = new Path();
@@ -506,6 +510,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
       if (mProjection != null && mMediaCursor.moveToFirst())
       {
+         GeoPoint lastPoint = null;
+         int wiggle = 0;
          do
          {
             MediaVO mediaVO = new MediaVO();
@@ -531,6 +537,28 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                   waypointCursor.close();
                }
             }
+            if( isOnScreen( mediaVO.geopoint ) )
+            {
+               this.mProjection.toPixels( mediaVO.geopoint, this.mMediaScreenPoint );
+               mCalculatedPoints++;
+               Bitmap bitmap = getResourceForMedia( mediaVO.uri );
+               if( mediaVO.geopoint.equals( lastPoint ) )
+               {
+                  wiggle += 4;
+               }
+               else
+               {
+                  wiggle = 0;
+               }
+               mediaVO.w = bitmap.getWidth();
+               mediaVO.h = bitmap.getHeight();
+               int left = ( mediaVO.w * 3 ) / 7 + wiggle;
+               int up = ( mediaVO.h * 6 ) / 7 - wiggle;
+               mediaVO.x = mMediaScreenPoint.x - left;
+               mediaVO.y = mMediaScreenPoint.y - up;
+               mediaVO.bitmap = bitmap;
+               lastPoint = mediaVO.geopoint;
+            }
             mMediaPathCalculation.add(mediaVO);
          }
          while (mMediaCursor.moveToNext());
@@ -546,7 +574,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          mLoggerMap.onDateOverlayChanged();
       }
-      //      Log.d( TAG, "Calculated a media path for "+this.mMediaUri+" of size "+mMediaPath.size() );
    }
 
    /**
@@ -601,38 +628,17 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    {
       synchronized( mMediaPath )
       {
-         GeoPoint lastPoint = null;
-         int wiggle = 0;
          for( MediaVO mediaVO : mMediaPath )
          {
-            if( isOnScreen( mediaVO.geopoint ) )
+            if( isOnScreen(mediaVO.x, mediaVO.y) )
             {
-               this.mProjection.toPixels( mediaVO.geopoint, this.mMediaScreenPoint );
-               mCalculatedPoints++;
-               int drawable = getResourceForMedia( mediaVO.uri );
-               if( mediaVO.geopoint.equals( lastPoint ) )
-               {
-                  wiggle += 4;
-               }
-               else
-               {
-                  wiggle = 0;
-               }
-               Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), drawable );
-               mediaVO.w = bitmap.getWidth();
-               mediaVO.h = bitmap.getHeight();
-               int left = ( mediaVO.w * 3 ) / 7 + wiggle;
-               int up = ( mediaVO.h * 6 ) / 7 - wiggle;
-               mediaVO.x = mMediaScreenPoint.x - left;
-               mediaVO.y = mMediaScreenPoint.y - up;
-               canvas.drawBitmap( bitmap, mediaVO.x, mediaVO.y, defaultPaint );
-               lastPoint = mediaVO.geopoint;
+               canvas.drawBitmap( mediaVO.bitmap, mediaVO.x, mediaVO.y, defaultPaint );
             }
          }
       }
    }
 
-   private static int getResourceForMedia( Uri uri )
+   private Bitmap getResourceForMedia( Uri uri )
    {
       int drawable = 0;
       if( uri.getScheme().equals( "file" ) )
@@ -661,7 +667,17 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             drawable = R.drawable.media_speech;
          }
       }
-      return drawable;
+      Bitmap bitmap = null;
+      if( mBitmapCache.containsKey( new Integer(drawable)) )
+      {
+         bitmap = mBitmapCache.get(new Integer(drawable));
+      }
+      else
+      {
+         bitmap = BitmapFactory.decodeResource( mLoggerMap.getResources(), drawable );
+         mBitmapCache.put(new Integer(drawable), bitmap);
+      }
+      return bitmap;
    }
 
    private void drawStartStopCircles( Canvas canvas )
@@ -945,6 +961,18 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
       return onscreen;
    }
+   
+   /**
+    * Is a given coordinates are on the screen
+    * 
+    * @param eval
+    * @return
+    */
+   protected boolean isOnScreen( int x, int y )
+   {
+      boolean onscreen = x > 0 && y > 0 && x < mWidth && y < mHeight;
+      return onscreen;
+   }
 
    /**
     * Calculates in which segment opposited to the projecting a geo point resides
@@ -1185,6 +1213,14 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    private static class MediaVO
    {
+      @Override
+      public String toString()
+      {
+         return "MediaVO [bitmap=" + bitmap + ", uri=" + uri + ", geopoint=" + geopoint + ", x=" + x + ", y=" + y + ", w=" + w + ", h=" + h + ", waypointId="
+               + waypointId + "]";
+      }
+      
+      public Bitmap bitmap;
       public Uri uri;
       public GeoPoint geopoint;
       public int x;
@@ -1201,9 +1237,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       public float radius;
    }
 
-   private static class MediaAdapter extends BaseAdapter
+   private class MediaAdapter extends BaseAdapter
    {
-
       private Context mContext;
       private List<Uri> mTappedUri;
       private int itemBackground;
@@ -1236,8 +1271,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       public View getView( int position, View convertView, ViewGroup parent )
       {
          ImageView imageView = new ImageView( mContext );
-         int uriResource = getResourceForMedia( mTappedUri.get( position ) );
-         imageView.setImageResource( uriResource );
+         Bitmap bitmap = getResourceForMedia( mTappedUri.get( position ) );
+         imageView.setImageBitmap(bitmap);
          imageView.setScaleType( ImageView.ScaleType.FIT_XY );
          imageView.setBackgroundResource( itemBackground );
          return imageView;
