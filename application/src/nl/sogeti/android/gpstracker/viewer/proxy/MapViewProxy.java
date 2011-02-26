@@ -129,10 +129,7 @@ public class MapViewProxy
       }
       if( mOpenStreetMapView != null )
       {
-         List<org.osmdroid.views.overlay.Overlay> overlays = mOpenStreetMapView.getOverlays();
-         org.osmdroid.views.overlay.Overlay baseLayar = overlays.get(0);
-         overlays.clear();
-         overlays.add(baseLayar);
+         mOpenStreetMapView.getOverlays().clear();
       }
    }
 
