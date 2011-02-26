@@ -3,6 +3,7 @@
 	<string name="app_name">開啟 GPS 追蹤器</string>
     <string name="service_start">啟動日誌服務中</string>
 	<string name="service_gpsstatus">日誌： %1$s (%2$s 使用 %3$d 個衛星)</string>
+	<string name="service_gpsnostatus">Logging: %1$s (Precision %2$s)</string>
     <string name="service_networkstatus">日誌： %1$s (%2$s 使用基站和WiFi)</string>
     <string name="service_gpsdisabled">GPS 已禁用，日誌將是無效的。</string>
     <string name="service_gpsenabled">GPS 已啟用， 開始記錄。</string>
@@ -33,14 +34,51 @@
     <string name="logcontrol_pause">暫停追蹤</string>
     <string name="logcontrol_resume">還原追蹤</string>
     <string name="logcontrol_stop">停止追蹤</string>
+    <string name="layer_regular">Normal map</string>
     <string name="layer_satellite">衛星</string>
     <string name="layer_traffic">交通</string>
     <string name="layer_speed">速度</string>
     <string name="layer_altitude">海拔</string>
     <string name="layer_compass">指南針</string>
     <string name="layer_location">我的位置</string>
+    <string name="layer_cloudmade">CloudMade maps</string>
+    <string name="layer_maknik">Mapnik</string>
+    <string name="layer_bicycle">OpenCycleMap</string>
     <string name="dialog_notwidroid">未找到 Twidroid</string>
     <string name="dialog_notwidroid_message">Tweet此行需要軟體\"twidroid\"的支援。</string>
+    <string name="dialog_vacuum_title">Crop data</string>
+    <string name="dialog_vacuum_message">Returns space lost due to fragmentation by a rebuilding the database.</string>
+    <string name="dialog_import_title">GPX import</string>
+    <string name="dialog_import_message">Would you like to import the GPX %1$s ?</string>
+    <string name="dialog_import_picker">Import GPX file</string>
+    <string name="menu_picker">Import</string>
+    <string name="dialog_nooipicker">OI File Manager</string>
+    <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files. After accepting OI File Manager EULA the import button works.</string>
+    <string name="dialog_contrib_title">Contribute</string>
+    <string name="dialog_contrib_message">
+    <b>Code</b>
+    \n
+    This application and the source code are publicly available. Feel free to submit
+    a patch. All code contributions are very welcome. The complete application source is 
+    available under GPL license at http://code.google.com/p/open-gpstracker/source
+    \n\n
+    <b>Errors</b>
+    \n
+    In case of an error, crash or fault please sent a message. Log the error 
+    at http://code.google.com/p/open-gpstracker/issues/entry and make an important 
+    contribution to improve this application.  
+    \n\n
+    <b>Idea\'s</b>
+    \n
+    Do you have an idea that could improve this application? Explain your idea at
+    http://code.google.com/p/open-gpstracker/issues/entry
+    \n\n
+    <b>Donate</b>
+    \n
+    Hopefully you enjoyed the application, I love to hear if you did. A thank you 
+    or PayPal donation are appreciated at rcgroot@gmail.com
+    \n\n
+    </string>
     
     <!-- Messages -->
     <string name="from">記錄：</string>
@@ -53,7 +91,10 @@
     <string name="error_buildxml"> 原因：建立 XML 時錯誤</string>
     <string name="error_writesdcard"> 原因：寫入到 SD 卡時錯誤</string>
     <string name="tweettext">%1$s： 已行進 %2$s 統計出的平均速度是 %3$s 在 %4$s #opengpstracker</string>
-    
+    <string name="error_importgpx_xml">Failed reading the XML during import.</string>
+    <string name="error_importgpx_io">Failed reading the file during import.</string>
+    <string name="error_importgpx_parse">Failed reading a number during import.</string>
+        
     <!-- Buttons -->
 	<string name="btn_okay">確認</string>
 	<string name="btn_cancel">取消</string>
@@ -83,7 +124,9 @@
     <string name="graphtype_timealtitude">海拔/時間</string>
     <string name="graphtype_distancespeed">速度/距離</string>
     <string name="graphtype_distancealtitude">海拔/距離</string>
-
+    <string name="menu_vacuum">Crop data</string>
+    <string name="menu_contrib">Contribute</string>
+    
     <!-- Communicated -->
     <string name="email_subject">開啟 GPS 追蹤器 - 追蹤資料</string>
     <string name="email_gpxbody">附加的是一個在 GPS 交換格式(GPX)檔案中的路線，該格式的描述見：http：//www。topografix。com/gpx。asp</string>
@@ -109,7 +152,9 @@
     <string name="disableblanking_title">禁止關屏</string>
     <string name="disableblanking_summary">追蹤時保持屏幕開啟。</string>       
     <string name="precision_title">記錄精度</string>
-    <string name="precision_summary">GPS 記錄點之間的間隔大小。</string>      
+    <string name="precision_summary">GPS 記錄點之間的間隔大小。</string>     
+    <string name="mapprovider_title">Map provider</string>
+    <string name="mapprovider_summary">The source from which to retrieve mapdata.</string>   
     <string name="trackcoloring_title">路線顏色</string>
     <string name="trackcoloring_summary">繪製路線使用的顏色。</string>
     <string name="showsatellite_title">衛星圖像</string>
@@ -148,6 +193,28 @@
     <string name="jogmap_summary">The authentication code to upload to a jogmap.de account</string>
     <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
     <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
+    <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo. </string>
+    <string name="import_track">Import a track into Open GPS Tracker</string>
+    <string name="preference_logging">Logging and GPS usage settings</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
+    <string name="customprecisiontime_summary">The time the GPS receiver should sleep between waypoints.</string>
+    <string name="customprecisiondistance_title">Target waypoint distance in meters</string>
+    <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
+    <string name="gpsstatusmonitor_title">Monitor GPS status</string>
+    <string name="gpsstatusmonitor_summary">Displays the number of satellites used.</string>
+	<string name="osmusername_title">OpenStreetMap username</string>
+	<string name="osmusername_summary">The username created at http://www.openstreetmap.org/user/new</string>
+	<string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
+	<string name="osmpassword_title">OpenStreetMap password</string>
+	<string name="osmpassword_summary">The password used at http://www.openstreetmap.org/user/new</string>
+	<string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
+	<string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
+	<string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
+    <string name="osm_success">Successfully uploading the track to www.openstreetmap.org: </string>
+    <string name="osm_failed">Failed uploading the track to www.openstreetmap.org: </string>
+    <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
+    <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
+    <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.</string>
 
 <!-- ***************************
    About information

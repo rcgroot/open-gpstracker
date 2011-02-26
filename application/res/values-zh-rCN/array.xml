@@ -7,7 +7,7 @@
     </string-array>
     
     <string-array name="precision_choices">
-		<item>Custom</item>
+        <item>Custom</item>
         <item>极好</item>
         <item>正常</item>
         <item>粗糙</item>
@@ -63,7 +63,7 @@
     <string-array name="osmvisibility_choices">
         <item>Identifiable (Recommended)</item>
         <item>Public</item>
-        <item>Trackable (Preferred over \'Private\' option)</item>
+        <item>Trackable</item>
         <item>Private</item>
     </string-array>
 
@@ -71,5 +71,4 @@
         <item>安智网汉化 (bbs.goapk.com)</item>
         <item>NetDragon Websoft Inc. http://www.nd.com.cn/</item>
     </string-array>
-    
 </resources>

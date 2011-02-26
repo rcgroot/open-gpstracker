@@ -3,8 +3,10 @@
 <string name="speed_unitname">公里/時</string>
 <string name="distance_unitname">公里</string>
 <string name="distance_smallunitname">meter</string>
+
 <string name="knot_unitname">knot</string>
 <string name="nautic_unitname">nautic mile</string>
+
 <string name="pace_unitname">min/km</string>
 <string name="pace_unitname_imperial">min/mile</string>
 </resources>

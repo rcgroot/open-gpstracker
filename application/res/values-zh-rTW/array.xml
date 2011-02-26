@@ -13,6 +13,11 @@
         <item>粗糙</item>
         <item>總的</item>
     </string-array>   
+
+    <string-array name="mapprovider_choices">
+        <item>Google Maps</item>
+        <item>OpenStreetMap</item>
+    </string-array>   
     
     <string-array name="trackcoloring_choices">
         <item>綠色</item>
@@ -58,7 +63,7 @@
     <string-array name="osmvisibility_choices">
         <item>Identifiable (Recommended)</item>
         <item>Public</item>
-        <item>Trackable (Preferred over \'Private\' option)</item>
+        <item>Trackable</item>
         <item>Private</item>
     </string-array>
     
