@@ -566,7 +566,7 @@ public class TrackList extends ListActivity
             try
             {
                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-               factory.setNamespaceAware( false );
+               factory.setNamespaceAware( true );
                XmlPullParser xmlParser = factory.newPullParser();
 
                int length = DEFAULT_UNKNOWN_FILESIZE;
