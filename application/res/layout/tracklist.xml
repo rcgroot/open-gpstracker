@@ -21,8 +21,7 @@
 			android:layout_width="fill_parent" 
 			android:layout_height="fill_parent"
 			android:choiceMode="multipleChoice"
-			android:drawSelectorOnTop="true" 
-            android:stackFromBottom="true"/>
+			android:drawSelectorOnTop="true"/>
 			
 		<TextView
             android:id="@+id/android:empty"
