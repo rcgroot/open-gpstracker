@@ -277,11 +277,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private void draw( Canvas canvas )
    {
-      mWidth = canvas.getWidth();
-      mHeight = canvas.getHeight();
-      
-      calculateTrack(); // Screen changed, need to adjust the path to match the screen
-      
       switch( mTrackColoringMethod )
       {
          case ( DRAW_CALCULATED ):
@@ -294,9 +289,13 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             drawDots( canvas );
             break;
       }
-      drawStartStopCircles( canvas );
-      calculateMedia();
       drawMedia( canvas );
+      drawStartStopCircles( canvas );
+
+      mWidth = canvas.getWidth();
+      mHeight = canvas.getHeight();
+      calculateMedia();
+      calculateTrack(); // Screen changed, need to adjust the path to match the screen
    }
    
    public void calculateTrack()

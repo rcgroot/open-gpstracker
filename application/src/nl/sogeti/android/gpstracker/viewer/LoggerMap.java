@@ -1187,14 +1187,14 @@ public class LoggerMap extends MapActivity
       switch( provider )
       {
          case Constants.GOOGLE:
-            findViewById( R.id.myOsmMapView ).setVisibility( View.INVISIBLE );
+            findViewById( R.id.myOsmMapView ).setVisibility( View.GONE );
             findViewById( R.id.myMapView ).setVisibility( View.VISIBLE );
             mMapView.setMap( findViewById( R.id.myMapView ) );
             updateGoogleOverlays();
             break;
          case Constants.OSM:
             CloudmadeUtil.retrieveCloudmadeKey(this);
-            findViewById( R.id.myMapView ).setVisibility( View.INVISIBLE );
+            findViewById( R.id.myMapView ).setVisibility( View.GONE );
             findViewById( R.id.myOsmMapView ).setVisibility( View.VISIBLE );
             mMapView.setMap( findViewById( R.id.myOsmMapView ) );
             updateOsmBaseOverlay();

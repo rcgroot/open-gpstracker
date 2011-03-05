@@ -43,6 +43,7 @@ import java.util.Vector;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
+import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
@@ -186,10 +187,11 @@ public class TrackList extends ListActivity
    protected void onCreate( Bundle savedInstanceState )
    {
       super.onCreate( savedInstanceState );
+      displayIntent( getIntent() );
+      
       this.setContentView( R.layout.tracklist );
       mImportProgress = (ProgressBar) findViewById( R.id.importProgress );
 
-      displayIntent( getIntent() );
 
       ListView listView = getListView();
       listView.setItemsCanFocus(false);
@@ -489,20 +491,24 @@ public class TrackList extends ListActivity
       else if( Intent.ACTION_VIEW.equals( queryAction ) )
       {
          Uri uri = intent.getData();
-
-         // Got to VIEW a GPX filename
-         if( uri.getScheme().equals( "file" ) || uri.getScheme().equals( "content" ) )
+         if( "content".equals( uri.getScheme() ) && GPStracking.AUTHORITY.equals( uri.getAuthority() ) )
          {
+            // Got to VIEW a single track, instead hand it of to the LoggerMap
+            Intent notificationIntent = new Intent( this, LoggerMap.class );
+            notificationIntent.setData( uri );
+            startActivity( notificationIntent );
+            finish();
+         }
+         else if( uri.getScheme().equals( "file" ) || uri.getScheme().equals( "content" ) )
+         {
+            // Got to VIEW a GPX filename
             mImportFileUri = uri;
             showDialog( DIALOG_IMPORT );
             tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
          }
          else
          {
-            // Got to VIEW a single track, instead had it of to the LoggerMap
-            Intent notificationIntent = new Intent( this, LoggerMap.class );
-            notificationIntent.setData( uri );
-            startActivity( notificationIntent );
+            Log.e( TAG, "Unable to VIEW "+uri);
          }
       }
       else
