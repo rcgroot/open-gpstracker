@@ -160,7 +160,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
       }
       finally
       {
-         sqldb.endTransaction();
+         if( sqldb.inTransaction() )
+         {
+            sqldb.endTransaction();
+         }
       }
       
       return inserted;
@@ -342,7 +345,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
          {
             cursor.close();
          }
-         sqldb.endTransaction();
+         if( sqldb.inTransaction() )
+         {
+            sqldb.endTransaction();
+         }
       }
       
       ContentResolver resolver = this.mContext.getContentResolver();
