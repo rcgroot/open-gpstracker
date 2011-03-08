@@ -7,7 +7,7 @@
     </string-array>
     
     <string-array name="precision_choices">
-        <item>Custom</item>
+        <item>自定义</item>
         <item>极好</item>
         <item>正常</item>
         <item>粗糙</item>
@@ -15,7 +15,7 @@
     </string-array>
     
     <string-array name="mapprovider_choices">
-        <item>Google Maps</item>
+        <item>谷歌地图</item>
         <item>OpenStreetMap</item>
     </string-array>   
     
@@ -32,12 +32,12 @@
         <item>英制 (英里)</item>
         <item>公制 (米)</item>
         <item>航海 (节)</item>
-        <item>Pace (minutes per kilometer)</item>
-        <item>Pace (minutes per mile)</item>
+        <item>速度 (每公里所用分钟)</item>
+        <item>速度 (每英里所用分钟)</item>
     </string-array>
     
     <string-array name="sharetype_choices">
-        <item>KMZ - Keyhole Markup Language</item>
+        <item>KMZ - 锁眼加值语言</item>
         <item>GPX - GPS的交换格式</item>
         <item>文本 - 速度和距离的摘要</item>
     </string-array>
@@ -55,16 +55,16 @@
     </string-array>
     
     <string-array name="sharetexttarget_choices">
-        <item>Twidroid tweet</item>
+        <item>Twidroid 推</item>
         <item>短信</item>
         <item>通用文本发送</item>
     </string-array>
 
     <string-array name="osmvisibility_choices">
-        <item>Identifiable (Recommended)</item>
-        <item>Public</item>
-        <item>Trackable</item>
-        <item>Private</item>
+        <item>可识别 (推荐)</item>
+        <item>公共</item>
+        <item>可追踪</item>
+        <item>私有</item>
     </string-array>
 
     <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
