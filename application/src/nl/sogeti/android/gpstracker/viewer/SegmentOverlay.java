@@ -131,7 +131,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Cursor mWaypointsCursor;
    private Cursor mMediaCursor;
    private Uri mSegmentUri;
-   private int mWaypointCount;
+   private int mWaypointCount = -1;
    private int mWidth;
    private int mHeight;
    //   private Canvas mDebugCanvas;
@@ -143,7 +143,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Paint defaultPaint;
    private boolean mRequeryFlag;
    private Handler mHandler;
-
+   private Bitmap mStartBitmap;
+   private Bitmap mStopBitmap;
+   
    private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
 
@@ -176,7 +178,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          SegmentOverlay.this.calculateTrackAsync();
       }
    };
-   
    /**
     * Constructor: create a new TrackingOverlay.
     * 
@@ -681,18 +682,31 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    private void drawStartStopCircles( Canvas canvas )
    {
-      Bitmap bitmap;
       if( ( this.mPlacement == FIRST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mStartPoint != null )
       {
+         if( mStartBitmap == null )
+         {
+            mStartBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip );
+         }
          this.mProjection.toPixels( this.mStartPoint, startStopCirclePoint );
-         bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
-         canvas.drawBitmap( bitmap, startStopCirclePoint.x - 8, startStopCirclePoint.y - 8, defaultPaint );
+         canvas.drawBitmap( mStartBitmap, startStopCirclePoint.x - 8, startStopCirclePoint.y - 8, defaultPaint );
+      }
+      else
+      {
+         mStartBitmap = null;
       }
       if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
       {
+         if( mStopBitmap == null )
+         {
+            mStopBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
+         }
          this.mProjection.toPixels( this.mEndPoint, startStopCirclePoint );
-         bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip );
-         canvas.drawBitmap( bitmap, startStopCirclePoint.x - 5, startStopCirclePoint.y - 5, defaultPaint );
+         canvas.drawBitmap( mStopBitmap, startStopCirclePoint.x - 5, startStopCirclePoint.y - 5, defaultPaint );
+      }
+      else
+      {
+         mStopBitmap = null;
       }
    }
 
@@ -911,10 +925,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private void calculateStepSize()
    {
       Cursor waypointsCursor = null;
-      if( mRequeryFlag || mStepSize < 1 || mWaypointCount == 0 )
+      if( mRequeryFlag || mStepSize < 1 || mWaypointCount < 0 )
       {
          try
          {
+            Log.d( TAG, "calculateStepSize() "+ mWaypointsUri +" because requery "+mRequeryFlag+ " and stepsize "+mStepSize+ " waypoint count "+mWaypointCount  );
             waypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints._ID }, null, null, null );
             mWaypointCount = waypointsCursor.getCount();
          }
