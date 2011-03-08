@@ -929,7 +929,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          try
          {
-            Log.d( TAG, "calculateStepSize() "+ mWaypointsUri +" because requery "+mRequeryFlag+ " and stepsize "+mStepSize+ " waypoint count "+mWaypointCount  );
             waypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints._ID }, null, null, null );
             mWaypointCount = waypointsCursor.getCount();
          }
