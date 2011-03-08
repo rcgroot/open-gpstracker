@@ -38,7 +38,7 @@
     <string name="layer_traffic">Verkehr</string>
     <string name="layer_speed">Geschwindigkeit</string>
     <string name="layer_altitude">Höhe</string>
-    <string name="layer_compass">Lompass</string>
+    <string name="layer_compass">Kompass</string>
     <string name="layer_location">Mein Standort</string>
     <string name="layer_cloudmade">CloudMade maps</string>
     <string name="layer_maknik">Mapnik</string>
