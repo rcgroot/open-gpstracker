@@ -155,6 +155,7 @@ public class GPSLoggerService extends Service
             {
                sendRequestLocationUpdatesMessage();
                updateNotification();
+               broadCastLoggingState();
             }
             else if( key.equals( Constants.SPEEDSANITYCHECK ) )
             {
@@ -366,6 +367,10 @@ public class GPSLoggerService extends Service
          values.put( Tracks.NAME, "Recorded at startup" );
          getContentResolver().update( ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ), values, null, null );
       }
+      else
+      {
+         broadCastLoggingState();
+      }
    }
 
    /**
@@ -462,6 +467,7 @@ public class GPSLoggerService extends Service
          updateWakeLock();
          setupNotification();
          crashProtectState();
+         broadCastLoggingState();
       }
    }
 
@@ -476,6 +482,7 @@ public class GPSLoggerService extends Service
          updateWakeLock();
          updateNotification();
          crashProtectState();
+         broadCastLoggingState();
       }
    }
 
@@ -494,6 +501,7 @@ public class GPSLoggerService extends Service
          updateWakeLock();
          updateNotification();
          crashProtectState();
+         broadCastLoggingState();
       }
    }
 
@@ -515,6 +523,7 @@ public class GPSLoggerService extends Service
          updateWakeLock();
          mNoticationManager.cancel( R.layout.map );
          crashProtectState();
+         broadCastLoggingState();
       }
    }
 
@@ -651,6 +660,19 @@ public class GPSLoggerService extends Service
       mShowingGpsDisabled = true;
    }
 
+   /**
+    * Send a system broadcast to notify a change in the logging or precision
+    * TODO
+    */
+   private void broadCastLoggingState()
+   {
+      Intent broadcast = new Intent(Constants.LOGGING_STATE_CHANGED_ACTION);
+      broadcast.putExtra(Constants.EXTRA_LOGGING_PRECISION, mPrecision);
+      broadcast.putExtra(Constants.EXTRA_LOGGING_STATE, mLoggingState);
+      this.sendBroadcast(broadcast);
+      Log.d(TAG, "Did send state change to state "+ mLoggingState );
+   }
+   
    private void sendRequestStatusUpdateMessage()
    {
       mStatusMonitor = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean(Constants.STATUS_MONITOR, true);

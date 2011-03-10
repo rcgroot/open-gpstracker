@@ -2,7 +2,7 @@
 <manifest 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     package="nl.sogeti.android.gpstracker"
-	android:versionName="1.0.1" android:versionCode="39"
+	android:versionName="1.0.1" android:versionCode="40"
 	android:installLocation="auto"
 	>
 
@@ -67,7 +67,7 @@
          <meta-data 
               android:name="CLOUDMADE_KEY" 
               android:value="534dfce474894e218f363a5473248ff6" />
-           
+       	
 		<activity
             android:label="@string/app_name" 
             android:name=".viewer.LoggerMap" 
@@ -179,6 +179,20 @@
 	        	<action android:name="android.intent.action.BOOT_COMPLETED" />
 	        </intent-filter>
 	     </receiver>
-
+	    
+	    <!-- This receiver defines the app widget and the broadcasts it receives -->
+        <receiver 
+	     	android:name=".widget.ControlWidgetProvider" 
+	     	android:label="Logger control">
+    		<intent-filter>
+        		<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    		</intent-filter>
+    		<intent-filter>
+    			<action android:name="nl.sogeti.android.gpstracker.LOGGING_STATE_CHANGED" />
+    		</intent-filter>
+    		<meta-data 
+    			android:name="android.appwidget.provider"
+               	android:resource="@xml/control_appwidget_info" />
+		</receiver>  
     </application>
 </manifest>

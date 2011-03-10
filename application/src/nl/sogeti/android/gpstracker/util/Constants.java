@@ -33,6 +33,7 @@ import java.io.File;
 import nl.sogeti.android.gpstracker.actions.utils.XmlCreator;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -55,10 +56,6 @@ public class Constants
    public static final String LOCATION = "LOCATION";
    public static final String MAPPROVIDER = "mapprovider";
    public static final String TRACKCOLORING = "trackcoloring";
-   public static final int UNKNOWN = -1;
-   public static final int LOGGING = 1;
-   public static final int PAUSED = 2;
-   public static final int STOPPED = 3;
    public static final String SPEEDSANITYCHECK = "speedsanitycheck";
    public static final String PRECISION = "precision";
    public static final String LOGATSTARTUP = "logatstartup";
@@ -88,23 +85,92 @@ public class Constants
    public static final int OSM_MAKNIK    = 1;
    public static final int OSM_CYCLE   = 2;
    public static final String OSMBASEOVERLAY = "OSM_BASE_OVERLAY";
-
-   public static final int LOGGING_CUSTOM = 0;
-   public static final int LOGGING_FINE   = 1;
-   public static final int LOGGING_NORMAL = 2;
-   public static final int LOGGING_COARSE = 3;
-   public static final int LOGGING_GLOBAL = 4;
+   
    public static final String LOGGING_INTERVAL = "customprecisiontime";
    public static final String LOGGING_DISTANCE = "customprecisiondistance";
    public static final String STATUS_MONITOR = "gpsstatusmonitor";
    public static final String OSM_USERNAME = "OSM_USERNAME";
    public static final String OSM_PASSWORD = "OSM_PASSWORD";
    public static final String OSM_VISIBILITY = "OSM_VISIBILITY";
-   
-
    public static final String DATASOURCES_KEY = "DATASOURCES";
+   
+   /**
+    * Broadcast intent action indicating that the logger service state has
+    * changed. Includes the logging state and its precision.
+    *
+    * @see #EXTRA_LOGGING_PRECISION
+    * @see #EXTRA_LOGGING_STATE
+    */
 
+   public static final String LOGGING_STATE_CHANGED_ACTION = "nl.sogeti.android.gpstracker.LOGGING_STATE_CHANGED";
+   
+   /**
+    * The precision the service is logging on.
+    * 
+    * @see #LOGGING_FINE
+    * @see #LOGGING_NORMAL
+    * @see #LOGGING_COARSE
+    * @see #LOGGING_GLOBAL
+    * @see #LOGGING_CUSTOM
+    * 
+    */
+   public static final String EXTRA_LOGGING_PRECISION = "nl.sogeti.android.gpstracker.EXTRA_LOGGING_PRECISION";
+   
+   /**
+    * The state the service is.
+    * 
+    * @see #UNKNOWN
+    * @see #LOGGING
+    * @see #PAUSED
+    * @see #STOPPED
+    */
+   public static final String EXTRA_LOGGING_STATE = "nl.sogeti.android.gpstracker.EXTRA_LOGGING_STATE";
 
+   /**
+    * The state of the service is unknown
+    */
+   public static final int UNKNOWN = -1;
+   
+   /**
+    * The service is activly logging, it has requested location update from the location provider.
+    */
+   public static final int LOGGING = 1;
+   
+   /**
+    * The service is not active, but can be resumed to become active and store location changes as 
+    * part of a new segment of the current track.
+    */
+   public static final int PAUSED = 2;
+   
+   /**
+    * The service is not active and can not resume a current track but must start a new one when becoming active.
+    */
+   public static final int STOPPED = 3;
+   
+   /**
+    * The precision of the GPS provider is based on the custom time interval and distance.
+    */
+   public static final int LOGGING_CUSTOM = 0;
+   
+   /**
+    * The GPS location provider is asked to update every 10 seconds or every 5 meters.
+    */
+   public static final int LOGGING_FINE   = 1;
+   
+   /**
+    * The GPS location provider is asked to update every 15 seconds or every 10 meters.
+    */
+   public static final int LOGGING_NORMAL = 2;
+   
+   /**
+    * The GPS location provider is asked to update every 30 seconds or every 25 meters.
+    */
+   public static final int LOGGING_COARSE = 3;
+   
+   /**
+    * The radio location provider is asked to update every 5 minutes or every 500 meters.
+    */
+   public static final int LOGGING_GLOBAL = 4;
    
    /**
     * Based on preference return the SD-Card directory in which Open GPS Tracker creates and stores files
