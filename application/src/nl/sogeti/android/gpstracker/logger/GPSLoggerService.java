@@ -44,6 +44,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -51,6 +52,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
@@ -335,6 +337,7 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
+      Log.d(TAG, "onCreate()");
       
       GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
       looper.start();
@@ -382,6 +385,7 @@ public class GPSLoggerService extends Service
    public void onDestroy()
    {
       super.onDestroy();
+      Log.d(TAG, "onDestroy()");
       
       stopLogging();
       Message msg = Message.obtain();

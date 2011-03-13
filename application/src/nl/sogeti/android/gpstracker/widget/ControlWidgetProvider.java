@@ -43,14 +43,16 @@ public class ControlWidgetProvider extends AppWidgetProvider
    static final ComponentName THIS_APPWIDGET = new ComponentName("nl.sogeti.android.gpstracker", "nl.sogeti.android.gpstracker.widget.ControlWidgetProvider");
    private static int mState;
 
+   public ControlWidgetProvider()
+   {
+      super();
+   }
+   
    @Override
    public void onEnabled(Context context)
    {
       Log.d(TAG, "onEnabled() ");
       super.onEnabled(context);
-
-      PackageManager pm = context.getPackageManager();
-      pm.setComponentEnabledSetting(THIS_APPWIDGET, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 
       context.startService(new Intent(Constants.SERVICENAME));
    }
@@ -59,13 +61,14 @@ public class ControlWidgetProvider extends AppWidgetProvider
    public void onDisabled(Context context)
    {
       Log.d(TAG, "onDisabled() ");
-      PackageManager pm = context.getPackageManager();
-      pm.setComponentEnabledSetting(THIS_APPWIDGET, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+      //PackageManager pm = context.getPackageManager();
+      //pm.setComponentEnabledSetting(THIS_APPWIDGET, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
    }
 
    @Override
    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds)
    {
+      Log.d(TAG, "onDisabled() ");
       // Update each requested appWidgetId
       RemoteViews view = buildUpdate(context, -1);
 
@@ -163,9 +166,9 @@ public class ControlWidgetProvider extends AppWidgetProvider
       String action = intent.getAction();
       if (Constants.LOGGING_STATE_CHANGED_ACTION.equals(action))
       {
+         Log.d(TAG, "Changed state to " + mState);
          mState = intent.getIntExtra(Constants.EXTRA_LOGGING_STATE, Constants.UNKNOWN);
          updateWidget(context);
-         Log.d(TAG, "Changed state to " + mState);
       }
       else if (intent.hasCategory(Intent.CATEGORY_ALTERNATIVE))
       {
@@ -206,8 +209,6 @@ public class ControlWidgetProvider extends AppWidgetProvider
       // Update specific list of appWidgetIds if given, otherwise default to all
       final AppWidgetManager gm = AppWidgetManager.getInstance(context);
       gm.updateAppWidget(THIS_APPWIDGET, views);
-      
-      //5AppWidgetManager.getInstance(context).updateAppWidget(appWidgetId, remoteView); 
    }
 
 }
