@@ -1070,6 +1070,7 @@ public class LoggerMap extends MapActivity
                      String width = Integer.toString( bm.getWidth() );
                      bm.recycle();
                      bm = null;
+                     System.gc();
                      builder = new Uri.Builder();
                      fileUri = builder.scheme( "file").
                         appendEncodedPath( "/" ).

@@ -558,6 +558,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                mediaVO.y = mMediaScreenPoint.y - up;
                mediaVO.bitmap = bitmap;
                lastPoint = mediaVO.geopoint;
+               bitmap.recycle();
+               bitmap = null;
+               System.gc();
             }
             mMediaPathCalculation.add(mediaVO);
          }
@@ -611,16 +614,18 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private void drawDots( Canvas canvas )
    {
       synchronized ( mDotPath )
-      {         
+      {   
+         Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );      
          for( DotVO dotVO : mDotPath )
          {
-            Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
             canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
             if( dotVO.radius > 8f )
             {
                canvas.drawCircle( dotVO.x, dotVO.y, dotVO.radius, radiusPaint );
             }
          }
+         bitmap.recycle();
+         bitmap = null; 
       }
    }
 
@@ -693,6 +698,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
       else
       {
+         mStartBitmap.recycle();
          mStartBitmap = null;
       }
       if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
@@ -706,6 +712,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
       else
       {
+         mStopBitmap.recycle();
          mStopBitmap = null;
       }
    }
@@ -1284,8 +1291,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       public View getView( int position, View convertView, ViewGroup parent )
       {
          ImageView imageView = new ImageView( mContext );
-         Bitmap bitmap = getResourceForMedia( mTappedUri.get( position ) );
-         imageView.setImageBitmap(bitmap);
+         imageView.setImageBitmap( getResourceForMedia( mTappedUri.get( position ) ) );
          imageView.setScaleType( ImageView.ScaleType.FIT_XY );
          imageView.setBackgroundResource( itemBackground );
          return imageView;
