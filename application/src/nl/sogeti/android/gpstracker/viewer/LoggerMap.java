@@ -477,13 +477,10 @@ public class LoggerMap extends MapActivity
          this.mWakeLock.release();
          Log.w( TAG, "onPause(): Released lock to keep screen on!" );
       }
-      if( mTrackId > 0 )
-      {
-         ContentResolver resolver = this.getContentResolver();
-         resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
-         resolver.unregisterContentObserver( this.mSegmentWaypointsObserver );
-         resolver.unregisterContentObserver( this.mTrackMediasObserver );
-      }
+      ContentResolver resolver = this.getContentResolver();
+      resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
+      resolver.unregisterContentObserver( this.mSegmentWaypointsObserver );
+      resolver.unregisterContentObserver( this.mTrackMediasObserver );
       mMylocation.disableMyLocation();
       mMylocation.disableCompass();
       
@@ -1120,9 +1117,6 @@ public class LoggerMap extends MapActivity
                {
                   trackId = Long.parseLong( trackUri.getLastPathSegment() );
                   moveToTrack( trackId, true );
-                  Intent namingIntent = new Intent( this, NameTrack.class );
-                  namingIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) );
-                  startActivity( namingIntent );
                }
                break;
             default:

@@ -76,12 +76,19 @@ public class ControlTracking extends Activity
             {
                case R.id.logcontrol_start:
                   long loggerTrackId = mLoggerServiceManager.startGPSLogging( null );
-                  intent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, loggerTrackId ) );
+                  
+                  // Start a naming of the track
+                  Intent namingIntent = new Intent( ControlTracking.this, NameTrack.class );
+                  namingIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, loggerTrackId ) );
+                  startActivity( namingIntent );
+                  
+                  // Create data for the caller that a new track has been started
                   ComponentName caller = ControlTracking.this.getCallingActivity();
                   if( caller != null )
                   {
+                     intent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, loggerTrackId ) );
                      setResult( RESULT_OK, intent );
-                  }
+                  }                  
                   break;
                case R.id.logcontrol_pause:
                   mLoggerServiceManager.pauseGPSLogging();

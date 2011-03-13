@@ -6,8 +6,8 @@
 	android:background="@drawable/appwidget_bg">
 
 	<ImageButton 
-		android:id="@+id/recordAndStop" 
-		android:src="@drawable/record"
+		android:id="@+id/widget_trackingcontrol" 
+		android:src="@drawable/ic_menu_movie"
 		android:layout_marginTop="12dp" 
 		android:layout_marginBottom="5dp"
 		android:layout_marginLeft="10dp" 
@@ -18,9 +18,8 @@
 		android:layout_weight="2.0" />
 
 	<ImageButton 
-		android:id="@+id/pauseAndResume" 
-		android:src="@drawable/pause_disabled"
-		android:enabled="false" 
+		android:id="@+id/widget_insertnote_enabled" 
+		android:src="@drawable/ic_menu_myplaces"
 		android:layout_marginTop="12dp"
 		android:layout_marginBottom="5dp" 
 		android:layout_marginLeft="5dp"
@@ -28,6 +27,24 @@
 		android:layout_height="fill_parent"
 		android:layout_width="1dip" 
 		android:gravity="center_vertical|center_horizontal|"
-		android:layout_weight="2.0" />
+		android:layout_weight="2.0"
+		android:enabled="true" 
+		android:visibility="visible" 
+		/>
+		
+	<ImageButton 
+		android:id="@+id/widget_insertnote_disabled" 
+		android:src="@drawable/ic_menu_myplaces"
+		android:layout_marginTop="12dp"
+		android:layout_marginBottom="5dp" 
+		android:layout_marginLeft="5dp"
+		android:layout_marginRight="10dp" 
+		android:layout_height="fill_parent"
+		android:layout_width="1dip" 
+		android:gravity="center_vertical|center_horizontal|"
+		android:layout_weight="2.0"
+		android:enabled="false"
+		android:visibility="visible" 
+		/>
 
 </LinearLayout>
