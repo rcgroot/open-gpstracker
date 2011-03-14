@@ -239,7 +239,7 @@ public class GPSLoggerServiceManager
     */
    public void startup( Context context, final Runnable onServiceConnected )
    {
-      Log.d( TAG, "connectToGPSLoggerService()" );
+//      Log.d( TAG, "connectToGPSLoggerService()" );
       synchronized (mStartLock)
       {
          if( !mBound )
@@ -251,7 +251,7 @@ public class GPSLoggerServiceManager
                {
                   synchronized (mStartLock)
                   {
-                     Log.d( TAG, "onServiceConnected() "+ Thread.currentThread().getId() );
+//                     Log.d( TAG, "onServiceConnected() "+ Thread.currentThread().getId() );
                      GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
                      mBound = true;
                   }
@@ -265,12 +265,11 @@ public class GPSLoggerServiceManager
                {
                   synchronized (mStartLock)
                   {
-                     Log.d( TAG, "onServiceDisconnected()"+ Thread.currentThread().getId() );
+//                     Log.d( TAG, "onServiceDisconnected()"+ Thread.currentThread().getId() );
                      mBound = false;
                   }
                }
             };
-            Log.d( TAG, "bindService()"+this.mServiceConnection );
             context.bindService( new Intent( Constants.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
          }
          else
@@ -285,14 +284,14 @@ public class GPSLoggerServiceManager
     */
    public void shutdown(Context context)
    {
-      Log.d( TAG, "disconnectFromGPSLoggerService()" );
+//      Log.d( TAG, "disconnectFromGPSLoggerService()" );
       synchronized (mStartLock)
       {
          try
          {
             if( mBound )
             {
-               Log.d( TAG, "unbindService()"+this.mServiceConnection );
+//               Log.d( TAG, "unbindService()"+this.mServiceConnection );
                context.unbindService( this.mServiceConnection );
                GPSLoggerServiceManager.this.mGPSLoggerRemote = null;
                mServiceConnection = null;

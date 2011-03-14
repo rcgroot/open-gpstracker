@@ -52,7 +52,7 @@ public class ControlWidgetProvider extends AppWidgetProvider
    @Override
    public void onEnabled(Context context)
    {
-      Log.d(TAG, "onEnabled() ");
+//      Log.d(TAG, "onEnabled() ");
       super.onEnabled(context);
 
       context.startService(new Intent(Constants.SERVICENAME));
@@ -61,15 +61,13 @@ public class ControlWidgetProvider extends AppWidgetProvider
    @Override
    public void onDisabled(Context context)
    {
-      Log.d(TAG, "onDisabled() ");
-      //PackageManager pm = context.getPackageManager();
-      //pm.setComponentEnabledSetting(THIS_APPWIDGET, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+//      Log.d(TAG, "onDisabled() ");
    }
 
    @Override
    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds)
    {
-      Log.d(TAG, "onDisabled() ");
+//      Log.d(TAG, "onDisabled() ");
       // Update each requested appWidgetId
       RemoteViews view = buildUpdate(context, -1);
 
@@ -98,7 +96,7 @@ public class ControlWidgetProvider extends AppWidgetProvider
     */
    private static void updateButtons(RemoteViews views, Context context)
    {
-      Log.d(TAG, "Updated the remote views to state " + mState);
+//      Log.d(TAG, "Updated the remote views to state " + mState);
       switch (mState)
       {
          case Constants.LOGGING:
@@ -162,12 +160,11 @@ public class ControlWidgetProvider extends AppWidgetProvider
    @Override
    public void onReceive(Context context, Intent intent)
    {
-      Log.d(TAG, "Did recieve intent with action: " + intent.getAction());
+//      Log.d(TAG, "Did recieve intent with action: " + intent.getAction());
       super.onReceive(context, intent);
       String action = intent.getAction();
       if (Constants.LOGGING_STATE_CHANGED_ACTION.equals(action))
       {
-         Log.d(TAG, "Changed state to " + mState);
          mState = intent.getIntExtra(Constants.EXTRA_LOGGING_STATE, Constants.UNKNOWN);
          updateWidget(context);
       }
@@ -177,19 +174,15 @@ public class ControlWidgetProvider extends AppWidgetProvider
          int buttonId = Integer.parseInt(data.getSchemeSpecificPart());
          if (buttonId == BUTTON_TRACKINGCONTROL)
          {
-            Log.d(TAG, "Must launch tracking controll");
             Intent controlIntent = new Intent( context, ControlTracking.class );
             controlIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(controlIntent);
          }
          else if (buttonId == BUTTON_INSERTNOTE)
          {
-            Log.d(TAG, "Must launch note taking");
             Intent noteIntent = new Intent( context, InsertNote.class );
             noteIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity( noteIntent );
-
-            //toggleRecordStop(context);
          }
       }
       else

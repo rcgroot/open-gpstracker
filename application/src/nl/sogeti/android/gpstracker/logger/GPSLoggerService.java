@@ -337,7 +337,6 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
-      Log.d(TAG, "onCreate()");
       
       GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
       looper.start();
@@ -399,7 +398,7 @@ public class GPSLoggerService extends Service
 
    private void handleCommand(Intent intent)
    {
-      Log.d( TAG, "onStart() handling" + intent );
+//      Log.d( TAG, "onStart() handling" + intent );
    }
 
    /**
@@ -411,7 +410,6 @@ public class GPSLoggerService extends Service
    public void onDestroy()
    {
       super.onDestroy();
-      Log.d(TAG, "onDestroy()");
       
       stopLogging();
       Message msg = Message.obtain();
@@ -702,7 +700,6 @@ public class GPSLoggerService extends Service
       broadcast.putExtra(Constants.EXTRA_LOGGING_PRECISION, mPrecision);
       broadcast.putExtra(Constants.EXTRA_LOGGING_STATE, mLoggingState);
       this.sendBroadcast(broadcast);
-      Log.d(TAG, "Did send state change to state "+ mLoggingState );
    }
    
    private void sendRequestStatusUpdateMessage()

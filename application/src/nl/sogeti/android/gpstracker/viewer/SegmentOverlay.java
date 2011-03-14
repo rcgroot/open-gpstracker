@@ -95,7 +95,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private static final String TAG = "OGT.SegmentOverlay";
    private static final float MINIMUM_PX_DISTANCE = 15;
    
-   private static Map<Integer, Bitmap> sBitmapCache;
+   private static Map<Integer, Bitmap> sBitmapCache = new HashMap<Integer, Bitmap>();;
    
    private int mTrackColoringMethod = DRAW_CALCULATED;
 
@@ -107,8 +107,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Uri mWaypointsUri;
    private Uri mMediaUri;
    private double mAvgSpeed;
-   private GeoPoint mTopLeft;
-   private GeoPoint mBottumRight;
+   private GeoPoint mGeoTopLeft;
+   private GeoPoint mGeoBottumRight;
 
    private Vector<DotVO> mDotPath;
    private Vector<DotVO> mDotPathCalculation;
@@ -223,7 +223,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mScreenPointBackup = new Point();
       mPrevDrawnScreenPoint = new Point();
       
-      sBitmapCache = new HashMap<Integer, Bitmap>();
       mDotPath = new Vector<DotVO>();
       mDotPathCalculation = new Vector<DotVO>();
       mPath = new Path();
@@ -315,18 +314,18 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    private synchronized void calculateTrackAsync()
    {
-      GeoPoint oldTopLeft = mTopLeft;
-      GeoPoint oldBottumRight = mBottumRight;
-      mTopLeft = mProjection.fromPixels( 0, 0 );
-      mBottumRight = mProjection.fromPixels( mWidth, mHeight );
+      GeoPoint oldTopLeft = mGeoTopLeft;
+      GeoPoint oldBottumRight = mGeoBottumRight;
+      mGeoTopLeft = mProjection.fromPixels( 0, 0 );
+      mGeoBottumRight = mProjection.fromPixels( mWidth, mHeight );
 
       if( mRequeryFlag
               || oldTopLeft == null 
               || oldBottumRight == null 
-              || mTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 
-              || mTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
-              || mBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 
-              || mBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
+              || mGeoTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 
+              || mGeoTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
+              || mGeoBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 
+              || mGeoBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
       {
          calculateStepSize();
         
@@ -540,11 +539,10 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                   waypointCursor.close();
                }
             }
-            if( isOnScreen( mediaVO.geopoint ) )
+            if( isGeoPointOnScreen( mediaVO.geopoint ) )
             {
                this.mProjection.toPixels( mediaVO.geopoint, this.mMediaScreenPoint );
                mCalculatedPoints++;
-               Bitmap bitmap = getResourceForMedia( mLoggerMap.getResources(), mediaVO.uri );
                if( mediaVO.geopoint.equals( lastPoint ) )
                {
                   wiggle += 4;
@@ -553,13 +551,14 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                {
                   wiggle = 0;
                }
-               mediaVO.w = bitmap.getWidth();
-               mediaVO.h = bitmap.getHeight();
+               mediaVO.bitmap = getResourceForMedia( mLoggerMap.getResources(), mediaVO.uri );
+               mediaVO.w = mediaVO.bitmap.getWidth();
+               mediaVO.h = mediaVO.bitmap.getHeight();
                int left = ( mediaVO.w * 3 ) / 7 + wiggle;
                int up = ( mediaVO.h * 6 ) / 7 - wiggle;
                mediaVO.x = mMediaScreenPoint.x - left;
                mediaVO.y = mMediaScreenPoint.y - up;
-               mediaVO.bitmap = bitmap;
+               
                lastPoint = mediaVO.geopoint;
             }
             mMediaPathCalculation.add(mediaVO);
@@ -635,10 +634,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          for( MediaVO mediaVO : mMediaPath )
          {
-            if( isOnScreen(mediaVO.x, mediaVO.y) )
-            {
-               canvas.drawBitmap( mediaVO.bitmap, mediaVO.x, mediaVO.y, defaultPaint );
-            }
+            canvas.drawBitmap( mediaVO.bitmap, mediaVO.x, mediaVO.y, defaultPaint );
          }
       }
    }
@@ -675,15 +671,14 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       Bitmap bitmap = null;
       synchronized (sBitmapCache)
       {
-         if( sBitmapCache.containsKey( new Integer(drawable)) )
-         {
-            bitmap = sBitmapCache.get( new Integer(drawable) );
-         }
-         else
+         Integer bitmapKey = new Integer(drawable);
+         if( !sBitmapCache.containsKey( bitmapKey) )
          {
             bitmap = BitmapFactory.decodeResource( resources, drawable );
-            sBitmapCache.put(new Integer(drawable), bitmap);
-         }   
+            sBitmapCache.put(bitmapKey, bitmap);
+
+         }
+         bitmap = sBitmapCache.get( bitmapKey ); 
       }
       return bitmap;
    }
@@ -846,7 +841,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private boolean moveToNextWayPoint()
    {
       boolean cursorReady = true;
-      boolean onscreen = isOnScreen( extractGeoPoint() );
+      boolean onscreen = isGeoPointOnScreen( extractGeoPoint() );
       if( mWaypointsCursor.isLast() ) // End of the line, cant move onward
       {
          cursorReady = false;
@@ -875,7 +870,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       int nextPosition = mStepSize * ( mWaypointsCursor.getPosition() / mStepSize ) + mStepSize;
       if( mWaypointsCursor.moveToPosition( nextPosition ) )
       {
-         if( isOnScreen( extractGeoPoint() ) ) // Remained on screen
+         if( isGeoPointOnScreen( extractGeoPoint() ) ) // Remained on screen
          {
             return true; // Cursor is pointing to somewhere
          }
@@ -886,7 +881,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             while( nowOnScreen ) // while on the screen 
             {
                mWaypointsCursor.moveToNext(); // inch forward to the edge
-               nowOnScreen = isOnScreen( extractGeoPoint() );
+               nowOnScreen = isGeoPointOnScreen( extractGeoPoint() );
             }
             return true; // with a cursor point to somewhere
          }
@@ -978,17 +973,26 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     * @param eval
     * @return
     */
-   protected boolean isOnScreen( GeoPoint eval )
+   protected boolean isGeoPointOnScreen(GeoPoint geopoint)
    {
-      boolean onscreen = false;
-      if( eval != null && mTopLeft != null && mBottumRight != null )
-      {
-         onscreen = mTopLeft.getLatitudeE6() > eval.getLatitudeE6();
-         onscreen = onscreen && mBottumRight.getLatitudeE6() < eval.getLatitudeE6();
-         onscreen = onscreen && mTopLeft.getLongitudeE6() < eval.getLongitudeE6();
-         onscreen = onscreen && mBottumRight.getLongitudeE6() > eval.getLongitudeE6();
-      }
-      return onscreen;
+       boolean onscreen = true;
+       if (geopoint != null && mGeoTopLeft != null && mGeoBottumRight != null)
+       {
+           onscreen = onscreen && mGeoTopLeft.getLatitudeE6() > geopoint.getLatitudeE6();
+           onscreen = onscreen && mGeoBottumRight.getLatitudeE6() < geopoint.getLatitudeE6();
+           if (mGeoTopLeft.getLongitudeE6() < mGeoBottumRight.getLongitudeE6())
+           {
+               onscreen = onscreen && mGeoTopLeft.getLongitudeE6() < geopoint.getLongitudeE6();
+               onscreen = onscreen && mGeoBottumRight.getLongitudeE6() > geopoint.getLongitudeE6();
+           }
+           else
+           {
+               onscreen = onscreen
+                       && (mGeoTopLeft.getLongitudeE6() < geopoint.getLongitudeE6() || mGeoBottumRight
+                               .getLongitudeE6() > geopoint.getLongitudeE6());
+           }
+       }
+       return onscreen;
    }
    
    /**
@@ -1013,11 +1017,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    {
       //      Log.d( TAG, String.format( "Comparing %s to points TL %s and BR %s", p1, mTopLeft, mBottumRight )); 
       int nr;
-      if( p1.getLongitudeE6() < mTopLeft.getLongitudeE6() ) // left
+      if( p1.getLongitudeE6() < mGeoTopLeft.getLongitudeE6() ) // left
       {
          nr = 1;
       }
-      else if( p1.getLongitudeE6() > mBottumRight.getLongitudeE6() ) // right
+      else if( p1.getLongitudeE6() > mGeoBottumRight.getLongitudeE6() ) // right
       {
          nr = 3;
       }
@@ -1027,11 +1031,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          nr = 2;
       }
 
-      if( p1.getLatitudeE6() > mTopLeft.getLatitudeE6() ) // top
+      if( p1.getLatitudeE6() > mGeoTopLeft.getLatitudeE6() ) // top
       {
          nr = nr + 0;
       }
-      else if( p1.getLatitudeE6() < mBottumRight.getLatitudeE6() ) // bottom
+      else if( p1.getLatitudeE6() < mGeoBottumRight.getLatitudeE6() ) // bottom
       {
          nr = nr + 6;
       }
@@ -1323,8 +1327,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       @Override
       protected void onDraw( Canvas canvas, org.osmdroid.views.MapView view )
       {
+         mProjection.setProjection(view);
          SegmentOverlay.this.draw( canvas );
-         mProjection.setProjection(view.getProjection());
       }
 
       @Override
