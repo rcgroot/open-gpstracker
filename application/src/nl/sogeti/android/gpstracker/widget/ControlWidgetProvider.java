@@ -32,7 +32,7 @@ import android.widget.RemoteViews;
  * An App Widget for on the home screen to control logging with a start, pause,
  * resume and stop
  * 
- * @version $Id:$
+ * @version $Id$
  * @author grootren (c) Mar 8, 2011, Sogeti B.V.
  */
 public class ControlWidgetProvider extends AppWidgetProvider
