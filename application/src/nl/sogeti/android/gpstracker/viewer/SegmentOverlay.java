@@ -634,7 +634,10 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          for( MediaVO mediaVO : mMediaPath )
          {
-            canvas.drawBitmap( mediaVO.bitmap, mediaVO.x, mediaVO.y, defaultPaint );
+            if( mediaVO.bitmap != null )
+            {
+               canvas.drawBitmap( mediaVO.bitmap, mediaVO.x, mediaVO.y, defaultPaint );
+            }
          }
       }
    }
