@@ -14,6 +14,7 @@ package nl.sogeti.android.gpstracker.widget;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ControlTracking;
+import nl.sogeti.android.gpstracker.actions.InsertNote;
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -184,6 +185,10 @@ public class ControlWidgetProvider extends AppWidgetProvider
          else if (buttonId == BUTTON_INSERTNOTE)
          {
             Log.d(TAG, "Must launch note taking");
+            Intent noteIntent = new Intent( context, InsertNote.class );
+            noteIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity( noteIntent );
+
             //toggleRecordStop(context);
          }
       }

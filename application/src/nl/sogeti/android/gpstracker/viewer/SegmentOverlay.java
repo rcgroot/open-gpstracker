@@ -44,6 +44,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -94,6 +95,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private static final String TAG = "OGT.SegmentOverlay";
    private static final float MINIMUM_PX_DISTANCE = 15;
    
+   private static Map<Integer, Bitmap> sBitmapCache;
+   
    private int mTrackColoringMethod = DRAW_CALCULATED;
 
    private ContentResolver mResolver;
@@ -114,7 +117,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Shader mShader;
    private Vector<MediaVO> mMediaPath;
    private Vector<MediaVO> mMediaPathCalculation;
-   private Map<Integer, Bitmap> mBitmapCache;
+   
 
    private GeoPoint mStartPoint;
    private GeoPoint mEndPoint;
@@ -220,7 +223,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mScreenPointBackup = new Point();
       mPrevDrawnScreenPoint = new Point();
       
-      mBitmapCache = new HashMap<Integer, Bitmap>();
+      sBitmapCache = new HashMap<Integer, Bitmap>();
       mDotPath = new Vector<DotVO>();
       mDotPathCalculation = new Vector<DotVO>();
       mPath = new Path();
@@ -541,7 +544,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             {
                this.mProjection.toPixels( mediaVO.geopoint, this.mMediaScreenPoint );
                mCalculatedPoints++;
-               Bitmap bitmap = getResourceForMedia( mediaVO.uri );
+               Bitmap bitmap = getResourceForMedia( mLoggerMap.getResources(), mediaVO.uri );
                if( mediaVO.geopoint.equals( lastPoint ) )
                {
                   wiggle += 4;
@@ -558,9 +561,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                mediaVO.y = mMediaScreenPoint.y - up;
                mediaVO.bitmap = bitmap;
                lastPoint = mediaVO.geopoint;
-               bitmap.recycle();
-               bitmap = null;
-               System.gc();
             }
             mMediaPathCalculation.add(mediaVO);
          }
@@ -643,7 +643,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
    }
 
-   private Bitmap getResourceForMedia( Uri uri )
+   private static Bitmap getResourceForMedia( Resources resources, Uri uri )
    {
       int drawable = 0;
       if( uri.getScheme().equals( "file" ) )
@@ -673,14 +673,17 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          }
       }
       Bitmap bitmap = null;
-      if( mBitmapCache.containsKey( new Integer(drawable)) )
+      synchronized (sBitmapCache)
       {
-         bitmap = mBitmapCache.get(new Integer(drawable));
-      }
-      else
-      {
-         bitmap = BitmapFactory.decodeResource( mLoggerMap.getResources(), drawable );
-         mBitmapCache.put(new Integer(drawable), bitmap);
+         if( sBitmapCache.containsKey( new Integer(drawable)) )
+         {
+            bitmap = sBitmapCache.get( new Integer(drawable) );
+         }
+         else
+         {
+            bitmap = BitmapFactory.decodeResource( resources, drawable );
+            sBitmapCache.put(new Integer(drawable), bitmap);
+         }   
       }
       return bitmap;
    }
@@ -698,8 +701,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
       else
       {
-         mStartBitmap.recycle();
-         mStartBitmap = null;
+         if( mStartBitmap != null )
+         {
+            mStartBitmap.recycle();
+            mStartBitmap = null;
+         }
       }
       if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
       {
@@ -712,8 +718,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
       else
       {
-         mStopBitmap.recycle();
-         mStopBitmap = null;
+         if( mStopBitmap != null )
+         {
+            mStopBitmap.recycle();
+            mStopBitmap = null;
+         }
       }
    }
 
@@ -1291,7 +1300,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       public View getView( int position, View convertView, ViewGroup parent )
       {
          ImageView imageView = new ImageView( mContext );
-         imageView.setImageBitmap( getResourceForMedia( mTappedUri.get( position ) ) );
+         imageView.setImageBitmap( getResourceForMedia( mLoggerMap.getResources(), mTappedUri.get( position ) ) );
          imageView.setScaleType( ImageView.ScaleType.FIT_XY );
          imageView.setBackgroundResource( itemBackground );
          return imageView;

@@ -28,15 +28,11 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Calendar;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ControlTracking;
-import nl.sogeti.android.gpstracker.actions.NameTrack;
+import nl.sogeti.android.gpstracker.actions.InsertNote;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -66,14 +62,11 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
@@ -85,18 +78,15 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
 import android.widget.Gallery;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -120,18 +110,11 @@ public class LoggerMap extends MapActivity
    private static final int MENU_ABOUT = 5;
    private static final int MENU_LAYERS = 6;
    private static final int MENU_NOTE = 7;
-   private static final int MENU_NAME = 8;
-   private static final int MENU_PICTURE = 9;
-   private static final int MENU_TEXT = 10;
-   private static final int MENU_VOICE = 11;
-   private static final int MENU_VIDEO = 12;
    private static final int MENU_SHARE = 13;
    private static final int MENU_CONTRIB = 14;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
-   private static final int DIALOG_TEXT = 32;
-   private static final int DIALOG_NAME = 33;
    private static final int DIALOG_URIS = 34;
    private static final int DIALOG_CONTRIB = 35;
    private static final String TAG = "OGT.LoggerMap";
@@ -143,8 +126,6 @@ public class LoggerMap extends MapActivity
    private TextView[] mSpeedtexts = null;
    private TextView mLastGPSSpeedView = null;
    private TextView mLastGPSAltitudeView = null;
-   private EditText mNoteNameView;
-   private EditText mNoteTextView;
 
    private double mAverageSpeed = 33.33d / 3d;
    private long mTrackId = -1;
@@ -360,52 +341,6 @@ public class LoggerMap extends MapActivity
             updateSpeedColoring();
          }
       };
-   private final OnClickListener mNoteTextDialogListener = new DialogInterface.OnClickListener()
-   {
-
-      public void onClick( DialogInterface dialog, int which )
-      {
-         String noteText = mNoteTextView.getText().toString();
-         Calendar c = Calendar.getInstance();
-         String newName = String.format( "Textnote_%tY-%tm-%td_%tH%tM%tS.txt", c, c, c, c, c, c );
-         File file = new File( Constants.getSdCardDirectory(LoggerMap.this) + newName );
-         FileWriter filewriter = null;
-         try
-         {
-            file.getParentFile().mkdirs();
-            file.createNewFile();
-            filewriter = new FileWriter( file );
-            filewriter.append( noteText );
-            filewriter.flush();
-         }
-         catch (IOException e)
-         {
-            Log.e( TAG, "Note storing failed", e );
-            CharSequence text = e.getLocalizedMessage();
-            Toast toast = Toast.makeText( LoggerMap.this, text, Toast.LENGTH_LONG );
-            toast.show();
-         }
-         finally
-         {
-            if( filewriter!=null){ try { filewriter.close(); } catch (IOException e){ /* */ } }
-         }
-
-         
-         LoggerMap.this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( file ) );
-      }
-      
-   };
-   private final OnClickListener mNoteNameDialogListener = new DialogInterface.OnClickListener()
-   {
-
-      public void onClick( DialogInterface dialog, int which )
-      {
-         String name = mNoteNameView.getText().toString();
-         Uri media = Uri.withAppendedPath( Constants.NAME_URI, Uri.encode( name ) );
-         LoggerMap.this.mLoggerServiceManager.storeMediaUri( media );
-      }
-      
-   };
    private final OnClickListener mNoteSelectDialogListener = new DialogInterface.OnClickListener()
    {
 
@@ -427,7 +362,8 @@ public class LoggerMap extends MapActivity
       
       setContentView( R.layout.map );
       
-      this.startService(new Intent(Constants.SERVICENAME));
+      mLoggerServiceManager = new GPSLoggerServiceManager( this );
+      
       Thread calulator = new Thread("OverlayCalculator")
       {
          public void run()
@@ -440,17 +376,7 @@ public class LoggerMap extends MapActivity
       calulator.start();
       Thread.yield();
 
-      Object previousInstanceData = getLastNonConfigurationInstance();
-      if( previousInstanceData != null && previousInstanceData instanceof GPSLoggerServiceManager )
-      {
-         mLoggerServiceManager = (GPSLoggerServiceManager) previousInstanceData;
-      }
-      else
-      {
-         mLoggerServiceManager = new GPSLoggerServiceManager( (Context) this );
-      }
-      mLoggerServiceManager.startup();
-
+      
       mUnits = new UnitsI18n( this, mUnitsChangeListener );
 
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
@@ -470,28 +396,11 @@ public class LoggerMap extends MapActivity
       onRestoreInstanceState( load );
    }
 
-   protected void onPause()
-   {
-      if( this.mWakeLock != null && this.mWakeLock.isHeld() )
-      {
-         this.mWakeLock.release();
-         Log.w( TAG, "onPause(): Released lock to keep screen on!" );
-      }
-      ContentResolver resolver = this.getContentResolver();
-      resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
-      resolver.unregisterContentObserver( this.mSegmentWaypointsObserver );
-      resolver.unregisterContentObserver( this.mTrackMediasObserver );
-      mMylocation.disableMyLocation();
-      mMylocation.disableCompass();
-      
-      
-      super.onPause();
-   }
-
    protected void onResume()
    {
       super.onResume();
-            
+      mLoggerServiceManager.startup( this, null );
+      
       updateTitleBar();
       updateBlankingBehavior();
 
@@ -524,6 +433,26 @@ public class LoggerMap extends MapActivity
    
    
 
+   protected void onPause()
+   {
+      this.mLoggerServiceManager.shutdown( this );
+      
+      if( this.mWakeLock != null && this.mWakeLock.isHeld() )
+      {
+         this.mWakeLock.release();
+         Log.w( TAG, "onPause(): Released lock to keep screen on!" );
+      }
+      ContentResolver resolver = this.getContentResolver();
+      resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
+      resolver.unregisterContentObserver( this.mSegmentWaypointsObserver );
+      resolver.unregisterContentObserver( this.mTrackMediasObserver );
+      mMylocation.disableMyLocation();
+      mMylocation.disableCompass();
+      
+      
+      super.onPause();
+   }
+
    /*
     * (non-Javadoc)
     * @see com.google.android.maps.MapActivity#onPause()
@@ -536,7 +465,6 @@ public class LoggerMap extends MapActivity
       mMapView.clearOverlays();     
       mHandler.getLooper().quit();
       
-      this.mLoggerServiceManager.shutdown();
       if( mWakeLock != null && mWakeLock.isHeld() )
       {
          mWakeLock.release();
@@ -617,17 +545,6 @@ public class LoggerMap extends MapActivity
       GeoPoint point = this.mMapView.getMapCenter();
       save.putInt( "e6lat", point.getLatitudeE6() );
       save.putInt( "e6long", point.getLongitudeE6() );
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onRetainNonConfigurationInstance()
-    */
-   @Override
-   public Object onRetainNonConfigurationInstance()
-   {
-      Object nonConfigurationInstance = this.mLoggerServiceManager;
-      return nonConfigurationInstance;
    }
 
    @Override
@@ -721,7 +638,7 @@ public class LoggerMap extends MapActivity
 
       menu.add( ContextMenu.NONE, MENU_TRACKING, ContextMenu.NONE, R.string.menu_tracking ).setIcon( R.drawable.ic_menu_movie ).setAlphabeticShortcut( 'T' );
       menu.add( ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers ).setIcon( R.drawable.ic_menu_mapmode ).setAlphabeticShortcut( 'L' );
-      SubMenu notemenu = menu.addSubMenu( ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote ).setIcon( R.drawable.ic_menu_myplaces );
+      menu.add( ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote ).setIcon( R.drawable.ic_menu_myplaces );
       
       menu.add( ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_statistics ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 'S' );
       menu.add( ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack ).setIcon( R.drawable.ic_menu_share ).setAlphabeticShortcut('I');
@@ -731,12 +648,6 @@ public class LoggerMap extends MapActivity
       menu.add( ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings ).setIcon( R.drawable.ic_menu_preferences ).setAlphabeticShortcut( 'C' );
       menu.add( ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about ).setIcon( R.drawable.ic_menu_info_details ).setAlphabeticShortcut( 'A' );
       menu.add( ContextMenu.NONE, MENU_CONTRIB, ContextMenu.NONE, R.string.menu_contrib ).setIcon( R.drawable.ic_menu_allfriends );
-      
-      notemenu.add( ContextMenu.NONE, MENU_NAME, ContextMenu.NONE, R.string.menu_notename );
-      notemenu.add( ContextMenu.NONE, MENU_TEXT, ContextMenu.NONE, R.string.menu_notetext );
-      notemenu.add( ContextMenu.NONE, MENU_VOICE, ContextMenu.NONE, R.string.menu_notespeech );
-      notemenu.add( ContextMenu.NONE, MENU_PICTURE, ContextMenu.NONE, R.string.menu_notepicture );
-      notemenu.add( ContextMenu.NONE, MENU_VIDEO, ContextMenu.NONE, R.string.menu_notevideo );
       
       return result;
    }
@@ -748,10 +659,12 @@ public class LoggerMap extends MapActivity
    @Override
    public boolean onPrepareOptionsMenu( Menu menu )
    {
-      MenuItem notemenu = menu.findItem( MENU_NOTE );
-      notemenu.setEnabled( mLoggerServiceManager.isMediaPrepared() );
-      MenuItem sharemenu = menu.findItem( MENU_SHARE );
-      sharemenu.setEnabled( mTrackId >= 0 );
+      MenuItem noteMenu = menu.findItem( MENU_NOTE );
+      noteMenu.setEnabled( mLoggerServiceManager.isMediaPrepared() );
+      
+      MenuItem shareMenu = menu.findItem( MENU_SHARE );
+      shareMenu.setEnabled( mTrackId >= 0 );
+      
       return super.onPrepareOptionsMenu( menu );
    }
 
@@ -770,6 +683,11 @@ public class LoggerMap extends MapActivity
             break;
          case MENU_LAYERS:
             showDialog( DIALOG_LAYERS );
+            handled = true;
+            break;
+         case MENU_NOTE:
+            Intent noteIntent = new Intent( this, InsertNote.class );
+            startActivityForResult( noteIntent, MENU_NOTE );
             handled = true;
             break;
          case MENU_SETTINGS:
@@ -815,26 +733,6 @@ public class LoggerMap extends MapActivity
             actionIntent.setDataAndType( trackUri, Tracks.CONTENT_ITEM_TYPE );
             actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
             startActivity( Intent.createChooser( actionIntent, getString( R.string.share_track ) ) );
-            handled = true;
-            break;
-         case MENU_PICTURE:
-            addPicture();
-            handled = true;
-            break;
-         case MENU_VIDEO:
-            addVideo();
-            handled = true;
-            break;
-         case MENU_VOICE:
-            addVoice();
-            handled = true;
-            break;
-         case MENU_TEXT:
-            showDialog( DIALOG_TEXT );
-            handled = true;
-            break;
-         case MENU_NAME:
-            showDialog( DIALOG_NAME );
             handled = true;
             break;
          case MENU_CONTRIB:
@@ -904,34 +802,6 @@ public class LoggerMap extends MapActivity
                .setIcon( android.R.drawable.ic_dialog_alert )
                .setPositiveButton( R.string.btn_install, mOiAboutDialogListener )
                .setNegativeButton( R.string.btn_cancel, null );
-            dialog = builder.create();
-            return dialog;
-         case DIALOG_TEXT:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.notetextdialog, null );
-            mNoteTextView = (EditText) view.findViewById( R.id.notetext );
-            builder
-               .setTitle( R.string.dialog_notetext_title )
-               .setMessage( R.string.dialog_notetext_message )
-               .setIcon( android.R.drawable.ic_dialog_map )
-               .setPositiveButton( R.string.btn_okay, mNoteTextDialogListener )
-               .setNegativeButton( R.string.btn_cancel, null )
-               .setView( view );
-            dialog = builder.create();
-            return dialog;
-         case DIALOG_NAME:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.notenamedialog, null );
-            mNoteNameView = (EditText) view.findViewById( R.id.notename );
-            builder
-               .setTitle( R.string.dialog_notename_title )
-               .setMessage( R.string.dialog_notename_message )
-               .setIcon( android.R.drawable.ic_dialog_map )
-               .setPositiveButton( R.string.btn_okay, mNoteNameDialogListener )
-               .setNegativeButton( R.string.btn_cancel, null )
-               .setView( view );
             dialog = builder.create();
             return dialog;
          case DIALOG_URIS:
@@ -1037,12 +907,6 @@ public class LoggerMap extends MapActivity
       super.onActivityResult( requestCode, resultCode, intent );
       if( resultCode != RESULT_CANCELED )
       {
-         File file;
-         Uri uri;
-         File newFile;
-         String newName;
-         Uri fileUri;
-         android.net.Uri.Builder builder;
          Uri trackUri;
          long trackId;
          switch (requestCode)
@@ -1053,64 +917,6 @@ public class LoggerMap extends MapActivity
                moveToTrack( trackId, true );
                break;
             case MENU_ABOUT:
-               break;
-            case MENU_PICTURE:
-               file = new File( Constants.getSdCardTmpFile( this ) );
-               Calendar c = Calendar.getInstance();
-               newName =  String.format( "Picture_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c );
-               newFile = new File( Constants.getSdCardDirectory( this ) + newName );
-               file.getParentFile().mkdirs();
-               boolean isRenamed = file.renameTo( newFile );
-               if( isRenamed )
-               {
-                  Bitmap bm = BitmapFactory.decodeFile( newFile.getAbsolutePath() );
-                  if( bm != null )
-                  {
-                     String height = Integer.toString( bm.getHeight() );
-                     String width = Integer.toString( bm.getWidth() );
-                     bm.recycle();
-                     bm = null;
-                     System.gc();
-                     builder = new Uri.Builder();
-                     fileUri = builder.scheme( "file").
-                        appendEncodedPath( "/" ).
-                        appendEncodedPath( newFile.getAbsolutePath() ).
-                        appendQueryParameter( "width", width ).
-                        appendQueryParameter( "height", height )
-                        .build();
-                     this.mLoggerServiceManager.storeMediaUri( fileUri );
-                     mLastSegmentOverlay.calculateMedia();
-                     mMapView.postInvalidate();
-                  }
-                  else
-                  {
-                     Log.e( TAG, "Failed to read image from: " + newFile.getAbsolutePath() );
-                  }
-               }
-               else
-               {
-                  Log.e( TAG, "Failed to rename image: " + file.getAbsolutePath() );
-               }
-               break;
-            case MENU_VIDEO:
-               file = new File( Constants.getSdCardTmpFile( this ) );          
-               c = Calendar.getInstance();
-               newName =  String.format( "Video_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c );
-               newFile = new File( Constants.getSdCardDirectory( this ) + newName );
-               file.getParentFile().mkdirs();
-               file.renameTo( newFile );
-               builder = new Uri.Builder();
-               fileUri = builder.scheme( "file").
-                  appendPath( newFile.getAbsolutePath() ).build();
-               this.mLoggerServiceManager.storeMediaUri( fileUri );
-               mLastSegmentOverlay.calculateMedia();
-               mMapView.postInvalidate();
-               break;
-            case MENU_VOICE:
-               uri = Uri.parse( intent.getDataString() );
-               this.mLoggerServiceManager.storeMediaUri(  uri );
-               mLastSegmentOverlay.calculateMedia();
-               mMapView.postInvalidate();
                break;
             case MENU_TRACKING:
                trackUri = intent.getData();
@@ -1683,52 +1489,6 @@ public class LoggerMap extends MapActivity
          {
             track.close();
          }
-      }
-   }
-
-   /***
-    * Collecting additional data
-    */
-   private void addPicture()
-   {
-      Intent i = new Intent( android.provider.MediaStore.ACTION_IMAGE_CAPTURE );
-      File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.getSdCardTmpFile( this ) );
-//      Log.d( TAG, "Picture requested at: " + file );
-      i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
-      i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
-      startActivityForResult( i, MENU_PICTURE );
-   }
-
-   /***
-    * Collecting additional data
-    */
-   private void addVideo()
-   {
-      Intent i = new Intent( android.provider.MediaStore.ACTION_VIDEO_CAPTURE );
-      File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.getSdCardTmpFile( this ) );
-//      Log.d( TAG, "Video requested at: " + file );
-      i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
-      i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
-      try
-      {
-         startActivityForResult( i, MENU_VIDEO );
-      }
-      catch (ActivityNotFoundException e) 
-      {
-         Log.e(  TAG, "Unable to start Activity to record video", e );
-      }
-   }
-
-   private void addVoice()
-   {
-      Intent intent = new Intent( android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION );
-      try
-      {
-         startActivityForResult( intent, MENU_VOICE );
-      }
-      catch (ActivityNotFoundException e) 
-      {
-         Log.e(  TAG, "Unable to start Activity to record audio", e );
       }
    }
 

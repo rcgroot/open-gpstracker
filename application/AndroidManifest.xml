@@ -91,14 +91,16 @@
             android:name=".logger.ApplicationPreferenceActivity"/>
 
          <activity 
-            android:label="@string/dialog_routename_title" 
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:name=".actions.NameTrack"/>
             
          <activity 
-            android:label="@string/dialog_tracking_title" 
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:name=".actions.ControlTracking"/>
+        
+         <activity  
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name=".actions.InsertNote"/>
 
          <activity
             android:label="@string/track_list" 

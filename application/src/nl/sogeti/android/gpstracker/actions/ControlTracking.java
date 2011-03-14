@@ -122,6 +122,7 @@ public class ControlTracking extends Activity
    protected void onCreate( Bundle savedInstanceState )
    {
       super.onCreate( savedInstanceState );
+      
       this.setVisible( false );
       paused = false;
       mLoggerServiceManager = new GPSLoggerServiceManager( this );
@@ -131,7 +132,7 @@ public class ControlTracking extends Activity
    protected void onResume()
    {
       super.onResume();
-      mLoggerServiceManager.startup( new Runnable()
+      mLoggerServiceManager.startup( this, new Runnable()
          {
             public void run()
             {
@@ -144,7 +145,7 @@ public class ControlTracking extends Activity
    protected void onPause()
    {
       super.onPause();
-      mLoggerServiceManager.shutdown();
+      mLoggerServiceManager.shutdown( this );
       paused = true;
    }
 

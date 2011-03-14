@@ -375,6 +375,32 @@ public class GPSLoggerService extends Service
          broadCastLoggingState();
       }
    }
+   
+   /**
+    *  This is the old onStart method that will be called on the pre-2.0
+    * 
+    * @see android.app.Service#onStart(android.content.Intent, int)
+    * platform.  On 2.0 or later we override onStartCommand() so this
+    * method will not be called.
+    * 
+    */
+   @Override
+   public void onStart(Intent intent, int startId) {
+       handleCommand(intent);
+   }
+   
+   @Override
+   public int onStartCommand(Intent intent, int flags, int startId) {
+       handleCommand(intent);
+       // We want this service to continue running until it is explicitly
+       // stopped, so return sticky.
+       return START_STICKY;
+   }
+
+   private void handleCommand(Intent intent)
+   {
+      Log.d( TAG, "onStart() handling" + intent );
+   }
 
    /**
     * (non-Javadoc)
@@ -439,6 +465,8 @@ public class GPSLoggerService extends Service
    {
       return this.mBinder;
    }
+   
+   
 
    /**
     * (non-Javadoc)
@@ -829,12 +857,13 @@ public class GPSLoggerService extends Service
          // To avoid near instant teleportation on network location or glitches cause continent hopping
          float meters = proposedLocation.distanceTo( mPreviousLocation );
          long seconds = ( proposedLocation.getTime() - mPreviousLocation.getTime() ) / 1000L;
-         if( meters / seconds > MAX_REASONABLE_SPEED )
+         float speed = meters / seconds;
+         if( speed > MAX_REASONABLE_SPEED )
          {
-            Log.w( TAG, "A strange location was recieved, a really high speed, prob wrong..." );
+            Log.w( TAG, "A strange location was recieved, a really high speed of "+speed+" m/s, prob wrong..." );
             proposedLocation = addBadLocation( proposedLocation );
             // Might be a messed up Samsung Galaxy S GPS, reset the logging
-            if( mPrecision != Constants.LOGGING_GLOBAL )
+            if( speed > 2*MAX_REASONABLE_SPEED && mPrecision != Constants.LOGGING_GLOBAL )
             {
                Log.w( TAG, "A strange location was recieved on GPS, reset the GPS listeners" );
                mLocationManager.removeUpdates( mLocationListener );

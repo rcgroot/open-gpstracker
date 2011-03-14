@@ -48,19 +48,17 @@ public class GPSLoggerServiceManager
 {
    private static final String TAG = "OGT.GPSLoggerServiceManager";
    private static final String REMOTE_EXCEPTION = "REMOTE_EXCEPTION";
-   private Context mCtx;
    private IGPSLoggerServiceRemote mGPSLoggerRemote;
    public final Object mStartLock = new Object();
-   private boolean mStarted = false;
-
+   private boolean mBound = false;
    /**
     * Class for interacting with the main interface of the service.
     */
-   private ServiceConnection mServiceConnection = null;
-
+   private ServiceConnection mServiceConnection;
+   private Runnable mOnServiceConnected; 
    public GPSLoggerServiceManager(Context ctx)
    {
-      this.mCtx = ctx;
+      ctx.startService(new Intent(Constants.SERVICENAME));
    }
 
    public int getLoggingState()
@@ -70,14 +68,14 @@ public class GPSLoggerServiceManager
          int logging = Constants.UNKNOWN;
          try
          {
-            if( this.mGPSLoggerRemote != null )
+            if( mBound )
             {
                logging = this.mGPSLoggerRemote.loggingState();
                //               Log.d( TAG, "mGPSLoggerRemote tells state to be "+logging );
             }
             else
             {
-               Log.w( TAG, "Remote interface to logging service not found. Started: " + mStarted );
+               Log.w( TAG, "Remote interface to logging service not found. Started: " + mBound );
             }
          }
          catch (RemoteException e)
@@ -95,13 +93,13 @@ public class GPSLoggerServiceManager
          boolean prepared = false;
          try
          {
-            if( this.mGPSLoggerRemote != null )
+            if( mBound )
             {
                prepared = this.mGPSLoggerRemote.isMediaPrepared();
             }
             else
             {
-               Log.w( TAG, "Remote interface to logging service not found. Started: " + mStarted );
+               Log.w( TAG, "Remote interface to logging service not found. Started: " + mBound );
             }
          }
          catch (RemoteException e)
@@ -116,14 +114,11 @@ public class GPSLoggerServiceManager
    {
       synchronized (mStartLock)
       {
-         if( mStarted )
+         if( mBound )
          {
             try
             {
-               if( this.mGPSLoggerRemote != null )
-               {
-                  return this.mGPSLoggerRemote.startLogging();
-               }
+               return this.mGPSLoggerRemote.startLogging();
             }
             catch (RemoteException e)
             {
@@ -138,14 +133,11 @@ public class GPSLoggerServiceManager
    {
       synchronized (mStartLock)
       {
-         if( mStarted )
+         if( mBound )
          {
             try
             {
-               if( this.mGPSLoggerRemote != null )
-               {
-                  this.mGPSLoggerRemote.pauseLogging();
-               }
+               this.mGPSLoggerRemote.pauseLogging();
             }
             catch (RemoteException e)
             {
@@ -159,14 +151,11 @@ public class GPSLoggerServiceManager
    {
       synchronized (mStartLock)
       {
-         if( mStarted )
+         if( mBound )
          {
             try
             {
-               if( this.mGPSLoggerRemote != null )
-               {
-                  return this.mGPSLoggerRemote.resumeLogging();
-               }
+               return this.mGPSLoggerRemote.resumeLogging();
             }
             catch (RemoteException e)
             {
@@ -181,14 +170,11 @@ public class GPSLoggerServiceManager
    {
       synchronized (mStartLock)
       {
-         if( mStarted )
+         if( mBound )
          {
             try
             {
-               if( this.mGPSLoggerRemote != null )
-               {
-                  this.mGPSLoggerRemote.stopLogging();
-               }
+               this.mGPSLoggerRemote.stopLogging();
             }
             catch (RemoteException e)
             {
@@ -206,14 +192,11 @@ public class GPSLoggerServiceManager
    {
       synchronized (mStartLock)
       {
-         if( mStarted )
+         if( mBound )
          {
             try
             {
-               if( this.mGPSLoggerRemote != null )
-               {
-                  this.mGPSLoggerRemote.storeDerivedDataSource( datasource );
-               }
+               this.mGPSLoggerRemote.storeDerivedDataSource( datasource );
             }
             catch (RemoteException e)
             {
@@ -231,14 +214,11 @@ public class GPSLoggerServiceManager
    {
       synchronized (mStartLock)
       {
-         if( mStarted )
+         if( mBound )
          {
             try
             {
-               if( this.mGPSLoggerRemote != null )
-               {
-                  this.mGPSLoggerRemote.storeMediaUri( mediaUri );
-               }
+               this.mGPSLoggerRemote.storeMediaUri( mediaUri );
             }
             catch (RemoteException e)
             {
@@ -254,70 +234,75 @@ public class GPSLoggerServiceManager
    
    /**
     * Means by which an Activity lifecycle aware object hints about binding and unbinding
-    */
-   public void startup()
-   {
-      startup( null );
-   }
-   
-   /**
-    * Means by which an Activity lifecycle aware object hints about binding and unbinding
     * 
     * @param onServiceConnected Run on main thread after the service is bound
     */
-   public void startup( final Runnable onServiceConnected )
+   public void startup( Context context, final Runnable onServiceConnected )
    {
-      //      Log.d( TAG, "connectToGPSLoggerService()" );
-      if( !mStarted )
+      Log.d( TAG, "connectToGPSLoggerService()" );
+      synchronized (mStartLock)
       {
-         this.mServiceConnection = new ServiceConnection()
+         if( !mBound )
+         {
+            mOnServiceConnected = onServiceConnected;
+            mServiceConnection = new ServiceConnection()
             {
                public void onServiceConnected( ComponentName className, IBinder service )
                {
                   synchronized (mStartLock)
                   {
-//                     Log.d( TAG, "onServiceConnected() "+ Thread.currentThread().getId() );
+                     Log.d( TAG, "onServiceConnected() "+ Thread.currentThread().getId() );
                      GPSLoggerServiceManager.this.mGPSLoggerRemote = IGPSLoggerServiceRemote.Stub.asInterface( service );
-                     mStarted = true;
-                     mStartLock.notifyAll();
+                     mBound = true;
                   }
-                  if( onServiceConnected != null )
+                  if( mOnServiceConnected != null )
                   {
-                     onServiceConnected.run();
+                     mOnServiceConnected.run();
+                     mOnServiceConnected = null;
                   }
                }
-
                public void onServiceDisconnected( ComponentName className )
                {
                   synchronized (mStartLock)
                   {
-                     //                     Log.d( TAG, "onServiceDisconnected()" );
-                     GPSLoggerServiceManager.this.mGPSLoggerRemote = null;
-                     mStarted = false;
+                     Log.d( TAG, "onServiceDisconnected()"+ Thread.currentThread().getId() );
+                     mBound = false;
                   }
                }
             };
-         this.mCtx.bindService( new Intent( Constants.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
-      }
-      else
-      {
-         Log.w( TAG, "Attempting to connect whilst connected" );
+            Log.d( TAG, "bindService()"+this.mServiceConnection );
+            context.bindService( new Intent( Constants.SERVICENAME ), this.mServiceConnection, Context.BIND_AUTO_CREATE );
+         }
+         else
+         {
+            Log.w( TAG, "Attempting to connect whilst already connected" );
+         }
       }
    }
 
    /**
     * Means by which an Activity lifecycle aware object hints about binding and unbinding
     */
-   public void shutdown()
+   public void shutdown(Context context)
    {
-      //      Log.d( TAG, "disconnectFromGPSLoggerService()" );
-      try
+      Log.d( TAG, "disconnectFromGPSLoggerService()" );
+      synchronized (mStartLock)
       {
-         this.mCtx.unbindService( this.mServiceConnection );
-      }
-      catch (IllegalArgumentException e)
-      {
-         Log.w( TAG, "Failed to unbind a service, prehaps the service disapearded?", e );
+         try
+         {
+            if( mBound )
+            {
+               Log.d( TAG, "unbindService()"+this.mServiceConnection );
+               context.unbindService( this.mServiceConnection );
+               GPSLoggerServiceManager.this.mGPSLoggerRemote = null;
+               mServiceConnection = null;
+               mBound = false;
+            }
+         }
+         catch (IllegalArgumentException e)
+         {
+            Log.w( TAG, "Failed to unbind a service, prehaps the service disapearded?", e );
+         }
       }
    }
 }
