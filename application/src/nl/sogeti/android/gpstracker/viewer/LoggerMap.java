@@ -100,6 +100,11 @@ import com.google.android.maps.MapActivity;
  */
 public class LoggerMap extends MapActivity
 {
+   private static final String INSTANCE_E6LONG = "e6long";
+   private static final String INSTANCE_E6LAT = "e6lat";
+   private static final String INSTANCE_ZOOM = "zoom";
+   private static final String INSTANCE_SPEED = "averagespeed";
+   private static final String INSTANCE_TRACK = "track";
    private static final String OSM_PROVIDER = "OSM";
    public static final String GOOGLE_PROVIDER = "GOOGLE";
    private static final int ZOOM_LEVEL = 16;
@@ -294,6 +299,7 @@ public class LoggerMap extends MapActivity
          {
             if( key.equals( Constants.TRACKCOLORING ) )
             {
+               mAverageSpeed = 0.0;
                updateSpeedColoring();
             }
             else if( key.equals( Constants.DISABLEBLANKING ) )
@@ -338,6 +344,7 @@ public class LoggerMap extends MapActivity
       {
          public void onUnitsChange()
          {
+            mAverageSpeed = 0.0;
             updateDisplayedSpeedViews();
             updateSpeedColoring();
          }
@@ -351,6 +358,50 @@ public class LoggerMap extends MapActivity
          SegmentOverlay.handleMedia( LoggerMap.this, selected );
       }
       
+   };
+   
+   Runnable speedCalculator = new Runnable()
+   {
+      public void run()
+      {
+         double avgspeed = 0.0;
+         ContentResolver resolver = LoggerMap.this.getContentResolver();
+         Cursor waypointsCursor = null;
+         try
+         {
+            waypointsCursor = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, LoggerMap.this.mTrackId + "/waypoints" )
+                                             , new String[] { "avg(" + Waypoints.SPEED + ")", "max(" + Waypoints.SPEED + ")" }
+                                             , null
+                                             , null
+                                             , null );
+   
+            if( waypointsCursor != null && waypointsCursor.moveToLast() )
+            {
+               double average = waypointsCursor.getDouble( 0 );
+               double maxBasedAverage = waypointsCursor.getDouble( 1 ) / 2;
+               avgspeed = Math.min( average, maxBasedAverage) ;
+            }
+            if( avgspeed < 2 )
+            {
+               avgspeed = 5.55d / 2;
+            }
+         }
+         finally
+         {
+            if( waypointsCursor != null )
+            {
+               waypointsCursor.close();
+            }
+         }
+         mAverageSpeed = avgspeed;
+         runOnUiThread( new Runnable()
+         {
+            public void run()
+            {
+               updateSpeedColoring();
+            }
+         });
+      }
    };
  
    /**
@@ -509,33 +560,38 @@ public class LoggerMap extends MapActivity
       }    
       
       Uri data = this.getIntent().getData();
-      if( load != null && load.containsKey( "track" ) ) // 1st track from a previous instance of this activity
+      if( load != null && load.containsKey( INSTANCE_TRACK ) ) // 1st method: track from a previous instance of this activity
       {
-         long loadTrackId = load.getLong( "track" );
+         long loadTrackId = load.getLong( INSTANCE_TRACK );
+         if( load.containsKey(INSTANCE_SPEED) )
+         {
+            mAverageSpeed = load.getDouble(INSTANCE_SPEED);
+         }
          moveToTrack( loadTrackId, false );
       }
-      else if( data != null )                           // 2nd track ordered to make
+      else if( data != null )                           // 2nd method: track ordered to make
       {
          long loadTrackId = Long.parseLong( data.getLastPathSegment() );
+         mAverageSpeed = 0.0;
          moveToTrack( loadTrackId, true );
       }
-      else 
+      else                                              // 3rd method: just try the last track
       {
-         moveToLastTrack();                             // 3rd just try the last track
+         moveToLastTrack();                             
       }
 
-      if( load != null && load.containsKey( "zoom" ) )
+      if( load != null && load.containsKey( INSTANCE_ZOOM ) )
       {
-         mMapView.getController().setZoom( load.getInt( "zoom" ) );
+         mMapView.getController().setZoom( load.getInt( INSTANCE_ZOOM ) );
       }
       else
       {
          mMapView.getController().setZoom( LoggerMap.ZOOM_LEVEL );
       }
 
-      if( load != null && load.containsKey( "e6lat" ) && load.containsKey( "e6long" ) )
+      if( load != null && load.containsKey( INSTANCE_E6LAT ) && load.containsKey( INSTANCE_E6LONG ) )
       {
-         GeoPoint storedPoint = new GeoPoint( load.getInt( "e6lat" ), load.getInt( "e6long" ) );
+         GeoPoint storedPoint = new GeoPoint( load.getInt( INSTANCE_E6LAT ), load.getInt( INSTANCE_E6LONG ) );
          this.mMapView.getController().animateTo( storedPoint );
       }
       else
@@ -549,11 +605,12 @@ public class LoggerMap extends MapActivity
    protected void onSaveInstanceState( Bundle save )
    {
       super.onSaveInstanceState( save );
-      save.putLong( "track", this.mTrackId );
-      save.putInt( "zoom", this.mMapView.getZoomLevel() );
+      save.putLong( INSTANCE_TRACK, this.mTrackId );
+      save.putDouble( INSTANCE_SPEED, mAverageSpeed  );
+      save.putInt( INSTANCE_ZOOM, this.mMapView.getZoomLevel() );
       GeoPoint point = this.mMapView.getMapCenter();
-      save.putInt( "e6lat", point.getLatitudeE6() );
-      save.putInt( "e6long", point.getLongitudeE6() );
+      save.putInt( INSTANCE_E6LAT, point.getLatitudeE6() );
+      save.putInt( INSTANCE_E6LONG, point.getLongitudeE6() );
    }
 
    @Override
@@ -577,10 +634,12 @@ public class LoggerMap extends MapActivity
             propagate = false;
             break;
          case KeyEvent.KEYCODE_F:
+            mAverageSpeed = 0.0;
             moveToTrack( this.mTrackId - 1, true );
             propagate = false;
             break;
          case KeyEvent.KEYCODE_H:
+            mAverageSpeed = 0.0;
             moveToTrack( this.mTrackId + 1, true );
             propagate = false;
             break;
@@ -923,6 +982,7 @@ public class LoggerMap extends MapActivity
             case MENU_TRACKLIST:
                trackUri = intent.getData();
                trackId = Long.parseLong( trackUri.getLastPathSegment() );
+               mAverageSpeed = 0.0;
                moveToTrack( trackId, true );
                break;
             case MENU_ABOUT:
@@ -932,6 +992,7 @@ public class LoggerMap extends MapActivity
                if( trackUri != null )
                {
                   trackId = Long.parseLong( trackUri.getLastPathSegment() );
+                  mAverageSpeed = 0.0;
                   moveToTrack( trackId, true );
                }
                break;
@@ -1061,42 +1122,32 @@ public class LoggerMap extends MapActivity
    private void updateSpeedColoring()
    {
       int trackColoringMethod = new Integer( mSharedPreferences.getString( Constants.TRACKCOLORING, "3" ) ).intValue();
-      ContentResolver resolver = this.getContentResolver();
-      Cursor waypointsCursor = null;
-      try
-      {
-         waypointsCursor = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/waypoints" )
-                                          , new String[] { "avg(" + Waypoints.SPEED + ")", "max(" + Waypoints.SPEED + ")" }
-                                          , null
-                                          , null
-                                          , null );
-
-         if( waypointsCursor != null && waypointsCursor.moveToLast() )
-         {
-            double average = waypointsCursor.getDouble( 0 );
-            double maxBasedAverage = waypointsCursor.getDouble( 1 ) / 2;
-            mAverageSpeed = Math.min( average, maxBasedAverage) ;
-         }
-         if( mAverageSpeed < 2 )
-         {
-            mAverageSpeed = 5.55d / 2;
-         }
-      }
-      finally
-      {
-         if( waypointsCursor != null )
-         {
-            waypointsCursor.close();
-         }
-      }
       View speedbar = findViewById( R.id.speedbar );
+      
       if( trackColoringMethod == SegmentOverlay.DRAW_MEASURED || trackColoringMethod == SegmentOverlay.DRAW_CALCULATED )
       {
-         drawSpeedTexts( mAverageSpeed );
-         speedbar.setVisibility( View.VISIBLE );
-         for (int i = 0; i < mSpeedtexts.length; i++)
+         // mAverageSpeed is set to 0 if unknown or to trigger an recalculation here
+         if( mAverageSpeed == 0.0 )
          {
-            mSpeedtexts[i].setVisibility( View.VISIBLE );
+            mHandler.post(speedCalculator);
+         }
+         else
+         {
+            drawSpeedTexts( mAverageSpeed );
+            
+            speedbar.setVisibility( View.VISIBLE );
+            for (int i = 0; i < mSpeedtexts.length; i++)
+            {
+               mSpeedtexts[i].setVisibility( View.VISIBLE );
+            }
+            List< ? > overlays = mMapView.getOverlays();
+            for (Object overlay : overlays)
+            {
+               if( overlay instanceof SegmentOverlay )
+               {
+                  ( (SegmentOverlay) overlay ).setTrackColoringMethod( trackColoringMethod, mAverageSpeed );
+               }
+            }
          }
       }
       else
@@ -1107,16 +1158,9 @@ public class LoggerMap extends MapActivity
             mSpeedtexts[i].setVisibility( View.INVISIBLE );
          }
       }
-      List< ? > overlays = mMapView.getOverlays();
-      for (Object overlay : overlays)
-      {
-         if( overlay instanceof SegmentOverlay )
-         {
-            ( (SegmentOverlay) overlay ).setTrackColoringMethod( trackColoringMethod, mAverageSpeed );
-         }
-      }
-   }
 
+   }
+   
    private void updateSpeedDisplayVisibility()
    {
       boolean showspeed = mSharedPreferences.getBoolean( Constants.SPEED, false );
@@ -1196,6 +1240,7 @@ public class LoggerMap extends MapActivity
             // Speed color bar
             if( speed > 2*mAverageSpeed )
             {
+               mAverageSpeed = 0.0;
                updateSpeedColoring();
                mMapView.postInvalidate();
             }
@@ -1489,6 +1534,7 @@ public class LoggerMap extends MapActivity
          if( track != null && track.moveToLast() )
          {
             trackId = track.getInt( 0 );
+            mAverageSpeed = 0.0;
             moveToTrack( trackId, true );
          }
       }
