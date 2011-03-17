@@ -137,7 +137,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private int mWaypointCount = -1;
    private int mWidth;
    private int mHeight;
-   //   private Canvas mDebugCanvas;
    private GeoPoint mPrevGeoPoint;
    private int mCurrentColor;
    private Paint dotpaint;
@@ -146,8 +145,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Paint defaultPaint;
    private boolean mRequeryFlag;
    private Handler mHandler;
-   private Bitmap mStartBitmap;
-   private Bitmap mStopBitmap;
+   private static Bitmap mStartBitmap;
+   private static Bitmap mStopBitmap;
    
    private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
@@ -551,9 +550,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                {
                   wiggle = 0;
                }
-               mediaVO.bitmap = getResourceForMedia( mLoggerMap.getResources(), mediaVO.uri );
-               mediaVO.w = mediaVO.bitmap.getWidth();
-               mediaVO.h = mediaVO.bitmap.getHeight();
+               mediaVO.bitmapKey = getResourceForMedia( mLoggerMap.getResources(), mediaVO.uri );
+               mediaVO.w = sBitmapCache.get(mediaVO.bitmapKey).getWidth();
+               mediaVO.h = sBitmapCache.get(mediaVO.bitmapKey).getHeight();
                int left = ( mediaVO.w * 3 ) / 7 + wiggle;
                int up = ( mediaVO.h * 6 ) / 7 - wiggle;
                mediaVO.x = mMediaScreenPoint.x - left;
@@ -634,15 +633,15 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          for( MediaVO mediaVO : mMediaPath )
          {
-            if( mediaVO.bitmap != null )
+            if( mediaVO.bitmapKey != null )
             {
-               canvas.drawBitmap( mediaVO.bitmap, mediaVO.x, mediaVO.y, defaultPaint );
+               canvas.drawBitmap( sBitmapCache.get(mediaVO.bitmapKey), mediaVO.x, mediaVO.y, defaultPaint );
             }
          }
       }
    }
 
-   private static Bitmap getResourceForMedia( Resources resources, Uri uri )
+   private static Integer getResourceForMedia( Resources resources, Uri uri )
    {
       int drawable = 0;
       if( uri.getScheme().equals( "file" ) )
@@ -672,9 +671,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          }
       }
       Bitmap bitmap = null;
+      Integer bitmapKey = new Integer(drawable);
       synchronized (sBitmapCache)
       {
-         Integer bitmapKey = new Integer(drawable);
          if( !sBitmapCache.containsKey( bitmapKey) )
          {
             bitmap = BitmapFactory.decodeResource( resources, drawable );
@@ -683,7 +682,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          }
          bitmap = sBitmapCache.get( bitmapKey ); 
       }
-      return bitmap;
+      return bitmapKey;
    }
 
    private void drawStartStopCircles( Canvas canvas )
@@ -697,14 +696,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          this.mProjection.toPixels( this.mStartPoint, startStopCirclePoint );
          canvas.drawBitmap( mStartBitmap, startStopCirclePoint.x - 8, startStopCirclePoint.y - 8, defaultPaint );
       }
-      else
-      {
-         if( mStartBitmap != null )
-         {
-            mStartBitmap.recycle();
-            mStartBitmap = null;
-         }
-      }
       if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
       {
          if( mStopBitmap == null )
@@ -713,14 +704,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          }
          this.mProjection.toPixels( this.mEndPoint, startStopCirclePoint );
          canvas.drawBitmap( mStopBitmap, startStopCirclePoint.x - 5, startStopCirclePoint.y - 5, defaultPaint );
-      }
-      else
-      {
-         if( mStopBitmap != null )
-         {
-            mStopBitmap.recycle();
-            mStopBitmap = null;
-         }
       }
    }
 
@@ -1252,11 +1235,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       @Override
       public String toString()
       {
-         return "MediaVO [bitmap=" + bitmap + ", uri=" + uri + ", geopoint=" + geopoint + ", x=" + x + ", y=" + y + ", w=" + w + ", h=" + h + ", waypointId="
+         return "MediaVO [bitmapKey=" + bitmapKey + ", uri=" + uri + ", geopoint=" + geopoint + ", x=" + x + ", y=" + y + ", w=" + w + ", h=" + h + ", waypointId="
                + waypointId + "]";
       }
       
-      public Bitmap bitmap;
+      public Integer bitmapKey;
       public Uri uri;
       public GeoPoint geopoint;
       public int x;
@@ -1307,7 +1290,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       public View getView( int position, View convertView, ViewGroup parent )
       {
          ImageView imageView = new ImageView( mContext );
-         imageView.setImageBitmap( getResourceForMedia( mLoggerMap.getResources(), mTappedUri.get( position ) ) );
+         imageView.setImageBitmap( sBitmapCache.get(getResourceForMedia( mLoggerMap.getResources(), mTappedUri.get( position ) ) ) );
          imageView.setScaleType( ImageView.ScaleType.FIT_XY );
          imageView.setBackgroundResource( itemBackground );
          return imageView;
