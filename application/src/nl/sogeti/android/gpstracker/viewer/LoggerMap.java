@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.viewer;
 
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ControlTracking;
@@ -364,19 +365,27 @@ public class LoggerMap extends MapActivity
       
       mLoggerServiceManager = new GPSLoggerServiceManager( this );
       
+      final Semaphore calulatorSemaphore = new Semaphore(0);
       Thread calulator = new Thread("OverlayCalculator")
       {
          public void run()
          {
             Looper.prepare();
             mHandler = new Handler();
+            calulatorSemaphore.release();
             Looper.loop();
          }
       };
       calulator.start();
-      Thread.yield();
+      try
+      {
+         calulatorSemaphore.acquire();
+      }
+      catch (InterruptedException e)
+      {
+         Log.e( TAG, "Failed waiting for a semaphore", e );
+      }
 
-      
       mUnits = new UnitsI18n( this, mUnitsChangeListener );
 
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
