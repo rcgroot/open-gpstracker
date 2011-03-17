@@ -109,6 +109,11 @@ public class GPSLoggerService extends Service
 
    private static final int LOGGING_UNAVAILABLE = R.string.service_connectiondisabled;
 
+   /**
+    *  DUP from android.app.Service.START_STICKY
+    */
+   private static final int START_STICKY = 1;
+
    private LocationManager mLocationManager;
    private NotificationManager mNoticationManager;
    private PowerManager.WakeLock mWakeLock;
@@ -388,7 +393,6 @@ public class GPSLoggerService extends Service
        handleCommand(intent);
    }
    
-   @Override
    public int onStartCommand(Intent intent, int flags, int startId) {
        handleCommand(intent);
        // We want this service to continue running until it is explicitly
