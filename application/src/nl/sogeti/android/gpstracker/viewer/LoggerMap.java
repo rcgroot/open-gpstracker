@@ -136,8 +136,6 @@ public class LoggerMap extends MapActivity
    private double mAverageSpeed = 33.33d / 3d;
    private long mTrackId = -1;
    private long mLastSegment = -1;
-   @SuppressWarnings("unused")
-   private long mLastWaypoint = -1;
    private UnitsI18n mUnits;
    private WakeLock mWakeLock = null;
    private SharedPreferences mSharedPreferences;
@@ -1297,7 +1295,6 @@ public class LoggerMap extends MapActivity
                if( segments.isLast() )
                {
                   segmentOverlay.addPlacement( SegmentOverlay.LAST_SEGMENT );
-                  getLastTrackPoint();
                }
                mLastSegment = segmentsId;
             }
@@ -1311,8 +1308,6 @@ public class LoggerMap extends MapActivity
             segments.close();
          }
       }
-      
-      moveActiveViewWindow();
 
       Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId+"/segments/"+mLastSegment+"/waypoints" );
       resolver.unregisterContentObserver( this.mSegmentWaypointsObserver );
@@ -1350,7 +1345,6 @@ public class LoggerMap extends MapActivity
       {
          if( segmentsCursor != null ) { segmentsCursor.close(); }
       }
-      moveActiveViewWindow();
    }
    
    /**
@@ -1419,7 +1413,6 @@ public class LoggerMap extends MapActivity
          {
             this.mTrackId = trackId;
             mLastSegment = -1;
-            mLastWaypoint = -1;
             resolver.unregisterContentObserver( this.mTrackSegmentsObserver );
             resolver.unregisterContentObserver( this.mTrackMediasObserver );
             Uri tracksegmentsUri = Uri.withAppendedPath( Tracks.CONTENT_URI, trackId+"/segments" );
@@ -1508,10 +1501,6 @@ public class LoggerMap extends MapActivity
          {
             lastPoint = getLastKnowGeopointLocation();
          }
-         else
-         {
-            mLastWaypoint = waypoint.getLong( 2 );
-         }
       }
       finally
       {
@@ -1535,7 +1524,7 @@ public class LoggerMap extends MapActivity
          {
             trackId = track.getInt( 0 );
             mAverageSpeed = 0.0;
-            moveToTrack( trackId, true );
+            moveToTrack( trackId, false );
          }
       }
       finally
