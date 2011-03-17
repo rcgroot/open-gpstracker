@@ -720,7 +720,7 @@ public class GPSLoggerService extends Service
    private void sendRequestLocationUpdatesMessage()
    {
       mLocationManager.removeUpdates( mLocationListener );
-      mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.PRECISION, "1" ) ).intValue();
+      mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.PRECISION, "2" ) ).intValue();
       Message msg = Message.obtain();
       switch( mPrecision )
       {
@@ -765,19 +765,19 @@ public class GPSLoggerService extends Service
             this.mLocationManager.addGpsStatusListener( mStatusListener );
             break;
          case REQUEST_FINEGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 10f;
+            mMaxAcceptableAccuracy = 20f;
             intervaltime = 1000l ;
             distance = 5F;
             mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
             break;
          case REQUEST_NORMALGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 20f;
+            mMaxAcceptableAccuracy = 30f;
             intervaltime = 15000l ;
             distance = 10F;
             mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
             break;
          case REQUEST_COARSEGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 50f;
+            mMaxAcceptableAccuracy = 75f;
             intervaltime = 30000l ;
             distance = 25F;
             mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );

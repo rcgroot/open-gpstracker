@@ -11,7 +11,7 @@
             android:summary="@string/precision_summary"
             android:entries="@array/precision_choices"
             android:entryValues="@array/precision_values"
-            android:defaultValue="1"/>
+            android:defaultValue="2"/>
         <EditTextPreference
             android:key="customprecisiontime"
             android:title="@string/customprecisiontime_title"
