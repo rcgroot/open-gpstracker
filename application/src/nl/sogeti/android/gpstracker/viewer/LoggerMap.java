@@ -1425,7 +1425,6 @@ public class LoggerMap extends MapActivity
             updateTitleBar();
             updateDataOverlays();
             updateSpeedColoring();
-
             if( center )
             {
                GeoPoint lastPoint = getLastTrackPoint();
