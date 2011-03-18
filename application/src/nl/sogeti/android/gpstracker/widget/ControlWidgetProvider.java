@@ -85,8 +85,6 @@ public class ControlWidgetProvider extends AppWidgetProvider
       RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.control_appwidget);
       views.setOnClickPendingIntent(R.id.widget_insertnote_enabled, getLaunchPendingIntent(context, appWidgetId, BUTTON_INSERTNOTE));
       views.setOnClickPendingIntent(R.id.widget_trackingcontrol, getLaunchPendingIntent(context, appWidgetId, BUTTON_TRACKINGCONTROL));
-      views.setBoolean(R.id.widget_insertnote_disabled, "setEnabled", false);
-      views.setBoolean(R.id.widget_insertnote_enabled, "setEnabled", true);
       updateButtons(views, context);
       return views;
    }
