@@ -357,6 +357,17 @@ public class LoggerMap extends MapActivity
       }
       
    };
+   /** 
+    * Run after the ServiceManager completes the binding to 
+    * the remote service
+    */
+   private Runnable mServiceConnected = new Runnable()
+   {
+      public void run()
+      {
+         updateBlankingBehavior();
+      }
+   };
    
    Runnable speedCalculator = new Runnable()
    {
@@ -401,7 +412,7 @@ public class LoggerMap extends MapActivity
          });
       }
    };
- 
+   
    /**
     * Called when the activity is first created.
     */
@@ -457,7 +468,7 @@ public class LoggerMap extends MapActivity
    protected void onResume()
    {
       super.onResume();
-      mLoggerServiceManager.startup( this, null );
+      mLoggerServiceManager.startup( this, mServiceConnected );
       
       updateTitleBar();
       updateBlankingBehavior();
