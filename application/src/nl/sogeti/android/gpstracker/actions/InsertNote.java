@@ -243,7 +243,7 @@ public class InsertNote extends Activity
                         appendQueryParameter( "width", width ).
                         appendQueryParameter( "height", height )
                         .build();
-                     this.mLoggerServiceManager.storeMediaUri( fileUri );
+                     this.mLoggerServiceManager.storeMediaUri( fileUri ); // TODO: Fix onResume hasnt happend, and the manager isnt connected
                   }
                   else
                   {
@@ -390,8 +390,8 @@ public class InsertNote extends Activity
    private void addPicture()
    {
       Intent i = new Intent( android.provider.MediaStore.ACTION_IMAGE_CAPTURE );
-      File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.getSdCardTmpFile( this ) );
-//      Log.d( TAG, "Picture requested at: " + file );
+      File file = new File( Constants.getSdCardTmpFile( this ) );
+      Log.d( TAG, "Picture requested at: " + file );
       i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
       i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
       startActivityForResult( i, MENU_PICTURE );
@@ -403,7 +403,7 @@ public class InsertNote extends Activity
    private void addVideo()
    {
       Intent i = new Intent( android.provider.MediaStore.ACTION_VIDEO_CAPTURE );
-      File file = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.getSdCardTmpFile( this ) );
+      File file = new File( Constants.getSdCardTmpFile( this ) );
 //      Log.d( TAG, "Video requested at: " + file );
       i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
       i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
