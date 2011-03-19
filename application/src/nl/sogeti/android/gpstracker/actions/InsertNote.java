@@ -58,7 +58,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 /**
- * Empty Activity that pops up the dialog to add a note to the most current point in the logger service
+ * Empty Activity that pops up the dialog to add a note to the most current
+ * point in the logger service
  * 
  * @version $Id$
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
@@ -66,7 +67,7 @@ import android.widget.Toast;
 public class InsertNote extends Activity
 {
    private static final int DIALOG_INSERTNOTE = 27;
-   
+
    private static final String TAG = "OGT.InsertNote";
 
    private static final int MENU_PICTURE = 9;
@@ -76,6 +77,12 @@ public class InsertNote extends Activity
    private static final int DIALOG_NAME = 33;
 
    private GPSLoggerServiceManager mLoggerServiceManager;
+
+   /**
+    * Action to take when the LoggerService is bound
+    */
+   private Runnable mServiceBindAction;
+
    private boolean paused;
    private Button name;
    private Button text;
@@ -84,275 +91,280 @@ public class InsertNote extends Activity
    private Button video;
    private EditText mNoteNameView;
    private EditText mNoteTextView;
-   
+
    private final OnClickListener mNoteTextDialogListener = new DialogInterface.OnClickListener()
    {
-      public void onClick( DialogInterface dialog, int which )
+      public void onClick(DialogInterface dialog, int which)
       {
          String noteText = mNoteTextView.getText().toString();
          Calendar c = Calendar.getInstance();
-         String newName = String.format( "Textnote_%tY-%tm-%td_%tH%tM%tS.txt", c, c, c, c, c, c );
-         File file = new File( Constants.getSdCardDirectory(InsertNote.this) + newName );
+         String newName = String.format("Textnote_%tY-%tm-%td_%tH%tM%tS.txt", c, c, c, c, c, c);
+         File file = new File(Constants.getSdCardDirectory(InsertNote.this) + newName);
          FileWriter filewriter = null;
          try
          {
             file.getParentFile().mkdirs();
             file.createNewFile();
-            filewriter = new FileWriter( file );
-            filewriter.append( noteText );
+            filewriter = new FileWriter(file);
+            filewriter.append(noteText);
             filewriter.flush();
          }
          catch (IOException e)
          {
-            Log.e( TAG, "Note storing failed", e );
+            Log.e(TAG, "Note storing failed", e);
             CharSequence text = e.getLocalizedMessage();
-            Toast toast = Toast.makeText( InsertNote.this, text, Toast.LENGTH_LONG );
+            Toast toast = Toast.makeText(InsertNote.this, text, Toast.LENGTH_LONG);
             toast.show();
          }
          finally
          {
-            if( filewriter!=null){ try { filewriter.close(); } catch (IOException e){ /* */ } }
+            if (filewriter != null)
+            {
+               try
+               {
+                  filewriter.close();
+               }
+               catch (IOException e)
+               { /* */
+               }
+            }
          }
-         InsertNote.this.mLoggerServiceManager.storeMediaUri( Uri.fromFile( file ) );
+         InsertNote.this.mLoggerServiceManager.storeMediaUri(Uri.fromFile(file));
 
-         setResult( RESULT_CANCELED, new Intent() );
+         setResult(RESULT_CANCELED, new Intent());
          finish();
       }
-      
+
    };
    private final OnClickListener mNoteNameDialogListener = new DialogInterface.OnClickListener()
    {
-      public void onClick( DialogInterface dialog, int which )
+      public void onClick(DialogInterface dialog, int which)
       {
          String name = mNoteNameView.getText().toString();
-         Uri media = Uri.withAppendedPath( Constants.NAME_URI, Uri.encode( name ) );
-         InsertNote.this.mLoggerServiceManager.storeMediaUri( media );
-         
-         setResult( RESULT_CANCELED, new Intent() );
+         Uri media = Uri.withAppendedPath(Constants.NAME_URI, Uri.encode(name));
+         InsertNote.this.mLoggerServiceManager.storeMediaUri(media);
+
+         setResult(RESULT_CANCELED, new Intent());
          finish();
       }
    };
-   
+
    private final View.OnClickListener mNoteInsertListener = new View.OnClickListener()
+   {
+      public void onClick(View v)
       {
-         public void onClick( View v )
+         int id = v.getId();
+         switch (id)
          {
-            int id = v.getId();
-            switch( id )
-            {
-               case R.id.noteinsert_picture:
-                  addPicture();
-                  break;
-               case R.id.noteinsert_video:
-                  addVideo();
-                  break;
-               case R.id.noteinsert_voice:
-                  addVoice();
-                  break;
-               case R.id.noteinsert_text:
-                  showDialog( DIALOG_TEXT );
-                  break;
-               case R.id.noteinsert_name:
-                  showDialog( DIALOG_NAME );
-                  break;
-               default:
-                  setResult( RESULT_CANCELED, new Intent() );
-                  finish();
-                  break;
-            }
+            case R.id.noteinsert_picture:
+               addPicture();
+               break;
+            case R.id.noteinsert_video:
+               addVideo();
+               break;
+            case R.id.noteinsert_voice:
+               addVoice();
+               break;
+            case R.id.noteinsert_text:
+               showDialog(DIALOG_TEXT);
+               break;
+            case R.id.noteinsert_name:
+               showDialog(DIALOG_NAME);
+               break;
+            default:
+               setResult(RESULT_CANCELED, new Intent());
+               finish();
+               break;
          }
-      };
+      }
+   };
    private OnClickListener mDialogClickListener = new OnClickListener()
+   {
+      public void onClick(DialogInterface dialog, int which)
       {
-         public void onClick( DialogInterface dialog, int which )
-         {
-            setResult( RESULT_CANCELED,  new Intent() );
-            finish();
-         }
-      };
+         setResult(RESULT_CANCELED, new Intent());
+         finish();
+      }
+   };
 
    @Override
-   protected void onCreate( Bundle savedInstanceState )
+   protected void onCreate(Bundle savedInstanceState)
    {
-      super.onCreate( savedInstanceState );
-      this.setVisible( false );
+      super.onCreate(savedInstanceState);
+      this.setVisible(false);
       paused = false;
-      mLoggerServiceManager = new GPSLoggerServiceManager( this );
+      mLoggerServiceManager = new GPSLoggerServiceManager(this);
    }
 
    @Override
    protected void onResume()
    {
       super.onResume();
-      mLoggerServiceManager.startup( this, new Runnable()
+      if (mServiceBindAction == null)
+      {
+         mServiceBindAction = new Runnable()
          {
             public void run()
             {
-               showDialog( DIALOG_INSERTNOTE );
+               showDialog(DIALOG_INSERTNOTE);
             }
-         } );
+         };
+      }
+      ;
+      mLoggerServiceManager.startup(this, mServiceBindAction);
    }
 
    @Override
    protected void onPause()
    {
       super.onPause();
-      mLoggerServiceManager.shutdown( this );
+      mLoggerServiceManager.shutdown(this);
       paused = true;
    }
-   
+
    /*
     * (non-Javadoc)
-    * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+    * @see android.app.Activity#onActivityResult(int, int,
+    * android.content.Intent)
     */
    @Override
-   protected void onActivityResult( int requestCode, int resultCode, Intent intent )
+   protected void onActivityResult(final int requestCode, final int resultCode, final Intent intent)
    {
-      super.onActivityResult( requestCode, resultCode, intent );
-      if( resultCode != RESULT_CANCELED )
+      super.onActivityResult(requestCode, resultCode, intent);
+      mServiceBindAction = new Runnable()
       {
-         File file;
-         Uri uri;
-         File newFile;
-         String newName;
-         Uri fileUri;
-         android.net.Uri.Builder builder;
-         switch (requestCode)
+
+         public void run()
          {
-            case MENU_PICTURE:
-               file = new File( Constants.getSdCardTmpFile( this ) );
-               Calendar c = Calendar.getInstance();
-               newName =  String.format( "Picture_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c );
-               newFile = new File( Constants.getSdCardDirectory( this ) + newName );
-               file.getParentFile().mkdirs();
-               boolean isRenamed = file.renameTo( newFile );
-               if( isRenamed )
+            if (resultCode != RESULT_CANCELED)
+            {
+               File file;
+               Uri uri;
+               File newFile;
+               String newName;
+               Uri fileUri;
+               android.net.Uri.Builder builder;
+               switch (requestCode)
                {
-                  Bitmap bm = BitmapFactory.decodeFile( newFile.getAbsolutePath() );
-                  if( bm != null )
-                  {
-                     String height = Integer.toString( bm.getHeight() );
-                     String width = Integer.toString( bm.getWidth() );
-                     bm.recycle();
-                     bm = null;
-                     System.gc();
+                  case MENU_PICTURE:
+                     file = new File(Constants.getSdCardTmpFile(InsertNote.this));
+                     Calendar c = Calendar.getInstance();
+                     newName = String.format("Picture_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c);
+                     newFile = new File(Constants.getSdCardDirectory(InsertNote.this) + newName);
+                     file.getParentFile().mkdirs();
+                     boolean isRenamed = file.renameTo(newFile);
+                     if (isRenamed)
+                     {
+                        Bitmap bm = BitmapFactory.decodeFile(newFile.getAbsolutePath());
+                        if (bm != null)
+                        {
+                           String height = Integer.toString(bm.getHeight());
+                           String width = Integer.toString(bm.getWidth());
+                           bm.recycle();
+                           bm = null;
+                           System.gc();
+                           builder = new Uri.Builder();
+                           fileUri = builder.scheme("file").appendEncodedPath("/").appendEncodedPath(newFile.getAbsolutePath())
+                                 .appendQueryParameter("width", width).appendQueryParameter("height", height).build();
+                           InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);
+                        }
+                        else
+                        {
+                           Log.e(TAG, "Failed to read image from: " + newFile.getAbsolutePath());
+                        }
+                     }
+                     else
+                     {
+                        Log.e(TAG, "Failed to rename image: " + file.getAbsolutePath());
+                     }
+                     break;
+                  case MENU_VIDEO:
+                     file = new File(Constants.getSdCardTmpFile(InsertNote.this));
+                     c = Calendar.getInstance();
+                     newName = String.format("Video_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c);
+                     newFile = new File(Constants.getSdCardDirectory(InsertNote.this) + newName);
+                     file.getParentFile().mkdirs();
+                     file.renameTo(newFile);
                      builder = new Uri.Builder();
-                     fileUri = builder.scheme( "file").
-                        appendEncodedPath( "/" ).
-                        appendEncodedPath( newFile.getAbsolutePath() ).
-                        appendQueryParameter( "width", width ).
-                        appendQueryParameter( "height", height )
-                        .build();
-                     this.mLoggerServiceManager.storeMediaUri( fileUri ); // TODO: Fix onResume hasnt happend, and the manager isnt connected
-                  }
-                  else
-                  {
-                     Log.e( TAG, "Failed to read image from: " + newFile.getAbsolutePath() );
-                  }
+                     fileUri = builder.scheme("file").appendPath(newFile.getAbsolutePath()).build();
+                     InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);
+                     break;
+                  case MENU_VOICE:
+                     uri = Uri.parse(intent.getDataString());
+                     InsertNote.this.mLoggerServiceManager.storeMediaUri(uri);
+                     break;
+                  default:
+                     Log.e(TAG, "Returned form unknow activity: " + requestCode);
+                     break;
                }
-               else
-               {
-                  Log.e( TAG, "Failed to rename image: " + file.getAbsolutePath() );
-               }
-               break;
-            case MENU_VIDEO:
-               file = new File( Constants.getSdCardTmpFile( this ) );          
-               c = Calendar.getInstance();
-               newName =  String.format( "Video_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c );
-               newFile = new File( Constants.getSdCardDirectory( this ) + newName );
-               file.getParentFile().mkdirs();
-               file.renameTo( newFile );
-               builder = new Uri.Builder();
-               fileUri = builder.scheme( "file").
-                  appendPath( newFile.getAbsolutePath() ).build();
-               this.mLoggerServiceManager.storeMediaUri( fileUri );
-               break;
-            case MENU_VOICE:
-               uri = Uri.parse( intent.getDataString() );
-               this.mLoggerServiceManager.storeMediaUri(  uri );
-               break;
-            default:
-               Log.e( TAG, "Returned form unknow activity: " + requestCode );
-               break;
+            }
+            else
+            {
+               Log.w(TAG, "Received unexpected resultcode " + resultCode);
+            }
+            setResult(resultCode, new Intent());
+            finish();
          }
-      }
-      else
-      {
-         Log.w( TAG, "Received unexpected resultcode "+resultCode);
-      }
-      setResult( resultCode, new Intent() );
-      finish();
+      };
    }
 
    @Override
-   protected Dialog onCreateDialog( int id )
+   protected Dialog onCreateDialog(int id)
    {
       Dialog dialog = null;
       LayoutInflater factory = null;
       View view = null;
       Builder builder = null;
-      switch( id )
+      switch (id)
       {
          case DIALOG_INSERTNOTE:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.insertnote, null );
-            builder.setTitle( R.string.menu_insertnote ).
-            setIcon( android.R.drawable.ic_dialog_alert ).
-            setNegativeButton( R.string.btn_cancel, mDialogClickListener ).
-            setView( view );
+            builder = new AlertDialog.Builder(this);
+            factory = LayoutInflater.from(this);
+            view = factory.inflate(R.layout.insertnote, null);
+            builder.setTitle(R.string.menu_insertnote).setIcon(android.R.drawable.ic_dialog_alert).setNegativeButton(R.string.btn_cancel, mDialogClickListener)
+                  .setView(view);
             dialog = builder.create();
-            name = (Button) view.findViewById( R.id.noteinsert_name );
-            text = (Button) view.findViewById( R.id.noteinsert_text );
-            voice = (Button) view.findViewById( R.id.noteinsert_voice );
-            picture = (Button) view.findViewById( R.id.noteinsert_picture );
-            video = (Button) view.findViewById( R.id.noteinsert_video );
-            name.setOnClickListener( mNoteInsertListener );
-            text.setOnClickListener( mNoteInsertListener );
-            voice.setOnClickListener( mNoteInsertListener );
-            picture.setOnClickListener( mNoteInsertListener );
-            video.setOnClickListener( mNoteInsertListener );
-            dialog.setOnDismissListener( new OnDismissListener()
+            name = (Button) view.findViewById(R.id.noteinsert_name);
+            text = (Button) view.findViewById(R.id.noteinsert_text);
+            voice = (Button) view.findViewById(R.id.noteinsert_voice);
+            picture = (Button) view.findViewById(R.id.noteinsert_picture);
+            video = (Button) view.findViewById(R.id.noteinsert_video);
+            name.setOnClickListener(mNoteInsertListener);
+            text.setOnClickListener(mNoteInsertListener);
+            voice.setOnClickListener(mNoteInsertListener);
+            picture.setOnClickListener(mNoteInsertListener);
+            video.setOnClickListener(mNoteInsertListener);
+            dialog.setOnDismissListener(new OnDismissListener()
+            {
+               public void onDismiss(DialogInterface dialog)
                {
-                  public void onDismiss( DialogInterface dialog )
+                  if (!paused)
                   {
-                     if( !paused )
-                     {
-                        finish();
-                     }
+                     finish();
                   }
-               });
+               }
+            });
             return dialog;
          case DIALOG_TEXT:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.notetextdialog, null );
-            mNoteTextView = (EditText) view.findViewById( R.id.notetext );
-            builder
-               .setTitle( R.string.dialog_notetext_title )
-               .setMessage( R.string.dialog_notetext_message )
-               .setIcon( android.R.drawable.ic_dialog_map )
-               .setPositiveButton( R.string.btn_okay, mNoteTextDialogListener )
-               .setNegativeButton( R.string.btn_cancel, null )
-               .setView( view );
+            builder = new AlertDialog.Builder(this);
+            factory = LayoutInflater.from(this);
+            view = factory.inflate(R.layout.notetextdialog, null);
+            mNoteTextView = (EditText) view.findViewById(R.id.notetext);
+            builder.setTitle(R.string.dialog_notetext_title).setMessage(R.string.dialog_notetext_message).setIcon(android.R.drawable.ic_dialog_map)
+                  .setPositiveButton(R.string.btn_okay, mNoteTextDialogListener).setNegativeButton(R.string.btn_cancel, null).setView(view);
             dialog = builder.create();
             return dialog;
          case DIALOG_NAME:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.notenamedialog, null );
-            mNoteNameView = (EditText) view.findViewById( R.id.notename );
-            builder
-               .setTitle( R.string.dialog_notename_title )
-               .setMessage( R.string.dialog_notename_message )
-               .setIcon( android.R.drawable.ic_dialog_map )
-               .setPositiveButton( R.string.btn_okay, mNoteNameDialogListener )
-               .setNegativeButton( R.string.btn_cancel, null )
-               .setView( view );
+            builder = new AlertDialog.Builder(this);
+            factory = LayoutInflater.from(this);
+            view = factory.inflate(R.layout.notenamedialog, null);
+            mNoteNameView = (EditText) view.findViewById(R.id.notename);
+            builder.setTitle(R.string.dialog_notename_title).setMessage(R.string.dialog_notename_message).setIcon(android.R.drawable.ic_dialog_map)
+                  .setPositiveButton(R.string.btn_okay, mNoteNameDialogListener).setNegativeButton(R.string.btn_cancel, null).setView(view);
             dialog = builder.create();
             return dialog;
          default:
-            return super.onCreateDialog( id );
+            return super.onCreateDialog(id);
       }
    }
 
@@ -361,17 +373,17 @@ public class InsertNote extends Activity
     * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
     */
    @Override
-   protected void onPrepareDialog( int id, Dialog dialog )
+   protected void onPrepareDialog(int id, Dialog dialog)
    {
-      switch( id )
+      switch (id)
       {
          case DIALOG_INSERTNOTE:
             boolean prepared = mLoggerServiceManager.isMediaPrepared() && mLoggerServiceManager.getLoggingState() == Constants.LOGGING;
-            name = (Button) dialog.findViewById( R.id.noteinsert_name );
-            text = (Button) dialog.findViewById( R.id.noteinsert_text );
-            voice = (Button) dialog.findViewById( R.id.noteinsert_voice );
-            picture = (Button) dialog.findViewById( R.id.noteinsert_picture );
-            video = (Button) dialog.findViewById( R.id.noteinsert_video );
+            name = (Button) dialog.findViewById(R.id.noteinsert_name);
+            text = (Button) dialog.findViewById(R.id.noteinsert_text);
+            voice = (Button) dialog.findViewById(R.id.noteinsert_voice);
+            picture = (Button) dialog.findViewById(R.id.noteinsert_picture);
+            video = (Button) dialog.findViewById(R.id.noteinsert_video);
             name.setEnabled(prepared);
             text.setEnabled(prepared);
             voice.setEnabled(prepared);
@@ -381,7 +393,7 @@ public class InsertNote extends Activity
          default:
             break;
       }
-      super.onPrepareDialog( id, dialog );
+      super.onPrepareDialog(id, dialog);
    }
 
    /***
@@ -389,12 +401,12 @@ public class InsertNote extends Activity
     */
    private void addPicture()
    {
-      Intent i = new Intent( android.provider.MediaStore.ACTION_IMAGE_CAPTURE );
-      File file = new File( Constants.getSdCardTmpFile( this ) );
-      Log.d( TAG, "Picture requested at: " + file );
-      i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
-      i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
-      startActivityForResult( i, MENU_PICTURE );
+      Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+      File file = new File(Constants.getSdCardTmpFile(this));
+      //      Log.d( TAG, "Picture requested at: " + file );
+      i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+      i.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1);
+      startActivityForResult(i, MENU_PICTURE);
    }
 
    /***
@@ -402,31 +414,32 @@ public class InsertNote extends Activity
     */
    private void addVideo()
    {
-      Intent i = new Intent( android.provider.MediaStore.ACTION_VIDEO_CAPTURE );
-      File file = new File( Constants.getSdCardTmpFile( this ) );
-//      Log.d( TAG, "Video requested at: " + file );
-      i.putExtra( android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile( file ) );
-      i.putExtra( android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1 );
+      Intent i = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
+      File file = new File(Constants.getSdCardTmpFile(this));
+      Log.d(TAG, "Video requested at: " + file);
+      i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+      i.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1);
+
       try
       {
-         startActivityForResult( i, MENU_VIDEO );
+         startActivityForResult(i, MENU_VIDEO);
       }
-      catch (ActivityNotFoundException e) 
+      catch (ActivityNotFoundException e)
       {
-         Log.e(  TAG, "Unable to start Activity to record video", e );
+         Log.e(TAG, "Unable to start Activity to record video", e);
       }
    }
 
    private void addVoice()
    {
-      Intent intent = new Intent( android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION );
+      Intent intent = new Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION);
       try
       {
-         startActivityForResult( intent, MENU_VOICE );
+         startActivityForResult(intent, MENU_VOICE);
       }
-      catch (ActivityNotFoundException e) 
+      catch (ActivityNotFoundException e)
       {
-         Log.e(  TAG, "Unable to start Activity to record audio", e );
+         Log.e(TAG, "Unable to start Activity to record audio", e);
       }
    }
 }
