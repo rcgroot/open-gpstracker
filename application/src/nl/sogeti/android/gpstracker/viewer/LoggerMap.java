@@ -1138,6 +1138,7 @@ public class LoggerMap extends MapActivity
          // mAverageSpeed is set to 0 if unknown or to trigger an recalculation here
          if( mAverageSpeed == 0.0 )
          {
+            mHandler.removeCallbacks(speedCalculator);
             mHandler.post(speedCalculator);
          }
          else
