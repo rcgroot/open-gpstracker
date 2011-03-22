@@ -347,6 +347,7 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
+      Log.d( TAG, "onCreate()" );
       
       GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
       looper.start();
@@ -407,6 +408,7 @@ public class GPSLoggerService extends Service
 
    private void handleCommand(Intent intent)
    {
+      Log.d( TAG, "handleCommand(Intent "+intent+")" );
 //      Log.d( TAG, "onStart() handling" + intent );
    }
 
@@ -418,9 +420,24 @@ public class GPSLoggerService extends Service
    @Override
    public void onDestroy()
    {
+      Log.d( TAG, "onDestroy()" );
       super.onDestroy();
       
-      stopLogging();
+      if( isLogging() )
+      {
+         Log.w(TAG, "Destroyin an activly logging service");
+      }
+      
+      if( this.mWakeLock != null )
+      {
+         this.mWakeLock.release();
+         this.mWakeLock = null;
+      }
+      PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+      mLocationManager.removeGpsStatusListener( mStatusListener );
+      mLocationManager.removeUpdates( mLocationListener );
+      mNoticationManager.cancel( R.layout.map );
+      
       Message msg = Message.obtain();
       msg.what = STOPLOOPER;
       mHandler.sendMessage( msg );
@@ -435,6 +452,7 @@ public class GPSLoggerService extends Service
       editor.putInt( SERVICESTATE_PRECISION, mPrecision );
       editor.putInt( SERVICESTATE_STATE, mLoggingState );
       editor.commit();
+      Log.d( TAG, "crashProtectState()" );
    }
 
    private synchronized void crashRestoreState()
@@ -513,6 +531,7 @@ public class GPSLoggerService extends Service
     */
    public synchronized void startLogging()
    {
+      Log.d( TAG, "startLogging()" );
       if( this.mLoggingState == Constants.STOPPED )
       {
          startNewTrack();
@@ -528,6 +547,7 @@ public class GPSLoggerService extends Service
 
    public synchronized void pauseLogging()
    {
+      Log.d( TAG, "pauseLogging()" );
       if( this.mLoggingState == Constants.LOGGING )
       {
          mLocationManager.removeGpsStatusListener( mStatusListener );
@@ -543,6 +563,7 @@ public class GPSLoggerService extends Service
 
    public synchronized void resumeLogging()
    {
+      Log.d( TAG, "resumeLogging()" );
       if( this.mLoggingState == Constants.PAUSED )
       {
          if( mPrecision != Constants.LOGGING_GLOBAL )
@@ -567,19 +588,19 @@ public class GPSLoggerService extends Service
     */
    public synchronized void stopLogging()
    {
-      if( this.mLoggingState == Constants.PAUSED || this.mLoggingState == Constants.LOGGING )
-      {
-         PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+      Log.d( TAG, "stopLogging()" );
+      mLoggingState = Constants.STOPPED;
+      crashProtectState();
+      
+      updateWakeLock();
 
-         mLocationManager.removeGpsStatusListener( mStatusListener );
-         mLocationManager.removeUpdates( mLocationListener );
-
-         mLoggingState = Constants.STOPPED;
-         updateWakeLock();
-         mNoticationManager.cancel( R.layout.map );
-         crashProtectState();
-         broadCastLoggingState();
-      }
+      PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
+    
+      mLocationManager.removeGpsStatusListener( mStatusListener );
+      mLocationManager.removeUpdates( mLocationListener );
+      mNoticationManager.cancel( R.layout.map );
+      
+      broadCastLoggingState();
    }
 
    /**
@@ -778,6 +799,7 @@ public class GPSLoggerService extends Service
     */
    private void _handleMessage( Message msg )
    {
+      Log.d( TAG, "_handleMessage( Message "+msg+" )" );
       long intervaltime = 0;
       float distance = 0;
       switch( msg.what )
