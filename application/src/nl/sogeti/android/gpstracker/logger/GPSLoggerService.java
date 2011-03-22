@@ -309,6 +309,11 @@ public class GPSLoggerService extends Service
          {
             GPSLoggerService.this.storeDerivedDataSource(sourceName);
          }
+
+         public Location getLastWaypoint() throws RemoteException
+         {
+            return GPSLoggerService.this.getLastWaypoint();
+         }
       };
 
    private class GPSLoggerServiceThread extends Thread
@@ -478,6 +483,22 @@ public class GPSLoggerService extends Service
    protected boolean isLogging()
    {
       return this.mLoggingState == Constants.LOGGING;
+   }
+
+   /**
+    * Provides the cached last stored waypoint it current logging is active
+    * alse null.
+    * 
+    * @return last waypoint location or null
+    */
+   protected Location getLastWaypoint()
+   {
+      Location myLastWaypoint = null ;
+      if( isLogging() )
+      {
+         myLastWaypoint = mPreviousLocation;
+      }
+      return myLastWaypoint;
    }
 
    protected boolean isMediaPrepared()

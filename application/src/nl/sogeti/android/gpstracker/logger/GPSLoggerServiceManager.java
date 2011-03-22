@@ -33,6 +33,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -61,6 +62,30 @@ public class GPSLoggerServiceManager
       ctx.startService(new Intent(Constants.SERVICENAME));
    }
 
+   public Location getLastWaypoint()
+   {
+      synchronized (mStartLock)
+      {
+         Location lastWaypoint = null;
+         try
+         {
+            if( mBound )
+            {
+               lastWaypoint = this.mGPSLoggerRemote.getLastWaypoint();
+            }
+            else
+            {
+               Log.w( TAG, "Remote interface to logging service not found. Started: " + mBound );
+            }
+         }
+         catch (RemoteException e)
+         {
+            Log.e( TAG, "Could get lastWaypoint GPSLoggerService.", e );
+         }
+         return lastWaypoint;
+      }
+   }
+   
    public int getLoggingState()
    {
       synchronized (mStartLock)

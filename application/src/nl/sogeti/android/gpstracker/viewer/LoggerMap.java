@@ -1233,41 +1233,28 @@ public class LoggerMap extends MapActivity
     */
    private void updateDisplayedSpeedViews()
    {
-      ContentResolver resolver = this.getContentResolver();
-      Cursor waypointsCursor = null;
-      try
+      Location lastWaypoint = mLoggerServiceManager.getLastWaypoint();
+      if( lastWaypoint != null )
       {
-         Uri lastSegmentUri = Uri.withAppendedPath( Tracks.CONTENT_URI, this.mTrackId + "/segments/" + mLastSegment + "/waypoints" );
-         waypointsCursor = resolver.query( lastSegmentUri, new String[] { Waypoints.SPEED, Waypoints.ALTITUDE }, null, null, null );
-         if( waypointsCursor != null && waypointsCursor.moveToLast() )
+         // Speed number
+         double speed = lastWaypoint.getSpeed();
+         speed = mUnits.conversionFromMetersPerSecond( speed );
+         String speedText = String.format( "%.0f %s", speed, mUnits.getSpeedUnit() );
+         mLastGPSSpeedView.setText( speedText );
+         
+         // Speed color bar
+         if( speed > 2*mAverageSpeed )
          {
-            // Speed number
-            double speed = waypointsCursor.getDouble( 0 );
-            speed = mUnits.conversionFromMetersPerSecond( speed );
-            String speedText = String.format( "%.0f %s", speed, mUnits.getSpeedUnit() );
-            mLastGPSSpeedView.setText( speedText );
-            
-            // Speed color bar
-            if( speed > 2*mAverageSpeed )
-            {
-               mAverageSpeed = 0.0;
-               updateSpeedColoring();
-               mMapView.postInvalidate();
-            }
-            
-            //Altitude number
-            double altitude = waypointsCursor.getDouble( 1 );
-            altitude = mUnits.conversionFromMeterToHeight( altitude );
-            String altitudeText = String.format( "%.0f %s", altitude, mUnits.getHeightUnit() );
-            mLastGPSAltitudeView.setText( altitudeText );
+            mAverageSpeed = 0.0;
+            updateSpeedColoring();
+            mMapView.postInvalidate();
          }
-      }
-      finally
-      {
-         if( waypointsCursor != null )
-         {
-            waypointsCursor.close();
-         }
+         
+         //Altitude number
+         double altitude = lastWaypoint.getAltitude();
+         altitude = mUnits.conversionFromMeterToHeight( altitude );
+         String altitudeText = String.format( "%.0f %s", altitude, mUnits.getHeightUnit() );
+         mLastGPSAltitudeView.setText( altitudeText );
       }
    }
    
@@ -1497,28 +1484,43 @@ public class LoggerMap extends MapActivity
    {
       Cursor waypoint = null;
       GeoPoint lastPoint = null;
-      try
+      // First try the service which might have a cached version
+      Location lastLoc = mLoggerServiceManager.getLastWaypoint();
+      if( lastLoc != null )
       {
-         ContentResolver resolver = this.getContentResolver();
-         waypoint = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/waypoints" ), new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,
-               "max(" + Waypoints.TABLE + "." + Waypoints._ID + ")" }, null, null, null );
-         if( waypoint != null && waypoint.moveToLast() )
+         int microLatitude =  (int) ( lastLoc.getLatitude() * 1E6d );
+         int microLongitude = (int) ( lastLoc.getLongitude() * 1E6d );
+         lastPoint = new GeoPoint( microLatitude, microLongitude );
+      }
+      
+      // If nothing yet, try the content resolver and query the track
+      if( lastPoint == null || lastPoint.getLatitudeE6() == 0 || lastPoint.getLongitudeE6() == 0 )
+      {
+         try
          {
-            int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
-            int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
-            lastPoint = new GeoPoint( microLatitude, microLongitude );
+            ContentResolver resolver = this.getContentResolver();
+            waypoint = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/waypoints" ), new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,
+                  "max(" + Waypoints.TABLE + "." + Waypoints._ID + ")" }, null, null, null );
+            if( waypoint != null && waypoint.moveToLast() )
+            {
+               int microLatitude = (int) ( waypoint.getDouble( 0 ) * 1E6d );
+               int microLongitude = (int) ( waypoint.getDouble( 1 ) * 1E6d );
+               lastPoint = new GeoPoint( microLatitude, microLongitude );
+            }
          }
-         if( lastPoint == null || lastPoint.getLatitudeE6() == 0 || lastPoint.getLongitudeE6() == 0 )
+         finally
          {
-            lastPoint = getLastKnowGeopointLocation();
+            if( waypoint != null )
+            {
+               waypoint.close();
+            }
          }
       }
-      finally
+      
+      // If nothing yet, try the last generally known location
+      if( lastPoint == null || lastPoint.getLatitudeE6() == 0 || lastPoint.getLongitudeE6() == 0 )
       {
-         if( waypoint != null )
-         {
-            waypoint.close();
-         }
+         lastPoint = getLastKnowGeopointLocation();
       }
       return lastPoint;
    }

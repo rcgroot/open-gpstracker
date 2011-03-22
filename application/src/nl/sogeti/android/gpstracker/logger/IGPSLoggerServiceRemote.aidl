@@ -1,6 +1,7 @@
 package nl.sogeti.android.gpstracker.logger;
 
 import android.net.Uri;
+import android.location.Location;
 
 interface IGPSLoggerServiceRemote {
 
@@ -12,4 +13,5 @@ interface IGPSLoggerServiceRemote {
 	Uri storeMediaUri(in Uri mediaUri);
     boolean isMediaPrepared();
     void storeDerivedDataSource(in String sourceName);
+    Location getLastWaypoint();
 }
