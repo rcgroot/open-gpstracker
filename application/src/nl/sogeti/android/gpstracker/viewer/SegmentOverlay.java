@@ -102,6 +102,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private ContentResolver mResolver;
    private LoggerMap mLoggerMap;
    private ProjectionProxy mProjection;
+   private org.osmdroid.views.overlay.Overlay mOsmOverlay;
 
    private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
    private Uri mWaypointsUri;
@@ -228,6 +229,27 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mPathCalculation = new Path();
       mMediaPath = new Vector<MediaVO>();
       mMediaPathCalculation = new Vector<MediaVO>();
+      
+      mOsmOverlay = new org.osmdroid.views.overlay.Overlay(mLoggerMap) {
+         
+         public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView) 
+         {
+            int x = (int) e.getX();
+            int y = (int) e.getY();
+            GeoPoint tappedGeoPoint = mProjection.fromPixels(x, y);
+            return SegmentOverlay.this.commonOnTap(tappedGeoPoint );
+         }
+
+         @Override
+         protected void draw(Canvas canvas, org.osmdroid.views.MapView view, boolean shadow)
+         {
+            if( !shadow )
+            {
+               mProjection.setProjection(view);
+               SegmentOverlay.this.draw( canvas );
+            }
+         }      
+      };
    }
 
    /*
@@ -1305,32 +1327,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    public org.osmdroid.views.overlay.Overlay getOSMOverlay()
    {
-      return osmOverlay;
+      return mOsmOverlay;
    }
-   
-   org.osmdroid.views.overlay.Overlay osmOverlay = new org.osmdroid.views.overlay.Overlay(mLoggerMap) {
-
-      @Override
-      protected void onDraw( Canvas canvas, org.osmdroid.views.MapView view )
-      {
-         mProjection.setProjection(view);
-         SegmentOverlay.this.draw( canvas );
-      }
-
-      @Override
-      protected void onDrawFinished( Canvas arg0, org.osmdroid.views.MapView arg1 )
-      {
-         // noop
-      }
-      
-      public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView) 
-      {
-         int x = (int) e.getX();
-         int y = (int) e.getY();
-         GeoPoint tappedGeoPoint = mProjection.fromPixels(x, y);
-         return SegmentOverlay.this.commonOnTap(tappedGeoPoint );
-      }
-
-      
-   };
 }
