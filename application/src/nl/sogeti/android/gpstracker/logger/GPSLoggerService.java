@@ -182,7 +182,7 @@ public class GPSLoggerService extends Service
       {
          public void onLocationChanged( Location location )
          {
-            Log.d( TAG, "onLocationChanged( Location "+location+" )");
+//            Log.d( TAG, "onLocationChanged( Location "+location+" )");
             // Might be claiming GPS disabled but when we were paused this changed and this location proves so
             if( mShowingGpsDisabled ) 
             {
@@ -202,7 +202,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderDisabled( String provider )
          {
-            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
+//            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
             if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnDisabledProviderNotification( R.string.service_gpsdisabled );
@@ -216,7 +216,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderEnabled( String provider )
          {
-            Log.d( TAG, "onProviderEnabled( String " + provider + " )" );
+//            Log.d( TAG, "onProviderEnabled( String " + provider + " )" );
             if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnEnabledProviderNotification( R.string.service_gpsenabled );
@@ -230,7 +230,7 @@ public class GPSLoggerService extends Service
 
          public void onStatusChanged( String provider, int status, Bundle extras )
          {
-            Log.d( TAG, " onStatusChanged( String "+provider+", int "+status+", Bundle "+extras+" )" );
+//            Log.d( TAG, " onStatusChanged( String "+provider+", int "+status+", Bundle "+extras+" )" );
             if( status == LocationProvider.OUT_OF_SERVICE )
             {
                Log.e( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
@@ -364,7 +364,7 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
-      Log.d( TAG, "onCreate()" );
+//      Log.d( TAG, "onCreate()" );
       
       GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
       looper.start();
@@ -425,7 +425,7 @@ public class GPSLoggerService extends Service
 
    private void handleCommand(Intent intent)
    {
-      Log.d( TAG, "handleCommand(Intent "+intent+")" );
+//      Log.d( TAG, "handleCommand(Intent "+intent+")" );
    }
 
    /**
@@ -436,7 +436,7 @@ public class GPSLoggerService extends Service
    @Override
    public void onDestroy()
    {
-      Log.d( TAG, "onDestroy()" );
+//      Log.d( TAG, "onDestroy()" );
       super.onDestroy();
       
       if( isLogging() )
@@ -468,7 +468,7 @@ public class GPSLoggerService extends Service
       editor.putInt( SERVICESTATE_PRECISION, mPrecision );
       editor.putInt( SERVICESTATE_STATE, mLoggingState );
       editor.commit();
-      Log.d( TAG, "crashProtectState()" );
+//      Log.d( TAG, "crashProtectState()" );
    }
 
    private synchronized void crashRestoreState()
@@ -545,7 +545,7 @@ public class GPSLoggerService extends Service
     */
    public synchronized void startLogging()
    {
-      Log.d( TAG, "startLogging()" );
+//      Log.d( TAG, "startLogging()" );
       if( this.mLoggingState == Constants.STOPPED )
       {
          startNewTrack();
@@ -561,7 +561,7 @@ public class GPSLoggerService extends Service
 
    public synchronized void pauseLogging()
    {
-      Log.d( TAG, "pauseLogging()" );
+//      Log.d( TAG, "pauseLogging()" );
       if( this.mLoggingState == Constants.LOGGING )
       {
          mLocationManager.removeGpsStatusListener( mStatusListener );
@@ -577,7 +577,7 @@ public class GPSLoggerService extends Service
 
    public synchronized void resumeLogging()
    {
-      Log.d( TAG, "resumeLogging()" );
+//      Log.d( TAG, "resumeLogging()" );
       if( this.mLoggingState == Constants.PAUSED )
       {
          if( mPrecision != Constants.LOGGING_GLOBAL )
@@ -602,7 +602,7 @@ public class GPSLoggerService extends Service
     */
    public synchronized void stopLogging()
    {
-      Log.d( TAG, "stopLogging()" );
+//      Log.d( TAG, "stopLogging()" );
       mLoggingState = Constants.STOPPED;
       crashProtectState();
       
@@ -809,7 +809,7 @@ public class GPSLoggerService extends Service
     */
    private void _handleMessage( Message msg )
    {
-      Log.d( TAG, "_handleMessage( Message "+msg+" )" );
+//      Log.d( TAG, "_handleMessage( Message "+msg+" )" );
       long intervaltime = 0;
       float distance = 0;
       switch( msg.what )
