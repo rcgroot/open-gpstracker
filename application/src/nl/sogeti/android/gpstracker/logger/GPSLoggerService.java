@@ -44,7 +44,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -52,7 +51,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
@@ -145,7 +143,7 @@ public class GPSLoggerService extends Service
    private boolean mShowingGpsDisabled;
 
    /**
-    * Should the GPS Status monitor be active
+    * Should the GPS Status monitor update the notification bar
     */
    private boolean mStatusMonitor;
 
@@ -161,6 +159,7 @@ public class GPSLoggerService extends Service
                   || key.equals( Constants.LOGGING_INTERVAL ) )
             {
                sendRequestLocationUpdatesMessage();
+               crashProtectState();
                updateNotification();
                broadCastLoggingState();
             }
@@ -245,22 +244,31 @@ public class GPSLoggerService extends Service
       {
          public synchronized void onGpsStatusChanged( int event )
          {
-            Log.d( TAG, "onGpsStatusChanged( int "+event+" )");
             switch( event )
             {
                case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
-                  GpsStatus status = mLocationManager.getGpsStatus( null );
-                  mSatellites = 0;
-                  Iterable<GpsSatellite> list = status.getSatellites();
-                  for( GpsSatellite satellite : list )
+                  if( mStatusMonitor )
                   {
-                     if( satellite.usedInFix() )
+                     GpsStatus status = mLocationManager.getGpsStatus( null );
+                     mSatellites = 0;
+                     Iterable<GpsSatellite> list = status.getSatellites();
+                     for( GpsSatellite satellite : list )
                      {
-                        mSatellites++;
+                        if( satellite.usedInFix() )
+                        {
+                           mSatellites++;
+                        }
                      }
+                     updateNotification();
                   }
-                  updateNotification();
                   break;
+               case GpsStatus.GPS_EVENT_STOPPED:
+                  if( isLogging() )
+                  {
+                     Log.w( TAG, "GPS system has stopped during logging!");
+                     mLoggingState = Constants.PAUSED;
+                     resumeLogging();
+                  }
                default:
                   break;
             }
@@ -736,7 +744,6 @@ public class GPSLoggerService extends Service
 
    /**
     * Send a system broadcast to notify a change in the logging or precision
-    * TODO
     */
    private void broadCastLoggingState()
    {
@@ -749,12 +756,9 @@ public class GPSLoggerService extends Service
    private void sendRequestStatusUpdateMessage()
    {
       mStatusMonitor = PreferenceManager.getDefaultSharedPreferences( this ).getBoolean(Constants.STATUS_MONITOR, true);
-      if( mStatusMonitor )
-      {
-         Message msg = Message.obtain();
-         msg.what = ADDGPSSTATUSLISTENER;
-         mHandler.sendMessage( msg );
-      }
+      Message msg = Message.obtain();
+      msg.what = ADDGPSSTATUSLISTENER;
+      mHandler.sendMessage( msg );
    }
 
    private void sendRequestLocationUpdatesMessage()
@@ -1025,6 +1029,7 @@ public class GPSLoggerService extends Service
       this.mPreviousLocation = null;
       Uri newSegment = this.getContentResolver().insert( Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments" ), new ContentValues( 0 ) );
       mSegmentId = new Long( newSegment.getLastPathSegment() ).longValue();
+      crashProtectState();
    }
 
    protected void storeMediaUri( Uri mediaUri )
