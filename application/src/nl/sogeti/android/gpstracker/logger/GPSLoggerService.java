@@ -265,9 +265,17 @@ public class GPSLoggerService extends Service
                case GpsStatus.GPS_EVENT_STOPPED:
                   if( isLogging() )
                   {
-                     Log.w( TAG, "GPS system has stopped during logging!");
                      mLoggingState = Constants.PAUSED;
-                     resumeLogging();
+                     long delay = 30000L;
+                     Runnable runnable = new Runnable()
+                     {
+                        public void run()
+                        {
+                           resumeLogging();
+                        }
+                     };
+                     Log.w( TAG, "GPS system has stopped during logging, will restart in numer of ms: "+delay);
+                     mHandler.postDelayed(runnable, delay);
                   }
                default:
                   break;
