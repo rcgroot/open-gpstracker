@@ -28,8 +28,11 @@
  */
 package nl.sogeti.android.gpstracker.logger;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 
@@ -91,7 +94,10 @@ public class GPSLoggerService extends Service
     */
    private static final int MAX_REASONABLE_ALTITUDECHANGE = 200;
 
+   private static final Boolean DEBUG = true;
+   private static final boolean VERBOSE = false;
    private static final String TAG = "OGT.GPSLoggerService";
+   
    private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
    private static final String SERVICESTATE_PRECISION = "SERVICESTATE_PRECISION";
    private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
@@ -111,6 +117,7 @@ public class GPSLoggerService extends Service
     *  DUP from android.app.Service.START_STICKY
     */
    private static final int START_STICKY = 1;
+
 
    private LocationManager mLocationManager;
    private NotificationManager mNoticationManager;
@@ -146,6 +153,12 @@ public class GPSLoggerService extends Service
     * Should the GPS Status monitor update the notification bar
     */
    private boolean mStatusMonitor;
+   
+   /**
+    * Time thread to runs tasks that check whether the GPS listener has received enough to consider the 
+    * GPS system alive.
+    */
+   private Timer mHeartbeatTimer;
 
    /**
     * Listens to changes in preference to precision and sanity checks
@@ -182,7 +195,7 @@ public class GPSLoggerService extends Service
       {
          public void onLocationChanged( Location location )
          {
-//            Log.d( TAG, "onLocationChanged( Location "+location+" )");
+            if( VERBOSE ){ Log.v( TAG, "onLocationChanged( Location "+location+" )"); }; 
             // Might be claiming GPS disabled but when we were paused this changed and this location proves so
             if( mShowingGpsDisabled ) 
             {
@@ -202,7 +215,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderDisabled( String provider )
          {
-//            Log.d( TAG, "onProviderDisabled( String " + provider + " )" );
+            if( DEBUG ){ Log.d( TAG, "onProviderDisabled( String " + provider + " )" ); };
             if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnDisabledProviderNotification( R.string.service_gpsdisabled );
@@ -216,7 +229,7 @@ public class GPSLoggerService extends Service
 
          public void onProviderEnabled( String provider )
          {
-//            Log.d( TAG, "onProviderEnabled( String " + provider + " )" );
+            if( DEBUG ){ Log.d( TAG, "onProviderEnabled( String " + provider + " )" ); };
             if( mPrecision != Constants.LOGGING_GLOBAL && provider.equals( LocationManager.GPS_PROVIDER ) )
             {
                notifyOnEnabledProviderNotification( R.string.service_gpsenabled );
@@ -230,7 +243,7 @@ public class GPSLoggerService extends Service
 
          public void onStatusChanged( String provider, int status, Bundle extras )
          {
-//            Log.d( TAG, " onStatusChanged( String "+provider+", int "+status+", Bundle "+extras+" )" );
+            if( DEBUG ){ Log.d( TAG, " onStatusChanged( String "+provider+", int "+status+", Bundle "+extras+" )" ); };
             if( status == LocationProvider.OUT_OF_SERVICE )
             {
                Log.e( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
@@ -333,6 +346,52 @@ public class GPSLoggerService extends Service
          }
       };
 
+   /**
+    * Task that will be run periodically during active logging to verify that
+    * the logging really happens and that the GPS hasn't silently stopped.
+    */
+   private TimerTask mHeartbeat = null;
+   class Heartbeat extends TimerTask
+   {
+      @Override
+      public void run()
+      {
+         if( isLogging() )
+         {
+            // Collect the last location from the last logged location or a more recent from the last weak location
+            Location checkLocation = mPreviousLocation;
+            synchronized (mWeakLocations)
+            {
+               if( !mWeakLocations.isEmpty() )
+               {
+                  if( checkLocation == null )
+                  {
+                     checkLocation = mWeakLocations.lastElement();
+                  }
+                  else
+                  {
+                     Location weakLocation = mWeakLocations.lastElement();
+                     checkLocation = weakLocation.getTime() > checkLocation.getTime() ? weakLocation : checkLocation;
+                  }
+               }
+            }
+            if( checkLocation == null || checkLocation.getTime()+mCheckPeriod < new Date().getTime() )
+            {
+               Log.w( TAG, "GPS system failed to produce a location during logging: "+checkLocation);
+               mLoggingState = Constants.PAUSED;
+               resumeLogging();
+            }
+         }
+      }
+   };
+
+   /** 
+    * Number of milliseconds that a functioning GPS system needs to provide a location. 
+    * 
+    * Calculated to be either 120 seconds or 4 times the required period, whichever is larger. 
+    */
+   private long mCheckPeriod;
+
    private class GPSLoggerServiceThread extends Thread
    {
       public Semaphore ready = new Semaphore( 0 );
@@ -364,7 +423,7 @@ public class GPSLoggerService extends Service
    public void onCreate()
    {
       super.onCreate();
-//      Log.d( TAG, "onCreate()" );
+      if( DEBUG ){ Log.d( TAG, "onCreate()" ); };
       
       GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
       looper.start();
@@ -376,6 +435,7 @@ public class GPSLoggerService extends Service
       {
          Log.e( TAG, "Interrupted during wait for the GPSLoggerServiceThread to start, prepare for trouble!", e );
       }
+      mHeartbeatTimer = new Timer("heartbeat", true);
 
       mWeakLocations = new Vector<Location>( 3 );
       mAltitudes = new LinkedList<Double>();
@@ -425,7 +485,7 @@ public class GPSLoggerService extends Service
 
    private void handleCommand(Intent intent)
    {
-//      Log.d( TAG, "handleCommand(Intent "+intent+")" );
+      if( DEBUG ){ Log.d( TAG, "handleCommand(Intent "+intent+")" ); };
    }
 
    /**
@@ -436,14 +496,15 @@ public class GPSLoggerService extends Service
    @Override
    public void onDestroy()
    {
-//      Log.d( TAG, "onDestroy()" );
+      if( DEBUG ){ Log.d( TAG, "onDestroy()" ); };
       super.onDestroy();
       
       if( isLogging() )
       {
          Log.w(TAG, "Destroyin an activly logging service");
       }
-      
+      mHeartbeatTimer.cancel();
+      mHeartbeatTimer.purge();
       if( this.mWakeLock != null )
       {
          this.mWakeLock.release();
@@ -451,7 +512,7 @@ public class GPSLoggerService extends Service
       }
       PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
       mLocationManager.removeGpsStatusListener( mStatusListener );
-      mLocationManager.removeUpdates( mLocationListener );
+      stopListening();
       mNoticationManager.cancel( R.layout.map );
       
       Message msg = Message.obtain();
@@ -468,7 +529,7 @@ public class GPSLoggerService extends Service
       editor.putInt( SERVICESTATE_PRECISION, mPrecision );
       editor.putInt( SERVICESTATE_STATE, mLoggingState );
       editor.commit();
-//      Log.d( TAG, "crashProtectState()" );
+      if( DEBUG ){ Log.d( TAG, "crashProtectState()" ); };
    }
 
    private synchronized void crashRestoreState()
@@ -545,7 +606,7 @@ public class GPSLoggerService extends Service
     */
    public synchronized void startLogging()
    {
-//      Log.d( TAG, "startLogging()" );
+      if( DEBUG ){ Log.d( TAG, "startLogging()" ); };
       if( this.mLoggingState == Constants.STOPPED )
       {
          startNewTrack();
@@ -561,11 +622,11 @@ public class GPSLoggerService extends Service
 
    public synchronized void pauseLogging()
    {
-//      Log.d( TAG, "pauseLogging()" );
+      if( DEBUG ){ Log.d( TAG, "pauseLogging()" ); };
       if( this.mLoggingState == Constants.LOGGING )
       {
          mLocationManager.removeGpsStatusListener( mStatusListener );
-         mLocationManager.removeUpdates( mLocationListener );
+         stopListening();
          mLoggingState = Constants.PAUSED;
          mPreviousLocation = null;
          updateWakeLock();
@@ -577,7 +638,7 @@ public class GPSLoggerService extends Service
 
    public synchronized void resumeLogging()
    {
-//      Log.d( TAG, "resumeLogging()" );
+      if( DEBUG ){ Log.d( TAG, "resumeLogging()" ); };
       if( this.mLoggingState == Constants.PAUSED )
       {
          if( mPrecision != Constants.LOGGING_GLOBAL )
@@ -602,7 +663,7 @@ public class GPSLoggerService extends Service
     */
    public synchronized void stopLogging()
    {
-//      Log.d( TAG, "stopLogging()" );
+      if( DEBUG ){ Log.d( TAG, "stopLogging()" ); };
       mLoggingState = Constants.STOPPED;
       crashProtectState();
       
@@ -611,10 +672,33 @@ public class GPSLoggerService extends Service
       PreferenceManager.getDefaultSharedPreferences( this ).unregisterOnSharedPreferenceChangeListener( this.mSharedPreferenceChangeListener );
     
       mLocationManager.removeGpsStatusListener( mStatusListener );
-      mLocationManager.removeUpdates( mLocationListener );
+      stopListening();
       mNoticationManager.cancel( R.layout.map );
       
       broadCastLoggingState();
+   }
+
+   private void startListening(String provider, long intervaltime, float distance)
+   {
+      mLocationManager.requestLocationUpdates( provider, intervaltime, distance, this.mLocationListener );
+      mCheckPeriod = Math.max( 4*intervaltime, 120*1000 );
+      if( mHeartbeat != null )
+      {
+         mHeartbeat.cancel();
+         mHeartbeat = null;
+      }
+      mHeartbeat = new Heartbeat();
+      mHeartbeatTimer.schedule(mHeartbeat, mCheckPeriod, mCheckPeriod);
+   }
+
+   private void stopListening()
+   {
+      if( mHeartbeat != null )
+      {
+         mHeartbeat.cancel();
+         mHeartbeat = null;
+      }
+      mLocationManager.removeUpdates( mLocationListener );
    }
 
    /**
@@ -771,7 +855,7 @@ public class GPSLoggerService extends Service
 
    private void sendRequestLocationUpdatesMessage()
    {
-      mLocationManager.removeUpdates( mLocationListener );
+      stopListening();
       mPrecision = new Integer( PreferenceManager.getDefaultSharedPreferences( this ).getString( Constants.PRECISION, "2" ) ).intValue();
       Message msg = Message.obtain();
       switch( mPrecision )
@@ -809,7 +893,7 @@ public class GPSLoggerService extends Service
     */
    private void _handleMessage( Message msg )
    {
-//      Log.d( TAG, "_handleMessage( Message "+msg+" )" );
+      if( DEBUG ){ Log.d( TAG, "_handleMessage( Message "+msg+" )" ); };
       long intervaltime = 0;
       float distance = 0;
       switch( msg.what )
@@ -821,25 +905,25 @@ public class GPSLoggerService extends Service
             mMaxAcceptableAccuracy = 20f;
             intervaltime = 1000l ;
             distance = 5F;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
+            startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
          case REQUEST_NORMALGPS_LOCATIONUPDATES:
             mMaxAcceptableAccuracy = 30f;
             intervaltime = 15000l ;
             distance = 10F;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
+            startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
          case REQUEST_COARSEGPS_LOCATIONUPDATES:
             mMaxAcceptableAccuracy = 75f;
             intervaltime = 30000l ;
             distance = 25F;
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
+            startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
          case REQUEST_GLOBALNETWORK_LOCATIONUPDATES:
             mMaxAcceptableAccuracy = 1000f;
             intervaltime = 300000l ;
             distance = 500F;
-            mLocationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, intervaltime, distance, this.mLocationListener );
+            startListening(LocationManager.NETWORK_PROVIDER, intervaltime, distance);
             if( !isNetworkConnected() )
             {
                notifyOnDisabledProviderNotification( R.string.service_connectiondisabled );
@@ -849,11 +933,11 @@ public class GPSLoggerService extends Service
             intervaltime = 60 * 1000 *  new Long( PreferenceManager.getDefaultSharedPreferences( this ).getString(Constants.LOGGING_INTERVAL, "15000") );
             distance = new Float( PreferenceManager.getDefaultSharedPreferences( this ).getString(Constants.LOGGING_DISTANCE, "10") );
             mMaxAcceptableAccuracy = Math.max(10f, Math.min(distance, 50f));
-            mLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, intervaltime, distance, this.mLocationListener );
+            startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
          case STOPLOOPER:
             mLocationManager.removeGpsStatusListener( mStatusListener );
-            mLocationManager.removeUpdates( mLocationListener );
+            stopListening();
             Looper.myLooper().quit();
             break;
       }
@@ -920,7 +1004,7 @@ public class GPSLoggerService extends Service
             if( speed > 2*MAX_REASONABLE_SPEED && mPrecision != Constants.LOGGING_GLOBAL )
             {
                Log.w( TAG, "A strange location was recieved on GPS, reset the GPS listeners" );
-               mLocationManager.removeUpdates( mLocationListener );
+               stopListening();
                mLocationManager.removeGpsStatusListener( mStatusListener );
                mLocationManager = (LocationManager) this.getSystemService( Context.LOCATION_SERVICE );
                sendRequestStatusUpdateMessage();
@@ -983,7 +1067,10 @@ public class GPSLoggerService extends Service
                }
             }
          }
-         mWeakLocations.clear();
+         synchronized (mWeakLocations)
+         {
+            mWeakLocations.clear();
+         }
          location = best;
       }
       return location;
@@ -1014,8 +1101,6 @@ public class GPSLoggerService extends Service
       avg = avg / elements;
       sane = Math.abs( altitude - avg ) < MAX_REASONABLE_ALTITUDECHANGE;
 
-      //      Log.d( TAG, String.format( "Added %f to a total of %d and it was deemed %s ", altitude, mAltitudes.size(), sane ) );
-
       return sane;
    }
 
@@ -1042,7 +1127,6 @@ public class GPSLoggerService extends Service
 
    protected void storeMediaUri( Uri mediaUri )
    {
-      //      Log.d( TAG, "Retrieved MediaUri to store on track: "+mediaUri );
       if( isMediaPrepared() )
       {
          Uri mediaInsertUri = Uri.withAppendedPath( Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints/" + mWaypointId + "/media" );
@@ -1075,7 +1159,6 @@ public class GPSLoggerService extends Service
       args.put( Waypoints.LONGITUDE, new Double( location.getLongitude() ) );
       args.put( Waypoints.SPEED, new Float( location.getSpeed() ) );
       args.put( Waypoints.TIME, new Long( System.currentTimeMillis() ) );
-      //      Log.d( TAG, "Location based time sent to ContentProvider"+  DateFormat.getInstance().format(new Date( args.getAsLong( Waypoints.TIME ) ) ) );
       if( location.hasAccuracy() )
       {
          args.put( Waypoints.ACCURACY, new Float( location.getAccuracy() ) );
