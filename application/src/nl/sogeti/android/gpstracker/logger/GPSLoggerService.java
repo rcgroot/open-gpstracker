@@ -680,7 +680,8 @@ public class GPSLoggerService extends Service
 
    private void startListening(String provider, long intervaltime, float distance)
    {
-      mLocationManager.requestLocationUpdates( provider, intervaltime, distance, this.mLocationListener );
+      mLocationManager.removeUpdates( mLocationListener );
+      mLocationManager.requestLocationUpdates( provider, intervaltime, distance, mLocationListener );
       mCheckPeriod = Math.max( 4*intervaltime, 120*1000 );
       if( mHeartbeat != null )
       {
