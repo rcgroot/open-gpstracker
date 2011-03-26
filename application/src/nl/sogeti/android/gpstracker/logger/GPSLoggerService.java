@@ -950,6 +950,11 @@ public class GPSLoggerService extends Service
          PreferenceManager.getDefaultSharedPreferences( this ).registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );
 
          PowerManager pm = (PowerManager) this.getSystemService( Context.POWER_SERVICE );
+         if( this.mWakeLock != null )
+         {
+            this.mWakeLock.release();
+            this.mWakeLock = null;
+         }
          this.mWakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, TAG );
          this.mWakeLock.acquire();
       }
