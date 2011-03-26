@@ -188,6 +188,7 @@ public class GPSLoggerService extends Service
             }
          }
       };
+
    /**
     * Listens to location changes and provider availability
     */
@@ -243,13 +244,14 @@ public class GPSLoggerService extends Service
 
          public void onStatusChanged( String provider, int status, Bundle extras )
          {
-            if( DEBUG ){ Log.d( TAG, " onStatusChanged( String "+provider+", int "+status+", Bundle "+extras+" )" ); };
+            if( DEBUG ){ Log.d( TAG, "onStatusChanged( String "+provider+", int "+status+", Bundle "+extras+" )" ); };
             if( status == LocationProvider.OUT_OF_SERVICE )
             {
                Log.e( TAG, String.format( "Provider %s changed to status %d", provider, status ) );
             }
          }
       };
+
    /**
     * Listens to GPS status changes
     */
@@ -276,20 +278,9 @@ public class GPSLoggerService extends Service
                   }
                   break;
                case GpsStatus.GPS_EVENT_STOPPED:
-                  if( isLogging() )
-                  {
-                     mLoggingState = Constants.PAUSED;
-                     long delay = 30000L;
-                     Runnable runnable = new Runnable()
-                     {
-                        public void run()
-                        {
-                           resumeLogging();
-                        }
-                     };
-                     Log.w( TAG, "GPS system has stopped during logging, will restart in numer of ms: "+delay);
-                     mHandler.postDelayed(runnable, delay);
-                  }
+                  break;
+               case GpsStatus.GPS_EVENT_STARTED:
+                  break;
                default:
                   break;
             }
@@ -351,6 +342,11 @@ public class GPSLoggerService extends Service
     * the logging really happens and that the GPS hasn't silently stopped.
     */
    private TimerTask mHeartbeat = null;
+   
+   /**
+    * Task to determine if the GPS is alive
+    * 
+    */
    class Heartbeat extends TimerTask
    {
       @Override
