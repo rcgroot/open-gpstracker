@@ -627,6 +627,8 @@ public class GPSLoggerService extends Service
          mPreviousLocation = null;
          updateWakeLock();
          updateNotification();
+         mSatellites = 0;
+         updateNotification();
          crashProtectState();
          broadCastLoggingState();
       }
