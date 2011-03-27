@@ -2,7 +2,7 @@
 <manifest 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     package="nl.sogeti.android.gpstracker"
-	android:versionName="1.1.2beta" android:versionCode="43"
+	android:versionName="1.1.2" android:versionCode="44"
 	android:installLocation="auto"
 	>
 
