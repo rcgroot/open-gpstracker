@@ -9,6 +9,8 @@ import com.google.android.maps.Projection;
 public class ProjectionProxy
 {
 
+   private static final String TAG = "OGT.ProjectionProxy";
+   
    private Projection mProjection;
    private org.osmdroid.views.MapView mOpenStreetMapViewProjectionSource;
 
@@ -34,7 +36,14 @@ public class ProjectionProxy
    {
       if( mProjection != null )
       {
-         mProjection.toPixels( geoPoint, out );
+         try
+         {
+            mProjection.toPixels( geoPoint, out );
+         }
+         catch (NullPointerException e) 
+         {
+            Log.w( TAG, "Problem using the Google map projection" );
+         }
       } 
       else if( mOpenStreetMapViewProjectionSource != null )
       {
