@@ -953,7 +953,10 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          }
          finally
          {
-            waypointsCursor.close();
+            if( waypointsCursor != null )
+            {
+               waypointsCursor.close();
+            }
          }
       }
       if( mWaypointCount < 250 )
