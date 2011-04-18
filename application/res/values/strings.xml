@@ -185,6 +185,8 @@
     <string name="stat_starttime">Start time</string>    
     <string name="stat_trackname">Track name</string>
     <string name="stat_waypoints">Waypoints</string>
+    <string name="stat_elapsedtime">Elapsed</string>
+    <string name="stat_ascension">Total elevation</string>
     <string name="track_list">Tracks</string>
     <string name="search_label">Tracks</string>
     <string name="search_description">Open GPS Tracker track names</string>

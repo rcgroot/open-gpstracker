@@ -89,8 +89,8 @@ public class Statistics extends Activity
    private TextView starttimeView;
    private TextView maxSpeedView;
    private TextView waypointsView;
-   private TextView minAltitudeView;
-   private TextView maxAltitudeView;
+   private TextView mAscensionView;
+   private TextView mElapsedTimeView;
 
    private UnitsI18n mUnits;
    private GraphCanvas mGraphTimeSpeed;
@@ -206,8 +206,8 @@ public class Statistics extends Activity
       mGestureDetector = new GestureDetector( new MyGestureDetector() );
 
       maxSpeedView = (TextView) findViewById( R.id.stat_maximumspeed );
-      minAltitudeView = (TextView) findViewById( R.id.stat_minimalaltitide );
-      maxAltitudeView = (TextView) findViewById( R.id.stat_maximumaltitude );
+      mAscensionView   = (TextView) findViewById( R.id.stat_ascension );
+      mElapsedTimeView = (TextView) findViewById( R.id.stat_elapsedtime );
       overallavgSpeedView = (TextView) findViewById( R.id.stat_overallaveragespeed );
       avgSpeedView = (TextView) findViewById( R.id.stat_averagespeed );
       distanceView = (TextView) findViewById( R.id.stat_distance );
@@ -411,10 +411,9 @@ public class Statistics extends Activity
       
       mViewFlipper.postInvalidate();
 
-      
       maxSpeedView.setText( mCalculator.getMaxSpeedText() );
-      maxAltitudeView.setText( mCalculator.getMaxAltitudeText() );
-      minAltitudeView.setText( mCalculator.getMinAltitudeText() );
+      mElapsedTimeView.setText( mCalculator.getDurationText() );
+      mAscensionView.setText( mCalculator.getAscensionText() );
       overallavgSpeedView.setText( mCalculator.getOverallavgSpeedText() );
       avgSpeedView.setText( mCalculator.getAvgSpeedText() );
       distanceView.setText( mCalculator.getDistanceText() );

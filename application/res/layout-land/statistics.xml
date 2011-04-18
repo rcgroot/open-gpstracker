@@ -96,26 +96,47 @@
             <nl.sogeti.android.gpstracker.util.DateView
                android:id="@+id/stat_endtime" />
          </TableRow>
+<!--          <TableRow -->
+<!--             android:layout_width="wrap_content" -->
+<!--             android:layout_height="wrap_content" -->
+<!--          > -->
+<!--             <TextView -->
+<!--                android:text="@string/stat_minimalaltitide" -->
+<!--                android:paddingRight="10dp" /> -->
+<!--             <TextView -->
+<!--                android:id="@+id/stat_minimalaltitide" /> -->
+<!--          </TableRow> -->
+<!--          <TableRow -->
+<!--             android:layout_width="wrap_content" -->
+<!--             android:layout_height="wrap_content" -->
+<!--          > -->
+<!--             <TextView -->
+<!--                android:text="@string/stat_maximumaltitude" -->
+<!--                android:paddingRight="10dp" /> -->
+<!--             <TextView -->
+<!--                android:id="@+id/stat_maximumaltitude" /> -->
+<!--          </TableRow> -->
          <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
          >
             <TextView
-               android:text="@string/stat_minimalaltitide"
+               android:text="@string/stat_elapsedtime"
                android:paddingRight="10dp" />
             <TextView
-               android:id="@+id/stat_minimalaltitide" />
+               android:id="@+id/stat_elapsedtime" />
          </TableRow>
          <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
          >
             <TextView
-               android:text="@string/stat_maximumaltitude"
+               android:text="@string/stat_ascension"
                android:paddingRight="10dp" />
             <TextView
-               android:id="@+id/stat_maximumaltitude" />
+               android:id="@+id/stat_ascension" />
          </TableRow>
+
       </TableLayout>
 
 

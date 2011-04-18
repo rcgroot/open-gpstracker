@@ -178,6 +178,7 @@ public class GraphCanvas extends View
       
       mMinAlititude = mUnits.conversionFromMeterToHeight( calc.getMinAltitude() );
       mMaxAlititude = mUnits.conversionFromMeterToHeight( calc.getMaxAltitude() );
+     
       if( mUnits.isUnitFlipped() )
       {
          mHighestSpeedNumber     = 1.5 * mUnits.conversionFromMetersPerSecond( calc.getAverageStatisicsSpeed() );

@@ -20,9 +20,8 @@ public class StatisticsCalulator
    private String overallavgSpeedText = "Unknown";
    private String avgSpeedText = "Unknown";
    private String maxSpeedText = "Unknown";
+   private String ascensionText = "Unknown";
    private String minSpeedText = "Unknown";
-   private String maxAltitudeText = "Unknown";
-   private String minAltitudeText = "Unknown";
    private String tracknameText = "Unknown";
    private String waypointsText = "Unknown";
    private String distanceText = "Unknown";
@@ -30,8 +29,9 @@ public class StatisticsCalulator
    private long mEndtime = -1;
    private UnitsI18n mUnits;
    private double mMaxSpeed;
-   private double mMaxAltitude;
+   private double mMaxAltitude;	
    private double mMinAltitude;
+   private double mAscension;
    private double mDistanceTraveled;
    private long mDuration;
    private double mAverageActiveSpeed;
@@ -51,9 +51,11 @@ public class StatisticsCalulator
       mAverageActiveSpeed = 0;
       mMaxAltitude = 0;
       mMinAltitude = 0;
+      mAscension = 0;
       mDistanceTraveled = 0f;
       mDuration = 0;
       long duration = 1;
+      double ascension = 0;
 
       ContentResolver resolver = mContext.getContentResolver();
 
@@ -112,6 +114,7 @@ public class StatisticsCalulator
       }
       Cursor segments = null;
       Location lastLocation = null;
+      Location lastAltitudeLocation = null;
       Location currentLocation = null;
       try
       {
@@ -126,7 +129,7 @@ public class StatisticsCalulator
                try
                {
                   Uri waypointsUri = Uri.withAppendedPath( segmentsUri, segmentsId + "/waypoints" );
-                  waypoints = resolver.query( waypointsUri, new String[] { Waypoints._ID, Waypoints.TIME, Waypoints.LONGITUDE, Waypoints.LATITUDE }, null, null, null );
+                  waypoints = resolver.query( waypointsUri, new String[] { Waypoints._ID, Waypoints.TIME, Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null );
                   if( waypoints.moveToFirst() )
                   {
                      do
@@ -139,10 +142,33 @@ public class StatisticsCalulator
                         currentLocation.setTime( waypoints.getLong( 1 ) );
                         currentLocation.setLongitude( waypoints.getDouble( 2 ) );
                         currentLocation.setLatitude( waypoints.getDouble( 3 ) );
+                        currentLocation.setAltitude( waypoints.getDouble( 4 ) );
                         if( lastLocation != null )
                         {
                            mDistanceTraveled += lastLocation.distanceTo( currentLocation );
                            duration += currentLocation.getTime() - lastLocation.getTime();
+                        }
+                        if( currentLocation.hasAltitude() )
+                        {
+                           if( lastAltitudeLocation != null  )
+                           {
+                              if( currentLocation.getTime() - lastAltitudeLocation.getTime() > 5*60*1000 ) // more then a 5m of climbing
+                              {
+                                 if( currentLocation.getAltitude() > lastAltitudeLocation.getAltitude()+1 ) // more then 1m climb
+                                 {
+                                    ascension += currentLocation.getAltitude() - lastAltitudeLocation.getAltitude();
+                                    lastAltitudeLocation = currentLocation;
+                                 }
+                                 else
+                                 {
+                                    lastAltitudeLocation = currentLocation;
+                                 }
+                              }
+                           }
+                           else
+                           {
+                              lastAltitudeLocation = currentLocation;
+                           }
                         }
                         lastLocation = currentLocation;
 
@@ -172,8 +198,6 @@ public class StatisticsCalulator
          }
       }
       double maxSpeed          = mUnits.conversionFromMetersPerSecond( mMaxSpeed );
-      double maxAltitude       = mUnits.conversionFromMeterToHeight( mMaxAltitude );
-      double minAltitude       = mUnits.conversionFromMeterToHeight( mMinAltitude );
       double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( mDistanceTraveled, mDuration );
       double avgSpeedfl        = mUnits.conversionFromMeterAndMiliseconds( mDistanceTraveled, duration );
       double traveled          = mUnits.conversionFromMeter( mDistanceTraveled );
@@ -181,8 +205,7 @@ public class StatisticsCalulator
       overallavgSpeedText = String.format( "%.2f %s", overallavgSpeedfl, mUnits.getSpeedUnit() );
       distanceText        = String.format( "%.2f %s", traveled, mUnits.getDistanceUnit() );
       maxSpeedText        = String.format( "%.2f %s", maxSpeed, mUnits.getSpeedUnit() );
-      minAltitudeText     = String.format( "%.0f %s", minAltitude, mUnits.getHeightUnit() );
-      maxAltitudeText     = String.format( "%.0f %s", maxAltitude, mUnits.getHeightUnit() );
+      ascensionText       = String.format( "%.0f %s", ascension, mUnits.getHeightUnit() );
    }
 
    /**
@@ -225,26 +248,6 @@ public class StatisticsCalulator
       return minSpeedText;
    }
    
-   /**
-    * Get the maxAltitudeText.
-    *
-    * @return Returns the maxAltitudeText as a String.
-    */
-   public String getMaxAltitudeText()
-   {
-      return maxAltitudeText;
-   }
-
-   /**
-    * Get the minAltitudeText.
-    *
-    * @return Returns the minAltitudeText as a String.
-    */
-   public String getMinAltitudeText()
-   {
-      return minAltitudeText;
-   }
-
    /**
     * Get the tracknameText.
     *
@@ -335,6 +338,21 @@ public class StatisticsCalulator
       return mMinAltitude;
    }
 
+   /**
+    * Get the total ascension in m.
+    *
+    * @return Returns the ascension as a double.
+    */
+   public double getAscension()
+   {
+      return mAscension;
+   }
+   
+   public CharSequence getAscensionText()
+   {
+      return ascensionText;
+   }
+   
    /**
     * Get the distanceTraveled.
     *
