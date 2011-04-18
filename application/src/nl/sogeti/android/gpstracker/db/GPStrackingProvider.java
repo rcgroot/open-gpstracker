@@ -389,7 +389,7 @@ public class GPStrackingProvider extends ContentProvider
    
          String tableName = null;
          String whereclause = null;
-         String sortorder = null;
+         String sortorder = sortOrder;
          List<String> pathSegments = uri.getPathSegments();
          switch (match)
          {

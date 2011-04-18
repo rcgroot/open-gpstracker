@@ -482,6 +482,8 @@ public class TrackList extends ListActivity
    private void displayIntent( Intent intent )
    {
       final String queryAction = intent.getAction();
+      final 
+      String orderby = Tracks.CREATION_TIME+" DESC";
       Cursor tracksCursor = null;
       if( Intent.ACTION_SEARCH.equals( queryAction ) )
       {
@@ -504,7 +506,7 @@ public class TrackList extends ListActivity
             // Got to VIEW a GPX filename
             mImportFileUri = uri;
             showDialog( DIALOG_IMPORT );
-            tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
+            tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, orderby );
          }
          else
          {
@@ -514,7 +516,7 @@ public class TrackList extends ListActivity
       else
       {
          // Got to nothing, make a list of everything
-         tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
+         tracksCursor = managedQuery( Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, orderby);
       }
       displayCursor( tracksCursor );
 
