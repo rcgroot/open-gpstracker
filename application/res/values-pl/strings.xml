@@ -185,6 +185,8 @@
     <string name="stat_starttime">Czas początkowy</string>    
     <string name="stat_trackname">Nazwa ścieżki</string>
     <string name="stat_waypoints">Punkty orientacyjne</string>
+    <string name="stat_elapsedtime">Łączny czas</string>
+    <string name="stat_ascension">Łączne wzniesienie</string>
     <string name="track_list">Ścieżki</string>
     <string name="search_label">Ścieżki</string>
     <string name="search_description">Nazwy ścieżek Open GPS Tracker</string>
