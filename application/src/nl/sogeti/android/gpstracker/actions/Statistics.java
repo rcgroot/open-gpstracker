@@ -278,7 +278,6 @@ public class Statistics extends Activity
       drawTrackingStatistics();
       
       ContentResolver resolver = this.getContentResolver();
-      resolver.unregisterContentObserver( this.mTrackObserver );
       resolver.registerContentObserver( mTrackUri, true, this.mTrackObserver );
    }
 
