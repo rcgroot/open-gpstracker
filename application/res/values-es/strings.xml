@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-        <string name="app_name">Open GPS Tracker</string>
+    <string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Activando servicio de registro</string>
-        <string name="service_gpsstatus">Registrando: %1$s (%2$s con %3$d satélites)</string>
-        <string name="service_gpsnostatus">Registrando: %1$s (Precisión %2$s)</string>
+    <string name="service_gpsstatus">Registrando: %1$s (%2$s con %3$d satélites)</string>
+    <string name="service_gpsnostatus">Registrando: %1$s (Precisión %2$s)</string>
     <string name="service_networkstatus">Registrando: %1$s (%2$s con wifi y antenas de telefonía)</string>
     <string name="service_gpsdisabled">GPS desactivado, registro sin efecto.</string>
     <string name="service_gpsenabled">GPS activado, empezando registro.</string>
@@ -15,7 +15,7 @@
     <string name="dialog_select_media_title">Seleccionar nota</string>
     <string name="dialog_select_media_message">Multiple notes were found at this location, please select one to open</string>
     <string name="dialog_tracking_title">Tracking control</string>
-        <string name="dialog_routename_title">Nombrar track</string>
+    <string name="dialog_routename_title">Nombrar track</string>
     <string name="dialog_routename_message">Please enter the name of the track</string>
     <string name="dialog_routename_default">Track %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">No track is selected</string>
@@ -96,20 +96,20 @@
     <string name="error_importgpx_io">Failed reading the file during import.</string>
     <string name="error_importgpx_parse">Failed reading a number during import.</string>
     
-    <!-- Buttons -->
-        <string name="btn_okay">OK</string>
-        <string name="btn_cancel">Cancelar</string>
-        <string name="btn_save">Guardar</string>
-        <string name="btn_selecttrack">Seleccionar track</string>
+	<!-- Buttons -->
+	<string name="btn_okay">OK</string>
+	<string name="btn_cancel">Cancelar</string>
+	<string name="btn_save">Guardar</string>
+	<string name="btn_selecttrack">Seleccionar track</string>
     <string name="btn_install">Instalar</string>
     <string name="btn_skip">Saltar</string>
         
     <!-- Menu's -->
-        <string name="menu_settings">Ajustes</string>
+	<string name="menu_settings">Ajustes</string>
     <string name="menu_tracking">Tracking</string>
-        <string name="menu_tracklist">Listar tracks</string>
-        <string name="menu_shareTrack">Compartir track</string>
-        <string name="menu_deleteTrack">Borrar track</string>
+	<string name="menu_tracklist">Listar tracks</string>
+	<string name="menu_shareTrack">Compartir track</string>
+	<string name="menu_deleteTrack">Borrar track</string>
     <string name="menu_renameTrack">Renombrar track</string>
     <string name="menu_statistics">Estadísticas</string>
     <string name="menu_about">Acerca</string>
@@ -203,14 +203,14 @@
     <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
     <string name="gpsstatusmonitor_summary">Muestra el número de satélites usados.</string>
-        <string name="osmusername_title">Usuario en OpenStreetMap</string>
-        <string name="osmusername_summary">El usuario creado en http://www.openstreetmap.org/user/new</string>
-        <string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
-        <string name="osmpassword_title">Contraseña en OpenStreetMap</string>
-        <string name="osmpassword_summary">La contraseña usada en http://www.openstreetmap.org/user/new</string>
-        <string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
-        <string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
-        <string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
+	<string name="osmusername_title">Usuario en OpenStreetMap</string>
+	<string name="osmusername_summary">El usuario creado en http://www.openstreetmap.org/user/new</string>
+	<string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
+	<string name="osmpassword_title">Contraseña en OpenStreetMap</string>
+	<string name="osmpassword_summary">La contraseña usada en http://www.openstreetmap.org/user/new</string>
+	<string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
+	<string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
+	<string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
     <string name="osm_success">Track subido con éxito a www.openstreetmap.org: </string>
     <string name="osm_failed">Falló la subida del track a www.openstreetmap.org: </string>
     <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
