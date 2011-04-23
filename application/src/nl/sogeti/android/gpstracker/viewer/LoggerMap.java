@@ -100,13 +100,15 @@ import com.google.android.maps.MapActivity;
  */
 public class LoggerMap extends MapActivity
 {
+
+   public static final String OSM_PROVIDER = "OSM";
+   public static final String GOOGLE_PROVIDER = "GOOGLE";
+   
    private static final String INSTANCE_E6LONG = "e6long";
    private static final String INSTANCE_E6LAT = "e6lat";
    private static final String INSTANCE_ZOOM = "zoom";
    private static final String INSTANCE_SPEED = "averagespeed";
    private static final String INSTANCE_TRACK = "track";
-   private static final String OSM_PROVIDER = "OSM";
-   public static final String GOOGLE_PROVIDER = "GOOGLE";
    private static final int ZOOM_LEVEL = 16;
    // MENU'S
    private static final int MENU_SETTINGS = 1;
@@ -124,6 +126,7 @@ public class LoggerMap extends MapActivity
    private static final int DIALOG_URIS = 34;
    private static final int DIALOG_CONTRIB = 35;
    private static final String TAG = "OGT.LoggerMap";
+   // UI's
    private CheckBox mTraffic;
    private CheckBox mSpeed;
    private CheckBox mAltitude;
@@ -132,6 +135,7 @@ public class LoggerMap extends MapActivity
    private TextView[] mSpeedtexts = null;
    private TextView mLastGPSSpeedView = null;
    private TextView mLastGPSAltitudeView = null;
+   private Gallery mGallery;
 
    private double mAverageSpeed = 33.33d / 3d;
    private long mTrackId = -1;
@@ -142,276 +146,29 @@ public class LoggerMap extends MapActivity
    private GPSLoggerServiceManager mLoggerServiceManager;
    private SegmentOverlay mLastSegmentOverlay;
    private BaseAdapter mMediaAdapter;
-   private Gallery mGallery;
    
    private MapViewProxy mMapView = null;
    private MyLocationOverlayProxy mMylocation;
    private Handler mHandler;
    
-   private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
-      {
-         @Override
-         public void onChange( boolean selfUpdate )
-         {
-            if( !selfUpdate )
-            {
-               LoggerMap.this.updateDataOverlays();
-            }
-            else
-            {
-               Log.w( TAG, "mTrackSegmentsObserver skipping change on "+ mLastSegment );
-            }
-         }
-      };
-   private final ContentObserver mSegmentWaypointsObserver = new ContentObserver( new Handler() )
-      {
-         @Override
-         public void onChange( boolean selfUpdate )
-         {
-            if( !selfUpdate  )
-            {
-               LoggerMap.this.updateDisplayedSpeedViews();
-               if( mLastSegmentOverlay != null )
-               {
-                  moveActiveViewWindow();
-                  LoggerMap.this.updateMapProviderAdministration();
-               }
-               else
-               {
-                  Log.e( TAG, "Error the last segment changed but it is not on screen! "+ mLastSegment );
-               }
-            }
-            else
-            {
-               Log.w( TAG, "mSegmentWaypointsObserver skipping change on "+ mLastSegment );
-            }
-         }
-      };
-   private final ContentObserver mTrackMediasObserver = new ContentObserver( new Handler() )
-      {
-         @Override
-         public void onChange( boolean selfUpdate )
-         {
-            if( !selfUpdate )
-            {
-               if( mLastSegmentOverlay != null )
-               {
-                  mLastSegmentOverlay.calculateMedia();
-                  mMapView.postInvalidate();
-               }
-            }
-            else
-            {
-               Log.w( TAG, "mTrackMediasObserver skipping change on "+ mLastSegment );
-            }
-         }
-      };
-   private final DialogInterface.OnClickListener mNoTrackDialogListener = new DialogInterface.OnClickListener()
-      {
-         public void onClick( DialogInterface dialog, int which )
-         {
-            //            Log.d( TAG, "mNoTrackDialogListener" + which);
-            Intent tracklistIntent = new Intent( LoggerMap.this, TrackList.class );
-            tracklistIntent.putExtra( Tracks._ID, LoggerMap.this.mTrackId );
-            startActivityForResult( tracklistIntent, MENU_TRACKLIST );
-         }
-      };
+   private ContentObserver mTrackSegmentsObserver; 
+   private ContentObserver mSegmentWaypointsObserver;
+   private ContentObserver mTrackMediasObserver;
+   private DialogInterface.OnClickListener mNoTrackDialogListener; 
+   private DialogInterface.OnClickListener mOiAboutDialogListener;
+   private OnClickListener mNoteSelectDialogListener ;
+   private OnCheckedChangeListener mCheckedChangeListener;
+   private android.widget.RadioGroup.OnCheckedChangeListener mGroupCheckedChangeListener;
+   private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener;
+   private UnitsI18n.UnitsChangeListener mUnitsChangeListener ;
 
-   private final DialogInterface.OnClickListener mOiAboutDialogListener = new DialogInterface.OnClickListener()
-      {
-         public void onClick( DialogInterface dialog, int which )
-         {
-            Uri oiDownload = Uri.parse( "market://details?id=org.openintents.about" );
-            Intent oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
-            try
-            {
-               startActivity( oiAboutIntent );
-            }
-            catch (ActivityNotFoundException e)
-            {
-               oiDownload = Uri.parse( "http://openintents.googlecode.com/files/AboutApp-1.0.0.apk" );
-               oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
-               startActivity( oiAboutIntent );
-            }
-         }
-      };
-
-   private final OnCheckedChangeListener mCheckedChangeListener = new OnCheckedChangeListener()
-      {
-         public void onCheckedChanged( CompoundButton buttonView, boolean isChecked )
-         {
-            int checkedId;
-            checkedId = buttonView.getId();
-            switch (checkedId)
-            {
-               case R.id.layer_traffic:
-                  setTrafficOverlay( isChecked );
-                  break;
-               case R.id.layer_speed:
-                  setSpeedOverlay( isChecked );
-                  break;
-               case R.id.layer_altitude:
-                  setAltitudeOverlay( isChecked );
-                  break;
-               case R.id.layer_compass:
-                  setCompassOverlay( isChecked );
-                  break;
-               case R.id.layer_location:
-                  setLocationOverlay( isChecked );
-                  break;
-               default:
-                  break;
-            }
-         }
-      };
-
-   private final android.widget.RadioGroup.OnCheckedChangeListener mGroupCheckedChangeListener = new android.widget.RadioGroup.OnCheckedChangeListener()
-      {
-         public void onCheckedChanged( RadioGroup group, int checkedId )
-         {
-            switch (checkedId)
-            {
-               case R.id.layer_google_satellite:
-                  setSatelliteOverlay( true );
-                  break;
-               case R.id.layer_google_regular:
-                  setSatelliteOverlay( false );
-                  break;
-               case R.id.layer_osm_cloudmade:
-                  setOsmBaseOverlay( Constants.OSM_CLOUDMADE );
-                  break;
-               case R.id.layer_osm_maknik:
-                  setOsmBaseOverlay( Constants.OSM_MAKNIK );
-                  break;
-               case R.id.layer_osm_bicycle:
-                  setOsmBaseOverlay( Constants.OSM_CYCLE );
-                  break;
-               default:
-                  break;
-            }
-         }
-      };
-   private final OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
-      {
-         public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
-         {
-            if( key.equals( Constants.TRACKCOLORING ) )
-            {
-               mAverageSpeed = 0.0;
-               updateSpeedColoring();
-            }
-            else if( key.equals( Constants.DISABLEBLANKING ) )
-            {
-               updateBlankingBehavior();
-            }
-            else if( key.equals( Constants.SPEED ) )
-            {
-               updateSpeedDisplayVisibility();
-            }
-            else if( key.equals( Constants.ALTITUDE ) )
-            {
-               updateAltitudeDisplayVisibility();
-            }
-            else if( key.equals( Constants.COMPASS ) )
-            {
-               updateCompassDisplayVisibility();
-            }
-            else if( key.equals( Constants.TRAFFIC ) )
-            {
-               updateGoogleOverlays();
-            }
-            else if( key.equals( Constants.SATELLITE ) )
-            {
-               updateGoogleOverlays();
-            }
-            else if( key.equals( Constants.LOCATION ) )
-            {
-               updateLocationDisplayVisibility();
-            }
-            else if( key.equals( Constants.MAPPROVIDER ) ) 
-            {
-               updateMapProvider();
-            }
-            else if( key.equals( Constants.OSMBASEOVERLAY ) )
-            {
-               updateOsmBaseOverlay();
-            }
-         }
-      };
-   private final UnitsI18n.UnitsChangeListener mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
-      {
-         public void onUnitsChange()
-         {
-            mAverageSpeed = 0.0;
-            updateDisplayedSpeedViews();
-            updateSpeedColoring();
-         }
-      };
-   private final OnClickListener mNoteSelectDialogListener = new DialogInterface.OnClickListener()
-   {
-
-      public void onClick( DialogInterface dialog, int which )
-      {
-         Uri selected = (Uri) mGallery.getSelectedItem();
-         SegmentOverlay.handleMedia( LoggerMap.this, selected );
-      }
-      
-   };
    /** 
     * Run after the ServiceManager completes the binding to 
     * the remote service
     */
-   private Runnable mServiceConnected = new Runnable()
-   {
-      public void run()
-      {
-         updateBlankingBehavior();
-      }
-   };
+   private Runnable mServiceConnected;
+   private Runnable speedCalculator;
    
-   Runnable speedCalculator = new Runnable()
-   {
-      public void run()
-      {
-         double avgspeed = 0.0;
-         ContentResolver resolver = LoggerMap.this.getContentResolver();
-         Cursor waypointsCursor = null;
-         try
-         {
-            waypointsCursor = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, LoggerMap.this.mTrackId + "/waypoints" )
-                                             , new String[] { "avg(" + Waypoints.SPEED + ")", "max(" + Waypoints.SPEED + ")" }
-                                             , null
-                                             , null
-                                             , null );
-   
-            if( waypointsCursor != null && waypointsCursor.moveToLast() )
-            {
-               double average = waypointsCursor.getDouble( 0 );
-               double maxBasedAverage = waypointsCursor.getDouble( 1 ) / 2;
-               avgspeed = Math.min( average, maxBasedAverage) ;
-            }
-            if( avgspeed < 2 )
-            {
-               avgspeed = 5.55d / 2;
-            }
-         }
-         finally
-         {
-            if( waypointsCursor != null )
-            {
-               waypointsCursor.close();
-            }
-         }
-         mAverageSpeed = avgspeed;
-         runOnUiThread( new Runnable()
-         {
-            public void run()
-            {
-               updateSpeedColoring();
-            }
-         });
-      }
-   };
    
    /**
     * Called when the activity is first created.
@@ -422,6 +179,8 @@ public class LoggerMap extends MapActivity
       super.onCreate( load );
       
       setContentView( R.layout.map );
+      
+      createListeners();
       
       mLoggerServiceManager = new GPSLoggerServiceManager( this );
       
@@ -530,8 +289,9 @@ public class LoggerMap extends MapActivity
    protected void onDestroy()
    {
       super.onDestroy();
-
-      mMapView.clearOverlays();     
+      
+      mLastSegmentOverlay = null;
+      mMapView.clearOverlays();
       mHandler.getLooper().quit();
       
       if( mWakeLock != null && mWakeLock.isHeld() )
@@ -706,6 +466,266 @@ public class LoggerMap extends MapActivity
       Editor editor = mSharedPreferences.edit();
       editor.putInt( Constants.OSMBASEOVERLAY, b );
       editor.commit();
+   }
+
+   private void createListeners()
+   {
+      speedCalculator = new Runnable()
+      {
+         public void run()
+         {
+            double avgspeed = 0.0;
+            ContentResolver resolver = LoggerMap.this.getContentResolver();
+            Cursor waypointsCursor = null;
+            try
+            {
+               waypointsCursor = resolver.query( Uri.withAppendedPath( Tracks.CONTENT_URI, LoggerMap.this.mTrackId + "/waypoints" )
+                                                , new String[] { "avg(" + Waypoints.SPEED + ")", "max(" + Waypoints.SPEED + ")" }
+                                                , null
+                                                , null
+                                                , null );
+      
+               if( waypointsCursor != null && waypointsCursor.moveToLast() )
+               {
+                  double average = waypointsCursor.getDouble( 0 );
+                  double maxBasedAverage = waypointsCursor.getDouble( 1 ) / 2;
+                  avgspeed = Math.min( average, maxBasedAverage) ;
+               }
+               if( avgspeed < 2 )
+               {
+                  avgspeed = 5.55d / 2;
+               }
+            }
+            finally
+            {
+               if( waypointsCursor != null )
+               {
+                  waypointsCursor.close();
+               }
+            }
+            mAverageSpeed = avgspeed;
+            runOnUiThread( new Runnable()
+            {
+               public void run()
+               {
+                  updateSpeedColoring();
+               }
+            });
+         }
+      };
+      mServiceConnected = new Runnable()
+      {
+         public void run()
+         {
+            updateBlankingBehavior();
+         }
+      };
+      mNoteSelectDialogListener = new DialogInterface.OnClickListener()
+      {
+   
+         public void onClick( DialogInterface dialog, int which )
+         {
+            Uri selected = (Uri) mGallery.getSelectedItem();
+            SegmentOverlay.handleMedia( LoggerMap.this, selected );
+         }
+         
+      };
+      mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
+      {
+         public void onUnitsChange()
+         {
+            mAverageSpeed = 0.0;
+            updateDisplayedSpeedViews();
+            updateSpeedColoring();
+         }
+      };
+      mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
+      {
+         public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
+         {
+            if( key.equals( Constants.TRACKCOLORING ) )
+            {
+               mAverageSpeed = 0.0;
+               updateSpeedColoring();
+            }
+            else if( key.equals( Constants.DISABLEBLANKING ) )
+            {
+               updateBlankingBehavior();
+            }
+            else if( key.equals( Constants.SPEED ) )
+            {
+               updateSpeedDisplayVisibility();
+            }
+            else if( key.equals( Constants.ALTITUDE ) )
+            {
+               updateAltitudeDisplayVisibility();
+            }
+            else if( key.equals( Constants.COMPASS ) )
+            {
+               updateCompassDisplayVisibility();
+            }
+            else if( key.equals( Constants.TRAFFIC ) )
+            {
+               updateGoogleOverlays();
+            }
+            else if( key.equals( Constants.SATELLITE ) )
+            {
+               updateGoogleOverlays();
+            }
+            else if( key.equals( Constants.LOCATION ) )
+            {
+               updateLocationDisplayVisibility();
+            }
+            else if( key.equals( Constants.MAPPROVIDER ) ) 
+            {
+               updateMapProvider();
+            }
+            else if( key.equals( Constants.OSMBASEOVERLAY ) )
+            {
+               updateOsmBaseOverlay();
+            }
+         }
+      };
+      mGroupCheckedChangeListener = new android.widget.RadioGroup.OnCheckedChangeListener()
+      {
+         public void onCheckedChanged( RadioGroup group, int checkedId )
+         {
+            switch (checkedId)
+            {
+               case R.id.layer_google_satellite:
+                  setSatelliteOverlay( true );
+                  break;
+               case R.id.layer_google_regular:
+                  setSatelliteOverlay( false );
+                  break;
+               case R.id.layer_osm_cloudmade:
+                  setOsmBaseOverlay( Constants.OSM_CLOUDMADE );
+                  break;
+               case R.id.layer_osm_maknik:
+                  setOsmBaseOverlay( Constants.OSM_MAKNIK );
+                  break;
+               case R.id.layer_osm_bicycle:
+                  setOsmBaseOverlay( Constants.OSM_CYCLE );
+                  break;
+               default:
+                  break;
+            }
+         }
+      };
+      mCheckedChangeListener = new OnCheckedChangeListener()
+      {
+         public void onCheckedChanged( CompoundButton buttonView, boolean isChecked )
+         {
+            int checkedId;
+            checkedId = buttonView.getId();
+            switch (checkedId)
+            {
+               case R.id.layer_traffic:
+                  setTrafficOverlay( isChecked );
+                  break;
+               case R.id.layer_speed:
+                  setSpeedOverlay( isChecked );
+                  break;
+               case R.id.layer_altitude:
+                  setAltitudeOverlay( isChecked );
+                  break;
+               case R.id.layer_compass:
+                  setCompassOverlay( isChecked );
+                  break;
+               case R.id.layer_location:
+                  setLocationOverlay( isChecked );
+                  break;
+               default:
+                  break;
+            }
+         }
+      };
+      mNoTrackDialogListener = new DialogInterface.OnClickListener()
+      {
+         public void onClick( DialogInterface dialog, int which )
+         {
+            //            Log.d( TAG, "mNoTrackDialogListener" + which);
+            Intent tracklistIntent = new Intent( LoggerMap.this, TrackList.class );
+            tracklistIntent.putExtra( Tracks._ID, LoggerMap.this.mTrackId );
+            startActivityForResult( tracklistIntent, MENU_TRACKLIST );
+         }
+      };
+      mOiAboutDialogListener = new DialogInterface.OnClickListener()
+         {
+            public void onClick( DialogInterface dialog, int which )
+            {
+               Uri oiDownload = Uri.parse( "market://details?id=org.openintents.about" );
+               Intent oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
+               try
+               {
+                  startActivity( oiAboutIntent );
+               }
+               catch (ActivityNotFoundException e)
+               {
+                  oiDownload = Uri.parse( "http://openintents.googlecode.com/files/AboutApp-1.0.0.apk" );
+                  oiAboutIntent = new Intent( Intent.ACTION_VIEW, oiDownload );
+                  startActivity( oiAboutIntent );
+               }
+            }
+         };
+         mTrackMediasObserver = new ContentObserver( new Handler() )
+         {
+            @Override
+            public void onChange( boolean selfUpdate )
+            {
+               if( !selfUpdate )
+               {
+                  if( mLastSegmentOverlay != null )
+                  {
+                     mLastSegmentOverlay.calculateMedia();
+                     mMapView.postInvalidate();
+                  }
+               }
+               else
+               {
+                  Log.w( TAG, "mTrackMediasObserver skipping change on "+ mLastSegment );
+               }
+            }
+         };
+         mTrackSegmentsObserver = new ContentObserver( new Handler() )
+         {
+            @Override
+            public void onChange( boolean selfUpdate )
+            {
+               if( !selfUpdate )
+               {
+                  LoggerMap.this.updateDataOverlays();
+               }
+               else
+               {
+                  Log.w( TAG, "mTrackSegmentsObserver skipping change on "+ mLastSegment );
+               }
+            }
+         };
+         mSegmentWaypointsObserver = new ContentObserver( new Handler() )
+         {
+            @Override
+            public void onChange( boolean selfUpdate )
+            {
+               if( !selfUpdate  )
+               {
+                  LoggerMap.this.updateDisplayedSpeedViews();
+                  if( mLastSegmentOverlay != null )
+                  {
+                     moveActiveViewWindow();
+                     LoggerMap.this.updateMapProviderAdministration();
+                  }
+                  else
+                  {
+                     Log.e( TAG, "Error the last segment changed but it is not on screen! "+ mLastSegment );
+                  }
+               }
+               else
+               {
+                  Log.w( TAG, "mSegmentWaypointsObserver skipping change on "+ mLastSegment );
+               }
+            }
+         };
    }
 
    @Override

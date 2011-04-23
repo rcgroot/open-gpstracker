@@ -1,6 +1,7 @@
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
 import java.util.List;
+import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.util.Constants;
 
@@ -21,11 +22,13 @@ public class MapViewProxy
    
    private org.osmdroid.views.MapView mOpenStreetMapView;
    private boolean buildinzoom;
+   private List<OverlayProxy> mOverlayProxies;
 
    public MapViewProxy()
    {
       mProjectionProxy = new ProjectionProxy();
       mMapControllerProxy = new MapControllerProxy();
+      mOverlayProxies = new Vector<OverlayProxy>();
    }
    
    public void setMap( View newView )
@@ -121,18 +124,6 @@ public class MapViewProxy
       }
    }
 
-   public void clearOverlays()
-   {
-      if( mGoogleMapView != null )
-      {
-         mGoogleMapView.getOverlays().clear();
-      }
-      if( mOpenStreetMapView != null )
-      {
-         mOpenStreetMapView.getOverlays().clear();
-      }
-   }
-
    public MapControllerProxy getController()
    {
       return mMapControllerProxy;
@@ -141,24 +132,6 @@ public class MapViewProxy
    public ProjectionProxy getProjection()
    {
       return mProjectionProxy;
-   }
-
-   /**
-    * To maintain state do not alter this list, use the MapViewProxy methods instead
-    *  
-    * @return The list of overlays
-    */
-   public List<?> getOverlays()
-   {
-      if( mGoogleMapView != null )
-      {
-         return mGoogleMapView.getOverlays();
-      }
-      if( mOpenStreetMapView != null )
-      {
-         return mOpenStreetMapView.getOverlays();
-      }
-      return null;
    }
 
    public GeoPoint getMapCenter()
@@ -229,6 +202,7 @@ public class MapViewProxy
 
    public void addOverlay( OverlayProxy overlay )
    {
+      mOverlayProxies.add(overlay);
       if( mGoogleMapView != null  )
       {
          mGoogleMapView.getOverlays().add( overlay.getGoogleOverlay() );
@@ -237,6 +211,33 @@ public class MapViewProxy
       {
          mOpenStreetMapView.getOverlays().add( overlay.getOSMOverlay() );
       }
+   }
+
+   /**
+    * To maintain state do not alter this list, use the MapViewProxy methods instead
+    *  
+    * @return The list of overlays
+    */
+   public List<OverlayProxy> getOverlays()
+   {
+      return mOverlayProxies;
+   }
+
+   public void clearOverlays()
+   {
+      if( mGoogleMapView != null )
+      {
+         mGoogleMapView.getOverlays().clear();
+      }
+      if( mOpenStreetMapView != null )
+      {
+         mOpenStreetMapView.getOverlays().clear();
+      }
+      for( OverlayProxy proxy : mOverlayProxies )
+      {
+         proxy.closeResources();
+      }
+      mOverlayProxies.clear();
    }
 
    public void setBuiltInZoomControls( boolean b )

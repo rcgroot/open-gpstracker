@@ -149,23 +149,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private static Bitmap mStartBitmap;
    private static Bitmap mStopBitmap;
    
-   private final ContentObserver mTrackSegmentsObserver = new ContentObserver( new Handler() )
-      {
-
-         @Override
-         public void onChange( boolean selfUpdate )
-         {
-            if( !selfUpdate )
-            {
-               mRequeryFlag = true;
-            }
-            else
-            {
-               Log.w( TAG, "mTrackSegmentsObserver skipping change on " + mSegmentUri );
-            }
-         }
-      };
-      
+   private ContentObserver mTrackSegmentsObserver; 
+   
    private final Runnable mediaCalculator = new Runnable()
    {
       public void run()
@@ -202,7 +187,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
       mResolver = mLoggerMap.getContentResolver();
-      mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
       mRequeryFlag = true;
       mCurrentColor = Color.rgb( 255, 0, 0 );
       mProjection = mapView.getProjection();
@@ -250,24 +234,24 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             }
          }      
       };
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see java.lang.Object#finalize()
-    */
-   @Override
-   protected void finalize() throws Throwable
-   {
-      try
+      
+      mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
-         closeResources();
-      }
-      finally
-      {
-         super.finalize();
-      }
 
+         @Override
+         public void onChange( boolean selfUpdate )
+         {
+            if( !selfUpdate )
+            {
+               mRequeryFlag = true;
+            }
+            else
+            {
+               Log.w( TAG, "mTrackSegmentsObserver skipping change on " + mSegmentUri );
+            }
+         }
+      };
+      mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
    }
 
    public void closeResources()
@@ -280,7 +264,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          mMediaCursor.close();
       }
-      mResolver.unregisterContentObserver( this.mTrackSegmentsObserver );
+      mResolver.unregisterContentObserver( mTrackSegmentsObserver );
+      mTrackSegmentsObserver = null;
    }
    
    @Override
@@ -663,7 +648,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
    }
 
-   private static Integer getResourceForMedia( Resources resources, Uri uri )
+   private Integer getResourceForMedia( Resources resources, Uri uri )
    {
       int drawable = 0;
       if( uri.getScheme().equals( "file" ) )

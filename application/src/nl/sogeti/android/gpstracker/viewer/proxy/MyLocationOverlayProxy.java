@@ -93,8 +93,10 @@ public class MyLocationOverlayProxy implements OverlayProxy
       return osmLocationOverlay;
    }
 
-   public void stopCalculations()
+   public void closeResources()
    {
-      // noop no calculations going on here
+      disableCompass();
+      disableMyLocation();
    }
+
 }
