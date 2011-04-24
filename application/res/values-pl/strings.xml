@@ -10,6 +10,7 @@
     <string name="service_connectiondisabled">Sieć komórkowa jest wyłączona, zapisywanie przy pomocy sieci komórkowej niemożliwe.</string>
     <string name="service_datadisabled">Pozycjonowanie przy pomocy sieci komórkowej jest wyłączone, zapisywanie niemożliwe.</string>
     <string name="service_dataenabled">Pozycjonowanie przy pomocy sieci komórkowej jest włączone, zaczynam zapisywanie.</string>
+    <string name="service_gpsproblem">Receiving no location information</string>
     
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Wybierz notatkę</string>

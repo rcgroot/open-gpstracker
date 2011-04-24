@@ -10,6 +10,7 @@
     <string name="service_connectiondisabled">Rete disabilitata, localizzazione con rete senza effetto.</string>
     <string name="service_datadisabled">Localizzazione rete disabilitata, localizzazione con rete senza effetto.</string>
     <string name="service_dataenabled">Localizzazione rete abilitata, inizio localizzazione.</string>
+    <string name="service_gpsproblem">Receiving no location information</string>
     
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Selezionare nota</string>

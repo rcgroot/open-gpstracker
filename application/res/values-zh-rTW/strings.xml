@@ -10,6 +10,7 @@
     <string name="service_connectiondisabled">網路被禁用，網路位置的日誌將是無效的。</string>
     <string name="service_datadisabled">網路位置被禁用，日誌將是無效的。</string>
     <string name="service_dataenabled">網路位置已啟用，開始記錄。</string>
+    <string name="service_gpsproblem">Receiving no location information</string>
     
     <!-- Dialogs -->
     <string name="dialog_select_media_title">選取註解</string>

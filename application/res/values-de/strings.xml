@@ -9,6 +9,7 @@
     <string name="service_connectiondisabled">Funknetz aus, Funknetz logging deaktiviert.</string>
     <string name="service_datadisabled">Funknetz Positionsbestimmung aus, logging deaktiviert.</string>
     <string name="service_dataenabled">Funknetz Ortsbestimmung an, logging aktiviert.</string>
+    <string name="service_gpsproblem">Receiving no location information</string>
     
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Anmerkung auswählen</string>

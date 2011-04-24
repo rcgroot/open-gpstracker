@@ -116,6 +116,7 @@ public class GPSLoggerService extends Service
    private static final int REQUEST_GLOBALNETWORK_LOCATIONUPDATES = 4;
    private static final int REQUEST_CUSTOMGPS_LOCATIONUPDATES = 5;
    private static final int STOPLOOPER = 6;
+   private static final int GPSPROBLEM = 7;
 
    private static final int LOGGING_UNAVAILABLE = R.string.service_connectiondisabled;
 
@@ -394,43 +395,10 @@ public class GPSLoggerService extends Service
                Log.w(TAG, "GPS system failed to produce a location during logging: " + checkLocation);
                mLoggingState = Constants.PAUSED;
                resumeLogging();
-               Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-               if (alert == null)
+               
+               if( mStatusMonitor )
                {
-                  alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                  if (alert == null)
-                  {
-                     alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-                  }
-               }
-               MediaPlayer mMediaPlayer = new MediaPlayer();
-               try
-               {
-                  mMediaPlayer.setDataSource(GPSLoggerService.this, alert);
-                  final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                  if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0)
-                  {
-                     mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-                     mMediaPlayer.setLooping(true);
-                     mMediaPlayer.prepare();
-                     mMediaPlayer.start();
-                  }
-               }
-               catch (IllegalArgumentException e)
-               {
-                  e.printStackTrace();
-               }
-               catch (SecurityException e)
-               {
-                  e.printStackTrace();
-               }
-               catch (IllegalStateException e)
-               {
-                  e.printStackTrace();
-               }
-               catch (IOException e)
-               {
-                  e.printStackTrace();
+                  soundGpsSignalAlarm();
                }
 
             }
@@ -440,7 +408,7 @@ public class GPSLoggerService extends Service
 
    /**
     * Number of milliseconds that a functioning GPS system needs to provide a
-    * location. Calculated to be either 120 seconds or 4 times the required
+    * location. Calculated to be either 120 seconds or 4 times the requested
     * period, whichever is larger.
     */
    private long mCheckPeriod;
@@ -1031,6 +999,11 @@ public class GPSLoggerService extends Service
             stopListening();
             Looper.myLooper().quit();
             break;
+         case GPSPROBLEM:
+            String problem = getString(R.string.service_gpsproblem);
+            Toast toast = Toast.makeText(this, problem, Toast.LENGTH_LONG);
+            toast.show();
+            break;
       }
    }
 
@@ -1284,5 +1257,51 @@ public class GPSLoggerService extends Service
       NetworkInfo info = connMgr.getActiveNetworkInfo();
 
       return (info != null && info.isConnected());
+   }
+
+   private void soundGpsSignalAlarm()
+   {
+      Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+      if (alert == null)
+      {
+         alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+         if (alert == null)
+         {
+            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+         }
+      }
+      MediaPlayer mMediaPlayer = new MediaPlayer();
+      try
+      {
+         mMediaPlayer.setDataSource(GPSLoggerService.this, alert);
+         final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+         if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0)
+         {
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+            mMediaPlayer.setLooping(false);
+            mMediaPlayer.prepare();
+            mMediaPlayer.start();
+         }
+      }
+      catch (IllegalArgumentException e)
+      {
+         Log.e( TAG, "Problem setting data source for mediaplayer", e );
+      }
+      catch (SecurityException e)
+      {
+         Log.e( TAG, "Problem setting data source for mediaplayer", e );
+      }
+      catch (IllegalStateException e)
+      {
+         Log.e( TAG, "Problem with mediaplayer", e );
+      }
+      catch (IOException e)
+      {
+         Log.e( TAG, "Problem with mediaplayer", e );
+      }
+      
+      Message msg = Message.obtain();
+      msg.what = GPSPROBLEM;
+      mHandler.sendMessage(msg);
    }
 }
