@@ -172,6 +172,15 @@ public class Constants
     */
    public static final int LOGGING_GLOBAL = 4;
    
+   public static final String REQUEST_URL     = "http://api.gobreadcrumbs.com/oauth/request_token";
+   public static final String ACCESS_URL      = "http://api.gobreadcrumbs.com/oauth/access_token";
+   public static final String AUTHORIZE_URL   = "http://api.gobreadcrumbs.com/oauth/authorize";
+
+   public static final String OAUTH_CALLBACK_SCHEME = "x-oauthflow-opengpstracker";
+   public static final String OAUTH_CALLBACK_HOST = "callback";
+   public static final String OAUTH_CALLBACK_URL = OAUTH_CALLBACK_SCHEME + "://" + OAUTH_CALLBACK_HOST;
+
+   
    /**
     * Based on preference return the SD-Card directory in which Open GPS Tracker creates and stores files
     * shared tracks,
@@ -207,5 +216,7 @@ public class Constants
       String dir = getSdCardDirectory( ctx ) + TMPICTUREFILE_SUBPATH;
       return dir;
    }
+
+   public static final String BREADCRUMBS_CONNECT = "breadcrumbs_connect";
    
 }

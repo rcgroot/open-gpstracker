@@ -42,10 +42,14 @@ import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
+import nl.sogeti.android.gpstracker.adapter.PrepareRequestTokenActivity;
+import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
 import nl.sogeti.android.gpstracker.util.UnicodeReader;
 
@@ -77,6 +81,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
@@ -282,17 +287,27 @@ public class TrackList extends ListActivity
 
       Intent intent = new Intent();
       intent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, id ) );
+      
+      Object data = getListView().getItemAtPosition(position);
 
-      ComponentName caller = this.getCallingActivity();
-      if( caller != null )
+      if( Constants.BREADCRUMBS_CONNECT.equals(data) )
       {
-         setResult( RESULT_OK, intent );
-         finish();
+         Intent i = new Intent(getApplicationContext(), PrepareRequestTokenActivity.class);
+         startActivity(i);
       }
       else
       {
-         intent.setClass( this, LoggerMap.class );
-         startActivity( intent );
+         ComponentName caller = this.getCallingActivity();
+         if( caller != null )
+         {
+            setResult( RESULT_OK, intent );
+            finish();
+         }
+         else
+         {
+            intent.setClass( this, LoggerMap.class );
+            startActivity( intent );
+         }
       }
    }
 
@@ -524,13 +539,20 @@ public class TrackList extends ListActivity
 
    private void displayCursor( Cursor tracksCursor )
    {
+      SectionedListAdapter sectionedAdapter = new SectionedListAdapter(this);
+      
       // Create an array to specify the fields we want to display in the list (only TITLE)
       // and an array of the fields we want to bind those fields to (in this case just text1)
       String[] fromColumns = new String[] { Tracks.NAME, Tracks.CREATION_TIME };
       int[] toItems = new int[] { R.id.listitem_name, R.id.listitem_from };
       // Now create a simple cursor adapter and set it to display
       SimpleCursorAdapter trackAdapter = new SimpleCursorAdapter( this, R.layout.trackitem, tracksCursor, fromColumns, toItems );
-      setListAdapter( trackAdapter );
+      
+      sectionedAdapter.addSection("Local", trackAdapter);
+
+      sectionedAdapter.addSection("GoBreadcrumbs", new BreadcrumbsAdapter(this) );
+      
+      setListAdapter( sectionedAdapter );
    }
 
    private Cursor doSearchWithIntent( final Intent queryIntent )

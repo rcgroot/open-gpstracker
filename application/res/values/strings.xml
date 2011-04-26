@@ -219,6 +219,7 @@
     <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.</string>
+    <string name="breadcrumbs_connect">Connect to GoBreadcrumbs.com</string>
 
 <!-- ***************************
    About information
