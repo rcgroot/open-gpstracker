@@ -58,7 +58,7 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Void>
+public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Void>
 {
 
    final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
@@ -77,7 +77,7 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Void>
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsActivitiesTask(BreadcrumbsAdapter context, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public GetBreadcrumbsBundlesTask(BreadcrumbsAdapter context, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
       mContext = context;
       mHttpclient = httpclient;

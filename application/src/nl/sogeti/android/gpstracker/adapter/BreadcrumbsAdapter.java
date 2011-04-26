@@ -80,7 +80,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mConsumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
       mConsumer.setTokenWithSecret(token, secret);
       mOnline = !"".equals(token) && !"".equals(secret);
-      new GetBreadcrumbsActivitiesTask(this, mHttpclient, mConsumer).execute();
+      new GetBreadcrumbsBundlesTask(this, mHttpclient, mConsumer).execute();
    }
 
    /*
