@@ -10,7 +10,7 @@
     <string name="service_connectiondisabled">Sieć komórkowa jest wyłączona, zapisywanie przy pomocy sieci komórkowej niemożliwe.</string>
     <string name="service_datadisabled">Pozycjonowanie przy pomocy sieci komórkowej jest wyłączone, zapisywanie niemożliwe.</string>
     <string name="service_dataenabled">Pozycjonowanie przy pomocy sieci komórkowej jest włączone, zaczynam zapisywanie.</string>
-    <string name="service_gpsproblem">Receiving no location information</string>
+    <string name="service_gpsproblem">Brak sygnału GPS</string>
     
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Wybierz notatkę</string>
@@ -219,6 +219,7 @@
     <string name="sddirectory_title">Folder na karcie SD służący do przechowywania ścieżek</string>
     <string name="sddirectory_summary">Utworzone ścieżki i pliki multimedialne będą przechowywane w tym folderze na karcie SD.</string>
     <string name="sddirectory_message">Wprowadź ścieżkę na karcie SD, która będzie używana dla plików. Domyślna wartość /OpenGPSTracker/ utworzy jeden folder na karcie SD w lokalizacji /Apps/OpenGPSTracker/.</string>
+    <string name="breadcrumbs_connect">Połącz z GoBreadcrumbs.com</string>
 
 
 <!-- ***************************
