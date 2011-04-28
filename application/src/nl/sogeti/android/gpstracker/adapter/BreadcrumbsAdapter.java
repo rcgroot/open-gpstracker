@@ -28,10 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.adapter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import oauth.signpost.OAuth;
@@ -42,7 +38,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,16 +58,15 @@ public class BreadcrumbsAdapter extends BaseAdapter
    private Context mContext;
    private LayoutInflater mInflater;
    private CommonsHttpOAuthConsumer mConsumer;
-   private List<String> mActivities = new Vector<String>();
-   private Map<String, Integer> mActivityMappings;
-   private DefaultHttpClient mHttpclient;
+   private BreadcrumbsTracks mTracks;
+   private DefaultHttpClient mHttpClient;
 
-   public BreadcrumbsAdapter(Context ctx)
+   public BreadcrumbsAdapter(Context ctx, DefaultHttpClient httpclient)
    {
       super();
       mContext = ctx;
       mInflater = LayoutInflater.from(mContext);
-      mHttpclient = new DefaultHttpClient();
+      mHttpClient = httpclient;
 
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
       String token  = prefs.getString(OAuth.OAUTH_TOKEN, "");
@@ -80,7 +74,9 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mConsumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
       mConsumer.setTokenWithSecret(token, secret);
       mOnline = !"".equals(token) && !"".equals(secret);
-      new GetBreadcrumbsBundlesTask(this, mHttpclient, mConsumer).execute();
+      
+      mTracks = new BreadcrumbsTracks();
+      new GetBreadcrumbsBundlesTask(this, mHttpClient, mConsumer).execute();
    }
 
    /*
@@ -91,7 +87,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
    {
       if (mOnline)
       {
-         return mActivities.size();
+         return mTracks.positions();
       }
       else
       {
@@ -107,7 +103,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
    {
       if( mOnline )
       {
-         return mActivities.get(position);
+         return ""+mTracks.getTrackForPosition(position);
       }
       else
       {
@@ -183,11 +179,8 @@ public class BreadcrumbsAdapter extends BaseAdapter
       }
    }
 
-   public void setActivities(List<String> activities, Map<String, Integer> activityMappings)
+   public BreadcrumbsTracks getBreadcrumbsTracks()
    {
-      Log.d( TAG, "Received list of activities "+activities) ;
-      mActivities = activities;
-      mActivityMappings = activityMappings;
-      this.notifyDataSetChanged();
+      return mTracks ;
    }
 }

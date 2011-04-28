@@ -420,7 +420,6 @@ public class ShareTrack extends Activity
       String authCode = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.JOGRUNNER_AUTH, "");
       File gpxFile = new File(fileUri.getEncodedPath());
       HttpClient httpclient = new DefaultHttpClient();
-      HttpResponse response = null;
       URI jogmap = null;
       String jogmapResponseText = "";
       int statusCode = 0;
@@ -433,7 +432,7 @@ public class ShareTrack extends Activity
          entity.addPart("id", new StringBody(authCode));
          entity.addPart("mFile", new FileBody(gpxFile));
          method.setEntity(entity);
-         response = httpclient.execute(method);
+         HttpResponse response = httpclient.execute(method);
 
          statusCode = response.getStatusLine().getStatusCode();
          InputStream stream = response.getEntity().getContent();

@@ -54,10 +54,10 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
+public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
 {
 
-   final String TAG = "OGT.GetBreadcrumbsBundlesTask";
+   final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
@@ -71,12 +71,11 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsBundlesTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public GetBreadcrumbsActivitiesTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
       mAdapter = adapter;
       mHttpclient = httpclient;
       mConsumer = consumer;
-      
    }
 
    /**
@@ -89,7 +88,7 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
       try
       {
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles.xml");
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/activities.xml");
          
          mConsumer.sign(request);
          
@@ -106,8 +105,8 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
          String tagName = null;
          int eventType = xpp.getEventType();
          
-         String bundleName = null, bundleDescription = null;
-         Integer activityId = null, bundleId = null;
+         String activityName = null;
+         Integer activityId = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
             if (eventType == XmlPullParser.START_TAG)
@@ -116,29 +115,21 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-               if( "bundle".equals(xpp.getName()) && activityId != null && bundleId != null )
+               if( "activity".equals(xpp.getName()) && activityId != null && activityName != null )
                {
-                  tracks.addBundle( activityId, bundleId, bundleName, bundleDescription );
+                  tracks.addActivity( activityId, activityName );
                }
                tagName = null;
             }
             else if (eventType == XmlPullParser.TEXT)
             {
-               if( "activity-id".equals(tagName) )
+               if( "id".equals(tagName) )
                {
                   activityId = Integer.parseInt(xpp.getText() );
                }
-               else if( "description".equals(tagName) )
-               {
-                  bundleDescription = xpp.getText();
-               }
-               else if( "id".equals(tagName) )
-               {
-                  bundleId = Integer.parseInt(xpp.getText() );
-               }
                else if( "name".equals(tagName) )
                {
-                  bundleName = xpp.getText();
+                  activityName = xpp.getText();
                }
             }
             eventType = xpp.next();
@@ -178,9 +169,6 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
       super.onPostExecute(result);
       Log.d( TAG, result.toString());
       mAdapter.notifyDataSetChanged();
-      
-      // Sequencing task to circumvent concurrency trouble with httpclient and still reuse the pool
-      new GetBreadcrumbsActivitiesTask(mAdapter, mHttpclient, mConsumer).execute();
    }
 
 }

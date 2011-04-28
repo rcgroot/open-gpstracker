@@ -1287,7 +1287,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          return mTappedUri.size();
       }
 
-      
       public Object getItem( int position )
       {
          return mTappedUri.get( position );
