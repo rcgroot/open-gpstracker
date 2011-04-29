@@ -151,7 +151,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    
    private ContentObserver mTrackSegmentsObserver; 
    
-   private final Runnable mediaCalculator = new Runnable()
+   private final Runnable mMediaCalculator = new Runnable()
    {
       public void run()
       {
@@ -256,16 +256,24 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    public void closeResources()
    {
-      if( mWaypointsCursor != null )
-      {
-         mWaypointsCursor.close();
-      }
-      if( mMediaCursor != null )
-      {
-         mMediaCursor.close();
-      }
       mResolver.unregisterContentObserver( mTrackSegmentsObserver );
       mTrackSegmentsObserver = null;
+      mHandler.removeCallbacks(mMediaCalculator);
+      mHandler.removeCallbacks(mTrackCalculator);
+      mHandler.post(new Runnable()
+      {
+         public void run()
+         {
+            if( mWaypointsCursor != null )
+            {
+               mWaypointsCursor.close();
+            }
+            if( mMediaCursor != null )
+            {
+               mMediaCursor.close();
+            }
+         }
+      });
    }
    
    @Override
@@ -501,8 +509,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    public void calculateMedia()
    {
-      mHandler.removeCallbacks(mediaCalculator);
-      mHandler.post(mediaCalculator);
+      mHandler.removeCallbacks(mMediaCalculator);
+      mHandler.post(mMediaCalculator);
    }
    
    public synchronized void calculateMediaAsync()

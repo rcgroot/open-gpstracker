@@ -231,11 +231,11 @@ public class GPSLoggerService extends Service
          ;
          if (mPrecision != Constants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER))
          {
-            notifyOnDisabledProviderNotification(R.string.service_gpsdisabled);
+            notifyOnDisabledProvider(R.string.service_gpsdisabled);
          }
          else if (mPrecision == Constants.LOGGING_GLOBAL && provider.equals(LocationManager.NETWORK_PROVIDER))
          {
-            notifyOnDisabledProviderNotification(R.string.service_datadisabled);
+            notifyOnDisabledProvider(R.string.service_datadisabled);
          }
 
       }
@@ -869,7 +869,22 @@ public class GPSLoggerService extends Service
       toast.show();
    }
 
-   private void notifyOnDisabledProviderNotification(int resId)
+   private void notifyOnPoorSignal(int resId)
+   {
+      int icon = R.drawable.ic_maps_indicator_current_position;
+      CharSequence tickerText = getResources().getString(resId);
+      long when = System.currentTimeMillis();
+      Notification signalNotification = new Notification(icon, tickerText, when);
+      CharSequence contentTitle = getResources().getString(R.string.app_name);
+      Intent notificationIntent = new Intent(this, LoggerMap.class);
+      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
+      signalNotification.setLatestEventInfo(this, contentTitle, tickerText, contentIntent);
+      signalNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+      
+      mNoticationManager.notify(resId, signalNotification);
+   }
+   
+   private void notifyOnDisabledProvider(int resId)
    {
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = getResources().getString(resId);
@@ -985,7 +1000,7 @@ public class GPSLoggerService extends Service
             startListening(LocationManager.NETWORK_PROVIDER, intervaltime, distance);
             if (!isNetworkConnected())
             {
-               notifyOnDisabledProviderNotification(R.string.service_connectiondisabled);
+               notifyOnDisabledProvider(R.string.service_connectiondisabled);
             }
             break;
          case REQUEST_CUSTOMGPS_LOCATIONUPDATES:
@@ -1000,9 +1015,7 @@ public class GPSLoggerService extends Service
             Looper.myLooper().quit();
             break;
          case GPSPROBLEM:
-            String problem = getString(R.string.service_gpsproblem);
-            Toast toast = Toast.makeText(this, problem, Toast.LENGTH_LONG);
-            toast.show();
+            notifyOnPoorSignal(R.string.service_gpsproblem);
             break;
       }
    }
@@ -1299,7 +1312,6 @@ public class GPSLoggerService extends Service
       {
          Log.e( TAG, "Problem with mediaplayer", e );
       }
-      
       Message msg = Message.obtain();
       msg.what = GPSPROBLEM;
       mHandler.sendMessage(msg);

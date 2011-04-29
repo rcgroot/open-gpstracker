@@ -292,7 +292,13 @@ public class LoggerMap extends MapActivity
       
       mLastSegmentOverlay = null;
       mMapView.clearOverlays();
-      mHandler.getLooper().quit();
+      mHandler.post(new Runnable()
+      {
+         public void run()
+         {
+            Looper.myLooper().quit();
+         }
+      });
       
       if( mWakeLock != null && mWakeLock.isHeld() )
       {
