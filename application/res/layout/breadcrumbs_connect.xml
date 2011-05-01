@@ -9,4 +9,6 @@
         android:layout_alignParentTop="true" 
         android:paddingLeft="6dip"
         android:paddingRight="6dip"
+        android:paddingTop="6dip"
+        android:paddingBottom="6dip"
         />

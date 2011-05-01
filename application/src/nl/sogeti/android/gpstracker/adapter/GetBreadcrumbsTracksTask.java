@@ -54,14 +54,13 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
+public class GetBreadcrumbsTracksTask extends AsyncTask<Integer, Void, BreadcrumbsTracks>
 {
 
    final String TAG = "OGT.GetBreadcrumbsTracksTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
-   private Integer mBundleId;
    
    /**
     * We pass the OAuth consumer and provider.
@@ -78,27 +77,26 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsT
       mHttpclient = httpclient;
       mConsumer = consumer;
    }
-
-   public void setBundleId(Integer bundleId)
-   {
-      mBundleId = bundleId;
-   }
-
+   
    /**
     * Retrieve the OAuth Request Token and present a browser to the user to
     * authorize the token.
     */
    @Override
-   protected BreadcrumbsTracks doInBackground(Void... params)
+   protected BreadcrumbsTracks doInBackground(Integer... params)
    {
+      Integer bundleParam = params[0];
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
       try
       {
-         tracks.createTracks(mBundleId);
+         tracks.createTracks(bundleParam);
          
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles/"+mBundleId+"/tracks.xml");
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles/"+bundleParam+"/tracks.xml");
          mConsumer.sign(request);
-
+         if( isCancelled() )
+         {
+            throw new IOException("Fail to execute request due to canceling");
+         }
          HttpResponse response = mHttpclient.execute(request);
          HttpEntity entity = response.getEntity();
          InputStream instream = entity.getContent();
@@ -212,9 +210,7 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsT
    protected void onPostExecute(BreadcrumbsTracks result)
    {
       super.onPostExecute(result);
-      mBundleId = null;
-      
-      mAdapter.finishedTrack( this );
+      mAdapter.finishedTrackTask( this );
    }
 
 }

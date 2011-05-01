@@ -92,7 +92,10 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
          HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles.xml");
          
          mConsumer.sign(request);
-         
+         if( isCancelled() )
+         {
+            throw new IOException("Fail to execute request due to canceling");
+         }
          HttpResponse response = mHttpclient.execute(request);
          HttpEntity entity = response.getEntity();
          InputStream instream = entity.getContent();
@@ -177,7 +180,14 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
    {
       super.onPostExecute(result);
       
-      mAdapter.finishedBundles( this );
+      mAdapter.finishedBundlesTask( this );
    }
 
+   @Override
+   protected void onCancelled()
+   {
+      super.onCancelled();
+      
+      mAdapter.canceledTask( this );
+   }
 }

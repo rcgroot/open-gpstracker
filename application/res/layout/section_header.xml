@@ -4,10 +4,10 @@
 	    android:id="@+id/listitem_name"
         android:layout_height="?android:attr/listPreferredItemHeight"
 		android:layout_width="fill_parent" 
-        android:text="Sectionname here"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_alignParentTop="true" 
+        android:gravity="center"
         android:paddingLeft="6dip"
         android:paddingRight="6dip"
+        android:text="Section name here"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         style="?android:attr/listSeparatorTextViewStyle"
         />

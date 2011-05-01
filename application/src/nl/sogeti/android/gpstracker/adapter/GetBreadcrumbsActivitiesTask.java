@@ -88,10 +88,12 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Breadcru
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
       try
       {
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/activities.xml");
-         
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/activities.xml");         
          mConsumer.sign(request);
-         
+         if( isCancelled() )
+         {
+            throw new IOException("Fail to execute request due to canceling");
+         }
          HttpResponse response = mHttpClient.execute(request);
          HttpEntity entity = response.getEntity();
          InputStream instream = entity.getContent();
@@ -167,9 +169,8 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Breadcru
    protected void onPostExecute(BreadcrumbsTracks result)
    {
       super.onPostExecute(result);
-      Log.d( TAG, result.toString());
       
-      mAdapter.finishedActivities(this);
+      mAdapter.finishedActivitiesTask(this);
    }
 
 }

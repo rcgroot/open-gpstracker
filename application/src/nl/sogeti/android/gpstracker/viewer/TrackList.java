@@ -128,10 +128,10 @@ public class TrackList extends ListActivity
 
    private static final int PICKER_OI = Menu.FIRST + 27;
 
+   private BreadcrumbsAdapter mBreadcrumbAdapter;
    private EditText mTrackNameView;
    private Uri mDialogUri;
    private String mDialogCurrentName = "";
-   private DefaultHttpClient mHttpClient = null;
 
    private Uri mImportFileUri;
    private ProgressBar mImportProgress;
@@ -203,15 +203,20 @@ public class TrackList extends ListActivity
       listView.setItemsCanFocus(false);
       // Add the context menu (the long press thing)
       registerForContextMenu(listView);
-
+   }
+   
+   @Override
+   public Object onRetainNonConfigurationInstance()
+   {
+      return mBreadcrumbAdapter;
    }
    
    @Override
    protected void onDestroy()
    {
-      if( mHttpClient != null )
+      if( mBreadcrumbAdapter != null && isFinishing() )
       {
-         mHttpClient.getConnectionManager().shutdown();
+         mBreadcrumbAdapter.shutdown();
       }
       super.onDestroy();
    }
@@ -556,8 +561,16 @@ public class TrackList extends ListActivity
       SimpleCursorAdapter trackAdapter = new SimpleCursorAdapter(this, R.layout.trackitem, tracksCursor, fromColumns, toItems);
       sectionedAdapter.addSection("Local", trackAdapter);
 
-      mHttpClient = new DefaultHttpClient();
-      sectionedAdapter.addSection("GoBreadcrumbs", new BreadcrumbsAdapter(this, mHttpClient));
+      mBreadcrumbAdapter = (BreadcrumbsAdapter) getLastNonConfigurationInstance();
+      if( mBreadcrumbAdapter == null )
+      {
+         mBreadcrumbAdapter = new BreadcrumbsAdapter(this);
+      }
+      else
+      {
+         mBreadcrumbAdapter.notifyDataSetChanged();
+      }
+      sectionedAdapter.addSection("GoBreadcrumbs", mBreadcrumbAdapter);
 
       setListAdapter(sectionedAdapter);
    }
@@ -570,8 +583,9 @@ public class TrackList extends ListActivity
       return cursor;
    }
 
-   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+   public static final SimpleDateFormat ZULU_DATE_FORMAT    = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
    public static final SimpleDateFormat ZULU_DATE_FORMAT_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+   public static final SimpleDateFormat ZULU_DATE_FORMAT_BC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'");
    protected static final int DEFAULT_UNKNOWN_FILESIZE = 1024 * 1024 * 10;
    static
    {
@@ -847,10 +861,14 @@ public class TrackList extends ListActivity
          case 20:
             dateTime = new Long(ZULU_DATE_FORMAT.parse(text).getTime());
             break;
+         case 23:
+            dateTime = new Long(ZULU_DATE_FORMAT_BC.parse(text).getTime());
+            break;
          case 24:
             dateTime = new Long(ZULU_DATE_FORMAT_MS.parse(text).getTime());
-         default:
             break;
+         default:
+            throw new ParseException("Unable to parse dateTime "+text+" of length ", 0);
       }
       return dateTime;
    }

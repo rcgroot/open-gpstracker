@@ -28,12 +28,15 @@
  */
 package nl.sogeti.android.gpstracker.adapter;
 
+import java.text.ParseException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.DateView;
 import nl.sogeti.android.gpstracker.util.Pair;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuth;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 
@@ -65,26 +68,29 @@ public class BreadcrumbsAdapter extends BaseAdapter
    private CommonsHttpOAuthConsumer mConsumer;
    private BreadcrumbsTracks mTracks;
    private DefaultHttpClient mHttpClient;
-   private GetBreadcrumbsTracksTask mTracksTask;
    private SortedSet<Integer> mBundlesTasks;
+   private AsyncTask<Void, Void, BreadcrumbsTracks> mActivityTask;
+   private AsyncTask<Void, Void, BreadcrumbsTracks> mBundlesTask;
+   private AsyncTask<Integer, Void, BreadcrumbsTracks> mTracksTask;
+   private boolean mFinishing;
 
-   public BreadcrumbsAdapter(Context ctx, DefaultHttpClient httpclient)
+   public BreadcrumbsAdapter(Context ctx)
    {
       super();
       mContext = ctx;
       mInflater = LayoutInflater.from(mContext);
-      mHttpClient = httpclient;
+      mHttpClient = new DefaultHttpClient();;
 
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-      String token  = prefs.getString(OAuth.OAUTH_TOKEN, "");
+      String token = prefs.getString(OAuth.OAUTH_TOKEN, "");
       String secret = prefs.getString(OAuth.OAUTH_TOKEN_SECRET, "");
       mConsumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
       mConsumer.setTokenWithSecret(token, secret);
       mOnline = !"".equals(token) && !"".equals(secret);
-      
+
       mTracks = new BreadcrumbsTracks();
       mBundlesTasks = new TreeSet<Integer>();
-      new GetBreadcrumbsBundlesTask(this, mHttpClient, mConsumer).execute();
+      mBundlesTask = new GetBreadcrumbsBundlesTask(this, mHttpClient, mConsumer).execute();
    }
 
    /*
@@ -109,16 +115,16 @@ public class BreadcrumbsAdapter extends BaseAdapter
     */
    public Object getItem(int position)
    {
-      if( mOnline )
+      if (mOnline)
       {
          Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
          return mTracks.getKeyForItem(item, "NAME");
       }
       else
       {
-         return Constants.BREADCRUMBS_CONNECT;         
+         return Constants.BREADCRUMBS_CONNECT;
       }
-      
+
    }
 
    /*
@@ -137,48 +143,76 @@ public class BreadcrumbsAdapter extends BaseAdapter
     */
    public View getView(int position, View convertView, ViewGroup parent)
    {
-      TextView textView;
+      View view;
       if (mOnline)
       {
+         int type = getItemViewType(position);
          if (convertView == null)
          {
-            int type = getItemViewType(position);
             switch (type)
             {
                case Constants.BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE:
-                  textView = (TextView) mInflater.inflate(R.layout.breadcrumbs_activity, null);
+                  view = mInflater.inflate(R.layout.breadcrumbs_activity, null);
                   break;
                case Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE:
-                  textView = (TextView) mInflater.inflate(R.layout.breadcrumbs_bundle, null);
+                  view = mInflater.inflate(R.layout.breadcrumbs_bundle, null);
                   break;
                case Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE:
-                  textView = (TextView) mInflater.inflate(R.layout.breadcrumbs_track, null);
+                  view = mInflater.inflate(R.layout.breadcrumbs_track, null);
                   break;
                default:
-                  textView = new TextView(null);
+                  view = new TextView(null);
                   break;
             }
          }
          else
          {
-            textView = (TextView) convertView;
+            view = convertView;
          }
-         textView.setText((String) getItem(position));
+         switch (type)
+         {
+            case Constants.BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE:
+               ((TextView) view).setText((String) getItem(position));
+               break;
+            case Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE:
+               ((TextView) view).setText((String) getItem(position));
+               break;
+            case Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE:
+               Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
+               TextView nameView = (TextView) view.findViewById(R.id.listitem_name);
+               TextView dateView = (TextView) view.findViewById(R.id.listitem_from);
+
+               nameView.setText(mTracks.getKeyForItem(item, BreadcrumbsTracks.NAME));
+               String dateString = mTracks.getKeyForItem(item, BreadcrumbsTracks.ENDTIME);
+               try
+               {
+                  Long date = TrackList.parseXmlDateTime(dateString);
+                  dateView.setText(date.toString());
+               }
+               catch (ParseException e)
+               {
+                  Log.w( TAG, "Unable to parse Breadcrumbs end-time "+dateString );
+               }
+               break;
+            default:
+               view = new TextView(null);
+               break;
+         }
       }
       else
       {
          if (convertView == null)
          {
-            textView = (TextView) mInflater.inflate(R.layout.breadcrumbs_connect, null);
+            view = mInflater.inflate(R.layout.breadcrumbs_connect, null);
          }
          else
          {
-            textView = (TextView) convertView;
+            view = convertView;
          }
-         textView.setText(R.string.breadcrumbs_connect);
-         
+         ((TextView) view).setText(R.string.breadcrumbs_connect);
+
       }
-      return textView;
+      return view;
    }
 
    @Override
@@ -194,11 +228,12 @@ public class BreadcrumbsAdapter extends BaseAdapter
       if (mOnline)
       {
          Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
-         if( item.first == Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE )
+         if (item.first == Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE)
          {
-            if( !mTracks.areTracksLoaded( item ) )
+            if (!mTracks.areTracksLoaded(item))
             {
-               mBundlesTasks.add( item.second );
+               mBundlesTasks.add(item.second);
+               downloadNextTrack();
             }
          }
          return item.first;
@@ -209,39 +244,94 @@ public class BreadcrumbsAdapter extends BaseAdapter
       }
    }
 
+   @Override
+   public boolean areAllItemsEnabled()
+   {
+      return false;
+   };
+
+   @Override
+   public boolean isEnabled(int position)
+   {
+      int itemViewType = getItemViewType(position);
+      return itemViewType == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE || itemViewType == Constants.BREADCRUMBS_CONNECT_ITEM_VIEW_TYPE ; 
+   }
+
    public BreadcrumbsTracks getBreadcrumbsTracks()
    {
-      return mTracks ;
+      return mTracks;
    }
 
-   public void finishedBundles(GetBreadcrumbsBundlesTask getBreadcrumbsBundlesTask)
-   {
-      Log.d( TAG, "Reset bundles to download because of bundle finish" );
-      notifyDataSetChanged();
-      new GetBreadcrumbsActivitiesTask(this, mHttpClient, mConsumer).execute();
-   }
-
-   public void finishedActivities(GetBreadcrumbsActivitiesTask getBreadcrumbsActivitiesTask)
+   public synchronized void finishedBundlesTask(GetBreadcrumbsBundlesTask getBreadcrumbsBundlesTask)
    {
       notifyDataSetChanged();
-      nextTrack();
+      if( !mFinishing )
+      {
+         mActivityTask = new GetBreadcrumbsActivitiesTask(this, mHttpClient, mConsumer);
+         mActivityTask.execute();
+      }
+      mBundlesTask = null;
    }
 
-   public void finishedTrack(GetBreadcrumbsTracksTask getBreadcrumbsTracksTask)
+   public synchronized void finishedActivitiesTask(GetBreadcrumbsActivitiesTask getBreadcrumbsActivitiesTask)
    {
       notifyDataSetChanged();
-      nextTrack();
+      mActivityTask = null;
+      downloadNextTrack();
    }
 
-   private void nextTrack()
+   public synchronized void finishedTrackTask(GetBreadcrumbsTracksTask getBreadcrumbsTracksTask)
    {
-      if( mBundlesTasks.size() > 0 )
+      notifyDataSetChanged();
+      mTracksTask = null;
+      downloadNextTrack();
+   }
+
+   public void canceledTask(GetBreadcrumbsBundlesTask getBreadcrumbsBundlesTask)
+   {
+      mHttpClient.getConnectionManager().shutdown();
+   }
+
+   private synchronized void downloadNextTrack()
+   {
+      if ( mBundlesTasks.size() > 0 && allTasksDone() && !mFinishing )
       {
          mTracksTask = new GetBreadcrumbsTracksTask(this, mHttpClient, mConsumer);
          Integer bundleId = mBundlesTasks.first();
          mBundlesTasks.clear();
-         mTracksTask.setBundleId( bundleId );
-         mTracksTask.execute();
+         mTracksTask.execute(bundleId);
       }
+      else
+      {
+         Log.d( TAG, mTracks.toString());
+      }
+   }
+
+   public synchronized void shutdown()
+   {
+      mFinishing = true;
+      if( mBundlesTask != null )
+      {
+         mBundlesTask.cancel(true);
+      }
+      if( mActivityTask != null )
+      {
+         mActivityTask.cancel(true);
+      }
+      if( mTracksTask != null )
+      {
+         mTracksTask.cancel(true);
+      }
+      if( allTasksDone() )
+      {
+         mHttpClient.getConnectionManager().shutdown();
+      }
+   }
+
+   private synchronized boolean allTasksDone()
+   {
+      return (mBundlesTask  == null || mBundlesTask.getStatus()  == AsyncTask.Status.FINISHED)
+            &&  (mActivityTask == null || mActivityTask.getStatus() == AsyncTask.Status.FINISHED) 
+            &&  (mTracksTask   == null || mTracksTask.getStatus()   == AsyncTask.Status.FINISHED);
    }
 }

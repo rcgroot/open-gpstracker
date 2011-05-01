@@ -1,12 +1,36 @@
-<?xml version="1.0" encoding="utf-8"?>
-	<TextView 
-        xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:id="@+id/listitem_name"
-        android:layout_height="?android:attr/listPreferredItemHeight"
-		android:layout_width="fill_parent" 
-        android:text="Sectionname here"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" 
+    android:layout_height="?android:attr/listPreferredItemHeight">
+
+    <TextView 
+        android:id="@+id/listitem_name"
+        android:layout_height="wrap_content" 
+        android:layout_width="fill_parent" 
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_alignParentTop="true" 
         android:paddingLeft="6dip"
         android:paddingRight="6dip"
         />
+
+    <TextView 
+        android:id="@+id/from_textview"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content" 
+        android:text="@string/from"
+        android:layout_below="@+id/listitem_name"
+        android:paddingLeft="6dip"
+        android:paddingTop="3dip"
+        />
+
+    <nl.sogeti.android.gpstracker.util.DateView
+        android:layout_height="wrap_content" 
+        android:layout_width="wrap_content"
+        android:id="@+id/listitem_from" 
+        android:layout_below="@+id/listitem_name"
+        android:layout_toRightOf="@+id/from_textview"
+        android:paddingLeft="3dip"
+        android:paddingTop="3dip"
+        />
+
+</RelativeLayout>

@@ -11,6 +11,12 @@ import nl.sogeti.android.gpstracker.util.Pair;
 
 public class BreadcrumbsTracks
 {
+   public static final String DESCRIPTION = "DESCRIPTION";
+
+   public static final String NAME = "NAME";
+
+   public static final String ENDTIME = "ENDTIME";
+
    /**
     * Map from activityId to a dictionary
     */
@@ -43,7 +49,7 @@ public class BreadcrumbsTracks
       {
          mActivityMappings.put(activityId, new HashMap<String, String>() );
       }
-      mActivityMappings.get(activityId).put("NAME", activityName);
+      mActivityMappings.get(activityId).put(NAME, activityName);
    }
 
    /**
@@ -71,8 +77,8 @@ public class BreadcrumbsTracks
       {
          mBundleMappings.put(bundleId, new HashMap<String, String>() );
       }
-      mBundleMappings.get(bundleId).put("NAME", bundleName);
-      mBundleMappings.get(bundleId).put("DESCRIPTION", bundleDescription);
+      mBundleMappings.get(bundleId).put(NAME, bundleName);
+      mBundleMappings.get(bundleId).put(DESCRIPTION, bundleDescription);
    }
    
    public void addTrack(Integer trackId, String trackName, Integer bundleId, String trackDescription, String difficulty, String startTime, String endTime,
@@ -85,8 +91,9 @@ public class BreadcrumbsTracks
       {
          mTrackMappings.put(trackId, new HashMap<String, String>() );
       }
-      mTrackMappings.get(trackId).put("NAME", trackName);
-      mTrackMappings.get(trackId).put("DESCRIPTION", trackDescription);
+      mTrackMappings.get(trackId).put(NAME, trackName);
+      mTrackMappings.get(trackId).put(DESCRIPTION, trackDescription);
+      mTrackMappings.get(trackId).put(ENDTIME, endTime);
    }
 
    public void createTracks(Integer bundleId)

@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.util.Constants;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.view.View;
@@ -51,16 +52,16 @@ public class SectionedListAdapter extends BaseAdapter
 {
 
    private static final int HEADER_ITEM_VIEW_TYPE = 0;
-   private Map<String, Adapter> mSections;
+   private Map<String, BaseAdapter> mSections;
    private ArrayAdapter<String> mHeaders;
 
    public SectionedListAdapter(Context ctx)
    {
       mHeaders = new ArrayAdapter<String>(ctx, R.layout.section_header);
-      mSections = new LinkedHashMap<String, Adapter>();
+      mSections = new LinkedHashMap<String, BaseAdapter>();
    }
 
-   public void addSection(String name, Adapter adapter)
+   public void addSection(String name, BaseAdapter adapter)
    {
       mHeaders.add(name);
       mSections.put(name, adapter);
@@ -189,7 +190,7 @@ public class SectionedListAdapter extends BaseAdapter
 
          if (countDown == 0)
          {
-            return HEADER_ITEM_VIEW_TYPE;
+            return Constants.SECTIONED_HEADER_ITEM_VIEW_TYPE;
          }
          else if (countDown < size)
          {
@@ -210,6 +211,27 @@ public class SectionedListAdapter extends BaseAdapter
    @Override
    public boolean isEnabled(int position)
    {
-      return getItemViewType(position) != HEADER_ITEM_VIEW_TYPE;
+      if( getItemViewType(position) == Constants.SECTIONED_HEADER_ITEM_VIEW_TYPE )
+      {
+         return false;
+      }
+      else
+      {
+         int countDown = position;
+         for (String section : mSections.keySet())
+         {
+            BaseAdapter adapter = mSections.get(section);
+            countDown--;
+            int size = adapter.getCount() ;
+
+            if (countDown < size)
+            {
+              return adapter.isEnabled(countDown);
+            }
+            // otherwise jump into next section
+            countDown -= size;
+         }
+      }
+      return false  ;
    }
 }

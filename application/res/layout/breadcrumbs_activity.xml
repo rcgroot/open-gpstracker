@@ -4,9 +4,9 @@
 	    android:id="@+id/listitem_name"
         android:layout_height="?android:attr/listPreferredItemHeight"
 		android:layout_width="fill_parent" 
-        android:text="Sectionname here"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_alignParentTop="true" 
         android:paddingLeft="6dip"
         android:paddingRight="6dip"
+        android:text="Activity name here"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        style="?android:attr/listSeparatorTextViewStyle"
         />
