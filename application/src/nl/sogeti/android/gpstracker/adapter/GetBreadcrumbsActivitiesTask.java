@@ -60,7 +60,7 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Breadcru
    final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
-   private DefaultHttpClient mHttpclient;
+   private DefaultHttpClient mHttpClient;
    
    /**
     * We pass the OAuth consumer and provider.
@@ -74,7 +74,7 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Breadcru
    public GetBreadcrumbsActivitiesTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
       mAdapter = adapter;
-      mHttpclient = httpclient;
+      mHttpClient = httpclient;
       mConsumer = consumer;
    }
 
@@ -92,7 +92,7 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Breadcru
          
          mConsumer.sign(request);
          
-         HttpResponse response = mHttpclient.execute(request);
+         HttpResponse response = mHttpClient.execute(request);
          HttpEntity entity = response.getEntity();
          InputStream instream = entity.getContent();
 
@@ -168,7 +168,8 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Breadcru
    {
       super.onPostExecute(result);
       Log.d( TAG, result.toString());
-      mAdapter.notifyDataSetChanged();
+      
+      mAdapter.finishedActivities(this);
    }
 
 }

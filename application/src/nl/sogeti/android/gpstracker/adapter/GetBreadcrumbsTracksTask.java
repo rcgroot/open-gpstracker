@@ -54,13 +54,14 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
+public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
 {
 
-   final String TAG = "OGT.GetBreadcrumbsBundlesTask";
+   final String TAG = "OGT.GetBreadcrumbsTracksTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
+   private Integer mBundleId;
    
    /**
     * We pass the OAuth consumer and provider.
@@ -71,12 +72,16 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsBundlesTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public GetBreadcrumbsTracksTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
       mAdapter = adapter;
       mHttpclient = httpclient;
       mConsumer = consumer;
-      
+   }
+
+   public void setBundleId(Integer bundleId)
+   {
+      mBundleId = bundleId;
    }
 
    /**
@@ -89,10 +94,11 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
       try
       {
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles.xml");
+         tracks.createTracks(mBundleId);
          
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles/"+mBundleId+"/tracks.xml");
          mConsumer.sign(request);
-         
+
          HttpResponse response = mHttpclient.execute(request);
          HttpEntity entity = response.getEntity();
          InputStream instream = entity.getContent();
@@ -106,8 +112,10 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
          String tagName = null;
          int eventType = xpp.getEventType();
          
-         String bundleName = null, bundleDescription = null;
-         Integer activityId = null, bundleId = null;
+         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null;
+         Integer trackId = null, bundleId = null, totalTime = null, trackRating = null;
+         Boolean isPublic = null;
+         Float lat = null, lng = null, totalDistance = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
             if (eventType == XmlPullParser.START_TAG)
@@ -116,29 +124,57 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-               if( "bundle".equals(xpp.getName()) && activityId != null && bundleId != null )
+               if( "track".equals(xpp.getName()) && trackId != null && bundleId != null )
                {
-                  tracks.addBundle( activityId, bundleId, bundleName, bundleDescription );
+                  tracks.addTrack( trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance, totalTime, trackRating );
                }
                tagName = null;
             }
             else if (eventType == XmlPullParser.TEXT)
             {
-               if( "activity-id".equals(tagName) )
-               {
-                  activityId = Integer.parseInt(xpp.getText() );
-               }
-               else if( "description".equals(tagName) )
-               {
-                  bundleDescription = xpp.getText();
-               }
-               else if( "id".equals(tagName) )
+               if( "bundle-id".equals(tagName) )
                {
                   bundleId = Integer.parseInt(xpp.getText() );
                }
+               else if( "description".equals(tagName) )
+               {
+                  description = xpp.getText();
+               }
+               else if( "difficulty".equals(tagName) )
+               {
+                  difficulty = xpp.getText() ;
+               }
+               else if( "start-time".equals(tagName) )
+               {
+                  startTime = xpp.getText();
+               }
+               else if( "end-time".equals(tagName) )
+               {
+                  endTime = xpp.getText();
+               }
+               else if( "id".equals(tagName) )
+               {
+                  trackId = Integer.parseInt( xpp.getText() );
+               }
+               else if( "is-public".equals(tagName) )
+               {
+                  isPublic = Boolean.parseBoolean( xpp.getText() );
+               }
+               else if( "lat".equals(tagName) )
+               {
+                  lat = Float.parseFloat( xpp.getText() );
+               }
+               else if( "lng".equals(tagName) )
+               {
+                  lng = Float.parseFloat( xpp.getText() );
+               }
                else if( "name".equals(tagName) )
                {
-                  bundleName = xpp.getText();
+                  trackName = xpp.getText();
+               }
+               else if( "track-rating".equals(tagName) )
+               {
+                  trackRating = Integer.parseInt( xpp.getText() );
                }
             }
             eventType = xpp.next();
@@ -176,8 +212,9 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
    protected void onPostExecute(BreadcrumbsTracks result)
    {
       super.onPostExecute(result);
+      mBundleId = null;
       
-      mAdapter.finishedBundles( this );
+      mAdapter.finishedTrack( this );
    }
 
 }

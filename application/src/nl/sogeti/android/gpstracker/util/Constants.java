@@ -218,5 +218,10 @@ public class Constants
    }
 
    public static final String BREADCRUMBS_CONNECT = "breadcrumbs_connect";
+
+   public static final int BREADCRUMBS_CONNECT_ITEM_VIEW_TYPE  = 0;
+   public static final int BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE = 1;
+   public static final int BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE   = 2;
+   public static final int BREADCRUMBS_TRACK_ITEM_VIEW_TYPE    = 3;
    
 }
