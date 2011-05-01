@@ -553,11 +553,8 @@ public class TrackList extends ListActivity
    {
       SectionedListAdapter sectionedAdapter = new SectionedListAdapter(this);
 
-      // Create an array to specify the fields we want to display in the list (only TITLE)
-      // and an array of the fields we want to bind those fields to (in this case just text1)
       String[] fromColumns = new String[] { Tracks.NAME, Tracks.CREATION_TIME };
       int[] toItems = new int[] { R.id.listitem_name, R.id.listitem_from };
-      // Now create a simple cursor adapter and set it to display
       SimpleCursorAdapter trackAdapter = new SimpleCursorAdapter(this, R.layout.trackitem, tracksCursor, fromColumns, toItems);
       sectionedAdapter.addSection("Local", trackAdapter);
 

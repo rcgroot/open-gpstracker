@@ -35,6 +35,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
@@ -50,8 +51,7 @@ import android.widget.ListAdapter;
  */
 public class SectionedListAdapter extends BaseAdapter
 {
-
-   private static final int HEADER_ITEM_VIEW_TYPE = 0;
+   private static final String TAG = "OGT.SectionedListAdapter";
    private Map<String, BaseAdapter> mSections;
    private ArrayAdapter<String> mHeaders;
 
@@ -112,16 +112,17 @@ public class SectionedListAdapter extends BaseAdapter
       for (String section : mSections.keySet())
       {
          adapter = mSections.get(section);
-         int size = adapter.getCount() + 1;
          if (countDown == 0)
          {
             return section;
          }
-         else if (countDown < size)
+         countDown--;
+         
+         if (countDown < adapter.getCount())
          {
-            return adapter.getItem(countDown - 1);
+            return adapter.getItem(countDown);
          }
-         countDown -= size;
+         countDown -= adapter.getCount();
       }
       return null;
    }
@@ -132,7 +133,24 @@ public class SectionedListAdapter extends BaseAdapter
     */
    public long getItemId(int position)
    {
-      return position;
+      int countDown = position;
+      Adapter adapter;
+      for (String section : mSections.keySet())
+      {
+         adapter = mSections.get(section);
+         if (countDown == 0)
+         {
+            return position;
+         }
+         countDown--;
+         
+         if (countDown < adapter.getCount())
+         {
+            return adapter.getItemId(countDown);
+         }
+         countDown -= adapter.getCount();
+      }
+      return -1;
    }
 
    /*

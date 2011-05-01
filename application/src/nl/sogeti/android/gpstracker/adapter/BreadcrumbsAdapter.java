@@ -301,10 +301,6 @@ public class BreadcrumbsAdapter extends BaseAdapter
          mBundlesTasks.clear();
          mTracksTask.execute(bundleId);
       }
-      else
-      {
-         Log.d( TAG, mTracks.toString());
-      }
    }
 
    public synchronized void shutdown()
