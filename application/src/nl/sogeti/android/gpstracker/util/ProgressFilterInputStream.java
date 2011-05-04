@@ -16,7 +16,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import android.widget.ProgressBar;
+import nl.sogeti.android.gpstracker.viewer.GpxParser;
 
 /**
  * ????
@@ -26,13 +26,13 @@ import android.widget.ProgressBar;
  */
 public class ProgressFilterInputStream extends FilterInputStream
 {
-   ProgressBar mProgressBar;
+   GpxParser mAsyncTask;
    long progress = 0;
    
-   public ProgressFilterInputStream(InputStream in, ProgressBar bar)
+   public ProgressFilterInputStream(InputStream in, GpxParser bar)
    {
       super( in );
-      mProgressBar = bar;
+      mAsyncTask = bar;
    }
 
    @Override
@@ -59,9 +59,9 @@ public class ProgressFilterInputStream extends FilterInputStream
    
    private void incrementProgressBy( int add )
    {
-      if( mProgressBar != null )
+      if( mAsyncTask != null )
       {
-         mProgressBar.incrementProgressBy( add );
+         mAsyncTask.incrementProgressBy( add );
       }
    }
    

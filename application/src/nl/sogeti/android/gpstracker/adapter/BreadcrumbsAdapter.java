@@ -36,7 +36,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.DateView;
 import nl.sogeti.android.gpstracker.util.Pair;
-import nl.sogeti.android.gpstracker.viewer.TrackList;
+import nl.sogeti.android.gpstracker.viewer.GpxParser;
 import oauth.signpost.OAuth;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 
@@ -72,6 +72,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
    private AsyncTask<Void, Void, BreadcrumbsTracks> mActivityTask;
    private AsyncTask<Void, Void, BreadcrumbsTracks> mBundlesTask;
    private AsyncTask<Integer, Void, BreadcrumbsTracks> mTracksTask;
+   private AsyncTask<Void, Void, BreadcrumbsTracks> mTrackSyncTask;
    private boolean mFinishing;
 
    public BreadcrumbsAdapter(Context ctx)
@@ -117,8 +118,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
    {
       if (mOnline)
       {
-         Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
-         return mTracks.getKeyForItem(item, "NAME");
+         return mTracks.getItemForPosition(position);
       }
       else
       {
@@ -169,16 +169,19 @@ public class BreadcrumbsAdapter extends BaseAdapter
          {
             view = convertView;
          }
+         Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
+         String name;
          switch (type)
          {
             case Constants.BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE:
-               ((TextView) view).setText((String) getItem(position));
+               name = mTracks.getKeyForItem((Pair<Integer, Integer>) item, "NAME");
+               ((TextView) view).setText( name );
                break;
             case Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE:
-               ((TextView) view).setText((String) getItem(position));
+               name = mTracks.getKeyForItem((Pair<Integer, Integer>) item, "NAME");
+               ((TextView) view).setText( name );
                break;
             case Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE:
-               Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
                TextView nameView = (TextView) view.findViewById(R.id.listitem_name);
                TextView dateView = (TextView) view.findViewById(R.id.listitem_from);
 
@@ -186,7 +189,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
                String dateString = mTracks.getKeyForItem(item, BreadcrumbsTracks.ENDTIME);
                try
                {
-                  Long date = TrackList.parseXmlDateTime(dateString);
+                  Long date = GpxParser.parseXmlDateTime(dateString);
                   dateView.setText(date.toString());
                }
                catch (ParseException e)
@@ -286,6 +289,13 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mTracksTask = null;
       downloadNextTrack();
    }
+   
+   public synchronized void finishedTrackSyncTask(SyncBreadcrumbsTrackTask getBreadcrumbsTracksTask)
+   {
+      notifyDataSetChanged();
+      mTrackSyncTask = null;
+      downloadNextTrack();
+   }
 
    public void canceledTask(GetBreadcrumbsBundlesTask getBreadcrumbsBundlesTask)
    {
@@ -294,7 +304,11 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    private synchronized void downloadNextTrack()
    {
-      if ( mBundlesTasks.size() > 0 && allTasksDone() && !mFinishing )
+      if( mTrackSyncTask != null )
+      {
+         mTrackSyncTask.execute();
+      }
+      else if ( mBundlesTasks.size() > 0 && allTasksDone() && !mFinishing )
       {
          mTracksTask = new GetBreadcrumbsTracksTask(this, mHttpClient, mConsumer);
          Integer bundleId = mBundlesTasks.first();
@@ -318,6 +332,10 @@ public class BreadcrumbsAdapter extends BaseAdapter
       {
          mTracksTask.cancel(true);
       }
+      if( mTrackSyncTask != null )
+      {
+         mTrackSyncTask.cancel(true);
+      }
       if( allTasksDone() )
       {
          mHttpClient.getConnectionManager().shutdown();
@@ -326,8 +344,14 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    private synchronized boolean allTasksDone()
    {
-      return (mBundlesTask  == null || mBundlesTask.getStatus()  == AsyncTask.Status.FINISHED)
-            &&  (mActivityTask == null || mActivityTask.getStatus() == AsyncTask.Status.FINISHED) 
-            &&  (mTracksTask   == null || mTracksTask.getStatus()   == AsyncTask.Status.FINISHED);
+      return (mBundlesTask        == null || mBundlesTask.getStatus()   == AsyncTask.Status.FINISHED)
+            &&  (mActivityTask    == null || mActivityTask.getStatus()  == AsyncTask.Status.FINISHED) 
+            &&  (mTracksTask      == null || mTracksTask.getStatus()    == AsyncTask.Status.FINISHED)
+            &&  (mTrackSyncTask   == null || mTrackSyncTask.getStatus() == AsyncTask.Status.FINISHED);
+   }
+
+   public void startSyncAndOpenTask(Integer trackId)
+   {
+      mTrackSyncTask = new SyncBreadcrumbsTrackTask(this, mHttpClient, mConsumer, trackId);
    }
 }

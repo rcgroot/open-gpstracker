@@ -28,15 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
-import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
@@ -46,22 +39,8 @@ import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
-import nl.sogeti.android.gpstracker.util.UnicodeReader;
-
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.HttpParams;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
+import nl.sogeti.android.gpstracker.util.Pair;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -69,7 +48,6 @@ import android.app.ListActivity;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -99,16 +77,7 @@ import android.widget.TextView;
  */
 public class TrackList extends ListActivity
 {
-   private static final String LATITUDE_ATRIBUTE = "lat";
-   private static final String LONGITUDE_ATTRIBUTE = "lon";
-   private static final String TRACK_ELEMENT = "trkpt";
-   private static final String SEGMENT_ELEMENT = "trkseg";
-   private static final String NAME_ELEMENT = "name";
-   private static final String TIME_ELEMENT = "time";
-   private static final String ELEVATION_ELEMENT = "ele";
-   private static final String COURSE_ELEMENT = "course";
-   private static final String ACCURACY_ELEMENT = "accuracy";
-   private static final String SPEED_ELEMENT = "speed";
+
    private static final String TAG = "OGT.TrackList";
    private static final int MENU_DETELE = Menu.FIRST + 0;
    private static final int MENU_SHARE = Menu.FIRST + 1;
@@ -137,6 +106,9 @@ public class TrackList extends ListActivity
    private ProgressBar mImportProgress;
    private String mErrorDialogMessage;
    private Exception mErrorDialogException;
+
+   private Runnable xmlParser;
+   
    private OnClickListener mDeleteOnClickListener = new DialogInterface.OnClickListener()
    {
       public void onClick(DialogInterface dialog, int which)
@@ -168,8 +140,7 @@ public class TrackList extends ListActivity
    {
       public void onClick(DialogInterface dialog, int which)
       {
-         mImportProgress.setVisibility(View.VISIBLE);
-         new Thread(xmlParser).start();
+         new GpxParser(TrackList.this).execute(mImportFileUri);
       }
    };
    private final DialogInterface.OnClickListener mOiPickerDialogListener = new DialogInterface.OnClickListener()
@@ -298,32 +269,41 @@ public class TrackList extends ListActivity
    }
 
    @Override
-   protected void onListItemClick(ListView l, View v, int position, long id)
+   protected void onListItemClick(ListView listView, View v, int position, long id)
    {
-      super.onListItemClick(l, v, position, id);
+      super.onListItemClick(listView, v, position, id);
 
-      Intent intent = new Intent();
-      intent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, id));
-
-      Object data = getListView().getItemAtPosition(position);
-
-      if (Constants.BREADCRUMBS_CONNECT.equals(data))
+      Object item = listView.getItemAtPosition(position);
+      if( item instanceof String )
       {
-         Intent i = new Intent(getApplicationContext(), PrepareRequestTokenActivity.class);
-         startActivity(i);
-      }
-      else
-      {
-         ComponentName caller = this.getCallingActivity();
-         if (caller != null)
+         if( Constants.BREADCRUMBS_CONNECT.equals(item) )
          {
-            setResult(RESULT_OK, intent);
-            finish();
+            Intent i = new Intent(getApplicationContext(), PrepareRequestTokenActivity.class);
+            startActivity(i);
          }
          else
          {
-            intent.setClass(this, LoggerMap.class);
-            startActivity(intent);
+            Intent intent = new Intent();
+            intent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, id));
+            ComponentName caller = this.getCallingActivity();
+            if (caller != null)
+            {
+               setResult(RESULT_OK, intent);
+               finish();
+            }
+            else
+            {
+               intent.setClass(this, LoggerMap.class);
+               startActivity(intent);
+            }
+         }
+      }
+      else if( item instanceof Pair<?, ?>) 
+      {
+         Pair<Integer, Integer> track =  (Pair<Integer, Integer>) item;
+         if( track.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE )
+         {
+            mBreadcrumbAdapter.startSyncAndOpenTask(track.second);
          }
       }
    }
@@ -497,8 +477,7 @@ public class TrackList extends ListActivity
          {
             case PICKER_OI:
                mImportFileUri = data.getData();
-               mImportProgress.setVisibility(View.VISIBLE);
-               new Thread(xmlParser).start();
+               new GpxParser(TrackList.this).execute(mImportFileUri);
                break;
             default:
                super.onActivityResult(requestCode, resultCode, data);
@@ -580,294 +559,29 @@ public class TrackList extends ListActivity
       return cursor;
    }
 
-   public static final SimpleDateFormat ZULU_DATE_FORMAT    = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-   public static final SimpleDateFormat ZULU_DATE_FORMAT_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-   public static final SimpleDateFormat ZULU_DATE_FORMAT_BC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'");
-   protected static final int DEFAULT_UNKNOWN_FILESIZE = 1024 * 1024 * 10;
-   static
+   public void startProgressBar(int max)
    {
-      TimeZone utc = TimeZone.getTimeZone("UTC");
-      ZULU_DATE_FORMAT.setTimeZone(utc); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
-      ZULU_DATE_FORMAT_MS.setTimeZone(utc);
-
+      mImportProgress.setMax(max);
+      mImportProgress.setVisibility(View.VISIBLE);
    }
 
-   private Runnable xmlParser = new Runnable()
+   public void updateProgressBar(int increment, int max )
    {
-
-      Uri trackUri = null;
-      Uri segmentUri = null;
-      ContentResolver contentResolver;
-
-      public void run()
-      {
-         int eventType;
-         ContentValues lastPosition = null;
-         Vector<ContentValues> bulk = new Vector<ContentValues>();
-         boolean speed = false;
-         boolean accuracy = false;
-         boolean bearing = false;
-         boolean elevation = false;
-         boolean name = false;
-         boolean time = false;
-         Long importDate = new Long(new Date().getTime());
-
-         try
-         {
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            XmlPullParser xmlParser = factory.newPullParser();
-
-            int length = DEFAULT_UNKNOWN_FILESIZE;
-            if (mImportFileUri.getScheme().equals("file"))
-            {
-               File file = new File(mImportFileUri.getPath());
-               length = file.length() < (long) Integer.MAX_VALUE ? (int) file.length() : Integer.MAX_VALUE;
-            }
-            mImportProgress.setMax(length);
-            mImportProgress.setProgress(0);
-            mImportProgress.setVisibility(View.VISIBLE);
-
-            InputStream fis = getContentResolver().openInputStream(mImportFileUri);
-            ProgressFilterInputStream pfis = new ProgressFilterInputStream(fis, mImportProgress);
-            BufferedInputStream bis = new BufferedInputStream(pfis);
-            UnicodeReader ur = new UnicodeReader(bis, "UTF-8");
-            xmlParser.setInput(ur);
-
-            String filename = mImportFileUri.getLastPathSegment();
-
-            eventType = xmlParser.getEventType();
-
-            String attributeName;
-
-            while (eventType != XmlPullParser.END_DOCUMENT)
-            {
-               contentResolver = TrackList.this.getContentResolver();
-               if (eventType == XmlPullParser.START_TAG)
-               {
-                  if (xmlParser.getName().equals(NAME_ELEMENT))
-                  {
-                     name = true;
-                  }
-                  else
-                  {
-                     ContentValues trackContent = new ContentValues();
-                     trackContent.put(Tracks.NAME, filename);
-                     if (xmlParser.getName().equals("trk"))
-                     {
-                        startTrack(trackContent);
-                     }
-                     else if (xmlParser.getName().equals(SEGMENT_ELEMENT))
-                     {
-                        startSegment();
-                     }
-                     else if (xmlParser.getName().equals(TRACK_ELEMENT))
-                     {
-                        lastPosition = new ContentValues();
-                        for (int i = 0; i < 2; i++)
-                        {
-                           attributeName = xmlParser.getAttributeName(i);
-                           if (attributeName.equals(LATITUDE_ATRIBUTE))
-                           {
-                              lastPosition.put(Waypoints.LATITUDE, new Double(xmlParser.getAttributeValue(i)));
-                           }
-                           else if (attributeName.equals(LONGITUDE_ATTRIBUTE))
-                           {
-                              lastPosition.put(Waypoints.LONGITUDE, new Double(xmlParser.getAttributeValue(i)));
-                           }
-                        }
-                     }
-                     else if (xmlParser.getName().equals(SPEED_ELEMENT))
-                     {
-                        speed = true;
-                     }
-                     else if (xmlParser.getName().equals(ACCURACY_ELEMENT))
-                     {
-                        accuracy = true;
-                     }
-                     else if (xmlParser.getName().equals(COURSE_ELEMENT))
-                     {
-                        bearing = true;
-                     }
-                     else if (xmlParser.getName().equals(ELEVATION_ELEMENT))
-                     {
-                        elevation = true;
-                     }
-                     else if (xmlParser.getName().equals(TIME_ELEMENT))
-                     {
-                        time = true;
-                     }
-                  }
-               }
-               else if (eventType == XmlPullParser.END_TAG)
-               {
-                  if (xmlParser.getName().equals(NAME_ELEMENT))
-                  {
-                     name = false;
-                  }
-                  else if (xmlParser.getName().equals(SPEED_ELEMENT))
-                  {
-                     speed = false;
-                  }
-                  else if (xmlParser.getName().equals(ACCURACY_ELEMENT))
-                  {
-                     accuracy = false;
-                  }
-                  else if (xmlParser.getName().equals(COURSE_ELEMENT))
-                  {
-                     bearing = false;
-                  }
-                  else if (xmlParser.getName().equals(ELEVATION_ELEMENT))
-                  {
-                     elevation = false;
-                  }
-                  else if (xmlParser.getName().equals(TIME_ELEMENT))
-                  {
-                     time = false;
-                  }
-                  else if (xmlParser.getName().equals(SEGMENT_ELEMENT))
-                  {
-                     if (segmentUri == null)
-                     {
-                        startSegment();
-                     }
-                     contentResolver.bulkInsert(Uri.withAppendedPath(segmentUri, "waypoints"), bulk.toArray(new ContentValues[bulk.size()]));
-                     bulk.clear();
-                  }
-                  else if (xmlParser.getName().equals(TRACK_ELEMENT))
-                  {
-                     if (!lastPosition.containsKey(Waypoints.TIME))
-                     {
-                        lastPosition.put(Waypoints.TIME, importDate);
-                     }
-                     if (!lastPosition.containsKey(Waypoints.SPEED))
-                     {
-                        lastPosition.put(Waypoints.SPEED, 0);
-                     }
-                     bulk.add(lastPosition);
-                     lastPosition = null;
-                  }
-               }
-               else if (eventType == XmlPullParser.TEXT)
-               {
-                  String text = xmlParser.getText();
-                  if (name)
-                  {
-                     ContentValues nameValues = new ContentValues();
-                     nameValues.put(Tracks.NAME, text);
-                     if (trackUri == null)
-                     {
-                        startTrack(new ContentValues());
-                     }
-                     contentResolver.update(trackUri, nameValues, null, null);
-                  }
-                  else if (lastPosition != null && speed)
-                  {
-                     lastPosition.put(Waypoints.SPEED, Double.parseDouble(text));
-                  }
-                  else if (lastPosition != null && accuracy)
-                  {
-                     lastPosition.put(Waypoints.ACCURACY, Double.parseDouble(text));
-                  }
-                  else if (lastPosition != null && bearing)
-                  {
-                     lastPosition.put(Waypoints.BEARING, Double.parseDouble(text));
-                  }
-                  else if (lastPosition != null && elevation)
-                  {
-                     lastPosition.put(Waypoints.ALTITUDE, Double.parseDouble(text));
-                  }
-                  else if (lastPosition != null && time)
-                  {
-                     lastPosition.put(Waypoints.TIME, parseXmlDateTime(text));
-                  }
-               }
-               eventType = xmlParser.next();
-            }
-         }
-         catch (XmlPullParserException e)
-         {
-            mErrorDialogMessage = getString(R.string.error_importgpx_xml);
-            mErrorDialogException = e;
-            TrackList.this.runOnUiThread(new Runnable()
-            {
-               public void run()
-               {
-                  showDialog(DIALOG_ERROR);
-               }
-            });
-
-         }
-         catch (IOException e)
-         {
-            mErrorDialogMessage = getString(R.string.error_importgpx_io);
-            mErrorDialogException = e;
-            TrackList.this.runOnUiThread(new Runnable()
-            {
-               public void run()
-               {
-                  showDialog(DIALOG_ERROR);
-               }
-            });
-         }
-         catch (ParseException e)
-         {
-            mErrorDialogMessage = getString(R.string.error_importgpx_parse);
-            mErrorDialogException = e;
-            TrackList.this.runOnUiThread(new Runnable()
-            {
-               public void run()
-               {
-                  showDialog(DIALOG_ERROR);
-               }
-            });
-         }
-         finally
-         {
-            TrackList.this.runOnUiThread(new Runnable()
-            {
-               public void run()
-               {
-                  mImportProgress.setVisibility(View.GONE);
-               }
-            });
-         }
-      }
-
-      private void startSegment()
-      {
-         if (trackUri == null)
-         {
-            startTrack(new ContentValues());
-         }
-         segmentUri = contentResolver.insert(Uri.withAppendedPath(trackUri, "segments"), new ContentValues());
-      }
-
-      private void startTrack(ContentValues trackContent)
-      {
-         trackUri = contentResolver.insert(Tracks.CONTENT_URI, trackContent);
-      }
-   };
-
-   public static Long parseXmlDateTime(String text) throws ParseException
-   {
-      Long dateTime = null;
-      int length = text.length();
-      switch (length)
-      {
-         case 20:
-            dateTime = new Long(ZULU_DATE_FORMAT.parse(text).getTime());
-            break;
-         case 23:
-            dateTime = new Long(ZULU_DATE_FORMAT_BC.parse(text).getTime());
-            break;
-         case 24:
-            dateTime = new Long(ZULU_DATE_FORMAT_MS.parse(text).getTime());
-            break;
-         default:
-            throw new ParseException("Unable to parse dateTime "+text+" of length ", 0);
-      }
-      return dateTime;
+      mImportProgress.setMax(max);
+      mImportProgress.incrementProgressBy(increment);
    }
+
+   public void stopProgressBar()
+   {
+      mImportProgress.setVisibility(View.GONE);
+   }
+
+   public void showErrorDialog(String errorDialogMessage, Exception errorDialogException)
+   {
+      mErrorDialogMessage = errorDialogMessage;
+      mErrorDialogException = errorDialogException;
+      showDialog(DIALOG_ERROR);
+   }
+
 
 }
