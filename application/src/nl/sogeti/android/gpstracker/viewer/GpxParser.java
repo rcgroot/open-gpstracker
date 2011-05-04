@@ -52,9 +52,9 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
    private ContentResolver mContentResolver;
    private Uri mTrackUri;
    private Uri mSegmentUri;
-   private String mErrorDialogMessage;
-   private Exception mErrorDialogException;
-   private TrackList mTrackList;
+   protected String mErrorDialogMessage;
+   protected Exception mErrorDialogException;
+   protected TrackList mTrackList;
    private int mLength;
    
    public GpxParser(TrackList trackList)
@@ -66,6 +66,36 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
    public Boolean importUri(Uri importFileUri) 
    {
       Boolean result = new Boolean(false);
+      String trackName = null;
+      InputStream fis = null;
+      mLength = DEFAULT_UNKNOWN_FILESIZE;
+      if (importFileUri.getScheme().equals("file"))
+      {
+         trackName = importFileUri.getLastPathSegment();
+         File file = new File(importFileUri.getPath());
+         mLength = file.length() < (long) Integer.MAX_VALUE ? (int) file.length() : Integer.MAX_VALUE;
+      }
+      try
+      {
+         fis = mContentResolver.openInputStream(importFileUri);
+      }
+      catch (IOException e)
+      {
+         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_io);
+         mErrorDialogException = e;
+         result = new Boolean(false);
+      }
+      
+      if( result.booleanValue() )
+      {
+         result = importTrack( fis, trackName);
+      }
+      
+      return result;
+   }
+
+   public Boolean importTrack( InputStream fis, String trackName )
+   {
       int eventType;
       ContentValues lastPosition = null;
       Vector<ContentValues> bulk = new Vector<ContentValues>();
@@ -76,26 +106,19 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
       boolean name = false;
       boolean time = false;
       Long importDate = new Long(new Date().getTime());
-
+      Boolean result;
       try
       {
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
          factory.setNamespaceAware(true);
          XmlPullParser xmlParser = factory.newPullParser();
 
-         mLength = DEFAULT_UNKNOWN_FILESIZE;
-         if (importFileUri.getScheme().equals("file"))
-         {
-            File file = new File(importFileUri.getPath());
-            mLength = file.length() < (long) Integer.MAX_VALUE ? (int) file.length() : Integer.MAX_VALUE;
-         }
-         InputStream fis = mContentResolver.openInputStream(importFileUri);
+
          ProgressFilterInputStream pfis = new ProgressFilterInputStream(fis, this);
          BufferedInputStream bis = new BufferedInputStream(pfis);
          UnicodeReader ur = new UnicodeReader(bis, "UTF-8");
          xmlParser.setInput(ur);
 
-         String filename = importFileUri.getLastPathSegment();
 
          eventType = xmlParser.getEventType();
 
@@ -112,7 +135,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
                else
                {
                   ContentValues trackContent = new ContentValues();
-                  trackContent.put(Tracks.NAME, filename);
+                  trackContent.put(Tracks.NAME, trackName);
                   if (xmlParser.getName().equals("trk"))
                   {
                      startTrack(trackContent);
@@ -251,17 +274,16 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
          mErrorDialogException = e;
          result = new Boolean(false);
-
-      }
-      catch (IOException e)
-      {
-         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_io);
-         mErrorDialogException = e;
-         result = new Boolean(false);
       }
       catch (ParseException e)
       {
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_parse);
+         mErrorDialogException = e;
+         result = new Boolean(false);
+      }
+      catch (IOException e)
+      {
+         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_io);
          mErrorDialogException = e;
          result = new Boolean(false);
       }

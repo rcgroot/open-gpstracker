@@ -37,6 +37,7 @@ import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.DateView;
 import nl.sogeti.android.gpstracker.util.Pair;
 import nl.sogeti.android.gpstracker.viewer.GpxParser;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuth;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 
@@ -72,7 +73,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
    private AsyncTask<Void, Void, BreadcrumbsTracks> mActivityTask;
    private AsyncTask<Void, Void, BreadcrumbsTracks> mBundlesTask;
    private AsyncTask<Integer, Void, BreadcrumbsTracks> mTracksTask;
-   private AsyncTask<Void, Void, BreadcrumbsTracks> mTrackSyncTask;
+   private SyncBreadcrumbsTrackTask mTrackSyncTask;
    private boolean mFinishing;
 
    public BreadcrumbsAdapter(Context ctx)
@@ -174,11 +175,11 @@ public class BreadcrumbsAdapter extends BaseAdapter
          switch (type)
          {
             case Constants.BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE:
-               name = mTracks.getKeyForItem((Pair<Integer, Integer>) item, "NAME");
+               name = mTracks.getKeyForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
                ((TextView) view).setText( name );
                break;
             case Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE:
-               name = mTracks.getKeyForItem((Pair<Integer, Integer>) item, "NAME");
+               name = mTracks.getKeyForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
                ((TextView) view).setText( name );
                break;
             case Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE:
@@ -236,7 +237,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
             if (!mTracks.areTracksLoaded(item))
             {
                mBundlesTasks.add(item.second);
-               downloadNextTrack();
+               executeNextRequest();
             }
          }
          return item.first;
@@ -280,21 +281,21 @@ public class BreadcrumbsAdapter extends BaseAdapter
    {
       notifyDataSetChanged();
       mActivityTask = null;
-      downloadNextTrack();
+      executeNextRequest();
    }
 
    public synchronized void finishedTrackTask(GetBreadcrumbsTracksTask getBreadcrumbsTracksTask)
    {
       notifyDataSetChanged();
       mTracksTask = null;
-      downloadNextTrack();
+      executeNextRequest();
    }
    
    public synchronized void finishedTrackSyncTask(SyncBreadcrumbsTrackTask getBreadcrumbsTracksTask)
    {
       notifyDataSetChanged();
       mTrackSyncTask = null;
-      downloadNextTrack();
+      executeNextRequest();
    }
 
    public void canceledTask(GetBreadcrumbsBundlesTask getBreadcrumbsBundlesTask)
@@ -302,7 +303,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mHttpClient.getConnectionManager().shutdown();
    }
 
-   private synchronized void downloadNextTrack()
+   private synchronized void executeNextRequest()
    {
       if( mTrackSyncTask != null )
       {
@@ -350,8 +351,10 @@ public class BreadcrumbsAdapter extends BaseAdapter
             &&  (mTrackSyncTask   == null || mTrackSyncTask.getStatus() == AsyncTask.Status.FINISHED);
    }
 
-   public void startSyncAndOpenTask(Integer trackId)
+   public void startSyncAndOpenTask(TrackList trackList, Pair<Integer, Integer> track)
    {
-      mTrackSyncTask = new SyncBreadcrumbsTrackTask(this, mHttpClient, mConsumer, trackId);
+      mTrackSyncTask = new SyncBreadcrumbsTrackTask( trackList, this, mHttpClient, mConsumer, track);
+      executeNextRequest();
    }
+   
 }

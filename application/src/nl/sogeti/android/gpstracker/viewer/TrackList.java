@@ -303,7 +303,7 @@ public class TrackList extends ListActivity
          Pair<Integer, Integer> track =  (Pair<Integer, Integer>) item;
          if( track.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE )
          {
-            mBreadcrumbAdapter.startSyncAndOpenTask(track.second);
+            mBreadcrumbAdapter.startSyncAndOpenTask(this, track);
          }
       }
    }

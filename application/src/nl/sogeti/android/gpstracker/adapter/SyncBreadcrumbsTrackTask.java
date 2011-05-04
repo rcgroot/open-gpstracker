@@ -31,6 +31,10 @@ package nl.sogeti.android.gpstracker.adapter;
 import java.io.IOException;
 import java.io.InputStream;
 
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.util.Pair;
+import nl.sogeti.android.gpstracker.viewer.GpxParser;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -45,8 +49,10 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Adapter;
 
 /**
  * An asynchronous task that communicates with Twitter to retrieve a request
@@ -54,159 +60,92 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class SyncBreadcrumbsTrackTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
+public class SyncBreadcrumbsTrackTask extends GpxParser
 {
 
    final String TAG = "OGT.GetBreadcrumbsTracksTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
-   private Integer mTrackId;
-   
+   private Pair<Integer, Integer> mTrack;
+
    /**
     * We pass the OAuth consumer and provider.
     * 
     * @param mContext Required to be able to start the intent to launch the
     *           browser.
-    * @param httpclient 
+    * @param httpclient
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public SyncBreadcrumbsTrackTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer, Integer trackId)
+   public SyncBreadcrumbsTrackTask(TrackList trackList, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer,
+         Pair<Integer, Integer> track)
    {
+      super(trackList);
       mAdapter = adapter;
       mHttpclient = httpclient;
       mConsumer = consumer;
-      mTrackId = trackId;
+      mTrack = track;
    }
-   
+
    /**
     * Retrieve the OAuth Request Token and present a browser to the user to
     * authorize the token.
     */
    @Override
-   protected BreadcrumbsTracks doInBackground(Void... params)
+   protected Boolean doInBackground(Uri... params)
    {
-      BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
+      Boolean result = new Boolean(false);
+      InputStream fis = null;
+      String trackName = mAdapter.getBreadcrumbsTracks().getKeyForItem(mTrack, BreadcrumbsTracks.NAME);
       try
       {
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/tracks/"+mTrackId+"/placemarks.gpx");
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/tracks/" + mTrack.second + "/placemarks.gpx");
          mConsumer.sign(request);
-         if( isCancelled() )
+         if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
          HttpResponse response = mHttpclient.execute(request);
          HttpEntity entity = response.getEntity();
-         InputStream instream = entity.getContent();
-
-         
-         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-         factory.setNamespaceAware(true);
-         XmlPullParser xpp = factory.newPullParser();
-         xpp.setInput(instream, "UTF-8");
-
-         String tagName = null;
-         int eventType = xpp.getEventType();
-         
-         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null;
-         Integer trackId = null, bundleId = null, totalTime = null, trackRating = null;
-         Boolean isPublic = null;
-         Float lat = null, lng = null, totalDistance = null;
-         while (eventType != XmlPullParser.END_DOCUMENT)
-         {
-            if (eventType == XmlPullParser.START_TAG)
-            {
-               tagName = xpp.getName();
-            }
-            else if (eventType == XmlPullParser.END_TAG)
-            {
-               if( "track".equals(xpp.getName()) && trackId != null && bundleId != null )
-               {
-                  tracks.addTrack( trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance, totalTime, trackRating );
-               }
-               tagName = null;
-            }
-            else if (eventType == XmlPullParser.TEXT)
-            {
-               if( "bundle-id".equals(tagName) )
-               {
-                  bundleId = Integer.parseInt(xpp.getText() );
-               }
-               else if( "description".equals(tagName) )
-               {
-                  description = xpp.getText();
-               }
-               else if( "difficulty".equals(tagName) )
-               {
-                  difficulty = xpp.getText() ;
-               }
-               else if( "start-time".equals(tagName) )
-               {
-                  startTime = xpp.getText();
-               }
-               else if( "end-time".equals(tagName) )
-               {
-                  endTime = xpp.getText();
-               }
-               else if( "id".equals(tagName) )
-               {
-                  trackId = Integer.parseInt( xpp.getText() );
-               }
-               else if( "is-public".equals(tagName) )
-               {
-                  isPublic = Boolean.parseBoolean( xpp.getText() );
-               }
-               else if( "lat".equals(tagName) )
-               {
-                  lat = Float.parseFloat( xpp.getText() );
-               }
-               else if( "lng".equals(tagName) )
-               {
-                  lng = Float.parseFloat( xpp.getText() );
-               }
-               else if( "name".equals(tagName) )
-               {
-                  trackName = xpp.getText();
-               }
-               else if( "track-rating".equals(tagName) )
-               {
-                  trackRating = Integer.parseInt( xpp.getText() );
-               }
-            }
-            eventType = xpp.next();
-         }
+         fis = entity.getContent();
+         result = new Boolean(true);
       }
       catch (OAuthMessageSignerException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
+         mErrorDialogException = e;
+         result = new Boolean(false);
       }
       catch (OAuthExpectationFailedException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
+         mErrorDialogException = e;
+         result = new Boolean(false);
       }
       catch (OAuthCommunicationException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
+         mErrorDialogException = e;
+         result = new Boolean(false);
       }
       catch (IOException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
+         mErrorDialogException = e;
+         result = new Boolean(false);
       }
-      catch (XmlPullParserException e)
+      
+      if (result.booleanValue())
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         result = importTrack(fis, trackName);
       }
-      return tracks;
+
+      return result;
    }
-   
+
    @Override
-   protected void onPostExecute(BreadcrumbsTracks result)
+   protected void onPostExecute(Boolean result)
    {
       super.onPostExecute(result);
       mAdapter.finishedTrackSyncTask(this);
