@@ -61,19 +61,24 @@ public class PrepareRequestTokenActivity extends Activity
    private OAuthConsumer consumer;
    private OAuthProvider provider;
 
+   private String mTokenKey;
+
+   private String mSecretKey;
+
    @Override
    public void onCreate(Bundle savedInstanceState)
    {
+      String key = getIntent().getStringExtra("CONSUMER_KEY");
+      String secret = getIntent().getStringExtra("CONSUMER_SECRET");
+      String requestUrl = getIntent().getStringExtra("REQUEST_URL");
+      String accessUrl = getIntent().getStringExtra("ACCESS_URL");
+      String authUrl = getIntent().getStringExtra("AUTHORIZE_URL");
+      mTokenKey = OAuth.OAUTH_TOKEN;
+      mSecretKey = OAuth.OAUTH_TOKEN_SECRET;
       super.onCreate(savedInstanceState);
-      try
-      {
-         this.consumer = new CommonsHttpOAuthConsumer(getString(R.string.CONSUMER_KEY), getString(R.string.CONSUMER_SECRET));
-         this.provider = new CommonsHttpOAuthProvider(Constants.REQUEST_URL, Constants.ACCESS_URL, Constants.AUTHORIZE_URL);
-      }
-      catch (Exception e)
-      {
-         Log.e(TAG, "Error creating consumer / provider", e);
-      }
+      
+      this.consumer = new CommonsHttpOAuthConsumer(getString(R.string.CONSUMER_KEY), getString(R.string.CONSUMER_SECRET));
+      this.provider = new CommonsHttpOAuthProvider(Constants.REQUEST_URL, Constants.ACCESS_URL, Constants.AUTHORIZE_URL);
 
       Log.i(TAG, "Starting task to retrieve request token.");
       new OAuthRequestTokenTask(this, consumer, provider).execute();
@@ -93,7 +98,7 @@ public class PrepareRequestTokenActivity extends Activity
       {
          Log.i(TAG, "Callback received : " + uri);
          Log.i(TAG, "Retrieving Access Token");
-         new RetrieveAccessTokenTask(this, consumer, provider, prefs).execute(uri);
+         new RetrieveAccessTokenTask(this, consumer, provider, prefs, mTokenKey, mSecretKey).execute(uri);
          finish();
       }
    }

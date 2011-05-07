@@ -16,12 +16,16 @@ public class RetrieveAccessTokenTask extends AsyncTask<Uri, Void, Void>
    private OAuthProvider provider;
    private OAuthConsumer consumer;
    private SharedPreferences prefs;
+   private String mTokenKey;
+   private String mSecretKey;
 
-   public RetrieveAccessTokenTask(Context context, OAuthConsumer consumer, OAuthProvider provider, SharedPreferences prefs)
+   public RetrieveAccessTokenTask(Context context, OAuthConsumer consumer, OAuthProvider provider, SharedPreferences prefs, String tokenKey, String secretKey)
    {
       this.consumer = consumer;
       this.provider = provider;
       this.prefs = prefs;
+      mTokenKey = tokenKey;
+      mSecretKey = secretKey;
    }
 
    /**
@@ -39,8 +43,8 @@ public class RetrieveAccessTokenTask extends AsyncTask<Uri, Void, Void>
          provider.retrieveAccessToken(consumer, oauth_verifier);
 
          final Editor edit = prefs.edit();
-         edit.putString(OAuth.OAUTH_TOKEN, consumer.getToken());
-         edit.putString(OAuth.OAUTH_TOKEN_SECRET, consumer.getTokenSecret());
+         edit.putString(mTokenKey, consumer.getToken());
+         edit.putString(mSecretKey, consumer.getTokenSecret());
          edit.commit();
 
          Log.i(TAG, "OAuth - Access Token Retrieved");
