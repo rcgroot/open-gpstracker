@@ -51,8 +51,6 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
    }
    
    private ContentResolver mContentResolver;
-   private Uri mTrackUri;
-   private Uri mSegmentUri;
    protected String mErrorDialogMessage;
    protected Exception mErrorDialogException;
    protected TrackList mTrackList;
@@ -66,7 +64,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
 
    public Boolean importUri(Uri importFileUri) 
    {
-      Boolean result = new Boolean(false);
+      Boolean result = new Boolean(true);
       String trackName = null;
       InputStream fis = null;
       mLength = DEFAULT_UNKNOWN_FILESIZE;
@@ -107,7 +105,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
       boolean name = false;
       boolean time = false;
       Long importDate = new Long(new Date().getTime());
-      Boolean result;
+      Boolean result = new Boolean(true);
       try
       {
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -125,6 +123,8 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
 
          String attributeName;
 
+         Uri trackUri = null;
+         Uri segmentUri = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
             if (eventType == XmlPullParser.START_TAG)
@@ -139,11 +139,11 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
                   trackContent.put(Tracks.NAME, trackName);
                   if (xmlParser.getName().equals("trk"))
                   {
-                     startTrack(trackContent);
+                     trackUri = startTrack(trackContent);
                   }
                   else if (xmlParser.getName().equals(SEGMENT_ELEMENT))
                   {
-                     startSegment();
+                     segmentUri = startSegment(trackUri);
                   }
                   else if (xmlParser.getName().equals(TRACK_ELEMENT))
                   {
@@ -211,11 +211,11 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
                }
                else if (xmlParser.getName().equals(SEGMENT_ELEMENT))
                {
-                  if (mSegmentUri == null)
+                  if (segmentUri == null)
                   {
-                     startSegment();
+                     segmentUri = startSegment( trackUri );
                   }
-                  mContentResolver.bulkInsert(Uri.withAppendedPath(mSegmentUri, "waypoints"), bulk.toArray(new ContentValues[bulk.size()]));
+                  mContentResolver.bulkInsert(Uri.withAppendedPath(segmentUri, "waypoints"), bulk.toArray(new ContentValues[bulk.size()]));
                   bulk.clear();
                }
                else if (xmlParser.getName().equals(TRACK_ELEMENT))
@@ -239,11 +239,11 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
                {
                   ContentValues nameValues = new ContentValues();
                   nameValues.put(Tracks.NAME, text);
-                  if (mTrackUri == null)
+                  if (trackUri == null)
                   {
-                     startTrack(new ContentValues());
+                     trackUri = startTrack(new ContentValues());
                   }
-                  mContentResolver.update(mTrackUri, nameValues, null, null);
+                  mContentResolver.update(trackUri, nameValues, null, null);
                }
                else if (lastPosition != null && speed)
                {
@@ -268,7 +268,6 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
             }
             eventType = xmlParser.next();
          }
-         result = new Boolean(true);
       }
       catch (XmlPullParserException e)
       {
@@ -291,18 +290,18 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
       return result;
    }
 
-   private void startSegment()
+   private Uri startSegment(Uri trackUri)
    {
-      if (mTrackUri == null)
+      if (trackUri == null)
       {
-         startTrack(new ContentValues());
+         trackUri = startTrack(new ContentValues());
       }
-      mSegmentUri = mContentResolver.insert(Uri.withAppendedPath(mTrackUri, "segments"), new ContentValues());
+      return mContentResolver.insert(Uri.withAppendedPath(trackUri, "segments"), new ContentValues());
    }
 
-   private void startTrack(ContentValues trackContent)
+   private Uri startTrack(ContentValues trackContent)
    {
-      mTrackUri = mContentResolver.insert(Tracks.CONTENT_URI, trackContent);
+      return mContentResolver.insert(Tracks.CONTENT_URI, trackContent);
    }
 
    public static Long parseXmlDateTime(String text) throws ParseException
