@@ -28,33 +28,65 @@
  */
 package nl.sogeti.android.gpstracker.oauth;
 
-import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
-import oauth.signpost.OAuth;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
  * Prepares a OAuthConsumer and OAuthProvider OAuthConsumer is configured with
- * the consumer key & consumer secret. OAuthProvider is configured with the 3
- * OAuth endpoints. Execute the OAuthRequestTokenTask to retrieve the request,
+ * the consumer key & consumer secret. Both key and secret are retrieved from 
+ * the extras in the Intent 
+ * 
+ * OAuthProvider is configured with the 3
+ * OAuth endpoints. These are retrieved from the extras in the Intent.
+ * 
+ * Execute the OAuthRequestTokenTask to retrieve the request,
  * and authorize the request. After the request is authorized, a callback is
- * made here.
+ * made here and this activity finishes to return to the last Activity on the 
+ * stack.
  */
 public class PrepareRequestTokenActivity extends Activity
 {
+   /**
+    * Name of the Extra in the intent holding the consumer secret
+    */
+   public static final String CONSUMER_SECRET = "CONSUMER_SECRET";
+   /**
+    * Name of the Extra in the intent holding the consumer key
+    */
+   public static final String CONSUMER_KEY = "CONSUMER_KEY";
+   /**
+    * Name of the Extra in the intent holding the authorizationWebsiteUrl
+    */
+   public static final String AUTHORIZE_URL = "AUTHORIZE_URL";
+   /**
+    * Name of the Extra in the intent holding the accessTokenEndpointUrl
+    */
+   public static final String ACCESS_URL = "ACCESS_URL";
+   /**
+    * Name of the Extra in the intent holding the requestTokenEndpointUrl
+    */
+   public static final String REQUEST_URL = "REQUEST_URL";
+   /**
+    * String value of the key in the DefaultSharedPreferences 
+    * in which to store the permission token 
+    */
+   public static final String OAUTH_TOKEN_PREF = "OAUTH_TOKEN";
+   /**
+    * String value of the key in the DefaultSharedPreferences 
+    * in which to store the permission secret 
+    */
+   public static final String OAUTH_TOKEN_SECRET_PREF = "OAUTH_TOKEN_SECRET";
+
 
    final String TAG = "OGT.PrepareRequestTokenActivity";
 
@@ -68,17 +100,20 @@ public class PrepareRequestTokenActivity extends Activity
    @Override
    public void onCreate(Bundle savedInstanceState)
    {
-      String key = getIntent().getStringExtra("CONSUMER_KEY");
-      String secret = getIntent().getStringExtra("CONSUMER_SECRET");
-      String requestUrl = getIntent().getStringExtra("REQUEST_URL");
-      String accessUrl = getIntent().getStringExtra("ACCESS_URL");
-      String authUrl = getIntent().getStringExtra("AUTHORIZE_URL");
-      mTokenKey = OAuth.OAUTH_TOKEN;
-      mSecretKey = OAuth.OAUTH_TOKEN_SECRET;
       super.onCreate(savedInstanceState);
+
+      String key        = getIntent().getStringExtra(CONSUMER_KEY);
+      String secret     = getIntent().getStringExtra(CONSUMER_SECRET);
       
-      this.consumer = new CommonsHttpOAuthConsumer(getString(R.string.CONSUMER_KEY), getString(R.string.CONSUMER_SECRET));
-      this.provider = new CommonsHttpOAuthProvider(Constants.REQUEST_URL, Constants.ACCESS_URL, Constants.AUTHORIZE_URL);
+      String requestUrl = getIntent().getStringExtra(REQUEST_URL);
+      String accessUrl  = getIntent().getStringExtra(ACCESS_URL);
+      String authUrl    = getIntent().getStringExtra(AUTHORIZE_URL);
+      
+      mTokenKey  = getIntent().getStringExtra(OAUTH_TOKEN_PREF); 
+      mSecretKey = getIntent().getStringExtra(OAUTH_TOKEN_SECRET_PREF); 
+      
+      this.consumer = new CommonsHttpOAuthConsumer(key, secret);
+      this.provider = new CommonsHttpOAuthProvider(requestUrl, accessUrl, authUrl);
 
       Log.i(TAG, "Starting task to retrieve request token.");
       new OAuthRequestTokenTask(this, consumer, provider).execute();
