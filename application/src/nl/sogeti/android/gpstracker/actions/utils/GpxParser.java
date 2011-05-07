@@ -1,4 +1,4 @@
-package nl.sogeti.android.gpstracker.viewer;
+package nl.sogeti.android.gpstracker.actions.utils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -15,6 +15,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
 import nl.sogeti.android.gpstracker.util.UnicodeReader;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

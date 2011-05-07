@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.GpxParser;
 import nl.sogeti.android.gpstracker.util.Pair;
-import nl.sogeti.android.gpstracker.viewer.GpxParser;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;

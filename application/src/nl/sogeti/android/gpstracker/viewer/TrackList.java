@@ -35,6 +35,7 @@ import oauth.signpost.OAuth;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
+import nl.sogeti.android.gpstracker.actions.utils.GpxParser;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;

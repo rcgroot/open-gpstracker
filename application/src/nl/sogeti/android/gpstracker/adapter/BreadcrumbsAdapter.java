@@ -33,10 +33,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.GpxParser;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.DateView;
 import nl.sogeti.android.gpstracker.util.Pair;
-import nl.sogeti.android.gpstracker.viewer.GpxParser;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuth;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
