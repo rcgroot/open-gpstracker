@@ -295,22 +295,6 @@ public class TrackList extends ListActivity
             
             startActivity(i);
          }
-         else
-         {
-            Intent intent = new Intent();
-            intent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, id));
-            ComponentName caller = this.getCallingActivity();
-            if (caller != null)
-            {
-               setResult(RESULT_OK, intent);
-               finish();
-            }
-            else
-            {
-               intent.setClass(this, LoggerMap.class);
-               startActivity(intent);
-            }
-         }
       }
       else if( item instanceof Pair<?, ?>) 
       {
@@ -318,6 +302,23 @@ public class TrackList extends ListActivity
          if( track.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE )
          {
             mBreadcrumbAdapter.startSyncAndOpenTask(this, track);
+         }
+      }
+      else
+      {
+         Intent intent = new Intent();
+         Uri trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, id);
+         intent.setData(trackUri);
+         ComponentName caller = this.getCallingActivity();
+         if (caller != null)
+         {
+            setResult(RESULT_OK, intent);
+            finish();
+         }
+         else
+         {
+            intent.setClass(this, LoggerMap.class);
+            startActivity(intent);
          }
       }
    }

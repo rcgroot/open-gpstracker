@@ -146,7 +146,8 @@ public class SectionedListAdapter extends BaseAdapter
          
          if (countDown < adapter.getCount())
          {
-            return adapter.getItemId(countDown);
+            long id = adapter.getItemId(countDown);
+            return id;
          }
          countDown -= adapter.getCount();
       }
