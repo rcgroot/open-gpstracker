@@ -155,7 +155,7 @@
          </activity>
          
 		<activity 
-		    android:name=".adapter.PrepareRequestTokenActivity"
+		    android:name="oauth.PrepareRequestTokenActivity"
 			android:launchMode="singleTask">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
