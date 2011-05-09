@@ -137,7 +137,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
                {
                   ContentValues trackContent = new ContentValues();
                   trackContent.put(Tracks.NAME, trackName);
-                  if (xmlParser.getName().equals("trk"))
+                  if (xmlParser.getName().equals("trk") && trackUri == null)
                   {
                      trackUri = startTrack(trackContent);
                   }
