@@ -11,6 +11,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
@@ -26,7 +27,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.os.AsyncTask;
 
-public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
+public class GpxParser extends AsyncTask<Uri, Integer, Uri>
 {
    private static final String LATITUDE_ATRIBUTE = "lat";
    private static final String LONGITUDE_ATTRIBUTE = "lon";
@@ -62,9 +63,9 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
       mContentResolver = mTrackList.getContentResolver();
    }
 
-   public Boolean importUri(Uri importFileUri) 
+   public Uri importUri(Uri importFileUri) 
    {
-      Boolean result = new Boolean(true);
+      Uri result = null;
       String trackName = null;
       InputStream fis = null;
       mLength = DEFAULT_UNKNOWN_FILESIZE;
@@ -82,19 +83,17 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
       {
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_io);
          mErrorDialogException = e;
-         result = new Boolean(false);
+         result = null;
       }
       
-      if( result.booleanValue() )
-      {
-         result = importTrack( fis, trackName);
-      }
+      result = importTrack( fis, trackName);
       
       return result;
    }
 
-   public Boolean importTrack( InputStream fis, String trackName )
+   public Uri importTrack( InputStream fis, String trackName )
    {
+      Uri trackUri = null;
       int eventType;
       ContentValues lastPosition = null;
       Vector<ContentValues> bulk = new Vector<ContentValues>();
@@ -105,7 +104,6 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
       boolean name = false;
       boolean time = false;
       Long importDate = new Long(new Date().getTime());
-      Boolean result = new Boolean(true);
       try
       {
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -123,7 +121,6 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
 
          String attributeName;
 
-         Uri trackUri = null;
          Uri segmentUri = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
@@ -273,21 +270,21 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
       {
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
          mErrorDialogException = e;
-         result = new Boolean(false);
+         trackUri = null;
       }
       catch (ParseException e)
       {
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_parse);
          mErrorDialogException = e;
-         result = new Boolean(false);
+         trackUri = null;
       }
       catch (IOException e)
       {
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_io);
          mErrorDialogException = e;
-         result = new Boolean(false);
+         trackUri = null;
       }
-      return result;
+      return trackUri;
    }
 
    private Uri startSegment(Uri trackUri)
@@ -332,7 +329,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
    }
    
    @Override
-   protected Boolean doInBackground(Uri... params)
+   protected Uri doInBackground(Uri... params)
    {
       return importUri( params[0] );
    }
@@ -345,9 +342,9 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
    }
    
    @Override
-   protected void onPostExecute(Boolean result)
+   protected void onPostExecute(Uri result)
    {
-      if( result.booleanValue() )
+      if( GPStracking.AUTHORITY.equals( result.getEncodedAuthority() ) )
       {
          mTrackList.stopProgressBar();
       }
@@ -355,8 +352,6 @@ public class GpxParser extends AsyncTask<Uri, Integer, Boolean>
       {
          mTrackList.showErrorDialog(mErrorDialogMessage, mErrorDialogException);
       }
-      mTrackList = null;
-      mContentResolver = null;
    }
 
    public void incrementProgressBy(int add)

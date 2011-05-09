@@ -33,6 +33,9 @@ import java.io.InputStream;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GpxParser;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;
 import nl.sogeti.android.gpstracker.util.Pair;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuthConsumer;
@@ -49,6 +52,9 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -93,9 +99,9 @@ public class SyncBreadcrumbsTrackTask extends GpxParser
     * authorize the token.
     */
    @Override
-   protected Boolean doInBackground(Uri... params)
+   protected Uri doInBackground(Uri... params)
    {
-      Boolean result = new Boolean(false);
+      Uri trackUri = null;
       InputStream fis = null;
       String trackName = mAdapter.getBreadcrumbsTracks().getKeyForItem(mTrack, BreadcrumbsTracks.NAME);
       try
@@ -109,46 +115,66 @@ public class SyncBreadcrumbsTrackTask extends GpxParser
          HttpResponse response = mHttpclient.execute(request);
          HttpEntity entity = response.getEntity();
          fis = entity.getContent();
-         result = new Boolean(true);
+
+         trackUri = importTrack(fis, trackName);
       }
       catch (OAuthMessageSignerException e)
       {
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
          mErrorDialogException = e;
-         result = new Boolean(false);
+         trackUri = null;
       }
       catch (OAuthExpectationFailedException e)
       {
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
          mErrorDialogException = e;
-         result = new Boolean(false);
+         trackUri = null;
       }
       catch (OAuthCommunicationException e)
       {
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
          mErrorDialogException = e;
-         result = new Boolean(false);
+         trackUri = null;
       }
       catch (IOException e)
       {
          mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
          mErrorDialogException = e;
-         result = new Boolean(false);
+         trackUri = null;
       }
-      
-      if (result.booleanValue())
-      {
-         result = importTrack(fis, trackName);
-      }
-
-      return result;
+      return trackUri;
    }
 
    @Override
-   protected void onPostExecute(Boolean result)
+   protected void onPostExecute(Uri result)
    {
       super.onPostExecute(result);
+
+      long ogtTrackId = Long.parseLong(result.getLastPathSegment());
+      Uri mediaUri = Uri.withAppendedPath(ContentUris.withAppendedId(Tracks.CONTENT_URI, ogtTrackId), "metadata");
+      
+      BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
+      Integer bcTrackId = mTrack.second;
+      Integer bcBundleId = tracks.getBundleIdForTrackId(bcTrackId);
+      Integer bcActivityId = tracks.getActivityIdForBundleId(bcBundleId);
+      ContentValues[] metaValues = { 
+            buildContentValues( BreadcrumbsTracks.TRACK_ID, Long.toString(bcTrackId)),
+            buildContentValues( BreadcrumbsTracks.BUNDLE_ID, Integer.toString(bcBundleId)),
+            buildContentValues( BreadcrumbsTracks.ACTIVITY_ID, Integer.toString(bcActivityId))
+            };
+      
+      ContentResolver resolver = mTrackList.getContentResolver();
+      resolver.bulkInsert(mediaUri, metaValues);
+      
       mAdapter.finishedTrackSyncTask(this);
+   }
+   
+   private ContentValues buildContentValues( String key, String value)
+   {
+      ContentValues contentValues = new ContentValues();
+      contentValues.put(MetaData.KEY, key);
+      contentValues.put(MetaData.VALUE, value);
+      return contentValues;
    }
 
 }

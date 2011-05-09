@@ -9,6 +9,12 @@ import java.util.Map;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
 
+/**
+ * Model containing agregrated data retrieved from the GoBreadcrumbs.com API
+ * 
+ * @version $Id:$
+ * @author rene (c) May 9, 2011, Sogeti B.V.
+ */
 public class BreadcrumbsTracks
 {
    public static final String DESCRIPTION = "DESCRIPTION";
@@ -16,6 +22,30 @@ public class BreadcrumbsTracks
    public static final String NAME = "NAME";
 
    public static final String ENDTIME = "ENDTIME";
+
+   public static final String TRACK_ID = "BREADCRUMBS_TRACK_ID";
+   
+   public static final String BUNDLE_ID = "BREADCRUMBS_BUNDLE_ID";
+   
+   public static final String ACTIVITY_ID = "BREADCRUMBS_ACTIVITY_ID";
+
+   private static final String DIFFICULTY = "DIFFICULTY";
+
+   private static final String STARTTIME = "STARTTIME";
+
+   private static final String ISPUBLIC = "ISPUBLIC";
+
+   private static final String LATITUDE = "LATITUDE";
+
+   private static final String LONGITUDE = "LONGITUDE";
+
+   private static final String TOTALDISTANCE = "TOTALDISTANCE";
+
+   private static final String TOTALTIME = "TOTALTIME";
+
+   private static final String RATING = "RATING";
+
+
 
    /**
     * Map from activityId to a dictionary
@@ -43,6 +73,7 @@ public class BreadcrumbsTracks
     */
    private Map<Integer, List<Integer> > mBundles = new LinkedHashMap<Integer, List<Integer>>();
    
+   
    public void addActivity(Integer activityId, String activityName)
    {
       if( !mActivityMappings.containsKey(activityId) )
@@ -52,6 +83,32 @@ public class BreadcrumbsTracks
       mActivityMappings.get(activityId).put(NAME, activityName);
    }
 
+   public Integer getBundleIdForTrackId(Integer trackId)
+   {
+      for( Integer bundlId: mBundles.keySet() )
+      {
+         List<Integer> trackIds = mBundles.get(bundlId);
+         if( trackIds.contains(trackId) )
+         {
+            return bundlId;
+         }
+      }
+      return null;
+   }
+   
+   public Integer getActivityIdForBundleId(Integer bundleId)
+   {
+      for( Integer activityId: mActivities.keySet() )
+      {
+         List<Integer> bundleIds = mActivities.get(activityId);
+         if( bundleIds.contains(bundleId) )
+         {
+            return activityId;
+         }
+      }
+      return null;
+   }
+   
    /**
     * Add bundle to the track list
     * 
@@ -93,7 +150,15 @@ public class BreadcrumbsTracks
       }
       mTrackMappings.get(trackId).put(NAME, trackName);
       mTrackMappings.get(trackId).put(DESCRIPTION, trackDescription);
+      mTrackMappings.get(trackId).put(DIFFICULTY, difficulty);
+      mTrackMappings.get(trackId).put(STARTTIME, startTime);
       mTrackMappings.get(trackId).put(ENDTIME, endTime);
+//      mTrackMappings.get(trackId).put(ISPUBLIC, isPublic);
+//      mTrackMappings.get(trackId).put(LATITUDE, lat);
+//      mTrackMappings.get(trackId).put(LONGITUDE, lng);
+//      mTrackMappings.get(trackId).put(TOTALDISTANCE, totalDistance);
+//      mTrackMappings.get(trackId).put(TOTALTIME, totalTime);
+//      mTrackMappings.get(trackId).put(RATING, trackRating);
    }
 
    public void createTracks(Integer bundleId)

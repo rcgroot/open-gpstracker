@@ -55,7 +55,7 @@ public class ProgressFilterInputStream extends FilterInputStream
          incrementProgressBy( read );
       }
       return read;
-   }
+   }   
    
    private void incrementProgressBy( int add )
    {
