@@ -310,6 +310,7 @@ public class LoggerMap extends MapActivity
       {
          stopService( new Intent( Constants.SERVICENAME ) );
       }
+      mUnits = null;
    }
 
    /*

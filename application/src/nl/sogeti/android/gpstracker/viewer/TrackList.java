@@ -28,11 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-
-import oauth.signpost.OAuth;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.actions.utils.GpxParser;
@@ -99,8 +94,8 @@ public class TrackList extends ListActivity
    protected static final int DIALOG_ERROR = Menu.FIRST + 28;
 
    private static final int PICKER_OI = Menu.FIRST + 27;
-   private static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
-   private static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
+   public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
+   public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
 
    private BreadcrumbsAdapter mBreadcrumbAdapter;
    private EditText mTrackNameView;
@@ -111,8 +106,6 @@ public class TrackList extends ListActivity
    private ProgressBar mImportProgress;
    private String mErrorDialogMessage;
    private Exception mErrorDialogException;
-
-   private Runnable xmlParser;
    
    private OnClickListener mDeleteOnClickListener = new DialogInterface.OnClickListener()
    {

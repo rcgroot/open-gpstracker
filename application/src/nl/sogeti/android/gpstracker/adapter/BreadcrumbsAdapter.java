@@ -84,8 +84,8 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mHttpClient = new DefaultHttpClient();;
 
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-      String token = prefs.getString(OAuth.OAUTH_TOKEN, "");
-      String secret = prefs.getString(OAuth.OAUTH_TOKEN_SECRET, "");
+      String token = prefs.getString(TrackList.OAUTH_TOKEN, "");
+      String secret = prefs.getString(TrackList.OAUTH_TOKEN_SECRET, "");
       mConsumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
       mConsumer.setTokenWithSecret(token, secret);
       mOnline = !"".equals(token) && !"".equals(secret);
