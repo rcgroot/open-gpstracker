@@ -26,12 +26,18 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.actions.utils;
+package nl.sogeti.android.gpstracker.actions.utils.xml;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -48,9 +54,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
 
-public abstract class XmlCreator extends Thread
+public abstract class XmlCreator extends AsyncTask<Void, Integer, String>
 {
    @SuppressWarnings("unused")
    private String TAG = "OGT.XmlCreator";
@@ -58,10 +67,11 @@ public abstract class XmlCreator extends Thread
    private boolean mNeedsBundling;
    
    String mChosenFileName;
-   ProgressMonitor mProgressListener;
+   private ProgressMonitor mProgressListener;
    Context mContext;
    Uri mTrackUri;
-   String fileName;
+   String mFileName;
+   private CharSequence mErrorText;
 
    XmlCreator(Context context, Uri trackUri, String chosenFileName, ProgressMonitor listener)
    {
@@ -71,7 +81,7 @@ public abstract class XmlCreator extends Thread
       mProgressListener = listener;
       
       String trackName = extractCleanTrackName();
-      fileName = cleanFilename( mChosenFileName, trackName );
+      mFileName = cleanFilename( mChosenFileName, trackName );
    }
 
    private String extractCleanTrackName()
@@ -150,8 +160,12 @@ public abstract class XmlCreator extends Thread
             }
          }
          mProgressListener.setGoal( goal );
+         mProgressListener.startNotification();
       }
-      
+      else
+      {
+         Log.w(TAG, "Exporting "+mTrackUri+" without progress!");
+      }
    }
 
    /**
@@ -329,6 +343,71 @@ public abstract class XmlCreator extends Thread
    public boolean needsBundling()
    {
       return mNeedsBundling;
+   }
+
+   public static String convertStreamToString( InputStream is ) throws IOException
+   {
+      /*
+       * To convert the InputStream to String we use the Reader.read(char[] buffer) method. We iterate until the Reader return -1 which means there's no more data to read. We use the StringWriter
+       * class to produce the string.
+       */
+      if( is != null )
+      {
+         Writer writer = new StringWriter();
+   
+         char[] buffer = new char[1024];
+         try
+         {
+            Reader reader = new BufferedReader( new InputStreamReader( is, "UTF-8" ) );
+            int n;
+            while( ( n = reader.read( buffer ) ) != -1 )
+            {
+               writer.write( buffer, 0, n );
+            }
+         }
+         finally
+         {
+            is.close();
+         }
+         return writer.toString();
+      }
+      else
+      {
+         return "";
+      }
+   }
+   
+   protected abstract String getContentType();
+   
+   protected void setError( Exception e, CharSequence text)
+   {
+      Log.e( TAG, "Unable to save ", e );
+      mErrorText = text;
+   }
+   
+   @Override
+   protected void onProgressUpdate(Integer... progress)
+   {
+      if( mProgressListener != null )
+      {
+         mProgressListener.increaseProgress( progress[0] );
+      }
+   }
+   
+   @Override
+   protected void onPostExecute(String resultFilename)
+   {
+      if( mProgressListener != null )
+      {
+         mProgressListener.endNotification( resultFilename, getContentType() );
+      }
+   }
+   
+   @Override
+   protected void onCancelled()
+   {
+      Toast toast = Toast.makeText( mContext, mErrorText, Toast.LENGTH_LONG );
+      toast.show();
    }
 }
    

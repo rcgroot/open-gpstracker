@@ -39,9 +39,9 @@ import android.provider.BaseColumns;
  */
 public final class GPStracking
 {
-   /** The authority of this provider */
+   /** The authority of this provider: nl.sogeti.android.gpstracker */
    public static final String AUTHORITY = "nl.sogeti.android.gpstracker";
-   /** The content:// style URL for this provider */
+   /** The content:// style Uri for this provider, content://nl.sogeti.android.gpstracker */
    public static final Uri CONTENT_URI = Uri.parse( "content://" + GPStracking.AUTHORITY );
    /** The name of the database file */
    static final String DATABASE_NAME = "GPSLOG.db";
@@ -59,7 +59,7 @@ public final class GPStracking
       public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.nl.sogeti.android.track";
       /** The MIME type of CONTENT_URI providing a directory of tracks. */
       public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.track";
-      /** The content:// style URL for this provider */
+      /** The content:// style URL for this provider, content://nl.sogeti.android.gpstracker/tracks */
       public static final Uri CONTENT_URI = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + Tracks.TABLE );
 
       /** The name of this table */
@@ -175,6 +175,9 @@ public final class GPStracking
       "," + " " + MetaDataColumns.KEY      + " " + MetaDataColumns.KEY_TYPE + 
       "," + " " + MetaDataColumns.VALUE    + " " + MetaDataColumns.VALUE_TYPE + 
       ");";
+      /**
+       * content://nl.sogeti.android.gpstracker/metadata
+       */
       public static final Uri CONTENT_URI = Uri.parse( "content://" + GPStracking.AUTHORITY + "/" + MetaData.TABLE );
    }
    

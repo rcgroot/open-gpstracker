@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.actions.utils;
+package nl.sogeti.android.gpstracker.actions.utils.xml;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -46,7 +46,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
 import nl.sogeti.android.gpstracker.util.Constants;
 
 import org.xmlpull.v1.XmlSerializer;
@@ -55,12 +54,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
-import android.os.Looper;
 import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 import android.util.Xml;
-import android.widget.Toast;
 
 /**
  * Create a GPX version of a stored track
@@ -90,30 +86,25 @@ public class GpxCreator extends XmlCreator
       includeAttachments = attachments;
    }
 
-   public void run()
+   @Override
+   protected String doInBackground(Void... params)
    {
-      Looper.prepare();
-
       String xmlFilePath;
-      if( fileName.endsWith( ".gpx" ) || fileName.endsWith( ".xml" ) )
+      if( mFileName.endsWith( ".gpx" ) || mFileName.endsWith( ".xml" ) )
       {
-         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + fileName.substring( 0, fileName.length() - 4 ) );
+         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + mFileName.substring( 0, mFileName.length() - 4 ) );
 
-         xmlFilePath = getExportDirectoryPath() + "/" + fileName;
+         xmlFilePath = getExportDirectoryPath() + "/" + mFileName;
       }
       else
       {
-         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + fileName );
-         xmlFilePath = getExportDirectoryPath() + "/" + fileName + ".gpx";
+         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + mFileName );
+         xmlFilePath = getExportDirectoryPath() + "/" + mFileName + ".gpx";
       }
       
       new File( getExportDirectoryPath() ).mkdirs();
 
-      if( mProgressListener != null )
-      {
-         determineProgressGoal();
-         mProgressListener.startNotification();
-      }
+      determineProgressGoal();
 
       String resultFilename = null;
       FileOutputStream fos = null;
@@ -147,39 +138,31 @@ public class GpxCreator extends XmlCreator
             XmlCreator.deleteRecursive( xmlFile.getParentFile() );
          }
 
-         fileName = new File( resultFilename ).getName();
-
-         CharSequence text = mContext.getString( R.string.ticker_stored ) + " \"" + fileName + "\" ";
-         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
-         toast.show();
+         mFileName = new File( resultFilename ).getName();
       }
       catch( FileNotFoundException e )
       {
-         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_filenotfound );
-         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
-         toast.show();
+         setError( e, text );
+         cancel(false);
       }
       catch( IllegalArgumentException e )
       {
-         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_filename );
-         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
-         toast.show();
+         setError( e, text );
+         cancel(false);
       }
       catch( IllegalStateException e )
       {
-         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_buildxml );
-         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
-         toast.show();
+         setError( e, text );
+         cancel(false);
       }
       catch( IOException e )
       {
-         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_writesdcard );
-         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
-         toast.show();
+         setError( e, text );
+         cancel(false);
       }
       finally
       {
@@ -205,12 +188,8 @@ public class GpxCreator extends XmlCreator
                Log.e( TAG, "Failed to close fos after completion, ignoring." , e );
             }
          }
-         if( mProgressListener != null )
-         {
-            mProgressListener.endNotification( resultFilename, getContentType() );
-         }
-         Looper.loop();
       }
+      return resultFilename;
    }
 
    private void serializeTrack( Uri trackUri, XmlSerializer serializer ) throws IllegalArgumentException, IllegalStateException, IOException
@@ -320,10 +299,7 @@ public class GpxCreator extends XmlCreator
          {
             do
             {
-               if( mProgressListener != null )
-               {
-                  mProgressListener.increaseProgress( 1 );
-               }
+               publishProgress(1);
 
                serializer.text( "\n" );
                serializer.startTag( "", "trkpt" );
@@ -476,7 +452,8 @@ public class GpxCreator extends XmlCreator
       }
    }
 
-   private String getContentType()
+   @Override
+   protected String getContentType()
    {
       return needsBundling() ? "application/zip" : "text/xml";
    }

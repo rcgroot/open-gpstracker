@@ -30,8 +30,9 @@ package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.Statistics;
-import nl.sogeti.android.gpstracker.actions.utils.GpxParser;
+import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking;
@@ -61,6 +62,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -106,7 +110,7 @@ public class TrackList extends ListActivity
    private ProgressBar mImportProgress;
    private String mErrorDialogMessage;
    private Exception mErrorDialogException;
-   
+
    private OnClickListener mDeleteOnClickListener = new DialogInterface.OnClickListener()
    {
       public void onClick(DialogInterface dialog, int which)
@@ -159,6 +163,7 @@ public class TrackList extends ListActivity
          }
       }
    };
+
    @Override
    protected void onCreate(Bundle savedInstanceState)
    {
@@ -173,17 +178,17 @@ public class TrackList extends ListActivity
       // Add the context menu (the long press thing)
       registerForContextMenu(listView);
    }
-   
+
    @Override
    public Object onRetainNonConfigurationInstance()
    {
       return mBreadcrumbAdapter;
    }
-   
+
    @Override
    protected void onDestroy()
    {
-      if( mBreadcrumbAdapter != null && isFinishing() )
+      if (mBreadcrumbAdapter != null && isFinishing())
       {
          mBreadcrumbAdapter.shutdown();
       }
@@ -267,34 +272,36 @@ public class TrackList extends ListActivity
    }
 
    @Override
-   protected void onListItemClick(ListView listView, View v, int position, long id)
+   protected void onListItemClick(ListView listView, View view, int position, long id)
    {
-      super.onListItemClick(listView, v, position, id);
+      super.onListItemClick(listView, view, position, id);
+      Log.d( TAG, "Clicked on view "+view);
 
       Object item = listView.getItemAtPosition(position);
-      if( item instanceof String )
+      if (item instanceof String)
       {
-         if( Constants.BREADCRUMBS_CONNECT.equals(item) )
+         if (Constants.BREADCRUMBS_CONNECT.equals(item))
          {
             Intent i = new Intent(getApplicationContext(), PrepareRequestTokenActivity.class);
             i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
             i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
-            
+
             i.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, getString(R.string.CONSUMER_KEY));
             i.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, getString(R.string.CONSUMER_SECRET));
             i.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.REQUEST_URL);
             i.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.ACCESS_URL);
             i.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.AUTHORIZE_URL);
-            
+
             startActivity(i);
          }
       }
-      else if( item instanceof Pair<?, ?>) 
+      else if (item instanceof Pair< ? , ? >)
       {
-         Pair<Integer, Integer> track =  (Pair<Integer, Integer>) item;
-         if( track.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE )
+         @SuppressWarnings("unchecked")
+         Pair<Integer, Integer> track = (Pair<Integer, Integer>) item;
+         if (track.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE)
          {
-            mBreadcrumbAdapter.startSyncAndOpenTask(this, track);
+            mBreadcrumbAdapter.startDownloadTask(this, track);
          }
       }
       else
@@ -540,13 +547,14 @@ public class TrackList extends ListActivity
    {
       SectionedListAdapter sectionedAdapter = new SectionedListAdapter(this);
 
-      String[] fromColumns = new String[] { Tracks.NAME, Tracks.CREATION_TIME };
-      int[] toItems = new int[] { R.id.listitem_name, R.id.listitem_from };
+      String[] fromColumns = new String[] { Tracks.NAME, Tracks.CREATION_TIME, Tracks._ID };
+      int[] toItems = new int[] { R.id.listitem_name, R.id.listitem_from, R.id.bcSyncedCheckBox };
       SimpleCursorAdapter trackAdapter = new SimpleCursorAdapter(this, R.layout.trackitem, tracksCursor, fromColumns, toItems);
+
       sectionedAdapter.addSection("Local", trackAdapter);
 
       mBreadcrumbAdapter = (BreadcrumbsAdapter) getLastNonConfigurationInstance();
-      if( mBreadcrumbAdapter == null )
+      if (mBreadcrumbAdapter == null)
       {
          mBreadcrumbAdapter = new BreadcrumbsAdapter(this);
       }
@@ -555,6 +563,40 @@ public class TrackList extends ListActivity
          mBreadcrumbAdapter.notifyDataSetChanged();
       }
       sectionedAdapter.addSection("GoBreadcrumbs", mBreadcrumbAdapter);
+
+      // Enrich the track adapter with Breadcrumbs adapter data 
+      trackAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder()
+      {
+         public boolean setViewValue(View view, final Cursor cursor, int columnIndex)
+         {
+            if (columnIndex == 0)
+            {
+               if (mBreadcrumbAdapter.isOnline())
+               {
+                  final long trackId = cursor.getLong(0);
+                  CheckBox checkbox = (CheckBox) view;
+                  BreadcrumbsTracks tracks = mBreadcrumbAdapter.getBreadcrumbsTracks();
+                  checkbox.setVisibility(View.VISIBLE);
+                  boolean isSynced = tracks.isLocalTrackOnline(cursor.getLong(columnIndex));
+                  checkbox.setEnabled(!isSynced);
+                  checkbox.setChecked(isSynced);
+                  checkbox.setOnCheckedChangeListener( new OnCheckedChangeListener()
+                  {
+                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+                     {
+                        if( isChecked )
+                        {
+                           Log.d( TAG, "View"+buttonView+" track id "+trackId );
+                           mBreadcrumbAdapter.startUploadTask(TrackList.this, trackId);
+                        }
+                     }
+                  });
+               }
+               return true;
+            }
+            return false;
+         }
+      });
 
       setListAdapter(sectionedAdapter);
    }
@@ -573,7 +615,7 @@ public class TrackList extends ListActivity
       mImportProgress.setVisibility(View.VISIBLE);
    }
 
-   public void updateProgressBar(int increment, int max )
+   public void updateProgressBar(int increment, int max)
    {
       mImportProgress.setMax(max);
       mImportProgress.incrementProgressBy(increment);
@@ -590,6 +632,5 @@ public class TrackList extends ListActivity
       mErrorDialogException = errorDialogException;
       showDialog(DIALOG_ERROR);
    }
-
 
 }

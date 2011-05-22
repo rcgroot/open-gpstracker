@@ -16,7 +16,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import nl.sogeti.android.gpstracker.actions.utils.GpxParser;
+import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
 
 /**
  * ????

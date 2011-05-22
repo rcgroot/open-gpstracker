@@ -28,21 +28,17 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.utils.GpxCreator;
-import nl.sogeti.android.gpstracker.actions.utils.KmzCreator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
+import nl.sogeti.android.gpstracker.actions.utils.xml.GpxCreator;
+import nl.sogeti.android.gpstracker.actions.utils.xml.KmzCreator;
+import nl.sogeti.android.gpstracker.actions.utils.xml.XmlCreator;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
@@ -307,7 +303,7 @@ public class ShareTrack extends Activity
       if (endJob != null)
       {
          KmzCreator kmzCreator = new KmzCreator(this, mTrackUri, chosenFileName, new ProgressMonitor(chosenFileName, endJob));
-         kmzCreator.start();
+         kmzCreator.execute();
          ShareTrack.this.finish();
       }
    }
@@ -363,8 +359,9 @@ public class ShareTrack extends Activity
       }
       if (endJob != null)
       {
+         
          GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ProgressMonitor(chosenFileName, endJob));
-         gpxCreator.start();
+         gpxCreator.execute();
          ShareTrack.this.finish();
       }
    }
@@ -436,7 +433,7 @@ public class ShareTrack extends Activity
 
          statusCode = response.getStatusLine().getStatusCode();
          InputStream stream = response.getEntity().getContent();
-         jogmapResponseText = convertStreamToString(stream);
+         jogmapResponseText = XmlCreator.convertStreamToString(stream);
       }
       catch (IOException e)
       {
@@ -527,7 +524,7 @@ public class ShareTrack extends Activity
          // Read the response
          statusCode = response.getStatusLine().getStatusCode();
          InputStream stream = response.getEntity().getContent();
-         responseText = convertStreamToString(stream);
+         responseText = XmlCreator.convertStreamToString(stream);
       }
       catch (IOException e)
       {
@@ -567,38 +564,6 @@ public class ShareTrack extends Activity
       }
    }
 
-   public String convertStreamToString( InputStream is ) throws IOException
-   {
-      /*
-       * To convert the InputStream to String we use the Reader.read(char[] buffer) method. We iterate until the Reader return -1 which means there's no more data to read. We use the StringWriter
-       * class to produce the string.
-       */
-      if( is != null )
-      {
-         Writer writer = new StringWriter();
-
-         char[] buffer = new char[1024];
-         try
-         {
-            Reader reader = new BufferedReader( new InputStreamReader( is, "UTF-8" ) );
-            int n;
-            while( ( n = reader.read( buffer ) ) != -1 )
-            {
-               writer.write( buffer, 0, n );
-            }
-         }
-         finally
-         {
-            is.close();
-         }
-         return writer.toString();
-      }
-      else
-      {
-         return "";
-      }
-   }
-   
    private void sendSMS(String msg)
    {
       final Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -803,7 +768,7 @@ public class ShareTrack extends Activity
       }
    }
 
-   interface EndJob
+   public static interface EndJob
    {
       void shareFile(Uri fileUri, String contentType);
    }

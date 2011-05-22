@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.actions.utils;
+package nl.sogeti.android.gpstracker.actions.utils.xml;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -53,12 +53,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
-import android.os.Looper;
 import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 import android.util.Xml;
-import android.widget.Toast;
 
 /**
  * Create a KMZ version of a stored track
@@ -83,27 +80,23 @@ public class KmzCreator extends XmlCreator
       super( context, trackUri, chosenFileName, listener );
    }
 
-   public void run()
+   @Override
+   protected String doInBackground(Void... params)
    {
-      Looper.prepare();
 
-      if(  fileName.endsWith( ".kmz" ) || fileName.endsWith( ".zip" ) )
+      if(  mFileName.endsWith( ".kmz" ) || mFileName.endsWith( ".zip" ) )
       {
-         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + fileName.substring( 0, fileName.length() - 4 ) );
+         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + mFileName.substring( 0, mFileName.length() - 4 ) );
       }
       else
       {
-         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + fileName );
+         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + mFileName );
       }
       
       new File( getExportDirectoryPath() ).mkdirs();
       String xmlFilePath = getExportDirectoryPath() + "/doc.kml";
 
-      if( mProgressListener != null )
-      {
-         determineProgressGoal();
-         mProgressListener.startNotification();
-      }
+      determineProgressGoal();
       
       String resultFilename = null;
       FileOutputStream fos = null;
@@ -118,39 +111,32 @@ public class KmzCreator extends XmlCreator
          buf = new BufferedOutputStream( fos, 8192 );
          serializer.setOutput( buf, "UTF-8" );
 
-         serializeTrack( mTrackUri, fileName, serializer );
+         serializeTrack( mTrackUri, mFileName, serializer );
          buf.close();
          buf = null;
          fos.close();
          fos =  null;
          
          resultFilename = bundlingMediaAndXml( xmlFile.getParentFile().getName(), ".kmz" );
-         fileName = new File( resultFilename ).getName();
-
-         CharSequence text = mContext.getString( R.string.ticker_stored ) + " \"" + fileName + "\" ";
-         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
-         toast.show();
+         mFileName = new File( resultFilename ).getName();
       }
       catch( IllegalArgumentException e )
       {
-         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_filename );
-         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
-         toast.show();
+         setError( e, text );
+         cancel(false);
       }
       catch( IllegalStateException e )
       {
-         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_buildxml );
-         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
-         toast.show();
+         setError( e, text );
+         cancel(false);
       }
       catch( IOException e )
       {
-         Log.e( TAG, "Unable to save ", e );
          CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_writesdcard );
-         Toast toast = Toast.makeText( mContext, text, Toast.LENGTH_LONG );
-         toast.show();
+         setError( e, text );
+         cancel(false);
       }
       finally
       {
@@ -176,12 +162,8 @@ public class KmzCreator extends XmlCreator
                Log.e( TAG, "Failed to close fos after completion, ignoring." , e );
             }
          }
-         if( mProgressListener != null )
-         {
-            mProgressListener.endNotification( resultFilename, getContentType() );
-         }
-         Looper.loop();
       }
+      return resultFilename;
    }
 
    private void serializeTrack( Uri trackUri, String trackName, XmlSerializer serializer ) throws IOException
@@ -426,10 +408,7 @@ public class KmzCreator extends XmlCreator
             serializer.startTag( "", "coordinates" );
             do
             {
-               if( mProgressListener != null )
-               {
-                  mProgressListener.increaseProgress( 1 );
-               }
+               publishProgress(1);
                // Single Coordinate tuple
                serializeCoordinates( serializer, waypointsCursor );
                serializer.text( " " );
@@ -628,7 +607,8 @@ public class KmzCreator extends XmlCreator
       }
    }
    
-   private String getContentType()
+   @Override
+   protected String getContentType()
    {
       return "application/vnd.google-earth.kmz";
    }

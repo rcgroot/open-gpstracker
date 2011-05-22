@@ -170,7 +170,7 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Breadcru
    {
       super.onPostExecute(result);
       
-      mAdapter.finishedActivitiesTask(this);
+      mAdapter.finishedTask();
    }
 
 }

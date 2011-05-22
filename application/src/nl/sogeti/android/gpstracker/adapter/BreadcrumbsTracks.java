@@ -6,6 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.net.Uri;
+
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
 
@@ -72,7 +77,20 @@ public class BreadcrumbsTracks
     * Mapping from bundleId to a list of trackIds
     */
    private Map<Integer, List<Integer> > mBundles = new LinkedHashMap<Integer, List<Integer>>();
+
+   private ContentResolver mResolver;
+
+   private Map<Long, Integer> mSyncedTracks;
    
+   /**
+    * 
+    * Constructor: create a new BreadcrumbsTracks.
+    * @param resolver Content resolver to obtain local breadcrumbs references
+    */
+   public BreadcrumbsTracks(ContentResolver resolver)
+   {
+      mResolver = resolver;
+   }
    
    public void addActivity(Integer activityId, String activityName)
    {
@@ -246,6 +264,38 @@ public class BreadcrumbsTracks
    {
       return "BreadcrumbsTracks [mActivityMappings=" + mActivityMappings + ", mBundleMappings=" + mBundleMappings + ", mTrackMappings=" + mTrackMappings
             + ", mActivities=" + mActivities + ", mBundles=" + mBundles + "]";
+   }
+
+   public boolean isLocalTrackOnline(Long qtrackId)
+   {
+      if( mSyncedTracks == null )
+      {
+         mSyncedTracks = new HashMap<Long, Integer>();
+         Cursor cursor = null;
+         try
+         {
+            cursor = mResolver.query(MetaData.CONTENT_URI, new String[]{MetaData.TRACK, MetaData.VALUE}, MetaData.KEY+" = ? ", new String[]{TRACK_ID}, null);
+            if( cursor.moveToFirst() )
+            {
+               do
+               {
+                  Long trackId = cursor.getLong(0);
+                  Integer bcTrackId = Integer.valueOf( cursor.getString(1) );
+                  mSyncedTracks.put(trackId, bcTrackId);
+               }
+               while(cursor.moveToNext());
+            }
+         }
+         finally
+         {
+            if( cursor != null )
+            {
+               cursor.close();
+            }
+         }
+      }
+      boolean synced = mTrackMappings.containsKey(mSyncedTracks.get(qtrackId));
+      return synced; 
    }
 
 }

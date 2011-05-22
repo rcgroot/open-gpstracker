@@ -1,4 +1,4 @@
-package nl.sogeti.android.gpstracker.actions.utils;
+package nl.sogeti.android.gpstracker.actions.utils.xml;
 
 import java.io.BufferedInputStream;
 import java.io.File;

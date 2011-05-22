@@ -28,9 +28,19 @@
  */
 package nl.sogeti.android.gpstracker.adapter;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.ShareTrack;
+import nl.sogeti.android.gpstracker.actions.ShareTrack.EndJob;
+import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
+import nl.sogeti.android.gpstracker.actions.utils.xml.GpxCreator;
+import nl.sogeti.android.gpstracker.actions.utils.xml.XmlCreator;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -38,15 +48,23 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.utils.URIUtils;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.content.ContentUris;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * An asynchronous task that communicates with Twitter to retrieve a request
@@ -54,31 +72,33 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
+public class UploadBreadcrumbsTrackTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
 {
 
-   final String TAG = "OGT.GetBreadcrumbsBundlesTask";
+   final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
-   private DefaultHttpClient mHttpclient;
+   private DefaultHttpClient mHttpClient;
+   private long mTrackId;
+   private Uri mFileUri;
+   private TrackList mTrackList;
    
    /**
     * We pass the OAuth consumer and provider.
     * 
-    * @param mContext Required to be able to start the intent to launch the
+    * @param trackList Required to be able to start the intent to launch the
     *           browser.
     * @param httpclient 
-    * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
+    * @param trackId
     */
-   public GetBreadcrumbsBundlesTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public UploadBreadcrumbsTrackTask(TrackList trackList, DefaultHttpClient httpclient, OAuthConsumer consumer, long trackId)
    {
-      mAdapter = adapter;
-      mHttpclient = httpclient;
+      mTrackList = trackList;
+      mHttpClient = httpclient;
       mConsumer = consumer;
-      
+      mTrackId = trackId;
    }
-
    /**
     * Retrieve the OAuth Request Token and present a browser to the user to
     * authorize the token.
@@ -86,66 +106,55 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
    @Override
    protected BreadcrumbsTracks doInBackground(Void... params)
    {
+      Uri mTrackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ); 
+      String chosenFileName = "uploadToGobreadcrumbs";
+      boolean attachments = false;
+      ShareTrack.EndJob endJob = new EndJob()
+      {
+         public void shareFile(Uri file, String contentType)
+         {
+            mFileUri = file;
+         }
+      };
+      GpxCreator gpxCreator = new GpxCreator(mTrackList, mTrackUri, chosenFileName, attachments, null);
+      gpxCreator.execute();
+      
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
+      File gpxFile = new File(mFileUri.getEncodedPath());
+      
+      int statusCode = 0 ;
       try
       {
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles.xml");
-         
-         mConsumer.sign(request);
+         HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/tracks");         
+         mConsumer.sign(method);
          if( isCancelled() )
          {
             throw new IOException("Fail to execute request due to canceling");
          }
-         HttpResponse response = mHttpclient.execute(request);
-         HttpEntity entity = response.getEntity();
-         InputStream instream = entity.getContent();
-
+         // Build the multipart body with the upload data
+         MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+         entity.addPart("import_type", new StringBody("GPX"));
+         entity.addPart("gpx",         new FileBody(gpxFile));
+         entity.addPart("bundle_id",   new StringBody(""));
+         entity.addPart("description", new StringBody(""));
+         entity.addPart("difficulty",  new StringBody(""));
+         entity.addPart("rating",      new StringBody(""));
+         entity.addPart("public",      new StringBody(""));
+         method.setEntity(entity);
          
-         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-         factory.setNamespaceAware(true);
-         XmlPullParser xpp = factory.newPullParser();
-         xpp.setInput(instream, "UTF-8");
+         // Execute the POST to OpenStreetMap
+         HttpResponse response = mHttpClient.execute(method);
 
-         String tagName = null;
-         int eventType = xpp.getEventType();
+         statusCode = response.getStatusLine().getStatusCode();
+         InputStream stream = response.getEntity().getContent();
+         String responseText = XmlCreator.convertStreamToString(stream);
+         Log.d( TAG, "Uploaded track "+mTrackId+" and received response: "+responseText);
          
-         String bundleName = null, bundleDescription = null;
-         Integer activityId = null, bundleId = null;
-         while (eventType != XmlPullParser.END_DOCUMENT)
-         {
-            if (eventType == XmlPullParser.START_TAG)
-            {
-               tagName = xpp.getName();
-            }
-            else if (eventType == XmlPullParser.END_TAG)
-            {
-               if( "bundle".equals(xpp.getName()) && activityId != null && bundleId != null )
-               {
-                  tracks.addBundle( activityId, bundleId, bundleName, bundleDescription );
-               }
-               tagName = null;
-            }
-            else if (eventType == XmlPullParser.TEXT)
-            {
-               if( "activity-id".equals(tagName) )
-               {
-                  activityId = Integer.parseInt(xpp.getText() );
-               }
-               else if( "description".equals(tagName) )
-               {
-                  bundleDescription = xpp.getText();
-               }
-               else if( "id".equals(tagName) )
-               {
-                  bundleId = Integer.parseInt(xpp.getText() );
-               }
-               else if( "name".equals(tagName) )
-               {
-                  bundleName = xpp.getText();
-               }
-            }
-            eventType = xpp.next();
-         }
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+         Log.e( TAG, "", e );
       }
       catch (OAuthMessageSignerException e)
       {
@@ -162,15 +171,13 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
          e.printStackTrace();
          Log.e( TAG, "", e );
       }
-      catch (IOException e)
+      if (statusCode == 200)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         Log.d( TAG, "Excellent code 200" );
       }
-      catch (XmlPullParserException e)
+      else
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         Log.e( TAG, ""+statusCode );
       }
       return tracks;
    }
@@ -183,11 +190,4 @@ public class GetBreadcrumbsBundlesTask extends AsyncTask<Void, Void, Breadcrumbs
       mAdapter.finishedTask();
    }
 
-   @Override
-   protected void onCancelled()
-   {
-      super.onCancelled();
-      
-      mAdapter.canceledTask( this );
-   }
 }

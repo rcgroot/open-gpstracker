@@ -54,13 +54,14 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsTracksTask extends AsyncTask<Integer, Void, BreadcrumbsTracks>
+public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
 {
 
    final String TAG = "OGT.GetBreadcrumbsTracksTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
+   private Integer mBundleId;
    
    /**
     * We pass the OAuth consumer and provider.
@@ -71,11 +72,12 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Integer, Void, Breadcrum
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsTracksTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public GetBreadcrumbsTracksTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer, Integer bundleId)
    {
       mAdapter = adapter;
       mHttpclient = httpclient;
       mConsumer = consumer;
+      mBundleId = bundleId;
    }
    
    /**
@@ -83,15 +85,14 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Integer, Void, Breadcrum
     * authorize the token.
     */
    @Override
-   protected BreadcrumbsTracks doInBackground(Integer... params)
+   protected BreadcrumbsTracks doInBackground(Void... params)
    {
-      Integer bundleParam = params[0];
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
       try
       {
-         tracks.createTracks(bundleParam);
+         tracks.createTracks(mBundleId);
          
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles/"+bundleParam+"/tracks.xml");
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles/"+mBundleId+"/tracks.xml");
          mConsumer.sign(request);
          if( isCancelled() )
          {
@@ -210,7 +211,7 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Integer, Void, Breadcrum
    protected void onPostExecute(BreadcrumbsTracks result)
    {
       super.onPostExecute(result);
-      mAdapter.finishedTrackTask( this );
+      mAdapter.finishedTask();
    }
 
 }

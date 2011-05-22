@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.utils.GpxParser;
+import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;
@@ -66,7 +66,7 @@ import android.widget.Adapter;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class SyncBreadcrumbsTrackTask extends GpxParser
+public class DownloadBreadcrumbsTrackTask extends GpxParser
 {
 
    final String TAG = "OGT.GetBreadcrumbsTracksTask";
@@ -84,7 +84,7 @@ public class SyncBreadcrumbsTrackTask extends GpxParser
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public SyncBreadcrumbsTrackTask(TrackList trackList, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer,
+   public DownloadBreadcrumbsTrackTask(TrackList trackList, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer,
          Pair<Integer, Integer> track)
    {
       super(trackList);
@@ -166,7 +166,7 @@ public class SyncBreadcrumbsTrackTask extends GpxParser
       ContentResolver resolver = mTrackList.getContentResolver();
       resolver.bulkInsert(mediaUri, metaValues);
       
-      mAdapter.finishedTrackSyncTask(this);
+      mAdapter.finishedTask();
    }
    
    private ContentValues buildContentValues( String key, String value)
