@@ -80,6 +80,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
     * 
     * @param mContext Required to be able to start the intent to launch the
     *           browser.
+    * @param adapter          
     * @param httpclient
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object

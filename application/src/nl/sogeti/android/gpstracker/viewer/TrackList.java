@@ -579,6 +579,8 @@ public class TrackList extends ListActivity
                   checkbox.setVisibility(View.VISIBLE);
                   boolean isSynced = tracks.isLocalTrackOnline(cursor.getLong(columnIndex));
                   checkbox.setEnabled(!isSynced);
+                  
+                  checkbox.setOnCheckedChangeListener(null);
                   checkbox.setChecked(isSynced);
                   checkbox.setOnCheckedChangeListener( new OnCheckedChangeListener()
                   {

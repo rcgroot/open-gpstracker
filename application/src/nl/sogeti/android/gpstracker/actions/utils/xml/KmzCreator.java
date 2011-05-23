@@ -83,7 +83,12 @@ public class KmzCreator extends XmlCreator
    @Override
    protected String doInBackground(Void... params)
    {
+      String resultFilename = exportKml();
+      return resultFilename;
+   }
 
+   private String exportKml()
+   {
       if(  mFileName.endsWith( ".kmz" ) || mFileName.endsWith( ".zip" ) )
       {
          setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + mFileName.substring( 0, mFileName.length() - 4 ) );

@@ -34,6 +34,7 @@ import java.util.Queue;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
@@ -41,9 +42,11 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -373,7 +376,8 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    public void startUploadTask(TrackList trackList, long track)
    {
-      mPlannedTasks.add(new UploadBreadcrumbsTrackTask(trackList, mHttpClient, mConsumer, track));
+      Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, track ); 
+      mPlannedTasks.add(new UploadBreadcrumbsTrackTask(trackList, this, mHttpClient, mConsumer, trackUri));
       executeNextTask();
    }
 

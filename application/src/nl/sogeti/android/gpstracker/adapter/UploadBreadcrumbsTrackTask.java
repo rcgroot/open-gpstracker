@@ -72,16 +72,13 @@ import android.widget.Toast;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class UploadBreadcrumbsTrackTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
+public class UploadBreadcrumbsTrackTask extends GpxCreator
 {
 
    final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpClient;
-   private long mTrackId;
-   private Uri mFileUri;
-   private TrackList mTrackList;
    
    /**
     * We pass the OAuth consumer and provider.
@@ -92,37 +89,28 @@ public class UploadBreadcrumbsTrackTask extends AsyncTask<Void, Void, Breadcrumb
     * @param mConsumer The OAuthConsumer object
     * @param trackId
     */
-   public UploadBreadcrumbsTrackTask(TrackList trackList, DefaultHttpClient httpclient, OAuthConsumer consumer, long trackId)
+   public UploadBreadcrumbsTrackTask(TrackList trackList, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer, Uri trackUri)
    {
-      mTrackList = trackList;
+      super(trackList, trackUri, "uploadToGobreadcrumbs", false, null);
+      mAdapter = adapter;
       mHttpClient = httpclient;
       mConsumer = consumer;
-      mTrackId = trackId;
    }
    /**
     * Retrieve the OAuth Request Token and present a browser to the user to
     * authorize the token.
     */
    @Override
-   protected BreadcrumbsTracks doInBackground(Void... params)
+   protected String doInBackground(Void... params)
    {
-      Uri mTrackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, mTrackId ); 
-      String chosenFileName = "uploadToGobreadcrumbs";
       boolean attachments = false;
-      ShareTrack.EndJob endJob = new EndJob()
-      {
-         public void shareFile(Uri file, String contentType)
-         {
-            mFileUri = file;
-         }
-      };
-      GpxCreator gpxCreator = new GpxCreator(mTrackList, mTrackUri, chosenFileName, attachments, null);
-      gpxCreator.execute();
       
-      BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
-      File gpxFile = new File(mFileUri.getEncodedPath());
+      String resultFilename = exportGpx();
+      
+      File gpxFile = new File(resultFilename);
       
       int statusCode = 0 ;
+      String responseText = null;
       try
       {
          HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/tracks");         
@@ -147,8 +135,8 @@ public class UploadBreadcrumbsTrackTask extends AsyncTask<Void, Void, Breadcrumb
 
          statusCode = response.getStatusLine().getStatusCode();
          InputStream stream = response.getEntity().getContent();
-         String responseText = XmlCreator.convertStreamToString(stream);
-         Log.d( TAG, "Uploaded track "+mTrackId+" and received response: "+responseText);
+         responseText = XmlCreator.convertStreamToString(stream);
+         Log.d( TAG, "Uploaded track "+entity.toString()+" and received response: "+responseText);
          
       }
       catch (IOException e)
@@ -179,14 +167,12 @@ public class UploadBreadcrumbsTrackTask extends AsyncTask<Void, Void, Breadcrumb
       {
          Log.e( TAG, ""+statusCode );
       }
-      return tracks;
+      return responseText;
    }
    
    @Override
-   protected void onPostExecute(BreadcrumbsTracks result)
-   {
-      super.onPostExecute(result);
-      
+   protected void onPostExecute(String result)
+   {      
       mAdapter.finishedTask();
    }
 

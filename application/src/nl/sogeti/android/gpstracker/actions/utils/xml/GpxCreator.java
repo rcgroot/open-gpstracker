@@ -89,6 +89,12 @@ public class GpxCreator extends XmlCreator
    @Override
    protected String doInBackground(Void... params)
    {
+      String resultFilename = exportGpx();
+      return resultFilename;
+   }
+
+   protected String exportGpx()
+   {
       String xmlFilePath;
       if( mFileName.endsWith( ".gpx" ) || mFileName.endsWith( ".xml" ) )
       {
