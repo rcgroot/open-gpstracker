@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.adapter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -102,9 +103,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
     */
    @Override
    protected String doInBackground(Void... params)
-   {
-      boolean attachments = false;
-      
+   {      
       String resultFilename = exportGpx();
       
       File gpxFile = new File(resultFilename);
@@ -113,6 +112,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       String responseText = null;
       try
       {
+         String gpxString = XmlCreator.convertStreamToString(new FileInputStream(gpxFile));
+         
          HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/tracks");         
          mConsumer.sign(method);
          if( isCancelled() )
@@ -122,12 +123,13 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          // Build the multipart body with the upload data
          MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
          entity.addPart("import_type", new StringBody("GPX"));
-         entity.addPart("gpx",         new FileBody(gpxFile));
-         entity.addPart("bundle_id",   new StringBody(""));
-         entity.addPart("description", new StringBody(""));
-         entity.addPart("difficulty",  new StringBody(""));
-         entity.addPart("rating",      new StringBody(""));
-         entity.addPart("public",      new StringBody(""));
+         //entity.addPart("gpx",         new FileBody(gpxFile));
+         entity.addPart("gpx",         new StringBody(gpxString));
+         entity.addPart("bundle_id",   new StringBody("1"));
+         entity.addPart("description", new StringBody("2"));
+         entity.addPart("difficulty",  new StringBody("3"));
+         entity.addPart("rating",      new StringBody("4"));
+         entity.addPart("public",      new StringBody("false"));
          method.setEntity(entity);
          
          // Execute the POST to OpenStreetMap
@@ -141,23 +143,27 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       catch (IOException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         setError( e, text );
+         cancel(false);
       }
       catch (OAuthMessageSignerException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         setError( e, text );
+         cancel(false);
       }
       catch (OAuthExpectationFailedException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         setError( e, text );
+         cancel(false);
       }
       catch (OAuthCommunicationException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         setError( e, text );
+         cancel(false);
       }
       if (statusCode == 200)
       {

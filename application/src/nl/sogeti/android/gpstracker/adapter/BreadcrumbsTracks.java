@@ -294,8 +294,15 @@ public class BreadcrumbsTracks
             }
          }
       }
-      boolean synced = mTrackMappings.containsKey(mSyncedTracks.get(qtrackId));
+      boolean synced = mSyncedTracks.containsKey(qtrackId);
       return synced; 
+   }
+   
+   public boolean isLocalTrackSynced(Long qtrackId)
+   {
+      boolean uploaded = isLocalTrackOnline(qtrackId);
+      boolean synced = mTrackMappings.containsKey(mSyncedTracks.get(qtrackId));
+      return uploaded && synced;
    }
 
 }

@@ -200,6 +200,10 @@ public class GpxCreator extends XmlCreator
 
    private void serializeTrack( Uri trackUri, XmlSerializer serializer ) throws IllegalArgumentException, IllegalStateException, IOException
    {
+      if( isCancelled() )
+      {
+         throw new IOException("Fail to execute request due to canceling");
+      }
       serializer.startDocument( "UTF-8", true );
       serializer.setPrefix( "xsi", NS_SCHEMA );
       serializer.setPrefix( "gpx10", NS_GPX_10 );
@@ -233,6 +237,10 @@ public class GpxCreator extends XmlCreator
 
    private String serializeTrackHeader( Context context, XmlSerializer serializer, Uri trackUri ) throws IOException
    {
+      if( isCancelled() )
+      {
+         throw new IOException("Fail to execute request due to canceling");
+      }
       ContentResolver resolver = context.getContentResolver();
       Cursor trackCursor = null;
       String name = null;
@@ -266,6 +274,10 @@ public class GpxCreator extends XmlCreator
 
    private void serializeSegments( XmlSerializer serializer, Uri segments ) throws IOException
    {
+      if( isCancelled() )
+      {
+         throw new IOException("Fail to execute request due to canceling");
+      }
       Cursor segmentCursor = null;
       ContentResolver resolver = mContext.getContentResolver();
       try
@@ -296,6 +308,10 @@ public class GpxCreator extends XmlCreator
 
    private void serializeWaypoints( XmlSerializer serializer, Uri waypoints ) throws IOException
    {
+      if( isCancelled() )
+      {
+         throw new IOException("Fail to execute request due to canceling");
+      }
       Cursor waypointsCursor = null;
       ContentResolver resolver = mContext.getContentResolver();
       try
@@ -361,6 +377,10 @@ public class GpxCreator extends XmlCreator
 
    private void serializeWaypointDescription( Context context, XmlSerializer serializer, Uri media ) throws IOException
    {
+      if( isCancelled() )
+      {
+         throw new IOException("Fail to execute request due to canceling");
+      }
       String mediaPathPrefix =  Constants.getSdCardDirectory(context);
       Cursor mediaCursor = null;
       ContentResolver resolver = context.getContentResolver();

@@ -571,15 +571,21 @@ public class TrackList extends ListActivity
          {
             if (columnIndex == 0)
             {
+               final long trackId = cursor.getLong(columnIndex);
+               
                if (mBreadcrumbAdapter.isOnline())
                {
-                  final long trackId = cursor.getLong(0);
+                  // Show the check if Breadcrumbs is online
                   CheckBox checkbox = (CheckBox) view;
-                  BreadcrumbsTracks tracks = mBreadcrumbAdapter.getBreadcrumbsTracks();
                   checkbox.setVisibility(View.VISIBLE);
-                  boolean isSynced = tracks.isLocalTrackOnline(cursor.getLong(columnIndex));
-                  checkbox.setEnabled(!isSynced);
                   
+                  // Disable the checkbox if marked online
+                  BreadcrumbsTracks tracks = mBreadcrumbAdapter.getBreadcrumbsTracks();
+                  boolean isOnline = tracks.isLocalTrackOnline(trackId);
+                  checkbox.setEnabled(!isOnline);
+                  
+                  // Check the checkbox if determined synced
+                  boolean isSynced = tracks.isLocalTrackSynced(trackId);
                   checkbox.setOnCheckedChangeListener(null);
                   checkbox.setChecked(isSynced);
                   checkbox.setOnCheckedChangeListener( new OnCheckedChangeListener()
