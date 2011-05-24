@@ -739,7 +739,7 @@ public class GPSLoggerService extends Service
    {
       mLocationManager.removeUpdates(mLocationListener);
       mLocationManager.requestLocationUpdates(provider, intervaltime, distance, mLocationListener);
-      mCheckPeriod = Math.max(4 * intervaltime, 120 * 1000);
+      mCheckPeriod = Math.max(12 * intervaltime, 120 * 1000);
       if (mHeartbeat != null)
       {
          mHeartbeat.cancel();
