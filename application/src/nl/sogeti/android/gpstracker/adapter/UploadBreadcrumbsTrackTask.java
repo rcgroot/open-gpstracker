@@ -126,9 +126,9 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          //entity.addPart("gpx",         new FileBody(gpxFile));
          entity.addPart("gpx",         new StringBody(gpxString));
          entity.addPart("bundle_id",   new StringBody("1"));
-         entity.addPart("description", new StringBody("2"));
-         entity.addPart("difficulty",  new StringBody("3"));
-         entity.addPart("rating",      new StringBody("4"));
+//         entity.addPart("description", new StringBody("2"));
+//         entity.addPart("difficulty",  new StringBody("3"));
+//         entity.addPart("rating",      new StringBody("4"));
          entity.addPart("public",      new StringBody("false"));
          method.setEntity(entity);
          
