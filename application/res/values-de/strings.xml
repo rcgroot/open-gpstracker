@@ -88,7 +88,7 @@
     <string name="menu_statistics">Statistiken</string>
     <string name="menu_about">About</string>
     <string name="menu_showLayers">Overlays</string>
-    <string name="menu_graphtype">Diagrantyp</string>
+    <string name="menu_graphtype">Diagrammtyp</string>
     <string name="menu_insertnote">Notiz machen</string>
     <string name="menu_notename">Namentlich Markieren</string>
     <string name="menu_notepicture">Foto machen</string>
