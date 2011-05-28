@@ -303,6 +303,10 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
 
    public static Long parseXmlDateTime(String text) throws ParseException
    {
+      if(text==null)
+      {
+         throw new ParseException("Unable to parse dateTime "+text+" of length ", 0);
+      }
       Long dateTime = null;
       int length = text.length();
       switch (length)
@@ -317,7 +321,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
             dateTime = new Long(ZULU_DATE_FORMAT_MS.parse(text).getTime());
             break;
          default:
-            throw new ParseException("Unable to parse dateTime "+text+" of length ", 0);
+            throw new ParseException("Unable to parse dateTime "+text+" of length "+length, 0);
       }
       return dateTime;
    }

@@ -1,0 +1,32 @@
+
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout
+		android:id="@+id/LinearLayout01"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:layout_width="fill_parent">
+
+		<Spinner
+			android:layout_height="wrap_content"
+			android:id="@+id/activity"
+			android:layout_width="match_parent"></Spinner>
+		<Spinner
+			android:layout_height="wrap_content"
+			android:id="@+id/bundle"
+			android:layout_width="match_parent"></Spinner>
+		<EditText
+			android:id="@+id/description"
+			android:layout_height="wrap_content"
+			android:hint="@string/dialog_trackdescription_hint"
+			android:layout_width="match_parent"
+			android:maxLines="4"></EditText>
+		<CheckBox
+			android:layout_height="wrap_content"
+			android:text="@string/dialog_public"
+			android:layout_width="match_parent"
+			android:id="@+id/public_checkbox"></CheckBox>
+	</LinearLayout>
+</ScrollView>

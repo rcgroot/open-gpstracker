@@ -111,9 +111,8 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsT
          String tagName = null;
          int eventType = xpp.getEventType();
          
-         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null;
-         Integer trackId = null, bundleId = null, totalTime = null, trackRating = null;
-         Boolean isPublic = null;
+         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null, trackRating = null, isPublic = null;;
+         Integer trackId = null, bundleId = null, totalTime = null;
          Float lat = null, lng = null, totalDistance = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
@@ -157,7 +156,7 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsT
                }
                else if( "is-public".equals(tagName) )
                {
-                  isPublic = Boolean.parseBoolean( xpp.getText() );
+                  isPublic = xpp.getText();
                }
                else if( "lat".equals(tagName) )
                {
@@ -173,7 +172,7 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsT
                }
                else if( "track-rating".equals(tagName) )
                {
-                  trackRating = Integer.parseInt( xpp.getText() );
+                  trackRating = xpp.getText();
                }
             }
             eventType = xpp.next();

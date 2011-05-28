@@ -243,7 +243,7 @@ public class GpxCreator extends XmlCreator
       }
       ContentResolver resolver = context.getContentResolver();
       Cursor trackCursor = null;
-      String name = null;
+      String name = "Untitled";
 
       try
       {
@@ -267,6 +267,10 @@ public class GpxCreator extends XmlCreator
          if( trackCursor != null )
          {
             trackCursor.close();
+         }
+         if( name == null )
+         {
+            name = "Untitled";
          }
       }
       return name;

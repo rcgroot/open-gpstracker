@@ -187,6 +187,7 @@ public class LoggerMap extends MapActivity
       final Semaphore calulatorSemaphore = new Semaphore(0);
       Thread calulator = new Thread("OverlayCalculator")
       {
+         @Override
          public void run()
          {
             Looper.prepare();
@@ -224,6 +225,7 @@ public class LoggerMap extends MapActivity
       onRestoreInstanceState( load );
    }
 
+   @Override
    protected void onResume()
    {
       super.onResume();

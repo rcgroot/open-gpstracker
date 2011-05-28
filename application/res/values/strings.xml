@@ -56,6 +56,12 @@
     <string name="dialog_nooipicker">OI File Manager</string>
     <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files. After accepting OI File Manager EULA the import button works.</string>
     <string name="dialog_contrib_title">Contribute</string>
+    <string name="dialog_bundlecreate_hint">New bundle name</string>
+    <string name="dialog_trackdescription_hint">Description of the track</string>
+    <string name="dialog_public">Public posting</string>
+    <string name="dialog_description_title">Track description</string>
+    <string name="dialog_description_message">Please supply additional information before uploading</string>
+    <string name="dialog_bundle">Bundle: %1$s</string>
     <string name="dialog_contrib_message">
     <b>Code</b>
     \n
@@ -79,8 +85,7 @@
     Hopefully you enjoyed the application, I love to hear if you did. A thank you 
     or PayPal donation are appreciated at rcgroot@gmail.com
     \n\n
-    </string>
-    
+    </string>    
     
     <!-- Messages -->
     <string name="from">Tracked on: </string>

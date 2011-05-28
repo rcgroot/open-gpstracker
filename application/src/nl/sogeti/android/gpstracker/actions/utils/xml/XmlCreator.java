@@ -69,7 +69,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, String>
    String mChosenFileName;
    private ProgressMonitor mProgressListener;
    protected Context mContext;
-   Uri mTrackUri;
+   protected final Uri mTrackUri;
    String mFileName;
    private CharSequence mErrorText;
 

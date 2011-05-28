@@ -104,7 +104,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
    {
       Uri trackUri = null;
       InputStream fis = null;
-      String trackName = mAdapter.getBreadcrumbsTracks().getKeyForItem(mTrack, BreadcrumbsTracks.NAME);
+      String trackName = mAdapter.getBreadcrumbsTracks().getValueForItem(mTrack, BreadcrumbsTracks.NAME);
       try
       {
          HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/tracks/" + mTrack.second + "/placemarks.gpx");
@@ -152,20 +152,28 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
       super.onPostExecute(result);
 
       long ogtTrackId = Long.parseLong(result.getLastPathSegment());
-      Uri mediaUri = Uri.withAppendedPath(ContentUris.withAppendedId(Tracks.CONTENT_URI, ogtTrackId), "metadata");
+      Uri metadataUri = Uri.withAppendedPath(ContentUris.withAppendedId(Tracks.CONTENT_URI, ogtTrackId), "metadata");
       
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
-      Integer bcTrackId = mTrack.second;
-      Integer bcBundleId = tracks.getBundleIdForTrackId(bcTrackId);
-      Integer bcActivityId = tracks.getActivityIdForBundleId(bcBundleId);
+      Integer bcTrackId     = mTrack.second;
+      Integer bcBundleId    = tracks.getBundleIdForTrackId(bcTrackId);
+      Integer bcActivityId  = tracks.getActivityIdForBundleId(bcBundleId);
+      String  bcDifficulty  = tracks.getValueForItem(mTrack, BreadcrumbsTracks.DIFFICULTY);
+      String  bcRating      = tracks.getValueForItem(mTrack, BreadcrumbsTracks.RATING);
+      String  bcPublic      = tracks.getValueForItem(mTrack, BreadcrumbsTracks.ISPUBLIC);
+      String  bcDescription = tracks.getValueForItem(mTrack, BreadcrumbsTracks.DESCRIPTION);
       ContentValues[] metaValues = { 
-            buildContentValues( BreadcrumbsTracks.TRACK_ID, Long.toString(bcTrackId)),
-            buildContentValues( BreadcrumbsTracks.BUNDLE_ID, Integer.toString(bcBundleId)),
+            buildContentValues( BreadcrumbsTracks.TRACK_ID,    Long.toString(bcTrackId)),
+            buildContentValues( BreadcrumbsTracks.TRACK_ID,    bcDifficulty),
+            buildContentValues( BreadcrumbsTracks.TRACK_ID,    bcDescription),
+            buildContentValues( BreadcrumbsTracks.TRACK_ID,    bcRating),
+            buildContentValues( BreadcrumbsTracks.TRACK_ID,    bcPublic),
+            buildContentValues( BreadcrumbsTracks.BUNDLE_ID,   Integer.toString(bcBundleId)),
             buildContentValues( BreadcrumbsTracks.ACTIVITY_ID, Integer.toString(bcActivityId))
             };
       
       ContentResolver resolver = mTrackList.getContentResolver();
-      resolver.bulkInsert(mediaUri, metaValues);
+      resolver.bulkInsert(metadataUri, metaValues);
       
       mAdapter.finishedTask();
    }

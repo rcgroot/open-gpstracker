@@ -28,65 +28,71 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import java.util.Calendar;
-
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.AlertDialog.Builder;
-import android.content.ContentUris;
+import android.app.Dialog;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 /**
- * Empty Activity that pops up the dialog to name the track
+ * Empty Activity that pops up the dialog to describe the track
  *
- * @version $Id$
+ * @version $Id: NameTrack.java 888 2011-03-14 19:44:44Z rcgroot@gmail.com $
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
  */
-public class NameTrack extends Activity
+public class DescribeTrack extends Activity
 {
-   private static final int DIALOG_TRACKNAME = 23;
+   private static final int DIALOG_TRACKDESCRIPTION = 42;
 
-   protected static final String TAG = "OGT.NameTrack";
+   protected static final String TAG = "OGT.DescribeTrack";
 
-   private EditText mTrackNameView;
+   private Spinner  mActivitySpinner;
+   private Spinner  mBundleSpinner;
+   private EditText mDescriptionText;
+   private CheckBox mPublicCheck;
    private boolean paused;
-   Uri mTrackUri;
-
-   private final DialogInterface.OnClickListener mTrackNameDialogListener = new DialogInterface.OnClickListener()
+   private Uri mTrackUri;
+   
+   private final DialogInterface.OnClickListener mTrackDescriptionDialogListener = new DialogInterface.OnClickListener()
    {
       public void onClick( DialogInterface dialog, int which )
       {
-         String trackName = null;
          switch( which )
          {
             case DialogInterface.BUTTON_POSITIVE:
-               trackName = mTrackNameView.getText().toString();        
-               ContentValues values = new ContentValues();
-               values.put( Tracks.NAME, trackName );
-               getContentResolver().update( mTrackUri, values, null, null );
-               clearNotification();
-               break;
-            case DialogInterface.BUTTON_NEUTRAL:
-               startDelayNotification();
+               Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
+               String  activityId = BreadcrumbsTracks.getIdForActivity( (String) mBundleSpinner.getSelectedItem() ).toString();
+               String  bundleId   = BreadcrumbsTracks.getIdForBundle( (String) mBundleSpinner.getSelectedItem() ).toString();
+               String description = mDescriptionText.getText().toString() ;
+               String isPublic    = Boolean.toString(mPublicCheck.isChecked());
+               ContentValues[] metaValues = { 
+                     buildContentValues( BreadcrumbsTracks.ACTIVITY_ID, activityId),
+                     buildContentValues( BreadcrumbsTracks.BUNDLE_ID,   bundleId),
+                     buildContentValues( BreadcrumbsTracks.DESCRIPTION, description),
+                     buildContentValues( BreadcrumbsTracks.ISPUBLIC,    isPublic),
+                     };
+               getContentResolver().bulkInsert(metadataUri, metaValues);
+               Intent data = new Intent();
+               data.setData(mTrackUri);
+               setResult(RESULT_OK, data);
                break;
             case DialogInterface.BUTTON_NEGATIVE:
-               clearNotification();
                break;
             default:
                Log.e( TAG, "Unknown option ending dialog:"+which );
@@ -97,44 +103,29 @@ public class NameTrack extends Activity
 
 
    };
-   
-   
-   private void clearNotification()
+
+   private OnItemSelectedListener mActivitiyListener = new OnItemSelectedListener()
    {
 
-      NotificationManager noticationManager = (NotificationManager) this.getSystemService( Context.NOTIFICATION_SERVICE );;
-      noticationManager.cancel( R.layout.namedialog );
-   }
-   
-   private void startDelayNotification()
-   {
-      int resId = R.string.dialog_routename_title;
-      int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = getResources().getString( resId );
-      long when = System.currentTimeMillis();
-      
-      Notification nameNotification = new Notification( icon, tickerText, when );
-      nameNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-      
-      CharSequence contentTitle = getResources().getString( R.string.app_name );
-      CharSequence contentText = getResources().getString( resId );
-      
-      Intent notificationIntent = new Intent( this, NameTrack.class );
-      notificationIntent.setData( mTrackUri );
-      
-      PendingIntent contentIntent = PendingIntent.getActivity( this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK );
-      nameNotification.setLatestEventInfo( this, contentTitle, contentText, contentIntent );
-      
-      NotificationManager noticationManager = (NotificationManager) this.getSystemService( Context.NOTIFICATION_SERVICE );
-      noticationManager.notify( R.layout.namedialog, nameNotification );
-   }
-   
+      public void onItemSelected(AdapterView< ? > adapter, View arg1, int position, long id)
+      {
+         mBundleSpinner.setEnabled(true);
+         mBundleSpinner.setAdapter( BreadcrumbsTracks.getBundleAdapter(DescribeTrack.this, (CharSequence) adapter.getItemAtPosition(position)) );
+      }
+
+      public void onNothingSelected(AdapterView< ? > arg0)
+      {
+         mBundleSpinner.setEnabled(false);
+      }
+   };
+
    @Override
    protected void onCreate( Bundle savedInstanceState )
    {
       super.onCreate( savedInstanceState );
       this.setVisible( false );
       paused = false;
+      
       mTrackUri = this.getIntent().getData();
    }
    
@@ -155,11 +146,11 @@ public class NameTrack extends Activity
       super.onResume();
       if(  mTrackUri != null )
       {
-         showDialog( DIALOG_TRACKNAME );
+         showDialog( DIALOG_TRACKDESCRIPTION );
       }
       else
       {
-         Log.e(TAG, "Naming track without a track URI supplied." );
+         Log.e(TAG, "Describing track without a track URI supplied." );
          finish();
       }
    }
@@ -173,18 +164,21 @@ public class NameTrack extends Activity
       Builder builder = null;
       switch (id)
       {
-         case DIALOG_TRACKNAME:
+         case DIALOG_TRACKDESCRIPTION:
             builder = new AlertDialog.Builder( this );
             factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.namedialog, null );
-            mTrackNameView = (EditText) view.findViewById( R.id.nameField );
+            view = factory.inflate( R.layout.describedialog, null );
+            mActivitySpinner = (Spinner) view.findViewById( R.id.activity );
+            mActivitySpinner.setOnItemSelectedListener(mActivitiyListener);
+            mBundleSpinner = (Spinner) view.findViewById( R.id.bundle );
+            mDescriptionText = (EditText) view.findViewById( R.id.description );
+            mPublicCheck = (CheckBox) view.findViewById( R.id.public_checkbox );
             builder
-               .setTitle( R.string.dialog_routename_title )
-               .setMessage( R.string.dialog_routename_message )
+               .setTitle( R.string.dialog_description_title )
+               .setMessage( R.string.dialog_description_message )
                .setIcon( android.R.drawable.ic_dialog_alert )
-               .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener )
-               .setNeutralButton( R.string.btn_skip, mTrackNameDialogListener )
-               .setNegativeButton( R.string.btn_cancel, mTrackNameDialogListener )
+               .setPositiveButton( R.string.btn_okay, mTrackDescriptionDialogListener )
+               .setNegativeButton( R.string.btn_cancel, mTrackDescriptionDialogListener )
                .setView( view );
             dialog = builder.create();
             dialog.setOnDismissListener( new OnDismissListener()
@@ -208,17 +202,22 @@ public class NameTrack extends Activity
    {
       switch (id)
       {
-         case DIALOG_TRACKNAME:
-            String trackName;
-            Calendar c = Calendar.getInstance();
-            trackName = String.format( getString( R.string.dialog_routename_default ), c, c, c, c, c );
-            mTrackNameView.setText( trackName );
-            mTrackNameView.setSelection( 0, trackName.length() );
+         case DIALOG_TRACKDESCRIPTION:
+            mActivitySpinner.setAdapter( BreadcrumbsTracks.getActivityAdapter(this) );
+            mBundleSpinner.setAdapter( BreadcrumbsTracks.getBundleAdapter(this, "") );
             break;
          default:
             super.onPrepareDialog( id, dialog );
             break;
       }
-   }   
+   }
+   
+   private ContentValues buildContentValues( String key, String value)
+   {
+      ContentValues contentValues = new ContentValues();
+      contentValues.put(MetaData.KEY, key);
+      contentValues.put(MetaData.VALUE, value);
+      return contentValues;
+   }
 }
    

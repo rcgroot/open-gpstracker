@@ -29,6 +29,9 @@
 package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.ControlTracking;
+import nl.sogeti.android.gpstracker.actions.DescribeTrack;
+import nl.sogeti.android.gpstracker.actions.NameTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
@@ -97,7 +100,8 @@ public class TrackList extends ListActivity
    private static final int DIALOG_INSTALL = Menu.FIRST + 27;
    protected static final int DIALOG_ERROR = Menu.FIRST + 28;
 
-   private static final int PICKER_OI = Menu.FIRST + 27;
+   private static final int PICKER_OI = Menu.FIRST + 29;
+   private static final int DESCRIBE  = Menu.FIRST + 30;
    public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
    public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
 
@@ -174,7 +178,7 @@ public class TrackList extends ListActivity
       mImportProgress = (ProgressBar) findViewById(R.id.importProgress);
 
       ListView listView = getListView();
-      listView.setItemsCanFocus(false);
+      listView.setItemsCanFocus(true);
       // Add the context menu (the long press thing)
       registerForContextMenu(listView);
    }
@@ -494,6 +498,10 @@ public class TrackList extends ListActivity
                mImportFileUri = data.getData();
                new GpxParser(TrackList.this).execute(mImportFileUri);
                break;
+            case DESCRIBE:
+               Uri trackUri = data.getData();
+               mBreadcrumbAdapter.startUploadTask(TrackList.this, trackUri );
+               break;
             default:
                super.onActivityResult(requestCode, resultCode, data);
                break;
@@ -572,11 +580,10 @@ public class TrackList extends ListActivity
             if (columnIndex == 0)
             {
                final long trackId = cursor.getLong(columnIndex);
-               
+               // Show the check if Breadcrumbs is online
+               CheckBox checkbox = (CheckBox) view;
                if (mBreadcrumbAdapter.isOnline())
                {
-                  // Show the check if Breadcrumbs is online
-                  CheckBox checkbox = (CheckBox) view;
                   checkbox.setVisibility(View.VISIBLE);
                   
                   // Disable the checkbox if marked online
@@ -595,10 +602,18 @@ public class TrackList extends ListActivity
                         if( isChecked )
                         {
                            Log.d( TAG, "View"+buttonView+" track id "+trackId );
-                           mBreadcrumbAdapter.startUploadTask(TrackList.this, trackId);
+                           // Start a naming of the track
+                           Intent namingIntent = new Intent( TrackList.this, DescribeTrack.class );
+                           namingIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) );
+                           startActivityForResult(namingIntent, DESCRIBE );
                         }
                      }
                   });
+               }
+               else
+               {
+                  checkbox.setVisibility(View.INVISIBLE);
+                  checkbox.setOnCheckedChangeListener(null);
                }
                return true;
             }

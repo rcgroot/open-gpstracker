@@ -201,19 +201,19 @@ public class BreadcrumbsAdapter extends BaseAdapter
          switch (type)
          {
             case Constants.BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE:
-               name = mTracks.getKeyForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
+               name = mTracks.getValueForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
                ((TextView) view).setText(name);
                break;
             case Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE:
-               name = mTracks.getKeyForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
+               name = mTracks.getValueForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
                ((TextView) view).setText(name);
                break;
             case Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE:
                TextView nameView = (TextView) view.findViewById(R.id.listitem_name);
                TextView dateView = (TextView) view.findViewById(R.id.listitem_from);
 
-               nameView.setText(mTracks.getKeyForItem(item, BreadcrumbsTracks.NAME));
-               String dateString = mTracks.getKeyForItem(item, BreadcrumbsTracks.ENDTIME);
+               nameView.setText(mTracks.getValueForItem(item, BreadcrumbsTracks.NAME));
+               String dateString = mTracks.getValueForItem(item, BreadcrumbsTracks.ENDTIME);
                try
                {
                   Long date = GpxParser.parseXmlDateTime(dateString);
@@ -374,9 +374,8 @@ public class BreadcrumbsAdapter extends BaseAdapter
       executeNextTask();
    }
 
-   public void startUploadTask(TrackList trackList, long track)
+   public void startUploadTask(TrackList trackList, Uri trackUri)
    {
-      Uri trackUri = ContentUris.withAppendedId( Tracks.CONTENT_URI, track ); 
       mPlannedTasks.add(new UploadBreadcrumbsTrackTask(trackList, this, mHttpClient, mConsumer, trackUri));
       executeNextTask();
    }

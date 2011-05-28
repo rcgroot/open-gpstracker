@@ -62,6 +62,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.ContentUris;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -105,8 +106,58 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    protected String doInBackground(Void... params)
    {      
       String resultFilename = exportGpx();
-      
+
+      // Build GPX file
       File gpxFile = new File(resultFilename);
+      
+      // Collect GPX Import option params
+      String activityId = null;
+      String bundleId = null;
+      String description = null;
+      String isPublic = null;
+
+      Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
+      Cursor cursor = null;
+      try
+      {
+         cursor  = mContext.getContentResolver().query(
+            metadataUri, new String[]{MetaData.KEY, MetaData.VALUE}, 
+            null, null, null);
+         if( cursor.moveToFirst())
+         {
+            do
+            {
+               String key = cursor.getString(0);
+               if( BreadcrumbsTracks.ACTIVITY_ID.equals(key) )
+               {
+                  activityId =  cursor.getString(1);
+               }
+               else if( BreadcrumbsTracks.BUNDLE_ID.equals(key) )
+               {
+                  bundleId =  cursor.getString(1);
+               }
+               else if( BreadcrumbsTracks.DESCRIPTION.equals(key) )
+               {
+                  description =  cursor.getString(1);
+               }
+               else if( BreadcrumbsTracks.ISPUBLIC.equals(key) )
+               {
+                  isPublic =  cursor.getString(1);
+               }
+            }
+            while(cursor.moveToNext());
+         }
+      }
+      finally
+      {
+         if( cursor != null )
+         {
+            cursor.close();
+         }
+      }
+      
+      
+      //TODO create bundle if no existing ID
       
       int statusCode = 0 ;
       String responseText = null;
@@ -125,11 +176,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          entity.addPart("import_type", new StringBody("GPX"));
          //entity.addPart("gpx",         new FileBody(gpxFile));
          entity.addPart("gpx",         new StringBody(gpxString));
-         entity.addPart("bundle_id",   new StringBody("1"));
-//         entity.addPart("description", new StringBody("2"));
+         entity.addPart("bundle_id",   new StringBody(bundleId));
+         entity.addPart("description", new StringBody(description));
 //         entity.addPart("difficulty",  new StringBody("3"));
 //         entity.addPart("rating",      new StringBody("4"));
-         entity.addPart("public",      new StringBody("false"));
+         entity.addPart("public",      new StringBody(isPublic));
          method.setEntity(entity);
          
          // Execute the POST to OpenStreetMap
