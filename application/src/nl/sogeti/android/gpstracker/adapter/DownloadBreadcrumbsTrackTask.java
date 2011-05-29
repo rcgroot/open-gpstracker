@@ -186,6 +186,9 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
       }
       ContentResolver resolver = mContext.getContentResolver();
       resolver.bulkInsert(metadataUri, metaValues.toArray(new ContentValues[1]));
+      
+      tracks.addSyncedTrack(ogtTrackId, mTrack.second);
+      
    }
 
    private ContentValues buildContentValues(String key, String value)

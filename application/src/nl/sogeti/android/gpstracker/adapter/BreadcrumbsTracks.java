@@ -44,6 +44,7 @@ import nl.sogeti.android.gpstracker.util.Pair;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 
@@ -82,6 +83,8 @@ public class BreadcrumbsTracks
    private static final String TOTALDISTANCE = "TOTALDISTANCE";
 
    private static final String TOTALTIME = "TOTALTIME";
+
+   private static final String TAG = "OGT.BreadcrumbsTracks";
 
    /**
     * Map from activityId to a dictionary
@@ -324,8 +327,14 @@ public class BreadcrumbsTracks
                do
                {
                   Long trackId = cursor.getLong(0);
-                  Integer bcTrackId = Integer.valueOf(cursor.getString(1));
-                  mSyncedTracks.put(trackId, bcTrackId);
+                  try
+                  {
+                     Integer bcTrackId = Integer.valueOf(cursor.getString(1));
+                     addSyncedTrack(trackId, bcTrackId);
+                  }
+                  catch (NumberFormatException e) {
+                     Log.w(TAG, "Illigal value stored as track id", e);
+                  }
                }
                while (cursor.moveToNext());
             }
@@ -340,6 +349,11 @@ public class BreadcrumbsTracks
       }
       boolean synced = mSyncedTracks.containsKey(qtrackId);
       return synced;
+   }
+
+   public void addSyncedTrack(Long trackId, Integer bcTrackId)
+   {
+      mSyncedTracks.put(trackId, bcTrackId);
    }
 
    public boolean isLocalTrackSynced(Long qtrackId)

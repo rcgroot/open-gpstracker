@@ -663,6 +663,7 @@ public class TrackList extends ListActivity implements ProgressListener
    public void finished(Uri result)
    {
       mImportProgress.setVisibility(View.GONE);
+      mImportProgress.setIndeterminate(false);
    }
 
    public void showErrorDialog(String errorDialogMessage, Exception errorDialogException)
