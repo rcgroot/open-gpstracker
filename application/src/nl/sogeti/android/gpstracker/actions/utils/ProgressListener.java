@@ -26,59 +26,28 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.util;
+package nl.sogeti.android.gpstracker.actions.utils;
 
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
+import android.net.Uri;
 
 /**
- * ????
- *
- * @version $Id$
- * @author rene (c) Dec 11, 2010, Sogeti B.V.
+ * Interface to which a Activity / Context can conform to receive progress
+ * updates from async tasks
+ * 
+ * @version $Id:$
+ * @author rene (c) May 29, 2011, Sogeti B.V.
  */
-public class ProgressFilterInputStream extends FilterInputStream
+public interface ProgressListener
 {
-   GpxParser mAsyncTask;
-   long progress = 0;
-   
-   public ProgressFilterInputStream(InputStream in, GpxParser bar)
-   {
-      super( in );
-      mAsyncTask = bar;
-   }
+   void setIndeterminate(boolean indeterminate);
 
-   @Override
-   public int read() throws IOException
-   {
-      int read = super.read();
-      if( read >= 0 )
-      {
-         incrementProgressBy( 1 );
-      }
-      return read;
-   }
+   void setMax(int max);
 
-   @Override
-   public int read( byte[] buffer, int offset, int count ) throws IOException
-   {
-      int read = super.read( buffer, offset, count );
-      if( read >= 0 )
-      {
-         incrementProgressBy( read );
-      }
-      return read;
-   }   
-   
-   private void incrementProgressBy( int add )
-   {
-      if( mAsyncTask != null )
-      {
-         mAsyncTask.incrementProgressBy( add );
-      }
-   }
-   
+   void started();
+
+   void setProgress(int value);
+
+   void increaseProgress(int value);
+
+   void finished(Uri result);
 }

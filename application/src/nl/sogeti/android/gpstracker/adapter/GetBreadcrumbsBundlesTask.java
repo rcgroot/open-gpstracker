@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
- **     Ident: Delivery Center Java
+ **     Ident: Sogeti Smart Mobile Solutions
  **    Author: rene
  ** Copyright: (c) Apr 24, 2011 Sogeti Nederland B.V. All Rights Reserved.
  **------------------------------------------------------------------------------

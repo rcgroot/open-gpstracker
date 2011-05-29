@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
- **     Ident: Delivery Center Java
+ **     Ident: Sogeti Smart Mobile Solutions
  **    Author: rene
  ** Copyright: (c) Apr 24, 2011 Sogeti Nederland B.V. All Rights Reserved.
  **------------------------------------------------------------------------------
@@ -28,45 +28,31 @@
  */
 package nl.sogeti.android.gpstracker.adapter;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ShareTrack;
-import nl.sogeti.android.gpstracker.actions.ShareTrack.EndJob;
-import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.utils.xml.XmlCreator;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  * An asynchronous task that communicates with Twitter to retrieve a request
@@ -103,12 +89,10 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
     * authorize the token.
     */
    @Override
-   protected String doInBackground(Void... params)
+   protected Uri doInBackground(Void... params)
    {      
-      String resultFilename = exportGpx();
-
       // Build GPX file
-      File gpxFile = new File(resultFilename);
+      Uri gpxFile = exportGpx();
       
       // Collect GPX Import option params
       String activityId = null;
@@ -161,9 +145,10 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       
       int statusCode = 0 ;
       String responseText = null;
+      Uri trackUri = null;
       try
       {
-         String gpxString = XmlCreator.convertStreamToString(new FileInputStream(gpxFile));
+         String gpxString = XmlCreator.convertStreamToString( mContext.getContentResolver().openInputStream(gpxFile));
          
          HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/tracks");         
          mConsumer.sign(method);
@@ -191,6 +176,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          responseText = XmlCreator.convertStreamToString(stream);
          Log.d( TAG, "Uploaded track "+entity.toString()+" and received response: "+responseText);
          
+         //TODO: Check for error in the response
+         
+         Pattern p = Pattern.compile(">([0-9]+)</id>");
+         Matcher m = p.matcher(responseText);
+         trackUri = Uri.parse("http://api.gobreadcrumbs.com/v1/tracks/"+m.group(1)+"/placemarks.gpx");
       }
       catch (IOException e)
       {
@@ -224,11 +214,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          Log.e( TAG, ""+statusCode );
       }
-      return responseText;
+      return trackUri;
    }
    
    @Override
-   protected void onPostExecute(String result)
+   protected void onPostExecute(Uri result)
    {      
       mAdapter.finishedTask();
    }

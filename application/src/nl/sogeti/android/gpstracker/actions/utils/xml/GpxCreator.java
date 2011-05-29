@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------
- **     Ident: Delivery Center Java
+ **     Ident: Sogeti Smart Mobile Solutions
  **    Author: rene
- ** Copyright: (c) Jan 21, 2010 Sogeti Nederland B.V. All Rights Reserved.
+ ** Copyright: (c) Apr 24, 2011 Sogeti Nederland B.V. All Rights Reserved.
  **------------------------------------------------------------------------------
  ** Sogeti Nederland B.V.            |  No part of this file may be reproduced  
  ** Distributed Software Engineering |  or transmitted in any form or by any        
@@ -40,7 +40,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ShareTrack.ProgressMonitor;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -70,45 +70,45 @@ public class GpxCreator extends XmlCreator
    public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
    public static final String NS_GPX_10 = "http://www.topografix.com/GPX/1/0";
    public static final String NS_OGT_10 = "http://gpstracker.android.sogeti.nl/GPX/1/0";
-   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
+   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
    static
    {
-      TimeZone utc = TimeZone.getTimeZone( "UTC" );
-      ZULU_DATE_FORMAT.setTimeZone( utc ); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
+      TimeZone utc = TimeZone.getTimeZone("UTC");
+      ZULU_DATE_FORMAT.setTimeZone(utc); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
    }
 
    private String TAG = "OGT.GpxCreator";
    private boolean includeAttachments;
 
-   public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressMonitor listener)
+   public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener listener)
    {
-      super( context, trackUri, chosenBaseFileName, listener );
+      super(context, trackUri, chosenBaseFileName, listener);
       includeAttachments = attachments;
    }
 
    @Override
-   protected String doInBackground(Void... params)
+   protected Uri doInBackground(Void... params)
    {
-      String resultFilename = exportGpx();
+      Uri resultFilename = exportGpx();
       return resultFilename;
    }
 
-   protected String exportGpx()
+   protected Uri exportGpx()
    {
       String xmlFilePath;
-      if( mFileName.endsWith( ".gpx" ) || mFileName.endsWith( ".xml" ) )
+      if (mFileName.endsWith(".gpx") || mFileName.endsWith(".xml"))
       {
-         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + mFileName.substring( 0, mFileName.length() - 4 ) );
+         setExportDirectoryPath(Constants.getSdCardDirectory(mContext) + mFileName.substring(0, mFileName.length() - 4));
 
          xmlFilePath = getExportDirectoryPath() + "/" + mFileName;
       }
       else
       {
-         setExportDirectoryPath( Constants.getSdCardDirectory(mContext) + mFileName );
+         setExportDirectoryPath(Constants.getSdCardDirectory(mContext) + mFileName);
          xmlFilePath = getExportDirectoryPath() + "/" + mFileName + ".gpx";
       }
-      
-      new File( getExportDirectoryPath() ).mkdirs();
+
+      new File(getExportDirectoryPath()).mkdirs();
 
       determineProgressGoal();
 
@@ -118,126 +118,126 @@ public class GpxCreator extends XmlCreator
       try
       {
          verifySdCardAvailibility();
-         
-         XmlSerializer serializer = Xml.newSerializer();
-         File xmlFile = new File( xmlFilePath );
-         fos = new FileOutputStream( xmlFile );
-         buf = new BufferedOutputStream( fos, 8*8192 );
-         serializer.setOutput( buf, "UTF-8" );
 
-         serializeTrack( mTrackUri, serializer );
+         XmlSerializer serializer = Xml.newSerializer();
+         File xmlFile = new File(xmlFilePath);
+         fos = new FileOutputStream(xmlFile);
+         buf = new BufferedOutputStream(fos, 8 * 8192);
+         serializer.setOutput(buf, "UTF-8");
+
+         serializeTrack(mTrackUri, serializer);
          buf.close();
          buf = null;
          fos.close();
          fos = null;
 
-         if( needsBundling() )
+         if (needsBundling())
          {
-            resultFilename = bundlingMediaAndXml( xmlFile.getParentFile().getName(), ".zip" );
+            resultFilename = bundlingMediaAndXml(xmlFile.getParentFile().getName(), ".zip");
          }
          else
          {
-            File finalFile = new File( Constants.getSdCardDirectory(mContext) + xmlFile.getName() );
-            xmlFile.renameTo( finalFile );
+            File finalFile = new File(Constants.getSdCardDirectory(mContext) + xmlFile.getName());
+            xmlFile.renameTo(finalFile);
             resultFilename = finalFile.getAbsolutePath();
 
-            XmlCreator.deleteRecursive( xmlFile.getParentFile() );
+            XmlCreator.deleteRecursive(xmlFile.getParentFile());
          }
 
-         mFileName = new File( resultFilename ).getName();
+         mFileName = new File(resultFilename).getName();
       }
-      catch( FileNotFoundException e )
+      catch (FileNotFoundException e)
       {
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_filenotfound );
-         setError( e, text );
+         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filenotfound);
+         setError(e, text);
          cancel(false);
       }
-      catch( IllegalArgumentException e )
+      catch (IllegalArgumentException e)
       {
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_filename );
-         setError( e, text );
+         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filename);
+         setError(e, text);
          cancel(false);
       }
-      catch( IllegalStateException e )
+      catch (IllegalStateException e)
       {
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_buildxml );
-         setError( e, text );
+         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_buildxml);
+         setError(e, text);
          cancel(false);
       }
-      catch( IOException e )
+      catch (IOException e)
       {
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"" + xmlFilePath + "\" " + mContext.getString( R.string.error_writesdcard );
-         setError( e, text );
+         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_writesdcard);
+         setError(e, text);
          cancel(false);
       }
       finally
       {
-         if( buf != null )
+         if (buf != null)
          {
             try
             {
                buf.close();
             }
-            catch( IOException e )
+            catch (IOException e)
             {
-               Log.e( TAG, "Failed to close buf after completion, ignoring." , e );
+               Log.e(TAG, "Failed to close buf after completion, ignoring.", e);
             }
          }
-         if( fos != null )
+         if (fos != null)
          {
             try
             {
                fos.close();
             }
-            catch( IOException e )
+            catch (IOException e)
             {
-               Log.e( TAG, "Failed to close fos after completion, ignoring." , e );
+               Log.e(TAG, "Failed to close fos after completion, ignoring.", e);
             }
          }
       }
-      return resultFilename;
+      return Uri.fromFile(new File(resultFilename));
    }
 
-   private void serializeTrack( Uri trackUri, XmlSerializer serializer ) throws IllegalArgumentException, IllegalStateException, IOException
+   private void serializeTrack(Uri trackUri, XmlSerializer serializer) throws IllegalArgumentException, IllegalStateException, IOException
    {
-      if( isCancelled() )
+      if (isCancelled())
       {
          throw new IOException("Fail to execute request due to canceling");
       }
-      serializer.startDocument( "UTF-8", true );
-      serializer.setPrefix( "xsi", NS_SCHEMA );
-      serializer.setPrefix( "gpx10", NS_GPX_10 );
-      serializer.setPrefix( "ogt10", NS_OGT_10 );
-      serializer.text( "\n" );
-      serializer.startTag( "", "gpx" );
-      serializer.attribute( null, "version", "1.1" );
-      serializer.attribute( null, "creator", "nl.sogeti.android.gpstracker" );
-      serializer.attribute( NS_SCHEMA, "schemaLocation", NS_GPX_11 + " http://www.topografix.com/gpx/1/1/gpx.xsd" );
-      serializer.attribute( null, "xmlns", NS_GPX_11 );
+      serializer.startDocument("UTF-8", true);
+      serializer.setPrefix("xsi", NS_SCHEMA);
+      serializer.setPrefix("gpx10", NS_GPX_10);
+      serializer.setPrefix("ogt10", NS_OGT_10);
+      serializer.text("\n");
+      serializer.startTag("", "gpx");
+      serializer.attribute(null, "version", "1.1");
+      serializer.attribute(null, "creator", "nl.sogeti.android.gpstracker");
+      serializer.attribute(NS_SCHEMA, "schemaLocation", NS_GPX_11 + " http://www.topografix.com/gpx/1/1/gpx.xsd");
+      serializer.attribute(null, "xmlns", NS_GPX_11);
 
       // Big header of the track
-      String name = serializeTrackHeader( mContext, serializer, trackUri );
+      String name = serializeTrackHeader(mContext, serializer, trackUri);
 
-      serializer.text( "\n" );
-      serializer.startTag( "", "trk" );
-      serializer.text( "\n" );
-      serializer.startTag( "", "name" );
-      serializer.text( name );
-      serializer.endTag( "", "name" );
+      serializer.text("\n");
+      serializer.startTag("", "trk");
+      serializer.text("\n");
+      serializer.startTag("", "name");
+      serializer.text(name);
+      serializer.endTag("", "name");
 
       // The list of segments in the track
-      serializeSegments( serializer, Uri.withAppendedPath( trackUri, "segments" ) );
+      serializeSegments(serializer, Uri.withAppendedPath(trackUri, "segments"));
 
-      serializer.text( "\n" );
-      serializer.endTag( "", "trk" );
-      serializer.text( "\n" );
-      serializer.endTag( "", "gpx" );
+      serializer.text("\n");
+      serializer.endTag("", "trk");
+      serializer.text("\n");
+      serializer.endTag("", "gpx");
       serializer.endDocument();
    }
 
-   private String serializeTrackHeader( Context context, XmlSerializer serializer, Uri trackUri ) throws IOException
+   private String serializeTrackHeader(Context context, XmlSerializer serializer, Uri trackUri) throws IOException
    {
-      if( isCancelled() )
+      if (isCancelled())
       {
          throw new IOException("Fail to execute request due to canceling");
       }
@@ -247,28 +247,28 @@ public class GpxCreator extends XmlCreator
 
       try
       {
-         trackCursor = resolver.query( trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null );
-         if( trackCursor.moveToFirst() )
+         trackCursor = resolver.query(trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null);
+         if (trackCursor.moveToFirst())
          {
-            name = trackCursor.getString( 1 );
-            serializer.text( "\n" );
-            serializer.startTag( "", "metadata" );
-            serializer.text( "\n" );
-            serializer.startTag( "", "time" );
-            Date time = new Date( trackCursor.getLong( 2 ) );
-            serializer.text( ZULU_DATE_FORMAT.format( time ) );
-            serializer.endTag( "", "time" );
-            serializer.text( "\n" );
-            serializer.endTag( "", "metadata" );
+            name = trackCursor.getString(1);
+            serializer.text("\n");
+            serializer.startTag("", "metadata");
+            serializer.text("\n");
+            serializer.startTag("", "time");
+            Date time = new Date(trackCursor.getLong(2));
+            serializer.text(ZULU_DATE_FORMAT.format(time));
+            serializer.endTag("", "time");
+            serializer.text("\n");
+            serializer.endTag("", "metadata");
          }
       }
       finally
       {
-         if( trackCursor != null )
+         if (trackCursor != null)
          {
             trackCursor.close();
          }
-         if( name == null )
+         if (name == null)
          {
             name = "Untitled";
          }
@@ -276,9 +276,9 @@ public class GpxCreator extends XmlCreator
       return name;
    }
 
-   private void serializeSegments( XmlSerializer serializer, Uri segments ) throws IOException
+   private void serializeSegments(XmlSerializer serializer, Uri segments) throws IOException
    {
-      if( isCancelled() )
+      if (isCancelled())
       {
          throw new IOException("Fail to execute request due to canceling");
       }
@@ -286,33 +286,33 @@ public class GpxCreator extends XmlCreator
       ContentResolver resolver = mContext.getContentResolver();
       try
       {
-         segmentCursor = resolver.query( segments, new String[] { Segments._ID }, null, null, null );
-         if( segmentCursor.moveToFirst() )
+         segmentCursor = resolver.query(segments, new String[] { Segments._ID }, null, null, null);
+         if (segmentCursor.moveToFirst())
          {
             do
             {
-               Uri waypoints = Uri.withAppendedPath( segments, segmentCursor.getLong( 0 ) + "/waypoints" );
-               serializer.text( "\n" );
-               serializer.startTag( "", "trkseg" );
-               serializeWaypoints( serializer, waypoints );
-               serializer.text( "\n" );
-               serializer.endTag( "", "trkseg" );
+               Uri waypoints = Uri.withAppendedPath(segments, segmentCursor.getLong(0) + "/waypoints");
+               serializer.text("\n");
+               serializer.startTag("", "trkseg");
+               serializeWaypoints(serializer, waypoints);
+               serializer.text("\n");
+               serializer.endTag("", "trkseg");
             }
-            while( segmentCursor.moveToNext() );
+            while (segmentCursor.moveToNext());
          }
       }
       finally
       {
-         if( segmentCursor != null )
+         if (segmentCursor != null)
          {
             segmentCursor.close();
          }
       }
    }
 
-   private void serializeWaypoints( XmlSerializer serializer, Uri waypoints ) throws IOException
+   private void serializeWaypoints(XmlSerializer serializer, Uri waypoints) throws IOException
    {
-      if( isCancelled() )
+      if (isCancelled())
       {
          throw new IOException("Fail to execute request due to canceling");
       }
@@ -320,58 +320,59 @@ public class GpxCreator extends XmlCreator
       ContentResolver resolver = mContext.getContentResolver();
       try
       {
-         waypointsCursor = resolver.query( waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID, Waypoints.SPEED, Waypoints.ACCURACY, Waypoints.BEARING }, null, null, null );
-         if( waypointsCursor.moveToFirst() )
+         waypointsCursor = resolver.query(waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID,
+               Waypoints.SPEED, Waypoints.ACCURACY, Waypoints.BEARING }, null, null, null);
+         if (waypointsCursor.moveToFirst())
          {
             do
             {
                publishProgress(1);
 
-               serializer.text( "\n" );
-               serializer.startTag( "", "trkpt" );
-               serializer.attribute( null, "lat", Double.toString( waypointsCursor.getDouble( 1 ) ) );
-               serializer.attribute( null, "lon", Double.toString( waypointsCursor.getDouble( 0 ) ) );
-               serializer.text( "\n" );
-               serializer.startTag( "", "ele" );
-               serializer.text( Double.toString( waypointsCursor.getDouble( 3 ) ) );
-               serializer.endTag( "", "ele" );
-               serializer.text( "\n" );
-               serializer.startTag( "", "time" );
-               Date time = new Date( waypointsCursor.getLong( 2 ) );
-               serializer.text( ZULU_DATE_FORMAT.format( time ) );
-               serializer.endTag( "", "time" );
-               if( includeAttachments )
+               serializer.text("\n");
+               serializer.startTag("", "trkpt");
+               serializer.attribute(null, "lat", Double.toString(waypointsCursor.getDouble(1)));
+               serializer.attribute(null, "lon", Double.toString(waypointsCursor.getDouble(0)));
+               serializer.text("\n");
+               serializer.startTag("", "ele");
+               serializer.text(Double.toString(waypointsCursor.getDouble(3)));
+               serializer.endTag("", "ele");
+               serializer.text("\n");
+               serializer.startTag("", "time");
+               Date time = new Date(waypointsCursor.getLong(2));
+               serializer.text(ZULU_DATE_FORMAT.format(time));
+               serializer.endTag("", "time");
+               if (includeAttachments)
                {
-                  serializeWaypointDescription( mContext, serializer, Uri.withAppendedPath( waypoints, waypointsCursor.getLong( 4 ) + "/media" ) );
+                  serializeWaypointDescription(mContext, serializer, Uri.withAppendedPath(waypoints, waypointsCursor.getLong(4) + "/media"));
                }
-               serializer.text( "\n" );
-               serializer.startTag( "", "extensions" );
-               
-               double speed = waypointsCursor.getDouble( 5 );
-               double accuracy = waypointsCursor.getDouble( 6 );
-               double bearing = waypointsCursor.getDouble( 7 );
-               if( speed > 0.0 )
+               serializer.text("\n");
+               serializer.startTag("", "extensions");
+
+               double speed = waypointsCursor.getDouble(5);
+               double accuracy = waypointsCursor.getDouble(6);
+               double bearing = waypointsCursor.getDouble(7);
+               if (speed > 0.0)
                {
-                  quickTag( serializer, NS_GPX_10, "speed", Double.toString( speed ) );
+                  quickTag(serializer, NS_GPX_10, "speed", Double.toString(speed));
                }
-               if( accuracy > 0.0 )
+               if (accuracy > 0.0)
                {
-                  quickTag( serializer, NS_OGT_10, "accuracy", Double.toString( accuracy ) );
+                  quickTag(serializer, NS_OGT_10, "accuracy", Double.toString(accuracy));
                }
-               if( bearing != 0.0 )
+               if (bearing != 0.0)
                {
-                  quickTag( serializer, NS_GPX_10, "course", Double.toString( bearing ) );
+                  quickTag(serializer, NS_GPX_10, "course", Double.toString(bearing));
                }
-               serializer.endTag( "", "extensions" );
-               serializer.text( "\n" );
-               serializer.endTag( "", "trkpt" );
+               serializer.endTag("", "extensions");
+               serializer.text("\n");
+               serializer.endTag("", "trkpt");
             }
-            while( waypointsCursor.moveToNext() );
+            while (waypointsCursor.moveToNext());
          }
       }
       finally
       {
-         if( waypointsCursor != null )
+         if (waypointsCursor != null)
          {
             waypointsCursor.close();
          }
@@ -379,89 +380,89 @@ public class GpxCreator extends XmlCreator
 
    }
 
-   private void serializeWaypointDescription( Context context, XmlSerializer serializer, Uri media ) throws IOException
+   private void serializeWaypointDescription(Context context, XmlSerializer serializer, Uri media) throws IOException
    {
-      if( isCancelled() )
+      if (isCancelled())
       {
          throw new IOException("Fail to execute request due to canceling");
       }
-      String mediaPathPrefix =  Constants.getSdCardDirectory(context);
+      String mediaPathPrefix = Constants.getSdCardDirectory(context);
       Cursor mediaCursor = null;
       ContentResolver resolver = context.getContentResolver();
       try
       {
-         mediaCursor = resolver.query( media, new String[] { Media.URI }, null, null, null );
-         if( mediaCursor.moveToFirst() )
+         mediaCursor = resolver.query(media, new String[] { Media.URI }, null, null, null);
+         if (mediaCursor.moveToFirst())
          {
             do
             {
-               Uri mediaUri = Uri.parse( mediaCursor.getString( 0 ) );
-               if( mediaUri.getScheme().equals( "file" ) )
+               Uri mediaUri = Uri.parse(mediaCursor.getString(0));
+               if (mediaUri.getScheme().equals("file"))
                {
-                  if( mediaUri.getLastPathSegment().endsWith( "3gp" ) )
+                  if (mediaUri.getLastPathSegment().endsWith("3gp"))
                   {
-                     serializer.text( "\n" );
-                     serializer.startTag( "", "link" );
-                     serializer.attribute( null, "href", includeMediaFile( mediaUri.getLastPathSegment() ) );
-                     serializer.startTag( "", "text" );
-                     serializer.text( mediaUri.getLastPathSegment() );
-                     serializer.endTag( "", "text" );
-                     serializer.endTag( "", "link" );
+                     serializer.text("\n");
+                     serializer.startTag("", "link");
+                     serializer.attribute(null, "href", includeMediaFile(mediaUri.getLastPathSegment()));
+                     serializer.startTag("", "text");
+                     serializer.text(mediaUri.getLastPathSegment());
+                     serializer.endTag("", "text");
+                     serializer.endTag("", "link");
                   }
-                  else if( mediaUri.getLastPathSegment().endsWith( "jpg" ) )
+                  else if (mediaUri.getLastPathSegment().endsWith("jpg"))
                   {
-                     serializer.text( "\n" );
-                     serializer.startTag( "", "link" );
-                     serializer.attribute( null, "href", includeMediaFile( mediaPathPrefix + mediaUri.getLastPathSegment() ) );
-                     serializer.startTag( "", "text" );
-                     serializer.text( mediaUri.getLastPathSegment() );
-                     serializer.endTag( "", "text" );
-                     serializer.endTag( "", "link" );
+                     serializer.text("\n");
+                     serializer.startTag("", "link");
+                     serializer.attribute(null, "href", includeMediaFile(mediaPathPrefix + mediaUri.getLastPathSegment()));
+                     serializer.startTag("", "text");
+                     serializer.text(mediaUri.getLastPathSegment());
+                     serializer.endTag("", "text");
+                     serializer.endTag("", "link");
                   }
-                  else if( mediaUri.getLastPathSegment().endsWith( "txt" ) )
+                  else if (mediaUri.getLastPathSegment().endsWith("txt"))
                   {
-                     serializer.text( "\n" );
-                     serializer.startTag( "", "desc" );
-                     BufferedReader buf = new BufferedReader( new FileReader( mediaUri.getEncodedPath() ) );
+                     serializer.text("\n");
+                     serializer.startTag("", "desc");
+                     BufferedReader buf = new BufferedReader(new FileReader(mediaUri.getEncodedPath()));
                      String line;
-                     while( ( line = buf.readLine() ) != null )
+                     while ((line = buf.readLine()) != null)
                      {
-                        serializer.text( line );
-                        serializer.text( "\n" );
+                        serializer.text(line);
+                        serializer.text("\n");
                      }
-                     serializer.endTag( "", "desc" );
+                     serializer.endTag("", "desc");
                   }
                }
-               else if( mediaUri.getScheme().equals( "content" ) )
+               else if (mediaUri.getScheme().equals("content"))
                {
-                  if( mediaUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+                  if (mediaUri.getAuthority().equals(GPStracking.AUTHORITY + ".string"))
                   {
-                     serializer.text( "\n" );
-                     serializer.startTag( "", "name" );
-                     serializer.text( mediaUri.getLastPathSegment() );
-                     serializer.endTag( "", "name" );
+                     serializer.text("\n");
+                     serializer.startTag("", "name");
+                     serializer.text(mediaUri.getLastPathSegment());
+                     serializer.endTag("", "name");
                   }
-                  else if( mediaUri.getAuthority().equals( "media" ) )
+                  else if (mediaUri.getAuthority().equals("media"))
                   {
 
                      Cursor mediaItemCursor = null;
                      try
                      {
-                        mediaItemCursor = resolver.query( mediaUri, new String[] { MediaColumns.DATA, MediaColumns.DISPLAY_NAME }, null, null, null );
-                        if( mediaItemCursor.moveToFirst() )
+                        mediaItemCursor = resolver.query(mediaUri, new String[] { MediaColumns.DATA, MediaColumns.DISPLAY_NAME }, null, null, null);
+                        if (mediaItemCursor.moveToFirst())
                         {
-                           serializer.text( "\n" );
-                           serializer.startTag( "", "link" );
-                           serializer.attribute( null, "href", includeMediaFile( mediaItemCursor.getString( 0 ) ) );
-                           serializer.startTag( "", "text" );
-                           serializer.text( mediaItemCursor.getString( 1 ) );
-                           serializer.endTag( "", "text" );
-                           serializer.endTag( "", "link" );
+                           serializer.text("\n");
+                           serializer.startTag("", "link");
+                           serializer.attribute(null, "href", includeMediaFile(mediaItemCursor.getString(0)));
+                           serializer.startTag("", "text");
+                           serializer.text(mediaItemCursor.getString(1));
+                           serializer.endTag("", "text");
+                           serializer.endTag("", "link");
                         }
                      }
                      finally
                      {
-                        if( mediaItemCursor != null )
+                        if (mediaItemCursor != null)
                         {
                            mediaItemCursor.close();
                         }
@@ -469,13 +470,13 @@ public class GpxCreator extends XmlCreator
                   }
                }
             }
-            while( mediaCursor.moveToNext() );
+            while (mediaCursor.moveToNext());
             //TODO: Multiple media items per waypoint might break XML validity
          }
       }
       finally
       {
-         if( mediaCursor != null )
+         if (mediaCursor != null)
          {
             mediaCursor.close();
          }

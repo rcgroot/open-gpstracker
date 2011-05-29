@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------
- **     Ident: Innovation en Inspiration > Google Android 
+ **     Ident: Sogeti Smart Mobile Solutions
  **    Author: rene
- ** Copyright: (c) Jan 22, 2009 Sogeti Nederland B.V. All Rights Reserved.
+ ** Copyright: (c) Apr 24, 2011 Sogeti Nederland B.V. All Rights Reserved.
  **------------------------------------------------------------------------------
  ** Sogeti Nederland B.V.            |  No part of this file may be reproduced  
  ** Distributed Software Engineering |  or transmitted in any form or by any        
@@ -35,6 +35,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.utils.xml.KmzCreator;
@@ -282,19 +283,15 @@ public class ShareTrack extends Activity
          case EXPORT_TARGET_SEND:
             endJob = new EndJob()
                {
-                  public void shareFile(Uri fileUri, String contentType)
+                  @Override
+                  public void shareFile(Uri fileUri)
                   {
-                     sendFile(fileUri, getString(R.string.email_kmzbody), contentType);
+                     sendFile(fileUri, getString(R.string.email_kmzbody), getContentType());
                   }
                };
             break;
          case EXPORT_TARGET_SAVE:
-            endJob = new EndJob()
-               {
-                  public void shareFile(Uri fileUri, String contentType)
-                  {
-                  }
-               };
+            endJob = null;
             break;
          default:
             Log.e(TAG, "Unable to determine target for sharing KMZ " + target);
@@ -302,7 +299,7 @@ public class ShareTrack extends Activity
       }
       if (endJob != null)
       {
-         KmzCreator kmzCreator = new KmzCreator(this, mTrackUri, chosenFileName, new ProgressMonitor(chosenFileName, endJob));
+         KmzCreator kmzCreator = new KmzCreator(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName, endJob));
          kmzCreator.execute();
          ShareTrack.this.finish();
       }
@@ -318,28 +315,25 @@ public class ShareTrack extends Activity
             attachments = true;
             endJob = new EndJob()
                {
-                  public void shareFile(Uri fileUri, String contentType)
+                  @Override
+                  public void shareFile(Uri fileUri)
                   {
-                     sendFile(fileUri, getString(R.string.email_gpxbody), contentType);
+                     sendFile(fileUri, getString(R.string.email_gpxbody), getContentType());
                   }
                };
             break;
          case EXPORT_TARGET_SAVE:
             attachments = true;
-            endJob = new EndJob()
-               {
-                  public void shareFile(Uri fileUri, String contentType)
-                  {
-                  }
-               };
+            endJob = null;
             break;
          case EXPORT_TARGET_JOGRUN:
             attachments = false;
             endJob = new EndJob()
             {
-               public void shareFile(Uri fileUri, String contentType)
+               @Override
+               public void shareFile(Uri fileUri)
                {
-                  sendToJogmap(fileUri, contentType);
+                  sendToJogmap(fileUri);
                }
             };
          break;
@@ -347,9 +341,10 @@ public class ShareTrack extends Activity
             attachments = false;
             endJob = new EndJob()
             {
-               public void shareFile(Uri fileUri, String contentType)
+               @Override
+               public void shareFile(Uri fileUri)
                {
-                  sendToOsm(fileUri, mTrackUri, contentType);
+                  sendToOsm(fileUri, mTrackUri);
                }
             };
             break;
@@ -359,8 +354,7 @@ public class ShareTrack extends Activity
       }
       if (endJob != null)
       {
-         
-         GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ProgressMonitor(chosenFileName, endJob));
+         GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
          gpxCreator.execute();
          ShareTrack.this.finish();
       }
@@ -402,17 +396,17 @@ public class ShareTrack extends Activity
       }
    }
 
-   private void sendFile(Uri fileUri, String body, String contentType)
+   private void sendFile(Uri fileUri, String fileContentType, String body)
    {
       Intent sendActionIntent = new Intent(Intent.ACTION_SEND);
       sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
       sendActionIntent.putExtra(Intent.EXTRA_TEXT, body);
       sendActionIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-      sendActionIntent.setType(contentType);
+      sendActionIntent.setType(fileContentType);
       startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser)));
    }
    
-   private void sendToJogmap(Uri fileUri, String contentType)
+   private void sendToJogmap(Uri fileUri)
    {
       String authCode = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.JOGRUNNER_AUTH, "");
       File gpxFile = new File(fileUri.getEncodedPath());
@@ -471,7 +465,7 @@ public class ShareTrack extends Activity
     * @param fileUri
     * @param contentType
     */
-   private void sendToOsm(Uri fileUri, Uri trackUri, String contentType)
+   private void sendToOsm(Uri fileUri, Uri trackUri)
    {
       String username = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_USERNAME, "");
       String password = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_PASSWORD, "");
@@ -682,33 +676,17 @@ public class ShareTrack extends Activity
 	   }
 }
 
-   public class ProgressMonitor
+   public class ShareProgressListener implements ProgressListener
    {
       private String mFileName;
       private EndJob mEndJob;
       private int mGoal;
       private int mProgress;
 
-      public ProgressMonitor(String sharename, EndJob endJob)
+      public ShareProgressListener(String sharename, EndJob endJob)
       {
          mFileName = sharename;
          mEndJob = endJob;
-      }
-      
-      public void setGoal( int goal )
-      {
-         this.mGoal = goal;
-      }
-      
-      public int getGoal()
-      {
-         return mGoal;
-      }
-      
-      public void increaseProgress( int step )
-      {
-         mProgress += step;
-         updateNotification();
       }
       
       public void startNotification()
@@ -757,19 +735,60 @@ public class ShareTrack extends Activity
          }
       }
 
-      public void endNotification(String filepath, String contentType)
+      public void endNotification(Uri file)
       {
          mNotificationManager.cancel(R.layout.savenotificationprogress);
-         if (mEndJob != null && filepath != null)
+         if (mEndJob != null && file != null)
          {
-            Uri file = Uri.fromFile(new File(filepath));
-            mEndJob.shareFile(file, contentType);
+            mEndJob.shareFile(file);
          }
       }
+
+      public void setIndeterminate(boolean indeterminate)
+      {
+         Log.w(TAG, "Unsupported indeterminate progress display" );
+      }
+
+      public void setMax(int max)
+      {
+         this.mGoal = max;
+      }
+
+      public void started()
+      {
+         startNotification();
+      }
+
+      public void increaseProgress(int value)
+      {
+         setProgress(mProgress + value); 
+      }
+      
+      public void setProgress(int value)
+      {
+         mProgress = value;
+         updateNotification();
+      }
+
+      public void finished(Uri result)
+      {
+         endNotification(result);
+      }
+
+
    }
 
-   public static interface EndJob
+   public static abstract class EndJob
    {
-      void shareFile(Uri fileUri, String contentType);
+      private String mType;
+      void setContentType(String type)
+      {
+         mType = type;
+      }
+      String getContentType()
+      {
+         return mType;
+      }
+      abstract void shareFile(Uri fileUri);
    }
 }
