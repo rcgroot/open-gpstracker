@@ -30,15 +30,15 @@ package nl.sogeti.android.gpstracker.adapter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;
 import nl.sogeti.android.gpstracker.util.Pair;
-import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -49,18 +49,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Adapter;
 
 /**
  * An asynchronous task that communicates with Twitter to retrieve a request
@@ -82,13 +76,13 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
     * 
     * @param mContext Required to be able to start the intent to launch the
     *           browser.
-    * @param adapter          
+    * @param adapter
     * @param httpclient
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public DownloadBreadcrumbsTrackTask(Context context, ProgressListener progressListener, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer,
-         Pair<Integer, Integer> track)
+   public DownloadBreadcrumbsTrackTask(Context context, ProgressListener progressListener, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient,
+         OAuthConsumer consumer, Pair<Integer, Integer> track)
    {
       super(context, progressListener);
       mAdapter = adapter;
@@ -105,7 +99,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
    protected Uri doInBackground(Uri... params)
    {
       determineProgressGoal(null);
-      
+
       Uri trackUri = null;
       InputStream fis = null;
       String trackName = mAdapter.getBreadcrumbsTracks().getValueForItem(mTrack, BreadcrumbsTracks.NAME);
@@ -120,10 +114,10 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
          HttpResponse response = mHttpclient.execute(request);
          HttpEntity entity = response.getEntity();
          fis = entity.getContent();
-         publishProgress( getMaximumProgress()/4 );
+         publishProgress(getMaximumProgress() / 4);
 
          trackUri = importTrack(fis, trackName);
-         
+
       }
       catch (OAuthMessageSignerException e)
       {
@@ -151,30 +145,50 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
 
       long ogtTrackId = Long.parseLong(result.getLastPathSegment());
       Uri metadataUri = Uri.withAppendedPath(ContentUris.withAppendedId(Tracks.CONTENT_URI, ogtTrackId), "metadata");
-      
+
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
-      Integer bcTrackId     = mTrack.second;
-      Integer bcBundleId    = tracks.getBundleIdForTrackId(bcTrackId);
-      Integer bcActivityId  = tracks.getActivityIdForBundleId(bcBundleId);
-      String  bcDifficulty  = tracks.getValueForItem(mTrack, BreadcrumbsTracks.DIFFICULTY);
-      String  bcRating      = tracks.getValueForItem(mTrack, BreadcrumbsTracks.RATING);
-      String  bcPublic      = tracks.getValueForItem(mTrack, BreadcrumbsTracks.ISPUBLIC);
-      String  bcDescription = tracks.getValueForItem(mTrack, BreadcrumbsTracks.DESCRIPTION);
-      ContentValues[] metaValues = { 
-            buildContentValues( BreadcrumbsTracks.TRACK_ID,    Long.toString(bcTrackId)),
-            buildContentValues( BreadcrumbsTracks.TRACK_ID,    bcDifficulty),
-            buildContentValues( BreadcrumbsTracks.TRACK_ID,    bcDescription),
-            buildContentValues( BreadcrumbsTracks.TRACK_ID,    bcRating),
-            buildContentValues( BreadcrumbsTracks.TRACK_ID,    bcPublic),
-            buildContentValues( BreadcrumbsTracks.BUNDLE_ID,   Integer.toString(bcBundleId)),
-            buildContentValues( BreadcrumbsTracks.ACTIVITY_ID, Integer.toString(bcActivityId))
-            };
-      
+      Integer bcTrackId = mTrack.second;
+      Integer bcBundleId = tracks.getBundleIdForTrackId(bcTrackId);
+      Integer bcActivityId = tracks.getActivityIdForBundleId(bcBundleId);
+      String bcDifficulty = tracks.getValueForItem(mTrack, BreadcrumbsTracks.DIFFICULTY);
+      String bcRating = tracks.getValueForItem(mTrack, BreadcrumbsTracks.RATING);
+      String bcPublic = tracks.getValueForItem(mTrack, BreadcrumbsTracks.ISPUBLIC);
+      String bcDescription = tracks.getValueForItem(mTrack, BreadcrumbsTracks.DESCRIPTION);
+
+      ArrayList<ContentValues> metaValues = new ArrayList<ContentValues>();
+      if (bcTrackId != null)
+      {
+         metaValues.add(buildContentValues(BreadcrumbsTracks.TRACK_ID, Long.toString(bcTrackId)));
+      }
+      if (bcDescription != null)
+      {
+         metaValues.add(buildContentValues(BreadcrumbsTracks.DESCRIPTION, bcDescription));
+      }
+      if (bcDifficulty != null)
+      {
+         metaValues.add(buildContentValues(BreadcrumbsTracks.DIFFICULTY, bcDifficulty));
+      }
+      if (bcRating != null)
+      {
+         metaValues.add(buildContentValues(BreadcrumbsTracks.RATING, bcRating));
+      }
+      if (bcPublic != null)
+      {
+         metaValues.add(buildContentValues(BreadcrumbsTracks.ISPUBLIC, bcPublic));
+      }
+      if (bcBundleId != null)
+      {
+         metaValues.add(buildContentValues(BreadcrumbsTracks.BUNDLE_ID, Integer.toString(bcBundleId)));
+      }
+      if (bcActivityId != null)
+      {
+         metaValues.add(buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, Integer.toString(bcActivityId)));
+      }
       ContentResolver resolver = mContext.getContentResolver();
-      resolver.bulkInsert(metadataUri, metaValues);
+      resolver.bulkInsert(metadataUri, metaValues.toArray(new ContentValues[1]));
    }
-   
-   private ContentValues buildContentValues( String key, String value)
+
+   private ContentValues buildContentValues(String key, String value)
    {
       ContentValues contentValues = new ContentValues();
       contentValues.put(MetaData.KEY, key);
