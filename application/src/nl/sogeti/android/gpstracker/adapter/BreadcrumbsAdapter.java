@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -77,11 +78,13 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    private boolean mFinishing;
    private OnSharedPreferenceChangeListener tokenChangedListener;
+   private ProgressListener mListener;
 
-   public BreadcrumbsAdapter(Context ctx)
+   public BreadcrumbsAdapter(Context ctx, ProgressListener listener)
    {
       super();
       mContext = ctx;
+      mListener = listener;
       mInflater = LayoutInflater.from(mContext);
       mHttpClient = new DefaultHttpClient();
       mTracks = new BreadcrumbsTracks(mContext.getContentResolver());
@@ -100,8 +103,8 @@ public class BreadcrumbsAdapter extends BaseAdapter
       {
          mConsumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
          mConsumer.setTokenWithSecret(token, secret);
-         mPlannedTasks.add(new GetBreadcrumbsBundlesTask(this, mHttpClient, mConsumer));
-         mPlannedTasks.add(new GetBreadcrumbsActivitiesTask(this, mHttpClient, mConsumer));
+         mPlannedTasks.add(new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, mConsumer));
+         mPlannedTasks.add(new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, mConsumer));
          executeNextTask();
       }
       else
@@ -262,7 +265,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
          {
             if (!mTracks.areTracksLoaded(item))
             {
-               mPlannedTasks.add(new GetBreadcrumbsTracksTask(this, mHttpClient, mConsumer, item.second));
+               mPlannedTasks.add(new GetBreadcrumbsTracksTask(this, mListener, mHttpClient, mConsumer, item.second));
                executeNextTask();
             }
          }
@@ -297,11 +300,6 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mOngoingTask = null;
       notifyDataSetChanged();
       executeNextTask();
-   }
-
-   public void canceledTask(GetBreadcrumbsBundlesTask getBreadcrumbsBundlesTask)
-   {
-      mHttpClient.getConnectionManager().shutdown();
    }
 
    private synchronized void executeNextTask()
@@ -370,7 +368,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    public void startDownloadTask(TrackList trackList, Pair<Integer, Integer> track)
    {
-      mPlannedTasks.add(new DownloadBreadcrumbsTrackTask(trackList, this, mHttpClient, mConsumer, track));
+      mPlannedTasks.add(new DownloadBreadcrumbsTrackTask(trackList, trackList, this, mHttpClient, mConsumer, track));
       executeNextTask();
    }
 

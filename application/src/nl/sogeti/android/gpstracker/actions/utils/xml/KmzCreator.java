@@ -84,6 +84,8 @@ public class KmzCreator extends XmlCreator
    @Override
    protected Uri doInBackground(Void... params)
    {
+      determineProgressGoal();
+      
       Uri resultFilename = exportKml();
       return resultFilename;
    }
@@ -101,8 +103,6 @@ public class KmzCreator extends XmlCreator
 
       new File(getExportDirectoryPath()).mkdirs();
       String xmlFilePath = getExportDirectoryPath() + "/doc.kml";
-
-      determineProgressGoal();
 
       String resultFilename = null;
       FileOutputStream fos = null;
@@ -128,21 +128,18 @@ public class KmzCreator extends XmlCreator
       }
       catch (IllegalArgumentException e)
       {
-         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filename);
-         setError(e, text);
-         cancel(false);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filename);
+         handleError(e, text);
       }
       catch (IllegalStateException e)
       {
-         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_buildxml);
-         setError(e, text);
-         cancel(false);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_buildxml);
+         handleError(e, text);
       }
       catch (IOException e)
       {
-         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_writesdcard);
-         setError(e, text);
-         cancel(false);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_writesdcard);
+         handleError(e, text);
       }
       finally
       {

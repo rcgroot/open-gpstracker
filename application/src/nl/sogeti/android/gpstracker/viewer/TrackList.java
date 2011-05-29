@@ -33,6 +33,7 @@ import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.DescribeTrack;
 import nl.sogeti.android.gpstracker.actions.NameTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
@@ -80,7 +81,7 @@ import android.widget.TextView;
  * @version $Id$
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */
-public class TrackList extends ListActivity
+public class TrackList extends ListActivity implements ProgressListener
 {
 
    private static final String TAG = "OGT.TrackList";
@@ -101,7 +102,7 @@ public class TrackList extends ListActivity
    protected static final int DIALOG_ERROR = Menu.FIRST + 28;
 
    private static final int PICKER_OI = Menu.FIRST + 29;
-   private static final int DESCRIBE  = Menu.FIRST + 30;
+   private static final int DESCRIBE = Menu.FIRST + 30;
    public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
    public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
 
@@ -146,7 +147,7 @@ public class TrackList extends ListActivity
    {
       public void onClick(DialogInterface dialog, int which)
       {
-         new GpxParser(TrackList.this).execute(mImportFileUri);
+         new GpxParser(TrackList.this, TrackList.this).execute(mImportFileUri);
       }
    };
    private final DialogInterface.OnClickListener mOiPickerDialogListener = new DialogInterface.OnClickListener()
@@ -172,10 +173,12 @@ public class TrackList extends ListActivity
    protected void onCreate(Bundle savedInstanceState)
    {
       super.onCreate(savedInstanceState);
-      displayIntent(getIntent());
 
       this.setContentView(R.layout.tracklist);
       mImportProgress = (ProgressBar) findViewById(R.id.importProgress);
+      
+      displayIntent(getIntent());
+
 
       ListView listView = getListView();
       listView.setItemsCanFocus(true);
@@ -279,7 +282,7 @@ public class TrackList extends ListActivity
    protected void onListItemClick(ListView listView, View view, int position, long id)
    {
       super.onListItemClick(listView, view, position, id);
-      Log.d( TAG, "Clicked on view "+view);
+      Log.d(TAG, "Clicked on view " + view);
 
       Object item = listView.getItemAtPosition(position);
       if (item instanceof String)
@@ -496,11 +499,11 @@ public class TrackList extends ListActivity
          {
             case PICKER_OI:
                mImportFileUri = data.getData();
-               new GpxParser(TrackList.this).execute(mImportFileUri);
+               new GpxParser(TrackList.this, TrackList.this).execute(mImportFileUri);
                break;
             case DESCRIBE:
                Uri trackUri = data.getData();
-               mBreadcrumbAdapter.startUploadTask(TrackList.this, trackUri );
+               mBreadcrumbAdapter.startUploadTask(TrackList.this, trackUri);
                break;
             default:
                super.onActivityResult(requestCode, resultCode, data);
@@ -564,7 +567,7 @@ public class TrackList extends ListActivity
       mBreadcrumbAdapter = (BreadcrumbsAdapter) getLastNonConfigurationInstance();
       if (mBreadcrumbAdapter == null)
       {
-         mBreadcrumbAdapter = new BreadcrumbsAdapter(this);
+         mBreadcrumbAdapter = new BreadcrumbsAdapter(this, this);
       }
       else
       {
@@ -585,27 +588,27 @@ public class TrackList extends ListActivity
                if (mBreadcrumbAdapter.isOnline())
                {
                   checkbox.setVisibility(View.VISIBLE);
-                  
+
                   // Disable the checkbox if marked online
                   BreadcrumbsTracks tracks = mBreadcrumbAdapter.getBreadcrumbsTracks();
                   boolean isOnline = tracks.isLocalTrackOnline(trackId);
                   checkbox.setEnabled(!isOnline);
-                  
+
                   // Check the checkbox if determined synced
                   boolean isSynced = tracks.isLocalTrackSynced(trackId);
                   checkbox.setOnCheckedChangeListener(null);
                   checkbox.setChecked(isSynced);
-                  checkbox.setOnCheckedChangeListener( new OnCheckedChangeListener()
+                  checkbox.setOnCheckedChangeListener(new OnCheckedChangeListener()
                   {
                      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
                      {
-                        if( isChecked )
+                        if (isChecked)
                         {
-                           Log.d( TAG, "View"+buttonView+" track id "+trackId );
+                           Log.d(TAG, "View" + buttonView + " track id " + trackId);
                            // Start a naming of the track
-                           Intent namingIntent = new Intent( TrackList.this, DescribeTrack.class );
-                           namingIntent.setData( ContentUris.withAppendedId( Tracks.CONTENT_URI, trackId ) );
-                           startActivityForResult(namingIntent, DESCRIBE );
+                           Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
+                           namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));
+                           startActivityForResult(namingIntent, DESCRIBE);
                         }
                      }
                   });
@@ -632,25 +635,39 @@ public class TrackList extends ListActivity
       return cursor;
    }
 
-   public void startProgressBar(int max)
+   /*******************************************************************/
+   /** ProgressListener interface and UI actions (non-Javadoc)       **/
+   /*******************************************************************/
+
+   public void setIndeterminate(boolean indeterminate)
+   {
+      mImportProgress.setIndeterminate(indeterminate);
+   }
+
+   public void setMax(int max)
    {
       mImportProgress.setMax(max);
+   }
+
+   public void started()
+   {
       mImportProgress.setVisibility(View.VISIBLE);
+
    }
 
-   public void updateProgressBar(int increment, int max)
+   public void increaseProgress(int value)
    {
-      mImportProgress.setMax(max);
-      mImportProgress.incrementProgressBy(increment);
+      mImportProgress.incrementProgressBy(value);
    }
 
-   public void stopProgressBar()
+   public void finished(Uri result)
    {
       mImportProgress.setVisibility(View.GONE);
    }
 
    public void showErrorDialog(String errorDialogMessage, Exception errorDialogException)
    {
+      mImportProgress.setVisibility(View.GONE);
       mErrorDialogMessage = errorDialogMessage;
       mErrorDialogException = errorDialogException;
       showDialog(DIALOG_ERROR);

@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
@@ -55,6 +56,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -85,10 +87,10 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public DownloadBreadcrumbsTrackTask(TrackList trackList, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer,
+   public DownloadBreadcrumbsTrackTask(Context context, ProgressListener progressListener, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer,
          Pair<Integer, Integer> track)
    {
-      super(trackList);
+      super(context, progressListener);
       mAdapter = adapter;
       mHttpclient = httpclient;
       mConsumer = consumer;
@@ -102,6 +104,8 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
    @Override
    protected Uri doInBackground(Uri... params)
    {
+      determineProgressGoal(null);
+      
       Uri trackUri = null;
       InputStream fis = null;
       String trackName = mAdapter.getBreadcrumbsTracks().getValueForItem(mTrack, BreadcrumbsTracks.NAME);
@@ -116,32 +120,26 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
          HttpResponse response = mHttpclient.execute(request);
          HttpEntity entity = response.getEntity();
          fis = entity.getContent();
+         publishProgress( getMaximumProgress()/4 );
 
          trackUri = importTrack(fis, trackName);
+         
       }
       catch (OAuthMessageSignerException e)
       {
-         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
-         mErrorDialogException = e;
-         trackUri = null;
+         handleError(e, mContext.getString(R.string.error_importgpx_xml));
       }
       catch (OAuthExpectationFailedException e)
       {
-         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
-         mErrorDialogException = e;
-         trackUri = null;
+         handleError(e, mContext.getString(R.string.error_importgpx_xml));
       }
       catch (OAuthCommunicationException e)
       {
-         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
-         mErrorDialogException = e;
-         trackUri = null;
+         handleError(e, mContext.getString(R.string.error_importgpx_xml));
       }
       catch (IOException e)
       {
-         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
-         mErrorDialogException = e;
-         trackUri = null;
+         handleError(e, mContext.getString(R.string.error_importgpx_xml));
       }
       return trackUri;
    }
@@ -172,10 +170,8 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
             buildContentValues( BreadcrumbsTracks.ACTIVITY_ID, Integer.toString(bcActivityId))
             };
       
-      ContentResolver resolver = mTrackList.getContentResolver();
+      ContentResolver resolver = mContext.getContentResolver();
       resolver.bulkInsert(metadataUri, metaValues);
-      
-      mAdapter.finishedTask();
    }
    
    private ContentValues buildContentValues( String key, String value)

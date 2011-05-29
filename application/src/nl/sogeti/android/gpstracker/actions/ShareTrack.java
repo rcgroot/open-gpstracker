@@ -47,6 +47,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -80,6 +81,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -107,6 +110,7 @@ public class ShareTrack extends Activity
    protected static final int PROGRESS_STEPS = 10;
    private static final int DIALOG_INSTALL_TWIDROID = 34;
    private static final String TAG = "OGT.ShareTrack";
+   protected static final int DIALOG_ERROR = Menu.FIRST + 28;
 
    private RemoteViews mContentView;
    private int barProgress = 0;
@@ -120,23 +124,25 @@ public class ShareTrack extends Activity
    private Uri mTrackUri;
    private StatisticsCalulator calculator;
    private OnClickListener mTwidroidDialogListener = new DialogInterface.OnClickListener()
+   {
+      public void onClick(DialogInterface dialog, int which)
       {
-         public void onClick(DialogInterface dialog, int which)
+         Uri twidroidUri = Uri.parse("market://details?id=com.twidroid");
+         Intent getTwidroid = new Intent(Intent.ACTION_VIEW, twidroidUri);
+         try
          {
-            Uri twidroidUri = Uri.parse("market://details?id=com.twidroid");
-            Intent getTwidroid = new Intent(Intent.ACTION_VIEW, twidroidUri);
-            try
-            {
-               startActivity(getTwidroid);
-            }
-            catch (ActivityNotFoundException e)
-            {
-               twidroidUri = Uri.parse("http://twidroid.com/download/");
-               getTwidroid = new Intent(Intent.ACTION_VIEW, twidroidUri);
-               startActivity(getTwidroid);
-            }
+            startActivity(getTwidroid);
          }
-      };
+         catch (ActivityNotFoundException e)
+         {
+            twidroidUri = Uri.parse("http://twidroid.com/download/");
+            getTwidroid = new Intent(Intent.ACTION_VIEW, twidroidUri);
+            startActivity(getTwidroid);
+         }
+      }
+   };
+   private String mErrorDialogMessage;
+   private Throwable mErrorDialogException;
 
    @Override
    public void onCreate(Bundle savedInstanceState)
@@ -146,7 +152,7 @@ public class ShareTrack extends Activity
 
       mTrackUri = getIntent().getData();
       calculator = new StatisticsCalulator(this, new UnitsI18n(this, null));
-      
+
       mFileNameView = (EditText) findViewById(R.id.fileNameField);
       mTweetView = (EditText) findViewById(R.id.tweetField);
 
@@ -155,46 +161,45 @@ public class ShareTrack extends Activity
       shareTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTypeSpinner.setAdapter(shareTypeAdapter);
       mShareTargetSpinner = (Spinner) findViewById(R.id.shareTargetSpinner);
-      
-      mShareTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
-         {
-            public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
-            {
-               adjustTargetToType(position);
-            }
 
-            public void onNothingSelected(AdapterView< ? > arg0)
-            { /* NOOP */
-            }
-         });
-      
+      mShareTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
+      {
+         public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
+         {
+            adjustTargetToType(position);
+         }
+
+         public void onNothingSelected(AdapterView< ? > arg0)
+         { /* NOOP */
+         }
+      });
+
       int lastType = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TYPE, EXPORT_TYPE_KMZ);
       mShareTypeSpinner.setSelection(lastType);
-      adjustTargetToType(lastType);   	  
+      adjustTargetToType(lastType);
 
       mFileNameView.setText(queryForTrackName());
 
       Button okay = (Button) findViewById(R.id.okayshare_button);
       okay.setOnClickListener(new View.OnClickListener()
+      {
+         public void onClick(View v)
          {
-            public void onClick(View v)
-            {
-               share();
-            }
-         });
+            share();
+         }
+      });
 
       Button cancel = (Button) findViewById(R.id.cancelshare_button);
       cancel.setOnClickListener(new View.OnClickListener()
+      {
+         public void onClick(View v)
          {
-            public void onClick(View v)
-            {
-               ShareTrack.this.finish();
-            }
-         });
+            ShareTrack.this.finish();
+         }
+      });
    }
 
-   /*
-    * (non-Javadoc)
+   /**
     * @see android.app.Activity#onCreateDialog(int)
     */
    @Override
@@ -210,23 +215,48 @@ public class ShareTrack extends Activity
                   .setPositiveButton(R.string.btn_install, mTwidroidDialogListener).setNegativeButton(R.string.btn_cancel, null);
             dialog = builder.create();
             return dialog;
+         case DIALOG_ERROR:
+            builder = new AlertDialog.Builder(this);
+            builder.setIcon(android.R.drawable.ic_dialog_alert).setTitle(android.R.string.dialog_alert_title)
+                  .setMessage(mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ").setNeutralButton(android.R.string.cancel, null);
+            dialog = builder.create();
+            return dialog;
          default:
             return super.onCreateDialog(id);
       }
    }
 
+   /**
+    * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
+    */
+   @Override
+   protected void onPrepareDialog(int id, Dialog dialog)
+   {
+      super.onPrepareDialog(id, dialog);
+      AlertDialog alert;
+      switch (id)
+      {
+         case DIALOG_ERROR:
+            alert = (AlertDialog) dialog;
+            alert.setMessage(mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ");
+            break;
+      }
+   }
+
    private void setGpxExportTargets()
    {
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharegpxtarget_choices, android.R.layout.simple_spinner_item);
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharegpxtarget_choices,
+            android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
       int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_GPXTARGET, EXPORT_TARGET_SEND);
       mShareTargetSpinner.setSelection(lastTarget);
    }
-   
+
    private void setKmzExportTargets()
    {
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharekmztarget_choices, android.R.layout.simple_spinner_item);
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharekmztarget_choices,
+            android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
       int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_KMZTARGET, EXPORT_TARGET_SEND);
@@ -235,7 +265,8 @@ public class ShareTrack extends Activity
 
    private void setTextLineExportTargets()
    {
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharetexttarget_choices, android.R.layout.simple_spinner_item);
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharetexttarget_choices,
+            android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
       int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TXTTARGET, EXPORT_TYPE_TWITDRIOD);
@@ -249,26 +280,26 @@ public class ShareTrack extends Activity
       String textLine = mTweetView.getText().toString();
       int type = (int) mShareTypeSpinner.getSelectedItemId();
       int target = (int) mShareTargetSpinner.getSelectedItemId();
-      
+
       Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
       editor.putInt(Constants.EXPORT_TYPE, type);
-      
+
       switch (type)
       {
          case EXPORT_TYPE_KMZ:
-        	 editor.putInt(Constants.EXPORT_KMZTARGET, target);
-             editor.commit();
-        	 exportKmz(chosenFileName, target);
-        	 break;
+            editor.putInt(Constants.EXPORT_KMZTARGET, target);
+            editor.commit();
+            exportKmz(chosenFileName, target);
+            break;
          case EXPORT_TYPE_GPX:
-        	 editor.putInt(Constants.EXPORT_GPXTARGET, target);
-             editor.commit();
-             exportGpx(chosenFileName, target);
-             break;
+            editor.putInt(Constants.EXPORT_GPXTARGET, target);
+            editor.commit();
+            exportGpx(chosenFileName, target);
+            break;
          case EXPORT_TYPE_TEXTLINE:
-        	 editor.putInt(Constants.EXPORT_TXTTARGET, target);
-             editor.commit();
-             exportTextLine(textLine, target);
+            editor.putInt(Constants.EXPORT_TXTTARGET, target);
+            editor.commit();
+            exportTextLine(textLine, target);
          default:
             Log.e(TAG, "Failed to determine sharing type" + type);
             break;
@@ -282,13 +313,13 @@ public class ShareTrack extends Activity
       {
          case EXPORT_TARGET_SEND:
             endJob = new EndJob()
+            {
+               @Override
+               public void shareFile(Uri fileUri)
                {
-                  @Override
-                  public void shareFile(Uri fileUri)
-                  {
-                     sendFile(fileUri, getString(R.string.email_kmzbody), getContentType());
-                  }
-               };
+                  sendFile(fileUri, getString(R.string.email_kmzbody), getContentType());
+               }
+            };
             break;
          case EXPORT_TARGET_SAVE:
             endJob = null;
@@ -314,13 +345,13 @@ public class ShareTrack extends Activity
          case EXPORT_TARGET_SEND:
             attachments = true;
             endJob = new EndJob()
+            {
+               @Override
+               public void shareFile(Uri fileUri)
                {
-                  @Override
-                  public void shareFile(Uri fileUri)
-                  {
-                     sendFile(fileUri, getString(R.string.email_gpxbody), getContentType());
-                  }
-               };
+                  sendFile(fileUri, getString(R.string.email_gpxbody), getContentType());
+               }
+            };
             break;
          case EXPORT_TARGET_SAVE:
             attachments = true;
@@ -336,7 +367,7 @@ public class ShareTrack extends Activity
                   sendToJogmap(fileUri);
                }
             };
-         break;
+            break;
          case EXPORT_TARGET_OSM:
             attachments = false;
             endJob = new EndJob()
@@ -405,7 +436,7 @@ public class ShareTrack extends Activity
       sendActionIntent.setType(fileContentType);
       startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser)));
    }
-   
+
    private void sendToJogmap(Uri fileUri)
    {
       String authCode = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.JOGRUNNER_AUTH, "");
@@ -457,10 +488,10 @@ public class ShareTrack extends Activity
          toast.show();
       }
    }
-   
+
    /**
-    * POST a (GPX) file to the 0.6 API of the OpenStreetMap.org website publishing 
-    * this track to the public.
+    * POST a (GPX) file to the 0.6 API of the OpenStreetMap.org website
+    * publishing this track to the public.
     * 
     * @param fileUri
     * @param contentType
@@ -474,7 +505,7 @@ public class ShareTrack extends Activity
       String hostname = getString(R.string.osm_post_host);
       Integer port = new Integer(getString(R.string.osm_post_port));
       HttpHost targetHost = new HttpHost(hostname, port, "http");
-      
+
       DefaultHttpClient httpclient = new DefaultHttpClient();
       HttpResponse response = null;
       String responseText = "";
@@ -483,35 +514,31 @@ public class ShareTrack extends Activity
       String sources = null;
       try
       {
-         metaData = this.getContentResolver().query(
-               Uri.withAppendedPath( trackUri, "metadata" ), 
-               new String[]{ MetaData.VALUE }, 
-               MetaData.KEY+" = ? ", 
-               new String[]{Constants.DATASOURCES_KEY}, 
-               null );
-         if( metaData.moveToFirst() )
+         metaData = this.getContentResolver().query(Uri.withAppendedPath(trackUri, "metadata"), new String[] { MetaData.VALUE }, MetaData.KEY + " = ? ",
+               new String[] { Constants.DATASOURCES_KEY }, null);
+         if (metaData.moveToFirst())
          {
             sources = metaData.getString(0);
          }
-         if( sources != null && sources.contains(LoggerMap.GOOGLE_PROVIDER) )
+         if (sources != null && sources.contains(LoggerMap.GOOGLE_PROVIDER))
          {
-            throw new IOException( "Unable to upload track with materials derived from Google Maps." );
+            throw new IOException("Unable to upload track with materials derived from Google Maps.");
          }
-         
+
          // The POST to the create node
-         HttpPost method = new HttpPost( getString(R.string.osm_post_context) );
-         
+         HttpPost method = new HttpPost(getString(R.string.osm_post_context));
+
          // Preemptive basic auth on the first request 
          method.addHeader(new BasicScheme().authenticate(new UsernamePasswordCredentials(username, password), method));
 
          // Build the multipart body with the upload data
          MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-         entity.addPart("file",        new FileBody(gpxFile));
-         entity.addPart("description", new StringBody(queryForTrackName()) );
-         entity.addPart("tags",        new StringBody(queryForNotes()));
-         entity.addPart("visibility",  new StringBody(visibility));
+         entity.addPart("file", new FileBody(gpxFile));
+         entity.addPart("description", new StringBody(queryForTrackName()));
+         entity.addPart("tags", new StringBody(queryForNotes()));
+         entity.addPart("visibility", new StringBody(visibility));
          method.setEntity(entity);
-         
+
          // Execute the POST to OpenStreetMap
          response = httpclient.execute(targetHost, method);
 
@@ -522,26 +549,26 @@ public class ShareTrack extends Activity
       }
       catch (IOException e)
       {
-         Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: "+responseText, e);
+         Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: " + responseText, e);
          responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
          toast.show();
       }
       catch (AuthenticationException e)
       {
-         Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: "+responseText, e);
+         Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: " + responseText, e);
          responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
          toast.show();
       }
       finally
       {
-         if( metaData != null )
+         if (metaData != null)
          {
             metaData.close();
          }
       }
-      
+
       if (statusCode == 200)
       {
          Log.i(TAG, responseText);
@@ -551,7 +578,7 @@ public class ShareTrack extends Activity
       }
       else
       {
-         Log.e(TAG, "Failed to upload to error code " + statusCode +" "+ responseText);
+         Log.e(TAG, "Failed to upload to error code " + statusCode + " " + responseText);
          CharSequence text = getString(R.string.osm_failed) + responseText;
          Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
@@ -614,7 +641,7 @@ public class ShareTrack extends Activity
       StringBuilder tags = new StringBuilder();
       ContentResolver resolver = getContentResolver();
       Cursor mediaCursor = null;
-      Uri mediaUri = Uri.withAppendedPath( mTrackUri, "media"); 
+      Uri mediaUri = Uri.withAppendedPath(mTrackUri, "media");
       try
       {
          mediaCursor = resolver.query(mediaUri, new String[] { Media.URI }, null, null, null);
@@ -622,13 +649,13 @@ public class ShareTrack extends Activity
          {
             do
             {
-               Uri noteUri = Uri.parse( mediaCursor.getString( 0 ) );
-               if( noteUri.getScheme().equals( "content" ) && noteUri.getAuthority().equals( GPStracking.AUTHORITY + ".string" ) )
+               Uri noteUri = Uri.parse(mediaCursor.getString(0));
+               if (noteUri.getScheme().equals("content") && noteUri.getAuthority().equals(GPStracking.AUTHORITY + ".string"))
                {
                   String tag = noteUri.getLastPathSegment().trim();
-                  if( !tag.contains(" ") )
+                  if (!tag.contains(" "))
                   {
-                     if( tags.length() > 0 )
+                     if (tags.length() > 0)
                      {
                         tags.append(" ");
                      }
@@ -636,7 +663,7 @@ public class ShareTrack extends Activity
                   }
                }
             }
-            while( mediaCursor.moveToNext() );
+            while (mediaCursor.moveToNext());
          }
       }
       finally
@@ -649,32 +676,32 @@ public class ShareTrack extends Activity
       return tags.toString();
    }
 
-   
-   private void adjustTargetToType(int position) {
-	switch (position)
-	   {
-	      case EXPORT_TYPE_KMZ:
-	         setKmzExportTargets();
-	         mFileNameView.setVisibility(View.VISIBLE);
-	         mTweetView.setVisibility(View.GONE);
-	         break;
-	      case EXPORT_TYPE_GPX:
-	         setGpxExportTargets();
-	         mFileNameView.setVisibility(View.VISIBLE);
-	         mTweetView.setVisibility(View.GONE);
-	         break;
-	      case EXPORT_TYPE_TEXTLINE:
-	         setTextLineExportTargets();
-	         mFileNameView.setVisibility(View.GONE);
-	         mTweetView.setVisibility(View.VISIBLE);
-	         if( mTweetView.getText().toString().equals( "" ))
+   private void adjustTargetToType(int position)
+   {
+      switch (position)
+      {
+         case EXPORT_TYPE_KMZ:
+            setKmzExportTargets();
+            mFileNameView.setVisibility(View.VISIBLE);
+            mTweetView.setVisibility(View.GONE);
+            break;
+         case EXPORT_TYPE_GPX:
+            setGpxExportTargets();
+            mFileNameView.setVisibility(View.VISIBLE);
+            mTweetView.setVisibility(View.GONE);
+            break;
+         case EXPORT_TYPE_TEXTLINE:
+            setTextLineExportTargets();
+            mFileNameView.setVisibility(View.GONE);
+            mTweetView.setVisibility(View.VISIBLE);
+            if (mTweetView.getText().toString().equals(""))
             {
-	            mTweetView.setText(createTweetText());
+               mTweetView.setText(createTweetText());
             }
-	      default:
-	         break;
-	   }
-}
+         default:
+            break;
+      }
+   }
 
    public class ShareProgressListener implements ProgressListener
    {
@@ -688,7 +715,7 @@ public class ShareTrack extends Activity
          mFileName = sharename;
          mEndJob = endJob;
       }
-      
+
       public void startNotification()
       {
          String ns = Context.NOTIFICATION_SERVICE;
@@ -697,8 +724,8 @@ public class ShareTrack extends Activity
          CharSequence tickerText = getString(R.string.ticker_saving) + "\"" + mFileName + "\"";
 
          mNotification = new Notification();
-         PendingIntent contentIntent = PendingIntent.getActivity(ShareTrack.this, 0, new Intent(ShareTrack.this, LoggerMap.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-               PendingIntent.FLAG_UPDATE_CURRENT);
+         PendingIntent contentIntent = PendingIntent.getActivity(ShareTrack.this, 0,
+               new Intent(ShareTrack.this, LoggerMap.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT);
 
          mNotification.contentIntent = contentIntent;
          mNotification.tickerText = tickerText;
@@ -746,7 +773,7 @@ public class ShareTrack extends Activity
 
       public void setIndeterminate(boolean indeterminate)
       {
-         Log.w(TAG, "Unsupported indeterminate progress display" );
+         Log.w(TAG, "Unsupported indeterminate progress display");
       }
 
       public void setMax(int max)
@@ -761,9 +788,9 @@ public class ShareTrack extends Activity
 
       public void increaseProgress(int value)
       {
-         setProgress(mProgress + value); 
+         setProgress(mProgress + value);
       }
-      
+
       public void setProgress(int value)
       {
          mProgress = value;
@@ -775,20 +802,30 @@ public class ShareTrack extends Activity
          endNotification(result);
       }
 
+      public void showErrorDialog(String errorDialogMessage, Exception errorDialogException)
+      {
+         endNotification(null);
+         mErrorDialogMessage = errorDialogMessage;
+         mErrorDialogException = errorDialogException;
+         showDialog(DIALOG_ERROR);
+      }
 
    }
 
    public static abstract class EndJob
    {
       private String mType;
+
       void setContentType(String type)
       {
          mType = type;
       }
+
       String getContentType()
       {
          return mType;
       }
+
       abstract void shareFile(Uri fileUri);
    }
 }

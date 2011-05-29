@@ -89,12 +89,15 @@ public class GpxCreator extends XmlCreator
    @Override
    protected Uri doInBackground(Void... params)
    {
+      determineProgressGoal();
+      
       Uri resultFilename = exportGpx();
       return resultFilename;
    }
 
    protected Uri exportGpx()
    {
+      
       String xmlFilePath;
       if (mFileName.endsWith(".gpx") || mFileName.endsWith(".xml"))
       {
@@ -109,8 +112,6 @@ public class GpxCreator extends XmlCreator
       }
 
       new File(getExportDirectoryPath()).mkdirs();
-
-      determineProgressGoal();
 
       String resultFilename = null;
       FileOutputStream fos = null;
@@ -148,27 +149,23 @@ public class GpxCreator extends XmlCreator
       }
       catch (FileNotFoundException e)
       {
-         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filenotfound);
-         setError(e, text);
-         cancel(false);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filenotfound);
+         handleError(e, text);
       }
       catch (IllegalArgumentException e)
       {
-         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filename);
-         setError(e, text);
-         cancel(false);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filename);
+         handleError(e, text);
       }
       catch (IllegalStateException e)
       {
-         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_buildxml);
-         setError(e, text);
-         cancel(false);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_buildxml);
+         handleError(e, text);
       }
       catch (IOException e)
       {
-         CharSequence text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_writesdcard);
-         setError(e, text);
-         cancel(false);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_writesdcard);
+         handleError(e, text);
       }
       finally
       {

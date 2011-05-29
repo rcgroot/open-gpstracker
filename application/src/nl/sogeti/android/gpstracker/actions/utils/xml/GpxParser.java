@@ -39,6 +39,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
@@ -52,8 +53,10 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class GpxParser extends AsyncTask<Uri, Integer, Uri>
 {
@@ -71,6 +74,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    public static final SimpleDateFormat ZULU_DATE_FORMAT_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
    public static final SimpleDateFormat ZULU_DATE_FORMAT_BC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'");
    protected static final int DEFAULT_UNKNOWN_FILESIZE = 1024 * 1024 * 10;
+   private static final String TAG = "OGT.GpxParser";
    static
    {
       TimeZone utc = TimeZone.getTimeZone("UTC");
@@ -82,13 +86,36 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    private ContentResolver mContentResolver;
    protected String mErrorDialogMessage;
    protected Exception mErrorDialogException;
-   protected TrackList mTrackList;
+   protected Context mContext;
+   protected ProgressListener mProgressListener;
    private int mLength;
    
-   public GpxParser(TrackList trackList)
+   public GpxParser(Context trackList, ProgressListener progressListener)
    {
-      mTrackList = trackList;
-      mContentResolver = mTrackList.getContentResolver();
+      mContext = trackList;
+      mProgressListener = progressListener;
+      mContentResolver = mContext.getContentResolver();
+   }
+   
+   public int getMaximumProgress()
+   {
+      return mLength;
+   }
+
+   public void setMaximumProgress(int maximumProgress)
+   {
+      this.mLength = maximumProgress;
+   }
+   
+   public void determineProgressGoal(Uri importFileUri)
+   {
+      mLength = DEFAULT_UNKNOWN_FILESIZE;
+      if (importFileUri != null && importFileUri.getScheme().equals("file"))
+      {
+         File file = new File(importFileUri.getPath());
+         mLength = file.length() < (long) Integer.MAX_VALUE ? (int) file.length() : Integer.MAX_VALUE;
+      }
+      mProgressListener.setMax(mLength);
    }
 
    public Uri importUri(Uri importFileUri) 
@@ -96,12 +123,9 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
       Uri result = null;
       String trackName = null;
       InputStream fis = null;
-      mLength = DEFAULT_UNKNOWN_FILESIZE;
       if (importFileUri.getScheme().equals("file"))
       {
          trackName = importFileUri.getLastPathSegment();
-         File file = new File(importFileUri.getPath());
-         mLength = file.length() < (long) Integer.MAX_VALUE ? (int) file.length() : Integer.MAX_VALUE;
       }
       try
       {
@@ -109,9 +133,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
       }
       catch (IOException e)
       {
-         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_io);
-         mErrorDialogException = e;
-         result = null;
+         handleError(e, mContext.getString(R.string.error_importgpx_io));
       }
       
       result = importTrack( fis, trackName);
@@ -296,21 +318,15 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
       }
       catch (XmlPullParserException e)
       {
-         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_xml);
-         mErrorDialogException = e;
-         trackUri = null;
+         handleError(e, mContext.getString(R.string.error_importgpx_xml));
       }
       catch (ParseException e)
       {
-         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_parse);
-         mErrorDialogException = e;
-         trackUri = null;
+         handleError(e, mContext.getString(R.string.error_importgpx_parse));
       }
       catch (IOException e)
       {
-         mErrorDialogMessage = mTrackList.getString(R.string.error_importgpx_io);
-         mErrorDialogException = e;
-         trackUri = null;
+         handleError(e, mContext.getString(R.string.error_importgpx_io));
       }
       return trackUri;
    }
@@ -354,38 +370,52 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
       return dateTime;
    }
 
+   protected void handleError(Exception e, String text)
+   {
+      Log.e(TAG, "Unable to save ", e);
+      mErrorDialogException = e;
+      mErrorDialogMessage = text;
+      cancel(true);
+   }
+   
    @Override
    protected void onPreExecute()
    {
-      mTrackList.startProgressBar(mLength);
+      mProgressListener.started();
    }
    
    @Override
    protected Uri doInBackground(Uri... params)
    {
-      return importUri( params[0] );
+      Uri importUri = params[0];
+      determineProgressGoal( importUri);
+      Uri result = importUri( importUri );
+      return result;
    }
    
    @Override
    protected void onProgressUpdate(Integer... values)
    {
-      
-      mTrackList.updateProgressBar(values[0], mLength);
+      mProgressListener.increaseProgress(values[0]);
    }
    
    @Override
    protected void onPostExecute(Uri result)
    {
-      if( GPStracking.AUTHORITY.equals( result.getEncodedAuthority() ) )
-      {
-         mTrackList.stopProgressBar();
-      }
-      else 
-      {
-         mTrackList.showErrorDialog(mErrorDialogMessage, mErrorDialogException);
-      }
+      mProgressListener.finished(result);
    }
 
+   @Override
+   protected void onCancelled()
+   {
+      mProgressListener.showErrorDialog(mErrorDialogMessage, mErrorDialogException);
+   }
+
+   /**
+    * Glue to ProgressFilterInputStream
+    * 
+    * @param add
+    */
    public void incrementProgressBy(int add)
    {
       publishProgress( new Integer(add) );

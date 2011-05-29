@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.adapter;
 import java.io.IOException;
 import java.io.InputStream;
 
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -54,7 +55,7 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
+public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
 {
 
    final String TAG = "OGT.GetBreadcrumbsTracksTask";
@@ -72,8 +73,9 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsT
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsTracksTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer, Integer bundleId)
+   public GetBreadcrumbsTracksTask(BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer, Integer bundleId)
    {
+      super(listener, adapter);
       mAdapter = adapter;
       mHttpclient = httpclient;
       mConsumer = consumer;
@@ -180,28 +182,23 @@ public class GetBreadcrumbsTracksTask extends AsyncTask<Void, Void, BreadcrumbsT
       }
       catch (OAuthMessageSignerException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       catch (OAuthExpectationFailedException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       catch (OAuthCommunicationException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       catch (IOException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       catch (XmlPullParserException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       return tracks;
    }

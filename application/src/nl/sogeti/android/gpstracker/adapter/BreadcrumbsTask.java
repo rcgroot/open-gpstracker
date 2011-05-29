@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------
- **     Ident: Sogeti Smart Mobile Solutions
+ **     Ident: Delivery Center Java
  **    Author: rene
- ** Copyright: (c) Apr 24, 2011 Sogeti Nederland B.V. All Rights Reserved.
+ ** Copyright: (c) May 29, 2011 Sogeti Nederland B.V. All Rights Reserved.
  **------------------------------------------------------------------------------
  ** Sogeti Nederland B.V.            |  No part of this file may be reproduced  
  ** Distributed Software Engineering |  or transmitted in any form or by any        
@@ -26,30 +26,61 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.actions.utils;
+package nl.sogeti.android.gpstracker.adapter;
 
-import android.net.Uri;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import android.os.AsyncTask;
+import android.util.Log;
 
 /**
- * Interface to which a Activity / Context can conform to receive progress
- * updates from async tasks
- * 
+ * ????
+ *
  * @version $Id:$
  * @author rene (c) May 29, 2011, Sogeti B.V.
  */
-public interface ProgressListener
+public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
 {
-   void setIndeterminate(boolean indeterminate);
-
-   void setMax(int max);
-
-   void started();
-
-   void setProgress(int value);
-
-   void increaseProgress(int value);
-
-   void finished(Uri result);
+   private static final String TAG = "OGT.BreadcrumbsTask";
    
-   void showErrorDialog(String errorDialogMessage, Exception errorDialogException);
+   private ProgressListener mListener;
+   private String mErrorText;
+   private Exception mException;
+
+   private BreadcrumbsAdapter mAdapter;
+   
+   public BreadcrumbsTask(ProgressListener listener, BreadcrumbsAdapter adapter)
+   {
+      mListener = listener;
+      mAdapter = adapter;
+   }
+   
+   protected void handleError(Exception e, String text)
+   {
+      Log.e(TAG, "Unable to save ", e);
+      mException = e;
+      mErrorText = text;
+      cancel(true);
+   }
+   
+   @Override
+   protected void onPreExecute()
+   {
+      mListener.setIndeterminate(true);
+      mListener.started();
+   }
+   
+   @Override
+   protected void onPostExecute(BreadcrumbsTracks result)
+   {
+      mListener.finished(null);
+      mAdapter.finishedTask();
+      
+   }
+
+   @Override
+   protected void onCancelled()
+   {
+      mListener.finished(null);
+      mListener.showErrorDialog(mErrorText, mException);
+   }
 }

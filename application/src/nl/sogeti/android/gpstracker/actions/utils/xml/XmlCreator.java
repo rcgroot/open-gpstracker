@@ -77,7 +77,8 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    protected Context mContext;
    protected final Uri mTrackUri;
    String mFileName;
-   private CharSequence mErrorText;
+   private String mErrorText;
+   private Exception mException;
    private int mMaximumProgress;
 
    XmlCreator(Context context, Uri trackUri, String chosenFileName, ProgressListener listener)
@@ -89,6 +90,16 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
 
       String trackName = extractCleanTrackName();
       mFileName = cleanFilename(mChosenFileName, trackName);
+   }
+
+   public int getMaximumProgress()
+   {
+      return mMaximumProgress;
+   }
+
+   public void setMaximumProgress(int maximumProgress)
+   {
+      this.mMaximumProgress = maximumProgress;
    }
 
    private String extractCleanTrackName()
@@ -161,7 +172,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
             }
          }
          mProgressListener.setMax(mMaximumProgress);
-         mProgressListener.started();
       }
       else
       {
@@ -213,10 +223,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
          try
          {
             inChannel.transferTo(0, inChannel.size(), outChannel);
-         }
-         catch (IOException e)
-         {
-            throw e;
          }
          finally
          {
@@ -382,34 +388,35 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
 
    protected abstract String getContentType();
 
-   protected void setError(Exception e, CharSequence text)
+   protected void handleError(Exception e, String text)
    {
       Log.e(TAG, "Unable to save ", e);
+      mException = e;
       mErrorText = text;
+      cancel(true);
+   }
+   
+   @Override
+   protected void onPreExecute()
+   {
+      mProgressListener.started();
    }
 
    @Override
    protected void onProgressUpdate(Integer... progress)
    {
-      if (mProgressListener != null)
-      {
-         mProgressListener.increaseProgress(progress[0]);
-      }
+      mProgressListener.increaseProgress(progress[0]);
    }
 
    @Override
    protected void onPostExecute(Uri resultFilename)
    {
-      if (mProgressListener != null)
-      {
-         mProgressListener.finished(resultFilename);
-      }
+      mProgressListener.finished(resultFilename);
    }
 
    @Override
    protected void onCancelled()
    {
-      Toast toast = Toast.makeText(mContext, mErrorText, Toast.LENGTH_LONG);
-      toast.show();
+      mProgressListener.showErrorDialog(mErrorText, mException);
    }
 }

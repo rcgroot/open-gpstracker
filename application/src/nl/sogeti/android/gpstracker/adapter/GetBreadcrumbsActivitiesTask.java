@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.adapter;
 import java.io.IOException;
 import java.io.InputStream;
 
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -54,7 +55,7 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
+public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
 {
 
    final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
@@ -71,8 +72,9 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Breadcru
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsActivitiesTask(BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public GetBreadcrumbsActivitiesTask(BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
+      super(listener, adapter);
       mAdapter = adapter;
       mHttpClient = httpclient;
       mConsumer = consumer;
@@ -139,38 +141,26 @@ public class GetBreadcrumbsActivitiesTask extends AsyncTask<Void, Void, Breadcru
       }
       catch (OAuthMessageSignerException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       catch (OAuthExpectationFailedException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       catch (OAuthCommunicationException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       catch (IOException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       catch (XmlPullParserException e)
       {
-         e.printStackTrace();
-         Log.e( TAG, "", e );
+         handleError(e, "TODO");
       }
       return tracks;
    }
    
-   @Override
-   protected void onPostExecute(BreadcrumbsTracks result)
-   {
-      super.onPostExecute(result);
-      
-      mAdapter.finishedTask();
-   }
 
 }

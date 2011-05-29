@@ -79,7 +79,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
     */
    public UploadBreadcrumbsTrackTask(TrackList trackList, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer, Uri trackUri)
    {
-      super(trackList, trackUri, "uploadToGobreadcrumbs", false, null);
+      super(trackList, trackUri, "uploadToGobreadcrumbs", false, trackList);
       mAdapter = adapter;
       mHttpClient = httpclient;
       mConsumer = consumer;
@@ -90,9 +90,19 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
     */
    @Override
    protected Uri doInBackground(Void... params)
-   {      
+   {
+      // Leave room in the progressbar for uploading
+      determineProgressGoal();
+      setMaximumProgress(getMaximumProgress()*2);
+      
       // Build GPX file
       Uri gpxFile = exportGpx();
+      
+      if (isCancelled())
+      {
+         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         handleError(new IOException("Fail to execute request due to canceling"), text);
+      }
       
       // Collect GPX Import option params
       String activityId = null;
@@ -140,7 +150,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          }
       }
       
-      
       //TODO create bundle if no existing ID
       
       int statusCode = 0 ;
@@ -170,6 +179,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          
          // Execute the POST to OpenStreetMap
          HttpResponse response = mHttpClient.execute(method);
+         this.publishProgress(getMaximumProgress()/2);
 
          statusCode = response.getStatusLine().getStatusCode();
          InputStream stream = response.getEntity().getContent();
@@ -184,35 +194,33 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       catch (IOException e)
       {
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
-         setError( e, text );
-         cancel(false);
+         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         handleError( e, text );
       }
       catch (OAuthMessageSignerException e)
       {
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
-         setError( e, text );
-         cancel(false);
+         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         handleError( e, text );
       }
       catch (OAuthExpectationFailedException e)
       {
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
-         setError( e, text );
-         cancel(false);
+         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         handleError( e, text );
       }
       catch (OAuthCommunicationException e)
       {
-         CharSequence text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
-         setError( e, text );
-         cancel(false);
+         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         handleError( e, text );
       }
+      
       if (statusCode == 200)
       {
          Log.d( TAG, "Excellent code 200" );
       }
       else
       {
-         Log.e( TAG, ""+statusCode );
+         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         handleError( new IOException("Status code: "+statusCode), text );
       }
       return trackUri;
    }
