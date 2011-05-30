@@ -44,6 +44,7 @@ import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -187,10 +188,12 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          Log.d( TAG, "Uploaded track "+entity.toString()+" and received response: "+responseText);
          
          //TODO: Check for error in the response
-         
          Pattern p = Pattern.compile(">([0-9]+)</id>");
          Matcher m = p.matcher(responseText);
-         trackUri = Uri.parse("http://api.gobreadcrumbs.com/v1/tracks/"+m.group(1)+"/placemarks.gpx");
+         if( m.find() )
+         {
+            trackUri = Uri.parse("http://api.gobreadcrumbs.com/v1/tracks/"+m.group(1)+"/placemarks.gpx");
+         }
       }
       catch (IOException e)
       {
@@ -212,10 +215,10 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
          handleError( e, text );
       }
-      
-      if (statusCode == 200)
+
+      if (statusCode == 200 || statusCode == 201 )
       {
-         Log.d( TAG, "Excellent code 200" );
+         Log.d( TAG, "Excellent response status code "+statusCode );
       }
       else
       {

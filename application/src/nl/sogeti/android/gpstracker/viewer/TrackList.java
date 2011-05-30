@@ -571,6 +571,7 @@ public class TrackList extends ListActivity implements ProgressListener
       }
       else
       {
+         mBreadcrumbAdapter.connectionSetup();
          mBreadcrumbAdapter.notifyDataSetChanged();
       }
       sectionedAdapter.addSection("GoBreadcrumbs", mBreadcrumbAdapter);

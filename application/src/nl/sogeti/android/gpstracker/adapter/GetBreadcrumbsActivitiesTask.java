@@ -97,8 +97,7 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
             throw new IOException("Fail to execute request due to canceling");
          }
          HttpResponse response = mHttpClient.execute(request);
-         HttpEntity entity = response.getEntity();
-         InputStream instream = entity.getContent();
+         InputStream instream = response.getEntity().getContent();
 
          
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -138,6 +137,7 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
             }
             eventType = xpp.next();
          }
+         Log.d( TAG, "Read inputstream from http response anything available: "+instream.read());
       }
       catch (OAuthMessageSignerException e)
       {

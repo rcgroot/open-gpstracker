@@ -179,6 +179,7 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
             }
             eventType = xpp.next();
          }
+         Log.d( TAG, "Read inputstream from http response anything available: "+instream.read());
       }
       catch (OAuthMessageSignerException e)
       {

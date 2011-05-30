@@ -93,7 +93,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       connectionSetup();
    }
 
-   private void connectionSetup()
+   public void connectionSetup()
    {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
       String token = prefs.getString(TrackList.OAUTH_TOKEN, "");
@@ -354,6 +354,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       if (allTasksDone())
       {
          mHttpClient.getConnectionManager().shutdown();
+         mHttpClient = null;
       }
       if (tokenChangedListener != null)
       {

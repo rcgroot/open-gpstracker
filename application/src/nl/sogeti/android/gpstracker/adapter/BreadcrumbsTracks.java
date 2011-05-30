@@ -29,7 +29,6 @@
 package nl.sogeti.android.gpstracker.adapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -127,15 +126,6 @@ public class BreadcrumbsTracks
       mResolver = resolver;
    }
 
-   public void addActivity(Integer activityId, String activityName)
-   {
-      if (!sActivityMappings.containsKey(activityId))
-      {
-         sActivityMappings.put(activityId, new HashMap<String, String>());
-      }
-      sActivityMappings.get(activityId).put(NAME, activityName);
-   }
-
    public Integer getBundleIdForTrackId(Integer trackId)
    {
       for (Integer bundlId : mBundles.keySet())
@@ -162,6 +152,15 @@ public class BreadcrumbsTracks
       return null;
    }
 
+   public void addActivity(Integer activityId, String activityName)
+   {
+      if (!sActivityMappings.containsKey(activityId))
+      {
+         sActivityMappings.put(activityId, new HashMap<String, String>());
+      }
+      sActivityMappings.get(activityId).put(NAME, activityName);
+   }
+
    /**
     * Add bundle to the track list
     * 
@@ -181,7 +180,10 @@ public class BreadcrumbsTracks
       {
          sActivities.put(activityId, new ArrayList<Integer>());
       }
-      sActivities.get(activityId).add(bundleId);
+      if (!sActivities.get(activityId).contains(bundleId))
+      {
+         sActivities.get(activityId).add(bundleId);
+      }
 
       if (!sBundleMappings.containsKey(bundleId))
       {
@@ -195,34 +197,34 @@ public class BreadcrumbsTracks
          String isPublic, Float lat, Float lng, Float totalDistance, Integer totalTime, String trackRating)
    {
 
-      mBundles.get(bundleId).add(trackId);
-
+      if( !mBundles.get(bundleId).contains(trackId) )
+      {
+         mBundles.get(bundleId).add(trackId);
+      }
+      
       if (!mTrackMappings.containsKey(trackId))
       {
          mTrackMappings.put(trackId, new HashMap<String, String>());
       }
+      putForTrack(trackId, NAME, trackName);
+      putForTrack(trackId, ISPUBLIC, isPublic);
+      putForTrack(trackId, STARTTIME, startTime);
+      putForTrack(trackId, ENDTIME, endTime);
+      putForTrack(trackId, DESCRIPTION, trackDescription);
+      putForTrack(trackId, DIFFICULTY, difficulty);
+      putForTrack(trackId, RATING, trackRating);
+      putForTrack(trackId, LATITUDE, lat);
+      putForTrack(trackId, LONGITUDE, lng);
+      putForTrack(trackId, TOTALDISTANCE, totalDistance);
+      putForTrack(trackId, TOTALTIME, totalTime);
+   }
 
-      mTrackMappings.get(trackId).put(NAME, trackName);
-      mTrackMappings.get(trackId).put(ISPUBLIC, isPublic);
-      mTrackMappings.get(trackId).put(STARTTIME, startTime);
-      mTrackMappings.get(trackId).put(ENDTIME, endTime);
-      if (trackDescription != null)
+   private void putForTrack(Integer trackId, String key, Object value)
+   {
+      if (value != null)
       {
-         mTrackMappings.get(trackId).put(DESCRIPTION, trackDescription);
+         mTrackMappings.get(trackId).put(key, value.toString());
       }
-      if (trackDescription != null)
-      {
-         mTrackMappings.get(trackId).put(DIFFICULTY, difficulty);
-      }
-      if (trackRating != null)
-      {
-         mTrackMappings.get(trackId).put(RATING, trackRating);
-      }
-
-      //      mTrackMappings.get(trackId).put(LATITUDE, lat);
-      //      mTrackMappings.get(trackId).put(LONGITUDE, lng);
-      //      mTrackMappings.get(trackId).put(TOTALDISTANCE, totalDistance);
-      //      mTrackMappings.get(trackId).put(TOTALTIME, totalTime);
    }
 
    public void createTracks(Integer bundleId)

@@ -34,26 +34,26 @@ import android.util.Log;
 
 /**
  * ????
- *
+ * 
  * @version $Id:$
  * @author rene (c) May 29, 2011, Sogeti B.V.
  */
 public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
 {
    private static final String TAG = "OGT.BreadcrumbsTask";
-   
+
    private ProgressListener mListener;
    private String mErrorText;
    private Exception mException;
 
    private BreadcrumbsAdapter mAdapter;
-   
+
    public BreadcrumbsTask(ProgressListener listener, BreadcrumbsAdapter adapter)
    {
       mListener = listener;
       mAdapter = adapter;
    }
-   
+
    protected void handleError(Exception e, String text)
    {
       Log.e(TAG, "Unable to save ", e);
@@ -61,26 +61,37 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, BreadcrumbsT
       mErrorText = text;
       cancel(true);
    }
-   
+
    @Override
    protected void onPreExecute()
    {
       mListener.setIndeterminate(true);
       mListener.started();
    }
-   
+
    @Override
    protected void onPostExecute(BreadcrumbsTracks result)
    {
       mListener.finished(null);
       mAdapter.finishedTask();
-      
+
    }
 
    @Override
    protected void onCancelled()
    {
       mListener.finished(null);
-      mListener.showErrorDialog(mErrorText, mException);
+      if (mErrorText != null && mException != null)
+      {
+         mListener.showErrorDialog(mErrorText, mException);
+      }
+      else if (mException != null)
+      {
+         Log.e(TAG, "Incomplete error after cancellation:" + mErrorText, mException);
+      }
+      else
+      {
+         Log.e(TAG, "Incomplete error after cancellation:" + mErrorText);
+      }
    }
 }
