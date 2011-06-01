@@ -37,6 +37,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -96,6 +97,7 @@ public class PrepareRequestTokenActivity extends Activity
    private String mTokenKey;
 
    private String mSecretKey;
+   private OAuthRequestTokenTask mTask;
 
    @Override
    public void onCreate(Bundle savedInstanceState)
@@ -116,7 +118,21 @@ public class PrepareRequestTokenActivity extends Activity
       this.provider = new CommonsHttpOAuthProvider(requestUrl, accessUrl, authUrl);
 
       Log.i(TAG, "Starting task to retrieve request token.");
-      new OAuthRequestTokenTask(this, consumer, provider).execute();
+      mTask = new OAuthRequestTokenTask(this, consumer, provider);
+      mTask.execute();
+   }
+   
+   @Override
+   protected void onResume()
+   {
+      super.onResume();
+      
+      // Will not be called if onNewIntent() was called with callback scheme
+      Status status = mTask.getStatus();
+      if( status != Status.RUNNING )
+      {
+         finish();
+      }
    }
 
    /**
