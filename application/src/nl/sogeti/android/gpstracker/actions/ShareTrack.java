@@ -49,6 +49,7 @@ import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthenticationException;
@@ -61,6 +62,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -445,6 +447,7 @@ public class ShareTrack extends Activity
       URI jogmap = null;
       String jogmapResponseText = "";
       int statusCode = 0;
+      HttpEntity responseEntity = null;
       try
       {
          jogmap = new URI(getString(R.string.jogmap_post_url));
@@ -457,7 +460,8 @@ public class ShareTrack extends Activity
          HttpResponse response = httpclient.execute(method);
 
          statusCode = response.getStatusLine().getStatusCode();
-         InputStream stream = response.getEntity().getContent();
+         responseEntity = response.getEntity();
+         InputStream stream = responseEntity.getContent();
          jogmapResponseText = XmlCreator.convertStreamToString(stream);
       }
       catch (IOException e)
@@ -473,6 +477,20 @@ public class ShareTrack extends Activity
          CharSequence text = getString(R.string.jogmap_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
+      }
+      finally
+      {
+         if (responseEntity != null)
+         {
+            try
+            {
+               responseEntity.consumeContent();
+            }
+            catch (IOException e)
+            {
+               Log.e( TAG, "Failed to close the content stream", e);
+            }
+         }
       }
       if (statusCode == 200)
       {
@@ -512,6 +530,7 @@ public class ShareTrack extends Activity
       int statusCode = 0;
       Cursor metaData = null;
       String sources = null;
+      HttpEntity responseEntity = null;
       try
       {
          metaData = this.getContentResolver().query(Uri.withAppendedPath(trackUri, "metadata"), new String[] { MetaData.VALUE }, MetaData.KEY + " = ? ",
@@ -544,7 +563,8 @@ public class ShareTrack extends Activity
 
          // Read the response
          statusCode = response.getStatusLine().getStatusCode();
-         InputStream stream = response.getEntity().getContent();
+         responseEntity = response.getEntity();
+         InputStream stream = responseEntity.getContent();
          responseText = XmlCreator.convertStreamToString(stream);
       }
       catch (IOException e)
@@ -563,6 +583,17 @@ public class ShareTrack extends Activity
       }
       finally
       {
+         if (responseEntity != null)
+         {
+            try
+            {
+               responseEntity.consumeContent();
+            }
+            catch (IOException e)
+            {
+               Log.e( TAG, "Failed to close the content stream", e);
+            }
+         }
          if (metaData != null)
          {
             metaData.close();

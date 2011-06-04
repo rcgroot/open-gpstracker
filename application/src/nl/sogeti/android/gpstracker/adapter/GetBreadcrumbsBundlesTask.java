@@ -90,6 +90,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
    protected BreadcrumbsTracks doInBackground(Void... params)
    {
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
+      InputStream instream = null;
       try
       {
          HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles.xml");
@@ -101,7 +102,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
          }
          HttpResponse response = mHttpclient.execute(request);
          HttpEntity entity = response.getEntity();
-         InputStream instream = entity.getContent();
+         instream = entity.getContent();
 
          
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -170,6 +171,20 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       catch (XmlPullParserException e)
       {
          handleError(e, "TODO");
+      }
+      finally
+      {
+         if( instream != null )
+         {
+            try
+            {
+               instream.close();
+            }
+            catch (IOException e)
+            {
+               Log.w( TAG, "Failed closing inputstream");
+            }
+         }
       }
       return tracks;
    }

@@ -42,6 +42,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -90,6 +91,7 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
    protected BreadcrumbsTracks doInBackground(Void... params)
    {
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
+      HttpEntity responseEntity = null;
       try
       {
          tracks.createTracks(mBundleId);
@@ -101,8 +103,8 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
             throw new IOException("Fail to execute request due to canceling");
          }
          HttpResponse response = mHttpclient.execute(request);
-         HttpEntity entity = response.getEntity();
-         InputStream instream = entity.getContent();
+         responseEntity = response.getEntity();
+         InputStream instream = responseEntity.getContent();
 
          
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -200,6 +202,20 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
       catch (XmlPullParserException e)
       {
          handleError(e, "TODO");
+      }
+      finally
+      {
+         if (responseEntity != null)
+         {
+            try
+            {
+               responseEntity.consumeContent();
+            }
+            catch (IOException e)
+            {
+               Log.e( TAG, "Failed to close the content stream", e);
+            }
+         }
       }
       return tracks;
    }

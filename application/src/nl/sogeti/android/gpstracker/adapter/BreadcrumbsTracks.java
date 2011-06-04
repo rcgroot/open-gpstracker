@@ -28,8 +28,16 @@
  */
 package nl.sogeti.android.gpstracker.adapter;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -85,10 +93,7 @@ public class BreadcrumbsTracks
 
    private static final String TAG = "OGT.BreadcrumbsTracks";
 
-   /**
-    * Map from activityId to a dictionary
-    */
-   private static Map<Integer, Map<String, String>> sActivityMappings = new HashMap<Integer, Map<String, String>>();
+   private static final String BREADCRUMSB_CACHE_FILE = "breadcrumbs_cache_file.data";
 
    /**
     * Mapping from activityId to a list of bundleIds
@@ -96,30 +101,35 @@ public class BreadcrumbsTracks
    private static Map<Integer, List<Integer>> sActivities = new LinkedHashMap<Integer, List<Integer>>();
    
    /**
-    * Map from bundleId to a dictionary
+    * Mapping from bundleId to a list of trackIds
+    */
+   private static Map<Integer, List<Integer>> sBundles = new LinkedHashMap<Integer, List<Integer>>();
+   /**
+    * Map from activityId to a dictionary containing keys like NAME
+    */
+   private static Map<Integer, Map<String, String>> sActivityMappings = new HashMap<Integer, Map<String, String>>();
+
+   /**
+    * Map from bundleId to a dictionary containing keys like NAME and description
     */
    private static Map<Integer, Map<String, String>> sBundleMappings = new HashMap<Integer, Map<String, String>>();
 
    /**
-    * Map from bundleId to a dictionary
+    * Map from trackId to a dictionary containing keys like NAME, ISPUBLIC, DESCRIPTION and more
     */
-   private Map<Integer, Map<String, String>> mTrackMappings = new HashMap<Integer, Map<String, String>>();
-
-
+   private static Map<Integer, Map<String, String>> sTrackMappings = new HashMap<Integer, Map<String, String>>();
 
    /**
-    * Mapping from bundleId to a list of trackIds
+    * Cache of OGT Tracks that have a Breadcrumbs track id stored in the meta-data table
     */
-   private Map<Integer, List<Integer>> mBundles = new LinkedHashMap<Integer, List<Integer>>();
+   private Map<Long, Integer> mSyncedTracks;
 
    private ContentResolver mResolver;
-
-   private Map<Long, Integer> mSyncedTracks;
 
    /**
     * Constructor: create a new BreadcrumbsTracks.
     * 
-    * @param resolver Content resolver to obtain local breadcrumbs references
+    * @param resolver Content resolver to obtain local Breadcrumbs references
     */
    public BreadcrumbsTracks(ContentResolver resolver)
    {
@@ -128,9 +138,9 @@ public class BreadcrumbsTracks
 
    public Integer getBundleIdForTrackId(Integer trackId)
    {
-      for (Integer bundlId : mBundles.keySet())
+      for (Integer bundlId : sBundles.keySet())
       {
-         List<Integer> trackIds = mBundles.get(bundlId);
+         List<Integer> trackIds = sBundles.get(bundlId);
          if (trackIds.contains(trackId))
          {
             return bundlId;
@@ -197,14 +207,14 @@ public class BreadcrumbsTracks
          String isPublic, Float lat, Float lng, Float totalDistance, Integer totalTime, String trackRating)
    {
 
-      if( !mBundles.get(bundleId).contains(trackId) )
+      if( !sBundles.get(bundleId).contains(trackId) )
       {
-         mBundles.get(bundleId).add(trackId);
+         sBundles.get(bundleId).add(trackId);
       }
       
-      if (!mTrackMappings.containsKey(trackId))
+      if (!sTrackMappings.containsKey(trackId))
       {
-         mTrackMappings.put(trackId, new HashMap<String, String>());
+         sTrackMappings.put(trackId, new HashMap<String, String>());
       }
       putForTrack(trackId, NAME, trackName);
       putForTrack(trackId, ISPUBLIC, isPublic);
@@ -223,18 +233,18 @@ public class BreadcrumbsTracks
    {
       if (value != null)
       {
-         mTrackMappings.get(trackId).put(key, value.toString());
+         sTrackMappings.get(trackId).put(key, value.toString());
       }
    }
 
    public void createTracks(Integer bundleId)
    {
-      mBundles.put(bundleId, new ArrayList<Integer>());
+      sBundles.put(bundleId, new ArrayList<Integer>());
    }
 
    public boolean areTracksLoaded(Pair<Integer, Integer> item)
    {
-      return mBundles.containsKey(item.second);
+      return sBundles.containsKey(item.second);
    }
 
    public int positions()
@@ -246,7 +256,7 @@ public class BreadcrumbsTracks
          size += bundles.size();
          for (Integer bundleId : bundles)
          {
-            int bundleSize = mBundles.get(bundleId) != null ? mBundles.get(bundleId).size() : 0;
+            int bundleSize = sBundles.get(bundleId) != null ? sBundles.get(bundleId).size() : 0;
             size += bundleSize;
          }
       }
@@ -274,10 +284,10 @@ public class BreadcrumbsTracks
             }
             countdown--;
 
-            int bundleSize = mBundles.get(bundleId) != null ? mBundles.get(bundleId).size() : 0;
+            int bundleSize = sBundles.get(bundleId) != null ? sBundles.get(bundleId).size() : 0;
             if (countdown < bundleSize)
             {
-               Integer trackId = mBundles.get(bundleId).get(countdown);
+               Integer trackId = sBundles.get(bundleId).get(countdown);
                return Pair.create(Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE, trackId);
             }
             countdown -= bundleSize;
@@ -298,7 +308,7 @@ public class BreadcrumbsTracks
             value = sBundleMappings.get(item.second).get(key);
             break;
          case Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE:
-            value = mTrackMappings.get(item.second).get(key);
+            value = sTrackMappings.get(item.second).get(key);
             break;
          default:
             value = null;
@@ -310,8 +320,8 @@ public class BreadcrumbsTracks
    @Override
    public String toString()
    {
-      return "BreadcrumbsTracks [mActivityMappings=" + sActivityMappings + ", mBundleMappings=" + sBundleMappings + ", mTrackMappings=" + mTrackMappings
-            + ", mActivities=" + sActivities + ", mBundles=" + mBundles + "]";
+      return "BreadcrumbsTracks [mActivityMappings=" + sActivityMappings + ", mBundleMappings=" + sBundleMappings + ", mTrackMappings=" + sTrackMappings
+            + ", mActivities=" + sActivities + ", mBundles=" + sBundles + "]";
    }
 
    public boolean isLocalTrackOnline(Long qtrackId)
@@ -361,7 +371,7 @@ public class BreadcrumbsTracks
    public boolean isLocalTrackSynced(Long qtrackId)
    {
       boolean uploaded = isLocalTrackOnline(qtrackId);
-      boolean synced = mTrackMappings.containsKey(mSyncedTracks.get(qtrackId));
+      boolean synced = sTrackMappings.containsKey(mSyncedTracks.get(qtrackId));
       return uploaded && synced;
    }
 
@@ -421,5 +431,147 @@ public class BreadcrumbsTracks
       }
       return -1;
    }
+   
+   /**
+    * Read the static breadcrumbs data from private file
+    * 
+    * @param ctx
+    * @return the date of persistence or null if failed
+    */
+   @SuppressWarnings("unchecked")
+   public Date readCache(Context ctx)
+   {
+      FileInputStream fis = null;
+      ObjectInputStream ois = null;
+      Date persisted = null;
+      try
+      {
+         fis = ctx.openFileInput(BREADCRUMSB_CACHE_FILE);
+         ois = new ObjectInputStream(fis);
+         
+         Object[] cache = (Object[]) ois.readObject();
+         // { activities, bundles, activityMappings, bundleMappings, trackMappings }
+         sActivities = (Map<Integer, List<Integer>>) cache[1];
+         sBundles = (Map<Integer, List<Integer>>) cache[2];
+         sActivityMappings = (Map<Integer, Map<String, String>>) cache[3];
+         sBundleMappings = (Map<Integer, Map<String, String>>) cache[4];
+         sTrackMappings = (Map<Integer, Map<String, String>>) cache[5];
+         
+         persisted = (Date) cache[0];
+      }
+      catch (OptionalDataException e)
+      {
+         ctx.deleteFile(BREADCRUMSB_CACHE_FILE);
+         Log.e( TAG, "Unable to read persisted breadcrumbs cache", e);
+      }
+      catch (ClassNotFoundException e)
+      {
+         ctx.deleteFile(BREADCRUMSB_CACHE_FILE);
+         Log.e( TAG, "Unable to read persisted breadcrumbs cache", e);
+      }
+      catch (IOException e)
+      {
+         ctx.deleteFile(BREADCRUMSB_CACHE_FILE);
+         Log.e( TAG, "Unable to read persisted breadcrumbs cache", e);
+      }
+      catch (ClassCastException e) {
+         ctx.deleteFile(BREADCRUMSB_CACHE_FILE);
+         Log.e( TAG, "Unable to read persisted breadcrumbs cache", e);
+      }
+      catch (ArrayIndexOutOfBoundsException e) {
+         ctx.deleteFile(BREADCRUMSB_CACHE_FILE);
+         Log.e( TAG, "Unable to read persisted breadcrumbs cache", e);
+      }
+      finally
+      {
+         if (fis != null )
+         {
+            try
+            {
+               fis.close();
+            }
+            catch (IOException e)
+            {
+               Log.w( TAG, "Error closing file stream after reading cache", e);
+            }
+         }
+         if (ois != null )
+         {
+            try
+            {
+               ois.close();
+            }
+            catch (IOException e)
+            {
+               Log.w( TAG, "Error closing object stream after reading cache", e);
+            }
+         }
+      }
+      return persisted;
+   }
+   
 
+   public void persistCache(Context ctx)
+   {
+      FileOutputStream fos = null;
+      ObjectOutputStream oos = null;
+      try
+      {
+         fos = ctx.openFileOutput(BREADCRUMSB_CACHE_FILE, Context.MODE_PRIVATE);
+         oos = new ObjectOutputStream(fos);
+         
+         Map<Integer, List<Integer>> activities = sActivities;
+         sActivities = null;
+         Map<Integer, List<Integer>> bundles = sBundles;
+         sBundles = null;
+         Map<Integer, Map<String, String>> activityMappings = sActivityMappings;
+         sActivityMappings = null;
+         Map<Integer, Map<String, String>> bundleMappings = sBundleMappings;
+         sBundleMappings = null;
+         Map<Integer, Map<String, String>> trackMappings = sTrackMappings;
+         sTrackMappings = null;
+         
+         Object[] cache = new Object[]{ new Date(), activities, bundles, activityMappings, bundleMappings, trackMappings };
+         oos.writeObject(cache);
+      }
+      catch (FileNotFoundException e)
+      {
+         Log.e( TAG, "Error in file stream during persist cache", e);
+      }
+      catch (IOException e)
+      {
+         Log.e( TAG, "Error in object stream during persist cache", e);
+      }
+      finally
+      {
+         if (fos != null )
+         {
+            try
+            {
+               fos.close();
+            }
+            catch (IOException e)
+            {
+               Log.w( TAG, "Error closing file stream after writing cache", e);
+            }
+         }
+         if (oos != null )
+         {
+            try
+            {
+               oos.close();
+            }
+            catch (IOException e)
+            {
+               Log.w( TAG, "Error closing object stream after writing cache", e);
+            }
+         }
+      }
+   }
+   
+   public void clearPersistentCache(Context ctx)
+   {
+      ctx.deleteFile(BREADCRUMSB_CACHE_FILE);
+   }
+   
 }

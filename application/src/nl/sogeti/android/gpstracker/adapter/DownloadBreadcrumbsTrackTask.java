@@ -49,12 +49,14 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * An asynchronous task that communicates with Twitter to retrieve a request
@@ -103,6 +105,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
       Uri trackUri = null;
       InputStream fis = null;
       String trackName = mAdapter.getBreadcrumbsTracks().getValueForItem(mTrack, BreadcrumbsTracks.NAME);
+      HttpEntity responseEntity = null;
       try
       {
          HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/tracks/" + mTrack.second + "/placemarks.gpx");
@@ -112,8 +115,8 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
             throw new IOException("Fail to execute request due to canceling");
          }
          HttpResponse response = mHttpclient.execute(request);
-         HttpEntity entity = response.getEntity();
-         fis = entity.getContent();
+         responseEntity = response.getEntity();
+         fis = responseEntity.getContent();
          publishProgress(getMaximumProgress() / 4);
 
          trackUri = importTrack(fis, trackName);
@@ -134,6 +137,20 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
       catch (IOException e)
       {
          handleError(e, mContext.getString(R.string.error_importgpx_xml));
+      }
+      finally
+      {
+         if (responseEntity != null)
+         {
+            try
+            {
+               responseEntity.consumeContent();
+            }
+            catch (IOException e)
+            {
+               Log.e( TAG, "Failed to close the content stream", e);
+            }
+         }
       }
       return trackUri;
    }

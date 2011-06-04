@@ -141,6 +141,13 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
       return result;
    }
 
+   /**
+    * 
+    * TODO
+    * @param fis opened stream te read from, will be closed after this call
+    * @param trackName
+    * @return
+    */
    public Uri importTrack( InputStream fis, String trackName )
    {
       Uri trackUri = null;
@@ -327,6 +334,17 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
       catch (IOException e)
       {
          handleError(e, mContext.getString(R.string.error_importgpx_io));
+      }
+      finally
+      {
+         try
+         {
+            fis.close();
+         }
+         catch (IOException e)
+         {
+            Log.w( TAG, "Failed closing inputstream");
+         }
       }
       return trackUri;
    }

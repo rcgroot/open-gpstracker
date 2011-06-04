@@ -43,6 +43,7 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpPost;
@@ -50,6 +51,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import android.database.Cursor;
 import android.net.Uri;
@@ -156,6 +158,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       int statusCode = 0 ;
       String responseText = null;
       Uri trackUri = null;
+      HttpEntity responseEntity = null;
       try
       {
          String gpxString = XmlCreator.convertStreamToString( mContext.getContentResolver().openInputStream(gpxFile));
@@ -183,7 +186,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          this.publishProgress(getMaximumProgress()/2);
 
          statusCode = response.getStatusLine().getStatusCode();
-         InputStream stream = response.getEntity().getContent();
+         responseEntity = response.getEntity();
+         InputStream stream = responseEntity.getContent();
          responseText = XmlCreator.convertStreamToString(stream);
          Log.d( TAG, "Uploaded track "+entity.toString()+" and received response: "+responseText);
          
@@ -214,6 +218,20 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
          handleError( e, text );
+      }      
+      finally
+      {
+         if (responseEntity != null)
+         {
+            try
+            {
+               responseEntity.consumeContent();
+            }
+            catch (IOException e)
+            {
+               Log.e( TAG, "Failed to close the content stream", e);
+            }
+         }
       }
 
       if (statusCode == 200 || statusCode == 201 )
