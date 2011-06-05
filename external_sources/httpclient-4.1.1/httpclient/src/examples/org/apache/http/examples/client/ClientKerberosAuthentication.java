@@ -23,20 +23,20 @@
  * <http://www.apache.org/>.
  */
 
-package org.apache.http.examples.client;
+package org.apache.ogt.http.examples.client;
 
 import java.security.Principal;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.params.AuthPolicy;
-import org.apache.http.impl.auth.NegotiateSchemeFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.auth.AuthScope;
+import org.apache.ogt.http.auth.Credentials;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.client.methods.HttpUriRequest;
+import org.apache.ogt.http.client.params.AuthPolicy;
+import org.apache.ogt.http.impl.auth.NegotiateSchemeFactory;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.util.EntityUtils;
 
 /**
  * Kerberos auth example.
@@ -48,7 +48,7 @@ import org.apache.http.util.EntityUtils;
  * <p><em>#setStripPort(boolean)</em> - default is false, with strip the port off the Kerberos
  * service name if true. Found useful with JBoss Negotiation. Can be used with Java >= 1.5</p>
  * <p><em>#setSpengoGenerator(SpnegoTokenGenerator)</em> - default is null, class to use to wrap
- * kerberos token. An example is in contrib - <em>org.apache.http.contrib.auth.BouncySpnegoTokenGenerator</em>.
+ * kerberos token. An example is in contrib - <em>org.apache.ogt.http.contrib.auth.BouncySpnegoTokenGenerator</em>.
  * Requires use of <a href="http://www.bouncycastle.org/java.html">bouncy castle libs</a>.
  * Useful with Java 1.5.
  * </p>

@@ -24,18 +24,18 @@
  *
  */
 
-package org.apache.http.examples.client;
+package org.apache.ogt.http.examples.client;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.client.HttpClient;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.conn.ClientConnectionManager;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.ogt.http.util.EntityUtils;
 
 /**
  * Example demonstrating how to evict expired and idle connections

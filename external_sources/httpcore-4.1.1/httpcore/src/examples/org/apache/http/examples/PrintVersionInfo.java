@@ -25,9 +25,9 @@
  *
  */
 
-package org.apache.http.examples;
+package org.apache.ogt.http.examples;
 
-import org.apache.http.util.VersionInfo;
+import org.apache.ogt.http.util.VersionInfo;
 
 /**
  * Prints version information for debugging purposes.
@@ -40,9 +40,9 @@ public class PrintVersionInfo {
 
     /** A default list of module packages. */
     private final static String[] MODULE_LIST = {
-        "org.apache.http",              // HttpCore
-        "org.apache.http.nio",          // HttpCore NIO
-        "org.apache.http.client",       // HttpClient
+        "org.apache.ogt.http",              // HttpCore
+        "org.apache.ogt.http.nio",          // HttpCore NIO
+        "org.apache.ogt.http.client",       // HttpClient
     };
 
 

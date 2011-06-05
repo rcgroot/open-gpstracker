@@ -25,13 +25,13 @@
  *
  */
 
-package org.apache.http.examples.client;
+package org.apache.ogt.http.examples.client;
 
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.client.ResponseHandler;
+import org.apache.ogt.http.client.HttpClient;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.impl.client.BasicResponseHandler;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
 
 /**
  * This example demonstrates the use of the {@link ResponseHandler} to simplify

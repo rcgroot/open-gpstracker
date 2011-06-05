@@ -25,50 +25,50 @@
  *
  */
 
-package org.apache.http.examples;
+package org.apache.ogt.http.examples;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.apache.http.ConnectionClosedException;
-import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.HttpServerConnection;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.DefaultHttpServerConnection;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpRequestExecutor;
-import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
-import org.apache.http.protocol.HttpService;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
+import org.apache.ogt.http.ConnectionClosedException;
+import org.apache.ogt.http.ConnectionReuseStrategy;
+import org.apache.ogt.http.HttpClientConnection;
+import org.apache.ogt.http.HttpException;
+import org.apache.ogt.http.HttpHost;
+import org.apache.ogt.http.HttpRequest;
+import org.apache.ogt.http.HttpRequestInterceptor;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.HttpResponseInterceptor;
+import org.apache.ogt.http.HttpServerConnection;
+import org.apache.ogt.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.ogt.http.impl.DefaultHttpClientConnection;
+import org.apache.ogt.http.impl.DefaultHttpResponseFactory;
+import org.apache.ogt.http.impl.DefaultHttpServerConnection;
+import org.apache.ogt.http.params.CoreConnectionPNames;
+import org.apache.ogt.http.params.CoreProtocolPNames;
+import org.apache.ogt.http.params.HttpParams;
+import org.apache.ogt.http.params.SyncBasicHttpParams;
+import org.apache.ogt.http.protocol.BasicHttpContext;
+import org.apache.ogt.http.protocol.ExecutionContext;
+import org.apache.ogt.http.protocol.HTTP;
+import org.apache.ogt.http.protocol.HttpContext;
+import org.apache.ogt.http.protocol.HttpProcessor;
+import org.apache.ogt.http.protocol.HttpRequestExecutor;
+import org.apache.ogt.http.protocol.HttpRequestHandler;
+import org.apache.ogt.http.protocol.HttpRequestHandlerRegistry;
+import org.apache.ogt.http.protocol.HttpService;
+import org.apache.ogt.http.protocol.ImmutableHttpProcessor;
+import org.apache.ogt.http.protocol.RequestConnControl;
+import org.apache.ogt.http.protocol.RequestContent;
+import org.apache.ogt.http.protocol.RequestExpectContinue;
+import org.apache.ogt.http.protocol.RequestTargetHost;
+import org.apache.ogt.http.protocol.RequestUserAgent;
+import org.apache.ogt.http.protocol.ResponseConnControl;
+import org.apache.ogt.http.protocol.ResponseContent;
+import org.apache.ogt.http.protocol.ResponseDate;
+import org.apache.ogt.http.protocol.ResponseServer;
 
 /**
  * Rudimentary HTTP/1.1 reverse proxy.

@@ -24,19 +24,19 @@
  * 
  */
 
-package org.apache.http.examples.entity.mime;
+package org.apache.ogt.http.examples.entity.mime;
 
 import java.io.File;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.client.HttpClient;
+import org.apache.ogt.http.client.methods.HttpPost;
+import org.apache.ogt.http.entity.mime.MultipartEntity;
+import org.apache.ogt.http.entity.mime.content.FileBody;
+import org.apache.ogt.http.entity.mime.content.StringBody;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.util.EntityUtils;
 
 /**
  * Example how to use multipart/form encoded POST request.

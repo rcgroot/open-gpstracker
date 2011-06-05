@@ -5,10 +5,10 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.ogt.http.Header;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpEntityEnclosingRequest;
+import org.apache.ogt.http.client.methods.HttpUriRequest;
 
 public class HttpRequestAdapter implements oauth.signpost.http.HttpRequest {
 

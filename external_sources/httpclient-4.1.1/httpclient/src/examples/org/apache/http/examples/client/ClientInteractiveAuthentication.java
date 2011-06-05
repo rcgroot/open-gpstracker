@@ -23,24 +23,24 @@
  * <http://www.apache.org/>.
  */
 
-package org.apache.http.examples.client;
+package org.apache.ogt.http.examples.client;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.AuthState;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.HttpStatus;
+import org.apache.ogt.http.auth.AuthScope;
+import org.apache.ogt.http.auth.AuthState;
+import org.apache.ogt.http.auth.Credentials;
+import org.apache.ogt.http.auth.UsernamePasswordCredentials;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.client.protocol.ClientContext;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.protocol.BasicHttpContext;
+import org.apache.ogt.http.protocol.HttpContext;
+import org.apache.ogt.http.util.EntityUtils;
 
 /**
  * A simple example that uses HttpClient to execute an HTTP request against

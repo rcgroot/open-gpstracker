@@ -24,17 +24,17 @@
  *
  */
 
-package org.apache.http.examples.client;
+package org.apache.ogt.http.examples.client;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.client.HttpClient;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.ogt.http.protocol.BasicHttpContext;
+import org.apache.ogt.http.protocol.HttpContext;
+import org.apache.ogt.http.util.EntityUtils;
 
 /**
  * An example that performs GETs from multiple threads.

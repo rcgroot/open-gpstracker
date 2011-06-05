@@ -7,9 +7,9 @@ import oauth.signpost.http.HttpResponse;
 
 public class HttpResponseAdapter implements HttpResponse {
 
-    private org.apache.http.HttpResponse response;
+    private org.apache.ogt.http.HttpResponse response;
 
-    public HttpResponseAdapter(org.apache.http.HttpResponse response) {
+    public HttpResponseAdapter(org.apache.ogt.http.HttpResponse response) {
         this.response = response;
     }
 

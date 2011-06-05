@@ -24,21 +24,21 @@
  *
  */
 
-package org.apache.http.examples.client;
+package org.apache.ogt.http.examples.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.NameValuePair;
+import org.apache.ogt.http.client.entity.UrlEncodedFormEntity;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.client.methods.HttpPost;
+import org.apache.ogt.http.cookie.Cookie;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.message.BasicNameValuePair;
+import org.apache.ogt.http.protocol.HTTP;
+import org.apache.ogt.http.util.EntityUtils;
 
 /**
  * A example that demonstrates how HttpClient APIs can be used to perform

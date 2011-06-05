@@ -24,18 +24,18 @@
  *
  */
 
-package org.apache.http.examples.client;
+package org.apache.ogt.http.examples.client;
 
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.client.HttpClient;
+import org.apache.ogt.http.client.methods.HttpPost;
+import org.apache.ogt.http.entity.InputStreamEntity;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.util.EntityUtils;
 
 /**
  * Example how to use unbuffered chunk-encoded POST request.

@@ -9,13 +9,13 @@ import java.io.InputStream;
 import oauth.signpost.http.HttpRequest;
 import oauth.signpost.mocks.OAuthProviderMock;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.message.BasicStatusLine;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.ProtocolVersion;
+import org.apache.ogt.http.StatusLine;
+import org.apache.ogt.http.client.HttpClient;
+import org.apache.ogt.http.client.methods.HttpUriRequest;
+import org.apache.ogt.http.entity.InputStreamEntity;
+import org.apache.ogt.http.message.BasicStatusLine;
 import org.mockito.Mockito;
 
 @SuppressWarnings("serial")

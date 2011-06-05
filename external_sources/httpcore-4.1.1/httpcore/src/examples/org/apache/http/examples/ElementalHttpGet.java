@@ -25,33 +25,33 @@
  *
  */
 
-package org.apache.http.examples;
+package org.apache.ogt.http.examples;
 
 import java.net.Socket;
 
-import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.params.SyncBasicHttpParams;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpRequestExecutor;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.ConnectionReuseStrategy;
+import org.apache.ogt.http.HttpHost;
+import org.apache.ogt.http.HttpRequestInterceptor;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.HttpVersion;
+import org.apache.ogt.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.ogt.http.impl.DefaultHttpClientConnection;
+import org.apache.ogt.http.message.BasicHttpRequest;
+import org.apache.ogt.http.params.HttpParams;
+import org.apache.ogt.http.params.HttpProtocolParams;
+import org.apache.ogt.http.params.SyncBasicHttpParams;
+import org.apache.ogt.http.protocol.HttpContext;
+import org.apache.ogt.http.protocol.BasicHttpContext;
+import org.apache.ogt.http.protocol.ExecutionContext;
+import org.apache.ogt.http.protocol.HttpProcessor;
+import org.apache.ogt.http.protocol.HttpRequestExecutor;
+import org.apache.ogt.http.protocol.ImmutableHttpProcessor;
+import org.apache.ogt.http.protocol.RequestConnControl;
+import org.apache.ogt.http.protocol.RequestContent;
+import org.apache.ogt.http.protocol.RequestExpectContinue;
+import org.apache.ogt.http.protocol.RequestTargetHost;
+import org.apache.ogt.http.protocol.RequestUserAgent;
+import org.apache.ogt.http.util.EntityUtils;
 
 /**
  * Elemental example for executing a GET request.

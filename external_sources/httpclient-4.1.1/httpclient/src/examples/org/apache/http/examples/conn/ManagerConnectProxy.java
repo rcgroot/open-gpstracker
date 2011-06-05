@@ -25,28 +25,28 @@
  *
  */
 
-package org.apache.http.examples.conn;
+package org.apache.ogt.http.examples.conn;
 
-import org.apache.http.Header;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.conn.ClientConnectionRequest;
-import org.apache.http.conn.ManagedClientConnection;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.params.SyncBasicHttpParams;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.ogt.http.Header;
+import org.apache.ogt.http.HttpHost;
+import org.apache.ogt.http.HttpRequest;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.HttpVersion;
+import org.apache.ogt.http.conn.ClientConnectionManager;
+import org.apache.ogt.http.conn.routing.HttpRoute;
+import org.apache.ogt.http.conn.ClientConnectionRequest;
+import org.apache.ogt.http.conn.ManagedClientConnection;
+import org.apache.ogt.http.conn.scheme.PlainSocketFactory;
+import org.apache.ogt.http.conn.scheme.Scheme;
+import org.apache.ogt.http.conn.scheme.SchemeRegistry;
+import org.apache.ogt.http.conn.ssl.SSLSocketFactory;
+import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.ogt.http.message.BasicHttpRequest;
+import org.apache.ogt.http.params.HttpParams;
+import org.apache.ogt.http.params.HttpProtocolParams;
+import org.apache.ogt.http.params.SyncBasicHttpParams;
+import org.apache.ogt.http.protocol.HttpContext;
+import org.apache.ogt.http.protocol.BasicHttpContext;
 
 /**
  * How to open a secure connection through a proxy using

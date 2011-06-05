@@ -25,25 +25,25 @@
  *
  */
 
-package org.apache.http.examples.client;
+package org.apache.ogt.http.examples.client;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.HttpEntityWrapper;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.Header;
+import org.apache.ogt.http.HeaderElement;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpException;
+import org.apache.ogt.http.HttpRequest;
+import org.apache.ogt.http.HttpRequestInterceptor;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.HttpResponseInterceptor;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.entity.HttpEntityWrapper;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.protocol.HttpContext;
+import org.apache.ogt.http.util.EntityUtils;
 
 /**
  * Demonstration of the use of protocol interceptors to transparently
@@ -55,7 +55,7 @@ import org.apache.http.util.EntityUtils;
  * a response interceptor that automatically expands compressed response
  * entities by wrapping them with a uncompressing decorator class. The use of
  * protocol interceptors makes content compression completely transparent to
- * the consumer of the {@link org.apache.http.client.HttpClient HttpClient}
+ * the consumer of the {@link org.apache.ogt.http.client.HttpClient HttpClient}
  * interface.
  */
 public class ClientGZipContentCompression {
