@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.adapter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
 
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import oauth.signpost.OAuthConsumer;
@@ -37,16 +38,16 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.client.methods.HttpUriRequest;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.util.EntityUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 /**
@@ -62,14 +63,14 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
-   
+
    /**
     * We pass the OAuth consumer and provider.
     * 
     * @param mContext Required to be able to start the intent to launch the
     *           browser.
-    * @param httpclient 
-    * @param listener 
+    * @param httpclient
+    * @param listener
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
@@ -79,7 +80,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       mAdapter = adapter;
       mHttpclient = httpclient;
       mConsumer = consumer;
-      
+
    }
 
    /**
@@ -87,24 +88,23 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
     * authorize the token.
     */
    @Override
-   protected BreadcrumbsTracks doInBackground(Void... params)
+   protected Void doInBackground(Void... params)
    {
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
-      InputStream instream = null;
+      HttpEntity responseEntity = null;
       try
       {
          HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles.xml");
-         
+
          mConsumer.sign(request);
-         if( isCancelled() )
+         if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
          HttpResponse response = mHttpclient.execute(request);
-         HttpEntity entity = response.getEntity();
-         instream = entity.getContent();
+         responseEntity = response.getEntity();
+         InputStream instream = responseEntity.getContent();
 
-         
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
          factory.setNamespaceAware(true);
          XmlPullParser xpp = factory.newPullParser();
@@ -112,9 +112,10 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
 
          String tagName = null;
          int eventType = xpp.getEventType();
-         
+
          String bundleName = null, bundleDescription = null;
          Integer activityId = null, bundleId = null;
+         Set<Integer> cachedBundles = tracks.getAllBundleIds();
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
             if (eventType == XmlPullParser.START_TAG)
@@ -123,34 +124,39 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-               if( "bundle".equals(xpp.getName()) && activityId != null && bundleId != null )
+               if ("bundle".equals(xpp.getName()) && activityId != null && bundleId != null)
                {
-                  tracks.addBundle( activityId, bundleId, bundleName, bundleDescription );
+                  tracks.addBundle(activityId, bundleId, bundleName, bundleDescription);
+                  cachedBundles.remove(bundleId);
                }
                tagName = null;
             }
             else if (eventType == XmlPullParser.TEXT)
             {
-               if( "activity-id".equals(tagName) )
+               if ("activity-id".equals(tagName))
                {
-                  activityId = Integer.parseInt(xpp.getText() );
+                  activityId = Integer.parseInt(xpp.getText());
                }
-               else if( "description".equals(tagName) )
+               else if ("description".equals(tagName))
                {
                   bundleDescription = xpp.getText();
                }
-               else if( "id".equals(tagName) )
+               else if ("id".equals(tagName))
                {
-                  bundleId = Integer.parseInt(xpp.getText() );
+                  bundleId = Integer.parseInt(xpp.getText());
                }
-               else if( "name".equals(tagName) )
+               else if ("name".equals(tagName))
                {
                   bundleName = xpp.getText();
                }
             }
             eventType = xpp.next();
          }
-         Log.d( TAG, "Read inputstream from http response anything available: "+instream.read());
+         for (Integer deletedId : cachedBundles)
+         {
+            tracks.removeBundle(deletedId);
+         }
+         Log.d(TAG, "Read inputstream from http response anything available: " + instream.read());
       }
       catch (OAuthMessageSignerException e)
       {
@@ -174,18 +180,18 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       }
       finally
       {
-         if( instream != null )
+         if (responseEntity != null)
          {
             try
             {
-               instream.close();
+               EntityUtils.consume(responseEntity);
             }
             catch (IOException e)
             {
-               Log.w( TAG, "Failed closing inputstream");
+               Log.w(TAG, "Failed closing inputstream");
             }
          }
       }
-      return tracks;
+      return null;
    }
 }

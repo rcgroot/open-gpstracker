@@ -41,7 +41,12 @@ import nl.sogeti.android.gpstracker.util.Pair;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.conn.ClientConnectionManager;
+import org.apache.ogt.http.conn.scheme.PlainSocketFactory;
+import org.apache.ogt.http.conn.scheme.Scheme;
+import org.apache.ogt.http.conn.scheme.SchemeRegistry;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -66,9 +71,10 @@ public class BreadcrumbsAdapter extends BaseAdapter
 {
    private static final String TAG = "OGT.BreadcrumbsAdapter";
    /**
-    * Time in milliseconds that a persisted breadcrumbs cache is used without a refresh
+    * Time in milliseconds that a persisted breadcrumbs cache is used without a
+    * refresh
     */
-   private static final long CACHE_TIMEOUT = 1000*60*10 ;
+   private static final long CACHE_TIMEOUT = 1000 * 10;//1000*60*10 ;
    boolean mOnline;
    private Context mContext;
    private LayoutInflater mInflater;
@@ -89,7 +95,12 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mContext = ctx;
       mListener = listener;
       mInflater = LayoutInflater.from(mContext);
-      mHttpClient = new DefaultHttpClient();
+
+      SchemeRegistry schemeRegistry = new SchemeRegistry();
+      schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+      ClientConnectionManager cm = new ThreadSafeClientConnManager(schemeRegistry);
+      mHttpClient = new DefaultHttpClient(cm);
+
       mTracks = new BreadcrumbsTracks(mContext.getContentResolver());
       mPlannedTasks = new LinkedList<AsyncTask< ? , ? , ? >>();
 
@@ -106,7 +117,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       {
          mConsumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
          mConsumer.setTokenWithSecret(token, secret);
-         
+
          Date persisted = mTracks.readCache(mContext);
          if (persisted == null || persisted.getTime() < new Date().getTime() - CACHE_TIMEOUT)
          {

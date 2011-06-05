@@ -30,7 +30,6 @@ package nl.sogeti.android.gpstracker.adapter;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import nl.sogeti.android.gpstracker.R;
@@ -44,12 +43,12 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.client.methods.HttpUriRequest;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.util.EntityUtils;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -144,7 +143,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
          {
             try
             {
-               responseEntity.consumeContent();
+               EntityUtils.consume(responseEntity);
             }
             catch (IOException e)
             {

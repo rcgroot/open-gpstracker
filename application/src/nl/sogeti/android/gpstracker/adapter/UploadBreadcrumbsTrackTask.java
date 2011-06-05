@@ -43,15 +43,14 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.client.methods.HttpPost;
+import org.apache.ogt.http.entity.mime.HttpMultipartMode;
+import org.apache.ogt.http.entity.mime.MultipartEntity;
+import org.apache.ogt.http.entity.mime.content.StringBody;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.util.EntityUtils;
 
 import android.database.Cursor;
 import android.net.Uri;
@@ -225,7 +224,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          {
             try
             {
-               responseEntity.consumeContent();
+               EntityUtils.consume(responseEntity);
             }
             catch (IOException e)
             {

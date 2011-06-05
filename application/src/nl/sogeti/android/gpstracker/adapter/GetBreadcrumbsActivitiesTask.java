@@ -37,17 +37,16 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.client.methods.HttpUriRequest;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.util.EntityUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 /**
@@ -86,7 +85,7 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
     * authorize the token.
     */
    @Override
-   protected BreadcrumbsTracks doInBackground(Void... params)
+   protected Void doInBackground(Void... params)
    {
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
       HttpEntity responseEntity = null;
@@ -168,7 +167,7 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
          {
             try
             {
-               responseEntity.consumeContent();
+               EntityUtils.consume(responseEntity);
             }
             catch (IOException e)
             {
@@ -176,7 +175,7 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
             }
          }
       }
-      return tracks;
+      return null;
    }
    
 

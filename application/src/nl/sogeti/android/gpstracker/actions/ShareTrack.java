@@ -47,22 +47,21 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
-import nl.sogeti.android.gpstracker.viewer.TrackList;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthenticationException;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpHost;
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.auth.AuthenticationException;
+import org.apache.ogt.http.auth.UsernamePasswordCredentials;
+import org.apache.ogt.http.client.HttpClient;
+import org.apache.ogt.http.client.methods.HttpPost;
+import org.apache.ogt.http.entity.mime.HttpMultipartMode;
+import org.apache.ogt.http.entity.mime.MultipartEntity;
+import org.apache.ogt.http.entity.mime.content.FileBody;
+import org.apache.ogt.http.entity.mime.content.StringBody;
+import org.apache.ogt.http.impl.auth.BasicScheme;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.util.EntityUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -83,7 +82,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
@@ -484,7 +482,7 @@ public class ShareTrack extends Activity
          {
             try
             {
-               responseEntity.consumeContent();
+               EntityUtils.consume(responseEntity);
             }
             catch (IOException e)
             {
@@ -587,7 +585,7 @@ public class ShareTrack extends Activity
          {
             try
             {
-               responseEntity.consumeContent();
+               EntityUtils.consume(responseEntity);
             }
             catch (IOException e)
             {

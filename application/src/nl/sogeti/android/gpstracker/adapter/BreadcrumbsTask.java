@@ -38,7 +38,7 @@ import android.util.Log;
  * @version $Id:$
  * @author rene (c) May 29, 2011, Sogeti B.V.
  */
-public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, BreadcrumbsTracks>
+public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
 {
    private static final String TAG = "OGT.BreadcrumbsTask";
 
@@ -70,13 +70,12 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, BreadcrumbsT
    }
 
    @Override
-   protected void onPostExecute(BreadcrumbsTracks result)
+   protected void onPostExecute(Void result)
    {
       mListener.finished(null);
       mAdapter.finishedTask();
-
    }
-
+   
    @Override
    protected void onCancelled()
    {
