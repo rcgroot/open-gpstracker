@@ -100,8 +100,8 @@ public class GPSLoggerService extends Service
     */
    private static final int MAX_REASONABLE_ALTITUDECHANGE = 200;
 
-   private static final Boolean DEBUG = false;
-   private static final boolean VERBOSE = false;
+   private static final Boolean DEBUG = true;
+   private static final boolean VERBOSE = true;
    private static final String TAG = "OGT.GPSLoggerService";
 
    private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
@@ -216,7 +216,12 @@ public class GPSLoggerService extends Service
             if (mStartNextSegment)
             {
                mStartNextSegment = false;
-               startNewSegment();
+               // Obey the start segment if the previous location is unknown or far away
+               if (mPreviousLocation == null ||
+                     filteredLocation.distanceTo(mPreviousLocation) > 4 * mMaxAcceptableAccuracy)
+               {
+                  startNewSegment();
+               }
             }
             storeLocation(filteredLocation);
          }
@@ -368,14 +373,12 @@ public class GPSLoggerService extends Service
     */
    class Heartbeat extends TimerTask
    {
-      
-      private String mProvider;
-      private float mDistance;
 
-      public Heartbeat(String provider, float distance)
+      private String mProvider;
+
+      public Heartbeat(String provider)
       {
          mProvider = provider;
-         mDistance = distance;
       }
 
       @Override
@@ -402,21 +405,21 @@ public class GPSLoggerService extends Service
             }
             // Is the last known GPS location something nearby we are not told?
             Location managerLocation = mLocationManager.getLastKnownLocation(mProvider);
-            if( managerLocation != null && checkLocation != null )
+            if (managerLocation != null && checkLocation != null)
             {
-               if( checkLocation.distanceTo(checkLocation) < 2 * mDistance)
+               if (checkLocation.distanceTo(checkLocation) < 2 * mMaxAcceptableAccuracy)
                {
                   checkLocation = managerLocation.getTime() > checkLocation.getTime() ? managerLocation : checkLocation;
                }
             }
-            
+
             if (checkLocation == null || checkLocation.getTime() + mCheckPeriod < new Date().getTime())
             {
                Log.w(TAG, "GPS system failed to produce a location during logging: " + checkLocation);
                mLoggingState = Constants.PAUSED;
                resumeLogging();
-               
-               if( mStatusMonitor )
+
+               if (mStatusMonitor)
                {
                   soundGpsSignalAlarm();
                }
@@ -765,7 +768,7 @@ public class GPSLoggerService extends Service
          mHeartbeat.cancel();
          mHeartbeat = null;
       }
-      mHeartbeat = new Heartbeat(provider, distance);
+      mHeartbeat = new Heartbeat(provider);
       mHeartbeatTimer.schedule(mHeartbeat, mCheckPeriod, mCheckPeriod);
    }
 
@@ -900,10 +903,10 @@ public class GPSLoggerService extends Service
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       signalNotification.setLatestEventInfo(this, contentTitle, tickerText, contentIntent);
       signalNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-      
+
       mNoticationManager.notify(resId, signalNotification);
    }
-   
+
    private void notifyOnDisabledProvider(int resId)
    {
       int icon = R.drawable.ic_maps_indicator_current_position;
@@ -1318,19 +1321,19 @@ public class GPSLoggerService extends Service
       }
       catch (IllegalArgumentException e)
       {
-         Log.e( TAG, "Problem setting data source for mediaplayer", e );
+         Log.e(TAG, "Problem setting data source for mediaplayer", e);
       }
       catch (SecurityException e)
       {
-         Log.e( TAG, "Problem setting data source for mediaplayer", e );
+         Log.e(TAG, "Problem setting data source for mediaplayer", e);
       }
       catch (IllegalStateException e)
       {
-         Log.e( TAG, "Problem with mediaplayer", e );
+         Log.e(TAG, "Problem with mediaplayer", e);
       }
       catch (IOException e)
       {
-         Log.e( TAG, "Problem with mediaplayer", e );
+         Log.e(TAG, "Problem with mediaplayer", e);
       }
       Message msg = Message.obtain();
       msg.what = GPSPROBLEM;
