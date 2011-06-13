@@ -56,6 +56,12 @@
     <string name="dialog_nooipicker">OI File Manager</string>
     <string name="dialog_nooipicker_message">Aplikacja \"OI File Manager\" z projektu OpenIntents jest wymagana do wyboru plików. Przycisk importu będzie działał po zaakceptowaniu umowy EULA aplikacji OI File Manager.</string>
     <string name="dialog_contrib_title">Przyłącz się</string>
+    <string name="dialog_bundlecreate_hint">Nazwa nowej paczki</string>
+    <string name="dialog_trackdescription_hint">Opis ścieżki</string>
+    <string name="dialog_public">Udostępnianie publiczne</string>
+    <string name="dialog_description_title">Opis ścieżki</string>
+    <string name="dialog_description_message">Podaj więcej informacji przed wysłaniem.</string>
+    <string name="dialog_bundle">Paczka: %1$s</string>
     <string name="dialog_contrib_message">
     <b>Kod</b>
     \n
@@ -205,7 +211,7 @@
     <string name="customprecisiondistance_title">Odległość (w metrach) pomiędzy punktami orientacyjnymi</string>
     <string name="customprecisiondistance_summary">Odległość, którą należy przebyć pomiędzy kolejnymi punktami orientacyjnymi.</string>
     <string name="gpsstatusmonitor_title">Monitorowanie statusu GPS</string>
-    <string name="gpsstatusmonitor_summary">Wyświetla liczbę używanych satelit.</string>
+    <string name="gpsstatusmonitor_summary">Wyświetla liczbę używanych satelit i alarmuje w razie słabego sygnału.</string>
     <string name="osmusername_title">Nazwa użytkownika OpenStreetMap</string>
     <string name="osmusername_summary">Nazwa użytkownika utworzona na http://www.openstreetmap.org/user/new</string>
     <string name="osmusername_message">Konto OpenStreetMap umożliwia edycję mapy aby wspomóc projekt. Open GPS Tracker umożliwia dodanie nowych danych GPS za pomocą tego konta.</string>
