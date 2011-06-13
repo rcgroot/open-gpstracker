@@ -210,7 +210,7 @@
     <string name="customprecisiondistance_title">Target waypoint distance in meters</string>
     <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
-    <string name="gpsstatusmonitor_summary">Displays the number of satellites used.</string>
+    <string name="gpsstatusmonitor_summary">Displays the number of satellites used and sounds alarm on poor signal.</string>
 	<string name="osmusername_title">OpenStreetMap username</string>
 	<string name="osmusername_summary">The username created at http://www.openstreetmap.org/user/new</string>
 	<string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>

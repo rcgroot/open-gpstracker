@@ -368,6 +368,16 @@ public class GPSLoggerService extends Service
     */
    class Heartbeat extends TimerTask
    {
+      
+      private String mProvider;
+      private float mDistance;
+
+      public Heartbeat(String provider, float distance)
+      {
+         mProvider = provider;
+         mDistance = distance;
+      }
+
       @Override
       public void run()
       {
@@ -390,6 +400,16 @@ public class GPSLoggerService extends Service
                   }
                }
             }
+            // Is the last known GPS location something nearby we are not told?
+            Location managerLocation = mLocationManager.getLastKnownLocation(mProvider);
+            if( managerLocation != null && checkLocation != null )
+            {
+               if( checkLocation.distanceTo(checkLocation) < 2 * mDistance)
+               {
+                  checkLocation = managerLocation.getTime() > checkLocation.getTime() ? managerLocation : checkLocation;
+               }
+            }
+            
             if (checkLocation == null || checkLocation.getTime() + mCheckPeriod < new Date().getTime())
             {
                Log.w(TAG, "GPS system failed to produce a location during logging: " + checkLocation);
@@ -745,7 +765,7 @@ public class GPSLoggerService extends Service
          mHeartbeat.cancel();
          mHeartbeat = null;
       }
-      mHeartbeat = new Heartbeat();
+      mHeartbeat = new Heartbeat(provider, distance);
       mHeartbeatTimer.schedule(mHeartbeat, mCheckPeriod, mCheckPeriod);
    }
 
@@ -916,7 +936,7 @@ public class GPSLoggerService extends Service
 
    private void sendRequestStatusUpdateMessage()
    {
-      mStatusMonitor = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.STATUS_MONITOR, true);
+      mStatusMonitor = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.STATUS_MONITOR, false);
       Message msg = Message.obtain();
       msg.what = ADDGPSSTATUSLISTENER;
       mHandler.sendMessage(msg);

@@ -202,7 +202,7 @@
     <string name="customprecisiondistance_title">Doel afstandsinterval in meters</string>
     <string name="customprecisiondistance_summary">De afstand die tussen opname punten past.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
-    <string name="gpsstatusmonitor_summary">Toont het aantal satelieten waar signaal van komt.</string>
+    <string name="gpsstatusmonitor_summary">Toont het aantal satelieten waar signaal van komt en slaat alarm op een slecht signaal.</string>
 	<string name="osmusername_title">OpenStreetMap gebruikersnaam</string>
 	<string name="osmusername_summary">De gebruikersnaam zoals aangemaakt op http://www.openstreetmap.org/user/new</string>
 	<string name="osmusername_message">Een OpenStreetMap account maakt het mogelijk om map data contributies te maken. Open GPS Tracker kan alleen routes oploaden die zonder Google kaartmateriaal zijn opgenomen.</string>
