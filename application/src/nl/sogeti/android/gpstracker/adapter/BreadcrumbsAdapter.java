@@ -36,6 +36,7 @@ import java.util.Queue;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
+import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
@@ -49,6 +50,7 @@ import org.apache.ogt.http.impl.client.DefaultHttpClient;
 import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
@@ -70,12 +72,15 @@ import android.widget.TextView;
 public class BreadcrumbsAdapter extends BaseAdapter
 {
    private static final String TAG = "OGT.BreadcrumbsAdapter";
+   
+   public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
+   public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
    /**
     * Time in milliseconds that a persisted breadcrumbs cache is used without a
     * refresh
     */
    private static final long CACHE_TIMEOUT = 1000 * 10;//1000*60*10 ;
-   boolean mOnline;
+   boolean mAuthorized;
    private Context mContext;
    private LayoutInflater mInflater;
    private CommonsHttpOAuthConsumer mConsumer;
@@ -110,10 +115,10 @@ public class BreadcrumbsAdapter extends BaseAdapter
    public void connectionSetup()
    {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-      String token = prefs.getString(TrackList.OAUTH_TOKEN, "");
-      String secret = prefs.getString(TrackList.OAUTH_TOKEN_SECRET, "");
-      mOnline = !"".equals(token) && !"".equals(secret);
-      if (mOnline)
+      String token = prefs.getString(OAUTH_TOKEN, "");
+      String secret = prefs.getString(OAUTH_TOKEN_SECRET, "");
+      mAuthorized = !"".equals(token) && !"".equals(secret);
+      if (mAuthorized)
       {
          mConsumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
          mConsumer.setTokenWithSecret(token, secret);
@@ -132,7 +137,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
          {
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
             {
-               if (TrackList.OAUTH_TOKEN.equals(key))
+               if (OAUTH_TOKEN.equals(key))
                {
                   prefs.unregisterOnSharedPreferenceChangeListener(this);
                   connectionSetup();
@@ -142,6 +147,8 @@ public class BreadcrumbsAdapter extends BaseAdapter
          prefs.registerOnSharedPreferenceChangeListener(tokenChangedListener);
       }
    }
+   
+   
 
    /*
     * (non-Javadoc)
@@ -149,7 +156,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
     */
    public int getCount()
    {
-      if (mOnline)
+      if (mAuthorized)
       {
          return mTracks.positions();
       }
@@ -165,7 +172,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
     */
    public Object getItem(int position)
    {
-      if (mOnline)
+      if (mAuthorized)
       {
          return mTracks.getItemForPosition(position);
       }
@@ -193,7 +200,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
    public View getView(int position, View convertView, ViewGroup parent)
    {
       View view;
-      if (mOnline)
+      if (mAuthorized)
       {
          int type = getItemViewType(position);
          if (convertView == null)
@@ -277,7 +284,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
    @Override
    public int getItemViewType(int position)
    {
-      if (mOnline)
+      if (mAuthorized)
       {
          Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
          if (item.first == Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE)
@@ -365,7 +372,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    public synchronized void shutdown()
    {
-      mOnline = false;
+      mAuthorized = false;
       notifyDataSetChanged();
       mFinishing = true;
       if (mOngoingTask != null)
@@ -403,6 +410,21 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    public boolean isOnline()
    {
-      return mOnline;
+      return mAuthorized;
+   }
+
+   public void requestBreadcrumbsOauthToken()
+   {
+      Intent i = new Intent(mContext.getApplicationContext(), PrepareRequestTokenActivity.class);
+      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
+      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
+
+      i.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, mContext.getString(R.string.CONSUMER_KEY));
+      i.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, mContext.getString(R.string.CONSUMER_SECRET));
+      i.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.REQUEST_URL);
+      i.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.ACCESS_URL);
+      i.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.AUTHORIZE_URL);
+
+      mContext.startActivity(i);
    }
 }

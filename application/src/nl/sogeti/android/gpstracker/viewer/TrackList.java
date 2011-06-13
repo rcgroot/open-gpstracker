@@ -29,9 +29,7 @@
 package nl.sogeti.android.gpstracker.viewer;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.DescribeTrack;
-import nl.sogeti.android.gpstracker.actions.NameTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
@@ -41,7 +39,6 @@ import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
 import android.app.AlertDialog;
@@ -103,8 +100,6 @@ public class TrackList extends ListActivity implements ProgressListener
 
    private static final int PICKER_OI = Menu.FIRST + 29;
    private static final int DESCRIBE = Menu.FIRST + 30;
-   public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
-   public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
 
    private BreadcrumbsAdapter mBreadcrumbAdapter;
    private EditText mTrackNameView;
@@ -289,17 +284,7 @@ public class TrackList extends ListActivity implements ProgressListener
       {
          if (Constants.BREADCRUMBS_CONNECT.equals(item))
          {
-            Intent i = new Intent(getApplicationContext(), PrepareRequestTokenActivity.class);
-            i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
-            i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
-
-            i.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, getString(R.string.CONSUMER_KEY));
-            i.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, getString(R.string.CONSUMER_SECRET));
-            i.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.REQUEST_URL);
-            i.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.ACCESS_URL);
-            i.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.AUTHORIZE_URL);
-
-            startActivity(i);
+            mBreadcrumbAdapter.requestBreadcrumbsOauthToken();
          }
       }
       else if (item instanceof Pair< ? , ? >)

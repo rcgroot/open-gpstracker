@@ -75,8 +75,7 @@ public class RetrieveAccessTokenTask extends AsyncTask<Uri, Void, Void>
          edit.putString(mSecretKey, consumer.getTokenSecret());
          edit.commit();
 
-         Log.i(TAG, "OAuth - Access Token Retrieved");
-
+         Log.i(TAG, "OAuth - Access Token Retrieved and stored to "+mTokenKey+" and "+mSecretKey);
       }
       catch (Exception e)
       {

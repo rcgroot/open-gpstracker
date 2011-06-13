@@ -116,22 +116,6 @@
             android:dialogMessage="@string/jogrunner_message"
             android:defaultValue=""
             />
-        <EditTextPreference
-            android:key="OSM_USERNAME"
-            android:title="@string/osmusername_title"
-            android:summary="@string/osmusername_summary"
-            android:dialogMessage="@string/osmusername_message"
-            android:singleLine="true"
-            android:defaultValue=""
-            />
-        <EditTextPreference
-            android:key="OSM_PASSWORD"
-            android:title="@string/osmpassword_title"
-            android:summary="@string/osmpassword_summary"
-            android:dialogMessage="@string/osmpassword_message"
-            android:password="true"
-            android:defaultValue=""
-            />
         <ListPreference
             android:key="OSM_VISIBILITY"
             android:title="@string/osmvisibility_title"

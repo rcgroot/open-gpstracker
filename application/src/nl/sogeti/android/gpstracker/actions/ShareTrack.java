@@ -44,22 +44,23 @@ import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 
 import org.apache.ogt.http.HttpEntity;
-import org.apache.ogt.http.HttpHost;
 import org.apache.ogt.http.HttpResponse;
-import org.apache.ogt.http.auth.AuthenticationException;
-import org.apache.ogt.http.auth.UsernamePasswordCredentials;
 import org.apache.ogt.http.client.HttpClient;
 import org.apache.ogt.http.client.methods.HttpPost;
 import org.apache.ogt.http.entity.mime.HttpMultipartMode;
 import org.apache.ogt.http.entity.mime.MultipartEntity;
 import org.apache.ogt.http.entity.mime.content.FileBody;
 import org.apache.ogt.http.entity.mime.content.StringBody;
-import org.apache.ogt.http.impl.auth.BasicScheme;
 import org.apache.ogt.http.impl.client.DefaultHttpClient;
 import org.apache.ogt.http.util.EntityUtils;
 
@@ -76,6 +77,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
@@ -105,6 +107,8 @@ public class ShareTrack extends Activity
    private static final int EXPORT_TYPE_TWITDRIOD = 0;
    private static final int EXPORT_TYPE_SMS = 1;
    private static final int EXPORT_TYPE_TEXT = 2;
+   public static final String OAUTH_TOKEN = "openstreetmap_oauth_token";
+   public static final String OAUTH_TOKEN_SECRET = "openstreetmap_oauth_secret";
 
    protected static final int DIALOG_FILENAME = 11;
    protected static final int PROGRESS_STEPS = 10;
@@ -174,7 +178,8 @@ public class ShareTrack extends Activity
          }
       });
 
-      int lastType = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TYPE, EXPORT_TYPE_KMZ);
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+      int lastType = prefs.getInt(Constants.EXPORT_TYPE, EXPORT_TYPE_KMZ);
       mShareTypeSpinner.setSelection(lastType);
       adjustTargetToType(lastType);
 
@@ -199,6 +204,23 @@ public class ShareTrack extends Activity
       });
    }
 
+   @Override
+   protected void onResume()
+   {
+      super.onResume();
+      
+      // Upgrade from stored username / password to OAuth authorization
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+      if( prefs.contains(Constants.OSM_USERNAME) || prefs.contains(Constants.OSM_PASSWORD) )
+      {
+         Editor editor = prefs.edit();
+         editor.remove(Constants.OSM_USERNAME);
+         editor.remove(Constants.OSM_PASSWORD);
+         editor.commit();
+         this.requestOpenstreetmapOauthToken();
+      }
+   }
+   
    /**
     * @see android.app.Activity#onCreateDialog(int)
     */
@@ -383,12 +405,9 @@ public class ShareTrack extends Activity
             Log.e(TAG, "Unable to determine target for sharing GPX " + target);
             break;
       }
-      if (endJob != null)
-      {
-         GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
-         gpxCreator.execute();
-         ShareTrack.this.finish();
-      }
+      GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
+      gpxCreator.execute();
+      ShareTrack.this.finish();
    }
 
    protected void exportTextLine(String message, int target)
@@ -486,7 +505,7 @@ public class ShareTrack extends Activity
             }
             catch (IOException e)
             {
-               Log.e( TAG, "Failed to close the content stream", e);
+               Log.e(TAG, "Failed to close the content stream", e);
             }
          }
       }
@@ -512,16 +531,19 @@ public class ShareTrack extends Activity
     * @param fileUri
     * @param contentType
     */
-   private void sendToOsm(Uri fileUri, Uri trackUri)
+   private void sendToOsm(final Uri fileUri, final Uri trackUri)
    {
-      String username = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_USERNAME, "");
-      String password = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_PASSWORD, "");
+      CommonsHttpOAuthConsumer consumer = osmConnectionSetup();
+      if( consumer == null )
+      {
+         requestOpenstreetmapOauthToken();
+         return;
+      }
+      
       String visibility = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_VISIBILITY, "trackable");
       File gpxFile = new File(fileUri.getEncodedPath());
-      String hostname = getString(R.string.osm_post_host);
-      Integer port = new Integer(getString(R.string.osm_post_port));
-      HttpHost targetHost = new HttpHost(hostname, port, "http");
 
+      String url = getString(R.string.osm_post_url);
       DefaultHttpClient httpclient = new DefaultHttpClient();
       HttpResponse response = null;
       String responseText = "";
@@ -543,11 +565,9 @@ public class ShareTrack extends Activity
          }
 
          // The POST to the create node
-         HttpPost method = new HttpPost(getString(R.string.osm_post_context));
-
-         // Preemptive basic auth on the first request 
-         method.addHeader(new BasicScheme().authenticate(new UsernamePasswordCredentials(username, password), method));
-
+         HttpPost method = new HttpPost(url);
+         consumer.sign(method);
+         
          // Build the multipart body with the upload data
          MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
          entity.addPart("file", new FileBody(gpxFile));
@@ -557,7 +577,7 @@ public class ShareTrack extends Activity
          method.setEntity(entity);
 
          // Execute the POST to OpenStreetMap
-         response = httpclient.execute(targetHost, method);
+         response = httpclient.execute(method);
 
          // Read the response
          statusCode = response.getStatusLine().getStatusCode();
@@ -565,16 +585,30 @@ public class ShareTrack extends Activity
          InputStream stream = responseEntity.getContent();
          responseText = XmlCreator.convertStreamToString(stream);
       }
-      catch (IOException e)
+      catch (OAuthMessageSignerException e)
       {
-         Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: " + responseText, e);
+         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
          responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
          toast.show();
       }
-      catch (AuthenticationException e)
+      catch (OAuthExpectationFailedException e)
       {
-         Log.e(TAG, "Failed to upload to " + targetHost.getHostName() + "Response: " + responseText, e);
+         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
+         responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
+         Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
+         toast.show();
+      }
+      catch (OAuthCommunicationException e)
+      {
+         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
+         responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
+         Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
+         toast.show();
+      }
+      catch (IOException e)
+      {
+         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
          responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
          toast.show();
@@ -589,7 +623,7 @@ public class ShareTrack extends Activity
             }
             catch (IOException e)
             {
-               Log.e( TAG, "Failed to close the content stream", e);
+               Log.e(TAG, "Failed to close the content stream", e);
             }
          }
          if (metaData != null)
@@ -612,6 +646,36 @@ public class ShareTrack extends Activity
          Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
       }
+   }
+
+   public CommonsHttpOAuthConsumer osmConnectionSetup()
+   {
+      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+      String token = prefs.getString(OAUTH_TOKEN, "");
+      String secret = prefs.getString(OAUTH_TOKEN_SECRET, "");
+      boolean mAuthorized = !"".equals(token) && !"".equals(secret);
+      CommonsHttpOAuthConsumer consumer = null;
+      if (mAuthorized)
+      {
+         consumer = new CommonsHttpOAuthConsumer(this.getString(R.string.OSM_CONSUMER_KEY), this.getString(R.string.OSM_CONSUMER_SECRET));
+         consumer.setTokenWithSecret(token, secret);
+      }
+      return consumer;
+   }
+
+   public void requestOpenstreetmapOauthToken()
+   {
+      Intent i = new Intent(this.getApplicationContext(), PrepareRequestTokenActivity.class);
+      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
+      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
+
+      i.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, this.getString(R.string.OSM_CONSUMER_KEY));
+      i.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, this.getString(R.string.OSM_CONSUMER_SECRET));
+      i.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.OSM_REQUEST_URL);
+      i.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.OSM_ACCESS_URL);
+      i.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.OSM_AUTHORIZE_URL);
+
+      this.startActivity(i);
    }
 
    private void sendSMS(String msg)
