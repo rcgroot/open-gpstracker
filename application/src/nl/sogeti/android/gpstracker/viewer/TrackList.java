@@ -591,6 +591,8 @@ public class TrackList extends ListActivity implements ProgressListener
                         if (isChecked)
                         {
                            Log.d(TAG, "View" + buttonView + " track id " + trackId);
+                           
+                           buttonView.setEnabled(false);
                            // Start a naming of the track
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
                            namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));

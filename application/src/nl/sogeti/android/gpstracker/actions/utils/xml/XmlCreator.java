@@ -100,6 +100,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    public void setMaximumProgress(int maximumProgress)
    {
       this.mMaximumProgress = maximumProgress;
+      mProgressListener.setMax(mMaximumProgress);
    }
 
    private String extractCleanTrackName()
@@ -134,7 +135,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    {
       if (mProgressListener != null)
       {
-         mMaximumProgress = 0;
+         int maximumProgress = 0;
          Uri allWaypointsUri = Uri.withAppendedPath(mTrackUri, "waypoints");
          Uri allMediaUri = Uri.withAppendedPath(mTrackUri, "media");
          Cursor cursor = null;
@@ -144,13 +145,13 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
             cursor = resolver.query(allWaypointsUri, new String[] { "count(" + Waypoints.TABLE + "." + Waypoints._ID + ")" }, null, null, null);
             if (cursor.moveToLast())
             {
-               mMaximumProgress += cursor.getInt(0);
+               maximumProgress += cursor.getInt(0);
             }
             cursor.close();
             cursor = resolver.query(allMediaUri, new String[] { "count(" + Media.TABLE + "." + Media._ID + ")" }, null, null, null);
             if (cursor.moveToLast())
             {
-               mMaximumProgress += 100 * cursor.getInt(0);
+               maximumProgress += 100 * cursor.getInt(0);
             }
             cursor.close();
             cursor = resolver.query(allMediaUri, new String[] { "count(" + Tracks._ID + ")" }, Media.URI + " LIKE ? and " + Media.URI + " NOT LIKE ?",
@@ -160,7 +161,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
                if (cursor.getInt(0) > 0)
                {
                   mNeedsBundling = true;
-                  mMaximumProgress *= 2;
+                  maximumProgress *= 2;
                }
             }
          }
@@ -171,7 +172,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
                cursor.close();
             }
          }
-         mProgressListener.setMax(mMaximumProgress);
+         this.setMaximumProgress(maximumProgress);
       }
       else
       {

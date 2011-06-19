@@ -248,6 +248,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    @Override
    protected void onPostExecute(Uri result)
    {      
+      super.onPostExecute(result);
       mAdapter.finishedTask();
    }
 
