@@ -30,6 +30,8 @@ package nl.sogeti.android.gpstracker.adapter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +39,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.xml.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.utils.xml.XmlCreator;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -52,6 +55,9 @@ import org.apache.ogt.http.entity.mime.content.StringBody;
 import org.apache.ogt.http.impl.client.DefaultHttpClient;
 import org.apache.ogt.http.util.EntityUtils;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -69,6 +75,10 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpClient;
+   private String mActivityId;
+   private String mBundleId;
+   private String mDescription;
+   private String mIsPublic;
    
    /**
     * We pass the OAuth consumer and provider.
@@ -107,10 +117,10 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       
       // Collect GPX Import option params
-      String activityId = null;
-      String bundleId = null;
-      String description = null;
-      String isPublic = null;
+      mActivityId = null;
+      mBundleId = null;
+      mDescription = null;
+      mIsPublic = null;
 
       Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
       Cursor cursor = null;
@@ -126,19 +136,19 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
                String key = cursor.getString(0);
                if( BreadcrumbsTracks.ACTIVITY_ID.equals(key) )
                {
-                  activityId =  cursor.getString(1);
+                  mActivityId =  cursor.getString(1);
                }
                else if( BreadcrumbsTracks.BUNDLE_ID.equals(key) )
                {
-                  bundleId =  cursor.getString(1);
+                  mBundleId =  cursor.getString(1);
                }
                else if( BreadcrumbsTracks.DESCRIPTION.equals(key) )
                {
-                  description =  cursor.getString(1);
+                  mDescription =  cursor.getString(1);
                }
                else if( BreadcrumbsTracks.ISPUBLIC.equals(key) )
                {
-                  isPublic =  cursor.getString(1);
+                  mIsPublic =  cursor.getString(1);
                }
             }
             while(cursor.moveToNext());
@@ -173,11 +183,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          entity.addPart("import_type", new StringBody("GPX"));
          //entity.addPart("gpx",         new FileBody(gpxFile));
          entity.addPart("gpx",         new StringBody(gpxString));
-         entity.addPart("bundle_id",   new StringBody(bundleId));
-         entity.addPart("description", new StringBody(description));
+         entity.addPart("bundle_id",   new StringBody(mBundleId));
+         entity.addPart("description", new StringBody(mDescription));
 //         entity.addPart("difficulty",  new StringBody("3"));
 //         entity.addPart("rating",      new StringBody("4"));
-         entity.addPart("public",      new StringBody(isPublic));
+         entity.addPart("public",      new StringBody(mIsPublic));
          method.setEntity(entity);
          
          // Execute the POST to OpenStreetMap
@@ -236,6 +246,10 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       if (statusCode == 200 || statusCode == 201 )
       {
          Log.d( TAG, "Excellent response status code "+statusCode );
+         if( trackUri == null )
+         {
+            handleError( new IOException("Unable to retrieve URI from response"), responseText );
+         }
       }
       else
       {
@@ -248,8 +262,40 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    @Override
    protected void onPostExecute(Uri result)
    {      
-      super.onPostExecute(result);
+      BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
+      Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
+      List<String> segments = result.getPathSegments();
+      Integer bcTrackId = new Integer( segments.get(segments.size()-2) );
+
+      ArrayList<ContentValues> metaValues = new ArrayList<ContentValues>();
+
+      metaValues.add(buildContentValues(BreadcrumbsTracks.TRACK_ID, Long.toString(bcTrackId)));
+      if (mDescription != null)
+      {
+         metaValues.add(buildContentValues(BreadcrumbsTracks.DESCRIPTION, mDescription));
+      }
+      if (mIsPublic != null)
+      {
+         metaValues.add(buildContentValues(BreadcrumbsTracks.ISPUBLIC, mIsPublic));
+      }
+      metaValues.add(buildContentValues(BreadcrumbsTracks.BUNDLE_ID, mBundleId));
+      metaValues.add(buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, mActivityId));
+      
+      ContentResolver resolver = mContext.getContentResolver();
+      resolver.bulkInsert(metadataUri, metaValues.toArray(new ContentValues[1]));
+      
+      tracks.addSyncedTrack(new Long( mTrackUri.getLastPathSegment()), bcTrackId);
       mAdapter.finishedTask();
+      
+      super.onPostExecute(result);
+   }
+   
+   private ContentValues buildContentValues(String key, String value)
+   {
+      ContentValues contentValues = new ContentValues();
+      contentValues.put(MetaData.KEY, key);
+      contentValues.put(MetaData.VALUE, value);
+      return contentValues;
    }
 
 }
