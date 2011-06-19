@@ -420,6 +420,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    {
       Log.d( TAG, "onCancelled()");
       mProgressListener.finished(null);
-      mProgressListener.showErrorDialog(mErrorText, mException);
+      mProgressListener.showError(mErrorText, mException);
    }
 }

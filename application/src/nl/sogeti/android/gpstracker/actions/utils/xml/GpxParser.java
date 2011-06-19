@@ -426,7 +426,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    @Override
    protected void onCancelled()
    {
-      mProgressListener.showErrorDialog(mErrorDialogMessage, mErrorDialogException);
+      mProgressListener.showError(mErrorDialogMessage, mErrorDialogException);
    }
 
    /**

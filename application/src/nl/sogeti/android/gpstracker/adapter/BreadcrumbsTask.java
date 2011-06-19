@@ -28,9 +28,12 @@
  */
 package nl.sogeti.android.gpstracker.adapter;
 
+import java.util.LinkedList;
+
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 
 /**
  * ????
@@ -48,15 +51,16 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
 
    private BreadcrumbsAdapter mAdapter;
 
-   public BreadcrumbsTask(ProgressListener listener, BreadcrumbsAdapter adapter)
+   public BreadcrumbsTask(BreadcrumbsAdapter adapter, ProgressListener listener)
    {
+      Log.d(TAG, "Created task with " + listener + " and " + adapter);
       mListener = listener;
       mAdapter = adapter;
    }
 
    protected void handleError(Exception e, String text)
    {
-      Log.e(TAG, "Unable to save ", e);
+      Log.e(TAG, "Received error will cancel background task " + this.getClass().getName(), e);
       mException = e;
       mErrorText = text;
       cancel(true);
@@ -65,6 +69,7 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    @Override
    protected void onPreExecute()
    {
+      Log.d(TAG, "onPreExecute() " + this);
       mListener.setIndeterminate(true);
       mListener.started();
    }
@@ -72,17 +77,23 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    @Override
    protected void onPostExecute(Void result)
    {
-      mListener.finished(null);
+      Log.d(TAG, "onPostExecute() " + this);
+      this.updateTracksData(mAdapter.getBreadcrumbsTracks());
       mAdapter.finishedTask();
+      mListener.finished(null);
    }
-   
+
+   protected abstract void updateTracksData(BreadcrumbsTracks tracks);
+
    @Override
    protected void onCancelled()
    {
+      Log.d(TAG, "onCancelled() " + this);
       mListener.finished(null);
+      mAdapter.finishedTask();
       if (mErrorText != null && mException != null)
       {
-         mListener.showErrorDialog(mErrorText, mException);
+         mListener.showError(mErrorText, mException);
       }
       else if (mException != null)
       {

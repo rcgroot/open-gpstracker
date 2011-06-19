@@ -39,7 +39,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,6 +124,7 @@ public class BreadcrumbsTracks
     */
    private static Map<Integer, Map<String, String>> sTrackMappings = new HashMap<Integer, Map<String, String>>();
 
+   private static Set<Pair<Integer, Integer>> sScheduledTracksLoading = new HashSet<Pair<Integer,Integer>>();
    /**
     * Cache of OGT Tracks that have a Breadcrumbs track id stored in the
     * meta-data table
@@ -129,6 +132,7 @@ public class BreadcrumbsTracks
    private Map<Long, Integer> mSyncedTracks;
 
    private ContentResolver mResolver;
+
 
    /**
     * Constructor: create a new BreadcrumbsTracks.
@@ -229,9 +233,9 @@ public class BreadcrumbsTracks
     *  
     * @return
     */
-   public Set<Integer> getAllBundleIds()
+   public Integer[] getAllBundleIds()
    {
-      return sBundles.keySet();
+      return sBundles.keySet().toArray(new Integer[sBundles.keySet().size()]);
    }
 
    /**
@@ -258,6 +262,7 @@ public class BreadcrumbsTracks
       if (!sBundles.get(bundleId).contains(trackId))
       {
          sBundles.get(bundleId).add(trackId);
+         sScheduledTracksLoading.remove(Pair.create(Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE, trackId));
       }
 
       if (!sTrackMappings.containsKey(trackId))
@@ -292,7 +297,7 @@ public class BreadcrumbsTracks
 
    public boolean areTracksLoaded(Pair<Integer, Integer> item)
    {
-      return sBundles.containsKey(item.second);
+      return sBundles.containsKey(item.second) && item.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE;
    }
 
    public int positions()
@@ -513,27 +518,27 @@ public class BreadcrumbsTracks
       catch (OptionalDataException e)
       {
          clearPersistentCache(ctx);
-         Log.e(TAG, "Unable to read persisted breadcrumbs cache", e);
+         Log.w(TAG, "Unable to read persisted breadcrumbs cache", e);
       }
       catch (ClassNotFoundException e)
       {
          clearPersistentCache(ctx);
-         Log.e(TAG, "Unable to read persisted breadcrumbs cache", e);
+         Log.w(TAG, "Unable to read persisted breadcrumbs cache", e);
       }
       catch (IOException e)
       {
          clearPersistentCache(ctx);
-         Log.e(TAG, "Unable to read persisted breadcrumbs cache", e);
+         Log.w(TAG, "Unable to read persisted breadcrumbs cache", e);
       }
       catch (ClassCastException e)
       {
          clearPersistentCache(ctx);
-         Log.e(TAG, "Unable to read persisted breadcrumbs cache", e);
+         Log.w(TAG, "Unable to read persisted breadcrumbs cache", e);
       }
       catch (ArrayIndexOutOfBoundsException e)
       {
          clearPersistentCache(ctx);
-         Log.e(TAG, "Unable to read persisted breadcrumbs cache", e);
+         Log.w(TAG, "Unable to read persisted breadcrumbs cache", e);
       }
       finally
       {
@@ -624,6 +629,32 @@ public class BreadcrumbsTracks
    public void clearPersistentCache(Context ctx)
    {
       ctx.deleteFile(BREADCRUMSB_CACHE_FILE);
+   }
+
+   public void addTracksLoadingScheduled(Pair<Integer, Integer> item)
+   {
+      sScheduledTracksLoading.add(item);
+   }
+
+   public boolean areTracksLoadingScheduled(Pair<Integer, Integer> item)
+   {
+      return sScheduledTracksLoading.contains(item);
+   }
+
+   /**
+    * Cleans old bundles based a set of all bundles
+    * 
+    * @param mBundleIds
+    */
+   public void setAllBundleIds(Set<Integer> mBundleIds)
+   {
+      for( Integer oldBundleId : getAllBundleIds() )
+      {
+         if( !mBundleIds.contains(oldBundleId))
+         {
+            removeBundle(oldBundleId);
+         }
+      }
    }
 
 }

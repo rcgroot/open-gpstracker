@@ -591,6 +591,10 @@ public class ShareTrack extends Activity
          responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
          toast.show();
+         Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+         editor.remove(OAUTH_TOKEN);
+         editor.remove(OAUTH_TOKEN_SECRET);
+         editor.commit();
       }
       catch (OAuthExpectationFailedException e)
       {
@@ -598,6 +602,10 @@ public class ShareTrack extends Activity
          responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
          Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
          toast.show();
+         Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+         editor.remove(OAUTH_TOKEN);
+         editor.remove(OAUTH_TOKEN_SECRET);
+         editor.commit();
       }
       catch (OAuthCommunicationException e)
       {
@@ -645,6 +653,13 @@ public class ShareTrack extends Activity
          CharSequence text = getString(R.string.osm_failed) + responseText;
          Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
          toast.show();
+         if( statusCode == 401 )
+         {
+            Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            editor.remove(OAUTH_TOKEN);
+            editor.remove(OAUTH_TOKEN_SECRET);
+            editor.commit();
+         }
       }
    }
 
@@ -895,7 +910,7 @@ public class ShareTrack extends Activity
          endNotification(result);
       }
 
-      public void showErrorDialog(String errorDialogMessage, Exception errorDialogException)
+      public void showError(String errorDialogMessage, Exception errorDialogException)
       {
          endNotification(null);
          mErrorDialogMessage = errorDialogMessage;

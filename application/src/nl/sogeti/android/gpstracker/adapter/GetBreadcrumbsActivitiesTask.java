@@ -30,8 +30,10 @@ package nl.sogeti.android.gpstracker.adapter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
 
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import nl.sogeti.android.gpstracker.util.Pair;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -58,24 +60,23 @@ import android.util.Log;
 public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
 {
 
+   private LinkedList<Pair<Integer, String>> mActivities;
    final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
-   private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpClient;
-   
+
    /**
     * We pass the OAuth consumer and provider.
     * 
     * @param mContext Required to be able to start the intent to launch the
     *           browser.
-    * @param httpclient 
+    * @param httpclient
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
    public GetBreadcrumbsActivitiesTask(BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
-      super(listener, adapter);
-      mAdapter = adapter;
+      super(adapter, listener);
       mHttpClient = httpclient;
       mConsumer = consumer;
    }
@@ -87,13 +88,13 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
    @Override
    protected Void doInBackground(Void... params)
    {
-      BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
+      mActivities = new LinkedList<Pair<Integer,String>>(); 
       HttpEntity responseEntity = null;
       try
       {
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/activities.xml");         
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/activities.xml");
          mConsumer.sign(request);
-         if( isCancelled() )
+         if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
@@ -101,7 +102,6 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
          responseEntity = response.getEntity();
          InputStream stream = responseEntity.getContent();
 
-         
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
          factory.setNamespaceAware(true);
          XmlPullParser xpp = factory.newPullParser();
@@ -109,7 +109,7 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
 
          String tagName = null;
          int eventType = xpp.getEventType();
-         
+
          String activityName = null;
          Integer activityId = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
@@ -120,26 +120,26 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-               if( "activity".equals(xpp.getName()) && activityId != null && activityName != null )
+               if ("activity".equals(xpp.getName()) && activityId != null && activityName != null)
                {
-                  tracks.addActivity( activityId, activityName );
+                  mActivities.add(new Pair<Integer, String>(activityId, activityName));
                }
                tagName = null;
             }
             else if (eventType == XmlPullParser.TEXT)
             {
-               if( "id".equals(tagName) )
+               if ("id".equals(tagName))
                {
-                  activityId = Integer.parseInt(xpp.getText() );
+                  activityId = Integer.parseInt(xpp.getText());
                }
-               else if( "name".equals(tagName) )
+               else if ("name".equals(tagName))
                {
                   activityName = xpp.getText();
                }
             }
             eventType = xpp.next();
          }
-         Log.d( TAG, "Read inputstream from http response anything available: "+stream.read());
+         Log.d(TAG, "Read inputstream from http response anything available: " + stream.read());
       }
       catch (OAuthMessageSignerException e)
       {
@@ -171,12 +171,19 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
             }
             catch (IOException e)
             {
-               Log.e( TAG, "Failed to close the content stream", e);
+               Log.e(TAG, "Failed to close the content stream", e);
             }
          }
       }
       return null;
    }
    
-
+   @Override
+   protected void updateTracksData( BreadcrumbsTracks tracks )
+   {
+      for( Pair<Integer, String> activity : mActivities )
+      {
+        tracks.addActivity(activity.first, activity.second);
+      }
+   }
 }

@@ -51,5 +51,5 @@ public interface ProgressListener
 
    void finished(Uri result);
    
-   void showErrorDialog(String errorDialogMessage, Exception errorDialogException);
+   void showError(String errorMessage, Exception exception);
 }

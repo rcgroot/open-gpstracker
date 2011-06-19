@@ -54,7 +54,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -72,7 +71,7 @@ import android.widget.TextView;
 public class BreadcrumbsAdapter extends BaseAdapter
 {
    private static final String TAG = "OGT.BreadcrumbsAdapter";
-   
+
    public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
    public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
    /**
@@ -83,12 +82,11 @@ public class BreadcrumbsAdapter extends BaseAdapter
    boolean mAuthorized;
    private Context mContext;
    private LayoutInflater mInflater;
-   private CommonsHttpOAuthConsumer mConsumer;
    private BreadcrumbsTracks mTracks;
    private DefaultHttpClient mHttpClient;
 
-   private AsyncTask< ? , ? , ? > mOngoingTask;
-   private Queue<AsyncTask< ? , ? , ? >> mPlannedTasks;
+   private GetBreadcrumbsBundlesTask mPlannedBundleTask;
+   private Queue<GetBreadcrumbsTracksTask> mPlannedTrackTasks;
 
    private boolean mFinishing;
    private OnSharedPreferenceChangeListener tokenChangedListener;
@@ -107,7 +105,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mHttpClient = new DefaultHttpClient(cm);
 
       mTracks = new BreadcrumbsTracks(mContext.getContentResolver());
-      mPlannedTasks = new LinkedList<AsyncTask< ? , ? , ? >>();
+      mPlannedTrackTasks = new LinkedList<GetBreadcrumbsTracksTask>();
 
       connectionSetup();
    }
@@ -120,15 +118,14 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mAuthorized = !"".equals(token) && !"".equals(secret);
       if (mAuthorized)
       {
-         mConsumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
-         mConsumer.setTokenWithSecret(token, secret);
+
+         CommonsHttpOAuthConsumer consumer = instantiateOAuthConsumer();
 
          Date persisted = mTracks.readCache(mContext);
          if (persisted == null || persisted.getTime() < new Date().getTime() - CACHE_TIMEOUT)
          {
-            mPlannedTasks.add(new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, mConsumer));
-            mPlannedTasks.add(new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, mConsumer));
-            executeNextTask();
+            new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, consumer).execute();
+            mPlannedBundleTask = new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer);
          }
       }
       else
@@ -147,8 +144,16 @@ public class BreadcrumbsAdapter extends BaseAdapter
          prefs.registerOnSharedPreferenceChangeListener(tokenChangedListener);
       }
    }
-   
-   
+
+   private CommonsHttpOAuthConsumer instantiateOAuthConsumer()
+   {
+      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+      String token = prefs.getString(OAUTH_TOKEN, "");
+      String secret = prefs.getString(OAUTH_TOKEN_SECRET, "");
+      CommonsHttpOAuthConsumer consumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
+      consumer.setTokenWithSecret(token, secret);
+      return consumer;
+   }
 
    /*
     * (non-Javadoc)
@@ -289,9 +294,10 @@ public class BreadcrumbsAdapter extends BaseAdapter
          Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
          if (item.first == Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE)
          {
-            if (!mTracks.areTracksLoaded(item))
+            if (!mFinishing && !mTracks.areTracksLoaded(item) && !mTracks.areTracksLoadingScheduled(item))
             {
-               mPlannedTasks.add(new GetBreadcrumbsTracksTask(this, mListener, mHttpClient, mConsumer, item.second));
+               mPlannedTrackTasks.add(new GetBreadcrumbsTracksTask(this, mListener, mHttpClient, instantiateOAuthConsumer(), item.second));
+               mTracks.addTracksLoadingScheduled(item);
                executeNextTask();
             }
          }
@@ -323,49 +329,24 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    public synchronized void finishedTask()
    {
-      mOngoingTask = null;
       notifyDataSetChanged();
       executeNextTask();
    }
 
    private synchronized void executeNextTask()
    {
-      if (mPlannedTasks.size() > 0 && allTasksDone() && !mFinishing)
+      if (mPlannedBundleTask != null)
       {
-         Object next = mPlannedTasks.poll();
-         if (next instanceof GetBreadcrumbsActivitiesTask)
-         {
-            GetBreadcrumbsActivitiesTask task = (GetBreadcrumbsActivitiesTask) next;
-            mOngoingTask = task;
-            task.execute();
-         }
-         else if (next instanceof GetBreadcrumbsBundlesTask)
-         {
-            GetBreadcrumbsBundlesTask task = (GetBreadcrumbsBundlesTask) next;
-            mOngoingTask = task;
-            task.execute();
-         }
-         else if (next instanceof GetBreadcrumbsTracksTask)
+         mPlannedBundleTask.execute();
+         mPlannedBundleTask = null;
+      }
+      else
+      {
+         GetBreadcrumbsTracksTask next = mPlannedTrackTasks.poll();
+         if (next != null)
          {
             GetBreadcrumbsTracksTask task = (GetBreadcrumbsTracksTask) next;
-            mOngoingTask = task;
             task.execute();
-         }
-         else if (next instanceof DownloadBreadcrumbsTrackTask)
-         {
-            DownloadBreadcrumbsTrackTask task = (DownloadBreadcrumbsTrackTask) next;
-            mOngoingTask = task;
-            task.execute();
-         }
-         else if (next instanceof UploadBreadcrumbsTrackTask)
-         {
-            UploadBreadcrumbsTrackTask task = (UploadBreadcrumbsTrackTask) next;
-            mOngoingTask = task;
-            task.execute();
-         }
-         if (mOngoingTask != null && mOngoingTask instanceof GetBreadcrumbsTracksTask)
-         {
-            mPlannedTasks.clear();
          }
       }
    }
@@ -375,37 +356,27 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mAuthorized = false;
       notifyDataSetChanged();
       mFinishing = true;
-      if (mOngoingTask != null)
-      {
-         mOngoingTask.cancel(true);
-      }
-      if (allTasksDone())
-      {
-         mHttpClient.getConnectionManager().shutdown();
-         mHttpClient = null;
-      }
+      mPlannedBundleTask = null;
+      mPlannedTrackTasks.clear();
+      mHttpClient.getConnectionManager().shutdown();
+      mHttpClient = null;
+      
       if (tokenChangedListener != null)
       {
          PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
       }
+      
       mTracks.persistCache(mContext);
-   }
-
-   private synchronized boolean allTasksDone()
-   {
-      return mOngoingTask == null || mOngoingTask.getStatus() == AsyncTask.Status.FINISHED;
    }
 
    public void startDownloadTask(TrackList trackList, Pair<Integer, Integer> track)
    {
-      mPlannedTasks.add(new DownloadBreadcrumbsTrackTask(trackList, trackList, this, mHttpClient, mConsumer, track));
-      executeNextTask();
+      new DownloadBreadcrumbsTrackTask(trackList, trackList, this, mHttpClient, instantiateOAuthConsumer(), track).execute();
    }
 
    public void startUploadTask(TrackList trackList, Uri trackUri)
    {
-      mPlannedTasks.add(new UploadBreadcrumbsTrackTask(trackList, this, mHttpClient, mConsumer, trackUri));
-      executeNextTask();
+      new UploadBreadcrumbsTrackTask(trackList, this, mHttpClient, instantiateOAuthConsumer(), trackUri).execute();
    }
 
    public boolean isOnline()

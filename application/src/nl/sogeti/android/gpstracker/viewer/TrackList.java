@@ -638,7 +638,6 @@ public class TrackList extends ListActivity implements ProgressListener
    public void started()
    {
       mImportProgress.setVisibility(View.VISIBLE);
-
    }
 
    public void increaseProgress(int value)
@@ -652,7 +651,7 @@ public class TrackList extends ListActivity implements ProgressListener
       mImportProgress.setIndeterminate(false);
    }
 
-   public void showErrorDialog(String errorDialogMessage, Exception errorDialogException)
+   public void showError(String errorDialogMessage, Exception errorDialogException)
    {
       mImportProgress.setVisibility(View.GONE);
       mErrorDialogMessage = errorDialogMessage;

@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.adapter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
 
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import oauth.signpost.OAuthConsumer;
@@ -59,46 +60,43 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
 {
 
    final String TAG = "OGT.GetBreadcrumbsTracksTask";
-   private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
    private Integer mBundleId;
-   
+   private LinkedList<Object[]> mTracks;
+
    /**
     * We pass the OAuth consumer and provider.
     * 
     * @param mContext Required to be able to start the intent to launch the
     *           browser.
-    * @param httpclient 
+    * @param httpclient
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
    public GetBreadcrumbsTracksTask(BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer, Integer bundleId)
    {
-      super(listener, adapter);
-      mAdapter = adapter;
+      super(adapter, listener);
       mHttpclient = httpclient;
       mConsumer = consumer;
       mBundleId = bundleId;
    }
-   
+
    /**
     * Retrieve the OAuth Request Token and present a browser to the user to
     * authorize the token.
     */
-   @SuppressWarnings("deprecation")
    @Override
    protected Void doInBackground(Void... params)
    {
-      BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
+      mTracks = new LinkedList<Object[]>();
       HttpEntity responseEntity = null;
       try
       {
-         tracks.createTracks(mBundleId);
-         
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles/"+mBundleId+"/tracks.xml");
+
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles/" + mBundleId + "/tracks.xml");
          mConsumer.sign(request);
-         if( isCancelled() )
+         if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
@@ -106,7 +104,6 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
          responseEntity = response.getEntity();
          InputStream instream = responseEntity.getContent();
 
-         
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
          factory.setNamespaceAware(true);
          XmlPullParser xpp = factory.newPullParser();
@@ -114,8 +111,8 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
 
          String tagName = null;
          int eventType = xpp.getEventType();
-         
-         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null, trackRating = null, isPublic = null;;
+
+         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null, trackRating = null, isPublic = null;
          Integer trackId = null, bundleId = null, totalTime = null;
          Float lat = null, lng = null, totalDistance = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
@@ -126,62 +123,63 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-               if( "track".equals(xpp.getName()) && trackId != null && bundleId != null )
+               if ("track".equals(xpp.getName()) && trackId != null && bundleId != null)
                {
-                  tracks.addTrack( trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance, totalTime, trackRating );
+                  mTracks.add(new Object[] { trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance,
+                        totalTime, trackRating });
                }
                tagName = null;
             }
             else if (eventType == XmlPullParser.TEXT)
             {
-               if( "bundle-id".equals(tagName) )
+               if ("bundle-id".equals(tagName))
                {
-                  bundleId = Integer.parseInt(xpp.getText() );
+                  bundleId = Integer.parseInt(xpp.getText());
                }
-               else if( "description".equals(tagName) )
+               else if ("description".equals(tagName))
                {
                   description = xpp.getText();
                }
-               else if( "difficulty".equals(tagName) )
+               else if ("difficulty".equals(tagName))
                {
-                  difficulty = xpp.getText() ;
+                  difficulty = xpp.getText();
                }
-               else if( "start-time".equals(tagName) )
+               else if ("start-time".equals(tagName))
                {
                   startTime = xpp.getText();
                }
-               else if( "end-time".equals(tagName) )
+               else if ("end-time".equals(tagName))
                {
                   endTime = xpp.getText();
                }
-               else if( "id".equals(tagName) )
+               else if ("id".equals(tagName))
                {
-                  trackId = Integer.parseInt( xpp.getText() );
+                  trackId = Integer.parseInt(xpp.getText());
                }
-               else if( "is-public".equals(tagName) )
+               else if ("is-public".equals(tagName))
                {
                   isPublic = xpp.getText();
                }
-               else if( "lat".equals(tagName) )
+               else if ("lat".equals(tagName))
                {
-                  lat = Float.parseFloat( xpp.getText() );
+                  lat = Float.parseFloat(xpp.getText());
                }
-               else if( "lng".equals(tagName) )
+               else if ("lng".equals(tagName))
                {
-                  lng = Float.parseFloat( xpp.getText() );
+                  lng = Float.parseFloat(xpp.getText());
                }
-               else if( "name".equals(tagName) )
+               else if ("name".equals(tagName))
                {
                   trackName = xpp.getText();
                }
-               else if( "track-rating".equals(tagName) )
+               else if ("track-rating".equals(tagName))
                {
                   trackRating = xpp.getText();
                }
             }
             eventType = xpp.next();
          }
-         Log.d( TAG, "Read inputstream from http response anything available: "+instream.read());
+         Log.d(TAG, "Read inputstream from http response anything available: " + instream.read());
       }
       catch (OAuthMessageSignerException e)
       {
@@ -213,18 +211,35 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
             }
             catch (IOException e)
             {
-               Log.e( TAG, "Failed to close the content stream", e);
+               Log.e(TAG, "Failed to close the content stream", e);
             }
          }
       }
       return null;
    }
-   
-   @Override
-   protected void onPostExecute(Void result)
-   {
-      super.onPostExecute(result);
-      mAdapter.finishedTask();
-   }
 
+   @Override
+   protected void updateTracksData(BreadcrumbsTracks tracks)
+   {
+      tracks.createTracks(mBundleId);
+      for (Object[] track : mTracks)
+      {
+         Integer trackId = (Integer) track[0];
+         String trackName = (String) track[1];
+         Integer bundleId = (Integer) track[2];
+         String description = (String) track[3];
+         String difficulty = (String) track[4];
+         String startTime = (String) track[5];
+         String endTime = (String) track[6];
+         String isPublic = (String) track[7];
+         Float lat = (Float) track[8];
+         Float lng = (Float) track[9];
+         Float totalDistance = (Float) track[10];
+         Integer totalTime = (Integer) track[11];
+         String trackRating = (String) track[12];
+         
+         tracks.addTrack(trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance, totalTime, trackRating);
+      }
+
+   }
 }

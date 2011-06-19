@@ -30,6 +30,8 @@ package nl.sogeti.android.gpstracker.adapter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
@@ -60,9 +62,11 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
 {
 
    final String TAG = "OGT.GetBreadcrumbsBundlesTask";
-   private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
+   
+   private Set<Integer> mBundleIds;
+   private LinkedList<Object[]> mBundles;
 
    /**
     * We pass the OAuth consumer and provider.
@@ -76,8 +80,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
     */
    public GetBreadcrumbsBundlesTask(BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
-      super(listener, adapter);
-      mAdapter = adapter;
+      super(adapter, listener);
       mHttpclient = httpclient;
       mConsumer = consumer;
 
@@ -90,8 +93,9 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
    @Override
    protected Void doInBackground(Void... params)
    {
-      BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
       HttpEntity responseEntity = null;
+      mBundleIds = new HashSet<Integer>();
+      mBundles = new LinkedList<Object[]>();
       try
       {
          HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles.xml");
@@ -115,7 +119,6 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
 
          String bundleName = null, bundleDescription = null;
          Integer activityId = null, bundleId = null;
-         Set<Integer> cachedBundles = tracks.getAllBundleIds();
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
             if (eventType == XmlPullParser.START_TAG)
@@ -126,8 +129,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
             {
                if ("bundle".equals(xpp.getName()) && activityId != null && bundleId != null)
                {
-                  tracks.addBundle(activityId, bundleId, bundleName, bundleDescription);
-                  cachedBundles.remove(bundleId);
+                  mBundles.add( new Object[]{activityId, bundleId, bundleName, bundleDescription} );
                }
                tagName = null;
             }
@@ -144,6 +146,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
                else if ("id".equals(tagName))
                {
                   bundleId = Integer.parseInt(xpp.getText());
+                  mBundleIds.add(bundleId);
                }
                else if ("name".equals(tagName))
                {
@@ -151,10 +154,6 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
                }
             }
             eventType = xpp.next();
-         }
-         for (Integer deletedId : cachedBundles)
-         {
-            tracks.removeBundle(deletedId);
          }
          Log.d(TAG, "Read inputstream from http response anything available: " + instream.read());
       }
@@ -193,5 +192,21 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
          }
       }
       return null;
+   }
+
+   @Override
+   protected void updateTracksData(BreadcrumbsTracks tracks)
+   {
+      tracks.setAllBundleIds( mBundleIds );
+      
+      for( Object[] bundle : mBundles )
+      {
+         Integer activityId = (Integer) bundle[0];
+         Integer bundleId = (Integer) bundle[1];
+         String bundleName = (String) bundle[2];
+         String bundleDescription = (String) bundle[3];
+         
+         tracks.addBundle(activityId, bundleId, bundleName, bundleDescription);
+      }
    }
 }

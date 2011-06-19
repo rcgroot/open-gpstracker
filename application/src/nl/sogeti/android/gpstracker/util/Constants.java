@@ -176,7 +176,7 @@ public class Constants
    public static final String ACCESS_URL      = "http://api.gobreadcrumbs.com/oauth/access_token";
    public static final String AUTHORIZE_URL   = "http://api.gobreadcrumbs.com/oauth/authorize";
 
-   public static final String OSM_REQUEST_URL = "http://www.openstreetmap.org/oauth/request_token ";
+   public static final String OSM_REQUEST_URL = "http://www.openstreetmap.org/oauth/request_token";
    public static final String OSM_ACCESS_URL = "http://www.openstreetmap.org/oauth/access_token";
    public static final String OSM_AUTHORIZE_URL = "http://www.openstreetmap.org/oauth/authorize";
 
