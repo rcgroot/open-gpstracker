@@ -119,7 +119,6 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
          publishProgress(getMaximumProgress() / 4);
 
          trackUri = importTrack(fis, trackName);
-
       }
       catch (OAuthMessageSignerException e)
       {

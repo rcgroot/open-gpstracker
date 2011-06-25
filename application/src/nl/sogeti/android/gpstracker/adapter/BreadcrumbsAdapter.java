@@ -49,6 +49,7 @@ import org.apache.ogt.http.conn.scheme.SchemeRegistry;
 import org.apache.ogt.http.impl.client.DefaultHttpClient;
 import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -106,8 +107,6 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
       mTracks = new BreadcrumbsTracks(mContext.getContentResolver());
       mPlannedTrackTasks = new LinkedList<GetBreadcrumbsTracksTask>();
-
-      connectionSetup();
    }
 
    public void connectionSetup()
@@ -120,28 +119,13 @@ public class BreadcrumbsAdapter extends BaseAdapter
       {
 
          CommonsHttpOAuthConsumer consumer = instantiateOAuthConsumer();
-
          Date persisted = mTracks.readCache(mContext);
          if (persisted == null || persisted.getTime() < new Date().getTime() - CACHE_TIMEOUT)
          {
             new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, consumer).execute();
             mPlannedBundleTask = new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer);
          }
-      }
-      else
-      {
-         tokenChangedListener = new OnSharedPreferenceChangeListener()
-         {
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
-            {
-               if (OAUTH_TOKEN.equals(key))
-               {
-                  prefs.unregisterOnSharedPreferenceChangeListener(this);
-                  connectionSetup();
-               }
-            }
-         };
-         prefs.registerOnSharedPreferenceChangeListener(tokenChangedListener);
+         notifyDataSetChanged();
       }
    }
 
@@ -360,12 +344,12 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mPlannedTrackTasks.clear();
       mHttpClient.getConnectionManager().shutdown();
       mHttpClient = null;
-      
+
       if (tokenChangedListener != null)
       {
          PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
       }
-      
+
       mTracks.persistCache(mContext);
    }
 
@@ -384,8 +368,27 @@ public class BreadcrumbsAdapter extends BaseAdapter
       return mAuthorized;
    }
 
-   public void requestBreadcrumbsOauthToken()
+   public void requestBreadcrumbsOauthToken(final Activity activity)
    {
+      tokenChangedListener = new OnSharedPreferenceChangeListener()
+      {
+         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
+         {
+            if (OAUTH_TOKEN.equals(key))
+            {
+               PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
+               activity.runOnUiThread(new Runnable()
+               {
+                  public void run()
+                  {
+                     connectionSetup();
+                  }
+               });
+            }
+         }
+      };
+      PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(tokenChangedListener);
+      
       Intent i = new Intent(mContext.getApplicationContext(), PrepareRequestTokenActivity.class);
       i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
       i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);

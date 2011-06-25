@@ -71,7 +71,7 @@ import android.util.Log;
 public class UploadBreadcrumbsTrackTask extends GpxCreator
 {
 
-   final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
+   final String TAG = "OGT.UploadBreadcrumbsTrackTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpClient;
@@ -281,10 +281,13 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       metaValues.add(buildContentValues(BreadcrumbsTracks.BUNDLE_ID, mBundleId));
       metaValues.add(buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, mActivityId));
       
+      // Store in OGT provider
       ContentResolver resolver = mContext.getContentResolver();
       resolver.bulkInsert(metadataUri, metaValues.toArray(new ContentValues[1]));
       
+      // Store in Breadcrumbs adapter
       tracks.addSyncedTrack(new Long( mTrackUri.getLastPathSegment()), bcTrackId);
+      
       mAdapter.finishedTask();
       
       super.onPostExecute(result);

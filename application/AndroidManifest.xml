@@ -159,6 +159,8 @@
          
 		<activity 
 		    android:name=".oauth.PrepareRequestTokenActivity"
+            android:theme="@android:style/Theme.Dialog"
+            android:label="@string/authentication_redirect"
 			android:launchMode="singleTask">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />

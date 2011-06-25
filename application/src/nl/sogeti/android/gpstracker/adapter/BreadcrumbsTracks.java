@@ -419,6 +419,10 @@ public class BreadcrumbsTracks
 
    public void addSyncedTrack(Long trackId, Integer bcTrackId)
    {
+      if( mSyncedTracks == null )
+      {
+         isLocalTrackOnline(-1l);
+      }
       mSyncedTracks.put(trackId, bcTrackId);
    }
 
@@ -467,7 +471,6 @@ public class BreadcrumbsTracks
       for (Integer activityId : sActivityMappings.keySet())
       {
          if (selectedItem.equals(sActivityMappings.get(activityId).get(NAME)))
-         ;
          {
             return activityId;
          }
@@ -480,7 +483,6 @@ public class BreadcrumbsTracks
       for (Integer bundleId : sBundleMappings.keySet())
       {
          if (selectedItem.equals(sBundleMappings.get(bundleId).get(NAME)))
-         ;
          {
             return bundleId;
          }
@@ -507,12 +509,17 @@ public class BreadcrumbsTracks
 
          Object[] cache = (Object[]) ois.readObject();
          // { activities, bundles, activityMappings, bundleMappings, trackMappings }
-         sActivities = (Map<Integer, List<Integer>>) cache[1];
-         sBundles = (Map<Integer, List<Integer>>) cache[2];
-         sActivityMappings = (Map<Integer, Map<String, String>>) cache[3];
-         sBundleMappings = (Map<Integer, Map<String, String>>) cache[4];
-         sTrackMappings = (Map<Integer, Map<String, String>>) cache[5];
-
+         Map<Integer, List<Integer>> activities = (Map<Integer, List<Integer>>) cache[1];
+         sActivities = activities != null ? activities : sActivities ;
+         Map<Integer, List<Integer>> bundles = (Map<Integer, List<Integer>>) cache[2];
+         sBundles = bundles != null ? bundles : sBundles ;
+         Map<Integer, Map<String, String>> activitymappings = (Map<Integer, Map<String, String>>) cache[3];
+         sActivityMappings = activitymappings != null ? activitymappings : sActivityMappings ;
+         Map<Integer, Map<String, String>> bundlemappings = (Map<Integer, Map<String, String>>) cache[4];
+         sBundleMappings = bundlemappings != null ? bundlemappings : sBundleMappings ;
+         Map<Integer, Map<String, String>> trackmappings = (Map<Integer, Map<String, String>>) cache[5];
+         sTrackMappings = trackmappings != null ? trackmappings : sTrackMappings ;
+       
          persisted = (Date) cache[0];
       }
       catch (OptionalDataException e)

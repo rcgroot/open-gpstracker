@@ -106,10 +106,11 @@ public class TrackList extends ListActivity implements ProgressListener
    private Uri mDialogUri;
    private String mDialogCurrentName = "";
 
-   private Uri mImportFileUri;
    private ProgressBar mImportProgress;
    private String mErrorDialogMessage;
    private Exception mErrorDialogException;
+
+   private Runnable mImportAction;
 
    private OnClickListener mDeleteOnClickListener = new DialogInterface.OnClickListener()
    {
@@ -142,7 +143,7 @@ public class TrackList extends ListActivity implements ProgressListener
    {
       public void onClick(DialogInterface dialog, int which)
       {
-         new GpxParser(TrackList.this, TrackList.this).execute(mImportFileUri);
+         mImportAction.run();
       }
    };
    private final DialogInterface.OnClickListener mOiPickerDialogListener = new DialogInterface.OnClickListener()
@@ -163,6 +164,7 @@ public class TrackList extends ListActivity implements ProgressListener
          }
       }
    };
+   private Object mImportTrackName;
 
    @Override
    protected void onCreate(Bundle savedInstanceState)
@@ -171,9 +173,8 @@ public class TrackList extends ListActivity implements ProgressListener
 
       this.setContentView(R.layout.tracklist);
       mImportProgress = (ProgressBar) findViewById(R.id.importProgress);
-      
-      displayIntent(getIntent());
 
+      displayIntent(getIntent());
 
       ListView listView = getListView();
       listView.setItemsCanFocus(true);
@@ -284,16 +285,25 @@ public class TrackList extends ListActivity implements ProgressListener
       {
          if (Constants.BREADCRUMBS_CONNECT.equals(item))
          {
-            mBreadcrumbAdapter.requestBreadcrumbsOauthToken();
+            mBreadcrumbAdapter.requestBreadcrumbsOauthToken(this);
          }
       }
       else if (item instanceof Pair< ? , ? >)
       {
          @SuppressWarnings("unchecked")
-         Pair<Integer, Integer> track = (Pair<Integer, Integer>) item;
+         final Pair<Integer, Integer> track = (Pair<Integer, Integer>) item;
          if (track.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE)
          {
-            mBreadcrumbAdapter.startDownloadTask(this, track);
+            TextView tv = (TextView) view.findViewById(R.id.listitem_name);
+            mImportTrackName = tv.getText();
+            mImportAction = new Runnable()
+            {
+               public void run()
+               {
+                  mBreadcrumbAdapter.startDownloadTask(TrackList.this, track);
+               }
+            };
+            showDialog(DIALOG_IMPORT);
          }
       }
       else
@@ -426,7 +436,7 @@ public class TrackList extends ListActivity implements ProgressListener
             return dialog;
          case DIALOG_IMPORT:
             builder = new AlertDialog.Builder(TrackList.this).setTitle(R.string.dialog_import_title)
-                  .setMessage(getString(R.string.dialog_import_message, mImportFileUri.getLastPathSegment())).setIcon(android.R.drawable.ic_dialog_alert)
+                  .setMessage(getString(R.string.dialog_import_message, mImportTrackName)).setIcon(android.R.drawable.ic_dialog_alert)
                   .setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, mImportOnClickListener);
             dialog = builder.create();
             return dialog;
@@ -483,8 +493,7 @@ public class TrackList extends ListActivity implements ProgressListener
          switch (requestCode)
          {
             case PICKER_OI:
-               mImportFileUri = data.getData();
-               new GpxParser(TrackList.this, TrackList.this).execute(mImportFileUri);
+               new GpxParser(TrackList.this, TrackList.this).execute(data.getData());
                break;
             case DESCRIBE:
                Uri trackUri = data.getData();
@@ -509,7 +518,7 @@ public class TrackList extends ListActivity implements ProgressListener
       }
       else if (Intent.ACTION_VIEW.equals(queryAction))
       {
-         Uri uri = intent.getData();
+         final Uri uri = intent.getData();
          if ("content".equals(uri.getScheme()) && GPStracking.AUTHORITY.equals(uri.getAuthority()))
          {
             // Got to VIEW a single track, instead hand it of to the LoggerMap
@@ -520,8 +529,16 @@ public class TrackList extends ListActivity implements ProgressListener
          }
          else if (uri.getScheme().equals("file") || uri.getScheme().equals("content"))
          {
+
+            mImportTrackName = uri.getLastPathSegment();
             // Got to VIEW a GPX filename
-            mImportFileUri = uri;
+            mImportAction = new Runnable()
+            {
+               public void run()
+               {
+                  new GpxParser(TrackList.this, TrackList.this).execute(uri);
+               }
+            };
             showDialog(DIALOG_IMPORT);
             tracksCursor = managedQuery(Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, orderby);
          }
@@ -553,12 +570,9 @@ public class TrackList extends ListActivity implements ProgressListener
       if (mBreadcrumbAdapter == null)
       {
          mBreadcrumbAdapter = new BreadcrumbsAdapter(this, this);
-      }
-      else
-      {
          mBreadcrumbAdapter.connectionSetup();
-         mBreadcrumbAdapter.notifyDataSetChanged();
       }
+
       sectionedAdapter.addSection("GoBreadcrumbs", mBreadcrumbAdapter);
 
       // Enrich the track adapter with Breadcrumbs adapter data 
@@ -591,7 +605,7 @@ public class TrackList extends ListActivity implements ProgressListener
                         if (isChecked)
                         {
                            Log.d(TAG, "View" + buttonView + " track id " + trackId);
-                           
+
                            buttonView.setEnabled(false);
                            // Start a naming of the track
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
@@ -624,7 +638,7 @@ public class TrackList extends ListActivity implements ProgressListener
    }
 
    /*******************************************************************/
-   /** ProgressListener interface and UI actions (non-Javadoc)       **/
+   /** ProgressListener interface and UI actions (non-Javadoc) **/
    /*******************************************************************/
 
    public void setIndeterminate(boolean indeterminate)

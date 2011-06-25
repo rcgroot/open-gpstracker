@@ -28,6 +28,7 @@
  */
 package nl.sogeti.android.gpstracker.oauth;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
@@ -41,6 +42,7 @@ import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.TextView;
 
 /**
  * Prepares a OAuthConsumer and OAuthProvider OAuthConsumer is configured with
@@ -103,7 +105,8 @@ public class PrepareRequestTokenActivity extends Activity
    public void onCreate(Bundle savedInstanceState)
    {
       super.onCreate(savedInstanceState);
-
+      setContentView(R.layout.oauthentication);
+      
       String key        = getIntent().getStringExtra(CONSUMER_KEY);
       String secret     = getIntent().getStringExtra(CONSUMER_SECRET);
       
@@ -111,13 +114,15 @@ public class PrepareRequestTokenActivity extends Activity
       String accessUrl  = getIntent().getStringExtra(ACCESS_URL);
       String authUrl    = getIntent().getStringExtra(AUTHORIZE_URL);
       
+      TextView tv = (TextView) findViewById(R.id.detail);
+      tv.setText(requestUrl);
+      
       mTokenKey  = getIntent().getStringExtra(OAUTH_TOKEN_PREF); 
       mSecretKey = getIntent().getStringExtra(OAUTH_TOKEN_SECRET_PREF); 
       
       this.consumer = new CommonsHttpOAuthConsumer(key, secret);
       this.provider = new CommonsHttpOAuthProvider(requestUrl, accessUrl, authUrl);
 
-      Log.i(TAG, "Starting task to retrieve request token.");
       mTask = new OAuthRequestTokenTask(this, consumer, provider);
       mTask.execute();
    }

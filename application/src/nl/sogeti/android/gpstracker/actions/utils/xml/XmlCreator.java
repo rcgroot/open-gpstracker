@@ -39,6 +39,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.CancellationException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -394,7 +395,8 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       Log.e(TAG, "Unable to save ", e);
       mException = e;
       mErrorText = text;
-      cancel(true);
+      cancel(false);
+      throw new CancellationException(text);
    }
    
    @Override
