@@ -159,23 +159,23 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       }
       catch (OAuthMessageSignerException e)
       {
-         handleError(e, "TODO");
+         handleError(e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
-         handleError(e, "TODO");
+         handleError(e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
-         handleError(e, "TODO");
+         handleError(e, "The authentication communication failed");
       }
       catch (IOException e)
       {
-         handleError(e, "TODO");
+         handleError(e, "A problem during communication");
       }
       catch (XmlPullParserException e)
       {
-         handleError(e, "TODO");
+         handleError(e, "A problem while reading the XML data");
       }
       finally
       {

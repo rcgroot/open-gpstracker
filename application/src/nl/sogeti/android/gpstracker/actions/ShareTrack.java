@@ -910,7 +910,7 @@ public class ShareTrack extends Activity
          endNotification(result);
       }
 
-      public void showError(String errorDialogMessage, Exception errorDialogException)
+      public void showError(String task, String errorDialogMessage, Exception errorDialogException)
       {
          endNotification(null);
          mErrorDialogMessage = errorDialogMessage;

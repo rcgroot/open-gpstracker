@@ -43,6 +43,7 @@ import java.util.concurrent.CancellationException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
@@ -423,6 +424,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    {
       Log.d( TAG, "onCancelled()");
       mProgressListener.finished(null);
-      mProgressListener.showError(mErrorText, mException);
+      mProgressListener.showError(mContext.getString(R.string.taskerror_xml_write), mErrorText, mException);
    }
 }

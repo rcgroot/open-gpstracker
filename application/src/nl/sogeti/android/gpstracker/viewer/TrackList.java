@@ -164,7 +164,8 @@ public class TrackList extends ListActivity implements ProgressListener
          }
       }
    };
-   private Object mImportTrackName;
+   private String mImportTrackName;
+   private String mErrorTask;
 
    @Override
    protected void onCreate(Bundle savedInstanceState)
@@ -295,7 +296,7 @@ public class TrackList extends ListActivity implements ProgressListener
          if (track.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE)
          {
             TextView tv = (TextView) view.findViewById(R.id.listitem_name);
-            mImportTrackName = tv.getText();
+            mImportTrackName = tv.getText().toString();
             mImportAction = new Runnable()
             {
                public void run()
@@ -466,6 +467,7 @@ public class TrackList extends ListActivity implements ProgressListener
    {
       super.onPrepareDialog(id, dialog);
       AlertDialog alert;
+      String message;
       switch (id)
       {
          case DIALOG_RENAME:
@@ -475,13 +477,19 @@ public class TrackList extends ListActivity implements ProgressListener
          case DIALOG_DELETE:
             alert = (AlertDialog) dialog;
             String messageFormat = this.getResources().getString(R.string.dialog_delete_message);
-            String message = String.format(messageFormat, mDialogCurrentName);
+            message = String.format(messageFormat, mDialogCurrentName);
             alert.setMessage(message);
             break;
          case DIALOG_ERROR:
             alert = (AlertDialog) dialog;
-            alert.setMessage(mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ");
+            message = "Failed task:\n"+mErrorTask;
+            message += "\n\n";
+            message += "Reason:\n"+mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ";            
+            alert.setMessage(message);
             break;
+         case DIALOG_IMPORT:
+            alert = (AlertDialog) dialog;
+            alert.setMessage(getString(R.string.dialog_import_message, mImportTrackName));
       }
    }
 
@@ -667,12 +675,20 @@ public class TrackList extends ListActivity implements ProgressListener
       mImportProgress.setIndeterminate(false);
    }
 
-   public void showError(String errorDialogMessage, Exception errorDialogException)
+   public void showError(String task, String errorDialogMessage, Exception errorDialogException)
    {
       mImportProgress.setVisibility(View.GONE);
+      mErrorTask = task;
       mErrorDialogMessage = errorDialogMessage;
       mErrorDialogException = errorDialogException;
-      showDialog(DIALOG_ERROR);
+      if( !isFinishing() )
+      {
+         showDialog(DIALOG_ERROR);
+      }
+      else
+      {
+         Log.e(TAG, errorDialogMessage, errorDialogException );
+      }
    }
 
 }

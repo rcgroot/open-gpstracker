@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.adapter;
 
 import java.util.LinkedList;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -93,7 +94,7 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
       mAdapter.finishedTask();
       if (mErrorText != null && mException != null)
       {
-         mListener.showError(mErrorText, mException);
+         mListener.showError("retrieving data from GoBreadcrumbs", mErrorText, mException);
       }
       else if (mException != null)
       {

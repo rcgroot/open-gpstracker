@@ -142,9 +142,9 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    }
 
    /**
+    * Read a stream containing GPX XML into the OGT content provider 
     * 
-    * TODO
-    * @param fis opened stream te read from, will be closed after this call
+    * @param fis opened stream the read from, will be closed after this call
     * @param trackName
     * @return
     */
@@ -426,7 +426,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    @Override
    protected void onCancelled()
    {
-      mProgressListener.showError(mErrorDialogMessage, mErrorDialogException);
+      mProgressListener.showError(mContext.getString(R.string.taskerror_gpx_import), mErrorDialogMessage, mErrorDialogException);
    }
 
    /**

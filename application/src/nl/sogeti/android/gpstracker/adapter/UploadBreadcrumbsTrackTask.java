@@ -54,6 +54,7 @@ import org.apache.ogt.http.entity.mime.MultipartEntity;
 import org.apache.ogt.http.entity.mime.content.StringBody;
 import org.apache.ogt.http.impl.client.DefaultHttpClient;
 import org.apache.ogt.http.util.EntityUtils;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -208,26 +209,22 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
             trackUri = Uri.parse("http://api.gobreadcrumbs.com/v1/tracks/"+m.group(1)+"/placemarks.gpx");
          }
       }
-      catch (IOException e)
-      {
-         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
-         handleError( e, text );
-      }
       catch (OAuthMessageSignerException e)
       {
-         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
-         handleError( e, text );
+         handleError(e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
-         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
-         handleError( e, text );
+         handleError(e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
-         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
-         handleError( e, text );
-      }      
+         handleError(e, "The authentication communication failed");
+      }
+      catch (IOException e)
+      {
+         handleError(e, "A problem during communication");
+      }
       finally
       {
          if (responseEntity != null)

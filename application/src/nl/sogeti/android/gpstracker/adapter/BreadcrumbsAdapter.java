@@ -122,8 +122,15 @@ public class BreadcrumbsAdapter extends BaseAdapter
          Date persisted = mTracks.readCache(mContext);
          if (persisted == null || persisted.getTime() < new Date().getTime() - CACHE_TIMEOUT)
          {
-            new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, consumer).execute();
-            mPlannedBundleTask = new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer);
+            if( persisted != null && persisted.getTime() < new Date().getTime() - (6*60*24 * CACHE_TIMEOUT))
+            {
+               new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, consumer).execute();
+               mPlannedBundleTask = new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer);
+            }
+            else
+            {
+               new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer).execute();
+            }
          }
          notifyDataSetChanged();
       }

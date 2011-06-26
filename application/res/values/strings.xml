@@ -64,6 +64,10 @@
     <string name="dialog_bundle">Bundle: %1$s</string>
     <string name="authentication_redirect">Placing authentication request</string>
     <string name="loading">Loading...</string>
+    <string name="no_information_available">No information available.</string>
+    <string name="taskerror_gpx_import">Importing GPX data</string>
+    <string name="taskerror_xml_write">Writing XML data</string>
+    <string name="taskerror_breadcrumbs">Retrieving data from GoBreadcrumbs</string>
     <string name="dialog_contrib_message">
     <b>Code</b>
     \n
@@ -232,7 +236,5 @@
    About information
    ***************************-->
    <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
-   <string name="about_activity_name_extended">About %s</string>
-   <string name="no_information_available">No information available.</string>
-   
+   <string name="about_activity_name_extended">About %s</string>   
 </resources>
