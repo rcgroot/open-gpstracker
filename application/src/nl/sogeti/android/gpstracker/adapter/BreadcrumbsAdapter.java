@@ -344,20 +344,22 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    public synchronized void shutdown()
    {
+      if (tokenChangedListener != null)
+      {
+         PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
+      }
       mAuthorized = false;
-      notifyDataSetChanged();
       mFinishing = true;
       mPlannedBundleTask = null;
       mPlannedTrackTasks.clear();
       mHttpClient.getConnectionManager().shutdown();
       mHttpClient = null;
 
-      if (tokenChangedListener != null)
-      {
-         PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
-      }
+
 
       mTracks.persistCache(mContext);
+      mTracks = null;
+      notifyDataSetChanged();
    }
 
    public void startDownloadTask(TrackList trackList, Pair<Integer, Integer> track)
