@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.concurrent.CancellationException;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
@@ -388,12 +389,19 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
       return dateTime;
    }
 
-   protected void handleError(Exception e, String text)
+   /**
+    * 
+    * TODO
+    * @param e
+    * @param text
+    */
+   protected void handleError(Exception dialogException, String dialogErrorMessage)
    {
-      Log.e(TAG, "Unable to save ", e);
-      mErrorDialogException = e;
-      mErrorDialogMessage = text;
-      cancel(true);
+      Log.e(TAG, "Unable to save ", dialogException);
+      mErrorDialogException = dialogException;
+      mErrorDialogMessage = dialogErrorMessage;
+      cancel(false);
+      throw new CancellationException(dialogErrorMessage);
    }
    
    @Override

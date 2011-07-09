@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.actions.tasks;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.CancellationException;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ShareTrack;
@@ -47,6 +48,7 @@ import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
 import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.HttpException;
 import org.apache.ogt.http.HttpResponse;
 import org.apache.ogt.http.client.methods.HttpPost;
 import org.apache.ogt.http.entity.mime.HttpMultipartMode;
@@ -56,8 +58,8 @@ import org.apache.ogt.http.entity.mime.content.StringBody;
 import org.apache.ogt.http.impl.client.DefaultHttpClient;
 import org.apache.ogt.http.util.EntityUtils;
 
+import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -79,28 +81,43 @@ public class OsmSharing extends GpxCreator
    public static final String OAUTH_TOKEN = "openstreetmap_oauth_token";
    public static final String OAUTH_TOKEN_SECRET = "openstreetmap_oauth_secret";
    private static final String TAG = "OGT.OsmSharing";
+   public static final String OSM_FILENAME = "OSM_Trace";
+   private String responseText;
+   private Uri mFileUri;
 
-   public OsmSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener listener)
+   public OsmSharing(Activity context, Uri trackUri, boolean attachments, ProgressListener listener)
    {
-      super(context, trackUri, chosenBaseFileName, attachments, listener);
+      super(context, trackUri, OSM_FILENAME, attachments, listener);
+   }
+   
+   public void resumeOsmSharing(Uri fileUri, Uri trackUri)
+   {
+      mFileUri = fileUri;
+      mTrackUri = trackUri;
+      execute();
    }
 
    @Override
    protected Uri doInBackground(Void... params)
    {
-      Uri fileUri = super.doInBackground(params);
-      sendToOsm(fileUri, mTrackUri);
-      return fileUri;
+      if( mFileUri == null )
+      {
+         mFileUri = super.doInBackground(params);
+      }
+      sendToOsm(mFileUri, mTrackUri);
+      return mFileUri;
    }
    
    @Override
    protected void onPostExecute(Uri resultFilename)
    {
       super.onPostExecute(resultFilename);
+      
+      CharSequence text = mContext.getString(R.string.osm_success) + responseText;
+      Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
+      toast.show();
    }
    
-
-
    /**
     * POST a (GPX) file to the 0.6 API of the OpenStreetMap.org website
     * publishing this track to the public.
@@ -113,8 +130,8 @@ public class OsmSharing extends GpxCreator
       CommonsHttpOAuthConsumer consumer = osmConnectionSetup();
       if( consumer == null )
       {
-         requestOpenstreetmapOauthToken(mContext);
-         return;
+         requestOpenstreetmapOauthToken();
+         handleError(null, mContext.getString(R.string.osmauth_message));
       }
       
       String visibility = PreferenceManager.getDefaultSharedPreferences(mContext).getString(Constants.OSM_VISIBILITY, "trackable");
@@ -123,7 +140,6 @@ public class OsmSharing extends GpxCreator
       String url = mContext.getString(R.string.osm_post_url);
       DefaultHttpClient httpclient = new DefaultHttpClient();
       HttpResponse response = null;
-      String responseText = "";
       int statusCode = 0;
       Cursor metaData = null;
       String sources = null;
@@ -164,39 +180,38 @@ public class OsmSharing extends GpxCreator
       }
       catch (OAuthMessageSignerException e)
       {
-         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
-         responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(mContext, responseText, Toast.LENGTH_LONG);
-         toast.show();
          Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
          editor.remove(OAUTH_TOKEN);
          editor.remove(OAUTH_TOKEN_SECRET);
          editor.commit();
+         
+         responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
+         handleError(e, responseText);
       }
       catch (OAuthExpectationFailedException e)
       {
-         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
-         responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(mContext, responseText, Toast.LENGTH_LONG);
-         toast.show();
          Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
          editor.remove(OAUTH_TOKEN);
          editor.remove(OAUTH_TOKEN_SECRET);
          editor.commit();
+         
+         responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
+         handleError(e, responseText);
       }
       catch (OAuthCommunicationException e)
       {
-         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
+         Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
+         editor.remove(OAUTH_TOKEN);
+         editor.remove(OAUTH_TOKEN_SECRET);
+         editor.commit();
+         
          responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(mContext, responseText, Toast.LENGTH_LONG);
-         toast.show();
+         handleError(e, responseText);
       }
       catch (IOException e)
       {
-         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
          responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(mContext, responseText, Toast.LENGTH_LONG);
-         toast.show();
+         handleError(e, responseText);
       }
       finally
       {
@@ -217,19 +232,10 @@ public class OsmSharing extends GpxCreator
          }
       }
 
-      if (statusCode == 200)
-      {
-         Log.i(TAG, responseText);
-         CharSequence text = mContext.getString(R.string.osm_success) + responseText;
-         Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
-         toast.show();
-      }
-      else
+      if (statusCode != 200)
       {
          Log.e(TAG, "Failed to upload to error code " + statusCode + " " + responseText);
-         CharSequence text = mContext.getString(R.string.osm_failed) + responseText;
-         Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
-         toast.show();
+         String text = mContext.getString(R.string.osm_failed) + responseText;
          if( statusCode == 401 )
          {
             Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
@@ -237,6 +243,8 @@ public class OsmSharing extends GpxCreator
             editor.remove(OAUTH_TOKEN_SECRET);
             editor.commit();
          }
+         
+         handleError( new HttpException("Unexpected status reported by OSM"), text);
       }
    }
    
@@ -295,20 +303,18 @@ public class OsmSharing extends GpxCreator
       return tags.toString();
    }
 
-   public static void requestOpenstreetmapOauthToken(Context context)
+   public void requestOpenstreetmapOauthToken()
    {
-      Intent i = new Intent(context.getApplicationContext(), PrepareRequestTokenActivity.class);
-      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
-      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
+      Intent intent = new Intent(mContext.getApplicationContext(), PrepareRequestTokenActivity.class);
+      intent.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
+      intent.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
 
-      i.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, context.getString(R.string.OSM_CONSUMER_KEY));
-      i.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, context.getString(R.string.OSM_CONSUMER_SECRET));
-      i.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.OSM_REQUEST_URL);
-      i.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.OSM_ACCESS_URL);
-      i.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.OSM_AUTHORIZE_URL);
+      intent.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, mContext.getString(R.string.OSM_CONSUMER_KEY));
+      intent.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, mContext.getString(R.string.OSM_CONSUMER_SECRET));
+      intent.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.OSM_REQUEST_URL);
+      intent.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.OSM_ACCESS_URL);
+      intent.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.OSM_AUTHORIZE_URL);
 
-      context.startActivity(i);
-   }
-
-   
+      mContext.startActivity(intent);
+   }  
 }

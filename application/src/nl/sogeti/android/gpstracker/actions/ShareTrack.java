@@ -73,6 +73,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 public class ShareTrack extends Activity
 {
@@ -196,7 +197,6 @@ public class ShareTrack extends Activity
          editor.remove(Constants.OSM_USERNAME);
          editor.remove(Constants.OSM_PASSWORD);
          editor.commit();
-         OsmSharing.requestOpenstreetmapOauthToken(this);
       }
    }
    
@@ -218,8 +218,9 @@ public class ShareTrack extends Activity
             return dialog;
          case DIALOG_ERROR:
             builder = new AlertDialog.Builder(this);
+            String exceptionMessage =  mErrorDialogException == null ? "" :  " (" + mErrorDialogException.getMessage() + ") "; 
             builder.setIcon(android.R.drawable.ic_dialog_alert).setTitle(android.R.string.dialog_alert_title)
-                  .setMessage(mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ").setNeutralButton(android.R.string.cancel, null);
+                  .setMessage(mErrorDialogMessage + exceptionMessage).setNeutralButton(android.R.string.cancel, null);
             dialog = builder.create();
             return dialog;
          default:
@@ -239,7 +240,8 @@ public class ShareTrack extends Activity
       {
          case DIALOG_ERROR:
             alert = (AlertDialog) dialog;
-            alert.setMessage(mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ");
+            String exceptionMessage =  mErrorDialogException == null ? "" :  " (" + mErrorDialogException.getMessage() + ") ";
+            alert.setMessage(mErrorDialogMessage + exceptionMessage);
             break;
       }
    }
@@ -338,7 +340,7 @@ public class ShareTrack extends Activity
             new JogmapSharing(this, mTrackUri, chosenFileName, false, new ShareProgressListener(chosenFileName)).execute();
             break;
          case EXPORT_TARGET_OSM:
-            new OsmSharing(this, mTrackUri, chosenFileName, false, new ShareProgressListener(chosenFileName)).execute();
+            new OsmSharing(this, mTrackUri, false, new ShareProgressListener(OsmSharing.OSM_FILENAME)).execute();
             break;
          case EXPORT_TARGET_BREADCRUMBS:
             sendToBreadcrumbs(mTrackUri);
@@ -596,9 +598,18 @@ public class ShareTrack extends Activity
       public void showError(String task, String errorDialogMessage, Exception errorDialogException)
       {
          endNotification(null);
+
          mErrorDialogMessage = errorDialogMessage;
          mErrorDialogException = errorDialogException;
-         showDialog(DIALOG_ERROR);
+         if( !isFinishing() )
+         {
+            showDialog(DIALOG_ERROR);
+         }
+         else
+         {
+            Toast toast = Toast.makeText(ShareTrack.this, errorDialogMessage, Toast.LENGTH_LONG);
+            toast.show();
+         }
       }
 
    }
