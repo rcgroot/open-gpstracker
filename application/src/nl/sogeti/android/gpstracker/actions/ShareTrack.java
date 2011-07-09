@@ -28,51 +28,22 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxCreator;
-import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
+import nl.sogeti.android.gpstracker.actions.tasks.GpxSharing;
+import nl.sogeti.android.gpstracker.actions.tasks.JogmapSharing;
 import nl.sogeti.android.gpstracker.actions.tasks.KmzCreator;
-import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
+import nl.sogeti.android.gpstracker.actions.tasks.KmzSharing;
+import nl.sogeti.android.gpstracker.actions.tasks.OsmSharing;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
-import nl.sogeti.android.gpstracker.adapter.tasks.UploadBreadcrumbsTrackTask;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
-import nl.sogeti.android.gpstracker.viewer.TrackList;
-import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-
-import org.apache.ogt.http.HttpEntity;
-import org.apache.ogt.http.HttpResponse;
-import org.apache.ogt.http.client.HttpClient;
-import org.apache.ogt.http.client.methods.HttpPost;
-import org.apache.ogt.http.conn.ClientConnectionManager;
-import org.apache.ogt.http.conn.scheme.PlainSocketFactory;
-import org.apache.ogt.http.conn.scheme.Scheme;
-import org.apache.ogt.http.conn.scheme.SchemeRegistry;
-import org.apache.ogt.http.entity.mime.HttpMultipartMode;
-import org.apache.ogt.http.entity.mime.MultipartEntity;
-import org.apache.ogt.http.entity.mime.content.FileBody;
-import org.apache.ogt.http.entity.mime.content.StringBody;
-import org.apache.ogt.http.impl.client.DefaultHttpClient;
-import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.ogt.http.util.EntityUtils;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -82,7 +53,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -103,7 +73,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 public class ShareTrack extends Activity
 {
@@ -118,8 +87,6 @@ public class ShareTrack extends Activity
    private static final int EXPORT_TYPE_TWITDRIOD = 0;
    private static final int EXPORT_TYPE_SMS = 1;
    private static final int EXPORT_TYPE_TEXT = 2;
-   public static final String OAUTH_TOKEN = "openstreetmap_oauth_token";
-   public static final String OAUTH_TOKEN_SECRET = "openstreetmap_oauth_secret";
 
    protected static final int DIALOG_FILENAME = 11;
    protected static final int PROGRESS_STEPS = 10;
@@ -195,7 +162,7 @@ public class ShareTrack extends Activity
       mShareTypeSpinner.setSelection(lastType);
       adjustTargetToType(lastType);
 
-      mFileNameView.setText(queryForTrackName());
+      mFileNameView.setText(queryForTrackName(getContentResolver(), mTrackUri));
 
       Button okay = (Button) findViewById(R.id.okayshare_button);
       okay.setOnClickListener(new View.OnClickListener()
@@ -221,7 +188,7 @@ public class ShareTrack extends Activity
    {
       super.onResume();
       
-      // Upgrade from stored username / password to OAuth authorization
+      // Upgrade from stored OSM username/password to OAuth authorization
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
       if( prefs.contains(Constants.OSM_USERNAME) || prefs.contains(Constants.OSM_PASSWORD) )
       {
@@ -229,7 +196,7 @@ public class ShareTrack extends Activity
          editor.remove(Constants.OSM_USERNAME);
          editor.remove(Constants.OSM_PASSWORD);
          editor.commit();
-         this.requestOpenstreetmapOauthToken();
+         OsmSharing.requestOpenstreetmapOauthToken(this);
       }
    }
    
@@ -342,84 +309,36 @@ public class ShareTrack extends Activity
 
    protected void exportKmz(String chosenFileName, int target)
    {
-      EndJob endJob = null;
       switch (target)
       {
          case EXPORT_TARGET_SEND:
-            endJob = new EndJob()
-            {
-               @Override
-               public void shareFile(Uri fileUri)
-               {
-                  sendFile(fileUri, getString(R.string.email_kmzbody), getContentType());
-               }
-            };
+            new KmzSharing(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName)).execute();
             break;
          case EXPORT_TARGET_SAVE:
-            endJob = null;
+            new KmzCreator(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName)).execute();
             break;
          default:
             Log.e(TAG, "Unable to determine target for sharing KMZ " + target);
             break;
       }
-      if (endJob != null)
-      {
-         KmzCreator kmzCreator = new KmzCreator(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName, endJob));
-         kmzCreator.execute();
-         ShareTrack.this.finish();
-      }
+      ShareTrack.this.finish();
    }
 
    protected void exportGpx(String chosenFileName, int target)
    {
-      boolean attachments = true;
-      EndJob endJob = null;
-      GpxCreator gpxCreator;
       switch (target)
       {
-         case EXPORT_TARGET_SEND:
-            attachments = true;
-            endJob = new EndJob()
-            {
-               @Override
-               public void shareFile(Uri fileUri)
-               {
-                  sendFile(fileUri, getString(R.string.email_gpxbody), getContentType());
-               }
-            };
-            gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
-            gpxCreator.execute();
-            break;
          case EXPORT_TARGET_SAVE:
-            attachments = true;
-            gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, null));
-            gpxCreator.execute();
+            new GpxCreator(this, mTrackUri, chosenFileName, true, new ShareProgressListener(chosenFileName)).execute();
+            break;
+         case EXPORT_TARGET_SEND:
+            new GpxSharing(this, mTrackUri, chosenFileName, true, new ShareProgressListener(chosenFileName)).execute();
             break;
          case EXPORT_TARGET_JOGRUN:
-            attachments = false;
-            endJob = new EndJob()
-            {
-               @Override
-               public void shareFile(Uri fileUri)
-               {
-                  sendToJogmap(fileUri);
-               }
-            };
-            gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
-            gpxCreator.execute();
+            new JogmapSharing(this, mTrackUri, chosenFileName, false, new ShareProgressListener(chosenFileName)).execute();
             break;
          case EXPORT_TARGET_OSM:
-            attachments = false;
-            endJob = new EndJob()
-            {
-               @Override
-               public void shareFile(Uri fileUri)
-               {
-                  sendToOsm(fileUri, mTrackUri);
-               }
-            };
-            gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
-            gpxCreator.execute();
+            new OsmSharing(this, mTrackUri, chosenFileName, false, new ShareProgressListener(chosenFileName)).execute();
             break;
          case EXPORT_TARGET_BREADCRUMBS:
             sendToBreadcrumbs(mTrackUri);
@@ -467,223 +386,6 @@ public class ShareTrack extends Activity
       }
    }
 
-   private void sendFile(Uri fileUri, String fileContentType, String body)
-   {
-      Intent sendActionIntent = new Intent(Intent.ACTION_SEND);
-      sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
-      sendActionIntent.putExtra(Intent.EXTRA_TEXT, body);
-      sendActionIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-      sendActionIntent.setType(fileContentType);
-      startActivity(Intent.createChooser(sendActionIntent, getString(R.string.sender_chooser)));
-   }
-
-   private void sendToJogmap(Uri fileUri)
-   {
-      String authCode = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.JOGRUNNER_AUTH, "");
-      File gpxFile = new File(fileUri.getEncodedPath());
-      HttpClient httpclient = new DefaultHttpClient();
-      URI jogmap = null;
-      String jogmapResponseText = "";
-      int statusCode = 0;
-      HttpEntity responseEntity = null;
-      try
-      {
-         jogmap = new URI(getString(R.string.jogmap_post_url));
-         HttpPost method = new HttpPost(jogmap);
-
-         MultipartEntity entity = new MultipartEntity();
-         entity.addPart("id", new StringBody(authCode));
-         entity.addPart("mFile", new FileBody(gpxFile));
-         method.setEntity(entity);
-         HttpResponse response = httpclient.execute(method);
-
-         statusCode = response.getStatusLine().getStatusCode();
-         responseEntity = response.getEntity();
-         InputStream stream = responseEntity.getContent();
-         jogmapResponseText = XmlCreator.convertStreamToString(stream);
-      }
-      catch (IOException e)
-      {
-         Log.e(TAG, "Failed to upload to " + jogmap.toString(), e);
-         CharSequence text = getString(R.string.jogmap_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-         toast.show();
-      }
-      catch (URISyntaxException e)
-      {
-         Log.e(TAG, "Failed to use configured URI " + jogmap.toString(), e);
-         CharSequence text = getString(R.string.jogmap_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-         toast.show();
-      }
-      finally
-      {
-         if (responseEntity != null)
-         {
-            try
-            {
-               EntityUtils.consume(responseEntity);
-            }
-            catch (IOException e)
-            {
-               Log.e(TAG, "Failed to close the content stream", e);
-            }
-         }
-      }
-      if (statusCode == 200)
-      {
-         CharSequence text = getString(R.string.jogmap_success) + jogmapResponseText;
-         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-         toast.show();
-      }
-      else
-      {
-         Log.e(TAG, "Wrong status code " + statusCode);
-         CharSequence text = getString(R.string.jogmap_failed) + jogmapResponseText;
-         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-         toast.show();
-      }
-   }
-
-   /**
-    * POST a (GPX) file to the 0.6 API of the OpenStreetMap.org website
-    * publishing this track to the public.
-    * 
-    * @param fileUri
-    * @param contentType
-    */
-   private void sendToOsm(final Uri fileUri, final Uri trackUri)
-   {
-      CommonsHttpOAuthConsumer consumer = osmConnectionSetup();
-      if( consumer == null )
-      {
-         requestOpenstreetmapOauthToken();
-         return;
-      }
-      
-      String visibility = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.OSM_VISIBILITY, "trackable");
-      File gpxFile = new File(fileUri.getEncodedPath());
-
-      String url = getString(R.string.osm_post_url);
-      DefaultHttpClient httpclient = new DefaultHttpClient();
-      HttpResponse response = null;
-      String responseText = "";
-      int statusCode = 0;
-      Cursor metaData = null;
-      String sources = null;
-      HttpEntity responseEntity = null;
-      try
-      {
-         metaData = this.getContentResolver().query(Uri.withAppendedPath(trackUri, "metadata"), new String[] { MetaData.VALUE }, MetaData.KEY + " = ? ",
-               new String[] { Constants.DATASOURCES_KEY }, null);
-         if (metaData.moveToFirst())
-         {
-            sources = metaData.getString(0);
-         }
-         if (sources != null && sources.contains(LoggerMap.GOOGLE_PROVIDER))
-         {
-            throw new IOException("Unable to upload track with materials derived from Google Maps.");
-         }
-
-         // The POST to the create node
-         HttpPost method = new HttpPost(url);
-         consumer.sign(method);
-         
-         // Build the multipart body with the upload data
-         MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-         entity.addPart("file", new FileBody(gpxFile));
-         entity.addPart("description", new StringBody(queryForTrackName()));
-         entity.addPart("tags", new StringBody(queryForNotes()));
-         entity.addPart("visibility", new StringBody(visibility));
-         method.setEntity(entity);
-
-         // Execute the POST to OpenStreetMap
-         response = httpclient.execute(method);
-
-         // Read the response
-         statusCode = response.getStatusLine().getStatusCode();
-         responseEntity = response.getEntity();
-         InputStream stream = responseEntity.getContent();
-         responseText = XmlCreator.convertStreamToString(stream);
-      }
-      catch (OAuthMessageSignerException e)
-      {
-         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
-         responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
-         toast.show();
-         Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-         editor.remove(OAUTH_TOKEN);
-         editor.remove(OAUTH_TOKEN_SECRET);
-         editor.commit();
-      }
-      catch (OAuthExpectationFailedException e)
-      {
-         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
-         responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
-         toast.show();
-         Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-         editor.remove(OAUTH_TOKEN);
-         editor.remove(OAUTH_TOKEN_SECRET);
-         editor.commit();
-      }
-      catch (OAuthCommunicationException e)
-      {
-         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
-         responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
-         toast.show();
-      }
-      catch (IOException e)
-      {
-         Log.e(TAG, "Failed to upload to " + url + "Response: " + responseText, e);
-         responseText = getString(R.string.osm_failed) + e.getLocalizedMessage();
-         Toast toast = Toast.makeText(this, responseText, Toast.LENGTH_LONG);
-         toast.show();
-      }
-      finally
-      {
-         if (responseEntity != null)
-         {
-            try
-            {
-               EntityUtils.consume(responseEntity);
-            }
-            catch (IOException e)
-            {
-               Log.e(TAG, "Failed to close the content stream", e);
-            }
-         }
-         if (metaData != null)
-         {
-            metaData.close();
-         }
-      }
-
-      if (statusCode == 200)
-      {
-         Log.i(TAG, responseText);
-         CharSequence text = getString(R.string.osm_success) + responseText;
-         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-         toast.show();
-      }
-      else
-      {
-         Log.e(TAG, "Failed to upload to error code " + statusCode + " " + responseText);
-         CharSequence text = getString(R.string.osm_failed) + responseText;
-         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-         toast.show();
-         if( statusCode == 401 )
-         {
-            Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-            editor.remove(OAUTH_TOKEN);
-            editor.remove(OAUTH_TOKEN_SECRET);
-            editor.commit();
-         }
-      }
-   }
-
    private void sendToBreadcrumbs(Uri mTrackUri)
    {
       // Start a description of the track
@@ -702,43 +404,13 @@ public class ShareTrack extends Activity
             case DESCRIBE:
                Uri trackUri = data.getData();
                BreadcrumbsAdapter adapter = new BreadcrumbsAdapter(this, null);
-               adapter.startUploadTask(this, new ShareProgressListener("shareToGobreadcrumbs", null), trackUri);
+               adapter.startUploadTask(this, new ShareProgressListener("shareToGobreadcrumbs"), trackUri);
                break;
             default:
                super.onActivityResult(requestCode, resultCode, data);
                break;
          }
       }
-   }
-
-   public CommonsHttpOAuthConsumer osmConnectionSetup()
-   {
-      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-      String token = prefs.getString(OAUTH_TOKEN, "");
-      String secret = prefs.getString(OAUTH_TOKEN_SECRET, "");
-      boolean mAuthorized = !"".equals(token) && !"".equals(secret);
-      CommonsHttpOAuthConsumer consumer = null;
-      if (mAuthorized)
-      {
-         consumer = new CommonsHttpOAuthConsumer(this.getString(R.string.OSM_CONSUMER_KEY), this.getString(R.string.OSM_CONSUMER_SECRET));
-         consumer.setTokenWithSecret(token, secret);
-      }
-      return consumer;
-   }
-
-   public void requestOpenstreetmapOauthToken()
-   {
-      Intent i = new Intent(this.getApplicationContext(), PrepareRequestTokenActivity.class);
-      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
-      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
-
-      i.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, this.getString(R.string.OSM_CONSUMER_KEY));
-      i.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, this.getString(R.string.OSM_CONSUMER_SECRET));
-      i.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.OSM_REQUEST_URL);
-      i.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.OSM_ACCESS_URL);
-      i.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.OSM_AUTHORIZE_URL);
-
-      this.startActivity(i);
    }
 
    private void sendSMS(String msg)
@@ -761,75 +433,11 @@ public class ShareTrack extends Activity
    private String createTweetText()
    {
       calculator.updateCalculations(mTrackUri);
-      String name = queryForTrackName();
+      String name = queryForTrackName(getContentResolver(), mTrackUri);
       String distString = calculator.getDistanceText();
       String avgSpeed = calculator.getAvgSpeedText();
       String duration = calculator.getDurationText();
       return String.format(getString(R.string.tweettext, name, distString, avgSpeed, duration));
-   }
-
-   private String queryForTrackName()
-   {
-      ContentResolver resolver = getContentResolver();
-      Cursor trackCursor = null;
-      String name = null;
-
-      try
-      {
-         trackCursor = resolver.query(mTrackUri, new String[] { Tracks.NAME }, null, null, null);
-         if (trackCursor.moveToFirst())
-         {
-            name = trackCursor.getString(0);
-         }
-      }
-      finally
-      {
-         if (trackCursor != null)
-         {
-            trackCursor.close();
-         }
-      }
-      return name;
-   }
-
-   private String queryForNotes()
-   {
-      StringBuilder tags = new StringBuilder();
-      ContentResolver resolver = getContentResolver();
-      Cursor mediaCursor = null;
-      Uri mediaUri = Uri.withAppendedPath(mTrackUri, "media");
-      try
-      {
-         mediaCursor = resolver.query(mediaUri, new String[] { Media.URI }, null, null, null);
-         if (mediaCursor.moveToFirst())
-         {
-            do
-            {
-               Uri noteUri = Uri.parse(mediaCursor.getString(0));
-               if (noteUri.getScheme().equals("content") && noteUri.getAuthority().equals(GPStracking.AUTHORITY + ".string"))
-               {
-                  String tag = noteUri.getLastPathSegment().trim();
-                  if (!tag.contains(" "))
-                  {
-                     if (tags.length() > 0)
-                     {
-                        tags.append(" ");
-                     }
-                     tags.append(tag);
-                  }
-               }
-            }
-            while (mediaCursor.moveToNext());
-         }
-      }
-      finally
-      {
-         if (mediaCursor != null)
-         {
-            mediaCursor.close();
-         }
-      }
-      return tags.toString();
    }
 
    private void adjustTargetToType(int position)
@@ -859,17 +467,48 @@ public class ShareTrack extends Activity
       }
    }
 
+   public static void sendFile(Context context, Uri fileUri, String fileContentType, String body)
+   {
+      Intent sendActionIntent = new Intent(Intent.ACTION_SEND);
+      sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.email_subject));
+      sendActionIntent.putExtra(Intent.EXTRA_TEXT, body);
+      sendActionIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+      sendActionIntent.setType(fileContentType);
+      context.startActivity(Intent.createChooser(sendActionIntent, context.getString(R.string.sender_chooser)));
+   }
+
+   public static String queryForTrackName(ContentResolver resolver, Uri trackUri)
+   {
+      Cursor trackCursor = null;
+      String name = null;
+   
+      try
+      {
+         trackCursor = resolver.query(trackUri, new String[] { Tracks.NAME }, null, null, null);
+         if (trackCursor.moveToFirst())
+         {
+            name = trackCursor.getString(0);
+         }
+      }
+      finally
+      {
+         if (trackCursor != null)
+         {
+            trackCursor.close();
+         }
+      }
+      return name;
+   }
+
    public class ShareProgressListener implements ProgressListener
    {
       private String mFileName;
-      private EndJob mEndJob;
       private int mGoal;
       private int mProgress;
 
-      public ShareProgressListener(String sharename, EndJob endJob)
+      public ShareProgressListener(String sharename)
       {
          mFileName = sharename;
-         mEndJob = endJob;
       }
 
       public void startNotification()
@@ -921,10 +560,6 @@ public class ShareTrack extends Activity
       public void endNotification(Uri file)
       {
          mNotificationManager.cancel(R.layout.savenotificationprogress);
-         if (mEndJob != null && file != null)
-         {
-            mEndJob.shareFile(file);
-         }
       }
 
       public void setIndeterminate(boolean indeterminate)
@@ -966,22 +601,5 @@ public class ShareTrack extends Activity
          showDialog(DIALOG_ERROR);
       }
 
-   }
-
-   public static abstract class EndJob
-   {
-      private String mType;
-
-      void setContentType(String type)
-      {
-         mType = type;
-      }
-
-      String getContentType()
-      {
-         return mType;
-      }
-
-      abstract void shareFile(Uri fileUri);
    }
 }
