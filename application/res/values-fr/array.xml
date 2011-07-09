@@ -47,6 +47,7 @@
 		<item>Envoyer par email</item>
 		<item>Publier sur www.jogmap.de</item>
 		<item>Publier sur OpenStreetMap trace</item>
+        <item>Publier sur Breadcrumbs</item>
 	</string-array>
 
 	<string-array name="sharekmztarget_choices">

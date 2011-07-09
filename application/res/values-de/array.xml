@@ -47,6 +47,7 @@
         <item>Mit E-Mail-App senden</item>
         <item>Zu www.jogmap.de hochladen</item>
         <item>Zu OpenStreetMap traces hochladen</item>
+        <item>Zu Breadcrumbs hochladen</item>
     </string-array>
     
     <string-array name="sharekmztarget_choices">

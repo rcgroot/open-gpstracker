@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter;
+package nl.sogeti.android.gpstracker.adapter.tasks;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,11 +36,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.utils.xml.GpxCreator;
-import nl.sogeti.android.gpstracker.actions.utils.xml.XmlCreator;
+import nl.sogeti.android.gpstracker.actions.tasks.GpxCreator;
+import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -48,17 +49,17 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 
 import org.apache.ogt.http.HttpEntity;
 import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.client.HttpClient;
 import org.apache.ogt.http.client.methods.HttpPost;
 import org.apache.ogt.http.entity.mime.HttpMultipartMode;
 import org.apache.ogt.http.entity.mime.MultipartEntity;
 import org.apache.ogt.http.entity.mime.content.StringBody;
 import org.apache.ogt.http.impl.client.DefaultHttpClient;
 import org.apache.ogt.http.util.EntityUtils;
-import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -75,24 +76,26 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    final String TAG = "OGT.UploadBreadcrumbsTrackTask";
    private BreadcrumbsAdapter mAdapter;
    private OAuthConsumer mConsumer;
-   private DefaultHttpClient mHttpClient;
+   private HttpClient mHttpClient;
    private String mActivityId;
    private String mBundleId;
    private String mDescription;
    private String mIsPublic;
    
+
    /**
-    * We pass the OAuth consumer and provider.
     * 
-    * @param trackList Required to be able to start the intent to launch the
-    *           browser.
-    * @param httpclient 
-    * @param mConsumer The OAuthConsumer object
-    * @param trackId
+    * Constructor: create a new UploadBreadcrumbsTrackTask.
+    * @param context
+    * @param adapter
+    * @param listener
+    * @param httpclient
+    * @param consumer
+    * @param trackUri
     */
-   public UploadBreadcrumbsTrackTask(TrackList trackList, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient, OAuthConsumer consumer, Uri trackUri)
+   public UploadBreadcrumbsTrackTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener, HttpClient httpclient, OAuthConsumer consumer, Uri trackUri)
    {
-      super(trackList, trackUri, "uploadToGobreadcrumbs", false, trackList);
+      super(context, trackUri, "uploadToGobreadcrumbs", false, listener);
       mAdapter = adapter;
       mHttpClient = httpclient;
       mConsumer = consumer;

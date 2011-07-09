@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.actions.utils.xml;
+package nl.sogeti.android.gpstracker.actions.tasks;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;

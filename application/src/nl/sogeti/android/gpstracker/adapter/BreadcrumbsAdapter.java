@@ -34,8 +34,13 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
+import nl.sogeti.android.gpstracker.adapter.tasks.DownloadBreadcrumbsTrackTask;
+import nl.sogeti.android.gpstracker.adapter.tasks.GetBreadcrumbsActivitiesTask;
+import nl.sogeti.android.gpstracker.adapter.tasks.GetBreadcrumbsBundlesTask;
+import nl.sogeti.android.gpstracker.adapter.tasks.GetBreadcrumbsTracksTask;
+import nl.sogeti.android.gpstracker.adapter.tasks.UploadBreadcrumbsTrackTask;
 import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
@@ -118,7 +123,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       if (mAuthorized)
       {
 
-         CommonsHttpOAuthConsumer consumer = instantiateOAuthConsumer();
+         CommonsHttpOAuthConsumer consumer = getOAuthConsumer();
          Date persisted = mTracks.readCache(mContext);
          if (persisted == null || persisted.getTime() < new Date().getTime() - CACHE_TIMEOUT)
          {
@@ -136,7 +141,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       }
    }
 
-   private CommonsHttpOAuthConsumer instantiateOAuthConsumer()
+   public CommonsHttpOAuthConsumer getOAuthConsumer()
    {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
       String token = prefs.getString(OAUTH_TOKEN, "");
@@ -287,7 +292,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
          {
             if (!mFinishing && !mTracks.areTracksLoaded(item) && !mTracks.areTracksLoadingScheduled(item))
             {
-               mPlannedTrackTasks.add(new GetBreadcrumbsTracksTask(this, mListener, mHttpClient, instantiateOAuthConsumer(), item.second));
+               mPlannedTrackTasks.add(new GetBreadcrumbsTracksTask(this, mListener, mHttpClient, getOAuthConsumer(), item.second));
                mTracks.addTracksLoadingScheduled(item);
                executeNextTask();
             }
@@ -362,14 +367,14 @@ public class BreadcrumbsAdapter extends BaseAdapter
       notifyDataSetChanged();
    }
 
-   public void startDownloadTask(TrackList trackList, Pair<Integer, Integer> track)
+   public void startDownloadTask(Context context, ProgressListener listener, Pair<Integer, Integer> track)
    {
-      new DownloadBreadcrumbsTrackTask(trackList, trackList, this, mHttpClient, instantiateOAuthConsumer(), track).execute();
+      new DownloadBreadcrumbsTrackTask(context, listener, this, mHttpClient, getOAuthConsumer(), track).execute();
    }
 
-   public void startUploadTask(TrackList trackList, Uri trackUri)
+   public void startUploadTask(Context context, ProgressListener listener, Uri trackUri)
    {
-      new UploadBreadcrumbsTrackTask(trackList, this, mHttpClient, instantiateOAuthConsumer(), trackUri).execute();
+      new UploadBreadcrumbsTrackTask(context, this, listener, mHttpClient, getOAuthConsumer(), trackUri).execute();
    }
 
    public boolean isOnline()

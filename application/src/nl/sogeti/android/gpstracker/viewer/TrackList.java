@@ -31,8 +31,8 @@ package nl.sogeti.android.gpstracker.viewer;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.DescribeTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
+import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
@@ -301,7 +301,7 @@ public class TrackList extends ListActivity implements ProgressListener
             {
                public void run()
                {
-                  mBreadcrumbAdapter.startDownloadTask(TrackList.this, track);
+                  mBreadcrumbAdapter.startDownloadTask(TrackList.this, TrackList.this, track);
                }
             };
             showDialog(DIALOG_IMPORT);
@@ -505,7 +505,7 @@ public class TrackList extends ListActivity implements ProgressListener
                break;
             case DESCRIBE:
                Uri trackUri = data.getData();
-               mBreadcrumbAdapter.startUploadTask(TrackList.this, trackUri);
+               mBreadcrumbAdapter.startUploadTask(TrackList.this, TrackList.this, trackUri);
                break;
             default:
                super.onActivityResult(requestCode, resultCode, data);
@@ -615,7 +615,7 @@ public class TrackList extends ListActivity implements ProgressListener
                            Log.d(TAG, "View" + buttonView + " track id " + trackId);
 
                            buttonView.setEnabled(false);
-                           // Start a naming of the track
+                           // Start a description of the track
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
                            namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));
                            startActivityForResult(namingIntent, DESCRIBE);

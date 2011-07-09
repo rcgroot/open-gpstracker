@@ -26,12 +26,14 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter;
+package nl.sogeti.android.gpstracker.adapter.tasks;
 
 import java.util.LinkedList;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;

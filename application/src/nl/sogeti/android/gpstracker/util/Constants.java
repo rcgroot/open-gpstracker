@@ -30,7 +30,7 @@ package nl.sogeti.android.gpstracker.util;
 
 import java.io.File;
 
-import nl.sogeti.android.gpstracker.actions.utils.xml.XmlCreator;
+import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import android.content.Context;
 import android.content.Intent;

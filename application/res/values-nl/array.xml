@@ -47,6 +47,7 @@
         <item>Verstuur met een (email) applicatie</item>
         <item>Publiceer op www.jogmap.de</item>
         <item>Publiceer als OpenStreetMap trace</item>
+        <item>Publiceer op Breadcrumbs</item>
     </string-array>
     
     <string-array name="sharekmztarget_choices">

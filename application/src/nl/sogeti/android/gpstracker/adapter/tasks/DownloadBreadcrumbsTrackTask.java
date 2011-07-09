@@ -26,15 +26,17 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter;
+package nl.sogeti.android.gpstracker.adapter.tasks;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.actions.utils.xml.GpxParser;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Pair;
@@ -72,15 +74,16 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
    private DefaultHttpClient mHttpclient;
    private Pair<Integer, Integer> mTrack;
 
+
    /**
-    * We pass the OAuth consumer and provider.
     * 
-    * @param mContext Required to be able to start the intent to launch the
-    *           browser.
+    * Constructor: create a new DownloadBreadcrumbsTrackTask.
+    * @param context
+    * @param progressListener
     * @param adapter
     * @param httpclient
-    * @param provider The OAuthProvider object
-    * @param mConsumer The OAuthConsumer object
+    * @param consumer
+    * @param track
     */
    public DownloadBreadcrumbsTrackTask(Context context, ProgressListener progressListener, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient,
          OAuthConsumer consumer, Pair<Integer, Integer> track)

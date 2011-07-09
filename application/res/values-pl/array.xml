@@ -47,6 +47,7 @@
         <item>Wyślij programem pocztowym</item>
         <item>Wyślij do www.jogmap.de</item>
         <item>Wyślij do OpenStreetMap</item>
+        <item>Wyślij do Breadcrumbs</item>
     </string-array>
     
     <string-array name="sharekmztarget_choices">

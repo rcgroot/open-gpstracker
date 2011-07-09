@@ -35,11 +35,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.tasks.GpxCreator;
+import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
+import nl.sogeti.android.gpstracker.actions.tasks.KmzCreator;
+import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
-import nl.sogeti.android.gpstracker.actions.utils.xml.GpxCreator;
-import nl.sogeti.android.gpstracker.actions.utils.xml.KmzCreator;
-import nl.sogeti.android.gpstracker.actions.utils.xml.XmlCreator;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
+import nl.sogeti.android.gpstracker.adapter.tasks.UploadBreadcrumbsTrackTask;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
@@ -48,6 +51,7 @@ import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -57,11 +61,16 @@ import org.apache.ogt.http.HttpEntity;
 import org.apache.ogt.http.HttpResponse;
 import org.apache.ogt.http.client.HttpClient;
 import org.apache.ogt.http.client.methods.HttpPost;
+import org.apache.ogt.http.conn.ClientConnectionManager;
+import org.apache.ogt.http.conn.scheme.PlainSocketFactory;
+import org.apache.ogt.http.conn.scheme.Scheme;
+import org.apache.ogt.http.conn.scheme.SchemeRegistry;
 import org.apache.ogt.http.entity.mime.HttpMultipartMode;
 import org.apache.ogt.http.entity.mime.MultipartEntity;
 import org.apache.ogt.http.entity.mime.content.FileBody;
 import org.apache.ogt.http.entity.mime.content.StringBody;
 import org.apache.ogt.http.impl.client.DefaultHttpClient;
+import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.ogt.http.util.EntityUtils;
 
 import android.app.Activity;
@@ -73,6 +82,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -104,6 +114,7 @@ public class ShareTrack extends Activity
    private static final int EXPORT_TARGET_SEND = 1;
    private static final int EXPORT_TARGET_JOGRUN = 2;
    private static final int EXPORT_TARGET_OSM = 3;
+   private static final int EXPORT_TARGET_BREADCRUMBS = 4;
    private static final int EXPORT_TYPE_TWITDRIOD = 0;
    private static final int EXPORT_TYPE_SMS = 1;
    private static final int EXPORT_TYPE_TEXT = 2;
@@ -115,6 +126,7 @@ public class ShareTrack extends Activity
    private static final int DIALOG_INSTALL_TWIDROID = 34;
    private static final String TAG = "OGT.ShareTrack";
    protected static final int DIALOG_ERROR = Menu.FIRST + 28;
+   private static final int DESCRIBE = 312;
 
    private RemoteViews mContentView;
    private int barProgress = 0;
@@ -362,6 +374,7 @@ public class ShareTrack extends Activity
    {
       boolean attachments = true;
       EndJob endJob = null;
+      GpxCreator gpxCreator;
       switch (target)
       {
          case EXPORT_TARGET_SEND:
@@ -374,10 +387,13 @@ public class ShareTrack extends Activity
                   sendFile(fileUri, getString(R.string.email_gpxbody), getContentType());
                }
             };
+            gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
+            gpxCreator.execute();
             break;
          case EXPORT_TARGET_SAVE:
             attachments = true;
-            endJob = null;
+            gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, null));
+            gpxCreator.execute();
             break;
          case EXPORT_TARGET_JOGRUN:
             attachments = false;
@@ -389,6 +405,8 @@ public class ShareTrack extends Activity
                   sendToJogmap(fileUri);
                }
             };
+            gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
+            gpxCreator.execute();
             break;
          case EXPORT_TARGET_OSM:
             attachments = false;
@@ -400,13 +418,16 @@ public class ShareTrack extends Activity
                   sendToOsm(fileUri, mTrackUri);
                }
             };
+            gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
+            gpxCreator.execute();
             break;
+         case EXPORT_TARGET_BREADCRUMBS:
+            sendToBreadcrumbs(mTrackUri);
+            break;            
          default:
             Log.e(TAG, "Unable to determine target for sharing GPX " + target);
             break;
       }
-      GpxCreator gpxCreator = new GpxCreator(this, mTrackUri, chosenFileName, attachments, new ShareProgressListener(chosenFileName, endJob));
-      gpxCreator.execute();
       ShareTrack.this.finish();
    }
 
@@ -659,6 +680,33 @@ public class ShareTrack extends Activity
             editor.remove(OAUTH_TOKEN);
             editor.remove(OAUTH_TOKEN_SECRET);
             editor.commit();
+         }
+      }
+   }
+
+   private void sendToBreadcrumbs(Uri mTrackUri)
+   {
+      // Start a description of the track
+      Intent namingIntent = new Intent(this, DescribeTrack.class);
+      namingIntent.setData(mTrackUri);
+      startActivityForResult(namingIntent, DESCRIBE);
+   }
+   
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data)
+   {
+      if (resultCode != RESULT_CANCELED)
+      {
+         switch (requestCode)
+         {
+            case DESCRIBE:
+               Uri trackUri = data.getData();
+               BreadcrumbsAdapter adapter = new BreadcrumbsAdapter(this, null);
+               adapter.startUploadTask(this, new ShareProgressListener("shareToGobreadcrumbs", null), trackUri);
+               break;
+            default:
+               super.onActivityResult(requestCode, resultCode, data);
+               break;
          }
       }
    }

@@ -26,13 +26,17 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter;
+package nl.sogeti.android.gpstracker.adapter.tasks;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -56,14 +60,15 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
+public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
 {
 
-   final String TAG = "OGT.GetBreadcrumbsTracksTask";
+   final String TAG = "OGT.GetBreadcrumbsBundlesTask";
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
-   private Integer mBundleId;
-   private LinkedList<Object[]> mTracks;
+   
+   private Set<Integer> mBundleIds;
+   private LinkedList<Object[]> mBundles;
 
    /**
     * We pass the OAuth consumer and provider.
@@ -71,15 +76,16 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
     * @param mContext Required to be able to start the intent to launch the
     *           browser.
     * @param httpclient
+    * @param listener
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsTracksTask(BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer, Integer bundleId)
+   public GetBreadcrumbsBundlesTask(BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
       super(adapter, listener);
       mHttpclient = httpclient;
       mConsumer = consumer;
-      mBundleId = bundleId;
+
    }
 
    /**
@@ -89,12 +95,13 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
    @Override
    protected Void doInBackground(Void... params)
    {
-      mTracks = new LinkedList<Object[]>();
       HttpEntity responseEntity = null;
+      mBundleIds = new HashSet<Integer>();
+      mBundles = new LinkedList<Object[]>();
       try
       {
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles.xml");
 
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles/" + mBundleId + "/tracks.xml");
          mConsumer.sign(request);
          if (isCancelled())
          {
@@ -112,9 +119,8 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
          String tagName = null;
          int eventType = xpp.getEventType();
 
-         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null, trackRating = null, isPublic = null;
-         Integer trackId = null, bundleId = null, totalTime = null;
-         Float lat = null, lng = null, totalDistance = null;
+         String bundleName = null, bundleDescription = null;
+         Integer activityId = null, bundleId = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
             if (eventType == XmlPullParser.START_TAG)
@@ -123,58 +129,30 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-               if ("track".equals(xpp.getName()) && trackId != null && bundleId != null)
+               if ("bundle".equals(xpp.getName()) && activityId != null && bundleId != null)
                {
-                  mTracks.add(new Object[] { trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance,
-                        totalTime, trackRating });
+                  mBundles.add( new Object[]{activityId, bundleId, bundleName, bundleDescription} );
                }
                tagName = null;
             }
             else if (eventType == XmlPullParser.TEXT)
             {
-               if ("bundle-id".equals(tagName))
+               if ("activity-id".equals(tagName))
                {
-                  bundleId = Integer.parseInt(xpp.getText());
+                  activityId = Integer.parseInt(xpp.getText());
                }
                else if ("description".equals(tagName))
                {
-                  description = xpp.getText();
-               }
-               else if ("difficulty".equals(tagName))
-               {
-                  difficulty = xpp.getText();
-               }
-               else if ("start-time".equals(tagName))
-               {
-                  startTime = xpp.getText();
-               }
-               else if ("end-time".equals(tagName))
-               {
-                  endTime = xpp.getText();
+                  bundleDescription = xpp.getText();
                }
                else if ("id".equals(tagName))
                {
-                  trackId = Integer.parseInt(xpp.getText());
-               }
-               else if ("is-public".equals(tagName))
-               {
-                  isPublic = xpp.getText();
-               }
-               else if ("lat".equals(tagName))
-               {
-                  lat = Float.parseFloat(xpp.getText());
-               }
-               else if ("lng".equals(tagName))
-               {
-                  lng = Float.parseFloat(xpp.getText());
+                  bundleId = Integer.parseInt(xpp.getText());
+                  mBundleIds.add(bundleId);
                }
                else if ("name".equals(tagName))
                {
-                  trackName = xpp.getText();
-               }
-               else if ("track-rating".equals(tagName))
-               {
-                  trackRating = xpp.getText();
+                  bundleName = xpp.getText();
                }
             }
             eventType = xpp.next();
@@ -211,7 +189,7 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
             }
             catch (IOException e)
             {
-               Log.e(TAG, "Failed to close the content stream", e);
+               Log.w(TAG, "Failed closing inputstream");
             }
          }
       }
@@ -221,25 +199,16 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
    @Override
    protected void updateTracksData(BreadcrumbsTracks tracks)
    {
-      tracks.createTracks(mBundleId);
-      for (Object[] track : mTracks)
+      tracks.setAllBundleIds( mBundleIds );
+      
+      for( Object[] bundle : mBundles )
       {
-         Integer trackId = (Integer) track[0];
-         String trackName = (String) track[1];
-         Integer bundleId = (Integer) track[2];
-         String description = (String) track[3];
-         String difficulty = (String) track[4];
-         String startTime = (String) track[5];
-         String endTime = (String) track[6];
-         String isPublic = (String) track[7];
-         Float lat = (Float) track[8];
-         Float lng = (Float) track[9];
-         Float totalDistance = (Float) track[10];
-         Integer totalTime = (Integer) track[11];
-         String trackRating = (String) track[12];
+         Integer activityId = (Integer) bundle[0];
+         Integer bundleId = (Integer) bundle[1];
+         String bundleName = (String) bundle[2];
+         String bundleDescription = (String) bundle[3];
          
-         tracks.addTrack(trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance, totalTime, trackRating);
+         tracks.addBundle(activityId, bundleId, bundleName, bundleDescription);
       }
-
    }
 }
