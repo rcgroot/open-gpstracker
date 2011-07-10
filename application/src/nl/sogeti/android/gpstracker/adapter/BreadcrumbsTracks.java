@@ -124,7 +124,7 @@ public class BreadcrumbsTracks
     */
    private static Map<Integer, Map<String, String>> sTrackMappings = new HashMap<Integer, Map<String, String>>();
 
-   private static Set<Pair<Integer, Integer>> sScheduledTracksLoading = new HashSet<Pair<Integer,Integer>>();
+   private static Set<Pair<Integer, Integer>> sScheduledTracksLoading = new HashSet<Pair<Integer, Integer>>();
    /**
     * Cache of OGT Tracks that have a Breadcrumbs track id stored in the
     * meta-data table
@@ -132,7 +132,6 @@ public class BreadcrumbsTracks
    private Map<Long, Integer> mSyncedTracks;
 
    private ContentResolver mResolver;
-
 
    /**
     * Constructor: create a new BreadcrumbsTracks.
@@ -230,7 +229,7 @@ public class BreadcrumbsTracks
 
    /**
     * Get all bundles
-    *  
+    * 
     * @return
     */
    public Integer[] getAllBundleIds()
@@ -419,7 +418,7 @@ public class BreadcrumbsTracks
 
    public void addSyncedTrack(Long trackId, Integer bcTrackId)
    {
-      if( mSyncedTracks == null )
+      if (mSyncedTracks == null)
       {
          isLocalTrackOnline(-1l);
       }
@@ -433,12 +432,14 @@ public class BreadcrumbsTracks
       return uploaded && synced;
    }
 
-   public static SpinnerAdapter getActivityAdapter(Context ctx)
+   public SpinnerAdapter getActivityAdapter(Context ctx)
    {
       List<String> activities = new Vector<String>();
       for (Integer activityId : sActivityMappings.keySet())
       {
-         activities.add(sActivityMappings.get(activityId).get(NAME));
+         String name = sActivityMappings.get(activityId).get(NAME);
+         name = name != null ? name : ""; 
+         activities.add(name);
       }
       Collections.sort(activities);
       ArrayAdapter<String> adapter = new ArrayAdapter<String>(ctx, android.R.layout.simple_spinner_item, activities);
@@ -446,7 +447,7 @@ public class BreadcrumbsTracks
       return adapter;
    }
 
-   public static SpinnerAdapter getBundleAdapter(Context ctx, CharSequence activity)
+   public SpinnerAdapter getBundleAdapter(Context ctx, CharSequence activity)
    {
       List<String> bundles = new Vector<String>();
       for (Integer activityId : sActivityMappings.keySet())
@@ -510,16 +511,16 @@ public class BreadcrumbsTracks
          Object[] cache = (Object[]) ois.readObject();
          // { activities, bundles, activityMappings, bundleMappings, trackMappings }
          Map<Integer, List<Integer>> activities = (Map<Integer, List<Integer>>) cache[1];
-         sActivities = activities != null ? activities : sActivities ;
+         sActivities = activities != null ? activities : sActivities;
          Map<Integer, List<Integer>> bundles = (Map<Integer, List<Integer>>) cache[2];
-         sBundles = bundles != null ? bundles : sBundles ;
+         sBundles = bundles != null ? bundles : sBundles;
          Map<Integer, Map<String, String>> activitymappings = (Map<Integer, Map<String, String>>) cache[3];
-         sActivityMappings = activitymappings != null ? activitymappings : sActivityMappings ;
+         sActivityMappings = activitymappings != null ? activitymappings : sActivityMappings;
          Map<Integer, Map<String, String>> bundlemappings = (Map<Integer, Map<String, String>>) cache[4];
-         sBundleMappings = bundlemappings != null ? bundlemappings : sBundleMappings ;
+         sBundleMappings = bundlemappings != null ? bundlemappings : sBundleMappings;
          Map<Integer, Map<String, String>> trackmappings = (Map<Integer, Map<String, String>>) cache[5];
-         sTrackMappings = trackmappings != null ? trackmappings : sTrackMappings ;
-       
+         sTrackMappings = trackmappings != null ? trackmappings : sTrackMappings;
+
          persisted = (Date) cache[0];
       }
       catch (OptionalDataException e)
@@ -585,15 +586,10 @@ public class BreadcrumbsTracks
          oos = new ObjectOutputStream(fos);
 
          Map<Integer, List<Integer>> activities = sActivities;
-         sActivities = null;
          Map<Integer, List<Integer>> bundles = sBundles;
-         sBundles = null;
          Map<Integer, Map<String, String>> activityMappings = sActivityMappings;
-         sActivityMappings = null;
          Map<Integer, Map<String, String>> bundleMappings = sBundleMappings;
-         sBundleMappings = null;
          Map<Integer, Map<String, String>> trackMappings = sTrackMappings;
-         sTrackMappings = null;
 
          Object[] cache = new Object[] { new Date(), activities, bundles, activityMappings, bundleMappings, trackMappings };
          oos.writeObject(cache);
@@ -655,9 +651,9 @@ public class BreadcrumbsTracks
     */
    public void setAllBundleIds(Set<Integer> mBundleIds)
    {
-      for( Integer oldBundleId : getAllBundleIds() )
+      for (Integer oldBundleId : getAllBundleIds())
       {
-         if( !mBundleIds.contains(oldBundleId))
+         if (!mBundleIds.contains(oldBundleId))
          {
             removeBundle(oldBundleId);
          }

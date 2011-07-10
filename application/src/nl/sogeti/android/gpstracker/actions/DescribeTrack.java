@@ -29,6 +29,8 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import android.app.Activity;
@@ -48,45 +50,43 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 /**
  * Empty Activity that pops up the dialog to describe the track
- *
+ * 
  * @version $Id: NameTrack.java 888 2011-03-14 19:44:44Z rcgroot@gmail.com $
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
  */
-public class DescribeTrack extends Activity
+public class DescribeTrack extends Activity implements ProgressListener
 {
    private static final int DIALOG_TRACKDESCRIPTION = 42;
 
    protected static final String TAG = "OGT.DescribeTrack";
 
-   private Spinner  mActivitySpinner;
-   private Spinner  mBundleSpinner;
+   private Spinner mActivitySpinner;
+   private Spinner mBundleSpinner;
    private EditText mDescriptionText;
    private CheckBox mPublicCheck;
    private boolean paused;
    private Uri mTrackUri;
-   
+
    private final DialogInterface.OnClickListener mTrackDescriptionDialogListener = new DialogInterface.OnClickListener()
    {
-      public void onClick( DialogInterface dialog, int which )
+      public void onClick(DialogInterface dialog, int which)
       {
-         switch( which )
+         switch (which)
          {
             case DialogInterface.BUTTON_POSITIVE:
                Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
-               String  activityId = BreadcrumbsTracks.getIdForActivity( (String) mBundleSpinner.getSelectedItem() ).toString();
-               String  bundleId   = BreadcrumbsTracks.getIdForBundle( (String) mBundleSpinner.getSelectedItem() ).toString();
-               String description = mDescriptionText.getText().toString() ;
-               String isPublic    = Boolean.toString(mPublicCheck.isChecked());
-               ContentValues[] metaValues = { 
-                     buildContentValues( BreadcrumbsTracks.ACTIVITY_ID, activityId),
-                     buildContentValues( BreadcrumbsTracks.BUNDLE_ID,   bundleId),
-                     buildContentValues( BreadcrumbsTracks.DESCRIPTION, description),
-                     buildContentValues( BreadcrumbsTracks.ISPUBLIC,    isPublic),
-                     };
+               String activityId = BreadcrumbsTracks.getIdForActivity((String) mBundleSpinner.getSelectedItem()).toString();
+               String bundleId = BreadcrumbsTracks.getIdForBundle((String) mBundleSpinner.getSelectedItem()).toString();
+               String description = mDescriptionText.getText().toString();
+               String isPublic = Boolean.toString(mPublicCheck.isChecked());
+               ContentValues[] metaValues = { buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, activityId),
+                     buildContentValues(BreadcrumbsTracks.BUNDLE_ID, bundleId), buildContentValues(BreadcrumbsTracks.DESCRIPTION, description),
+                     buildContentValues(BreadcrumbsTracks.ISPUBLIC, isPublic), };
                getContentResolver().bulkInsert(metadataUri, metaValues);
                Intent data = new Intent();
                data.setData(mTrackUri);
@@ -95,12 +95,11 @@ public class DescribeTrack extends Activity
             case DialogInterface.BUTTON_NEGATIVE:
                break;
             default:
-               Log.e( TAG, "Unknown option ending dialog:"+which );
+               Log.e(TAG, "Unknown option ending dialog:" + which);
                break;
          }
          finish();
       }
-
 
    };
 
@@ -110,7 +109,8 @@ public class DescribeTrack extends Activity
       public void onItemSelected(AdapterView< ? > adapter, View arg1, int position, long id)
       {
          mBundleSpinner.setEnabled(true);
-         mBundleSpinner.setAdapter( BreadcrumbsTracks.getBundleAdapter(DescribeTrack.this, (CharSequence) adapter.getItemAtPosition(position)) );
+         mBundleSpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getBundleAdapter(DescribeTrack.this,
+               (CharSequence) adapter.getItemAtPosition(position)));
       }
 
       public void onNothingSelected(AdapterView< ? > arg0)
@@ -119,23 +119,37 @@ public class DescribeTrack extends Activity
       }
    };
 
+   private BreadcrumbsAdapter mBreadcrumbAdapter;
+
+   private ProgressBar mProgressSpinner;
+
+   private boolean mUpdating = true;
+
    @Override
-   protected void onCreate( Bundle savedInstanceState )
+   protected void onCreate(Bundle savedInstanceState)
    {
-      super.onCreate( savedInstanceState );
-      this.setVisible( false );
+      super.onCreate(savedInstanceState);
+
+      this.setVisible(false);
       paused = false;
-      
+
       mTrackUri = this.getIntent().getData();
+
+      mBreadcrumbAdapter = new BreadcrumbsAdapter(this, this);
+      boolean authorized = mBreadcrumbAdapter.connectionSetup();
+      if (!authorized)
+      {
+         mBreadcrumbAdapter.requestBreadcrumbsOauthToken(this);
+      }
    }
-   
+
    @Override
    protected void onPause()
    {
       super.onPause();
       paused = true;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.google.android.maps.MapActivity#onPause()
@@ -144,19 +158,19 @@ public class DescribeTrack extends Activity
    protected void onResume()
    {
       super.onResume();
-      if(  mTrackUri != null )
+      if (mTrackUri != null)
       {
-         showDialog( DIALOG_TRACKDESCRIPTION );
+         showDialog(DIALOG_TRACKDESCRIPTION);
       }
       else
       {
-         Log.e(TAG, "Describing track without a track URI supplied." );
+         Log.e(TAG, "Describing track without a track URI supplied.");
          finish();
       }
    }
-   
+
    @Override
-   protected Dialog onCreateDialog( int id )
+   protected Dialog onCreateDialog(int id)
    {
       Dialog dialog = null;
       LayoutInflater factory = null;
@@ -165,27 +179,24 @@ public class DescribeTrack extends Activity
       switch (id)
       {
          case DIALOG_TRACKDESCRIPTION:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.describedialog, null );
-            mActivitySpinner = (Spinner) view.findViewById( R.id.activity );
+            builder = new AlertDialog.Builder(this);
+            factory = LayoutInflater.from(this);
+            view = factory.inflate(R.layout.describedialog, null);
+            mActivitySpinner = (Spinner) view.findViewById(R.id.activity);
             mActivitySpinner.setOnItemSelectedListener(mActivitiyListener);
-            mBundleSpinner = (Spinner) view.findViewById( R.id.bundle );
-            mDescriptionText = (EditText) view.findViewById( R.id.description );
-            mPublicCheck = (CheckBox) view.findViewById( R.id.public_checkbox );
-            builder
-               .setTitle( R.string.dialog_description_title )
-               .setMessage( R.string.dialog_description_message )
-               .setIcon( android.R.drawable.ic_dialog_alert )
-               .setPositiveButton( R.string.btn_okay, mTrackDescriptionDialogListener )
-               .setNegativeButton( R.string.btn_cancel, mTrackDescriptionDialogListener )
-               .setView( view );
+            mBundleSpinner = (Spinner) view.findViewById(R.id.bundle);
+            mDescriptionText = (EditText) view.findViewById(R.id.description);
+            mPublicCheck = (CheckBox) view.findViewById(R.id.public_checkbox);
+            mProgressSpinner = (ProgressBar) view.findViewById(R.id.progressSpinner);
+            builder.setTitle(R.string.dialog_description_title).setMessage(R.string.dialog_description_message).setIcon(android.R.drawable.ic_dialog_alert)
+                  .setPositiveButton(R.string.btn_okay, mTrackDescriptionDialogListener)
+                  .setNegativeButton(R.string.btn_cancel, mTrackDescriptionDialogListener).setView(view);
             dialog = builder.create();
-            dialog.setOnDismissListener( new OnDismissListener()
+            dialog.setOnDismissListener(new OnDismissListener()
             {
-               public void onDismiss( DialogInterface dialog )
+               public void onDismiss(DialogInterface dialog)
                {
-                  if( !paused )
+                  if (!paused)
                   {
                      finish();
                   }
@@ -193,31 +204,89 @@ public class DescribeTrack extends Activity
             });
             return dialog;
          default:
-            return super.onCreateDialog( id );
+            return super.onCreateDialog(id);
       }
    }
-   
+
    @Override
-   protected void onPrepareDialog( int id, Dialog dialog )
+   protected void onPrepareDialog(int id, Dialog dialog)
    {
       switch (id)
       {
          case DIALOG_TRACKDESCRIPTION:
-            mActivitySpinner.setAdapter( BreadcrumbsTracks.getActivityAdapter(this) );
-            mBundleSpinner.setAdapter( BreadcrumbsTracks.getBundleAdapter(this, "") );
+            setUiEnabled(!mUpdating);
             break;
          default:
-            super.onPrepareDialog( id, dialog );
+            super.onPrepareDialog(id, dialog);
             break;
       }
    }
-   
-   private ContentValues buildContentValues( String key, String value)
+
+   private ContentValues buildContentValues(String key, String value)
    {
       ContentValues contentValues = new ContentValues();
       contentValues.put(MetaData.KEY, key);
       contentValues.put(MetaData.VALUE, value);
       return contentValues;
    }
+
+   public void setIndeterminate(boolean indeterminate)
+   {
+      // Ignored only spinner
+   }
+
+   public void setMax(int max)
+   {
+      // Ignored only spinner
+   }
+
+   public void increaseProgress(int value)
+   {
+      // Ignored only spinner
+   }
+
+   public void started()
+   {
+      mUpdating = true;
+      setUiEnabled(!mUpdating);
+   }
+
+   private void setUiEnabled(boolean enabled)
+   {
+      if (mProgressSpinner != null)
+      {
+         if (enabled)
+         {
+            mProgressSpinner.setVisibility(View.GONE);
+         }
+         else
+         {
+            mProgressSpinner.setVisibility(View.VISIBLE);
+         }
+      }
+
+      for (View view : new View[] { mActivitySpinner, mBundleSpinner, mDescriptionText, mPublicCheck })
+      {
+         if (view != null)
+         {
+            view.setEnabled(enabled);
+         }
+      }
+      if (enabled)
+      {
+         mActivitySpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getActivityAdapter(this));
+         mBundleSpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getBundleAdapter(this, ""));
+      }
+   }
+
+   public void finished(Uri result)
+   {
+      mUpdating = false;
+      setUiEnabled(!mUpdating);
+   }
+
+   public void showError(String task, String errorMessage, Exception exception)
+   {
+      // TODO Auto-generated method stub
+   }
 }
-   

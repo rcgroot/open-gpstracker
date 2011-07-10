@@ -114,7 +114,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mPlannedTrackTasks = new LinkedList<GetBreadcrumbsTracksTask>();
    }
 
-   public void connectionSetup()
+   public boolean connectionSetup()
    {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
       String token = prefs.getString(OAUTH_TOKEN, "");
@@ -122,23 +122,20 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mAuthorized = !"".equals(token) && !"".equals(secret);
       if (mAuthorized)
       {
-
          CommonsHttpOAuthConsumer consumer = getOAuthConsumer();
          Date persisted = mTracks.readCache(mContext);
          if (persisted == null || persisted.getTime() < new Date().getTime() - CACHE_TIMEOUT)
          {
-            if( persisted != null && persisted.getTime() < new Date().getTime() - (6*60*24 * CACHE_TIMEOUT))
-            {
-               new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, consumer).execute();
-               mPlannedBundleTask = new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer);
-            }
-            else
-            {
-               new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer).execute();
-            }
+            new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, consumer).execute();
+            mPlannedBundleTask = new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer);
+         }
+         else
+         {
+            new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer).execute();
          }
          notifyDataSetChanged();
       }
+      return mAuthorized;
    }
 
    public CommonsHttpOAuthConsumer getOAuthConsumer()
@@ -200,7 +197,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
     */
    public View getView(int position, View convertView, ViewGroup parent)
    {
-      View view;
+      View view = null;
       if (mAuthorized)
       {
          int type = getItemViewType(position);
@@ -270,7 +267,6 @@ public class BreadcrumbsAdapter extends BaseAdapter
             view = convertView;
          }
          ((TextView) view).setText(R.string.breadcrumbs_connect);
-
       }
       return view;
    }
@@ -322,7 +318,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
    {
       return mTracks;
    }
-
+   
    public synchronized void finishedTask()
    {
       notifyDataSetChanged();

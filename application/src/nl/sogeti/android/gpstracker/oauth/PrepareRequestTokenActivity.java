@@ -117,6 +117,7 @@ public class PrepareRequestTokenActivity extends Activity
       TextView tv = (TextView) findViewById(R.id.detail);
       tv.setText(requestUrl);
       
+      
       mTokenKey  = getIntent().getStringExtra(OAUTH_TOKEN_PREF); 
       mSecretKey = getIntent().getStringExtra(OAUTH_TOKEN_SECRET_PREF); 
       
