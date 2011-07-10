@@ -332,15 +332,19 @@ public class ShareTrack extends Activity
       {
          case EXPORT_TARGET_SAVE:
             new GpxCreator(this, mTrackUri, chosenFileName, true, new ShareProgressListener(chosenFileName)).execute();
+            ShareTrack.this.finish();
             break;
          case EXPORT_TARGET_SEND:
             new GpxSharing(this, mTrackUri, chosenFileName, true, new ShareProgressListener(chosenFileName)).execute();
+            ShareTrack.this.finish();
             break;
          case EXPORT_TARGET_JOGRUN:
             new JogmapSharing(this, mTrackUri, chosenFileName, false, new ShareProgressListener(chosenFileName)).execute();
+            ShareTrack.this.finish();
             break;
          case EXPORT_TARGET_OSM:
             new OsmSharing(this, mTrackUri, false, new ShareProgressListener(OsmSharing.OSM_FILENAME)).execute();
+            ShareTrack.this.finish();
             break;
          case EXPORT_TARGET_BREADCRUMBS:
             sendToBreadcrumbs(mTrackUri);
@@ -349,7 +353,6 @@ public class ShareTrack extends Activity
             Log.e(TAG, "Unable to determine target for sharing GPX " + target);
             break;
       }
-      ShareTrack.this.finish();
    }
 
    protected void exportTextLine(String message, int target)
