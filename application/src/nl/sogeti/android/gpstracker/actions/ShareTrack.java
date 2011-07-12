@@ -442,6 +442,7 @@ public class ShareTrack extends Activity
                Uri trackUri = data.getData();
                BreadcrumbsAdapter adapter = new BreadcrumbsAdapter(this, null);
                adapter.startUploadTask(this, new ShareProgressListener("shareToGobreadcrumbs"), trackUri);
+               finish();
                break;
             default:
                super.onActivityResult(requestCode, resultCode, data);

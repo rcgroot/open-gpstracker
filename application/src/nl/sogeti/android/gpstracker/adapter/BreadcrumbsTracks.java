@@ -461,7 +461,7 @@ public class BreadcrumbsTracks
          }
       }
       Collections.sort(bundles);
-      bundles.add(ctx.getString(R.string.dialog_bundle, ctx.getString(R.string.app_name)));
+      bundles.add(ctx.getString(R.string.app_name));
       ArrayAdapter<String> adapter = new ArrayAdapter<String>(ctx, android.R.layout.simple_spinner_item, bundles);
       adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       return adapter;
