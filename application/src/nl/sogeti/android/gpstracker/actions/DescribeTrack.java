@@ -80,7 +80,7 @@ public class DescribeTrack extends Activity implements ProgressListener
          {
             case DialogInterface.BUTTON_POSITIVE:
                Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
-               String activityId = BreadcrumbsTracks.getIdForActivity((String) mBundleSpinner.getSelectedItem()).toString();
+               String activityId = BreadcrumbsTracks.getIdForActivity((String) mActivitySpinner.getSelectedItem()).toString();
                String bundleId = BreadcrumbsTracks.getIdForBundle((String) mBundleSpinner.getSelectedItem()).toString();
                String description = mDescriptionText.getText().toString();
                String isPublic = Boolean.toString(mPublicCheck.isChecked());
@@ -100,19 +100,16 @@ public class DescribeTrack extends Activity implements ProgressListener
          }
          finish();
       }
-
    };
 
    private OnItemSelectedListener mActivitiyListener = new OnItemSelectedListener()
    {
-
       public void onItemSelected(AdapterView< ? > adapter, View arg1, int position, long id)
       {
          mBundleSpinner.setEnabled(true);
          mBundleSpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getBundleAdapter(DescribeTrack.this,
                (CharSequence) adapter.getItemAtPosition(position)));
       }
-
       public void onNothingSelected(AdapterView< ? > arg0)
       {
          mBundleSpinner.setEnabled(false);

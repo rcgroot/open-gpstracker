@@ -456,7 +456,7 @@ public class BreadcrumbsTracks
          {
             for (Integer bundleId : sActivities.get(activityId))
             {
-               bundles.add(ctx.getString(R.string.dialog_bundle, sBundleMappings.get(bundleId).get(NAME)));
+               bundles.add( sBundleMappings.get(bundleId).get(NAME) );
             }
          }
       }

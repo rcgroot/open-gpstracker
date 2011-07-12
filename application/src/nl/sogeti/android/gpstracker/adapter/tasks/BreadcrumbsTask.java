@@ -28,15 +28,11 @@
  */
 package nl.sogeti.android.gpstracker.adapter.tasks;
 
-import java.util.LinkedList;
-
-import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.Pair;
 
 /**
  * ????
@@ -73,8 +69,11 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    protected void onPreExecute()
    {
       Log.d(TAG, "onPreExecute() " + this);
-      mListener.setIndeterminate(true);
-      mListener.started();
+      if( mListener != null )
+      {
+         mListener.setIndeterminate(true);
+         mListener.started();
+      }
    }
 
    @Override
@@ -83,7 +82,10 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
       Log.d(TAG, "onPostExecute() " + this);
       this.updateTracksData(mAdapter.getBreadcrumbsTracks());
       mAdapter.finishedTask();
-      mListener.finished(null);
+      if( mListener != null )
+      {
+         mListener.finished(null);
+      }
    }
 
    protected abstract void updateTracksData(BreadcrumbsTracks tracks);
@@ -92,9 +94,12 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    protected void onCancelled()
    {
       Log.d(TAG, "onCancelled() " + this);
-      mListener.finished(null);
+      if( mListener != null )
+      {
+         mListener.finished(null);
+      }
       mAdapter.finishedTask();
-      if (mErrorText != null && mException != null)
+      if (mListener != null && mErrorText != null && mException != null)
       {
          mListener.showError("retrieving data from GoBreadcrumbs", mErrorText, mException);
       }

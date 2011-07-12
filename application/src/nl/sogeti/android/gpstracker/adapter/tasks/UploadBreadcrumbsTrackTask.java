@@ -165,8 +165,18 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
             cursor.close();
          }
       }
-      
-      //TODO create bundle if no existing ID
+      if( "-1".equals( mActivityId ) )
+      {
+         String text = "Unable to upload without a activity id stored in meta-data table";
+         IllegalStateException e = new IllegalStateException(text);
+         handleError(e, text);
+      }
+      if( "-1".equals(mBundleId) )
+      {
+         String text = "Unable to upload (yet) without a bunld id stored in meta-data table";
+         IllegalStateException e =  new IllegalStateException(text);
+         handleError(e, text);
+      }
       
       int statusCode = 0 ;
       String responseText = null;

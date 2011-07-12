@@ -7,20 +7,20 @@
       android:id="@+id/RelativeLayout1"
       android:layout_height="wrap_content"
       android:orientation="vertical"
-      android:layout_width="fill_parent">
+      android:layout_width="fill_parent" android:gravity="center">
 
       <Spinner
-         android:layout_alignParentLeft="true"
          android:layout_alignParentTop="true"
          android:layout_height="wrap_content"
          android:id="@+id/activity"
-         android:layout_width="match_parent"></Spinner>
+         android:layout_width="match_parent"
+         android:layout_toRightOf="@+id/textView1"></Spinner>
       <Spinner
-         android:layout_alignParentLeft="true"
          android:layout_below="@+id/activity"
          android:layout_height="wrap_content"
          android:id="@+id/bundle"
-         android:layout_width="match_parent"></Spinner>
+         android:layout_width="match_parent"
+         android:layout_alignLeft="@+id/activity"></Spinner>
       <EditText
          android:layout_alignParentLeft="true"
          android:layout_below="@+id/bundle"
@@ -28,14 +28,14 @@
          android:layout_height="wrap_content"
          android:hint="@string/dialog_trackdescription_hint"
          android:layout_width="match_parent"
-         android:maxLines="4"></EditText>
+         android:maxLines="4" android:paddingLeft="3dp"></EditText>
       <CheckBox
          android:layout_alignParentLeft="true"
          android:layout_below="@+id/description"
          android:layout_height="wrap_content"
          android:text="@string/dialog_public"
          android:layout_width="match_parent"
-         android:id="@+id/public_checkbox"></CheckBox>
+         android:id="@+id/public_checkbox" android:paddingLeft="3dp"></CheckBox>
       <ProgressBar
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
@@ -43,5 +43,23 @@
          style="?android:attr/progressBarStyleLarge"
          android:layout_centerVertical="true"
          android:layout_centerHorizontal="true"></ProgressBar>
+      <TextView
+         android:layout_width="wrap_content"
+         android:text="Activity"
+         android:textAppearance="?android:attr/textAppearanceMedium"
+         android:id="@+id/textView1"
+         android:layout_alignParentTop="true"
+         android:layout_alignParentLeft="true"
+         android:layout_height="wrap_content"
+         android:layout_alignBottom="@+id/activity" android:paddingLeft="3dp"></TextView>
+      <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="wrap_content"
+         android:text="Bundle"
+         android:textAppearance="?android:attr/textAppearanceMedium"
+         android:id="@+id/textView3"
+         android:layout_below="@+id/activity"
+         android:layout_alignParentLeft="true"
+         android:layout_alignBottom="@+id/bundle" android:layout_toLeftOf="@+id/bundle" android:paddingLeft="3dp"></TextView>
    </RelativeLayout>
 </ScrollView>
