@@ -77,6 +77,8 @@ import android.widget.Toast;
 
 public class ShareTrack extends Activity
 {
+   private static final String TAG = "OGT.ShareTrack";
+   
    private static final int EXPORT_TYPE_KMZ = 0;
    private static final int EXPORT_TYPE_GPX = 1;
    private static final int EXPORT_TYPE_TEXTLINE = 2;
@@ -89,11 +91,10 @@ public class ShareTrack extends Activity
    private static final int EXPORT_TYPE_SMS = 1;
    private static final int EXPORT_TYPE_TEXT = 2;
 
-   protected static final int DIALOG_FILENAME = 11;
-   protected static final int PROGRESS_STEPS = 10;
-   private static final int DIALOG_INSTALL_TWIDROID = 34;
-   private static final String TAG = "OGT.ShareTrack";
-   protected static final int DIALOG_ERROR = Menu.FIRST + 28;
+   private static final int PROGRESS_STEPS = 10;
+   private static final int DIALOG_INSTALL_TWIDROID = Menu.FIRST + 27 ;
+   private static final int DIALOG_ERROR = Menu.FIRST + 28;
+   private static final int DIALOG_CONNECTBREADCRUMBS = Menu.FIRST + 29;
    private static final int DESCRIBE = 312;
 
    private RemoteViews mContentView;
@@ -125,6 +126,14 @@ public class ShareTrack extends Activity
          }
       }
    };
+   private OnClickListener mBreadcrumbsDialogListener = new OnClickListener()
+   {
+      public void onClick(DialogInterface dialog, int which)
+      {
+         BreadcrumbsAdapter breadcrumbAdapter = new BreadcrumbsAdapter(ShareTrack.this, null);
+         breadcrumbAdapter.requestBreadcrumbsOauthToken(ShareTrack.this);
+      }
+   };
    private String mErrorDialogMessage;
    private Throwable mErrorDialogException;
 
@@ -145,6 +154,24 @@ public class ShareTrack extends Activity
       shareTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTypeSpinner.setAdapter(shareTypeAdapter);
       mShareTargetSpinner = (Spinner) findViewById(R.id.shareTargetSpinner);
+      mShareTargetSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
+      {
+         public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
+         {
+            if (position == EXPORT_TARGET_BREADCRUMBS)
+            {
+               BreadcrumbsAdapter breadcrumbAdapter = new BreadcrumbsAdapter(ShareTrack.this, null);
+               boolean authorized = breadcrumbAdapter.connectionSetup();
+               if (!authorized)
+               {
+                  showDialog(DIALOG_CONNECTBREADCRUMBS);
+               }
+            }
+         }
+         public void onNothingSelected(AdapterView< ? > arg0)
+         { /* NOOP */
+         }
+      });
 
       mShareTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
       {
@@ -152,7 +179,6 @@ public class ShareTrack extends Activity
          {
             adjustTargetToType(position);
          }
-
          public void onNothingSelected(AdapterView< ? > arg0)
          { /* NOOP */
          }
@@ -223,6 +249,12 @@ public class ShareTrack extends Activity
                   .setMessage(mErrorDialogMessage + exceptionMessage).setNeutralButton(android.R.string.cancel, null);
             dialog = builder.create();
             return dialog;
+         case DIALOG_CONNECTBREADCRUMBS:
+            builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.dialog_breadcrumbsconnect).setMessage(R.string.dialog_breadcrumbsconnect_message).setIcon(android.R.drawable.ic_dialog_alert)
+            .setPositiveButton(R.string.btn_okay, mBreadcrumbsDialogListener).setNegativeButton(R.string.btn_cancel, null);
+      dialog = builder.create();
+      return dialog;
          default:
             return super.onCreateDialog(id);
       }

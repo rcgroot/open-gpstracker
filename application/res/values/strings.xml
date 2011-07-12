@@ -68,6 +68,8 @@
     <string name="taskerror_gpx_import">Importing GPX data</string>
     <string name="taskerror_xml_write">Writing XML data</string>
     <string name="taskerror_breadcrumbs">Retrieving data from GoBreadcrumbs</string>
+    <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
+    <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
     <string name="dialog_contrib_message">
     <b>Code</b>
     \n
