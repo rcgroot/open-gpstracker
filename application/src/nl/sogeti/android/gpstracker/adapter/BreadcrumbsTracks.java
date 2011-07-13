@@ -482,6 +482,7 @@ public class BreadcrumbsTracks
       return -1;
    }
 
+   // TODO Take activityId into account for requested ID
    public static Integer getIdForBundle(String selectedItem)
    {
       for (Integer bundleId : sBundleMappings.keySet())

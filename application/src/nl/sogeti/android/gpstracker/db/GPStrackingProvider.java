@@ -346,7 +346,7 @@ public class GPStrackingProvider extends ContentProvider
                trackId      = Long.parseLong( pathSegments.get( 1 ) );
                key          = values.getAsString( MetaData.KEY );
                value        = values.getAsString( MetaData.VALUE );
-               mediaId      = this.mDbHelper.insertMetaData( trackId, -1L, -1L, key, value );
+               mediaId      = this.mDbHelper.insertOrUpdateMetaData( trackId, -1L, -1L, key, value );
                insertedUri  = ContentUris.withAppendedId( MetaData.CONTENT_URI, mediaId );
                break;
             case SEGMENT_METADATA:
@@ -355,7 +355,7 @@ public class GPStrackingProvider extends ContentProvider
                segmentId    = Long.parseLong( pathSegments.get( 3 ) );
                key          = values.getAsString( MetaData.KEY );
                value        = values.getAsString( MetaData.VALUE );
-               mediaId      = this.mDbHelper.insertMetaData( trackId, segmentId, -1L, key, value );
+               mediaId      = this.mDbHelper.insertOrUpdateMetaData( trackId, segmentId, -1L, key, value );
                insertedUri  = ContentUris.withAppendedId( MetaData.CONTENT_URI, mediaId );
                break;
             case WAYPOINT_METADATA:
@@ -365,7 +365,7 @@ public class GPStrackingProvider extends ContentProvider
                waypointId   = Long.parseLong( pathSegments.get( 5 ) );
                key          = values.getAsString( MetaData.KEY );
                value        = values.getAsString( MetaData.VALUE );
-               mediaId      = this.mDbHelper.insertMetaData( trackId, segmentId, waypointId, key, value );
+               mediaId      = this.mDbHelper.insertOrUpdateMetaData( trackId, segmentId, waypointId, key, value );
                insertedUri  = ContentUris.withAppendedId( MetaData.CONTENT_URI, mediaId );
                break;
             default:
