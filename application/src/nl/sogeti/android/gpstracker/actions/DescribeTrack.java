@@ -41,8 +41,11 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,6 +68,10 @@ public class DescribeTrack extends Activity implements ProgressListener
 
    protected static final String TAG = "OGT.DescribeTrack";
 
+   private static final String ACTIVITY_ID = "ACTIVITY_ID";
+
+   private static final String BUNDLE_ID = "BUNDLE_ID";
+
    private Spinner mActivitySpinner;
    private Spinner mBundleSpinner;
    private EditText mDescriptionText;
@@ -82,6 +89,7 @@ public class DescribeTrack extends Activity implements ProgressListener
                Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
                String activityId = BreadcrumbsTracks.getIdForActivity((String) mActivitySpinner.getSelectedItem()).toString();
                String bundleId = BreadcrumbsTracks.getIdForBundle((String) mBundleSpinner.getSelectedItem()).toString();
+               saveBreadcrumbsPreference(mActivitySpinner.getSelectedItemPosition(), mBundleSpinner.getSelectedItemPosition());
                String description = mDescriptionText.getText().toString();
                String isPublic = Boolean.toString(mPublicCheck.isChecked());
                ContentValues[] metaValues = { buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, activityId),
@@ -219,6 +227,28 @@ public class DescribeTrack extends Activity implements ProgressListener
       }
    }
 
+
+   private void saveBreadcrumbsPreference(int activityPosition, int bundlePosition)
+   {
+      Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+      editor.putInt(ACTIVITY_ID, activityPosition);
+      editor.putInt(BUNDLE_ID, bundlePosition);
+      editor.commit();
+   }
+   
+   private void loadBreadcrumbsPreference()
+   {
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+      
+      int activityPos = prefs.getInt(ACTIVITY_ID, 0);
+      activityPos = activityPos < mActivitySpinner.getCount() ? activityPos : 0; 
+      mActivitySpinner.setSelection(activityPos);
+      
+      int bundlePos = prefs.getInt(BUNDLE_ID, 0);
+      bundlePos = bundlePos < mBundleSpinner.getCount() ? bundlePos : 0; 
+      mBundleSpinner.setSelection(bundlePos);
+   }
+
    private ContentValues buildContentValues(String key, String value)
    {
       ContentValues contentValues = new ContentValues();
@@ -273,6 +303,7 @@ public class DescribeTrack extends Activity implements ProgressListener
       {
          mActivitySpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getActivityAdapter(this));
          mBundleSpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getBundleAdapter(this, ""));
+         loadBreadcrumbsPreference();
       }
    }
 

@@ -171,12 +171,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          IllegalStateException e = new IllegalStateException(text);
          handleError(e, text);
       }
-      if( "-1".equals(mBundleId) )
-      {
-         String text = "Unable to upload (yet) without a bunld id stored in meta-data table";
-         IllegalStateException e =  new IllegalStateException(text);
-         handleError(e, text);
-      }
       
       int statusCode = 0 ;
       String responseText = null;
@@ -184,6 +178,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       HttpEntity responseEntity = null;
       try
       {
+         if( "-1".equals(mBundleId) )
+         {
+            createOpenGpsTrackerBundle();
+         }
+         
          String gpxString = XmlCreator.convertStreamToString( mContext.getContentResolver().openInputStream(gpxFile));
          
          HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/tracks");         
@@ -263,12 +262,49 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       else
       {
-         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_buildxml );
+         String text = mContext.getString( R.string.ticker_failed ) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString( R.string.error_response);
          handleError( new IOException("Status code: "+statusCode), text );
       }
       return trackUri;
    }
    
+   private void createOpenGpsTrackerBundle() throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException, IOException
+   {
+      HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/bundles.xml");
+      mConsumer.sign(method);
+      if( isCancelled() )
+      {
+         throw new IOException("Fail to execute request due to canceling");
+      }
+      MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+      entity.addPart("name", new StringBody(mContext.getString(R.string.app_name)));
+      entity.addPart("activity_id", new StringBody(mActivityId));
+      //entity.addPart("description", new StringBody(mContext.getString(R.string.breadcrumbs_bundledescription)));
+      method.setEntity(entity);
+      
+      HttpResponse response = mHttpClient.execute(method);
+      HttpEntity responseEntity = response.getEntity();
+      InputStream stream = responseEntity.getContent();
+      String responseText = XmlCreator.convertStreamToString(stream);
+      Pattern p = Pattern.compile(">([0-9]+)</id>");
+      Matcher m = p.matcher(responseText);
+      if( m.find() )
+      {
+         mBundleId = m.group(1);
+         
+         ContentValues values = new ContentValues();
+         values.put(MetaData.KEY, BreadcrumbsTracks.BUNDLE_ID);
+         values.put(MetaData.VALUE, mBundleId);
+         Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
+         mContext.getContentResolver().insert(metadataUri, values);
+      }
+      else
+      {
+         String text = "Unable to upload (yet) without a bunld id stored in meta-data table";
+         IllegalStateException e =  new IllegalStateException(text);
+         handleError(e, text);
+      }
+   }
    @Override
    protected void onPostExecute(Uri result)
    {      

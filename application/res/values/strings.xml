@@ -105,6 +105,7 @@
     <string name="error_filename"> reason: Incorrect filename</string>
     <string name="error_buildxml"> reason: Error building XML</string>
     <string name="error_writesdcard"> reason: Error writing to SD card</string>
+    <string name="error_response"> reason: Server response indicates error</string>
     <string name="tweettext">%1$s: Traveled %2$s with an average speed of %3$s during %4$s #opengpstracker</string>
     <string name="error_importgpx_xml">Failed reading the XML during import.</string>
     <string name="error_importgpx_io">Failed reading the file during import.</string>
