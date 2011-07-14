@@ -79,6 +79,7 @@ public class GpxCreator extends XmlCreator
 
    private String TAG = "OGT.GpxCreator";
    private boolean includeAttachments;
+   protected String mName;
 
    public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener listener)
    {
@@ -213,13 +214,13 @@ public class GpxCreator extends XmlCreator
       serializer.attribute(null, "xmlns", NS_GPX_11);
 
       // Big header of the track
-      String name = serializeTrackHeader(mContext, serializer, trackUri);
+      serializeTrackHeader(mContext, serializer, trackUri);
 
       serializer.text("\n");
       serializer.startTag("", "trk");
       serializer.text("\n");
       serializer.startTag("", "name");
-      serializer.text(name);
+      serializer.text(mName);
       serializer.endTag("", "name");
 
       // The list of segments in the track
@@ -232,7 +233,7 @@ public class GpxCreator extends XmlCreator
       serializer.endDocument();
    }
 
-   private String serializeTrackHeader(Context context, XmlSerializer serializer, Uri trackUri) throws IOException
+   private void serializeTrackHeader(Context context, XmlSerializer serializer, Uri trackUri) throws IOException
    {
       if (isCancelled())
       {
@@ -240,14 +241,14 @@ public class GpxCreator extends XmlCreator
       }
       ContentResolver resolver = context.getContentResolver();
       Cursor trackCursor = null;
-      String name = "Untitled";
+      mName = "Untitled";
 
       try
       {
          trackCursor = resolver.query(trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null);
          if (trackCursor.moveToFirst())
          {
-            name = trackCursor.getString(1);
+            mName = trackCursor.getString(1);
             serializer.text("\n");
             serializer.startTag("", "metadata");
             serializer.text("\n");
@@ -265,12 +266,11 @@ public class GpxCreator extends XmlCreator
          {
             trackCursor.close();
          }
-         if (name == null)
+         if (mName == null)
          {
-            name = "Untitled";
+            mName = "Untitled";
          }
       }
-      return name;
    }
 
    private void serializeSegments(XmlSerializer serializer, Uri segments) throws IOException
