@@ -180,7 +180,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          if( "-1".equals(mBundleId) )
          {
-            createOpenGpsTrackerBundle();
+            mBundleId = createOpenGpsTrackerBundle(mContext.getString(R.string.app_name), mActivityId);
          }
          
          String gpxString = XmlCreator.convertStreamToString( mContext.getContentResolver().openInputStream(gpxFile));
@@ -213,7 +213,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          responseText = XmlCreator.convertStreamToString(stream);
          Log.d( TAG, "Uploaded track "+entity.toString()+" and received response: "+responseText);
          
-         //TODO: Check for error in the response
          Pattern p = Pattern.compile(">([0-9]+)</id>");
          Matcher m = p.matcher(responseText);
          if( m.find() )
@@ -268,7 +267,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       return trackUri;
    }
    
-   private void createOpenGpsTrackerBundle() throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException, IOException
+   private String createOpenGpsTrackerBundle(String bundleName, String activityId) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException, IOException
    {
       HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/bundles.xml");
       mConsumer.sign(method);
@@ -276,10 +275,12 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          throw new IOException("Fail to execute request due to canceling");
       }
+      String bundleDescription = "";//mContext.getString(R.string.breadcrumbs_bundledescription);
+      
       MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-      entity.addPart("name", new StringBody(mContext.getString(R.string.app_name)));
-      entity.addPart("activity_id", new StringBody(mActivityId));
-      //entity.addPart("description", new StringBody(mContext.getString(R.string.breadcrumbs_bundledescription)));
+      entity.addPart("name", new StringBody(bundleName));
+      entity.addPart("activity_id", new StringBody(activityId));
+      entity.addPart("description", new StringBody(bundleDescription ));
       method.setEntity(entity);
       
       HttpResponse response = mHttpClient.execute(method);
@@ -288,15 +289,18 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       String responseText = XmlCreator.convertStreamToString(stream);
       Pattern p = Pattern.compile(">([0-9]+)</id>");
       Matcher m = p.matcher(responseText);
+      String bundleId = null;
       if( m.find() )
       {
-         mBundleId = m.group(1);
+         bundleId = m.group(1);
          
          ContentValues values = new ContentValues();
          values.put(MetaData.KEY, BreadcrumbsTracks.BUNDLE_ID);
-         values.put(MetaData.VALUE, mBundleId);
+         values.put(MetaData.VALUE, bundleId);
          Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
+         
          mContext.getContentResolver().insert(metadataUri, values);
+         mAdapter.getBreadcrumbsTracks().addBundle( Integer.parseInt(activityId), Integer.parseInt(bundleId), bundleName, bundleDescription);
       }
       else
       {
@@ -304,7 +308,9 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          IllegalStateException e =  new IllegalStateException(text);
          handleError(e, text);
       }
+      return bundleId;
    }
+   
    @Override
    protected void onPostExecute(Uri result)
    {      

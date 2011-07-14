@@ -87,13 +87,13 @@ public class DescribeTrack extends Activity implements ProgressListener
          {
             case DialogInterface.BUTTON_POSITIVE:
                Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
-               String activityId = BreadcrumbsTracks.getIdForActivity((String) mActivitySpinner.getSelectedItem()).toString();
-               String bundleId = BreadcrumbsTracks.getIdForBundle((String) mBundleSpinner.getSelectedItem()).toString();
+               Integer activityId = BreadcrumbsTracks.getIdForActivity((String) mActivitySpinner.getSelectedItem());
+               Integer bundleId = BreadcrumbsTracks.getIdForBundle(activityId, (String) mBundleSpinner.getSelectedItem());
                saveBreadcrumbsPreference(mActivitySpinner.getSelectedItemPosition(), mBundleSpinner.getSelectedItemPosition());
                String description = mDescriptionText.getText().toString();
                String isPublic = Boolean.toString(mPublicCheck.isChecked());
-               ContentValues[] metaValues = { buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, activityId),
-                     buildContentValues(BreadcrumbsTracks.BUNDLE_ID, bundleId), buildContentValues(BreadcrumbsTracks.DESCRIPTION, description),
+               ContentValues[] metaValues = { buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, activityId.toString()),
+                     buildContentValues(BreadcrumbsTracks.BUNDLE_ID, bundleId.toString()), buildContentValues(BreadcrumbsTracks.DESCRIPTION, description),
                      buildContentValues(BreadcrumbsTracks.ISPUBLIC, isPublic), };
                getContentResolver().bulkInsert(metadataUri, metaValues);
                Intent data = new Intent();
