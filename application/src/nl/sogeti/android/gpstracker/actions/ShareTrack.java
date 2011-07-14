@@ -335,6 +335,7 @@ public class ShareTrack extends Activity
             editor.putInt(Constants.EXPORT_TXTTARGET, target);
             editor.commit();
             exportTextLine(textLine, target);
+            break;
          default:
             Log.e(TAG, "Failed to determine sharing type" + type);
             break;
