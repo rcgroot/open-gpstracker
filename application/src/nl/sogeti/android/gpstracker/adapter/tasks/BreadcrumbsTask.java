@@ -52,7 +52,6 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
 
    public BreadcrumbsTask(BreadcrumbsAdapter adapter, ProgressListener listener)
    {
-      Log.d(TAG, "Created task with " + listener + " and " + adapter);
       mListener = listener;
       mAdapter = adapter;
    }
@@ -68,7 +67,6 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    @Override
    protected void onPreExecute()
    {
-      Log.d(TAG, "onPreExecute() " + this);
       if( mListener != null )
       {
          mListener.setIndeterminate(true);
@@ -79,7 +77,6 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    @Override
    protected void onPostExecute(Void result)
    {
-      Log.d(TAG, "onPostExecute() " + this);
       this.updateTracksData(mAdapter.getBreadcrumbsTracks());
       mAdapter.finishedTask();
       if( mListener != null )
@@ -93,7 +90,6 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    @Override
    protected void onCancelled()
    {
-      Log.d(TAG, "onCancelled() " + this);
       if( mListener != null )
       {
          mListener.finished(null);

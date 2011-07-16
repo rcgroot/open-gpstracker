@@ -223,7 +223,6 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
    @Override
    protected void updateTracksData(BreadcrumbsTracks tracks)
    {
-      tracks.createTracks(mBundleId);
       for (Object[] track : mTracks)
       {
          Integer trackId = (Integer) track[0];

@@ -31,6 +31,8 @@ package nl.sogeti.android.gpstracker.adapter;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Queue;
 
 import nl.sogeti.android.gpstracker.R;
@@ -74,17 +76,13 @@ import android.widget.TextView;
  * @version $Id:$
  * @author rene (c) Apr 24, 2011, Sogeti B.V.
  */
-public class BreadcrumbsAdapter extends BaseAdapter
+public class BreadcrumbsAdapter extends BaseAdapter implements Observer
 {
    private static final String TAG = "OGT.BreadcrumbsAdapter";
 
    public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
    public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
-   /**
-    * Time in milliseconds that a persisted breadcrumbs cache is used without a
-    * refresh
-    */
-   private static final long CACHE_TIMEOUT = 1000 * 10;//1000*60*10 ;
+   
    boolean mAuthorized;
    private Context mContext;
    private LayoutInflater mInflater;
@@ -111,6 +109,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mHttpClient = new DefaultHttpClient(cm);
 
       mTracks = new BreadcrumbsTracks(mContext.getContentResolver());
+      mTracks.addObserver(this);
       mPlannedTrackTasks = new LinkedList<GetBreadcrumbsTracksTask>();
    }
 
@@ -123,8 +122,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
       if (mAuthorized)
       {
          CommonsHttpOAuthConsumer consumer = getOAuthConsumer();
-         Date persisted = mTracks.readCache(mContext);
-         if (persisted == null || persisted.getTime() < new Date().getTime() - CACHE_TIMEOUT)
+         if (mTracks.readCache(mContext))
          {
             new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, consumer).execute();
             mPlannedBundleTask = new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer);
@@ -133,7 +131,6 @@ public class BreadcrumbsAdapter extends BaseAdapter
          {
             new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer).execute();
          }
-         notifyDataSetChanged();
       }
       return mAuthorized;
    }
@@ -318,10 +315,9 @@ public class BreadcrumbsAdapter extends BaseAdapter
    {
       return mTracks;
    }
-   
+
    public synchronized void finishedTask()
    {
-      notifyDataSetChanged();
       executeNextTask();
    }
 
@@ -356,11 +352,8 @@ public class BreadcrumbsAdapter extends BaseAdapter
       mHttpClient.getConnectionManager().shutdown();
       mHttpClient = null;
 
-
-
       mTracks.persistCache(mContext);
       mTracks = null;
-      notifyDataSetChanged();
    }
 
    public void startDownloadTask(Context context, ProgressListener listener, Pair<Integer, Integer> track)
@@ -398,7 +391,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
          }
       };
       PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(tokenChangedListener);
-      
+
       Intent i = new Intent(mContext.getApplicationContext(), PrepareRequestTokenActivity.class);
       i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
       i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
@@ -410,5 +403,10 @@ public class BreadcrumbsAdapter extends BaseAdapter
       i.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.AUTHORIZE_URL);
 
       mContext.startActivity(i);
+   }
+
+   public void update(Observable observable, Object data)
+   {
+      notifyDataSetChanged();
    }
 }

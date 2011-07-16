@@ -108,6 +108,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    @Override
    protected Uri doInBackground(Void... params)
    {
+      Log.d( TAG, "doInBackground()"+ mTrackUri );
       // Leave room in the progressbar for uploading
       determineProgressGoal();
       setMaximumProgress(getMaximumProgress() * 2);
