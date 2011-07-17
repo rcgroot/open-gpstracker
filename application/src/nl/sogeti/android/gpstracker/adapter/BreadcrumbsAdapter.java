@@ -127,10 +127,6 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
             new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, consumer).execute();
             mPlannedBundleTask = new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer);
          }
-         else
-         {
-            new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer).execute();
-         }
       }
       return mAuthorized;
    }
@@ -238,14 +234,17 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
 
                nameView.setText(mTracks.getValueForItem(item, BreadcrumbsTracks.NAME));
                String dateString = mTracks.getValueForItem(item, BreadcrumbsTracks.ENDTIME);
-               try
+               if(dateString != null)
                {
-                  Long date = GpxParser.parseXmlDateTime(dateString);
-                  dateView.setText(date.toString());
-               }
-               catch (ParseException e)
-               {
-                  Log.w(TAG, "Unable to parse Breadcrumbs end-time " + dateString);
+                  try
+                  {
+                     Long date = GpxParser.parseXmlDateTime(dateString);
+                     dateView.setText(date.toString());
+                  }
+                  catch (ParseException e)
+                  {
+                     Log.w(TAG, "Unable to parse Breadcrumbs end-time " + dateString);
+                  }
                }
                break;
             default:

@@ -141,7 +141,6 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
             }
             eventType = xpp.next();
          }
-         Log.d(TAG, "Read inputstream from http response anything available: " + stream.read());
       }
       catch (OAuthMessageSignerException e)
       {
