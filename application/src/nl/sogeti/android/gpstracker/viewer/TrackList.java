@@ -482,9 +482,9 @@ public class TrackList extends ListActivity implements ProgressListener
             break;
          case DIALOG_ERROR:
             alert = (AlertDialog) dialog;
-            message = "Failed task:\n"+mErrorTask;
+            message = "Failed task:\n" + mErrorTask;
             message += "\n\n";
-            message += "Reason:\n"+mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ";            
+            message += "Reason:\n" + mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ";
             alert.setMessage(message);
             break;
          case DIALOG_IMPORT:
@@ -510,6 +510,13 @@ public class TrackList extends ListActivity implements ProgressListener
             default:
                super.onActivityResult(requestCode, resultCode, data);
                break;
+         }
+      }
+      else
+      {
+         if(requestCode == DESCRIBE)
+         {
+            mBreadcrumbAdapter.notifyDataSetChanged();
          }
       }
    }
@@ -613,8 +620,7 @@ public class TrackList extends ListActivity implements ProgressListener
                         if (isChecked)
                         {
                            Log.d(TAG, "View" + buttonView + " track id " + trackId);
-
-                           buttonView.setEnabled(false);
+                           
                            // Start a description of the track
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
                            namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));
@@ -681,13 +687,13 @@ public class TrackList extends ListActivity implements ProgressListener
       mErrorTask = task;
       mErrorDialogMessage = errorDialogMessage;
       mErrorDialogException = errorDialogException;
-      if( !isFinishing() )
+      if (!isFinishing())
       {
          showDialog(DIALOG_ERROR);
       }
       else
       {
-         Log.e(TAG, errorDialogMessage, errorDialogException );
+         Log.e(TAG, errorDialogMessage, errorDialogException);
       }
    }
 
