@@ -108,7 +108,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    @Override
    protected Uri doInBackground(Void... params)
    {
-      Log.d( TAG, "doInBackground()"+ mTrackUri );
+      Log.d(TAG, "doInBackground()" + mTrackUri);
       // Leave room in the progressbar for uploading
       determineProgressGoal();
       setMaximumProgress(getMaximumProgress() * 2);
@@ -177,7 +177,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       String responseText = null;
       Uri trackUri = null;
       HttpEntity responseEntity = null;
-      Integer trackId = null;
       try
       {
          if ("-1".equals(mBundleId))
@@ -219,7 +218,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          Matcher m = p.matcher(responseText);
          if (m.find())
          {
-            trackId = new Integer(m.group(1));
+            Integer trackId = new Integer(m.group(1));
             trackUri = Uri.parse("http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx");
          }
       }
@@ -268,9 +267,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
                + mContext.getString(R.string.error_response);
          handleError(new IOException("Status code: " + statusCode), text);
       }
-
-      mAdapter.getBreadcrumbsTracks().addTrack(trackId, mName, new Integer(mBundleId), mDescription, null, null, null, mIsPublic, null, null,
-            null, null, null);
       return trackUri;
    }
 
@@ -348,6 +344,9 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       // Store in Breadcrumbs adapter
       tracks.addSyncedTrack(new Long(mTrackUri.getLastPathSegment()), bcTrackId);
 
+      //"http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx"
+      Integer trackId = new Integer(result.getPathSegments().get(2));
+      mAdapter.getBreadcrumbsTracks().addTrack(trackId, mName, new Integer(mBundleId), mDescription, null, null, null, mIsPublic, null, null, null, null, null);
       mAdapter.finishedTask();
 
       super.onPostExecute(result);
