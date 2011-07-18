@@ -56,6 +56,20 @@
     <string name="dialog_nooipicker">OI File Manager</string>
     <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files. After accepting OI File Manager EULA the import button works.</string>
     <string name="dialog_contrib_title">Contribute</string>
+    <string name="dialog_bundlecreate_hint">New bundle name</string>
+    <string name="dialog_trackdescription_hint">Description of the track</string>
+    <string name="dialog_public">Public posting</string>
+    <string name="dialog_description_title">Track description</string>
+    <string name="dialog_description_message">Please supply additional information before uploading</string>
+    <string name="dialog_bundle">Bundle: %1$s</string>
+    <string name="authentication_redirect">Placing authentication request</string>
+    <string name="loading">Loading...</string>
+    <string name="no_information_available">No information available.</string>
+    <string name="taskerror_gpx_import">Importing GPX data</string>
+    <string name="taskerror_xml_write">Writing XML data</string>
+    <string name="taskerror_breadcrumbs">Retrieving data from GoBreadcrumbs</string>
+    <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
+    <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
     <string name="dialog_contrib_message">
     <b>Code</b>
     \n
@@ -81,7 +95,6 @@
     \n\n
     </string>
     
-    
     <!-- Messages -->
     <string name="from">Tracked on: </string>
     <string name="no_tracks">No hay tracks guardados</string>
@@ -92,6 +105,7 @@
     <string name="error_filename"> reason: Incorrect filename</string>
     <string name="error_buildxml"> reason: Error building XML</string>
     <string name="error_writesdcard"> reason: Error writing to SD card</string>
+    <string name="error_response"> reason: Server response indicates error</string>
     <string name="tweettext">%1$s: Traveled %2$s with an average speed of %3$s during %4$s #opengpstracker</string>
     <string name="error_importgpx_xml">Failed reading the XML during import.</string>
     <string name="error_importgpx_io">Failed reading the file during import.</string>
@@ -186,6 +200,8 @@
     <string name="stat_starttime">Hora de inicio</string>    
     <string name="stat_trackname">Nombre del track</string>
     <string name="stat_waypoints">Waypoints</string>
+    <string name="stat_elapsedtime">Elapsed</string>
+    <string name="stat_ascension">Total elevation</string>
     <string name="track_list">Tracks</string>
     <string name="search_label">Tracks</string>
     <string name="search_description">Open GPS Tracker track names</string>
@@ -214,15 +230,15 @@
 	<string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
     <string name="osm_success">Track subido con éxito a www.openstreetmap.org: </string>
     <string name="osm_failed">Falló la subida del track a www.openstreetmap.org: </string>
+    <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
     <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.</string>
-
+    <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
+        
 <!-- ***************************
    About information
    ***************************-->
    <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
    <string name="about_activity_name_extended">Acerca de %s</string>
-   <string name="no_information_available">No hay información disponible.</string>
-   
 </resources>
