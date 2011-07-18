@@ -56,6 +56,20 @@
     <string name="dialog_nooipicker">OI File Manager</string>
     <string name="dialog_nooipicker_message">Applicazione \"OI File Manager\" dal progetto OpenIntents richiesta per scelta files. Dopo accetto OI File Manager EULA bottone importo funziona.</string>
     <string name="dialog_contrib_title">Contribuire</string>
+    <string name="dialog_bundlecreate_hint">New bundle name</string>
+    <string name="dialog_trackdescription_hint">Description of the track</string>
+    <string name="dialog_public">Public posting</string>
+    <string name="dialog_description_title">Track description</string>
+    <string name="dialog_description_message">Please supply additional information before uploading</string>
+    <string name="dialog_bundle">Bundle: %1$s</string>
+    <string name="authentication_redirect">Placing authentication request</string>
+    <string name="loading">Loading...</string>
+    <string name="no_information_available">No information available.</string>
+    <string name="taskerror_gpx_import">Importing GPX data</string>
+    <string name="taskerror_xml_write">Writing XML data</string>
+    <string name="taskerror_breadcrumbs">Retrieving data from GoBreadcrumbs</string>
+    <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
+    <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
     <string name="dialog_contrib_message">
     <b>Code</b>
     \n
@@ -81,7 +95,6 @@
     \n\n
     </string>
     
-    
     <!-- Messages -->
     <string name="from">Tracciato il: </string>
     <string name="no_tracks">Nessune tracce registrate</string>
@@ -92,25 +105,26 @@
     <string name="error_filename"> motivo: Nome file incorretto</string>
     <string name="error_buildxml"> motivo: Errore costruzione XML</string>
     <string name="error_writesdcard"> motivo: Errore scrittura su scheda SD</string>
+    <string name="error_response"> reason: Server response indicates error</string>
     <string name="tweettext">%1$s: Percorso %2$s con velocità media %3$s durante %4$s #opengpstracker</string>
     <string name="error_importgpx_xml">Errore lettura XML durante importo.</string>
     <string name="error_importgpx_io">Errore lettura file durante importo.</string>
     <string name="error_importgpx_parse">Errore lettura numero durante importo.</string>
     
     <!-- Buttons -->
-	  <string name="btn_okay">OK</string>
-	  <string name="btn_cancel">Annullare</string>
-	  <string name="btn_save">Salvaguardare</string>
-	  <string name="btn_selecttrack">Selezionare traccia</string>
+	<string name="btn_okay">OK</string>
+	<string name="btn_cancel">Annullare</string>
+	<string name="btn_save">Salvaguardare</string>
+	<string name="btn_selecttrack">Selezionare traccia</string>
     <string name="btn_install">Installare</string>
     <string name="btn_skip">Omettere</string>
 	
     <!-- Menu's -->
-	  <string name="menu_settings">Impostazioni</string>
+	<string name="menu_settings">Impostazioni</string>
     <string name="menu_tracking">Tracciature</string>
-	  <string name="menu_tracklist">Lista tracce</string>
-	  <string name="menu_shareTrack">Condividere traccia</string>
-	  <string name="menu_deleteTrack">Cancellare traccia</string>
+	<string name="menu_tracklist">Lista tracce</string>
+	<string name="menu_shareTrack">Condividere traccia</string>
+	<string name="menu_deleteTrack">Cancellare traccia</string>
     <string name="menu_renameTrack">Rinominare traccia</string>
     <string name="menu_statistics">Statistiche</string>
     <string name="menu_about">A proposito</string>
@@ -186,6 +200,8 @@
     <string name="stat_starttime">Ora inizio</string>    
     <string name="stat_trackname">Nome traccia</string>
     <string name="stat_waypoints">Punti</string>
+    <string name="stat_elapsedtime">Elapsed</string>
+    <string name="stat_ascension">Total elevation</string>
     <string name="track_list">Tracce</string>
     <string name="search_label">Tracce</string>
     <string name="search_description">Nomi tracce Open GPS Tracker</string>
@@ -204,25 +220,25 @@
     <string name="customprecisiondistance_summary">Distanza da coprire entro punti.</string>
     <string name="gpsstatusmonitor_title">Monitor stato GPS</string>
     <string name="gpsstatusmonitor_summary">Mostra numero satelliti utilizzati.</string>
-	  <string name="osmusername_title">Nome utilizzatore OpenStreetMap</string>
-	  <string name="osmusername_summary">Nome utilizzatore creato su http://www.openstreetmap.org/user/new</string>
-	  <string name="osmusername_message">Acconto OpenStreetMap permette di redigere dati mappa per contribuire alla mappa. Open GPS Tracker lo utilizza per caricare nuovi dati GPS.</string>
-	  <string name="osmpassword_title">Password OpenStreetMap</string>
-	  <string name="osmpassword_summary">Password utilizzato su http://www.openstreetmap.org/user/new.</string>
-	  <string name="osmpassword_message">Questa password verrà utilizzata su HTTP e Basic Authorization su openstreetmap.org server.</string>
-	  <string name="osmvisibility_title">Visibilità pubblica tracce GPS su openstreetmap.org</string>
-	  <string name="osmvisibility_summary">Consultare wiki openstreetmap.org wiki per maggiore informazione sui livelli visibili.</string>
+	<string name="osmusername_title">Nome utilizzatore OpenStreetMap</string>
+	<string name="osmusername_summary">Nome utilizzatore creato su http://www.openstreetmap.org/user/new</string>
+	<string name="osmusername_message">Acconto OpenStreetMap permette di redigere dati mappa per contribuire alla mappa. Open GPS Tracker lo utilizza per caricare nuovi dati GPS.</string>
+	<string name="osmpassword_title">Password OpenStreetMap</string>
+	<string name="osmpassword_summary">Password utilizzato su http://www.openstreetmap.org/user/new.</string>
+	<string name="osmpassword_message">Questa password verrà utilizzata su HTTP e Basic Authorization su openstreetmap.org server.</string>
+	<string name="osmvisibility_title">Visibilità pubblica tracce GPS su openstreetmap.org</string>
+	<string name="osmvisibility_summary">Consultare wiki openstreetmap.org wiki per maggiore informazione sui livelli visibili.</string>
     <string name="osm_success">Caricamento riuscito della traccia su www.openstreetmap.org: </string>
     <string name="osm_failed">Caricamento impossibile della traccia su www.openstreetmap.org: </string>
+    <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
     <string name="sddirectory_title">Direttorio scheda SD usato per salvaguardia tracce condivise</string>
     <string name="sddirectory_summary">Tracce e media create sono salvaguardate su questo direttorio scheda SD.</string>
     <string name="sddirectory_message">Entrare percorso aggiunto alla scheda SD per utilizzo dei files. Per esempio il /OpenGPSTracker/ utilizzato per difetto aggiunge un direttorio unico alla scheda SD e /Apps/OpenGPSTracker/ include entrambi.</string>
-
+    <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
+    
 <!-- ***************************
    About information
    ***************************-->
    <string name="about_comments">Applicazione che registra, mediante GPS, l\'itinerario del vostro cellulare.</string>
    <string name="about_activity_name_extended">A proposito %s</string>
-   <string name="no_information_available">Nessuna informazione disponibile.</string>
-   
 </resources>
