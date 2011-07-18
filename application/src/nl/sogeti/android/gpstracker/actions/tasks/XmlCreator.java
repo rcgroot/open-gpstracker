@@ -415,14 +415,12 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    @Override
    protected void onPostExecute(Uri resultFilename)
    {
-      Log.d( TAG, "onPostExecute()");
       mProgressListener.finished(resultFilename);
    }
 
    @Override
    protected void onCancelled()
    {
-      Log.d( TAG, "onCancelled()");
       mProgressListener.finished(null);
       mProgressListener.showError(mContext.getString(R.string.taskerror_xml_write), mErrorText, mException);
    }

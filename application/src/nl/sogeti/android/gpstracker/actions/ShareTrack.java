@@ -428,7 +428,6 @@ public class ShareTrack extends Activity
 
    private void sendToBreadcrumbs(Uri mTrackUri)
    {
-      Log.d( TAG, "sendToBreadcrumbs(Uri "+mTrackUri+")");
       // Start a description of the track
       Intent namingIntent = new Intent(this, DescribeTrack.class);
       namingIntent.setData(mTrackUri);
@@ -443,8 +442,6 @@ public class ShareTrack extends Activity
          switch (requestCode)
          {
             case DESCRIBE:
-
-               Log.d( TAG, "onActivityResult(int "+requestCode+", int "+resultCode+", Intent "+data+")");
                Uri trackUri = data.getData();
                BreadcrumbsAdapter adapter = new BreadcrumbsAdapter(this, null);
                adapter.startUploadTask(this, new ShareProgressListener("shareToGobreadcrumbs"), trackUri);

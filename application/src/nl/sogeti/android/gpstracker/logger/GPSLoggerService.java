@@ -100,8 +100,8 @@ public class GPSLoggerService extends Service
     */
    private static final int MAX_REASONABLE_ALTITUDECHANGE = 200;
 
-   private static final Boolean DEBUG = true;
-   private static final boolean VERBOSE = true;
+   private static final Boolean DEBUG = false;
+   private static final boolean VERBOSE = false;
    private static final String TAG = "OGT.GPSLoggerService";
 
    private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";

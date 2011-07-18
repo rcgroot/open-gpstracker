@@ -108,7 +108,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    @Override
    protected Uri doInBackground(Void... params)
    {
-      Log.d(TAG, "doInBackground()" + mTrackUri);
       // Leave room in the progressbar for uploading
       determineProgressGoal();
       setMaximumProgress(getMaximumProgress() * 2);
@@ -212,7 +211,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          responseEntity = response.getEntity();
          InputStream stream = responseEntity.getContent();
          responseText = XmlCreator.convertStreamToString(stream);
-         Log.d(TAG, "Uploaded track " + entity.toString() + " and received response: " + responseText);
 
          Pattern p = Pattern.compile(">([0-9]+)</id>");
          Matcher m = p.matcher(responseText);

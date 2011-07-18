@@ -279,8 +279,7 @@ public class TrackList extends ListActivity implements ProgressListener
    protected void onListItemClick(ListView listView, View view, int position, long id)
    {
       super.onListItemClick(listView, view, position, id);
-      Log.d(TAG, "Clicked on view " + view);
-
+      
       Object item = listView.getItemAtPosition(position);
       if (item instanceof String)
       {
@@ -618,9 +617,7 @@ public class TrackList extends ListActivity implements ProgressListener
                      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
                      {
                         if (isChecked)
-                        {
-                           Log.d(TAG, "View" + buttonView + " track id " + trackId);
-                           
+                        {                           
                            // Start a description of the track
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
                            namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));

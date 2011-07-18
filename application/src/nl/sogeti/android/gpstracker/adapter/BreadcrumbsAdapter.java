@@ -87,7 +87,7 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
    private Context mContext;
    private LayoutInflater mInflater;
    private BreadcrumbsTracks mTracks;
-   private DefaultHttpClient mHttpClient;
+   private DefaultHttpClient mHttpClient;`
 
    private GetBreadcrumbsBundlesTask mPlannedBundleTask;
    private Queue<GetBreadcrumbsTracksTask> mPlannedTrackTasks;

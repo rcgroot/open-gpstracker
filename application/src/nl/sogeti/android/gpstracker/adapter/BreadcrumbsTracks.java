@@ -218,8 +218,6 @@ public class BreadcrumbsTracks extends Observable
    public void addTrack(Integer trackId, String trackName, Integer bundleId, String trackDescription, String difficulty, String startTime, String endTime,
          String isPublic, Float lat, Float lng, Float totalDistance, Integer totalTime, String trackRating)
    {
-      Log.d( TAG, "addTrack "+trackId+" "+trackName+" to bundle "+bundleId+" to "+toString());
-      
       if (!sBundlesWithTracks.get(bundleId).contains(trackId))
       {
          sBundlesWithTracks.get(bundleId).add(trackId);
