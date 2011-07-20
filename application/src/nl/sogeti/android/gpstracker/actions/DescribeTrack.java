@@ -128,8 +128,6 @@ public class DescribeTrack extends Activity implements ProgressListener
 
    private ProgressBar mProgressSpinner;
 
-   private boolean mUpdating = true;
-
    @Override
    protected void onCreate(Bundle savedInstanceState)
    {
@@ -139,7 +137,10 @@ public class DescribeTrack extends Activity implements ProgressListener
       paused = false;
 
       mTrackUri = this.getIntent().getData();
+   }
 
+   private void connectBreadcrumbs()
+   {
       mBreadcrumbAdapter = new BreadcrumbsAdapter(this, this);
       boolean authorized = mBreadcrumbAdapter.connectionSetup();
       if (!authorized)
@@ -212,21 +213,20 @@ public class DescribeTrack extends Activity implements ProgressListener
             return super.onCreateDialog(id);
       }
    }
-
+   
    @Override
    protected void onPrepareDialog(int id, Dialog dialog)
    {
       switch (id)
       {
          case DIALOG_TRACKDESCRIPTION:
-            setUiEnabled(!mUpdating);
+            connectBreadcrumbs();
             break;
          default:
             super.onPrepareDialog(id, dialog);
             break;
       }
    }
-
 
    private void saveBreadcrumbsPreference(int activityPosition, int bundlePosition)
    {
@@ -257,27 +257,27 @@ public class DescribeTrack extends Activity implements ProgressListener
       return contentValues;
    }
 
-   public void setIndeterminate(boolean indeterminate)
-   {
-      // Ignored only spinner
-   }
-
-   public void setMax(int max)
-   {
-      // Ignored only spinner
-   }
-
-   public void increaseProgress(int value)
-   {
-      // Ignored only spinner
-   }
-
    public void started()
    {
-      mUpdating = true;
-      setUiEnabled(!mUpdating);
+      setUiEnabled(false);
    }
 
+   public void finished(Uri result)
+   {
+      setUiEnabled(true);
+   }
+
+   public void showError(String task, String errorMessage, Exception exception)
+   {
+      setUiEnabled(true);
+      finish();
+   }
+   // Ignored only spinner
+   public void setIndeterminate(boolean indeterminate){}
+   public void setMax(int max){}
+   public void increaseProgress(int value){}
+
+   
    private void setUiEnabled(boolean enabled)
    {
       if (mProgressSpinner != null)
@@ -291,7 +291,7 @@ public class DescribeTrack extends Activity implements ProgressListener
             mProgressSpinner.setVisibility(View.VISIBLE);
          }
       }
-
+   
       for (View view : new View[] { mActivitySpinner, mBundleSpinner, mDescriptionText, mPublicCheck })
       {
          if (view != null)
@@ -305,16 +305,5 @@ public class DescribeTrack extends Activity implements ProgressListener
          mBundleSpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getBundleAdapter(this, ""));
          loadBreadcrumbsPreference();
       }
-   }
-
-   public void finished(Uri result)
-   {
-      mUpdating = false;
-      setUiEnabled(!mUpdating);
-   }
-
-   public void showError(String task, String errorMessage, Exception exception)
-   {
-      // TODO Auto-generated method stub
    }
 }

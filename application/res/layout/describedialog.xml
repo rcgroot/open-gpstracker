@@ -44,7 +44,8 @@
          android:id="@+id/progressSpinner"
          style="?android:attr/progressBarStyleLarge"
          android:layout_centerVertical="true"
-         android:layout_centerHorizontal="true"></ProgressBar>
+         android:layout_centerHorizontal="true"
+         android:visibility="gone"></ProgressBar>
       <TextView
          android:layout_width="wrap_content"
          android:text="Activity"

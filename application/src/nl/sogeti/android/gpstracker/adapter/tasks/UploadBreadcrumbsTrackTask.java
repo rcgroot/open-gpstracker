@@ -269,12 +269,9 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       else
       {
-         String text = mContext.getString(R.string.ticker_failed) + " \"http://api.gobreadcrumbs.com/v1/tracks\" "
-               + mContext.getString(R.string.error_response);
-
          mAdapter.removeAuthentication();
          
-         handleError(new IOException("Status code: " + statusCode), text);
+         handleError(new IOException("Status code: " + statusCode), responseText);
       }
       return trackUri;
    }
