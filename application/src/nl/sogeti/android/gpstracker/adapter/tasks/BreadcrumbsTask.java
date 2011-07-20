@@ -48,7 +48,7 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    private String mErrorText;
    private Exception mException;
 
-   private BreadcrumbsAdapter mAdapter;
+   protected BreadcrumbsAdapter mAdapter;
 
    public BreadcrumbsTask(BreadcrumbsAdapter adapter, ProgressListener listener)
    {
@@ -59,6 +59,8 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    protected void handleError(Exception e, String text)
    {
       Log.e(TAG, "Received error will cancel background task " + this.getClass().getName(), e);
+      
+      mAdapter.removeAuthentication();
       mException = e;
       mErrorText = text;
       cancel(true);

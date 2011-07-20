@@ -227,14 +227,17 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       catch (OAuthMessageSignerException e)
       {
+         mAdapter.removeAuthentication();
          handleError(e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
+         mAdapter.removeAuthentication();
          handleError(e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
+         mAdapter.removeAuthentication();
          handleError(e, "The authentication communication failed");
       }
       catch (IOException e)
@@ -266,9 +269,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       else
       {
-         // TODO Access disallowed: remove auth keys
          String text = mContext.getString(R.string.ticker_failed) + " \"http://api.gobreadcrumbs.com/v1/tracks\" "
                + mContext.getString(R.string.error_response);
+
+         mAdapter.removeAuthentication();
+         
          handleError(new IOException("Status code: " + statusCode), text);
       }
       return trackUri;
@@ -353,12 +358,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       //"http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx"
 
       mAdapter.getBreadcrumbsTracks().addTrack(bcTrackId, mName, new Integer(mBundleId), mDescription, null, null, null, mIsPublic, null, null, null, null, null);
-      
       mAdapter.finishedTask();
 
       super.onPostExecute(result);
    }
-
+  
    private ContentValues buildContentValues(String key, String value)
    {
       ContentValues contentValues = new ContentValues();

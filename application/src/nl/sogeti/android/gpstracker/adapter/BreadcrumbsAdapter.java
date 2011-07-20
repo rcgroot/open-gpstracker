@@ -29,7 +29,6 @@
 package nl.sogeti.android.gpstracker.adapter;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
@@ -46,7 +45,6 @@ import nl.sogeti.android.gpstracker.adapter.tasks.UploadBreadcrumbsTrackTask;
 import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
-import nl.sogeti.android.gpstracker.viewer.TrackList;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 
 import org.apache.ogt.http.conn.ClientConnectionManager;
@@ -60,6 +58,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -71,7 +70,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 /**
- * ????
+ * Organizes Breadcrumbs tasks based on demands on the BaseAdapter functions 
  * 
  * @version $Id:$
  * @author rene (c) Apr 24, 2011, Sogeti B.V.
@@ -141,6 +140,16 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
       return consumer;
    }
 
+
+   public void removeAuthentication()
+   {
+      Log.w( TAG, "Removing Breadcrumbs OAuth tokens");
+      Editor e = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
+      e.remove(OAUTH_TOKEN);
+      e.remove(OAUTH_TOKEN_SECRET);
+      e.commit();
+   }
+   
    /*
     * (non-Javadoc)
     * @see android.widget.Adapter#getCount()

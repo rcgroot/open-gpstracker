@@ -160,14 +160,17 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       }
       catch (OAuthMessageSignerException e)
       {
+         mAdapter.removeAuthentication();
          handleError(e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
+         mAdapter.removeAuthentication();
          handleError(e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
+         mAdapter.removeAuthentication();
          handleError(e, "The authentication communication failed");
       }
       catch (IOException e)
