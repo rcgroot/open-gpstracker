@@ -81,6 +81,9 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    private String mBundleId;
    private String mDescription;
    private String mIsPublic;
+   private String mBundleName;
+   private String mBundleDescription;
+   private boolean mIsBundleCreated;
 
    /**
     * Constructor: create a new UploadBreadcrumbsTrackTask.
@@ -180,7 +183,9 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          if ("-1".equals(mBundleId))
          {
-            mBundleId = createOpenGpsTrackerBundle(mContext.getString(R.string.app_name), mActivityId);
+            mBundleDescription = "";//mContext.getString(R.string.breadcrumbs_bundledescription);
+            mBundleName = mContext.getString(R.string.app_name);
+            mBundleId = createOpenGpsTrackerBundle();
          }
 
          String gpxString = XmlCreator.convertStreamToString(mContext.getContentResolver().openInputStream(gpxFile));
@@ -261,6 +266,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       else
       {
+         // TODO Access disallowed: remove auth keys
          String text = mContext.getString(R.string.ticker_failed) + " \"http://api.gobreadcrumbs.com/v1/tracks\" "
                + mContext.getString(R.string.error_response);
          handleError(new IOException("Status code: " + statusCode), text);
@@ -268,7 +274,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       return trackUri;
    }
 
-   private String createOpenGpsTrackerBundle(String bundleName, String activityId) throws OAuthMessageSignerException, OAuthExpectationFailedException,
+   private String createOpenGpsTrackerBundle() throws OAuthMessageSignerException, OAuthExpectationFailedException,
          OAuthCommunicationException, IOException
    {
       HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/bundles.xml");
@@ -277,12 +283,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          throw new IOException("Fail to execute request due to canceling");
       }
-      String bundleDescription = "";//mContext.getString(R.string.breadcrumbs_bundledescription);
-
+      
       MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-      entity.addPart("name", new StringBody(bundleName));
-      entity.addPart("activity_id", new StringBody(activityId));
-      entity.addPart("description", new StringBody(bundleDescription));
+      entity.addPart("name", new StringBody(mBundleName));
+      entity.addPart("activity_id", new StringBody(mActivityId));
+      entity.addPart("description", new StringBody(mBundleDescription));
       method.setEntity(entity);
 
       HttpResponse response = mHttpClient.execute(method);
@@ -302,7 +307,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
 
          mContext.getContentResolver().insert(metadataUri, values);
-         mAdapter.getBreadcrumbsTracks().addBundle(Integer.parseInt(activityId), Integer.parseInt(bundleId), bundleName, bundleDescription);
+         mIsBundleCreated = true;
       }
       else
       {
@@ -341,10 +346,14 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 
       // Store in Breadcrumbs adapter
       tracks.addSyncedTrack(new Long(mTrackUri.getLastPathSegment()), bcTrackId);
-
+      if( mIsBundleCreated )
+      {
+         mAdapter.getBreadcrumbsTracks().addBundle(Integer.parseInt(mActivityId), Integer.parseInt(mBundleId), mBundleName, mBundleDescription);
+      }
       //"http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx"
-      Integer trackId = new Integer(result.getPathSegments().get(2));
-      mAdapter.getBreadcrumbsTracks().addTrack(trackId, mName, new Integer(mBundleId), mDescription, null, null, null, mIsPublic, null, null, null, null, null);
+
+      mAdapter.getBreadcrumbsTracks().addTrack(bcTrackId, mName, new Integer(mBundleId), mDescription, null, null, null, mIsPublic, null, null, null, null, null);
+      
       mAdapter.finishedTask();
 
       super.onPostExecute(result);
