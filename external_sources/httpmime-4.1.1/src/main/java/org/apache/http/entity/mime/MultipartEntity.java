@@ -33,11 +33,10 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Random;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.protocol.HTTP;
+import org.apache.ogt.http.HttpEntity;
+import org.apache.ogt.http.message.BasicHeader;
+import org.apache.ogt.http.protocol.HTTP;
 
 /**
  * Multipart/form coded HTTP entity consisting of multiple body parts.
