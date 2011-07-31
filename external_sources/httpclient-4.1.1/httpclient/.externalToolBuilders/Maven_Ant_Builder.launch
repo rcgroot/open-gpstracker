@@ -16,6 +16,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.ant.ui.AntClasspathProvider"/>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="httpclient"/>
+<booleanAttribute key="org.eclipse.ui.externaltools.ATTR_BUILDER_ENABLED" value="false"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_BUILD_SCOPE" value="${working_set:&lt;?xml version='1.0'?&gt;&lt;launchConfigurationWorkingSet editPageId='org.eclipse.ui.resourceWorkingSetPage' factoryID='org.eclipse.ui.internal.WorkingSetFactory' label='workingSet' name='workingSet'&gt;&lt;item factoryID='org.eclipse.ui.internal.model.ResourceFactory' path='httpclient' type='4'/&gt;&lt;/launchConfigurationWorkingSet&gt;}"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="${build_project}/maven-eclipse.xml"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_RUN_BUILD_KINDS" value="full,incremental,auto,clean"/>
