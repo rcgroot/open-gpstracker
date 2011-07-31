@@ -89,6 +89,7 @@ public class TrackList extends ListActivity implements ProgressListener
    private static final int MENU_SEARCH = Menu.FIRST + 4;
    private static final int MENU_VACUUM = Menu.FIRST + 5;
    private static final int MENU_PICKER = Menu.FIRST + 6;
+   private static final int MENU_BREADCRUMBS = Menu.FIRST + 7;
 
    public static final int DIALOG_FILENAME = Menu.FIRST + 22;
    private static final int DIALOG_RENAME = Menu.FIRST + 23;
@@ -239,7 +240,7 @@ public class TrackList extends ListActivity implements ProgressListener
             .setAlphabeticShortcut(SearchManager.MENU_KEY);
       menu.add(ContextMenu.NONE, MENU_VACUUM, ContextMenu.NONE, R.string.menu_vacuum).setIcon(android.R.drawable.ic_menu_crop);
       menu.add(ContextMenu.NONE, MENU_PICKER, ContextMenu.NONE, R.string.menu_picker).setIcon(android.R.drawable.ic_menu_add);
-
+      menu.add(ContextMenu.NONE, MENU_BREADCRUMBS, ContextMenu.NONE, R.string.dialog_breadcrumbsconnect).setIcon(android.R.drawable.ic_menu_gallery);
       return result;
    }
 
@@ -268,6 +269,11 @@ public class TrackList extends ListActivity implements ProgressListener
             {
                showDialog(DIALOG_INSTALL);
             }
+            break;
+         case MENU_BREADCRUMBS:
+            mBreadcrumbAdapter.removeAuthentication();
+            mBreadcrumbAdapter.getBreadcrumbsTracks().clearAllCache(this);
+            mBreadcrumbAdapter.requestBreadcrumbsOauthToken(this);
             break;
          default:
             handled = super.onOptionsItemSelected(item);

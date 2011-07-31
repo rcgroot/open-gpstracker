@@ -105,40 +105,55 @@ public class BreadcrumbsTracks extends Observable
     * refresh
     */
    private static final long CACHE_TIMEOUT = 1000 * 60;//1000*60*10 ;
-
+   
    /**
     * Mapping from activityId to a list of bundleIds
     */
-   private static Map<Integer, List<Integer>> sActivitiesWithBundles = new LinkedHashMap<Integer, List<Integer>>();
+   private static Map<Integer, List<Integer>> sActivitiesWithBundles;
 
    /**
     * Mapping from bundleId to a list of trackIds
     */
-   private static Map<Integer, List<Integer>> sBundlesWithTracks = new LinkedHashMap<Integer, List<Integer>>();
+   private static Map<Integer, List<Integer>> sBundlesWithTracks;
    /**
     * Map from activityId to a dictionary containing keys like NAME
     */
-   private static Map<Integer, Map<String, String>> sActivityMappings = new HashMap<Integer, Map<String, String>>();
+   private static Map<Integer, Map<String, String>> sActivityMappings;
 
    /**
     * Map from bundleId to a dictionary containing keys like NAME and
     * DESCRIPTION
     */
-   private static Map<Integer, Map<String, String>> sBundleMappings = new HashMap<Integer, Map<String, String>>();
+   private static Map<Integer, Map<String, String>> sBundleMappings;
 
    /**
     * Map from trackId to a dictionary containing keys like NAME, ISPUBLIC,
     * DESCRIPTION and more
     */
-   private static Map<Integer, Map<String, String>> sTrackMappings = new HashMap<Integer, Map<String, String>>();
-
-   private static Set<Pair<Integer, Integer>> sScheduledTracksLoading = new HashSet<Pair<Integer, Integer>>();
+   private static Map<Integer, Map<String, String>> sTrackMappings;
    /**
     * Cache of OGT Tracks that have a Breadcrumbs track id stored in the
     * meta-data table
     */
-   private Map<Long, Integer> mSyncedTracks;
+   private Map<Long, Integer> mSyncedTracks = null;
 
+   private static Set<Pair<Integer, Integer>> sScheduledTracksLoading;
+   
+   static
+   {
+      BreadcrumbsTracks.initCacheVariables();
+   }
+   
+   private static void initCacheVariables()
+   {
+      sActivitiesWithBundles = new LinkedHashMap<Integer, List<Integer>>();
+      sBundlesWithTracks = new LinkedHashMap<Integer, List<Integer>>();
+      sActivityMappings = new HashMap<Integer, Map<String, String>>();
+      sBundleMappings = new HashMap<Integer, Map<String, String>>();
+      sTrackMappings = new HashMap<Integer, Map<String, String>>();
+      sScheduledTracksLoading = new HashSet<Pair<Integer, Integer>>();
+   }
+   
    private ContentResolver mResolver;
 
    /**
@@ -708,6 +723,14 @@ public class BreadcrumbsTracks extends Observable
             }
          }
       }
+   }
+   
+   public void clearAllCache(Context ctx)
+   {
+      BreadcrumbsTracks.initCacheVariables();
+      setChanged ();
+      clearPersistentCache(ctx);
+      notifyObservers();
    }
 
    public void clearPersistentCache(Context ctx)
