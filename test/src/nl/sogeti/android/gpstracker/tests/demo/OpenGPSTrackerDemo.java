@@ -69,7 +69,7 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
 
    protected void tearDown() throws Exception
    {
-      this.mLoggerServiceManager.shutdown();
+      this.mLoggerServiceManager.shutdown( getActivity() );
       super.tearDown();
    }
 

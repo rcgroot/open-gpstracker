@@ -28,7 +28,7 @@
  */
 package nl.sogeti.android.gpstracker.tests.actions;
 
-import nl.sogeti.android.gpstracker.actions.utils.XmlCreator;
+import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import android.content.ContentResolver;
 import android.content.ContentUris;

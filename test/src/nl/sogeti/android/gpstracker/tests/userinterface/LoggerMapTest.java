@@ -91,7 +91,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    public void testStartTracking() throws InterruptedException
    {
       GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(  this.getInstrumentation().getContext() );
-      serviceManager.startup();
+      serviceManager.startup( getActivity(), null );
       Assert.assertEquals( "The service should not be logging", Constants.STOPPED ,serviceManager.getLoggingState() );
 
       this.sendKeys( "MENU T DPAD_DOWN ENTER" );
@@ -101,7 +101,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
 
       this.sendKeys( "MENU T DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_CENTER" );
       Assert.assertEquals( "The service should not be logging", Constants.STOPPED ,serviceManager.getLoggingState() );
-      serviceManager.shutdown();
+      serviceManager.shutdown( getActivity() );
    }
    
    /**
@@ -116,7 +116,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    public void testBackgroundTracking() throws Exception
    {
       GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(  this.getInstrumentation().getContext() );
-      serviceManager.startup();
+      serviceManager.startup( getActivity(), null );
       Assert.assertEquals( "The service should not be logging", Constants.STOPPED ,serviceManager.getLoggingState() );
       
       serviceManager.startGPSLogging("testBackgroundTracking");
@@ -134,7 +134,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
       Assert.assertEquals( "The service should not be logging", Constants.STOPPED ,serviceManager.getLoggingState() );
       serviceManager.stopGPSLogging();
       
-      serviceManager.shutdown();
+      serviceManager.shutdown( getActivity() );
    }    
 
    /**
