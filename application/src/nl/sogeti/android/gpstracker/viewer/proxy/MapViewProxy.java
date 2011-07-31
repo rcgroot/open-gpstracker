@@ -33,6 +33,7 @@ import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.util.Constants;
 
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 
 import android.util.Log;
@@ -294,7 +295,7 @@ public class MapViewProxy
       
    }
 
-   static GeoPoint convertOSMGeoPoint( org.osmdroid.util.GeoPoint point )
+   static GeoPoint convertOSMGeoPoint( IGeoPoint point )
    {
       return new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
    }
