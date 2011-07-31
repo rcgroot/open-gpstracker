@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-	<TextView 
-        xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:id="@+id/listitem_name"
-        android:layout_height="?android:attr/listPreferredItemHeight"
-		android:layout_width="fill_parent" 
-        android:paddingLeft="6dip"
-        android:paddingRight="6dip"
-        android:text="Sectionname here"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        style="?android:attr/listSeparatorTextViewStyle"
-        />
+<RelativeLayout
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   android:id="@+id/top"
+   android:layout_width="fill_parent"
+   android:layout_height="?android:attr/listPreferredItemHeight">
+   <TextView
+      android:text="Bundlename here"
+      android:id="@+id/listitem_name"
+      style="?android:attr/listSeparatorTextViewStyle"
+      android:layout_height="wrap_content"
+      android:layout_width="fill_parent"
+      android:paddingLeft="6dip"
+      android:paddingRight="6dip"
+      android:layout_marginTop="20dp"
+      android:layout_marginLeft="20dip"
+      android:layout_marginRight="40dip"
+      android:background="#554d4d"
+      android:textColor="#e52828" />
+</RelativeLayout>

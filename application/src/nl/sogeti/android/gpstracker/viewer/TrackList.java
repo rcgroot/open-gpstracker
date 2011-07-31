@@ -504,7 +504,16 @@ public class TrackList extends ListActivity implements ProgressListener
                break;
             case DESCRIBE:
                Uri trackUri = data.getData();
-               mBreadcrumbAdapter.startUploadTask(TrackList.this, TrackList.this, trackUri);
+               String name;
+               if( data.getExtras() != null && data.getExtras().containsKey(Constants.NAME))
+               {
+                  name = data.getExtras().getString(Constants.NAME);
+               }
+               else
+               {
+                  name = "shareToGobreadcrumbs";
+               }
+               mBreadcrumbAdapter.startUploadTask(TrackList.this, TrackList.this, trackUri, name);
                break;
             default:
                super.onActivityResult(requestCode, resultCode, data);

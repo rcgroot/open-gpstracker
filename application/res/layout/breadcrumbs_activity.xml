@@ -9,4 +9,6 @@
         android:text="Activity name here"
         android:textAppearance="?android:attr/textAppearanceMedium"
         style="?android:attr/listSeparatorTextViewStyle"
+        android:gravity="center"
+        android:textColor="#D33"
         />

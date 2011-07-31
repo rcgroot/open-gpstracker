@@ -235,7 +235,7 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
                break;
             case Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE:
                name = mTracks.getValueForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
-               ((TextView) view).setText(name);
+               ((TextView) view.findViewById(R.id.listitem_name)).setText(name);
                break;
             case Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE:
                TextView nameView = (TextView) view.findViewById(R.id.listitem_name);
@@ -369,9 +369,9 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
       new DownloadBreadcrumbsTrackTask(context, listener, this, mHttpClient, getOAuthConsumer(), track).execute();
    }
 
-   public void startUploadTask(Context context, ProgressListener listener, Uri trackUri)
+   public void startUploadTask(Context context, ProgressListener listener, Uri trackUri, String name)
    {
-      new UploadBreadcrumbsTrackTask(context, this, listener, mHttpClient, getOAuthConsumer(), trackUri).execute();
+      new UploadBreadcrumbsTrackTask(context, this, listener, mHttpClient, getOAuthConsumer(), trackUri, name).execute();
    }
 
    public boolean isOnline()

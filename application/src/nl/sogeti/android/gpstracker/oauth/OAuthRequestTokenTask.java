@@ -83,7 +83,9 @@ public class OAuthRequestTokenTask extends AsyncTask<Void, Void, Void>
       }
       catch (Exception e)
       {
-         Log.e(TAG, "Error during OAUth retrieve request token", e);
+         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.OAUTH_CALLBACK_URL));
+         intent.putExtra("ERROR", e.toString());
+         context.startActivity(intent);
       }
 
       return null;

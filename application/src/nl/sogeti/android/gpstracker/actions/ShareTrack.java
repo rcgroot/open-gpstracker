@@ -382,7 +382,7 @@ public class ShareTrack extends Activity
             ShareTrack.this.finish();
             break;
          case EXPORT_TARGET_BREADCRUMBS:
-            sendToBreadcrumbs(mTrackUri);
+            sendToBreadcrumbs(mTrackUri, chosenFileName);
             break;            
          default:
             Log.e(TAG, "Unable to determine target for sharing GPX " + target);
@@ -426,11 +426,12 @@ public class ShareTrack extends Activity
       }
    }
 
-   private void sendToBreadcrumbs(Uri mTrackUri)
+   private void sendToBreadcrumbs(Uri mTrackUri, String chosenFileName)
    {
       // Start a description of the track
       Intent namingIntent = new Intent(this, DescribeTrack.class);
       namingIntent.setData(mTrackUri);
+      namingIntent.putExtra(Constants.NAME, chosenFileName);
       startActivityForResult(namingIntent, DESCRIBE);
    }
    
@@ -439,12 +440,21 @@ public class ShareTrack extends Activity
    {
       if (resultCode != RESULT_CANCELED)
       {
+         String name;
          switch (requestCode)
          {
             case DESCRIBE:
                Uri trackUri = data.getData();
+               if( data.getExtras() != null && data.getExtras().containsKey(Constants.NAME))
+               {
+                  name = data.getExtras().getString(Constants.NAME);
+               }
+               else
+               {
+                  name = "shareToGobreadcrumbs";
+               }
                BreadcrumbsAdapter adapter = new BreadcrumbsAdapter(this, null);
-               adapter.startUploadTask(this, new ShareProgressListener("shareToGobreadcrumbs"), trackUri);
+               adapter.startUploadTask(this, new ShareProgressListener(name), trackUri, name);
                finish();
                break;
             default:

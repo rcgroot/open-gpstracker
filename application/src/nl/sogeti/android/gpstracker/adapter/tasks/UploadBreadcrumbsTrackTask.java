@@ -94,11 +94,12 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
     * @param httpclient
     * @param consumer
     * @param trackUri
+    * @param name TODO
     */
    public UploadBreadcrumbsTrackTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener, HttpClient httpclient, OAuthConsumer consumer,
-         Uri trackUri)
+         Uri trackUri, String name)
    {
-      super(context, trackUri, "uploadToGobreadcrumbs", false, listener);
+      super(context, trackUri, name, false, listener);
       mAdapter = adapter;
       mHttpClient = httpclient;
       mConsumer = consumer;

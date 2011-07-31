@@ -33,6 +33,7 @@ import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
+import nl.sogeti.android.gpstracker.util.Constants;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -98,6 +99,10 @@ public class DescribeTrack extends Activity implements ProgressListener
                getContentResolver().bulkInsert(metadataUri, metaValues);
                Intent data = new Intent();
                data.setData(mTrackUri);
+               if( getIntent().getExtras() != null && getIntent().getExtras().containsKey(Constants.NAME))
+               {
+                  data.putExtra(Constants.NAME, getIntent().getExtras().getString(Constants.NAME));
+               }
                setResult(RESULT_OK, data);
                break;
             case DialogInterface.BUTTON_NEGATIVE:
