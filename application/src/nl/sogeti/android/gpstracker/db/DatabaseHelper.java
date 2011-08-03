@@ -33,7 +33,6 @@ import java.util.Date;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.MediaColumns;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.db.GPStracking.MetaDataColumns;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;

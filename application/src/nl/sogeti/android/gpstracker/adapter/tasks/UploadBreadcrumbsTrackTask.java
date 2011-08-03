@@ -262,7 +262,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 
       if (statusCode == 200 || statusCode == 201)
       {
-         Log.d(TAG, "Excellent response status code " + statusCode);
          if (trackUri == null)
          {
             handleError(new IOException("Unable to retrieve URI from response"), responseText);
