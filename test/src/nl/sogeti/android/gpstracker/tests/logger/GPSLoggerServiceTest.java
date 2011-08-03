@@ -109,6 +109,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters
+      reference.setTime( reference.getTime()+60000l ); // In one minute times
       service.storeLocation( reference );
       this.mLocation.setAccuracy( 9f );
       Location returned = service.locationFilter( this.mLocation ) ;
@@ -126,6 +127,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.0001d ); // About 11 meters
+      reference.setTime( reference.getTime()+6000l ); // In 6 seconds times
       service.storeLocation( reference );
       
       this.mLocation.setAccuracy( 9f );
@@ -146,10 +148,12 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       Location second = new Location( this.mLocation );
       second.setAccuracy( 100f );
       second.setLatitude( second.getLatitude()+0.01d ); //Other side of the golfpark, about 1100 meters    
+      second.setTime( second.getTime()+60000l ); // In one minute times
       
       Location third = new Location( this.mLocation );
       third.setAccuracy( 125f );
       third.setLatitude( third.getLatitude()+0.01d ); //about 1100 meters    
+      third.setTime( third.getTime()+60000l ); // In one minute times
 
       Assert.assertNull( "An unacceptable fix", service.locationFilter( first ) );
       Assert.assertNull( "An unacceptable fix", service.locationFilter( second ) );
@@ -168,11 +172,13 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.0001d );
+      reference.setTime( reference.getTime()+6000l ); // In 6 seconds times
       reference.setSpeed( 419f );
       reference.setAccuracy( 9f );
       service.storeLocation( this.mLocation );
       
       Location sane = service.locationFilter( reference );
+      Assert.assertNotNull( "Filter result", sane );
       Assert.assertFalse( "No speed anymore", sane.hasSpeed() );
       Assert.assertEquals( "No speed", 0.0f, sane.getSpeed() );
       Assert.assertSame( "Still the same", reference, sane );
@@ -189,6 +195,7 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( this.mLocation );
       reference.setLatitude( reference.getLatitude()+0.0001d );
+      reference.setTime( reference.getTime()+6000l ); // In one minute times
       reference.setSpeed( 4f );
       reference.setAccuracy( 9f );
       service.storeLocation( this.mLocation );
@@ -215,12 +222,15 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
       
       Location reference = new Location( mLocation );
       reference.setLatitude( reference.getLatitude()+0.0001d );
+      reference.setTime( reference.getTime()+6000l ); // In 6 seconds times
       reference.setSpeed( 4f );
       reference.setAccuracy( 9f );
       reference.setAltitude( 14.3d );
       service.storeLocation( this.mLocation );
       
       Location sane = service.locationFilter( reference );
+
+      Assert.assertNotNull( "Filter result", sane );
       Assert.assertTrue( "Has altitude", mLocation.hasAltitude() );
       Assert.assertTrue( "Has altitude", sane.hasAltitude() );
       Assert.assertSame( "Still the same", reference, sane );
