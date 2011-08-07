@@ -632,7 +632,7 @@ public class GPSLoggerService extends Service
       if (previousState == Constants.LOGGING || previousState == Constants.PAUSED)
       {
          Log.w(TAG, "Recovering from a crash or kill and restoring state.");
-         setupNotification();
+         startNotification();
 
          mTrackId = preferences.getLong(SERVICESTATE_TRACKID, -1);
          mSegmentId = preferences.getLong(SERVICESTATE_SEGMENTID, -1);
@@ -711,7 +711,7 @@ public class GPSLoggerService extends Service
          sendRequestStatusUpdateMessage();
          this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
-         setupNotification();
+         startNotification();
          crashProtectState();
          broadCastLoggingState();
       }
@@ -868,18 +868,30 @@ public class GPSLoggerService extends Service
       }
    }
 
-   private void setupNotification()
+   private void startNotification()
    {
       mNoticationManager.cancel(R.layout.map);
 
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = getResources().getString(R.string.service_start);
       long when = System.currentTimeMillis();
-
+      Intent notificationIntent = new Intent(this, LoggerMap.class);
+      notificationIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
+      
       mNotification = new Notification(icon, tickerText, when);
       mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-
+      mNotification.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
+      
       updateNotification();
+      
+      if (Build.VERSION.SDK_INT >= 5)
+      {
+         startForegroundReflected(R.layout.map, mNotification);
+      }
+      else
+      {
+         mNoticationManager.notify(R.layout.map, mNotification);
+      }
    }
 
    private void updateNotification()
@@ -905,20 +917,8 @@ public class GPSLoggerService extends Service
             }
             break;
       }
-      Intent notificationIntent = new Intent(this, LoggerMap.class);
-      notificationIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
-
-      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
-      mNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
-
-      if (Build.VERSION.SDK_INT >= 5)
-      {
-         startForegroundReflected(R.layout.map, mNotification);
-      }
-      else
-      {
-         mNoticationManager.notify(R.layout.map, mNotification);
-      }
+      mNotification.setLatestEventInfo(this, contentTitle, contentText, mNotification.contentIntent);
+      mNoticationManager.notify(R.layout.map, mNotification);
    }
 
    private void stopNotification()
