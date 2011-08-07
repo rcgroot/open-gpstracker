@@ -29,6 +29,8 @@
 package nl.sogeti.android.gpstracker.logger;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -131,7 +133,7 @@ public class GPSLoggerService extends Service
    public static final int EXTRA_COMMAND_PAUSE = 1;
    public static final int EXTRA_COMMAND_RESUME = 2;
    public static final int EXTRA_COMMAND_STOP = 3;
-   
+
    private LocationManager mLocationManager;
    private NotificationManager mNoticationManager;
    private PowerManager.WakeLock mWakeLock;
@@ -224,8 +226,7 @@ public class GPSLoggerService extends Service
             {
                mStartNextSegment = false;
                // Obey the start segment if the previous location is unknown or far away
-               if (mPreviousLocation == null ||
-                     filteredLocation.distanceTo(mPreviousLocation) > 4 * mMaxAcceptableAccuracy)
+               if (mPreviousLocation == null || filteredLocation.distanceTo(mPreviousLocation) > 4 * mMaxAcceptableAccuracy)
                {
                   startNewSegment();
                }
@@ -548,10 +549,11 @@ public class GPSLoggerService extends Service
       if (DEBUG)
       {
          Log.d(TAG, "handleCommand(Intent " + intent + ")");
-      };
-      if( intent.hasExtra(COMMAND) )
+      }
+      ;
+      if (intent.hasExtra(COMMAND))
       {
-         switch (intent.getIntExtra(COMMAND, -1) )
+         switch (intent.getIntExtra(COMMAND, -1))
          {
             case EXTRA_COMMAND_START:
                startLogging();
@@ -780,7 +782,6 @@ public class GPSLoggerService extends Service
 
       PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this.mSharedPreferenceChangeListener);
 
-
       mLocationManager.removeGpsStatusListener(mStatusListener);
       stopListening();
       stopNotification();
@@ -910,9 +911,9 @@ public class GPSLoggerService extends Service
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
 
-      if( Build.VERSION.SDK_INT >= 5 )
+      if (Build.VERSION.SDK_INT >= 5)
       {
-         startForeground(R.layout.map, mNotification);
+         startForegroundReflected(R.layout.map, mNotification);
       }
       else
       {
@@ -922,9 +923,9 @@ public class GPSLoggerService extends Service
 
    private void stopNotification()
    {
-      if( Build.VERSION.SDK_INT >= 5 )
+      if (Build.VERSION.SDK_INT >= 5)
       {
-         stopForeground(true);  
+         stopForegroundReflected(true);
       }
       else
       {
@@ -1387,5 +1388,69 @@ public class GPSLoggerService extends Service
       Message msg = Message.obtain();
       msg.what = GPSPROBLEM;
       mHandler.sendMessage(msg);
+   }
+
+   private void startForegroundReflected(int id, Notification notification)
+   {
+
+      Method mStartForeground;
+      Class[] mStartForegroundSignature = new Class[] { int.class, Notification.class };
+
+      Object[] mStartForegroundArgs = new Object[2];
+      mStartForegroundArgs[0] = Integer.valueOf(id);
+      mStartForegroundArgs[1] = notification;
+      try
+      {
+         mStartForeground = getClass().getMethod("startForeground", mStartForegroundSignature);
+         mStartForeground.invoke(this, mStartForegroundArgs);
+      }
+      catch (NoSuchMethodException e)
+      {
+         Log.e( TAG, "Failed starting foreground notification using reflection", e);
+      }
+      catch (IllegalArgumentException e)
+      {
+         Log.e( TAG, "Failed starting foreground notification using reflection", e);
+      }
+      catch (IllegalAccessException e)
+      {
+         Log.e( TAG, "Failed starting foreground notification using reflection", e);
+      }
+      catch (InvocationTargetException e)
+      {
+         Log.e( TAG, "Failed starting foreground notification using reflection", e);
+      }
+
+   }
+
+   private void stopForegroundReflected(boolean b)
+   {
+      Class[] mStopForegroundSignature = new Class[] { boolean.class };
+
+      Method mStopForeground;
+      Object[] mStopForegroundArgs = new Object[1];
+      mStopForegroundArgs[0] = Boolean.TRUE;
+      try
+      {
+         mStopForeground = getClass().getMethod("stopForeground", mStopForegroundSignature);
+         mStopForeground.invoke(this, mStopForegroundArgs);
+      }
+      catch (NoSuchMethodException e)
+      {
+         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
+      }
+      catch (IllegalArgumentException e)
+      {
+         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
+      }
+      catch (IllegalAccessException e)
+      {
+         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
+      }
+      catch (InvocationTargetException e)
+      {
+         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
+      }
+
    }
 }
