@@ -61,6 +61,17 @@
             android:title="@string/logatstartup"
             android:summary="@string/logatstartup_summary"
             android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="logatdock"
+            android:title="@string/logatdock"
+            android:summary="@string/logatdock_summary"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="stopatundock"
+            android:title="@string/stopatundock"
+            android:summary="@string/stopatundock_summary"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
     
     <PreferenceCategory

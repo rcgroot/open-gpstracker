@@ -162,7 +162,11 @@
     <string name="preference_display">Display settings</string>
     <string name="preference_behavior">Run settings</string>
     <string name="logatstartup">Log at service start</string>
-    <string name="logatstartup_summary">After starting, the logging service immediately records.</string>   
+    <string name="logatstartup_summary">After starting, the logging service immediately records.</string>
+    <string name="logatdock">Log at car docking</string>
+    <string name="logatdock_summary">After inserting in a car dock, the logging immediately records.</string>
+    <string name="stopatundock">Stop logging at undocking</string>
+    <string name="stopatundock_summary">After exiting a dock, the logging immediately stops.</string>
     <string name="startupatboot">Start up at boot</string>
     <string name="startupatboot_summary">After starting the device, the logging service starts.</string>   
     <string name="disableblanking_title">Disable screen blanking</string>
