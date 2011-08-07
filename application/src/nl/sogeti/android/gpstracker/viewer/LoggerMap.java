@@ -261,8 +261,7 @@ public class LoggerMap extends MapActivity
       mMapView.executePostponedActions();
    }
    
-   
-
+   @Override
    protected void onPause()
    {
       this.mLoggerServiceManager.shutdown( this );
