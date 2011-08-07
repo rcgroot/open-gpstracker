@@ -161,11 +161,13 @@ public class OsmSharing extends GpxCreator
          HttpPost method = new HttpPost(url);
          consumer.sign(method);
          
+         String tags = mContext.getString(R.string.osm_tag) + " " +queryForNotes();
+         
          // Build the multipart body with the upload data
          MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
          entity.addPart("file", new FileBody(gpxFile));
          entity.addPart("description", new StringBody( ShareTrack.queryForTrackName(mContext.getContentResolver(), mTrackUri)));
-         entity.addPart("tags", new StringBody(queryForNotes()));
+         entity.addPart("tags", new StringBody(tags));
          entity.addPart("visibility", new StringBody(visibility));
          method.setEntity(entity);
 
