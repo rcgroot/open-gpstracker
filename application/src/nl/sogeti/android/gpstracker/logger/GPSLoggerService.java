@@ -69,6 +69,7 @@ import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -125,6 +126,12 @@ public class GPSLoggerService extends Service
     */
    private static final int START_STICKY = 1;
 
+   public static final String COMMAND = "nl.sogeti.android.gpstracker.extra.COMMAND";
+   public static final int EXTRA_COMMAND_START = 0;
+   public static final int EXTRA_COMMAND_PAUSE = 1;
+   public static final int EXTRA_COMMAND_RESUME = 2;
+   public static final int EXTRA_COMMAND_STOP = 3;
+   
    private LocationManager mLocationManager;
    private NotificationManager mNoticationManager;
    private PowerManager.WakeLock mWakeLock;
@@ -445,11 +452,13 @@ public class GPSLoggerService extends Service
          this.setName("GPSLoggerServiceThread");
       }
 
+      @Override
       public void run()
       {
          Looper.prepare();
          mHandler = new Handler()
          {
+            @Override
             public void handleMessage(Message msg)
             {
                _handleMessage(msg);
@@ -492,7 +501,7 @@ public class GPSLoggerService extends Service
       mStartNextSegment = false;
       mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
       mNoticationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-      mNoticationManager.cancel(R.layout.map);
+      stopNotification();
 
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
       mSpeedSanityCheck = sharedPreferences.getBoolean(Constants.SPEEDSANITYCHECK, true);
@@ -525,6 +534,7 @@ public class GPSLoggerService extends Service
       handleCommand(intent);
    }
 
+   @Override
    public int onStartCommand(Intent intent, int flags, int startId)
    {
       handleCommand(intent);
@@ -538,8 +548,27 @@ public class GPSLoggerService extends Service
       if (DEBUG)
       {
          Log.d(TAG, "handleCommand(Intent " + intent + ")");
+      };
+      if( intent.hasExtra(COMMAND) )
+      {
+         switch (intent.getIntExtra(COMMAND, -1) )
+         {
+            case EXTRA_COMMAND_START:
+               startLogging();
+               break;
+            case EXTRA_COMMAND_PAUSE:
+               pauseLogging();
+               break;
+            case EXTRA_COMMAND_RESUME:
+               resumeLogging();
+               break;
+            case EXTRA_COMMAND_STOP:
+               stopLogging();
+               break;
+            default:
+               break;
+         }
       }
-      ;
    }
 
    /**
@@ -751,9 +780,10 @@ public class GPSLoggerService extends Service
 
       PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this.mSharedPreferenceChangeListener);
 
+
       mLocationManager.removeGpsStatusListener(mStatusListener);
       stopListening();
-      mNoticationManager.cancel(R.layout.map);
+      stopNotification();
 
       broadCastLoggingState();
    }
@@ -880,7 +910,26 @@ public class GPSLoggerService extends Service
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
 
-      mNoticationManager.notify(R.layout.map, mNotification);
+      if( Build.VERSION.SDK_INT >= 5 )
+      {
+         startForeground(R.layout.map, mNotification);
+      }
+      else
+      {
+         mNoticationManager.notify(R.layout.map, mNotification);
+      }
+   }
+
+   private void stopNotification()
+   {
+      if( Build.VERSION.SDK_INT >= 5 )
+      {
+         stopForeground(true);  
+      }
+      else
+      {
+         mNoticationManager.cancel(R.layout.map);
+      }
    }
 
    private void notifyOnEnabledProviderNotification(int resId)
