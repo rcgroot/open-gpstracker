@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="CONSUMER_KEY">unused</string>
-    <string name="CONSUMER_SECRET">unused</string>
-    
-    <string name="OSM_CONSUMER_KEY">unused</string>
-    <string name="OSM_CONSUMER_SECRET">unused</string>
-</resources>

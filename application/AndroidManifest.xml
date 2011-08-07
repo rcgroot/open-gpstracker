@@ -2,16 +2,10 @@
 <manifest 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     package="nl.sogeti.android.gpstracker"
-	android:installLocation="auto"
 	android:versionCode="50" android:versionName="1.2">
 
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4"/>
+    <uses-sdk android:minSdkVersion="3"/>
     
-    <supports-screens
-         android:largeScreens="true"
-         android:normalScreens="true"
-         android:smallScreens="true" />
-
    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -127,9 +121,6 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:mimeType="text/xml" />
             </intent-filter>
-            <meta-data
-               android:name="android.app.searchable"
-               android:resource="@xml/searchable" />
          </activity>
 
          <activity
