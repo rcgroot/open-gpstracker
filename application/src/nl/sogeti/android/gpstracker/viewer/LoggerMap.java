@@ -1178,14 +1178,6 @@ public class LoggerMap extends MapActivity
             {
                mSpeedtexts[i].setVisibility( View.VISIBLE );
             }
-            List< ? > overlays = mMapView.getOverlays();
-            for (Object overlay : overlays)
-            {
-               if( overlay instanceof SegmentOverlay )
-               {
-                  ( (SegmentOverlay) overlay ).setTrackColoringMethod( trackColoringMethod, mAverageSpeed );
-               }
-            }
          }
       }
       else
@@ -1196,7 +1188,14 @@ public class LoggerMap extends MapActivity
             mSpeedtexts[i].setVisibility( View.INVISIBLE );
          }
       }
-
+      List< ? > overlays = mMapView.getOverlays();
+      for (Object overlay : overlays)
+      {
+         if( overlay instanceof SegmentOverlay )
+         {
+            ( (SegmentOverlay) overlay ).setTrackColoringMethod( trackColoringMethod, mAverageSpeed );
+         }
+      }
    }
    
    private void updateSpeedDisplayVisibility()

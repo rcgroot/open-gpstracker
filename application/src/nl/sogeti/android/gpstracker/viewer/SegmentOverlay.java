@@ -216,6 +216,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       
       mOsmOverlay = new org.osmdroid.views.overlay.Overlay(mLoggerMap) {
          
+         @Override
          public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView) 
          {
             int x = (int) e.getX();
@@ -1099,7 +1100,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    public void setTrackColoringMethod( int coloring, double avgspeed )
    {
-      this.mTrackColoringMethod = coloring;
+      if( mTrackColoringMethod != coloring )
+      {
+         this.mTrackColoringMethod = coloring;
+         calculateTrack();
+      }
       this.mAvgSpeed = avgspeed;
    }
 
