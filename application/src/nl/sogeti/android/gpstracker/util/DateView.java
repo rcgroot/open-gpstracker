@@ -100,7 +100,9 @@ public class DateView extends TextView
          }
       }
       this.mDate = new Date( longVal );
-      String text = DateFormat.getInstance().format(this.mDate);
+      DateFormat dateFormat = android.text.format.DateFormat.getLongDateFormat(this.getContext().getApplicationContext());
+      DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(this.getContext().getApplicationContext());
+      String text = timeFormat.format(this.mDate) + " " + dateFormat.format(mDate);
       super.setText( text, type );
    }
 

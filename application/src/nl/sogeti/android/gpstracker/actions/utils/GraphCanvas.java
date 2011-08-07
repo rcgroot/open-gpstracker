@@ -525,7 +525,7 @@ public class GraphCanvas extends View
    }
    private void drawTimeTexts()
    {
-      DateFormat timeInstance = DateFormat.getTimeInstance( DateFormat.SHORT );
+      DateFormat timeInstance = android.text.format.DateFormat.getTimeFormat(this.getContext().getApplicationContext());
       String start = timeInstance.format( new Date( mStartTime ) );
       String half  = timeInstance.format( new Date( (mEndTime+mStartTime)/2 ) );
       String end   = timeInstance.format( new Date( mEndTime ) );
