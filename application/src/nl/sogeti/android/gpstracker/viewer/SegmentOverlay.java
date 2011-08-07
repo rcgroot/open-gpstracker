@@ -1103,6 +1103,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       if( mTrackColoringMethod != coloring )
       {
          this.mTrackColoringMethod = coloring;
+         mRequeryFlag = true;
          calculateTrack();
       }
       this.mAvgSpeed = avgspeed;
