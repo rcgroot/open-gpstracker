@@ -29,6 +29,8 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
@@ -49,7 +51,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -244,6 +245,7 @@ public class InsertNote extends Activity
                String newName;
                Uri fileUri;
                android.net.Uri.Builder builder;
+               boolean isLocal = false;
                switch (requestCode)
                {
                   case MENU_PICTURE:
@@ -252,8 +254,13 @@ public class InsertNote extends Activity
                      newName = String.format("Picture_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c);
                      newFile = new File(Constants.getSdCardDirectory(InsertNote.this) + newName);
                      file.getParentFile().mkdirs();
-                     boolean isRenamed = file.renameTo(newFile);
-                     if (isRenamed)
+                     isLocal = file.renameTo(newFile); //
+                     if (!isLocal)
+                     {
+                        Log.w(TAG, "Failed rename will try copy image: " + file.getAbsolutePath());
+                        isLocal = copyFile(file, newFile);
+                     }
+                     if (isLocal)
                      {
                         Bitmap bm = BitmapFactory.decodeFile(newFile.getAbsolutePath());
                         if (bm != null)
@@ -275,7 +282,7 @@ public class InsertNote extends Activity
                      }
                      else
                      {
-                        Log.e(TAG, "Failed to rename image: " + file.getAbsolutePath());
+                        Log.e(TAG, "Failed either rename or copy image: " + file.getAbsolutePath());
                      }
                      break;
                   case MENU_VIDEO:
@@ -284,10 +291,22 @@ public class InsertNote extends Activity
                      newName = String.format("Video_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c);
                      newFile = new File(Constants.getSdCardDirectory(InsertNote.this) + newName);
                      file.getParentFile().mkdirs();
-                     file.renameTo(newFile);
-                     builder = new Uri.Builder();
-                     fileUri = builder.scheme("file").appendPath(newFile.getAbsolutePath()).build();
-                     InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);
+                     isLocal = file.renameTo(newFile);
+                     if (!isLocal)
+                     {
+                        Log.w(TAG, "Failed rename will try copy video: " + file.getAbsolutePath());
+                        isLocal = copyFile(file, newFile);
+                     }
+                     if (isLocal)
+                     {
+                        builder = new Uri.Builder();
+                        fileUri = builder.scheme("file").appendPath(newFile.getAbsolutePath()).build();
+                        InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);                        
+                     }
+                     else
+                     {
+                        Log.e(TAG, "Failed either rename or copy video: " + file.getAbsolutePath());
+                     }
                      break;
                   case MENU_VOICE:
                      uri = Uri.parse(intent.getDataString());
@@ -440,5 +459,54 @@ public class InsertNote extends Activity
       {
          Log.e(TAG, "Unable to start Activity to record audio", e);
       }
+   }
+
+   private static boolean copyFile(File fileIn, File fileOut)
+   {
+      boolean succes = false;
+      FileInputStream in = null;
+      FileOutputStream out = null;
+      try
+      {
+         in = new FileInputStream(fileIn);
+         out = new FileOutputStream(fileOut);
+         byte[] buf = new byte[8192];
+         int i = 0;
+         while ((i = in.read(buf)) != -1)
+         {
+            out.write(buf, 0, i);
+         }
+         succes = true;
+      }
+      catch (IOException e)
+      {
+         Log.e(TAG, "File copy failed", e);
+      }
+      finally
+      {
+         if (in != null)
+         {
+            try
+            {
+               in.close();
+            }
+            catch (IOException e)
+            {
+               Log.w(TAG, "File close after copy failed", e);
+            }
+         }
+         if (in != null)
+         {
+            try
+            {
+               out.close();
+            }
+            catch (IOException e)
+            {
+               Log.w(TAG, "File close after copy failed", e);
+            }
+         }
+      }
+      return succes;
    }
 }
