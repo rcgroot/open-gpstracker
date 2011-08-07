@@ -2,9 +2,9 @@
 <manifest 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     package="nl.sogeti.android.gpstracker"
-	android:versionCode="50" android:versionName="1.2">
+	android:versionCode="49" android:versionName="1.2">
 
-    <uses-sdk android:minSdkVersion="3"/>
+    <uses-sdk android:minSdkVersion="3" />
     
    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
