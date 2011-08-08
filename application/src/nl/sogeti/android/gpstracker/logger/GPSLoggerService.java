@@ -551,7 +551,7 @@ public class GPSLoggerService extends Service
          Log.d(TAG, "handleCommand(Intent " + intent + ")");
       }
       ;
-      if (intent.hasExtra(COMMAND))
+      if (intent != null && intent.hasExtra(COMMAND))
       {
          switch (intent.getIntExtra(COMMAND, -1))
          {
@@ -875,12 +875,9 @@ public class GPSLoggerService extends Service
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = getResources().getString(R.string.service_start);
       long when = System.currentTimeMillis();
-      Intent notificationIntent = new Intent(this, LoggerMap.class);
-      notificationIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
       
       mNotification = new Notification(icon, tickerText, when);
       mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-      mNotification.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       
       updateNotification();
       
@@ -917,6 +914,9 @@ public class GPSLoggerService extends Service
             }
             break;
       }
+      Intent notificationIntent = new Intent(this, LoggerMap.class);
+      notificationIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
+      mNotification.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText, mNotification.contentIntent);
       mNoticationManager.notify(R.layout.map, mNotification);
    }

@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
 import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProxy;
 import nl.sogeti.android.gpstracker.viewer.proxy.ProjectionProxy;
@@ -394,7 +397,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    
       if( mWaypointsCursor == null )
       {
-         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME, Waypoints.ACCURACY }, null, null, null );
          mRequeryFlag = false;
       }
       if( mRequeryFlag )
@@ -465,7 +468,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
       if( mWaypointsCursor == null )
       {
-         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME }, null, null, null );
+         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME, Waypoints.ACCURACY }, null, null, null );
       }
       if( mRequeryFlag )
       {
@@ -490,7 +493,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                DotVO dotVO = new DotVO();
                dotVO.x = this.mScreenPoint.x;
                dotVO.y = this.mScreenPoint.y;
-               dotVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
+               dotVO.speed = mWaypointsCursor.getLong( 2 );
+               dotVO.time = mWaypointsCursor.getLong( 3 );
+               dotVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 4 ) );
                mDotPathCalculation.add( dotVO );
 
                this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
@@ -503,7 +508,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          DotVO pointVO = new DotVO();
          pointVO.x = this.mScreenPoint.x;
          pointVO.y = this.mScreenPoint.y;
-         pointVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 2 ) );
+         pointVO.speed = mWaypointsCursor.getLong( 2 );
+         pointVO.time = mWaypointsCursor.getLong( 3 );
+         pointVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 4 ) );
          mDotPathCalculation.add( pointVO );
       }
    }
@@ -1234,10 +1241,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       List<Uri> tappedUri = new Vector<Uri>();
 
       Point tappedPoint = new Point();
+      mProjection.toPixels( tappedGeoPoint, tappedPoint );
       for( MediaVO media : mMediaPath )
       {
-         mProjection.toPixels( tappedGeoPoint, tappedPoint );
-
          if( media.x < tappedPoint.x && tappedPoint.x < media.x + media.w && media.y < tappedPoint.y && tappedPoint.y < media.y + media.h )
          {
             //Log.d( TAG, String.format( "Tapped at a (x,y) (%d,%d)", tappedPoint.x, tappedPoint.y ) );
@@ -1250,6 +1256,40 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
       else
       {
+         if( mTrackColoringMethod == DRAW_DOTS )
+         {
+            DotVO tapped = null;
+            synchronized (mDotPath) // Switch the fresh path with the old Path object
+            {
+               int w = 25; 
+               for( DotVO dot : mDotPath )
+               {
+//                  Log.d( TAG, "Compare ("+dot.x+","+dot.y+") with tap ("+tappedPoint.x+","+tappedPoint.y+")" );
+                  if( dot.x - w < tappedPoint.x && tappedPoint.x < dot.x + w && dot.y - w < tappedPoint.y && tappedPoint.y < dot.y + w )
+                  {
+                     if( tapped == null )
+                     {
+                        tapped = dot;
+                     }
+                     else
+                     {
+                        tapped = dot.distanceTo(tappedPoint) < tapped.distanceTo(tappedPoint) ? dot : tapped;
+                     }
+                  }
+               }
+            }
+            if( tapped != null )
+            {
+               DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(mLoggerMap.getApplicationContext());
+               String timetxt = timeFormat.format(new Date(tapped.time));
+               UnitsI18n units = new UnitsI18n( mLoggerMap, null);
+               double speed = units.conversionFromMetersPerSecond( tapped.speed );
+               String speedtxt = String.format( "%.1f %s", speed, units.getSpeedUnit() );
+               String text = mLoggerMap.getString(R.string.time_and_speed, timetxt, speedtxt );
+               Toast toast = Toast.makeText(mLoggerMap, text, Toast.LENGTH_SHORT);
+               toast.show();
+            }
+         }
          return false;
       }
    }
@@ -1275,9 +1315,15 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    private static class DotVO
    {
+      public long time;
+      public long speed;
       public int x;
       public int y;
       public float radius;
+      public int distanceTo(Point tappedPoint)
+      {
+         return Math.abs(tappedPoint.x - this.x) + Math.abs(tappedPoint.y - this.y);
+      }
    }
 
    private class MediaAdapter extends BaseAdapter

@@ -110,6 +110,7 @@
     <string name="error_importgpx_xml">Failed reading the XML during import.</string>
     <string name="error_importgpx_io">Failed reading the file during import.</string>
     <string name="error_importgpx_parse">Failed reading a number during import.</string>
+    <string name="time_and_speed">At %1$s going %2$s</string>
     
     <!-- Buttons -->
 	<string name="btn_okay">OK</string>
