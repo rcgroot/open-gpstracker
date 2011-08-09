@@ -2,62 +2,87 @@
    android:layout_height="fill_parent"
    xmlns:android="http://schemas.android.com/apk/res/android"
    android:orientation="vertical"
-   android:layout_width="fill_parent"
->
+   android:layout_width="fill_parent">
    <ScrollView
       android:layout_width="fill_parent"
       android:layout_height="0dip"
-      android:layout_weight="1"
-   >
-      <LinearLayout
+      android:layout_weight="1">
+      <RelativeLayout
+         android:id="@+id/LinearLayout1"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          android:orientation="vertical"
-         android:padding="5dip"
-      >
+         android:padding="5dip">
          <TextView
+            android:id="@+id/TextView1"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
             android:text="@string/share_explained"
             style="?android:attr/textAppearanceMedium"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="5dip" />
          <TextView
+            android:id="@+id/TextView2"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/TextView1"
             android:text="@string/share_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
          <Spinner
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/TextView2"
             android:id="@+id/shareTypeSpinner"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
 
          <TextView
+            android:id="@+id/TextView3"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/shareTypeSpinner"
             android:text="@string/share_target"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
          <Spinner
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/TextView3"
             android:id="@+id/shareTargetSpinner"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent" />
-            
+
          <TextView
+            android:id="@+id/TextView4"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/shareTargetSpinner"
             android:text="@string/share_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
          <EditText
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/TextView4"
             android:id="@+id/fileNameField"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:singleLine="true"
             android:layout_width="fill_parent" />
+
+         <ProgressBar
+            android:layout_width="wrap_content"
+            android:id="@+id/tweet_progress"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/fileNameField"
+            android:layout_alignParentLeft="true" android:visibility="gone"/>
          <EditText
+            android:layout_below="@+id/fileNameField"
+            android:layout_toRightOf="@+id/tweet_progress"
             android:id="@+id/tweetField"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:layout_width="fill_parent"
             android:maxLines="3"
             android:maxLength="140"
-            android:text="" />
-      </LinearLayout>
+            android:text="" />            
+      </RelativeLayout>
    </ScrollView>
 
 
@@ -66,8 +91,7 @@
       android:layout_gravity="bottom"
       android:orientation="horizontal"
       android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
+      android:layout_height="wrap_content">
 
       <Button
          android:id="@+id/cancelshare_button"

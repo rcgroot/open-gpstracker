@@ -483,6 +483,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    private void createTweetText()
    {
       StatisticsCalulator calculator = new StatisticsCalulator(this, new UnitsI18n(this), this);
+      findViewById(R.id.tweet_progress).setVisibility(View.VISIBLE);
       calculator.execute(mTrackUri);
    }
 
@@ -497,6 +498,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       {
          mTweetView.setText(tweetText);
       }
+      findViewById(R.id.tweet_progress).setVisibility(View.GONE);
    }
 
    private void adjustTargetToType(int position)
