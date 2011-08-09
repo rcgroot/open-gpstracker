@@ -132,7 +132,7 @@ public class LoggerMap extends MapActivity
    private CheckBox mAltitude;
    private CheckBox mCompass;
    private CheckBox mLocation;
-   private TextView[] mSpeedtexts = null;
+   private TextView[] mSpeedtexts = new TextView[0];
    private TextView mLastGPSSpeedView = null;
    private TextView mLastGPSAltitudeView = null;
    private Gallery mGallery;
@@ -179,8 +179,10 @@ public class LoggerMap extends MapActivity
       super.onCreate( load );
       
       setContentView( R.layout.map );
-      
+
+      mUnits = new UnitsI18n( this );
       createListeners();
+      mUnits.setUnitsChangeListener( mUnitsChangeListener );
       
       mLoggerServiceManager = new GPSLoggerServiceManager( this );
       
@@ -206,7 +208,6 @@ public class LoggerMap extends MapActivity
          Log.e( TAG, "Failed waiting for a semaphore", e );
       }
 
-      mUnits = new UnitsI18n( this, mUnitsChangeListener );
 
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
       mSharedPreferences.registerOnSharedPreferenceChangeListener( mSharedPreferenceChangeListener );

@@ -77,12 +77,17 @@ public class UnitsI18n
    
    public UnitsI18n( Context ctx, UnitsChangeListener listener )
    {
-      mContext = ctx;
+      this(ctx);
       mListener =  listener ;
       initBasedOnPreferences( PreferenceManager.getDefaultSharedPreferences( mContext ) );
       PreferenceManager.getDefaultSharedPreferences( mContext ).registerOnSharedPreferenceChangeListener( mPreferenceListener  );
    }
    
+   public UnitsI18n(Context ctx)
+   {
+      mContext = ctx;
+   }
+
    private void initBasedOnPreferences( SharedPreferences sharedPreferences )
    {
       int units = Integer.parseInt( sharedPreferences.getString( Constants.UNITS, Integer.toString( Constants.UNITS_DEFAULT ) ) );
@@ -237,6 +242,10 @@ public class UnitsI18n
    public boolean isUnitFlipped()
    {
       return needsUnitFlip;
+   }
+   public void setUnitsChangeListener(UnitsChangeListener unitsChangeListener)
+   {
+      mListener = unitsChangeListener;
    }
    /**
     * 
