@@ -987,7 +987,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     */
    protected boolean isGeoPointOnScreen(GeoPoint geopoint)
    {
-       boolean onscreen = true;
+       boolean onscreen = geopoint != null;
        if (geopoint != null && mGeoTopLeft != null && mGeoBottumRight != null)
        {
            onscreen = onscreen && mGeoTopLeft.getLatitudeE6() > geopoint.getLatitudeE6();
