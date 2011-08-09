@@ -40,8 +40,8 @@ import android.preference.PreferenceManager;
 import android.util.TypedValue;
 
 /**
- * Collection of methods to provide metric and imperial data
- * based on locale or overridden by configuration
+ * Collection of methods to provide metric and imperial data based on locale or
+ * overridden by configuration
  * 
  * @version $Id$
  * @author rene (c) Feb 2, 2010, Sogeti B.V.
@@ -58,199 +58,207 @@ public class UnitsI18n
    private UnitsChangeListener mListener;
    private OnSharedPreferenceChangeListener mPreferenceListener = new OnSharedPreferenceChangeListener()
    {
-      public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key )
+      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
       {
-         if( key.equals( Constants.UNITS ) )
+         if (key.equals(Constants.UNITS))
          {
-            initBasedOnPreferences( sharedPreferences );
-            if( mListener != null )
+            initBasedOnPreferences(sharedPreferences);
+            if (mListener != null)
             {
                mListener.onUnitsChange();
             }
          }
       }
    };
-   private boolean needsUnitFlip ;
-   
+   private boolean needsUnitFlip;
+
    @SuppressWarnings("unused")
    private static final String TAG = "OGT.UnitsI18n";
-   
-   public UnitsI18n( Context ctx, UnitsChangeListener listener )
+
+   public UnitsI18n(Context ctx, UnitsChangeListener listener)
    {
       this(ctx);
-      mListener =  listener ;
-      initBasedOnPreferences( PreferenceManager.getDefaultSharedPreferences( mContext ) );
-      PreferenceManager.getDefaultSharedPreferences( mContext ).registerOnSharedPreferenceChangeListener( mPreferenceListener  );
+      mListener = listener;
    }
-   
+
    public UnitsI18n(Context ctx)
    {
       mContext = ctx;
+      initBasedOnPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
+      PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(mPreferenceListener);
    }
 
-   private void initBasedOnPreferences( SharedPreferences sharedPreferences )
+   private void initBasedOnPreferences(SharedPreferences sharedPreferences)
    {
-      int units = Integer.parseInt( sharedPreferences.getString( Constants.UNITS, Integer.toString( Constants.UNITS_DEFAULT ) ) );
-      switch( units )
+      int units = Integer.parseInt(sharedPreferences.getString(Constants.UNITS, Integer.toString(Constants.UNITS_DEFAULT)));
+      switch (units)
       {
-         case( Constants.UNITS_DEFAULT ):
+         case (Constants.UNITS_DEFAULT):
             setToDefault();
             break;
-         case( Constants.UNITS_IMPERIAL ):
+         case (Constants.UNITS_IMPERIAL):
             setToImperial();
             break;
-         case( Constants.UNITS_METRIC ):
+         case (Constants.UNITS_METRIC):
             setToMetric();
             break;
-         case( Constants.UNITS_NAUTIC ):
+         case (Constants.UNITS_NAUTIC):
             setToMetric();
-            overrideWithNautic( mContext.getResources() );
+            overrideWithNautic(mContext.getResources());
             break;
-         case( Constants.UNITS_METRICPACE ):
+         case (Constants.UNITS_METRICPACE):
             setToMetric();
-            overrideWithPace( mContext.getResources() );
+            overrideWithPace(mContext.getResources());
             break;
-         case( Constants.UNITS_IMPERIALPACE ):
+         case (Constants.UNITS_IMPERIALPACE):
             setToImperial();
-            overrideWithPaceImperial( mContext.getResources() );
+            overrideWithPaceImperial(mContext.getResources());
             break;
          default:
             setToDefault();
             break;
       }
    }
-   
+
    private void setToDefault()
    {
       Resources resources = mContext.getResources();
-      init( resources );
+      init(resources);
    }
-   
+
    private void setToMetric()
    {
       Resources resources = mContext.getResources();
       Configuration config = resources.getConfiguration();
       Locale oldLocale = config.locale;
       config.locale = new Locale("");
-      resources.updateConfiguration( config, resources.getDisplayMetrics() );
-      init( resources );
+      resources.updateConfiguration(config, resources.getDisplayMetrics());
+      init(resources);
       config.locale = oldLocale;
-      resources.updateConfiguration( config, resources.getDisplayMetrics() );
+      resources.updateConfiguration(config, resources.getDisplayMetrics());
    }
-   
+
    private void setToImperial()
    {
       Resources resources = mContext.getResources();
       Configuration config = resources.getConfiguration();
       Locale oldLocale = config.locale;
       config.locale = Locale.US;
-      resources.updateConfiguration( config, resources.getDisplayMetrics() );
-      init( resources );
+      resources.updateConfiguration(config, resources.getDisplayMetrics());
+      init(resources);
       config.locale = oldLocale;
-      resources.updateConfiguration( config, resources.getDisplayMetrics() );
+      resources.updateConfiguration(config, resources.getDisplayMetrics());
    }
-   
+
    /**
     * Based on a given Locale prefetch the units conversions and names.
     * 
     * @param resources Resources initialized with a Locale
     */
-   private void init( Resources resources )
+   private void init(Resources resources)
    {
       TypedValue outValue = new TypedValue();
       needsUnitFlip = false;
-      resources.getValue( R.raw.conversion_from_mps, outValue, false ) ;
-      mConversion_from_mps_to_speed =  outValue.getFloat();
-      resources.getValue( R.raw.conversion_from_meter, outValue, false ) ;
+      resources.getValue(R.raw.conversion_from_mps, outValue, false);
+      mConversion_from_mps_to_speed = outValue.getFloat();
+      resources.getValue(R.raw.conversion_from_meter, outValue, false);
       mConversion_from_meter_to_distance = outValue.getFloat();
-      resources.getValue( R.raw.conversion_from_meter_to_height, outValue, false ) ;
+      resources.getValue(R.raw.conversion_from_meter_to_height, outValue, false);
       mConversion_from_meter_to_height = outValue.getFloat();
-      
-      mSpeed_unit    = resources.getString( R.string.speed_unitname );
-      mDistance_unit = resources.getString( R.string.distance_unitname );
-      mHeight_unit   = resources.getString( R.string.distance_smallunitname );
+
+      mSpeed_unit = resources.getString(R.string.speed_unitname);
+      mDistance_unit = resources.getString(R.string.distance_unitname);
+      mHeight_unit = resources.getString(R.string.distance_smallunitname);
    }
 
-   private void overrideWithNautic( Resources resources )
+   private void overrideWithNautic(Resources resources)
    {
       TypedValue outValue = new TypedValue();
-      resources.getValue( R.raw.conversion_from_mps_to_knot, outValue, false ) ;
-      mConversion_from_mps_to_speed =  outValue.getFloat();
-      resources.getValue( R.raw.conversion_from_meter_to_nauticmile, outValue, false ) ;
+      resources.getValue(R.raw.conversion_from_mps_to_knot, outValue, false);
+      mConversion_from_mps_to_speed = outValue.getFloat();
+      resources.getValue(R.raw.conversion_from_meter_to_nauticmile, outValue, false);
       mConversion_from_meter_to_distance = outValue.getFloat();
-      
-      mSpeed_unit    = resources.getString( R.string.knot_unitname );
-      mDistance_unit = resources.getString( R.string.nautic_unitname );
+
+      mSpeed_unit = resources.getString(R.string.knot_unitname);
+      mDistance_unit = resources.getString(R.string.nautic_unitname);
    }
-   
-   private void overrideWithPace( Resources resources )
+
+   private void overrideWithPace(Resources resources)
    {
-      needsUnitFlip = true;      
-      mSpeed_unit    = resources.getString( R.string.pace_unitname );
+      needsUnitFlip = true;
+      mSpeed_unit = resources.getString(R.string.pace_unitname);
    }
-   
-   private void overrideWithPaceImperial( Resources resources )
+
+   private void overrideWithPaceImperial(Resources resources)
    {
-      needsUnitFlip  = true;
-      mSpeed_unit    = resources.getString( R.string.pace_unitname_imperial );
+      needsUnitFlip = true;
+      mSpeed_unit = resources.getString(R.string.pace_unitname_imperial);
    }
-   
-   public double conversionFromMeterAndMiliseconds( double meters, long miliseconds )
+
+   public double conversionFromMeterAndMiliseconds(double meters, long miliseconds)
    {
-      float seconds = miliseconds/1000f;
-      return conversionFromMetersPerSecond( meters / seconds  );
+      float seconds = miliseconds / 1000f;
+      return conversionFromMetersPerSecond(meters / seconds);
    }
-   
-   public double conversionFromMetersPerSecond( double mps )
+
+   public double conversionFromMetersPerSecond(double mps)
    {
       double speed = mps * mConversion_from_mps_to_speed;
-      if( needsUnitFlip ) // Flip from "x per hour" to "minutes per x"
+      if (needsUnitFlip) // Flip from "x per hour" to "minutes per x"
       {
-         if( speed > 1 ) // Nearly no speed return 0 as if there is no speed
+         if (speed > 1) // Nearly no speed return 0 as if there is no speed
          {
-            speed = (1/speed)*60.0;
+            speed = (1 / speed) * 60.0;
          }
-         else 
+         else
          {
             speed = 0;
          }
       }
       return speed;
    }
-   public double conversionFromMeter( double meters )
+
+   public double conversionFromMeter(double meters)
    {
       double value = meters * mConversion_from_meter_to_distance;
-//      Log.d( TAG, String.format( "Converting %f.4 meters to a value of %f.4", meters, value ) );
+      //      Log.d( TAG, String.format( "Converting %f.4 meters to a value of %f.4", meters, value ) );
       return value;
    }
-   public double conversionFromMeterToHeight( double meters )
+
+   public double conversionFromMeterToHeight(double meters)
    {
       return meters * mConversion_from_meter_to_height;
    }
+
    public String getSpeedUnit()
    {
       return mSpeed_unit;
    }
+
    public String getDistanceUnit()
    {
       return mDistance_unit;
    }
+
    public String getHeightUnit()
    {
       return mHeight_unit;
    }
+
    public boolean isUnitFlipped()
    {
       return needsUnitFlip;
    }
+
    public void setUnitsChangeListener(UnitsChangeListener unitsChangeListener)
    {
       mListener = unitsChangeListener;
    }
+
    /**
+    * Interface definition for a callback to be invoked when the preference for
+    * units changed.
     * 
-    * Interface definition for a callback to be invoked when the preference for units changed.  
-    *
     * @version $Id$
     * @author rene (c) Feb 14, 2010, Sogeti B.V.
     */

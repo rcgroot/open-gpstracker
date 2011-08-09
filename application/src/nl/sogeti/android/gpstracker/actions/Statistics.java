@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.actions;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
+import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
@@ -65,7 +66,7 @@ import android.widget.ViewFlipper;
  * @version $Id$
  * @author rene (c) Oct 19, 2009, Sogeti B.V.
  */
-public class Statistics extends Activity
+public class Statistics extends Activity implements StatisticsDelegate
 {
 
    private static final int DIALOG_GRAPHTYPE = 3;
@@ -142,7 +143,6 @@ public class Statistics extends Activity
          dismissDialog( DIALOG_GRAPHTYPE );
       }
    };
-   private StatisticsCalulator mCalculator;
 
    class MyGestureDetector extends SimpleOnGestureListener
    {
@@ -183,9 +183,6 @@ public class Statistics extends Activity
             }
          } );
       setContentView( R.layout.statistics );
-
-
-      mCalculator = new StatisticsCalulator( this, mUnits );
       
       mViewFlipper = (ViewFlipper) findViewById( R.id.flipper );
       mSlideLeftIn = AnimationUtils.loadAnimation( this, R.anim.slide_left_in );
@@ -400,27 +397,30 @@ public class Statistics extends Activity
    private void drawTrackingStatistics()
    {
       calculating = true;
-      
-      mCalculator.updateCalculations( mTrackUri );
-      
-      mGraphTimeSpeed.setData       ( mTrackUri, mCalculator );
-      mGraphDistanceSpeed.setData   ( mTrackUri, mCalculator );
-      mGraphTimeAltitude.setData    ( mTrackUri, mCalculator );
-      mGraphDistanceAltitude.setData( mTrackUri, mCalculator );
+      StatisticsCalulator calculator = new StatisticsCalulator( this, mUnits, this );
+      calculator.execute(mTrackUri);
+   }
+
+   public void finishedCalculations(StatisticsCalulator calculated)
+   {
+      mGraphTimeSpeed.setData       ( mTrackUri, calculated );
+      mGraphDistanceSpeed.setData   ( mTrackUri, calculated );
+      mGraphTimeAltitude.setData    ( mTrackUri, calculated );
+      mGraphDistanceAltitude.setData( mTrackUri, calculated );
       
       mViewFlipper.postInvalidate();
 
-      maxSpeedView.setText( mCalculator.getMaxSpeedText() );
-      mElapsedTimeView.setText( mCalculator.getDurationText() );
-      mAscensionView.setText( mCalculator.getAscensionText() );
-      overallavgSpeedView.setText( mCalculator.getOverallavgSpeedText() );
-      avgSpeedView.setText( mCalculator.getAvgSpeedText() );
-      distanceView.setText( mCalculator.getDistanceText() );
-      starttimeView.setText( Long.toString( mCalculator.getStarttime() ) );
-      endtimeView.setText( Long.toString( mCalculator.getEndtime() ) );
+      maxSpeedView.setText( calculated.getMaxSpeedText() );
+      mElapsedTimeView.setText( calculated.getDurationText() );
+      mAscensionView.setText( calculated.getAscensionText() );
+      overallavgSpeedView.setText( calculated.getOverallavgSpeedText() );
+      avgSpeedView.setText( calculated.getAvgSpeedText() );
+      distanceView.setText( calculated.getDistanceText() );
+      starttimeView.setText( Long.toString( calculated.getStarttime() ) );
+      endtimeView.setText( Long.toString( calculated.getEndtime() ) );
       String titleFormat = getString( R.string.stat_title );
-      setTitle( String.format( titleFormat, mCalculator.getTracknameText() ) );
-      waypointsView.setText( mCalculator.getWaypointsText() );
+      setTitle( String.format( titleFormat, calculated.getTracknameText() ) );
+      waypointsView.setText( calculated.getWaypointsText() );
 
       calculating = false;
    }

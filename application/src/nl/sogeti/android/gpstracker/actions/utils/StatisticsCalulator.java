@@ -38,9 +38,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
-import android.util.Log;
+import android.os.AsyncTask;
 
-public class StatisticsCalulator
+public class StatisticsCalulator extends AsyncTask<Uri, Void, Void>
 {
 
    private static final String TAG = "OGT.StatisticsCalulator";
@@ -63,15 +63,17 @@ public class StatisticsCalulator
    private double mDistanceTraveled;
    private long mDuration;
    private double mAverageActiveSpeed;
+   private StatisticsDelegate mDelegate;
    
    
-   public StatisticsCalulator( Context ctx, UnitsI18n units )
+   public StatisticsCalulator( Context ctx, UnitsI18n units, StatisticsDelegate delegate )
    {
       mContext = ctx;
       mUnits = units;
+      mDelegate = delegate;
    }
 
-   public void updateCalculations( Uri trackUri )
+   private void updateCalculations( Uri trackUri )
    {
       mStarttime = -1;
       mEndtime = -1;
@@ -407,5 +409,23 @@ public class StatisticsCalulator
       String duration = String.format("%dh:%02dm:%02ds", s/3600, (s%3600)/60, (s%60));
 
       return duration;
+   }
+
+   @Override
+   protected Void doInBackground(Uri... params)
+   {
+      this.updateCalculations(params[0]);
+      return null;
+   }
+   
+   @Override
+   protected void onPostExecute(Void result)
+   {
+      super.onPostExecute(result);
+      if( mDelegate != null )
+      {
+         mDelegate.finishedCalculations(this);
+      }
+      
    }
 }

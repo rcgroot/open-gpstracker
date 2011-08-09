@@ -37,6 +37,7 @@ import nl.sogeti.android.gpstracker.actions.tasks.KmzSharing;
 import nl.sogeti.android.gpstracker.actions.tasks.OsmSharing;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
+import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -73,7 +74,7 @@ import android.widget.RemoteViews;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-public class ShareTrack extends Activity
+public class ShareTrack extends Activity implements StatisticsDelegate
 {
    private static final String TAG = "OGT.ShareTrack";
    
@@ -105,7 +106,6 @@ public class ShareTrack extends Activity
    private Spinner mShareTypeSpinner;
    private Spinner mShareTargetSpinner;
    private Uri mTrackUri;
-   private StatisticsCalulator calculator;
    private OnClickListener mTwidroidDialogListener = new DialogInterface.OnClickListener()
    {
       public void onClick(DialogInterface dialog, int which)
@@ -142,7 +142,6 @@ public class ShareTrack extends Activity
       setContentView(R.layout.sharedialog);
 
       mTrackUri = getIntent().getData();
-      calculator = new StatisticsCalulator(this, new UnitsI18n(this, null));
 
       mFileNameView = (EditText) findViewById(R.id.fileNameField);
       mTweetView = (EditText) findViewById(R.id.tweetField);
@@ -481,14 +480,23 @@ public class ShareTrack extends Activity
       startActivity(intent);
    }
 
-   private String createTweetText()
+   private void createTweetText()
    {
-      calculator.updateCalculations(mTrackUri);
+      StatisticsCalulator calculator = new StatisticsCalulator(this, new UnitsI18n(this), this);
+      calculator.execute(mTrackUri);
+   }
+
+   public void finishedCalculations(StatisticsCalulator calculated)
+   {
       String name = queryForTrackName(getContentResolver(), mTrackUri);
-      String distString = calculator.getDistanceText();
-      String avgSpeed = calculator.getAvgSpeedText();
-      String duration = calculator.getDurationText();
-      return String.format(getString(R.string.tweettext, name, distString, avgSpeed, duration));
+      String distString = calculated.getDistanceText();
+      String avgSpeed = calculated.getAvgSpeedText();
+      String duration = calculated.getDurationText();
+      String tweetText = String.format(getString(R.string.tweettext, name, distString, avgSpeed, duration));
+      if (mTweetView.getText().toString().equals(""))
+      {
+         mTweetView.setText(tweetText);
+      }
    }
 
    private void adjustTargetToType(int position)
@@ -509,10 +517,8 @@ public class ShareTrack extends Activity
             setTextLineExportTargets();
             mFileNameView.setVisibility(View.GONE);
             mTweetView.setVisibility(View.VISIBLE);
-            if (mTweetView.getText().toString().equals(""))
-            {
-               mTweetView.setText(createTweetText());
-            }
+            createTweetText();
+            break;
          default:
             break;
       }
