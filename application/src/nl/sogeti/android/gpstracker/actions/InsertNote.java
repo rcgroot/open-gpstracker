@@ -49,6 +49,7 @@ import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -262,23 +263,27 @@ public class InsertNote extends Activity
                      }
                      if (isLocal)
                      {
-                        Bitmap bm = BitmapFactory.decodeFile(newFile.getAbsolutePath());
+                        System.gc();
+                        Options opts = new Options();
+                        opts.inJustDecodeBounds = true; 
+                        Bitmap bm = BitmapFactory.decodeFile(newFile.getAbsolutePath(), opts);
+                        String height, width;
                         if (bm != null)
                         {
-                           String height = Integer.toString(bm.getHeight());
-                           String width = Integer.toString(bm.getWidth());
-                           bm.recycle();
-                           bm = null;
-                           System.gc();
-                           builder = new Uri.Builder();
-                           fileUri = builder.scheme("file").appendEncodedPath("/").appendEncodedPath(newFile.getAbsolutePath())
-                                 .appendQueryParameter("width", width).appendQueryParameter("height", height).build();
-                           InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);
+                           height = Integer.toString(bm.getHeight());
+                           width = Integer.toString(bm.getWidth());
                         }
                         else
                         {
-                           Log.e(TAG, "Failed to read image from: " + newFile.getAbsolutePath());
+                           height = Integer.toString(opts.outHeight);
+                           width = Integer.toString(opts.outWidth);
                         }
+                        bm = null;
+                        builder = new Uri.Builder();
+                        fileUri = builder.scheme("file").appendEncodedPath("/").appendEncodedPath(newFile.getAbsolutePath())
+                              .appendQueryParameter("width", width).appendQueryParameter("height", height).build();
+                        InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);
+
                      }
                      else
                      {
