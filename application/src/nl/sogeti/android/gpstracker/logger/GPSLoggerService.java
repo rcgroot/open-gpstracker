@@ -535,15 +535,6 @@ public class GPSLoggerService extends Service
       handleCommand(intent);
    }
 
-   @Override
-   public int onStartCommand(Intent intent, int flags, int startId)
-   {
-      handleCommand(intent);
-      // We want this service to continue running until it is explicitly
-      // stopped, so return sticky.
-      return START_STICKY;
-   }
-
    private void handleCommand(Intent intent)
    {
       if (DEBUG)
@@ -881,14 +872,7 @@ public class GPSLoggerService extends Service
       
       updateNotification();
       
-      if (Build.VERSION.SDK_INT >= 5)
-      {
-         startForegroundReflected(R.layout.map, mNotification);
-      }
-      else
-      {
-         mNoticationManager.notify(R.layout.map, mNotification);
-      }
+      mNoticationManager.notify(R.layout.map, mNotification);
    }
 
    private void updateNotification()
@@ -923,14 +907,7 @@ public class GPSLoggerService extends Service
 
    private void stopNotification()
    {
-      if (Build.VERSION.SDK_INT >= 5)
-      {
-         stopForegroundReflected(true);
-      }
-      else
-      {
-         mNoticationManager.cancel(R.layout.map);
-      }
+      mNoticationManager.cancel(R.layout.map);
    }
 
    private void notifyOnEnabledProviderNotification(int resId)
@@ -1388,69 +1365,5 @@ public class GPSLoggerService extends Service
       Message msg = Message.obtain();
       msg.what = GPSPROBLEM;
       mHandler.sendMessage(msg);
-   }
-
-   private void startForegroundReflected(int id, Notification notification)
-   {
-
-      Method mStartForeground;
-      Class[] mStartForegroundSignature = new Class[] { int.class, Notification.class };
-
-      Object[] mStartForegroundArgs = new Object[2];
-      mStartForegroundArgs[0] = Integer.valueOf(id);
-      mStartForegroundArgs[1] = notification;
-      try
-      {
-         mStartForeground = getClass().getMethod("startForeground", mStartForegroundSignature);
-         mStartForeground.invoke(this, mStartForegroundArgs);
-      }
-      catch (NoSuchMethodException e)
-      {
-         Log.e( TAG, "Failed starting foreground notification using reflection", e);
-      }
-      catch (IllegalArgumentException e)
-      {
-         Log.e( TAG, "Failed starting foreground notification using reflection", e);
-      }
-      catch (IllegalAccessException e)
-      {
-         Log.e( TAG, "Failed starting foreground notification using reflection", e);
-      }
-      catch (InvocationTargetException e)
-      {
-         Log.e( TAG, "Failed starting foreground notification using reflection", e);
-      }
-
-   }
-
-   private void stopForegroundReflected(boolean b)
-   {
-      Class[] mStopForegroundSignature = new Class[] { boolean.class };
-
-      Method mStopForeground;
-      Object[] mStopForegroundArgs = new Object[1];
-      mStopForegroundArgs[0] = Boolean.TRUE;
-      try
-      {
-         mStopForeground = getClass().getMethod("stopForeground", mStopForegroundSignature);
-         mStopForeground.invoke(this, mStopForegroundArgs);
-      }
-      catch (NoSuchMethodException e)
-      {
-         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
-      }
-      catch (IllegalArgumentException e)
-      {
-         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
-      }
-      catch (IllegalAccessException e)
-      {
-         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
-      }
-      catch (InvocationTargetException e)
-      {
-         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
-      }
-
    }
 }

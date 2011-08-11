@@ -43,6 +43,7 @@ import android.util.Log;
 public class ViewFlipper extends android.widget.ViewFlipper
 {
    private static final String TAG = "OGT.ViewFlipper";
+   private static final int SDK_INT = Integer.parseInt( Build.VERSION.SDK );
 
    public ViewFlipper(Context context)
    {
@@ -62,7 +63,7 @@ public class ViewFlipper extends android.widget.ViewFlipper
    @Override
    protected void onDetachedFromWindow()
    {
-      if( Build.VERSION.SDK_INT == 7 || Build.VERSION.SDK_INT == 8 || Build.VERSION.SDK_INT == 9 )
+      if( SDK_INT == 7 || SDK_INT == 8 || SDK_INT == 9 )
       {
          try
          {
