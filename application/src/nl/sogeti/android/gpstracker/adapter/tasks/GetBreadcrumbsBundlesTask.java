@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
@@ -52,6 +53,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.content.Context;
 import android.util.Log;
 
 /**
@@ -80,9 +82,9 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsBundlesTask(BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public GetBreadcrumbsBundlesTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
-      super(adapter, listener);
+      super(context, adapter, listener);
       mHttpclient = httpclient;
       mConsumer = consumer;
 
@@ -161,25 +163,25 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       catch (OAuthMessageSignerException e)
       {
          mAdapter.removeAuthentication();
-         handleError(e, "Failed to sign the request with authentication signature");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
          mAdapter.removeAuthentication();
-         handleError(e, "The request did not authenticate");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
          mAdapter.removeAuthentication();
-         handleError(e, "The authentication communication failed");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "The authentication communication failed");
       }
       catch (IOException e)
       {
-         handleError(e, "A problem during communication");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "A problem during communication");
       }
       catch (XmlPullParserException e)
       {
-         handleError(e, "A problem while reading the XML data");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "A problem while reading the XML data");
       }
       finally
       {

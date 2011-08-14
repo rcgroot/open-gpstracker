@@ -82,6 +82,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    private String mErrorText;
    private Exception mException;
    private int mMaximumProgress;
+   private String mTask;
 
    XmlCreator(Context context, Uri trackUri, String chosenFileName, ProgressListener listener)
    {
@@ -391,9 +392,10 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
 
    protected abstract String getContentType();
 
-   protected void handleError(Exception e, String text)
+   protected void handleError(String task, Exception e, String text)
    {
       Log.e(TAG, "Unable to save ", e);
+      mTask = task;
       mException = e;
       mErrorText = text;
       cancel(false);
@@ -416,12 +418,14 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    protected void onPostExecute(Uri resultFilename)
    {
       mProgressListener.finished(resultFilename);
+      mContext = null;
    }
 
    @Override
    protected void onCancelled()
    {
       mProgressListener.finished(null);
-      mProgressListener.showError(mContext.getString(R.string.taskerror_xml_write), mErrorText, mException);
+      mProgressListener.showError(mTask, mErrorText, mException);
+      mContext = null;
    }
 }

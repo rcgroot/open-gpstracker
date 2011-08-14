@@ -85,7 +85,7 @@ public class KmzCreator extends XmlCreator
    protected Uri doInBackground(Void... params)
    {
       determineProgressGoal();
-      
+
       Uri resultFilename = exportKml();
       return resultFilename;
    }
@@ -129,17 +129,17 @@ public class KmzCreator extends XmlCreator
       catch (IllegalArgumentException e)
       {
          String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filename);
-         handleError(e, text);
+         handleError(mContext.getString(R.string.taskerror_kmz_write), e, text);
       }
       catch (IllegalStateException e)
       {
          String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_buildxml);
-         handleError(e, text);
+         handleError(mContext.getString(R.string.taskerror_kmz_write), e, text);
       }
       catch (IOException e)
       {
          String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_writesdcard);
-         handleError(e, text);
+         handleError(mContext.getString(R.string.taskerror_kmz_write), e, text);
       }
       finally
       {

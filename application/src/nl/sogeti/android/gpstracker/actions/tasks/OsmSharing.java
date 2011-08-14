@@ -131,7 +131,7 @@ public class OsmSharing extends GpxCreator
       if( consumer == null )
       {
          requestOpenstreetmapOauthToken();
-         handleError(null, mContext.getString(R.string.osmauth_message));
+         handleError(mContext.getString(R.string.osm_task), null, mContext.getString(R.string.osmauth_message));
       }
       
       String visibility = PreferenceManager.getDefaultSharedPreferences(mContext).getString(Constants.OSM_VISIBILITY, "trackable");
@@ -188,7 +188,7 @@ public class OsmSharing extends GpxCreator
          editor.commit();
          
          responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
-         handleError(e, responseText);
+         handleError(mContext.getString(R.string.osm_task), e, responseText);
       }
       catch (OAuthExpectationFailedException e)
       {
@@ -198,7 +198,7 @@ public class OsmSharing extends GpxCreator
          editor.commit();
          
          responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
-         handleError(e, responseText);
+         handleError(mContext.getString(R.string.osm_task), e, responseText);
       }
       catch (OAuthCommunicationException e)
       {
@@ -208,12 +208,12 @@ public class OsmSharing extends GpxCreator
          editor.commit();
          
          responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
-         handleError(e, responseText);
+         handleError(mContext.getString(R.string.osm_task), e, responseText);
       }
       catch (IOException e)
       {
          responseText = mContext.getString(R.string.osm_failed) + e.getLocalizedMessage();
-         handleError(e, responseText);
+         handleError(mContext.getString(R.string.osm_task), e, responseText);
       }
       finally
       {
@@ -246,7 +246,7 @@ public class OsmSharing extends GpxCreator
             editor.commit();
          }
          
-         handleError( new HttpException("Unexpected status reported by OSM"), text);
+         handleError(mContext.getString(R.string.osm_task), new HttpException("Unexpected status reported by OSM"), text);
       }
    }
    

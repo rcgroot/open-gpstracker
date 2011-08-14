@@ -123,8 +123,8 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
          CommonsHttpOAuthConsumer consumer = getOAuthConsumer();
          if (mTracks.readCache(mContext))
          {
-            new GetBreadcrumbsActivitiesTask(this, mListener, mHttpClient, consumer).execute();
-            mPlannedBundleTask = new GetBreadcrumbsBundlesTask(this, mListener, mHttpClient, consumer);
+            new GetBreadcrumbsActivitiesTask(mContext, this, mListener, mHttpClient, consumer).execute();
+            mPlannedBundleTask = new GetBreadcrumbsBundlesTask(mContext, this, mListener, mHttpClient, consumer);
          }
       }
       return mAuthorized;
@@ -293,7 +293,7 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
          {
             if (!mFinishing && !mTracks.areTracksLoaded(item) && !mTracks.areTracksLoadingScheduled(item))
             {
-               mPlannedTrackTasks.add(new GetBreadcrumbsTracksTask(this, mListener, mHttpClient, getOAuthConsumer(), item.second));
+               mPlannedTrackTasks.add(new GetBreadcrumbsTracksTask(mContext, this, mListener, mHttpClient, getOAuthConsumer(), item.second));
                mTracks.addTracksLoadingScheduled(item);
                executeNextTask();
             }

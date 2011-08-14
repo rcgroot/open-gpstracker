@@ -67,7 +67,13 @@
     <string name="no_information_available">No information available.</string>
     <string name="taskerror_gpx_import">Importing GPX data</string>
     <string name="taskerror_xml_write">Writing XML data</string>
+    <string name="taskerror_gpx_write">Writing GPX data</string>
+    <string name="taskerror_kmz_write">Writing KMZ data</string>
+    <string name="taskerror_breadcrumbs_activity">Retrieving activity list from GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_bundle">Retrieving bundle list from GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_track">Retrieving track list from GoBreadcrumbs</string>
     <string name="taskerror_breadcrumbs">Retrieving data from GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_upload">Uploading track to GoBreadcrumbs</string>
     <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
     <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
     <string name="dialog_contrib_message">
@@ -214,6 +220,7 @@
     <string name="preference_sharing">Sharing settings</string>
     <string name="jogmap_title">Jogmap upload code</string>
     <string name="jogmap_summary">The authentication code to upload to a jogmap.de account</string>
+    <string name="jogmap_task">Uploading the track to jogmap.de</string>
     <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
     <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
     <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo. </string>
@@ -236,6 +243,7 @@
     <string name="osm_success">Successfully uploading the track to www.openstreetmap.org: </string>
     <string name="osm_failed">Failed uploading the track to www.openstreetmap.org: </string>
     <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
+    <string name="osm_task">Uploading trace to OpenStreetMap</string>
     <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.</string>

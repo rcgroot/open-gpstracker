@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
@@ -50,6 +51,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.content.Context;
 import android.util.Log;
 
 /**
@@ -76,9 +78,9 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsTracksTask(BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer, Integer bundleId)
+   public GetBreadcrumbsTracksTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer, Integer bundleId)
    {
-      super(adapter, listener);
+      super(context, adapter, listener);
       mHttpclient = httpclient;
       mConsumer = consumer;
       mBundleId = bundleId;
@@ -185,25 +187,25 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
       catch (OAuthMessageSignerException e)
       {
          mAdapter.removeAuthentication();
-         handleError(e, "Failed to sign the request with authentication signature");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
          mAdapter.removeAuthentication();
-         handleError(e, "The request did not authenticate");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
          mAdapter.removeAuthentication();
-         handleError(e, "The authentication communication failed");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "The authentication communication failed");
       }
       catch (IOException e)
       {
-         handleError(e, "A problem during communication");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "A problem during communication");
       }
       catch (XmlPullParserException e)
       {
-         handleError(e, "A problem while reading the XML data");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "A problem while reading the XML data");
       }
       finally
       {

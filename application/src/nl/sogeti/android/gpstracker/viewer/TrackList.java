@@ -285,7 +285,7 @@ public class TrackList extends ListActivity implements ProgressListener
    protected void onListItemClick(ListView listView, View view, int position, long id)
    {
       super.onListItemClick(listView, view, position, id);
-      
+
       Object item = listView.getItemAtPosition(position);
       if (item instanceof String)
       {
@@ -454,8 +454,8 @@ public class TrackList extends ListActivity implements ProgressListener
             return dialog;
          case DIALOG_ERROR:
             builder = new AlertDialog.Builder(this);
-            builder.setIcon(android.R.drawable.ic_dialog_alert).setTitle(android.R.string.dialog_alert_title)
-                  .setMessage(mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ").setNeutralButton(android.R.string.cancel, null);
+            builder.setIcon(android.R.drawable.ic_dialog_alert).setTitle(android.R.string.dialog_alert_title).setMessage(mErrorDialogMessage)
+                  .setNeutralButton(android.R.string.cancel, null);
             dialog = builder.create();
             return dialog;
          default:
@@ -489,12 +489,17 @@ public class TrackList extends ListActivity implements ProgressListener
             alert = (AlertDialog) dialog;
             message = "Failed task:\n" + mErrorTask;
             message += "\n\n";
-            message += "Reason:\n" + mErrorDialogMessage + " (" + mErrorDialogException.getMessage() + ") ";
+            message += "Reason:\n" + mErrorDialogMessage;
+            if (mErrorDialogException != null)
+            {
+               message += " (" + mErrorDialogException.getMessage() + ") ";
+            }
             alert.setMessage(message);
             break;
          case DIALOG_IMPORT:
             alert = (AlertDialog) dialog;
             alert.setMessage(getString(R.string.dialog_import_message, mImportTrackName));
+            break;
       }
    }
 
@@ -511,7 +516,7 @@ public class TrackList extends ListActivity implements ProgressListener
             case DESCRIBE:
                Uri trackUri = data.getData();
                String name;
-               if( data.getExtras() != null && data.getExtras().containsKey(Constants.NAME))
+               if (data.getExtras() != null && data.getExtras().containsKey(Constants.NAME))
                {
                   name = data.getExtras().getString(Constants.NAME);
                }
@@ -528,7 +533,7 @@ public class TrackList extends ListActivity implements ProgressListener
       }
       else
       {
-         if(requestCode == DESCRIBE)
+         if (requestCode == DESCRIBE)
          {
             mBreadcrumbAdapter.notifyDataSetChanged();
          }
@@ -632,7 +637,7 @@ public class TrackList extends ListActivity implements ProgressListener
                      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
                      {
                         if (isChecked)
-                        {                           
+                        {
                            // Start a description of the track
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
                            namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));
@@ -699,6 +704,9 @@ public class TrackList extends ListActivity implements ProgressListener
       mErrorTask = task;
       mErrorDialogMessage = errorDialogMessage;
       mErrorDialogException = errorDialogException;
+      Log.d(TAG, "Most show Error for task: " + task);
+      Log.d(TAG, "Most show Error for errorDialogMessage: " + errorDialogMessage);
+      Log.d(TAG, "Most show Error for errorDialogException: " + errorDialogException);
       if (!isFinishing())
       {
          showDialog(DIALOG_ERROR);

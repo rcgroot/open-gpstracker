@@ -118,12 +118,12 @@ public class JogmapSharing extends GpxCreator
       catch (IOException e)
       {
          String text = mContext.getString(R.string.jogmap_failed) + e.getLocalizedMessage();
-         handleError(e, text);
+         handleError(mContext.getString(R.string.jogmap_task), e, text);
       }
       catch (URISyntaxException e)
       {
          String text = mContext.getString(R.string.jogmap_failed) + e.getLocalizedMessage();
-         handleError(e, text);
+         handleError(mContext.getString(R.string.jogmap_task), e, text);
       }
       finally
       {
@@ -143,7 +143,7 @@ public class JogmapSharing extends GpxCreator
       {
          Log.e(TAG, "Wrong status code " + statusCode);
          jogmapResponseText = mContext.getString(R.string.jogmap_failed) + jogmapResponseText;
-         handleError( new HttpException("Unexpected status reported by Jogmap"), jogmapResponseText);
+         handleError(mContext.getString(R.string.jogmap_task), new HttpException("Unexpected status reported by Jogmap"), jogmapResponseText);
       }
    }
 

@@ -94,7 +94,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
     * @param httpclient
     * @param consumer
     * @param trackUri
-    * @param name TODO
+    * @param name
     */
    public UploadBreadcrumbsTrackTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener, HttpClient httpclient, OAuthConsumer consumer,
          Uri trackUri, String name)
@@ -123,7 +123,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          String text = mContext.getString(R.string.ticker_failed) + " \"http://api.gobreadcrumbs.com/v1/tracks\" "
                + mContext.getString(R.string.error_buildxml);
-         handleError(new IOException("Fail to execute request due to canceling"), text);
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Fail to execute request due to canceling"), text);
       }
 
       // Collect GPX Import option params
@@ -173,7 +173,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          String text = "Unable to upload without a activity id stored in meta-data table";
          IllegalStateException e = new IllegalStateException(text);
-         handleError(e, text);
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, text);
       }
 
       int statusCode = 0;
@@ -229,21 +229,21 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       catch (OAuthMessageSignerException e)
       {
          mAdapter.removeAuthentication();
-         handleError(e, "Failed to sign the request with authentication signature");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
          mAdapter.removeAuthentication();
-         handleError(e, "The request did not authenticate");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
          mAdapter.removeAuthentication();
-         handleError(e, "The authentication communication failed");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "The authentication communication failed");
       }
       catch (IOException e)
       {
-         handleError(e, "A problem during communication");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "A problem during communication");
       }
       finally
       {
@@ -264,14 +264,14 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          if (trackUri == null)
          {
-            handleError(new IOException("Unable to retrieve URI from response"), responseText);
+            handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Unable to retrieve URI from response"), responseText);
          }
       }
       else
       {
          mAdapter.removeAuthentication();
          
-         handleError(new IOException("Status code: " + statusCode), responseText);
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Status code: " + statusCode), responseText);
       }
       return trackUri;
    }
@@ -315,7 +315,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          String text = "Unable to upload (yet) without a bunld id stored in meta-data table";
          IllegalStateException e = new IllegalStateException(text);
-         handleError(e, text);
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, text);
       }
       return bundleId;
    }
