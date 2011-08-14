@@ -163,7 +163,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
             {
                if (cursor.getInt(0) > 0)
                {
-                  mNeedsBundling = true;
                   maximumProgress *= 2;
                }
             }
@@ -206,7 +205,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    }
 
    /**
-    * Copies media into the export directory and returns the relative path of
+    * Includes media into the export directory and returns the relative path of
     * the media
     * 
     * @param inputFilePath
@@ -215,6 +214,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
     */
    protected String includeMediaFile(String inputFilePath) throws IOException
    {
+      Log.d( TAG, "Including media file "+ inputFilePath );
       mNeedsBundling = true;
       File source = new File(inputFilePath);
       File target = new File(mExportDirectoryPath + "/" + source.getName());
@@ -418,7 +418,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    protected void onPostExecute(Uri resultFilename)
    {
       mProgressListener.finished(resultFilename);
-      mContext = null;
    }
 
    @Override
@@ -426,6 +425,5 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    {
       mProgressListener.finished(null);
       mProgressListener.showError(mTask, mErrorText, mException);
-      mContext = null;
    }
 }

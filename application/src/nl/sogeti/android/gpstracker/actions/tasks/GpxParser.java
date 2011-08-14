@@ -429,14 +429,12 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    protected void onPostExecute(Uri result)
    {
       mProgressListener.finished(result);
-      mContext = null;
    }
 
    @Override
    protected void onCancelled()
    {
       mProgressListener.showError(mContext.getString(R.string.taskerror_gpx_import), mErrorDialogMessage, mErrorDialogException);
-      mContext = null;
    }
 
    /**

@@ -92,7 +92,6 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
       {
          mListener.finished(null);
       }
-      mContext = null;
    }
 
    protected abstract void updateTracksData(BreadcrumbsTracks tracks);
@@ -117,6 +116,5 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
       {
          Log.e(TAG, "Incomplete error after cancellation:" + mErrorText);
       }
-      mContext = null;
    }
 }

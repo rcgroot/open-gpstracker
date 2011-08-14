@@ -28,9 +28,11 @@
  */
 package nl.sogeti.android.gpstracker.adapter.tasks;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,8 +55,8 @@ import org.apache.ogt.http.client.HttpClient;
 import org.apache.ogt.http.client.methods.HttpPost;
 import org.apache.ogt.http.entity.mime.HttpMultipartMode;
 import org.apache.ogt.http.entity.mime.MultipartEntity;
+import org.apache.ogt.http.entity.mime.content.FileBody;
 import org.apache.ogt.http.entity.mime.content.StringBody;
-import org.apache.ogt.http.impl.client.DefaultHttpClient;
 import org.apache.ogt.http.util.EntityUtils;
 
 import android.content.ContentResolver;
@@ -84,6 +86,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    private String mBundleName;
    private String mBundleDescription;
    private boolean mIsBundleCreated;
+   private List<File> mPhotoUploadQueue;
 
    /**
     * Constructor: create a new UploadBreadcrumbsTrackTask.
@@ -99,10 +102,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    public UploadBreadcrumbsTrackTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener, HttpClient httpclient, OAuthConsumer consumer,
          Uri trackUri, String name)
    {
-      super(context, trackUri, name, false, listener);
+      super(context, trackUri, name, true, listener);
       mAdapter = adapter;
       mHttpClient = httpclient;
       mConsumer = consumer;
+      mPhotoUploadQueue = new LinkedList<File>();
    }
 
    /**
@@ -224,7 +228,12 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          {
             Integer trackId = new Integer(m.group(1));
             trackUri = Uri.parse("http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx");
+            for( File photo :mPhotoUploadQueue )
+            {
+               uploadPhoto(photo, trackId);
+            }
          }
+         
       }
       catch (OAuthMessageSignerException e)
       {
@@ -318,6 +327,52 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, text);
       }
       return bundleId;
+   }
+   
+   /**
+    * Queue's media  
+    * 
+    * @param inputFilePath
+    * @return file path relative to the export dir
+    * @throws IOException
+    */
+   @Override
+   protected String includeMediaFile(String inputFilePath) throws IOException
+   {
+      Log.d( TAG, "Including media file "+ inputFilePath );
+      File source = new File(inputFilePath);
+      if (source.exists())
+      {
+         mPhotoUploadQueue.add(source);
+         setMaximumProgress(getMaximumProgress() + 100);
+      }
+      return source.getName();
+   }
+   
+
+   private void uploadPhoto(File photo, Integer trackId) throws IOException, OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException
+   {
+      HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/photos.xml");
+      mConsumer.sign(method);
+      if (isCancelled())
+      {
+         throw new IOException("Fail to execute request due to canceling");
+      }
+      
+      MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+      entity.addPart("name", new StringBody(photo.getName()));
+      entity.addPart("track_id", new StringBody(Integer.toString(trackId)));
+      //entity.addPart("description", new StringBody(""));
+      entity.addPart("file", new FileBody(photo));
+      method.setEntity(entity);
+
+      HttpResponse response = mHttpClient.execute(method);
+      HttpEntity responseEntity = response.getEntity();
+      InputStream stream = responseEntity.getContent();
+      String responseText = XmlCreator.convertStreamToString(stream);
+      publishProgress(100);
+      Log.d( TAG, "Uploaded photo "+responseText);
+      
    }
 
    @Override
