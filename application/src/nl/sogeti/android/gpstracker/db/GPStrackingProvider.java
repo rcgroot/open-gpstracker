@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.db;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -388,7 +390,8 @@ public class GPStrackingProvider extends ContentProvider
          int match = GPStrackingProvider.sURIMatcher.match( uri );
    
          String tableName = null;
-         String whereclause = null;
+         String innerSelection = "1";
+         String[] innerSelectionArgs = new String[]{};
          String sortorder = sortOrder;
          List<String> pathSegments = uri.getPathSegments();
          switch (match)
@@ -398,76 +401,79 @@ public class GPStrackingProvider extends ContentProvider
                break;
             case TRACK_ID:
                tableName = Tracks.TABLE;
-               whereclause = Tracks._ID + " = " + new Long( pathSegments.get( 1 ) ).longValue();
+               innerSelection = Tracks._ID + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 1 ) };
                break;
             case SEGMENTS:
                tableName = Segments.TABLE;
-               whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
+               innerSelection = Segments.TRACK + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 1 ) };
                break;
             case SEGMENT_ID:
                tableName = Segments.TABLE;
-               whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue()
-                 + " and " + Segments._ID   + " = " + new Long( pathSegments.get( 3 ) ).longValue();
+               innerSelection = Segments.TRACK + " = ?  and " + Segments._ID   + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 1 ), pathSegments.get( 3 ) };
                break;
             case WAYPOINTS:
                tableName = Waypoints.TABLE;
-               whereclause = Waypoints.SEGMENT + " = " + new Long( pathSegments.get( 3 ) ).longValue();
+               innerSelection = Waypoints.SEGMENT + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 3 ) };
                break;
             case WAYPOINT_ID:
                tableName = Waypoints.TABLE;
-               whereclause = Waypoints.SEGMENT + " = " + new Long( pathSegments.get( 3 ) ).longValue()
-                 + " and " + Waypoints._ID     + " = " + new Long( pathSegments.get( 5 ) ).longValue();
+               innerSelection = Waypoints.SEGMENT + " =  ?  and " + Waypoints._ID     + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 3 ),  pathSegments.get( 5 ) };
                break;
             case TRACK_WAYPOINTS:
                tableName = Waypoints.TABLE + " INNER JOIN " + Segments.TABLE + " ON "+ Segments.TABLE+"."+Segments._ID +"=="+ Waypoints.SEGMENT;
-               whereclause = Segments.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
+               innerSelection = Segments.TRACK + " = ? ";
+               innerSelectionArgs = new String[]{  pathSegments.get( 1 ) };
                break;
             case GPStrackingProvider.MEDIA:
                tableName = Media.TABLE;
                break;
             case GPStrackingProvider.MEDIA_ID:
                tableName = Media.TABLE;
-               whereclause = Media._ID + " = " + new Long( pathSegments.get( 1 ) ).longValue();
+               innerSelection = Media._ID + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 1 ) };
                break;
             case TRACK_MEDIA:
                tableName = Media.TABLE;
-               whereclause = Media.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue();
+               innerSelection = Media.TRACK + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 1 ) };
                break;
             case SEGMENT_MEDIA:
                tableName = Media.TABLE;
-               whereclause = Media.TRACK + " = " + new Long( pathSegments.get( 1 ) ).longValue()
-               + " and " + Media.SEGMENT + " = " + new Long( pathSegments.get( 3 ) ).longValue();
+               innerSelection = Media.TRACK + " = ? and " + Media.SEGMENT + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 1 ), pathSegments.get( 3 ) };
                break;
             case WAYPOINT_MEDIA:
                tableName = Media.TABLE;
-               whereclause = Media.TRACK  + " = " + new Long( pathSegments.get( 1 ) ).longValue()
-               + " and " + Media.SEGMENT  + " = " + new Long( pathSegments.get( 3 ) ).longValue()
-               + " and " + Media.WAYPOINT + " = " + new Long( pathSegments.get( 5 ) ).longValue();
+               innerSelection = Media.TRACK  + " = ?  and " + Media.SEGMENT  + " = ? and " + Media.WAYPOINT + " = ? ";
+               innerSelectionArgs = new String[]{  pathSegments.get( 1 ),pathSegments.get( 3 ), pathSegments.get( 5 )};
                break;
             case TRACK_METADATA:
                tableName = MetaData.TABLE;
-               whereclause = MetaData.TRACK  + " = " + new Long( pathSegments.get( 1 ) ).longValue()
-               + " and " + MetaData.SEGMENT  + " = " + -1L
-               + " and " + MetaData.WAYPOINT + " = " + -1L;
+               innerSelection = MetaData.TRACK  + " = ? and " + MetaData.SEGMENT  + " = ? and " + MetaData.WAYPOINT + " = ? ";
+               innerSelectionArgs = new String[]{  pathSegments.get( 1 ), "-1", "-1" };
                break;
             case SEGMENT_METADATA:
                tableName = MetaData.TABLE;
-               whereclause = MetaData.TRACK  + " = " + new Long( pathSegments.get( 1 ) ).longValue()
-               + " and " + MetaData.SEGMENT  + " = " + new Long( pathSegments.get( 3 ) ).longValue()
-               + " and " + MetaData.WAYPOINT + " = " + -1L;
+               innerSelection = MetaData.TRACK  + " = ? and " + MetaData.SEGMENT  + " = ? and " + MetaData.WAYPOINT + " = ? ";
+               innerSelectionArgs = new String[]{pathSegments.get( 1 ), pathSegments.get( 3 ),  "-1" };
                break;
             case WAYPOINT_METADATA:
                tableName = MetaData.TABLE;
-               whereclause = MetaData.TRACK  + " = " + new Long( pathSegments.get( 1 ) ).longValue()
-               + " and " + MetaData.SEGMENT  + " = " + new Long( pathSegments.get( 3 ) ).longValue()
-               + " and " + MetaData.WAYPOINT + " = " + new Long( pathSegments.get( 5 ) ).longValue();
+               innerSelection = MetaData.TRACK  + " = ? and " + MetaData.SEGMENT  + " = ? and " + MetaData.WAYPOINT + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 1 ), pathSegments.get( 3 ),  pathSegments.get( 5 ) };
                break;
             case GPStrackingProvider.METADATA:
                tableName = MetaData.TABLE;
                break;
             case GPStrackingProvider.METADATA_ID:
                tableName = MetaData.TABLE;
-               whereclause = MetaData._ID + " = " + new Long( pathSegments.get( 1 ) ).longValue();
+               innerSelection = MetaData._ID + " = ? ";
+               innerSelectionArgs = new String[]{ pathSegments.get( 1 ) };
                break;
             case SEARCH_SUGGEST_ID:
                tableName = Tracks.TABLE;
@@ -499,15 +505,27 @@ public class GPStrackingProvider extends ContentProvider
    
          // Set the table we're querying.
          qBuilder.setTables( tableName );
-   
-         // If the query ends in a specific record number, we're
-         // being asked for a specific record, so set the
-         // WHERE clause in our query.
-         if (whereclause != null)
+         
+         if( selection == null )
          {
-            qBuilder.appendWhere( whereclause );
+            selection = innerSelection;
          }
-   
+         else
+         {
+            selection = "( "+ innerSelection + " ) and " + selection;
+         }
+         LinkedList<String> allArgs = new LinkedList<String>();
+         if( selectionArgs == null )
+         {
+            allArgs.addAll(Arrays.asList(innerSelectionArgs));
+         }
+         else
+         {
+            allArgs.addAll(Arrays.asList(innerSelectionArgs));
+            allArgs.addAll(Arrays.asList(selectionArgs));
+         }
+         selectionArgs = allArgs.toArray(innerSelectionArgs);
+         
          // Make the query.
          SQLiteDatabase mDb = this.mDbHelper.getWritableDatabase();
          Cursor c = qBuilder.query( mDb, projection, selection, selectionArgs, null, null, sortorder  );
