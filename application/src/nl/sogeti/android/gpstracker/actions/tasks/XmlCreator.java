@@ -74,7 +74,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    private String mExportDirectoryPath;
    private boolean mNeedsBundling;
 
-   String mChosenFileName;
+   String mChosenName;
    private ProgressListener mProgressListener;
    protected Context mContext;
    protected Uri mTrackUri;
@@ -86,13 +86,13 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
 
    XmlCreator(Context context, Uri trackUri, String chosenFileName, ProgressListener listener)
    {
-      mChosenFileName = chosenFileName;
+      mChosenName = chosenFileName;
       mContext = context;
       mTrackUri = trackUri;
       mProgressListener = listener;
 
       String trackName = extractCleanTrackName();
-      mFileName = cleanFilename(mChosenFileName, trackName);
+      mFileName = cleanFilename(mChosenName, trackName);
    }
 
    public int getMaximumProgress()

@@ -241,14 +241,14 @@ public class GpxCreator extends XmlCreator
       }
       ContentResolver resolver = context.getContentResolver();
       Cursor trackCursor = null;
-      mName = "Untitled";
 
+      String databaseName = null;
       try
       {
          trackCursor = resolver.query(trackUri, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME }, null, null, null);
          if (trackCursor.moveToFirst())
          {
-            mName = trackCursor.getString(1);
+            databaseName = trackCursor.getString(1);
             serializer.text("\n");
             serializer.startTag("", "metadata");
             serializer.text("\n");
@@ -266,10 +266,18 @@ public class GpxCreator extends XmlCreator
          {
             trackCursor.close();
          }
-         if (mName == null)
-         {
-            mName = "Untitled";
-         }
+      }
+      if( mName == null )
+      {
+         mName = "Untitled";
+      }
+      if (databaseName != null && !databaseName.equals("") )
+      {
+         mName = databaseName;
+      }
+      if (mChosenName != null && !mChosenName.equals("") )
+      {
+         mName = mChosenName;
       }
    }
 
