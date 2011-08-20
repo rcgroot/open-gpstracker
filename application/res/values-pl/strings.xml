@@ -45,8 +45,6 @@
     <string name="layer_cloudmade">Mapy CloudMade</string>
     <string name="layer_maknik">Mapnik</string>
     <string name="layer_bicycle">OpenCycleMap</string>
-    <string name="dialog_notwidroid">Brak twidroid</string>
-    <string name="dialog_notwidroid_message">Aplikacja \"twidroid\" jest wymagana do tweetowania.</string>
     <string name="dialog_vacuum_title">Porządkuj dane</string>
     <string name="dialog_vacuum_message">Odzyskuje miejsce utracone z powodu fragmentacji poprzez odbudowę bazy danych.</string>
     <string name="dialog_import_title">Import plików GPX</string>

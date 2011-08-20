@@ -28,6 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxSharing;
@@ -58,7 +65,12 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -70,6 +82,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -77,7 +91,7 @@ import android.widget.Toast;
 public class ShareTrack extends Activity implements StatisticsDelegate
 {
    private static final String TAG = "OGT.ShareTrack";
-   
+
    private static final int EXPORT_TYPE_KMZ = 0;
    private static final int EXPORT_TYPE_GPX = 1;
    private static final int EXPORT_TYPE_TEXTLINE = 2;
@@ -86,12 +100,11 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    private static final int EXPORT_TARGET_JOGRUN = 2;
    private static final int EXPORT_TARGET_OSM = 3;
    private static final int EXPORT_TARGET_BREADCRUMBS = 4;
-   private static final int EXPORT_TYPE_TWITDRIOD = 0;
-   private static final int EXPORT_TYPE_SMS = 1;
-   private static final int EXPORT_TYPE_TEXT = 2;
+   private static final int EXPORT_TARGET_TWITTER = 0;
+   private static final int EXPORT_TARGET_SMS = 1;
+   private static final int EXPORT_TARGET_TEXT = 2;
 
    private static final int PROGRESS_STEPS = 10;
-   private static final int DIALOG_INSTALL_TWIDROID = Menu.FIRST + 27 ;
    private static final int DIALOG_ERROR = Menu.FIRST + 28;
    private static final int DIALOG_CONNECTBREADCRUMBS = Menu.FIRST + 29;
    private static final int DESCRIBE = 312;
@@ -106,24 +119,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    private Spinner mShareTypeSpinner;
    private Spinner mShareTargetSpinner;
    private Uri mTrackUri;
-   private OnClickListener mTwidroidDialogListener = new DialogInterface.OnClickListener()
-   {
-      public void onClick(DialogInterface dialog, int which)
-      {
-         Uri twidroidUri = Uri.parse("market://details?id=com.twidroid");
-         Intent getTwidroid = new Intent(Intent.ACTION_VIEW, twidroidUri);
-         try
-         {
-            startActivity(getTwidroid);
-         }
-         catch (ActivityNotFoundException e)
-         {
-            twidroidUri = Uri.parse("http://twidroid.com/download/");
-            getTwidroid = new Intent(Intent.ACTION_VIEW, twidroidUri);
-            startActivity(getTwidroid);
-         }
-      }
-   };
    private OnClickListener mBreadcrumbsDialogListener = new OnClickListener()
    {
       public void onClick(DialogInterface dialog, int which)
@@ -135,6 +130,11 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    private String mErrorDialogMessage;
    private Throwable mErrorDialogException;
 
+   private ImageView mImageView;
+   private ImageButton mCloseImageView;
+
+   private Uri mImageUri;
+
    @Override
    public void onCreate(Bundle savedInstanceState)
    {
@@ -145,6 +145,8 @@ public class ShareTrack extends Activity implements StatisticsDelegate
 
       mFileNameView = (EditText) findViewById(R.id.fileNameField);
       mTweetView = (EditText) findViewById(R.id.tweetField);
+      mImageView = (ImageView) findViewById(R.id.imageView);
+      mCloseImageView = (ImageButton) findViewById(R.id.closeImageView);
 
       mShareTypeSpinner = (Spinner) findViewById(R.id.shareTypeSpinner);
       ArrayAdapter<CharSequence> shareTypeAdapter = ArrayAdapter.createFromResource(this, R.array.sharetype_choices, android.R.layout.simple_spinner_item);
@@ -155,7 +157,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       {
          public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
          {
-            if (position == EXPORT_TARGET_BREADCRUMBS)
+            if (mShareTypeSpinner.getSelectedItemPosition() == EXPORT_TYPE_GPX && position == EXPORT_TARGET_BREADCRUMBS)
             {
                BreadcrumbsAdapter breadcrumbAdapter = new BreadcrumbsAdapter(ShareTrack.this, null);
                boolean authorized = breadcrumbAdapter.connectionSetup();
@@ -164,7 +166,16 @@ public class ShareTrack extends Activity implements StatisticsDelegate
                   showDialog(DIALOG_CONNECTBREADCRUMBS);
                }
             }
+            else if (mShareTypeSpinner.getSelectedItemPosition() == EXPORT_TYPE_TEXTLINE && position != EXPORT_TARGET_SMS )
+            {
+               readScreenBitmap();
+            }
+            else
+            {
+               removeScreenBitmap();
+            }
          }
+
          public void onNothingSelected(AdapterView< ? > arg0)
          { /* NOOP */
          }
@@ -176,6 +187,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
          {
             adjustTargetToType(position);
          }
+
          public void onNothingSelected(AdapterView< ? > arg0)
          { /* NOOP */
          }
@@ -213,10 +225,10 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    protected void onResume()
    {
       super.onResume();
-      
+
       // Upgrade from stored OSM username/password to OAuth authorization
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-      if( prefs.contains(Constants.OSM_USERNAME) || prefs.contains(Constants.OSM_PASSWORD) )
+      if (prefs.contains(Constants.OSM_USERNAME) || prefs.contains(Constants.OSM_PASSWORD))
       {
          Editor editor = prefs.edit();
          editor.remove(Constants.OSM_USERNAME);
@@ -226,7 +238,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       findViewById(R.id.okayshare_button).setEnabled(true);
       findViewById(R.id.cancelshare_button).setEnabled(true);
    }
-   
+
    /**
     * @see android.app.Activity#onCreateDialog(int)
     */
@@ -237,25 +249,20 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       Builder builder = null;
       switch (id)
       {
-         case DIALOG_INSTALL_TWIDROID:
-            builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_notwidroid).setMessage(R.string.dialog_notwidroid_message).setIcon(android.R.drawable.ic_dialog_alert)
-                  .setPositiveButton(R.string.btn_install, mTwidroidDialogListener).setNegativeButton(R.string.btn_cancel, null);
-            dialog = builder.create();
-            return dialog;
          case DIALOG_ERROR:
             builder = new AlertDialog.Builder(this);
-            String exceptionMessage =  mErrorDialogException == null ? "" :  " (" + mErrorDialogException.getMessage() + ") "; 
+            String exceptionMessage = mErrorDialogException == null ? "" : " (" + mErrorDialogException.getMessage() + ") ";
             builder.setIcon(android.R.drawable.ic_dialog_alert).setTitle(android.R.string.dialog_alert_title)
                   .setMessage(mErrorDialogMessage + exceptionMessage).setNeutralButton(android.R.string.cancel, null);
             dialog = builder.create();
             return dialog;
          case DIALOG_CONNECTBREADCRUMBS:
             builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_breadcrumbsconnect).setMessage(R.string.dialog_breadcrumbsconnect_message).setIcon(android.R.drawable.ic_dialog_alert)
-            .setPositiveButton(R.string.btn_okay, mBreadcrumbsDialogListener).setNegativeButton(R.string.btn_cancel, null);
-      dialog = builder.create();
-      return dialog;
+            builder.setTitle(R.string.dialog_breadcrumbsconnect).setMessage(R.string.dialog_breadcrumbsconnect_message)
+                  .setIcon(android.R.drawable.ic_dialog_alert).setPositiveButton(R.string.btn_okay, mBreadcrumbsDialogListener)
+                  .setNegativeButton(R.string.btn_cancel, null);
+            dialog = builder.create();
+            return dialog;
          default:
             return super.onCreateDialog(id);
       }
@@ -273,7 +280,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       {
          case DIALOG_ERROR:
             alert = (AlertDialog) dialog;
-            String exceptionMessage =  mErrorDialogException == null ? "" :  " (" + mErrorDialogException.getMessage() + ") ";
+            String exceptionMessage = mErrorDialogException == null ? "" : " (" + mErrorDialogException.getMessage() + ") ";
             alert.setMessage(mErrorDialogMessage + exceptionMessage);
             break;
       }
@@ -287,6 +294,8 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
       int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_GPXTARGET, EXPORT_TARGET_SEND);
       mShareTargetSpinner.setSelection(lastTarget);
+      
+      removeScreenBitmap();
    }
 
    private void setKmzExportTargets()
@@ -297,6 +306,8 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
       int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_KMZTARGET, EXPORT_TARGET_SEND);
       mShareTargetSpinner.setSelection(lastTarget);
+      
+      removeScreenBitmap();
    }
 
    private void setTextLineExportTargets()
@@ -305,9 +316,8 @@ public class ShareTrack extends Activity implements StatisticsDelegate
             android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
-      int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TXTTARGET, EXPORT_TYPE_TWITDRIOD);
+      int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TXTTARGET, EXPORT_TARGET_TWITTER);
       mShareTargetSpinner.setSelection(lastTarget);
-
    }
 
    private void share()
@@ -382,7 +392,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
             break;
          case EXPORT_TARGET_BREADCRUMBS:
             sendToBreadcrumbs(mTrackUri, chosenFileName);
-            break;            
+            break;
          default:
             Log.e(TAG, "Unable to determine target for sharing GPX " + target);
             break;
@@ -394,14 +404,14 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       String subject = "Open GPS Tracker";
       switch (target)
       {
-         case EXPORT_TYPE_TWITDRIOD:
-            sendTwidroidTweet(message);
+         case EXPORT_TARGET_TWITTER:
+            sendTweet(message);
             break;
-         case EXPORT_TYPE_SMS:
+         case EXPORT_TARGET_SMS:
             sendSMS(message);
             ShareTrack.this.finish();
             break;
-         case EXPORT_TYPE_TEXT:
+         case EXPORT_TARGET_TEXT:
             sentGenericText(subject, message);
             ShareTrack.this.finish();
             break;
@@ -409,31 +419,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
 
    }
 
-   private void sendTwidroidTweet(String tweet)
-   {
-      final Intent intent = new Intent("com.twidroid.SendTweet");
-      intent.putExtra("com.twidroid.extra.MESSAGE", tweet);
-      intent.setType("application/twitter");
-      try
-      {
-         startActivity(intent);
-         ShareTrack.this.finish();
-      }
-      catch (ActivityNotFoundException e)
-      {
-         showDialog(DIALOG_INSTALL_TWIDROID);
-      }
-   }
-
-   private void sendToBreadcrumbs(Uri mTrackUri, String chosenFileName)
-   {
-      // Start a description of the track
-      Intent namingIntent = new Intent(this, DescribeTrack.class);
-      namingIntent.setData(mTrackUri);
-      namingIntent.putExtra(Constants.NAME, chosenFileName);
-      startActivityForResult(namingIntent, DESCRIBE);
-   }
-   
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data)
    {
@@ -444,7 +429,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
          {
             case DESCRIBE:
                Uri trackUri = data.getData();
-               if( data.getExtras() != null && data.getExtras().containsKey(Constants.NAME))
+               if (data.getExtras() != null && data.getExtras().containsKey(Constants.NAME))
                {
                   name = data.getExtras().getString(Constants.NAME);
                }
@@ -463,6 +448,17 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       }
    }
 
+   private void sendTweet(String tweet)
+   {
+      final Intent intent = findTwitterClient();
+      intent.putExtra(Intent.EXTRA_TEXT, tweet);
+      if (mImageUri != null)
+      {
+         intent.putExtra(Intent.EXTRA_STREAM, mImageUri);
+      }
+      startActivity(intent);
+      ShareTrack.this.finish();
+   }
    private void sendSMS(String msg)
    {
       final Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -477,7 +473,47 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       intent.setType("text/plain");
       intent.putExtra(Intent.EXTRA_SUBJECT, subject);
       intent.putExtra(Intent.EXTRA_TEXT, msg);
+      if (mImageUri != null)
+      {
+         intent.putExtra(Intent.EXTRA_STREAM, mImageUri);
+      }
       startActivity(intent);
+   }
+
+   private void sendToBreadcrumbs(Uri mTrackUri, String chosenFileName)
+   {
+      // Start a description of the track
+      Intent namingIntent = new Intent(this, DescribeTrack.class);
+      namingIntent.setData(mTrackUri);
+      namingIntent.putExtra(Constants.NAME, chosenFileName);
+      startActivityForResult(namingIntent, DESCRIBE);
+   }
+
+   private Intent findTwitterClient()
+   {
+      final String[] twitterApps = {
+            // package // name 
+            "com.twitter.android", // official 
+            "com.twidroid", // twidroyd
+            "com.handmark.tweetcaster", // Tweecaster 
+            "com.thedeck.android" // TweetDeck 
+      };
+      Intent tweetIntent = new Intent(Intent.ACTION_SEND);
+      tweetIntent.setType("text/plain");
+      final PackageManager packageManager = getPackageManager();
+      List<ResolveInfo> list = packageManager.queryIntentActivities(tweetIntent, PackageManager.MATCH_DEFAULT_ONLY);
+      for (int i = 0; i < twitterApps.length; i++)
+      {
+         for (ResolveInfo resolveInfo : list)
+         {
+            String p = resolveInfo.activityInfo.packageName;
+            if (p != null && p.startsWith(twitterApps[i]))
+            {
+               tweetIntent.setPackage(p);
+            }
+         }
+      }
+      return tweetIntent;
    }
 
    private void createTweetText()
@@ -540,7 +576,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    {
       Cursor trackCursor = null;
       String name = null;
-   
+
       try
       {
          trackCursor = resolver.query(trackUri, new String[] { Tracks.NAME }, null, null, null);
@@ -658,7 +694,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
 
          mErrorDialogMessage = errorDialogMessage;
          mErrorDialogException = errorDialogException;
-         if( !isFinishing() )
+         if (!isFinishing())
          {
             showDialog(DIALOG_ERROR);
          }
@@ -669,5 +705,87 @@ public class ShareTrack extends Activity implements StatisticsDelegate
          }
       }
 
+   }
+
+   public static Uri storeScreenBitmap(Bitmap bm)
+   {
+      Uri fileUri = null;
+      FileOutputStream stream = null;
+      try
+      {
+         File tmpBitmap = File.createTempFile("shareimage", ".png");
+         fileUri = Uri.fromFile(tmpBitmap);
+         stream = new FileOutputStream(tmpBitmap);
+         bm.compress(CompressFormat.PNG, 100, stream);
+      }
+      catch (IOException e)
+      {
+         Log.e(TAG, "Bitmap extra storing failed", e);
+      }
+      finally
+      {
+         try
+         {
+            if (stream != null)
+            {
+               stream.close();
+            }
+         }
+         catch (IOException e)
+         {
+            Log.e(TAG, "Bitmap extra close failed", e);
+         }
+      }
+      return fileUri;
+   }
+
+   private void readScreenBitmap()
+   {
+      mImageView.setVisibility(View.GONE);
+      mCloseImageView.setVisibility(View.GONE);
+      if (getIntent().getExtras() != null && getIntent().hasExtra(Intent.EXTRA_STREAM))
+      {
+         InputStream is = null;
+         try
+         {
+            mImageUri = getIntent().getExtras().getParcelable(Intent.EXTRA_STREAM);
+            is = getContentResolver().openInputStream(mImageUri);
+            mImageView.setImageBitmap(BitmapFactory.decodeStream(is));
+            mImageView.setVisibility(View.VISIBLE);
+            mCloseImageView.setVisibility(View.VISIBLE);
+            mCloseImageView.setOnClickListener( new View.OnClickListener()
+            {
+               
+               public void onClick(View v)
+               {
+                  removeScreenBitmap();
+               }
+            });
+         }
+         catch (FileNotFoundException e)
+         {
+            Log.e(TAG, "Failed reading image from file", e);
+         }
+         finally
+         {
+            if (is != null)
+            {
+               try
+               {
+                  is.close();
+               }
+               catch (IOException e)
+               {
+                  Log.e(TAG, "Failed close image from file", e);
+               }
+            }
+         }
+      }
+   }
+   private void removeScreenBitmap()
+   {
+      mImageView.setVisibility(View.GONE);
+      mCloseImageView.setVisibility(View.GONE);
+      mImageUri = null;
    }
 }

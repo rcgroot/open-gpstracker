@@ -45,8 +45,6 @@
     <string name="layer_cloudmade">CloudMade maps</string>
     <string name="layer_maknik">Mapnik</string>
     <string name="layer_bicycle">OpenCycleMap</string>
-    <string name="dialog_notwidroid">twidroid nodig</string>
-    <string name="dialog_notwidroid_message">De applicatie \"twidroid\" is nodig om deze regel te tweeten.</string>
     <string name="dialog_vacuum_title">Snoei data</string>
     <string name="dialog_vacuum_message">Geeft ruimte terug aan het systeem verloren door fragmentatie.</string>
     <string name="dialog_import_title">GPX import</string>

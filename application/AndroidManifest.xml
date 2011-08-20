@@ -149,7 +149,8 @@
 
          <activity
             android:label="@string/share_track"
-            android:name=".actions.ShareTrack" >
+            android:name=".actions.ShareTrack" 
+            android:windowSoftInputMode="stateUnchanged" >
             <intent-filter>
                <action android:name="android.intent.action.RUN" />
                <category android:name="android.intent.category.DEFAULT" />

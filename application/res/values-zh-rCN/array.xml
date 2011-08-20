@@ -55,7 +55,7 @@
     </string-array>
     
     <string-array name="sharetexttarget_choices">
-        <item>Twidroid 推</item>
+        <item>推</item>
         <item>短信</item>
         <item>通用文本发送</item>
     </string-array>

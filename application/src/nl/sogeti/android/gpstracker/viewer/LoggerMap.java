@@ -34,6 +34,7 @@ import java.util.concurrent.Semaphore;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
+import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
@@ -63,6 +64,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationManager;
@@ -177,7 +179,7 @@ public class LoggerMap extends MapActivity
       super.onCreate(load);
 
       setContentView(R.layout.map);
-
+      findViewById(R.id.mapScreen).setDrawingCacheEnabled(true);
       mUnits = new UnitsI18n(this);
       mLoggerServiceManager = new GPSLoggerServiceManager(this);
 
@@ -784,11 +786,12 @@ public class LoggerMap extends MapActivity
       boolean handled = false;
 
       Uri trackUri;
+      Intent intent;
       switch (item.getItemId())
       {
          case MENU_TRACKING:
-            Intent controlIntent = new Intent(this, ControlTracking.class);
-            startActivityForResult(controlIntent, MENU_TRACKING);
+            intent = new Intent(this, ControlTracking.class);
+            startActivityForResult(intent, MENU_TRACKING);
             handled = true;
             break;
          case MENU_LAYERS:
@@ -796,27 +799,27 @@ public class LoggerMap extends MapActivity
             handled = true;
             break;
          case MENU_NOTE:
-            Intent noteIntent = new Intent(this, InsertNote.class);
-            startActivityForResult(noteIntent, MENU_NOTE);
+            intent = new Intent(this, InsertNote.class);
+            startActivityForResult(intent, MENU_NOTE);
             handled = true;
             break;
          case MENU_SETTINGS:
-            Intent settingsIntent = new Intent(this, ApplicationPreferenceActivity.class);
-            startActivity(settingsIntent);
+            intent = new Intent(this, ApplicationPreferenceActivity.class);
+            startActivity(intent);
             handled = true;
             break;
          case MENU_TRACKLIST:
-            Intent tracklistIntent = new Intent(this, TrackList.class);
-            tracklistIntent.putExtra(Tracks._ID, this.mTrackId);
-            startActivityForResult(tracklistIntent, MENU_TRACKLIST);
+            intent = new Intent(this, TrackList.class);
+            intent.putExtra(Tracks._ID, this.mTrackId);
+            startActivityForResult(intent, MENU_TRACKLIST);
             break;
          case MENU_STATS:
             if (this.mTrackId >= 0)
             {
-               Intent actionIntent = new Intent(this, Statistics.class);
+               intent = new Intent(this, Statistics.class);
                trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId);
-               actionIntent.setData(trackUri);
-               startActivity(actionIntent);
+               intent.setData(trackUri);
+               startActivity(intent);
                handled = true;
                break;
             }
@@ -827,7 +830,7 @@ public class LoggerMap extends MapActivity
             handled = true;
             break;
          case MENU_ABOUT:
-            Intent intent = new Intent("org.openintents.action.SHOW_ABOUT_DIALOG");
+            intent = new Intent("org.openintents.action.SHOW_ABOUT_DIALOG");
             try
             {
                startActivityForResult(intent, MENU_ABOUT);
@@ -838,11 +841,14 @@ public class LoggerMap extends MapActivity
             }
             break;
          case MENU_SHARE:
-            Intent actionIntent = new Intent(Intent.ACTION_RUN);
+            intent = new Intent(Intent.ACTION_RUN);
             trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId);
-            actionIntent.setDataAndType(trackUri, Tracks.CONTENT_ITEM_TYPE);
-            actionIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(actionIntent, getString(R.string.share_track)));
+            intent.setDataAndType(trackUri, Tracks.CONTENT_ITEM_TYPE);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Bitmap bm = findViewById(R.id.mapScreen).getDrawingCache();
+            Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
+            intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
+            startActivity(Intent.createChooser(intent, getString(R.string.share_track)));
             handled = true;
             break;
          case MENU_CONTRIB:

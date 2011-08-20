@@ -42,6 +42,7 @@ import android.app.AlertDialog.Builder;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.ContentObserver;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -185,6 +186,7 @@ public class Statistics extends Activity implements StatisticsDelegate
       setContentView( R.layout.statistics );
       
       mViewFlipper = (ViewFlipper) findViewById( R.id.flipper );
+      mViewFlipper.setDrawingCacheEnabled(true);
       mSlideLeftIn = AnimationUtils.loadAnimation( this, R.anim.slide_left_in );
       mSlideLeftOut = AnimationUtils.loadAnimation( this, R.anim.slide_left_out );
       mSlideRightIn = AnimationUtils.loadAnimation( this, R.anim.slide_right_in );
@@ -292,6 +294,7 @@ public class Statistics extends Activity implements StatisticsDelegate
    public boolean onOptionsItemSelected( MenuItem item )
    {
       boolean handled = false;
+      Intent intent;
       switch( item.getItemId() )
       {
          case MENU_GRAPHTYPE:
@@ -299,15 +302,18 @@ public class Statistics extends Activity implements StatisticsDelegate
             handled = true;
             break;
          case MENU_TRACKLIST:
-            Intent tracklistIntent = new Intent( this, TrackList.class );
-            tracklistIntent.putExtra( Tracks._ID, mTrackUri.getLastPathSegment() );
-            startActivityForResult( tracklistIntent, MENU_TRACKLIST );
+            intent = new Intent( this, TrackList.class );
+            intent.putExtra( Tracks._ID, mTrackUri.getLastPathSegment() );
+            startActivityForResult( intent, MENU_TRACKLIST );
             break;
          case MENU_SHARE:
-            Intent actionIntent = new Intent( Intent.ACTION_RUN );
-            actionIntent.setDataAndType( mTrackUri, Tracks.CONTENT_ITEM_TYPE );
-            actionIntent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
-            startActivity( Intent.createChooser( actionIntent, getString( R.string.share_track ) ) );
+            intent = new Intent( Intent.ACTION_RUN );
+            intent.setDataAndType( mTrackUri, Tracks.CONTENT_ITEM_TYPE );
+            intent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
+            Bitmap bm = mViewFlipper.getDrawingCache();
+            Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
+            intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
+            startActivity( Intent.createChooser( intent, getString( R.string.share_track ) ) );
             handled = true;
             break;
          default:

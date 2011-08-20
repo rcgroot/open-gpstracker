@@ -71,7 +71,8 @@
             android:id="@+id/tweet_progress"
             android:layout_height="wrap_content"
             android:layout_below="@+id/fileNameField"
-            android:layout_alignParentLeft="true" android:visibility="gone"/>
+            android:layout_alignParentLeft="true"
+            android:visibility="gone" />
          <EditText
             android:layout_below="@+id/fileNameField"
             android:layout_toRightOf="@+id/tweet_progress"
@@ -81,7 +82,25 @@
             android:layout_width="fill_parent"
             android:maxLines="3"
             android:maxLength="140"
-            android:text="" />            
+            android:text="" />
+         <ImageView
+            android:id="@+id/imageView"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_below="@+id/tweetField"
+            android:layout_centerHorizontal="true"></ImageView>
+         <ImageButton
+            android:id="@+id/closeImageView"
+            android:src="@drawable/btn_close"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:clickable="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignTop="@+id/imageView"
+            android:layout_alignRight="@+id/imageView" />
       </RelativeLayout>
    </ScrollView>
 

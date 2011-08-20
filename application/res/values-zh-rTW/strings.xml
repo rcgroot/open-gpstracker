@@ -45,8 +45,6 @@
     <string name="layer_cloudmade">CloudMade 地圖</string>
     <string name="layer_maknik">Mapnik</string>
     <string name="layer_bicycle">OpenCycleMap</string>
-    <string name="dialog_notwidroid">未找到 Twidroid</string>
-    <string name="dialog_notwidroid_message">Tweet此行需要軟體\"twidroid\"的支援。</string>
     <string name="dialog_vacuum_title">修剪資料</string>
     <string name="dialog_vacuum_message">由於一個重建的資料庫造成的存儲碎片返回了空間遺失。</string>
     <string name="dialog_import_title">GPX 匯入</string>
