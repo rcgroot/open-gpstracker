@@ -1,74 +1,89 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources
+   xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <string-array name="state_choices">
-        <item>執行</item>
-        <item>已暫停</item>
-        <item>已停止</item>
-    </string-array>
-    
-    <string-array name="precision_choices">
-        <item>自訂</item>
-        <item>極好</item>
-        <item>正常</item>
-        <item>粗糙</item>
-        <item>總的</item>
-    </string-array>
-    
-    <string-array name="mapprovider_choices">
-        <item>谷歌地圖</item>
-        <item>OpenStreetMap</item>
-    </string-array>   
-    
-    <string-array name="trackcoloring_choices">
-        <item>綠色</item>
-        <item>紅色</item>
-        <item>速度</item>
-        <item>平均速度</item>
-        <item>路點</item>
-    </string-array>
-    
-    <string-array name="units_choices">
-        <item>設備區域</item>
-        <item>英制 (英里)</item>
-        <item>公制 (米)</item>
-        <item>航海 (節)</item>
-        <item>速度 (每公里所用分鐘)</item>
-        <item>速度 (每英里所用分鐘)</item>
-    </string-array>
-    
-    <string-array name="sharetype_choices">
-        <item>KMZ - 鎖眼加值語言</item>
-        <item>GPX - GPS的交換格式</item>
-        <item>文字 - 速度和距離的概觀</item>
-    </string-array>
-    
-    <string-array name="sharegpxtarget_choices">
-        <item>儲存到SD卡</item>
-        <item>使用一個(Email)程式傳送</item>
-        <item>http://www.jogmap.de/</item>
-        <item>http://www.openstreetmap.org/</item>
-    </string-array>
-    
-    <string-array name="sharekmztarget_choices">
-        <item>儲存到SD卡</item>
-        <item>使用一個(Email)程式傳送</item>
-    </string-array>
-    
-    <string-array name="sharetexttarget_choices">
-        <item>Tweet</item>
-        <item>短信</item>
-        <item>通用文字傳送</item>
-    </string-array>
+   <string-array
+      name="state_choices">
+      <item>執行</item>
+      <item>已暫停</item>
+      <item>已停止</item>
+   </string-array>
 
-    <string-array name="osmvisibility_choices">
-        <item>可辨識 (推薦)</item>
-        <item>公共</item>
-        <item>可追蹤</item>
-        <item>私有</item>
-    </string-array>
+   <string-array
+      name="precision_choices">
+      <item>自訂</item>
+      <item>極好</item>
+      <item>正常</item>
+      <item>粗糙</item>
+      <item>總的</item>
+   </string-array>
 
-    <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
-        <item>安智網漢化 (bbs.goapk.com)</item>
-        <item>NetDragon Websoft Inc. http://www.nd.com.cn/</item>
-    </string-array>
+   <string-array
+      name="mapprovider_choices">
+      <item>谷歌地圖</item>
+      <item>OpenStreetMap</item>
+   </string-array>
+
+   <string-array
+      name="trackcoloring_choices">
+      <item>綠色</item>
+      <item>紅色</item>
+      <item>速度</item>
+      <item>平均速度</item>
+      <item>路點</item>
+   </string-array>
+
+   <string-array
+      name="units_choices">
+      <item>設備區域</item>
+      <item>英制 (英里)</item>
+      <item>公制 (米)</item>
+      <item>航海 (節)</item>
+      <item>速度 (每公里所用分鐘)</item>
+      <item>速度 (每英里所用分鐘)</item>
+      <item>Acres/hour (Imperial)</item>
+      <item>Hectares/hour (Metric)</item>
+   </string-array>
+
+   <string-array
+      name="sharetype_choices">
+      <item>KMZ - 鎖眼加值語言</item>
+      <item>GPX - GPS的交換格式</item>
+      <item>文字 - 速度和距離的概觀</item>
+   </string-array>
+
+   <string-array
+      name="sharegpxtarget_choices">
+      <item>儲存到SD卡</item>
+      <item>使用一個(Email)程式傳送</item>
+      <item>http://www.jogmap.de/</item>
+      <item>http://www.openstreetmap.org/</item>
+   </string-array>
+
+   <string-array
+      name="sharekmztarget_choices">
+      <item>儲存到SD卡</item>
+      <item>使用一個(Email)程式傳送</item>
+   </string-array>
+
+   <string-array
+      name="sharetexttarget_choices">
+      <item>Tweet</item>
+      <item>短信</item>
+      <item>通用文字傳送</item>
+   </string-array>
+
+   <string-array
+      name="osmvisibility_choices">
+      <item>可辨識 (推薦)</item>
+      <item>公共</item>
+      <item>可追蹤</item>
+      <item>私有</item>
+   </string-array>
+
+   <string-array
+      name="about_translators"
+      translatable="false"><!-- Add your name here if you translated -->
+      <item>安智網漢化 (bbs.goapk.com)</item>
+      <item>NetDragon Websoft Inc. http://www.nd.com.cn/</item>
+   </string-array>
 </resources>

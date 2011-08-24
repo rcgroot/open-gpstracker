@@ -27,13 +27,16 @@
         <item>路点</item>
     </string-array>
     
-    <string-array name="units_choices">
+    <string-array
+   name="units_choices">
         <item>设备区域</item>
         <item>英制 (英里)</item>
         <item>公制 (米)</item>
         <item>航海 (节)</item>
         <item>速度 (每公里所用分钟)</item>
         <item>速度 (每英里所用分钟)</item>
+        <item>Acres/hour (Imperial)</item>
+        <item>Hectares/hour (Metric)</item>
     </string-array>
     
     <string-array name="sharetype_choices">

@@ -1,75 +1,90 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources
+   xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <string-array name="state_choices">
-        <item>Actief</item>
-        <item>Pause</item>
-        <item>Gestopt</item>
-    </string-array>
-    
-    <string-array name="precision_choices">
-    	<item>Aangepast</item>
-        <item>Fijn</item>
-        <item>Normaal</item>
-        <item>Grof</item>
-        <item>Globaal</item>
-    </string-array>
+   <string-array
+      name="state_choices">
+      <item>Actief</item>
+      <item>Pause</item>
+      <item>Gestopt</item>
+   </string-array>
 
-    <string-array name="mapprovider_choices">
-        <item>Google Maps</item>
-        <item>OpenStreetMap</item>
-    </string-array>   
-    
-    <string-array name="trackcoloring_choices">
-        <item>Groen</item>
-        <item>Rood</item>
-        <item>Snelheid</item>
-        <item>Gemiddelde snelheid</item>
-        <item>Meetpunten</item>
-    </string-array>
-    
-    <string-array name="units_choices">
-        <item>Standaard</item>
-        <item>Engelse</item>
-        <item>Meters</item>
-        <item>Zeevaart</item>
-        <item>Tempo (minuten per kilometer)</item>
-        <item>Tempo (minuten per mile)</item>
-    </string-array>
-    
-    <string-array name="sharetype_choices">
-        <item>KMZ - Google Earth, etc.</item>
-        <item>GPX - GPS Exchange formaat</item>
-        <item>Text - Snelheid en afstands samenvatting</item>
-    </string-array>
-    
-    <string-array name="sharegpxtarget_choices">
-        <item>Opslaan op SD Card</item>
-        <item>Verstuur met een (email) applicatie</item>
-        <item>Publiceer op www.jogmap.de</item>
-        <item>Publiceer als OpenStreetMap trace</item>
-        <item>Publiceer op Breadcrumbs</item>
-    </string-array>
-    
-    <string-array name="sharekmztarget_choices">
-        <item>Opslaan op SD Card</item>
-        <item>Verstuur met een (email) applicatie</item>
-    </string-array>
+   <string-array
+      name="precision_choices">
+      <item>Aangepast</item>
+      <item>Fijn</item>
+      <item>Normaal</item>
+      <item>Grof</item>
+      <item>Globaal</item>
+   </string-array>
 
-    <string-array name="sharetexttarget_choices">
-        <item>Tweet</item>
-        <item>SMS</item>
-        <item>Overige tekst applicaties</item>
-    </string-array>
+   <string-array
+      name="mapprovider_choices">
+      <item>Google Maps</item>
+      <item>OpenStreetMap</item>
+   </string-array>
 
-    <string-array name="osmvisibility_choices">
-        <item>Identifiable (aanbevolen)</item>
-        <item>Public</item>
-        <item>Trackable (Beter dan \'Private\' optie)</item>
-        <item>Private</item>
-    </string-array>
+   <string-array
+      name="trackcoloring_choices">
+      <item>Groen</item>
+      <item>Rood</item>
+      <item>Snelheid</item>
+      <item>Gemiddelde snelheid</item>
+      <item>Meetpunten</item>
+   </string-array>
 
-    <string-array name="about_translators" translatable="false">
-        <item>René de Groot</item>
-    </string-array>
-    
+   <string-array
+      name="units_choices">
+      <item>Standaard</item>
+      <item>Engelse</item>
+      <item>Meters</item>
+      <item>Zeevaart</item>
+      <item>Tempo (minuten per kilometer)</item>
+      <item>Tempo (minuten per mile)</item>
+      <item>Acres/hour (Engelse)</item>
+      <item>Hectares/hour (Meters)</item>
+   </string-array>
+
+   <string-array
+      name="sharetype_choices">
+      <item>KMZ - Google Earth, etc.</item>
+      <item>GPX - GPS Exchange formaat</item>
+      <item>Text - Snelheid en afstands samenvatting</item>
+   </string-array>
+
+   <string-array
+      name="sharegpxtarget_choices">
+      <item>Opslaan op SD Card</item>
+      <item>Verstuur met een (email) applicatie</item>
+      <item>Publiceer op www.jogmap.de</item>
+      <item>Publiceer als OpenStreetMap trace</item>
+      <item>Publiceer op Breadcrumbs</item>
+   </string-array>
+
+   <string-array
+      name="sharekmztarget_choices">
+      <item>Opslaan op SD Card</item>
+      <item>Verstuur met een (email) applicatie</item>
+   </string-array>
+
+   <string-array
+      name="sharetexttarget_choices">
+      <item>Tweet</item>
+      <item>SMS</item>
+      <item>Overige tekst applicaties</item>
+   </string-array>
+
+   <string-array
+      name="osmvisibility_choices">
+      <item>Identifiable (aanbevolen)</item>
+      <item>Public</item>
+      <item>Trackable (Beter dan \'Private\' optie)</item>
+      <item>Private</item>
+   </string-array>
+
+   <string-array
+      name="about_translators"
+      translatable="false">
+      <item>René de Groot</item>
+   </string-array>
+
 </resources>

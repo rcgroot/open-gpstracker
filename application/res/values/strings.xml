@@ -198,6 +198,12 @@
     <string name="showlocation_summary">Show my location on the map</string>
     <string name="units_title">Units</string>
     <string name="units_summary">Determine if metric or imperial units are used</string>
+    <string name="units_implement_width_title">Implement width</string>
+    <string name="units_implement_width_summary">Width of the implement the tractor is pulling</string>
+    <string name="units_implement_width_message">The width of the implement the tractor is pulling or
+     other machine that works/covers an area over a given time. For example, width of a swather. \n\n
+Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
+    <string name="units_implement_width">8</string>
     <string name="stat_title">Statistics - %s</string>
     <string name="stat_maximumspeed">Maximum speed</string>
     <string name="stat_maximumaltitude">Maximum altitude</string>
@@ -221,7 +227,7 @@
     <string name="jogmap_task">Uploading the track to jogmap.de</string>
     <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
     <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
-    <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo. </string>
+    <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo.\n </string>
     <string name="import_track">Import a track into Open GPS Tracker</string>
     <string name="preference_logging">Logging and GPS usage settings</string>
     <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
@@ -244,7 +250,7 @@
     <string name="osm_task">Uploading trace to OpenStreetMap</string>
     <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
-    <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.</string>
+    <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.\n </string>
     <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
 
 <!-- ***************************

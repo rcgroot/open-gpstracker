@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.logger;
 
+import java.util.regex.Pattern;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.os.Bundle;
@@ -47,7 +49,8 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
 
    private EditTextPreference time;
    private EditTextPreference distance;
-
+   private EditTextPreference implentWidth;
+   
    @Override
    protected void onCreate( Bundle savedInstanceState ) 
    {
@@ -58,8 +61,9 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
        ListPreference precision = (ListPreference)findPreference("precision");
        time = (EditTextPreference)findPreference("customprecisiontime");
        distance = (EditTextPreference)findPreference("customprecisiondistance");
-       setEnabledCustomValues(precision.getValue());
+       implentWidth = (EditTextPreference)findPreference("units_implement_width");
        
+       setEnabledCustomValues(precision.getValue());
        precision.setOnPreferenceChangeListener( new Preference.OnPreferenceChangeListener()
        {
          
@@ -69,6 +73,15 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
             return true;
          }
        });
+       implentWidth.setOnPreferenceChangeListener( new Preference.OnPreferenceChangeListener()
+       {
+          
+          public boolean onPreferenceChange(Preference preference, Object newValue)
+          {  
+             String fpExpr = "\\d+([,\\.]\\d+)?";
+             return Pattern.matches(fpExpr, newValue.toString());
+          }
+        });
    }
    
    private void setEnabledCustomValues(Object newValue)

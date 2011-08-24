@@ -1,74 +1,89 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources
+   xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <string-array name="state_choices">
-        <item>Aktiv</item>
-        <item>Pause</item>
-        <item>Angehalten</item>
-    </string-array>
-    
-    <string-array name="precision_choices">
-        <item>Eigene Werte</item>
-        <item>Fein</item>
-        <item>Normal</item>
-        <item>Mittel</item>
-        <item>Grob</item>
-    </string-array>
-    
-    <string-array name="mapprovider_choices">
-        <item>Google Maps</item>
-        <item>OpenStreetMap</item>
-    </string-array>   
-    
-    <string-array name="trackcoloring_choices">
-        <item>Grün</item>
-        <item>Rot</item>
-        <item>Geschwindigkeit</item>
-        <item>Durchschnittsgeschwindigkeit speed</item>
-        <item>Waypoints</item>
-    </string-array>
-    
-    <string-array name="units_choices">
-        <item>Maßeinheiten</item>
-        <item>Imperial (Meilen)</item>
-        <item>Metric (Meter)</item>
-        <item>Nautical (Knoten)</item>
-        <item>Pace (min/km)</item>
-        <item>Pace (min/mile)</item>        
-    </string-array>
-    
-    <string-array name="sharetype_choices">
-        <item>KMZ - Google Earth, etc.</item>
-        <item>GPX - GPS Austausch Format</item>
-        <item>Text - Geschwindkeit- und Streckendaten</item>
-    </string-array>
-    
-    <string-array name="sharegpxtarget_choices">
-        <item>Auf SD-Karte speichern</item>
-        <item>Mit E-Mail-App senden</item>
-        <item>Zu www.jogmap.de hochladen</item>
-        <item>Zu OpenStreetMap traces hochladen</item>
-        <item>Zu Breadcrumbs hochladen</item>
-    </string-array>
-    
-    <string-array name="sharekmztarget_choices">
-        <item>Auf SD-Karte speichern</item>
-        <item>Mit E-Mail-App senden</item>
-    </string-array>
-    
-    <string-array name="sharetexttarget_choices">
-        <item>Tweet</item>
-        <item>SMS</item>
-        <item>Text senden</item>
-    </string-array>
+   <string-array
+      name="state_choices">
+      <item>Aktiv</item>
+      <item>Pause</item>
+      <item>Angehalten</item>
+   </string-array>
 
-    <string-array name="osmvisibility_choices">
-        <item>Identifiable (Empfohlen)</item>
-        <item>Public</item>
-        <item>Trackable (Bevorzugte Option über \'Private\')</item>
-        <item>Private</item>
-    </string-array>
+   <string-array
+      name="precision_choices">
+      <item>Eigene Werte</item>
+      <item>Fein</item>
+      <item>Normal</item>
+      <item>Mittel</item>
+      <item>Grob</item>
+   </string-array>
 
-    <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
-        <item>Werner Bogula</item>
-    </string-array>
+   <string-array
+      name="mapprovider_choices">
+      <item>Google Maps</item>
+      <item>OpenStreetMap</item>
+   </string-array>
+
+   <string-array
+      name="trackcoloring_choices">
+      <item>Grün</item>
+      <item>Rot</item>
+      <item>Geschwindigkeit</item>
+      <item>Durchschnittsgeschwindigkeit speed</item>
+      <item>Waypoints</item>
+   </string-array>
+
+   <string-array
+      name="units_choices">
+      <item>Maßeinheiten</item>
+      <item>Imperial (Meilen)</item>
+      <item>Metric (Meter)</item>
+      <item>Nautical (Knoten)</item>
+      <item>Pace (min/km)</item>
+      <item>Pace (min/mile)</item>
+      <item>Acres/hour (Imperial)</item>
+      <item>Hectares/hour (Metric)</item>
+   </string-array>
+
+   <string-array
+      name="sharetype_choices">
+      <item>KMZ - Google Earth, etc.</item>
+      <item>GPX - GPS Austausch Format</item>
+      <item>Text - Geschwindkeit- und Streckendaten</item>
+   </string-array>
+
+   <string-array
+      name="sharegpxtarget_choices">
+      <item>Auf SD-Karte speichern</item>
+      <item>Mit E-Mail-App senden</item>
+      <item>Zu www.jogmap.de hochladen</item>
+      <item>Zu OpenStreetMap traces hochladen</item>
+      <item>Zu Breadcrumbs hochladen</item>
+   </string-array>
+
+   <string-array
+      name="sharekmztarget_choices">
+      <item>Auf SD-Karte speichern</item>
+      <item>Mit E-Mail-App senden</item>
+   </string-array>
+
+   <string-array
+      name="sharetexttarget_choices">
+      <item>Tweet</item>
+      <item>SMS</item>
+      <item>Text senden</item>
+   </string-array>
+
+   <string-array
+      name="osmvisibility_choices">
+      <item>Identifiable (Empfohlen)</item>
+      <item>Public</item>
+      <item>Trackable (Bevorzugte Option über \'Private\')</item>
+      <item>Private</item>
+   </string-array>
+
+   <string-array
+      name="about_translators"
+      translatable="false"><!-- Add your name here if you translated -->
+      <item>Werner Bogula</item>
+   </string-array>
 </resources>
