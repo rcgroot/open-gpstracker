@@ -7,4 +7,6 @@
 <item name="conversion_from_mps_to_knot"         type="raw" format="float">1.943844</item>
 <item name="conversion_from_meter_to_nauticmile" type="raw" format="float">0.000539957</item>
 
+<item name="conversion_from_mps_to_acres_hour"   type="raw" format="float">1</item>
+<item name="conversion_from_mps_to_hectare_hour" type="raw" format="float">1</item>
 </resources>

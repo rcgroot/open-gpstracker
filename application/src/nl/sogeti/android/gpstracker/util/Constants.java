@@ -68,6 +68,8 @@ public class Constants
    public static final int UNITS_NAUTIC       = 3;
    public static final int UNITS_METRICPACE   = 4;
    public static final int UNITS_IMPERIALPACE = 5;
+   public static final int UNITS_IMPERIALSURFACE = 6;
+   public static final int UNITS_METRICSURFACE = 7;
    public static final String SDDIR_DIR             = "SDDIR_DIR";
    public static final String DEFAULT_EXTERNAL_DIR  = "/OpenGPSTracker/";
    public static final String TMPICTUREFILE_SUBPATH = "media_tmp.tmp";

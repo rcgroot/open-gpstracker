@@ -9,4 +9,7 @@
 
 <string name="pace_unitname">min/km</string>
 <string name="pace_unitname_imperial">min/mile</string>
+
+<string name="surface_unitname_metric">hectare/h</string>
+<string name="surface_unitname_imperial">acre/h</string>
 </resources>

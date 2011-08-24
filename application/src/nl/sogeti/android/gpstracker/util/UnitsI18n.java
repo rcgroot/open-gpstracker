@@ -114,6 +114,14 @@ public class UnitsI18n
             setToImperial();
             overrideWithPaceImperial(mContext.getResources());
             break;
+         case Constants.UNITS_IMPERIALSURFACE:
+            setToImperial();
+            overrideWithSurfaceImperial();
+            break;
+         case Constants.UNITS_METRICSURFACE:
+            setToMetric();
+            overrideWithSurfaceMetric();
+            break;
          default:
             setToDefault();
             break;
@@ -193,6 +201,31 @@ public class UnitsI18n
    {
       needsUnitFlip = true;
       mSpeed_unit = resources.getString(R.string.pace_unitname_imperial);
+   }
+
+   private void overrideWithSurfaceImperial()
+   {
+      float width = getWidthPreference();
+      Resources resources = mContext.getResources();
+      TypedValue outValue = new TypedValue();
+      resources.getValue(R.raw.conversion_from_mps_to_acres_hour, outValue, false);
+      mConversion_from_mps_to_speed = outValue.getFloat() * width;
+      mSpeed_unit = resources.getString(R.string.surface_unitname_imperial);
+   }
+
+   private float getWidthPreference()
+   {
+      return Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(mContext).getString("units_implement_width", "12"));
+   }
+
+   private void overrideWithSurfaceMetric()
+   {
+      float width = getWidthPreference();
+      Resources resources = mContext.getResources();
+      TypedValue outValue = new TypedValue();
+      resources.getValue(R.raw.conversion_from_mps_to_hectare_hour, outValue, false);
+      mConversion_from_mps_to_speed = outValue.getFloat();
+      mSpeed_unit = resources.getString(R.string.surface_unitname_metric);
    }
 
    public double conversionFromMeterAndMiliseconds(double meters, long miliseconds)
