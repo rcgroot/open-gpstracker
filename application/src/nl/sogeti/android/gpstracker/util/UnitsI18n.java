@@ -254,7 +254,6 @@ public class UnitsI18n
    public double conversionFromMeter(double meters)
    {
       double value = meters * mConversion_from_meter_to_distance;
-      //      Log.d( TAG, String.format( "Converting %f.4 meters to a value of %f.4", meters, value ) );
       return value;
    }
 

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="speed_unitname">km/h</string>
-<string name="distance_unitname">km</string>
-<string name="distance_smallunitname">meter</string>
-
-<string name="knot_unitname">knot</string>
-<string name="nautic_unitname">nautic mile</string>
-
-<string name="pace_unitname">min/km</string>
-<string name="pace_unitname_imperial">min/mile</string>
-
-<string name="surface_unitname_metric">hectare/h</string>
-<string name="surface_unitname_imperial">acre/h</string>
+   <string name="speed_unitname">km/h</string>
+   <string name="distance_unitname">km</string>
+   <string name="distance_smallunitname">meter</string>
+   
+   <string name="knot_unitname">knot</string>
+   <string name="nautic_unitname">nautic mile</string>
+   
+   <string name="pace_unitname">min/km</string>
+   <string name="pace_unitname_imperial">min/mile</string>
+   
+   <string name="surface_unitname_metric">hectare/h</string>
+   <string name="surface_unitname_imperial">acre/h</string>
 </resources>

@@ -3,6 +3,7 @@
    xmlns:android="http://schemas.android.com/apk/res/android"
    android:layout_width="fill_parent"
    android:layout_height="fill_parent"
+   android:id="@+id/mapScreen"
 >
    <com.google.android.maps.MapView
       android:id="@+id/myMapView"
@@ -10,7 +11,7 @@
       android:layout_height="fill_parent"
       android:enabled="true"
       android:clickable="true"
-      android:apiKey="0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw" 
+      android:apiKey="0bmdf4-ggC51rlDKzrxXimRiQ2pEd0x_ut6292w" 
       android:visibility="visible" />
    <!--  Release         : 0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw -->
    <!--  Emulator        : 0bmdf4-ggC51rlDKzrxXimRiQ2pEd0x_ut6292w -->
