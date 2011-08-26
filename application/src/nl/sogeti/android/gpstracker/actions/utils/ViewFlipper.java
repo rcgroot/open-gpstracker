@@ -53,34 +53,4 @@ public class ViewFlipper extends android.widget.ViewFlipper
    {
       super( context, attrs );
    }
-
-   /**
-    * On api level 7 unexpected exception occur during orientation switching.
-    * These are java.lang.IllegalArgumentException: Receiver not registered: android.widget.ViewFlipper$id
-    * exceptions. On level 7, 8 and 9 devices these are ignored.
-    */
-   @Override
-   protected void onDetachedFromWindow()
-   {
-      if( Build.VERSION.SDK_INT == 7 || Build.VERSION.SDK_INT == 8 || Build.VERSION.SDK_INT == 9 )
-      {
-         try
-         {
-            super.onDetachedFromWindow();
-         }
-         catch( IllegalArgumentException e )
-         {
-            Log.w( TAG, "Android project issue 6191 workaround." );
-            /* Quick catch and continue on api level 7/8/9, the Eclair 2.1 / 2.2 */
-         }
-         finally
-         {
-            super.stopFlipping();
-         }
-      }
-      else
-      {
-         super.onDetachedFromWindow();
-      }
-   }
 }

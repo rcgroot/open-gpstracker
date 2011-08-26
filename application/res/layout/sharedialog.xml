@@ -7,7 +7,7 @@
       android:layout_width="fill_parent"
       android:layout_height="0dip"
       android:layout_weight="1">
-      <RelativeLayout
+      <LinearLayout
          android:id="@+id/LinearLayout1"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
@@ -83,12 +83,6 @@
             android:maxLines="3"
             android:maxLength="140"
             android:text="" />
-         <ImageView
-            android:id="@+id/imageView"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:layout_below="@+id/tweetField"
-            android:layout_centerHorizontal="true"></ImageView>
          <ImageButton
             android:id="@+id/closeImageView"
             android:src="@drawable/btn_close"
@@ -101,7 +95,13 @@
             android:layout_width="wrap_content"
             android:layout_alignTop="@+id/imageView"
             android:layout_alignRight="@+id/imageView" />
-      </RelativeLayout>
+         <ImageView
+            android:id="@+id/imageView"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_below="@+id/tweetField"
+            android:layout_centerHorizontal="true"></ImageView>
+      </LinearLayout>
    </ScrollView>
 
 

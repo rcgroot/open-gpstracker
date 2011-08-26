@@ -2,16 +2,10 @@
 <manifest 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     package="nl.sogeti.android.gpstracker"
-	android:installLocation="auto"
-	android:versionCode="55" android:versionName="1.2.2">
+	android:versionCode="54" android:versionName="1.2.2-cupcake">
 
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4"/>
+    <uses-sdk android:minSdkVersion="3"/>
     
-    <supports-screens
-         android:largeScreens="true"
-         android:normalScreens="true"
-         android:smallScreens="true" />
-
    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -127,9 +121,6 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:mimeType="text/xml" />
             </intent-filter>
-            <meta-data
-               android:name="android.app.searchable"
-               android:resource="@xml/searchable" />
          </activity>
 
          <activity
@@ -200,13 +191,6 @@
 	        </intent-filter>
 	     </receiver>
 	    
-         <!--  This is used to auto start the application at boot -->
-         <receiver android:name=".util.DockReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.DOCK_EVENT" />
-            </intent-filter>
-         </receiver>
-       
 	    <!-- This receiver defines the app widget and the broadcasts it receives -->
         <receiver 
 	     	android:name=".widget.ControlWidgetProvider" 
