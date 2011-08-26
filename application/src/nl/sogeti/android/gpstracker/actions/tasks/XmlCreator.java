@@ -214,12 +214,10 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
     */
    protected String includeMediaFile(String inputFilePath) throws IOException
    {
-      Log.d( TAG, "Including media file "+ inputFilePath );
       mNeedsBundling = true;
       File source = new File(inputFilePath);
       File target = new File(mExportDirectoryPath + "/" + source.getName());
 
-      //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) ); 
       if (source.exists())
       {
          FileChannel inChannel = new FileInputStream(source).getChannel();

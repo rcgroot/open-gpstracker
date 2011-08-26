@@ -427,7 +427,6 @@ public class InsertNote extends Activity
    {
       Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
       File file = new File(Constants.getSdCardTmpFile(this));
-      //      Log.d( TAG, "Picture requested at: " + file );
       i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
       i.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1);
       startActivityForResult(i, MENU_PICTURE);
