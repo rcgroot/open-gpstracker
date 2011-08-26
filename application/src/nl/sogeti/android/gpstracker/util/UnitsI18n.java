@@ -224,7 +224,7 @@ public class UnitsI18n
       Resources resources = mContext.getResources();
       TypedValue outValue = new TypedValue();
       resources.getValue(R.raw.conversion_from_mps_to_hectare_hour, outValue, false);
-      mConversion_from_mps_to_speed = outValue.getFloat();
+      mConversion_from_mps_to_speed = outValue.getFloat() * width;
       mSpeed_unit = resources.getString(R.string.surface_unitname_metric);
    }
 
