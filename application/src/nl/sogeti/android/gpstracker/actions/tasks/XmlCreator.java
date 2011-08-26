@@ -345,6 +345,10 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
 
    public void quickTag(XmlSerializer serializer, String ns, String tag, String content) throws IllegalArgumentException, IllegalStateException, IOException
    {
+      if( tag == null)
+      {
+         tag = "";
+      }
       serializer.text("\n");
       serializer.startTag(ns, tag);
       serializer.text(content);
