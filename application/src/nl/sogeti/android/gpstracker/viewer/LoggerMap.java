@@ -294,7 +294,7 @@ public class LoggerMap extends MapActivity
 
       mLastSegmentOverlay = null;
       mMapView.clearOverlays();
-      mHandler.post(new Runnable()
+      mHandler.postAtFrontOfQueue(new Runnable()
       {
          public void run()
          {
@@ -1251,12 +1251,13 @@ public class LoggerMap extends MapActivity
    private void updateDisplayedSpeedViews()
    {
       Location lastWaypoint = mLoggerServiceManager.getLastWaypoint();
-      if (lastWaypoint != null)
+      UnitsI18n units = mUnits;
+      if (lastWaypoint != null && units != null)
       {
          // Speed number
          double speed = lastWaypoint.getSpeed();
-         speed = mUnits.conversionFromMetersPerSecond(speed);
-         String speedText = String.format("%.0f %s", speed, mUnits.getSpeedUnit());
+         speed = units.conversionFromMetersPerSecond(speed);
+         String speedText = String.format("%.0f %s", speed, units.getSpeedUnit());
          mLastGPSSpeedView.setText(speedText);
 
          // Speed color bar
@@ -1269,8 +1270,8 @@ public class LoggerMap extends MapActivity
 
          //Altitude number
          double altitude = lastWaypoint.getAltitude();
-         altitude = mUnits.conversionFromMeterToHeight(altitude);
-         String altitudeText = String.format("%.0f %s", altitude, mUnits.getHeightUnit());
+         altitude = units.conversionFromMeterToHeight(altitude);
+         String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
          mLastGPSAltitudeView.setText(altitudeText);
       }
    }
