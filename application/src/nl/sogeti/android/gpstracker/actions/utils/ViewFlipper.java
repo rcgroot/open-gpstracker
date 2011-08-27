@@ -62,7 +62,7 @@ public class ViewFlipper extends android.widget.ViewFlipper
    @Override
    protected void onDetachedFromWindow()
    {
-      if( Build.VERSION.SDK_INT == 7 || Build.VERSION.SDK_INT == 8 || Build.VERSION.SDK_INT == 9 )
+      if( Build.VERSION.SDK_INT > 7 )
       {
          try
          {
