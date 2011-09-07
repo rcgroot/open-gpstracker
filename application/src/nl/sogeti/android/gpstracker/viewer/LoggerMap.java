@@ -229,7 +229,7 @@ public class LoggerMap extends MapActivity
 
       mSharedPreferences.registerOnSharedPreferenceChangeListener(mSharedPreferenceChangeListener);
       mUnits.setUnitsChangeListener(mUnitsChangeListener);
-      
+
       updateTitleBar();
       updateBlankingBehavior();
 
@@ -278,7 +278,7 @@ public class LoggerMap extends MapActivity
       mMylocation.disableCompass();
 
       this.mLoggerServiceManager.shutdown(this);
-      
+
       super.onPause();
    }
 
@@ -290,7 +290,6 @@ public class LoggerMap extends MapActivity
    protected void onDestroy()
    {
       super.onDestroy();
-      
 
       mLastSegmentOverlay = null;
       mMapView.clearOverlays();
@@ -480,8 +479,8 @@ public class LoggerMap extends MapActivity
 
    private void createListeners()
    {
-      /*******************************************************8
-       * Runnable listener actions
+      /*******************************************************
+       * 8 Runnable listener actions
        */
       speedCalculator = new Runnable()
       {
@@ -530,8 +529,8 @@ public class LoggerMap extends MapActivity
             updateBlankingBehavior();
          }
       };
-      /*******************************************************8
-       * Various dialog listeners
+      /*******************************************************
+       * 8 Various dialog listeners
        */
       mNoteSelectDialogListener = new DialogInterface.OnClickListener()
       {
@@ -1406,13 +1405,17 @@ public class LoggerMap extends MapActivity
     */
    private void drawSpeedTexts(double avgSpeed)
    {
-      avgSpeed = mUnits.conversionFromMetersPerSecond(avgSpeed);
-      for (int i = 0; i < mSpeedtexts.length; i++)
+      UnitsI18n units = mUnits;
+      if (units != null)
       {
-         mSpeedtexts[i].setVisibility(View.VISIBLE);
-         double speed = ((avgSpeed * 2d) / 5d) * i;
-         String speedText = String.format("%.0f %s", speed, mUnits.getSpeedUnit());
-         mSpeedtexts[i].setText(speedText);
+         avgSpeed = units.conversionFromMetersPerSecond(avgSpeed);
+         for (int i = 0; i < mSpeedtexts.length; i++)
+         {
+            mSpeedtexts[i].setVisibility(View.VISIBLE);
+            double speed = ((avgSpeed * 2d) / 5d) * i;
+            String speedText = String.format("%.0f %s", speed, units.getSpeedUnit());
+            mSpeedtexts[i].setText(speedText);
+         }
       }
    }
 
