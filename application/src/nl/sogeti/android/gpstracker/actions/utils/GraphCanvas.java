@@ -346,7 +346,7 @@ public class GraphCanvas extends View
                         }
                         lastLocation = currentLocation;
                         double value = waypoints.getDouble( 2 );
-                        if( value > minValue && segment < values.length )
+                        if( value != 0 && value > minValue && segment < values.length )
                         {
                            int x = (int) ((distance)*(mWidth-1) / mDistance);
                            if( x < valueDepth[segment].length )
@@ -427,7 +427,7 @@ public class GraphCanvas extends View
                      {
                         long time = waypoints.getLong( 0 );
                         double value = waypoints.getDouble( 1 );
-                        if( value > minValue && segment < values.length )
+                        if( value != 0 && value > minValue && segment < values.length )
                         {
                            int x = (int) ((time-mStartTime)*(mWidth-1) / duration);
                            if( x < valueDepth[segment].length )
