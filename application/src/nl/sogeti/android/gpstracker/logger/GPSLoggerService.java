@@ -1127,10 +1127,17 @@ public class GPSLoggerService extends Service
     */
    public Location locationFilter(Location proposedLocation)
    {
+      // Do no include log wrong 0.0 lat 0.0 long, skip to next value in while-loop
+      if( proposedLocation != null && (proposedLocation.getLatitude() == 0.0d || proposedLocation.getLongitude() == 0.0d) )
+      {
+         Log.w(TAG, "A wrong location was received, 0.0 latitude and 0.0 longitude... " );
+         proposedLocation = null;
+      }
+      
       // Do not log a waypoint which is more inaccurate then is configured to be acceptable
       if (proposedLocation != null && proposedLocation.getAccuracy() > mMaxAcceptableAccuracy)
       {
-         Log.w(TAG, String.format("A weak location was recieved, lots of inaccuracy... (%f is more then max %f)", proposedLocation.getAccuracy(),
+         Log.w(TAG, String.format("A weak location was received, lots of inaccuracy... (%f is more then max %f)", proposedLocation.getAccuracy(),
                mMaxAcceptableAccuracy));
          proposedLocation = addBadLocation(proposedLocation);
       }
@@ -1139,7 +1146,7 @@ public class GPSLoggerService extends Service
       if (proposedLocation != null && mPreviousLocation != null && proposedLocation.getAccuracy() > mPreviousLocation.distanceTo(proposedLocation))
       {
          Log.w(TAG,
-               String.format("A weak location was recieved, not quite clear from the previous waypoint... (%f more then max %f)",
+               String.format("A weak location was received, not quite clear from the previous waypoint... (%f more then max %f)",
                      proposedLocation.getAccuracy(), mPreviousLocation.distanceTo(proposedLocation)));
          proposedLocation = addBadLocation(proposedLocation);
       }
@@ -1154,12 +1161,12 @@ public class GPSLoggerService extends Service
          float speed = meters / seconds;
          if (speed > MAX_REASONABLE_SPEED)
          {
-            Log.w(TAG, "A strange location was recieved, a really high speed of " + speed + " m/s, prob wrong...");
+            Log.w(TAG, "A strange location was received, a really high speed of " + speed + " m/s, prob wrong...");
             proposedLocation = addBadLocation(proposedLocation);
             // Might be a messed up Samsung Galaxy S GPS, reset the logging
             if (speed > 2 * MAX_REASONABLE_SPEED && mPrecision != Constants.LOGGING_GLOBAL)
             {
-               Log.w(TAG, "A strange location was recieved on GPS, reset the GPS listeners");
+               Log.w(TAG, "A strange location was received on GPS, reset the GPS listeners");
                stopListening();
                mLocationManager.removeGpsStatusListener(mStatusListener);
                mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
