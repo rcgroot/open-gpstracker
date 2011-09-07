@@ -335,6 +335,11 @@ public class GraphCanvas extends View
                         currentLocation = new Location( this.getClass().getName() );
                         currentLocation.setLongitude( waypoints.getDouble( 0 ) );
                         currentLocation.setLatitude( waypoints.getDouble( 1 ) );
+                        // Do no include obvious wrong 0.0 lat 0.0 long, skip to next value in while-loop
+                        if( currentLocation.getLatitude() == 0.0d || currentLocation.getLongitude() == 0.0d )
+                        {
+                           continue;
+                        }
                         if( lastLocation != null )
                         {
                            distance += lastLocation.distanceTo( currentLocation );

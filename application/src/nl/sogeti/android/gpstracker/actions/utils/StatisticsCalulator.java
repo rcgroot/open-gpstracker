@@ -39,6 +39,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class StatisticsCalulator extends AsyncTask<Uri, Void, Void>
 {
@@ -173,10 +174,19 @@ public class StatisticsCalulator extends AsyncTask<Uri, Void, Void>
                         currentLocation.setLongitude( waypoints.getDouble( 2 ) );
                         currentLocation.setLatitude( waypoints.getDouble( 3 ) );
                         currentLocation.setAltitude( waypoints.getDouble( 4 ) );
+                        
+                        // Do no include obvious wrong 0.0 lat 0.0 long, skip to next value in while-loop
+                        if( currentLocation.getLatitude() == 0.0d || currentLocation.getLongitude() == 0.0d )
+                        {
+                           continue;
+                        }
+                        
                         if( lastLocation != null )
                         {
-                           mDistanceTraveled += lastLocation.distanceTo( currentLocation );
-                           duration += currentLocation.getTime() - lastLocation.getTime();
+                           float travelPart = lastLocation.distanceTo( currentLocation );
+                           long timePart = currentLocation.getTime() - lastLocation.getTime();
+                           mDistanceTraveled += travelPart;
+                           duration += timePart;
                         }
                         if( currentLocation.hasAltitude() )
                         {
