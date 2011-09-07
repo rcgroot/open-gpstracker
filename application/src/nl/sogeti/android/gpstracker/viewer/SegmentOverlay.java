@@ -420,6 +420,12 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          do
          {
             geoPoint = extractGeoPoint();
+            // Do no include log wrong 0.0 lat 0.0 long, skip to next value in while-loop
+            if( geoPoint.getLatitudeE6() == 0 || geoPoint.getLongitudeE6() == 0 )
+            {
+               continue;
+            }
+            
             double speed = -1d;
             switch( mTrackColoringMethod )
             {
@@ -485,6 +491,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          do
          {
             geoPoint = extractGeoPoint();
+            // Do no include log wrong 0.0 lat 0.0 long, skip to next value in while-loop
+            if( geoPoint.getLatitudeE6() == 0 || geoPoint.getLongitudeE6() == 0 )
+            {
+               continue;
+            }
             setScreenPoint( geoPoint );
 
             float distance = (float) distanceInPoints( this.mPrevDrawnScreenPoint, this.mScreenPoint );
@@ -915,6 +926,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             return true;
          }
          GeoPoint evalPoint = extractGeoPoint();
+         // Do no include log wrong 0.0 lat 0.0 long, skip to next value in while-loop
+         if( evalPoint.getLatitudeE6() == 0 || evalPoint.getLongitudeE6() == 0 )
+         {
+            continue;
+         }
          //         Log.d( TAG, String.format( "Evaluate point number %d ", mWaypointsCursor.getPosition() ) );
          if( possibleScreenPass( mPrevGeoPoint, evalPoint ) )
          {
