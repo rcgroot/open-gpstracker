@@ -229,7 +229,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
     <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo.\n </string>
     <string name="import_track">Import a track into Open GPS Tracker</string>
-    <string name="preference_logging">Logging and GPS usage settings</string>
+    <string name="preference_logging">Logging and GPS</string>
     <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
     <string name="customprecisiontime_summary">The time the GPS receiver should sleep between waypoints.</string>
     <string name="customprecisiondistance_title">Target waypoint distance in meters</string>

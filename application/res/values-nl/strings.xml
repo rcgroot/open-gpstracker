@@ -211,7 +211,7 @@
     <string name="jogmap_success">Succesvol gestuurd naar jogmap.de: </string>
     <string name="jogrunner_message">Vul de toegangscode uit http://www.jogmap.de/civic4/?q=mobilinfo in.</string>
     <string name="import_track">Import een route naar Open GPS Tracker</string>
-    <string name="preference_logging">Loggen en GPS gebruik instellingen</string>
+    <string name="preference_logging">Loggen en GPS</string>
     <string name="customprecisiontime_title">Doel tijdsinterval in minuten</string>
     <string name="customprecisiontime_summary">De tijd die de GPS ontvangen kan slapen tussen opname punten.</string>
     <string name="customprecisiondistance_title">Doel afstandsinterval in meters</string>
