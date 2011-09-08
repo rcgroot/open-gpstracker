@@ -286,6 +286,7 @@ public class UnitsI18n
       mListener = unitsChangeListener;
       if( mListener != null )
       {
+         initBasedOnPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
          PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(mPreferenceListener);
       }
       else

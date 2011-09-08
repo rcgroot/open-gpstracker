@@ -229,7 +229,6 @@ public class LoggerMap extends MapActivity
 
       mSharedPreferences.registerOnSharedPreferenceChangeListener(mSharedPreferenceChangeListener);
       mUnits.setUnitsChangeListener(mUnitsChangeListener);
-
       updateTitleBar();
       updateBlankingBehavior();
 
