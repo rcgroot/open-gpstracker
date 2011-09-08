@@ -273,7 +273,7 @@ public class LoggerMap extends MapActivity
       resolver.unregisterContentObserver(this.mSegmentWaypointsObserver);
       resolver.unregisterContentObserver(this.mTrackMediasObserver);
       mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this.mSharedPreferenceChangeListener);
-      mUnits.setUnitsChangeListener(mUnitsChangeListener);
+      mUnits.setUnitsChangeListener(null);
       mMylocation.disableMyLocation();
       mMylocation.disableCompass();
 

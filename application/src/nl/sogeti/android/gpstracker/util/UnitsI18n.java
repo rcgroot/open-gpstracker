@@ -85,7 +85,6 @@ public class UnitsI18n
    {
       mContext = ctx;
       initBasedOnPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
-      PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(mPreferenceListener);
    }
 
    private void initBasedOnPreferences(SharedPreferences sharedPreferences)
@@ -285,6 +284,14 @@ public class UnitsI18n
    public void setUnitsChangeListener(UnitsChangeListener unitsChangeListener)
    {
       mListener = unitsChangeListener;
+      if( mListener != null )
+      {
+         PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(mPreferenceListener);
+      }
+      else
+      {
+         PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(mPreferenceListener);
+      }
    }
 
    /**
