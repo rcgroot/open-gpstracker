@@ -233,12 +233,16 @@ public class BreadcrumbsTracks extends Observable
    public void addTrack(Integer trackId, String trackName, Integer bundleId, String trackDescription, String difficulty, String startTime, String endTime,
          String isPublic, Float lat, Float lng, Float totalDistance, Integer totalTime, String trackRating)
    {
+      if (!sBundlesWithTracks.containsKey(bundleId))
+      {
+         sBundlesWithTracks.put(bundleId, new ArrayList<Integer>());
+      }
       if (!sBundlesWithTracks.get(bundleId).contains(trackId))
       {
          sBundlesWithTracks.get(bundleId).add(trackId);
          sScheduledTracksLoading.remove(Pair.create(Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE, trackId));
       }
-   
+      
       if (!sTrackMappings.containsKey(trackId))
       {
          sTrackMappings.put(trackId, new HashMap<String, String>());
