@@ -50,6 +50,7 @@ import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaDataColumns;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
 import android.content.ContentResolver;
@@ -294,6 +295,21 @@ public class BreadcrumbsTracks extends Observable
          }
       }
    }
+   
+   public void setAllTracksForBundleId(Integer mBundleId, Set<Integer> updatedbcTracksIdList)
+   {
+      for (Integer oldTrackId : sBundlesWithTracks.get(mBundleId))
+      {
+         if (!updatedbcTracksIdList.contains(oldTrackId))
+         {
+            removeTrack(mBundleId, oldTrackId);
+         }
+      }
+      setChanged ();
+      notifyObservers();
+      
+      
+   }
 
    private void putForTrack(Integer trackId, String key, Object value)
    {
@@ -323,6 +339,28 @@ public class BreadcrumbsTracks extends Observable
       }
       setChanged ();
       notifyObservers();
+   }
+   
+   /**
+    * Remove a track
+    * 
+    * @param deletedId
+    */
+   public void removeTrack(Integer bundleId, Integer trackId)
+   {
+      sTrackMappings.remove(trackId);
+      if( sBundlesWithTracks.containsKey(bundleId) )
+      {
+         sBundlesWithTracks.get(bundleId).remove(trackId);
+      }
+      setChanged ();
+      notifyObservers();
+      
+      mResolver.delete(MetaData.CONTENT_URI, MetaData.TRACK + " = ? AND " + MetaData.KEY + " = ? ", new String[] { trackId.toString(), TRACK_ID } );
+      if( mSyncedTracks != null && mSyncedTracks.containsKey(trackId)) 
+      {
+         mSyncedTracks.remove(trackId);
+      }
    }
 
    public int positions()
@@ -495,7 +533,7 @@ public class BreadcrumbsTracks extends Observable
       return -1;
    }
 
-   public boolean isLocalTrackOnline(Long qtrackId)
+   private boolean isLocalTrackOnline(Long qtrackId)
    {
       if (mSyncedTracks == null)
       {
@@ -753,5 +791,4 @@ public class BreadcrumbsTracks extends Observable
       return "BreadcrumbsTracks [mActivityMappings=" + sActivityMappings + ", mBundleMappings=" + sBundleMappings + ", mTrackMappings=" + sTrackMappings
             + ", mActivities=" + sActivitiesWithBundles + ", mBundles=" + sBundlesWithTracks + "]";
    }
-
 }

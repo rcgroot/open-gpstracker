@@ -52,6 +52,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -77,6 +78,7 @@ public class DescribeTrack extends Activity implements ProgressListener
    private Spinner mBundleSpinner;
    private EditText mDescriptionText;
    private CheckBox mPublicCheck;
+   private Button mOkayButton;
    private boolean paused;
    private Uri mTrackUri;
 
@@ -133,6 +135,9 @@ public class DescribeTrack extends Activity implements ProgressListener
 
    private ProgressBar mProgressSpinner;
 
+   private AlertDialog mDialog;
+
+
    @Override
    protected void onCreate(Bundle savedInstanceState)
    {
@@ -183,7 +188,6 @@ public class DescribeTrack extends Activity implements ProgressListener
    @Override
    protected Dialog onCreateDialog(int id)
    {
-      Dialog dialog = null;
       LayoutInflater factory = null;
       View view = null;
       Builder builder = null;
@@ -202,8 +206,9 @@ public class DescribeTrack extends Activity implements ProgressListener
             builder.setTitle(R.string.dialog_description_title).setMessage(R.string.dialog_description_message).setIcon(android.R.drawable.ic_dialog_alert)
                   .setPositiveButton(R.string.btn_okay, mTrackDescriptionDialogListener)
                   .setNegativeButton(R.string.btn_cancel, mTrackDescriptionDialogListener).setView(view);
-            dialog = builder.create();
-            dialog.setOnDismissListener(new OnDismissListener()
+            mDialog = builder.create();
+            
+            mDialog.setOnDismissListener(new OnDismissListener()
             {
                public void onDismiss(DialogInterface dialog)
                {
@@ -213,7 +218,7 @@ public class DescribeTrack extends Activity implements ProgressListener
                   }
                }
             });
-            return dialog;
+            return mDialog;
          default:
             return super.onCreateDialog(id);
       }
@@ -296,8 +301,12 @@ public class DescribeTrack extends Activity implements ProgressListener
             mProgressSpinner.setVisibility(View.VISIBLE);
          }
       }
-   
-      for (View view : new View[] { mActivitySpinner, mBundleSpinner, mDescriptionText, mPublicCheck })
+
+      if( mDialog != null )
+      {
+         mOkayButton = mDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+      }
+      for (View view : new View[] { mActivitySpinner, mBundleSpinner, mDescriptionText, mPublicCheck, mOkayButton })
       {
          if (view != null)
          {

@@ -616,7 +616,8 @@ public class TrackList extends ListActivity implements ProgressListener
          {
             if (columnIndex == 0)
             {
-               final long trackId = cursor.getLong(columnIndex);
+               final long trackId = cursor.getLong(0);
+               final String trackName = cursor.getString(1);
                // Show the check if Breadcrumbs is online
                CheckBox checkbox = (CheckBox) view;
                if (mBreadcrumbAdapter.isOnline())
@@ -625,7 +626,7 @@ public class TrackList extends ListActivity implements ProgressListener
 
                   // Disable the checkbox if marked online
                   BreadcrumbsTracks tracks = mBreadcrumbAdapter.getBreadcrumbsTracks();
-                  boolean isOnline = tracks.isLocalTrackOnline(trackId);
+                  boolean isOnline = tracks.isLocalTrackSynced(trackId);
                   checkbox.setEnabled(!isOnline);
 
                   // Check the checkbox if determined synced
@@ -641,6 +642,7 @@ public class TrackList extends ListActivity implements ProgressListener
                            // Start a description of the track
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
                            namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));
+                           namingIntent.putExtra(Constants.NAME, trackName);
                            startActivityForResult(namingIntent, DESCRIBE);
                         }
                      }

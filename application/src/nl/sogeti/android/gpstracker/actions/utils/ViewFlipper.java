@@ -71,7 +71,7 @@ public class ViewFlipper extends android.widget.ViewFlipper
          catch( IllegalArgumentException e )
          {
             Log.w( TAG, "Android project issue 6191 workaround." );
-            /* Quick catch and continue on api level 7/8/9, the Eclair 2.1 / 2.2 */
+            /* Quick catch and continue on api level 7+, the Eclair 2.1 / 2.2 */
          }
          finally
          {

@@ -30,7 +30,9 @@ package nl.sogeti.android.gpstracker.adapter.tasks;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
@@ -227,6 +229,14 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
    @Override
    protected void updateTracksData(BreadcrumbsTracks tracks)
    {
+
+      Set<Integer> mTracksIds = new HashSet<Integer>() ;
+      for (Object[] track : mTracks)
+      {
+         mTracksIds.add((Integer) track[0]);
+      }
+      tracks.setAllTracksForBundleId( mBundleId, mTracksIds );
+      
       for (Object[] track : mTracks)
       {
          Integer trackId = (Integer) track[0];
