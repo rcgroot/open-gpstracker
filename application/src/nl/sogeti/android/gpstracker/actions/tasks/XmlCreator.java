@@ -330,6 +330,10 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       {
          tag = "";
       }
+      if( content == null)
+      {
+         content = "";
+      }
       serializer.text("\n");
       serializer.startTag(ns, tag);
       serializer.text(content);

@@ -181,9 +181,7 @@ public class KmzCreator extends XmlCreator
       serializer.text("\n");
       serializer.startTag("", "Document");
       serializer.text("\n");
-      serializer.startTag("", "name");
-      serializer.text(trackName);
-      serializer.endTag("", "name");
+      quickTag(serializer, "", "name", trackName);
 
       /* from <name/> upto <Folder/> */
       serializeTrackHeader(serializer, trackUri);
@@ -226,9 +224,7 @@ public class KmzCreator extends XmlCreator
             serializer.startTag("", "Folder");
             name = trackCursor.getString(0);
             serializer.text("\n");
-            serializer.startTag("", "name");
-            serializer.text(name);
-            serializer.endTag("", "name");
+            quickTag(serializer, "", "name", name);
             serializer.text("\n");
             serializer.startTag("", "open");
             serializer.text("1");
