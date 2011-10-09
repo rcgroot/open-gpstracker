@@ -41,12 +41,10 @@ import java.util.concurrent.CancellationException;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
 import nl.sogeti.android.gpstracker.util.UnicodeReader;
-import nl.sogeti.android.gpstracker.viewer.TrackList;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -58,6 +56,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.Window;
 
 public class GpxParser extends AsyncTask<Uri, Integer, Uri>
 {
@@ -88,8 +87,8 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    protected String mErrorDialogMessage;
    protected Exception mErrorDialogException;
    protected Context mContext;
-   protected ProgressListener mProgressListener;
-   private int mLength;
+   private ProgressListener mProgressListener;
+   protected ProgressAdmin mProgressAdmin;
    
    public GpxParser(Context context, ProgressListener progressListener)
    {
@@ -98,25 +97,15 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
       mContentResolver = mContext.getContentResolver();
    }
    
-   public int getMaximumProgress()
-   {
-      return mLength;
-   }
-
-   public void setMaximumProgress(int maximumProgress)
-   {
-      this.mLength = maximumProgress;
-   }
-   
    public void determineProgressGoal(Uri importFileUri)
    {
-      mLength = DEFAULT_UNKNOWN_FILESIZE;
+      mProgressAdmin = new ProgressAdmin();
+      mProgressAdmin.setContentLength(DEFAULT_UNKNOWN_FILESIZE);
       if (importFileUri != null && importFileUri.getScheme().equals("file"))
       {
          File file = new File(importFileUri.getPath());
-         mLength = file.length() < (long) Integer.MAX_VALUE ? (int) file.length() : Integer.MAX_VALUE;
+         mProgressAdmin.setContentLength(file.length());
       }
-      mProgressListener.setMax(mLength);
    }
 
    public Uri importUri(Uri importFileUri) 
@@ -169,7 +158,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
          XmlPullParser xmlParser = factory.newPullParser();
 
 
-         ProgressFilterInputStream pfis = new ProgressFilterInputStream(fis, this);
+         ProgressFilterInputStream pfis = new ProgressFilterInputStream(fis, mProgressAdmin);
          BufferedInputStream bis = new BufferedInputStream(pfis);
          UnicodeReader ur = new UnicodeReader(bis, "UTF-8");
          xmlParser.setInput(ur);
@@ -391,7 +380,6 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
 
    /**
     * 
-    * TODO
     * @param e
     * @param text
     */
@@ -422,7 +410,7 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    @Override
    protected void onProgressUpdate(Integer... values)
    {
-      mProgressListener.increaseProgress(values[0]);
+      mProgressListener.setProgress(values[0]);
    }
    
    @Override
@@ -436,14 +424,40 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    {
       mProgressListener.showError(mContext.getString(R.string.taskerror_gpx_import), mErrorDialogMessage, mErrorDialogException);
    }
-
-   /**
-    * Glue to ProgressFilterInputStream
-    * 
-    * @param add
-    */
-   public void incrementProgressBy(int add)
+   
+   public class ProgressAdmin
    {
-      publishProgress( new Integer(add) );
+      private long progressedBytes;
+      private long contentLength;
+      private int progress;
+      private long lastUpdate;
+      /**
+       * Get the progress.
+       *
+       * @return Returns the progress as a int.
+       */
+      public int getProgress()
+      {
+         return progress;
+      }
+      public void addBytesProgress(int addedBytes)
+      {
+         progressedBytes += addedBytes;
+         progress = (int) (Window.PROGRESS_END * progressedBytes / contentLength);
+         considerPublishProgress();
+      }
+      public void setContentLength(long contentLength)
+      {
+         this.contentLength = contentLength;
+      }
+      public void considerPublishProgress()
+      {
+         long now = new Date().getTime();
+         if( now - lastUpdate > 1000 )
+         {
+            lastUpdate = now;
+            publishProgress();
+         }         
+      }
    }
 };

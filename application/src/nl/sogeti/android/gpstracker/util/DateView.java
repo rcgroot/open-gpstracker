@@ -83,6 +83,14 @@ public class DateView extends TextView
    @Override
    public void setText( CharSequence charSeq, BufferType type )
    {  
+      // Behavior for the graphical editor
+      if( this.isInEditMode() )
+      {
+         super.setText( charSeq, type );
+         return;
+      }
+      
+      
       long longVal;
       if( charSeq.length() == 0 ) 
       {
@@ -100,6 +108,7 @@ public class DateView extends TextView
          }
       }
       this.mDate = new Date( longVal );
+      
       DateFormat dateFormat = android.text.format.DateFormat.getLongDateFormat(this.getContext().getApplicationContext());
       DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(this.getContext().getApplicationContext());
       String text = timeFormat.format(this.mDate) + " " + dateFormat.format(mDate);

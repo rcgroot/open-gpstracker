@@ -73,7 +73,6 @@ public class OAuthRequestTokenTask extends AsyncTask<Void, Void, Void>
    @Override
    protected Void doInBackground(Void... params)
    {
-
       try
       {
          final String url = provider.retrieveRequestToken(consumer, Constants.OAUTH_CALLBACK_URL);
@@ -83,6 +82,7 @@ public class OAuthRequestTokenTask extends AsyncTask<Void, Void, Void>
       }
       catch (Exception e)
       {
+         Log.e(TAG, "Failed to start token request ", e);
          Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.OAUTH_CALLBACK_URL));
          intent.putExtra("ERROR", e.toString());
          context.startActivity(intent);

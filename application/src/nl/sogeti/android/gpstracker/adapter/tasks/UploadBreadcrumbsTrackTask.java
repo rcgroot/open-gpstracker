@@ -118,7 +118,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    {
       // Leave room in the progressbar for uploading
       determineProgressGoal();
-      setMaximumProgress(getMaximumProgress() * 2);
+      mProgressAdmin.setUpload(true);
 
       // Build GPX file
       Uri gpxFile = exportGpx();
@@ -215,7 +215,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 
          // Execute the POST to OpenStreetMap
          HttpResponse response = mHttpClient.execute(method);
-         this.publishProgress(getMaximumProgress() / 2);
+         mProgressAdmin.addUploadProgress();
 
          statusCode = response.getStatusLine().getStatusCode();
          responseEntity = response.getEntity();
@@ -343,8 +343,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       File source = new File(inputFilePath);
       if (source.exists())
       {
+         mProgressAdmin.setPhotoUpload(source.length());
          mPhotoUploadQueue.add(source);
-         setMaximumProgress(getMaximumProgress() + 100);
       }
       return source.getName();
    }
@@ -370,9 +370,10 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       HttpEntity responseEntity = response.getEntity();
       InputStream stream = responseEntity.getContent();
       String responseText = XmlCreator.convertStreamToString(stream);
-      publishProgress(100);
-      Log.d( TAG, "Uploaded photo "+responseText);
       
+      mProgressAdmin.addPhotoUploadProgress(photo.length());
+      
+      Log.i( TAG, "Uploaded photo "+responseText);
    }
 
    @Override

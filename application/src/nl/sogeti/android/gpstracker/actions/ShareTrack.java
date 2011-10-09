@@ -57,7 +57,6 @@ import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -77,6 +76,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -598,7 +598,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    public class ShareProgressListener implements ProgressListener
    {
       private String mFileName;
-      private int mGoal;
       private int mProgress;
 
       public ShareProgressListener(String sharename)
@@ -631,23 +630,23 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       private void updateNotification()
       {
          //         Log.d( "TAG", "Progress " + progress + " of " + goal );
-         if (mProgress > 0 && mProgress < mGoal)
+         if (mProgress > 0 && mProgress < Window.PROGRESS_END)
          {
-            if ((mProgress * PROGRESS_STEPS) / mGoal != barProgress)
+            if ((mProgress * PROGRESS_STEPS) / Window.PROGRESS_END != barProgress)
             {
-               barProgress = (mProgress * PROGRESS_STEPS) / mGoal;
-               mContentView.setProgressBar(R.id.progress, mGoal, mProgress, false);
+               barProgress = (mProgress * PROGRESS_STEPS) / Window.PROGRESS_END;
+               mContentView.setProgressBar(R.id.progress, Window.PROGRESS_END, mProgress, false);
                mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
             }
          }
          else if (mProgress == 0)
          {
-            mContentView.setProgressBar(R.id.progress, mGoal, mProgress, true);
+            mContentView.setProgressBar(R.id.progress, Window.PROGRESS_END, mProgress, true);
             mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
          }
-         else if (mProgress >= mGoal)
+         else if (mProgress >= Window.PROGRESS_END)
          {
-            mContentView.setProgressBar(R.id.progress, mGoal, mProgress, false);
+            mContentView.setProgressBar(R.id.progress, Window.PROGRESS_END, mProgress, false);
             mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
          }
       }
@@ -656,25 +655,15 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       {
          mNotificationManager.cancel(R.layout.savenotificationprogress);
       }
-
+      
       public void setIndeterminate(boolean indeterminate)
       {
          Log.w(TAG, "Unsupported indeterminate progress display");
       }
-
-      public void setMax(int max)
-      {
-         this.mGoal = max;
-      }
-
+      
       public void started()
       {
          startNotification();
-      }
-
-      public void increaseProgress(int value)
-      {
-         setProgress(mProgress + value);
       }
 
       public void setProgress(int value)

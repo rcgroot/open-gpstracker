@@ -40,6 +40,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator.ProgressAdmin;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -331,7 +332,7 @@ public class GpxCreator extends XmlCreator
          {
             do
             {
-               publishProgress(1);
+               mProgressAdmin.addWaypointProgress(1);
 
                serializer.text("\n");
                serializer.startTag("", "trkpt");
@@ -391,7 +392,6 @@ public class GpxCreator extends XmlCreator
       {
          throw new IOException("Fail to execute request due to canceling");
       }
-      String mediaPathPrefix = Constants.getSdCardDirectory(context);
       Cursor mediaCursor = null;
       ContentResolver resolver = context.getContentResolver();
       try
@@ -418,6 +418,7 @@ public class GpxCreator extends XmlCreator
                   {
                      serializer.text("\n");
                      serializer.startTag("", "link");
+                     String mediaPathPrefix = Constants.getSdCardDirectory(context);
                      serializer.attribute(null, "href", includeMediaFile(mediaPathPrefix + mediaUri.getLastPathSegment()));
                      serializer.startTag("", "text");
                      serializer.text(mediaUri.getLastPathSegment());

@@ -62,6 +62,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -106,8 +107,6 @@ public class TrackList extends ListActivity implements ProgressListener
    private EditText mTrackNameView;
    private Uri mDialogUri;
    private String mDialogCurrentName = "";
-
-   private ProgressBar mImportProgress;
    private String mErrorDialogMessage;
    private Exception mErrorDialogException;
 
@@ -167,14 +166,18 @@ public class TrackList extends ListActivity implements ProgressListener
    };
    private String mImportTrackName;
    private String mErrorTask;
+   /**
+    * Progress listener for the background tasks uploading to gobreadcrumbs
+    */
+   private ProgressListener mExportListener;
 
    @Override
    protected void onCreate(Bundle savedInstanceState)
    {
       super.onCreate(savedInstanceState);
 
+      getWindow().requestFeature(Window.FEATURE_PROGRESS);
       this.setContentView(R.layout.tracklist);
-      mImportProgress = (ProgressBar) findViewById(R.id.importProgress);
 
       displayIntent(getIntent());
 
@@ -524,7 +527,7 @@ public class TrackList extends ListActivity implements ProgressListener
                {
                   name = "shareToGobreadcrumbs";
                }
-               mBreadcrumbAdapter.startUploadTask(TrackList.this, TrackList.this, trackUri, name);
+               mBreadcrumbAdapter.startUploadTask(TrackList.this, mExportListener, trackUri, name);
                break;
             default:
                super.onActivityResult(requestCode, resultCode, data);
@@ -614,12 +617,14 @@ public class TrackList extends ListActivity implements ProgressListener
       {
          public boolean setViewValue(View view, final Cursor cursor, int columnIndex)
          {
+            Log.d( TAG, "setViewValue(View "+view+", final Cursor "+cursor+", int "+columnIndex+")");
             if (columnIndex == 0)
             {
                final long trackId = cursor.getLong(0);
                final String trackName = cursor.getString(1);
                // Show the check if Breadcrumbs is online
-               CheckBox checkbox = (CheckBox) view;
+               final CheckBox checkbox = (CheckBox) view;
+               final ProgressBar progressbar = (ProgressBar) view.getRootView().findViewById(R.id.bcExportProgress);
                if (mBreadcrumbAdapter.isOnline())
                {
                   checkbox.setVisibility(View.VISIBLE);
@@ -643,6 +648,35 @@ public class TrackList extends ListActivity implements ProgressListener
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
                            namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));
                            namingIntent.putExtra(Constants.NAME, trackName);
+                           progressbar.setMax(Window.PROGRESS_END);
+                           mExportListener = new ProgressListener()
+                           {
+                              public void setIndeterminate(boolean indeterminate)
+                              {
+                                 progressbar.setIndeterminate(indeterminate);
+                              }
+
+                              public void started()
+                              {
+                                 progressbar.setVisibility(View.VISIBLE);
+                              }
+
+                              public void finished(Uri result)
+                              {
+                                 progressbar.setVisibility(View.GONE);
+                                 progressbar.setIndeterminate(false);
+                              }
+
+                              public void setProgress(int value)
+                              {
+                                 progressbar.setProgress(value);
+                              }
+
+                              public void showError(String task, String errorMessage, Exception exception)
+                              {
+                                 TrackList.this.showError(task, errorMessage, exception);
+                              }
+                           };
                            startActivityForResult(namingIntent, DESCRIBE);
                         }
                      }
@@ -676,33 +710,23 @@ public class TrackList extends ListActivity implements ProgressListener
 
    public void setIndeterminate(boolean indeterminate)
    {
-      mImportProgress.setIndeterminate(indeterminate);
-   }
-
-   public void setMax(int max)
-   {
-      mImportProgress.setMax(max);
+      setProgressBarIndeterminate(indeterminate);
    }
 
    public void started()
    {
-      mImportProgress.setVisibility(View.VISIBLE);
+      setProgressBarVisibility(true);
+      setProgress(Window.PROGRESS_START);
    }
-
-   public void increaseProgress(int value)
-   {
-      mImportProgress.incrementProgressBy(value);
-   }
-
+   
    public void finished(Uri result)
    {
-      mImportProgress.setVisibility(View.GONE);
-      mImportProgress.setIndeterminate(false);
+      setProgressBarVisibility(false);
+      setProgressBarIndeterminate(false);
    }
 
    public void showError(String task, String errorDialogMessage, Exception errorDialogException)
    {
-      mImportProgress.setVisibility(View.GONE);
       mErrorTask = task;
       mErrorDialogMessage = errorDialogMessage;
       mErrorDialogException = errorDialogException;

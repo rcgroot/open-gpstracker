@@ -116,11 +116,10 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
          {
             throw new IOException("Fail to execute request due to canceling");
          }
-         HttpResponse response = mHttpclient.execute(request);
+         HttpResponse response = mHttpclient.execute(request);       
          responseEntity = response.getEntity();
+         mProgressAdmin.setContentLength(responseEntity.getContentLength());
          fis = responseEntity.getContent();
-         publishProgress(getMaximumProgress() / 4);
-
          trackUri = importTrack(fis, trackName);
       }
       catch (OAuthMessageSignerException e)

@@ -411,7 +411,7 @@ public class KmzCreator extends XmlCreator
             serializer.startTag("", "coordinates");
             do
             {
-               publishProgress(1);
+               mProgressAdmin.addWaypointProgress(1);
                // Single Coordinate tuple
                serializeCoordinates(serializer, waypointsCursor);
                serializer.text(" ");

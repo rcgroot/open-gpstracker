@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
+import nl.sogeti.android.gpstracker.actions.tasks.GpxParser.ProgressAdmin;
 
 /**
  * ????
@@ -44,21 +45,19 @@ public class ProgressFilterInputStream extends FilterInputStream
 {
    GpxParser mAsyncTask;
    long progress = 0;
-   
-   public ProgressFilterInputStream(InputStream in, GpxParser bar)
+   private ProgressAdmin mProgressAdmin;
+
+   public ProgressFilterInputStream(InputStream is, ProgressAdmin progressAdmin)
    {
-      super( in );
-      mAsyncTask = bar;
+      super( is );
+      mProgressAdmin = progressAdmin;
    }
 
    @Override
    public int read() throws IOException
    {
       int read = super.read();
-      if( read >= 0 )
-      {
-         incrementProgressBy( 1 );
-      }
+      incrementProgressBy( 1 );
       return read;
    }
 
@@ -66,18 +65,15 @@ public class ProgressFilterInputStream extends FilterInputStream
    public int read( byte[] buffer, int offset, int count ) throws IOException
    {
       int read = super.read( buffer, offset, count );
-      if( read >= 0 )
-      {
-         incrementProgressBy( read );
-      }
+      incrementProgressBy( read );
       return read;
    }   
    
-   private void incrementProgressBy( int add )
+   private void incrementProgressBy( int bytes )
    {
-      if( mAsyncTask != null )
+      if( bytes > 0 )
       {
-         mAsyncTask.incrementProgressBy( add );
+         mProgressAdmin.addBytesProgress(bytes);
       }
    }
    
