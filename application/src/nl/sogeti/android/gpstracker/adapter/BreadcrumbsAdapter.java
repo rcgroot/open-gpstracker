@@ -361,7 +361,6 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
       mHttpClient = null;
 
       mTracks.persistCache(mContext);
-      mTracks = null;
    }
 
    public void startDownloadTask(Context context, ProgressListener listener, Pair<Integer, Integer> track)

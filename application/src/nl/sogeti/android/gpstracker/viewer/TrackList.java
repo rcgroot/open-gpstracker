@@ -340,16 +340,21 @@ public class TrackList extends ListActivity implements ProgressListener
       if (menuInfo instanceof AdapterView.AdapterContextMenuInfo)
       {
          AdapterView.AdapterContextMenuInfo itemInfo = (AdapterView.AdapterContextMenuInfo) menuInfo;
-         TextView textView = (TextView) itemInfo.targetView.findViewById(android.R.id.text1);
+         TextView textView = (TextView) itemInfo.targetView.findViewById(R.id.listitem_name);
          if (textView != null)
          {
             menu.setHeaderTitle(textView.getText());
          }
+         
+         Object listItem = getListAdapter().getItem(itemInfo.position);
+         if( listItem instanceof Cursor)
+         {
+            menu.add(0, MENU_STATS, 0, R.string.menu_statistics);
+            menu.add(0, MENU_SHARE, 0, R.string.menu_shareTrack);
+            menu.add(0, MENU_RENAME, 0, R.string.menu_renameTrack);
+            menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
+         }
       }
-      menu.add(0, MENU_STATS, 0, R.string.menu_statistics);
-      menu.add(0, MENU_SHARE, 0, R.string.menu_shareTrack);
-      menu.add(0, MENU_RENAME, 0, R.string.menu_renameTrack);
-      menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
    }
 
    @Override
@@ -366,45 +371,49 @@ public class TrackList extends ListActivity implements ProgressListener
          Log.e(TAG, "Bad menuInfo", e);
          return handled;
       }
-
-      Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-      mDialogUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, cursor.getLong(0));
-      mDialogCurrentName = cursor.getString(1);
-      mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
-      switch (item.getItemId())
+      
+      Object listItem = getListAdapter().getItem(info.position);
+      if( listItem instanceof Cursor)
       {
-         case MENU_DETELE:
+         Cursor cursor = (Cursor) listItem;
+         mDialogUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, cursor.getLong(0));
+         mDialogCurrentName = cursor.getString(1);
+         mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
+         switch (item.getItemId())
          {
-            showDialog(DIALOG_DELETE);
-            handled = true;
-            break;
+            case MENU_DETELE:
+            {
+               showDialog(DIALOG_DELETE);
+               handled = true;
+               break;
+            }
+            case MENU_SHARE:
+            {
+               Intent actionIntent = new Intent(Intent.ACTION_RUN);
+               actionIntent.setDataAndType(mDialogUri, Tracks.CONTENT_ITEM_TYPE);
+               actionIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+               startActivity(Intent.createChooser(actionIntent, getString(R.string.share_track)));
+               handled = true;
+               break;
+            }
+            case MENU_RENAME:
+            {
+               showDialog(DIALOG_RENAME);
+               handled = true;
+               break;
+            }
+            case MENU_STATS:
+            {
+               Intent actionIntent = new Intent(this, Statistics.class);
+               actionIntent.setData(mDialogUri);
+               startActivity(actionIntent);
+               handled = true;
+               break;
+            }
+            default:
+               handled = super.onContextItemSelected(item);
+               break;
          }
-         case MENU_SHARE:
-         {
-            Intent actionIntent = new Intent(Intent.ACTION_RUN);
-            actionIntent.setDataAndType(mDialogUri, Tracks.CONTENT_ITEM_TYPE);
-            actionIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(actionIntent, getString(R.string.share_track)));
-            handled = true;
-            break;
-         }
-         case MENU_RENAME:
-         {
-            showDialog(DIALOG_RENAME);
-            handled = true;
-            break;
-         }
-         case MENU_STATS:
-         {
-            Intent actionIntent = new Intent(this, Statistics.class);
-            actionIntent.setData(mDialogUri);
-            startActivity(actionIntent);
-            handled = true;
-            break;
-         }
-         default:
-            handled = super.onContextItemSelected(item);
-            break;
       }
       return handled;
    }
@@ -617,14 +626,13 @@ public class TrackList extends ListActivity implements ProgressListener
       {
          public boolean setViewValue(View view, final Cursor cursor, int columnIndex)
          {
-            Log.d( TAG, "setViewValue(View "+view+", final Cursor "+cursor+", int "+columnIndex+")");
             if (columnIndex == 0)
             {
                final long trackId = cursor.getLong(0);
                final String trackName = cursor.getString(1);
                // Show the check if Breadcrumbs is online
                final CheckBox checkbox = (CheckBox) view;
-               final ProgressBar progressbar = (ProgressBar) view.getRootView().findViewById(R.id.bcExportProgress);
+               final ProgressBar progressbar = (ProgressBar) ((View)view.getParent()).findViewById(R.id.bcExportProgress);
                if (mBreadcrumbAdapter.isOnline())
                {
                   checkbox.setVisibility(View.VISIBLE);
@@ -648,7 +656,6 @@ public class TrackList extends ListActivity implements ProgressListener
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
                            namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));
                            namingIntent.putExtra(Constants.NAME, trackName);
-                           progressbar.setMax(Window.PROGRESS_END);
                            mExportListener = new ProgressListener()
                            {
                               public void setIndeterminate(boolean indeterminate)
@@ -658,12 +665,14 @@ public class TrackList extends ListActivity implements ProgressListener
 
                               public void started()
                               {
+                                 checkbox.setVisibility(View.INVISIBLE);
                                  progressbar.setVisibility(View.VISIBLE);
                               }
 
                               public void finished(Uri result)
                               {
-                                 progressbar.setVisibility(View.GONE);
+                                 checkbox.setVisibility(View.VISIBLE);
+                                 progressbar.setVisibility(View.INVISIBLE);
                                  progressbar.setIndeterminate(false);
                               }
 

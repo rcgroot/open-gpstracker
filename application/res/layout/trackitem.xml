@@ -52,6 +52,7 @@
       android:layout_centerVertical="true"
       android:paddingLeft="3dip"
       android:visibility="invisible"
+      android:max="10000"
       style="?android:attr/progressBarStyleHorizontal" />
 
 </RelativeLayout>

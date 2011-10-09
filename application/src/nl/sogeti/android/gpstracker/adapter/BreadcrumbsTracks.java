@@ -298,8 +298,10 @@ public class BreadcrumbsTracks extends Observable
    
    public void setAllTracksForBundleId(Integer mBundleId, Set<Integer> updatedbcTracksIdList)
    {
-      for (Integer oldTrackId : sBundlesWithTracks.get(mBundleId))
+      List<Integer> trackIdList = sBundlesWithTracks.get(mBundleId);
+      for( int location = 0 ; location < trackIdList.size() ; location ++ )
       {
+         Integer oldTrackId = trackIdList.get(location);
          if (!updatedbcTracksIdList.contains(oldTrackId))
          {
             removeTrack(mBundleId, oldTrackId);
@@ -307,8 +309,6 @@ public class BreadcrumbsTracks extends Observable
       }
       setChanged ();
       notifyObservers();
-      
-      
    }
 
    private void putForTrack(Integer trackId, String key, Object value)

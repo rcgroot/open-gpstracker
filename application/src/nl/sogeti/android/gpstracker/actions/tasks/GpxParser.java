@@ -58,7 +58,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.Window;
 
-public class GpxParser extends AsyncTask<Uri, Integer, Uri>
+public class GpxParser extends AsyncTask<Uri, Void, Uri>
 {
    private static final String LATITUDE_ATRIBUTE = "lat";
    private static final String LONGITUDE_ATTRIBUTE = "lon";
@@ -408,9 +408,9 @@ public class GpxParser extends AsyncTask<Uri, Integer, Uri>
    }
    
    @Override
-   protected void onProgressUpdate(Integer... values)
+   protected void onProgressUpdate(Void... values)
    {
-      mProgressListener.setProgress(values[0]);
+      mProgressListener.setProgress(mProgressAdmin.getProgress());
    }
    
    @Override

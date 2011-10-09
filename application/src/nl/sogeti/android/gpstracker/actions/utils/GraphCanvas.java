@@ -348,7 +348,7 @@ public class GraphCanvas extends View
                         if( value != 0 && value > minValue && segment < values.length )
                         {
                            int x = (int) ((distance)*(mWidth-1) / mDistance);
-                           if( x < valueDepth[segment].length )
+                           if( x > 0 && x < valueDepth[segment].length )
                            {
                               valueDepth[segment][x]++;
                               values[segment][x] = values[segment][x]+((value-values[segment][x])/valueDepth[segment][x]);
@@ -429,7 +429,7 @@ public class GraphCanvas extends View
                         if( value != 0 && value > minValue && segment < values.length )
                         {
                            int x = (int) ((time-mStartTime)*(mWidth-1) / duration);
-                           if( x < valueDepth[segment].length )
+                           if( x > 0 && x < valueDepth[segment].length )
                            {
                               valueDepth[segment][x]++;
                               values[segment][x] = values[segment][x]+((value-values[segment][x])/valueDepth[segment][x]);
