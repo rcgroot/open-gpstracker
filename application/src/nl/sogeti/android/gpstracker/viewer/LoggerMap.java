@@ -292,7 +292,7 @@ public class LoggerMap extends MapActivity
 
       mLastSegmentOverlay = null;
       mMapView.clearOverlays();
-      mHandler.postAtFrontOfQueue(new Runnable()
+      mHandler.post(new Runnable()
       {
          public void run()
          {

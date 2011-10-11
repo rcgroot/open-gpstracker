@@ -264,7 +264,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mTrackSegmentsObserver = null;
       mHandler.removeCallbacks(mMediaCalculator);
       mHandler.removeCallbacks(mTrackCalculator);
-      mHandler.post(new Runnable()
+      mHandler.postAtFrontOfQueue(new Runnable()
       {
          public void run()
          {

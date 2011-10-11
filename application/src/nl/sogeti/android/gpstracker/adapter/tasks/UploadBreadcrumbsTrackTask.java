@@ -339,7 +339,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    @Override
    protected String includeMediaFile(String inputFilePath) throws IOException
    {
-      Log.d( TAG, "Including media file "+ inputFilePath );
       File source = new File(inputFilePath);
       if (source.exists())
       {

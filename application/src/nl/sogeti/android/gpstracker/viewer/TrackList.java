@@ -739,17 +739,13 @@ public class TrackList extends ListActivity implements ProgressListener
       mErrorTask = task;
       mErrorDialogMessage = errorDialogMessage;
       mErrorDialogException = errorDialogException;
-      Log.d(TAG, "Most show Error for task: " + task);
-      Log.d(TAG, "Most show Error for errorDialogMessage: " + errorDialogMessage);
-      Log.d(TAG, "Most show Error for errorDialogException: " + errorDialogException);
+      Log.e(TAG, errorDialogMessage, errorDialogException);
       if (!isFinishing())
       {
          showDialog(DIALOG_ERROR);
       }
-      else
-      {
-         Log.e(TAG, errorDialogMessage, errorDialogException);
-      }
+      setProgressBarVisibility(false);
+      setProgressBarIndeterminate(false);
    }
 
 }
