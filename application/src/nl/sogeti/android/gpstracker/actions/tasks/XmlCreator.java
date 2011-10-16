@@ -472,13 +472,20 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
          if( compressCount         ){ blocks++; }
          if( uploadCount           ){ blocks++; }
          if( photoUploadCount > 0 ){ blocks++; }
-         int blockSize = Window.PROGRESS_END / blocks;
          int progress;
-         progress  = waypointCount > 0    ? blockSize * waypointProgress / waypointCount : 0;
-         progress += mediaCount > 0       ? blockSize * mediaProgress / mediaCount : 0;
-         progress += compressProgress     ? blockSize : 0;
-         progress += uploadProgress       ? blockSize : 0;
-         progress += photoUploadCount > 0 ? blockSize * photoUploadProgress / photoUploadCount : 0;
+         if( blocks > 0 )
+         {
+            int blockSize = Window.PROGRESS_END / blocks;
+            progress  = waypointCount > 0    ? blockSize * waypointProgress / waypointCount : 0;
+            progress += mediaCount > 0       ? blockSize * mediaProgress / mediaCount : 0;
+            progress += compressProgress     ? blockSize : 0;
+            progress += uploadProgress       ? blockSize : 0;
+            progress += photoUploadCount > 0 ? blockSize * photoUploadProgress / photoUploadCount : 0;
+         }
+         else
+         {
+            progress = 0;
+         }
          //Log.d( TAG, "Progress updated to "+progress);
          return progress;
       }
