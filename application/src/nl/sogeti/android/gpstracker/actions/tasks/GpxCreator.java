@@ -268,15 +268,15 @@ public class GpxCreator extends XmlCreator
             trackCursor.close();
          }
       }
-      if( mName == null )
+      if (mName == null)
       {
          mName = "Untitled";
       }
-      if (databaseName != null && !databaseName.equals("") )
+      if (databaseName != null && !databaseName.equals(""))
       {
          mName = databaseName;
       }
-      if (mChosenName != null && !mChosenName.equals("") )
+      if (mChosenName != null && !mChosenName.equals(""))
       {
          mName = mChosenName;
       }
@@ -409,9 +409,7 @@ public class GpxCreator extends XmlCreator
                      serializer.text("\n");
                      serializer.startTag("", "link");
                      serializer.attribute(null, "href", includeMediaFile(mediaUri.getLastPathSegment()));
-                     serializer.startTag("", "text");
-                     serializer.text(mediaUri.getLastPathSegment());
-                     serializer.endTag("", "text");
+                     quickTag(serializer, "", "text", mediaUri.getLastPathSegment());
                      serializer.endTag("", "link");
                   }
                   else if (mediaUri.getLastPathSegment().endsWith("jpg"))
@@ -420,9 +418,7 @@ public class GpxCreator extends XmlCreator
                      serializer.startTag("", "link");
                      String mediaPathPrefix = Constants.getSdCardDirectory(context);
                      serializer.attribute(null, "href", includeMediaFile(mediaPathPrefix + mediaUri.getLastPathSegment()));
-                     serializer.startTag("", "text");
-                     serializer.text(mediaUri.getLastPathSegment());
-                     serializer.endTag("", "text");
+                     quickTag(serializer, "", "text", mediaUri.getLastPathSegment());
                      serializer.endTag("", "link");
                   }
                   else if (mediaUri.getLastPathSegment().endsWith("txt"))
@@ -441,12 +437,10 @@ public class GpxCreator extends XmlCreator
                }
                else if (mediaUri.getScheme().equals("content"))
                {
-                  if (mediaUri.getAuthority().equals(GPStracking.AUTHORITY + ".string"))
+                  if ((GPStracking.AUTHORITY + ".string").equals(mediaUri.getAuthority()))
                   {
                      serializer.text("\n");
-                     serializer.startTag("", "name");
-                     serializer.text(mediaUri.getLastPathSegment());
-                     serializer.endTag("", "name");
+                     quickTag(serializer, "", "name", mediaUri.getLastPathSegment());
                   }
                   else if (mediaUri.getAuthority().equals("media"))
                   {
@@ -460,9 +454,7 @@ public class GpxCreator extends XmlCreator
                            serializer.text("\n");
                            serializer.startTag("", "link");
                            serializer.attribute(null, "href", includeMediaFile(mediaItemCursor.getString(0)));
-                           serializer.startTag("", "text");
-                           serializer.text(mediaItemCursor.getString(1));
-                           serializer.endTag("", "text");
+                           quickTag(serializer, "", "text", mediaItemCursor.getString(1));
                            serializer.endTag("", "link");
                         }
                      }
