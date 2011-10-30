@@ -317,10 +317,6 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       {
          handleError(e, mContext.getString(R.string.error_importgpx_xml));
       }
-      catch (ParseException e)
-      {
-         handleError(e, mContext.getString(R.string.error_importgpx_parse));
-      }
       catch (IOException e)
       {
          handleError(e, mContext.getString(R.string.error_importgpx_io));
@@ -353,27 +349,42 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       return mContentResolver.insert(Tracks.CONTENT_URI, trackContent);
    }
 
-   public static Long parseXmlDateTime(String text) throws ParseException
+   public static Long parseXmlDateTime(String text)
    {
-      if(text==null)
+      Long dateTime = 0L;
+      try
       {
-         throw new ParseException("Unable to parse dateTime "+text+" of length ", 0);
+         if(text==null)
+         {
+            throw new ParseException("Unable to parse dateTime "+text+" of length ", 0);
+         }
+         int length = text.length();
+         switch (length)
+         {
+            case 20:
+               synchronized (ZULU_DATE_FORMAT)
+               {
+                  dateTime = new Long(ZULU_DATE_FORMAT.parse(text).getTime());
+               }
+               break;
+            case 23:
+               synchronized (ZULU_DATE_FORMAT_BC)
+               {
+                  dateTime = new Long(ZULU_DATE_FORMAT_BC.parse(text).getTime());
+               }
+               break;
+            case 24:
+               synchronized (ZULU_DATE_FORMAT_MS)
+               {
+                  dateTime = new Long(ZULU_DATE_FORMAT_MS.parse(text).getTime());
+               }
+               break;
+            default:
+               throw new ParseException("Unable to parse dateTime "+text+" of length "+length, 0);
+         }
       }
-      Long dateTime = null;
-      int length = text.length();
-      switch (length)
-      {
-         case 20:
-            dateTime = new Long(ZULU_DATE_FORMAT.parse(text).getTime());
-            break;
-         case 23:
-            dateTime = new Long(ZULU_DATE_FORMAT_BC.parse(text).getTime());
-            break;
-         case 24:
-            dateTime = new Long(ZULU_DATE_FORMAT_MS.parse(text).getTime());
-            break;
-         default:
-            throw new ParseException("Unable to parse dateTime "+text+" of length "+length, 0);
+      catch (ParseException e) {
+         Log.w(TAG, "Failed to parse a time-date", e);
       }
       return dateTime;
    }

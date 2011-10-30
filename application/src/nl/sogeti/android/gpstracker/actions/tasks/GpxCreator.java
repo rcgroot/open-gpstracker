@@ -71,11 +71,11 @@ public class GpxCreator extends XmlCreator
    public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
    public static final String NS_GPX_10 = "http://www.topografix.com/GPX/1/0";
    public static final String NS_OGT_10 = "http://gpstracker.android.sogeti.nl/GPX/1/0";
-   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+   public static final SimpleDateFormat ZULU_DATE_FORMATER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
    static
    {
       TimeZone utc = TimeZone.getTimeZone("UTC");
-      ZULU_DATE_FORMAT.setTimeZone(utc); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
+      ZULU_DATE_FORMATER.setTimeZone(utc); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
    }
 
    private String TAG = "OGT.GpxCreator";
@@ -255,7 +255,10 @@ public class GpxCreator extends XmlCreator
             serializer.text("\n");
             serializer.startTag("", "time");
             Date time = new Date(trackCursor.getLong(2));
-            serializer.text(ZULU_DATE_FORMAT.format(time));
+            synchronized (ZULU_DATE_FORMATER)
+            {
+               serializer.text(ZULU_DATE_FORMATER.format(time));
+            }
             serializer.endTag("", "time");
             serializer.text("\n");
             serializer.endTag("", "metadata");
@@ -345,7 +348,10 @@ public class GpxCreator extends XmlCreator
                serializer.text("\n");
                serializer.startTag("", "time");
                Date time = new Date(waypointsCursor.getLong(2));
-               serializer.text(ZULU_DATE_FORMAT.format(time));
+               synchronized (ZULU_DATE_FORMATER)
+               {
+                  serializer.text(ZULU_DATE_FORMATER.format(time));
+               }
                serializer.endTag("", "time");
                if (includeAttachments)
                {
