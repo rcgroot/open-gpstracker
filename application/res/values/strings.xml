@@ -252,6 +252,14 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.\n </string>
     <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
+    
+    <string name="preference_stream">Location broadcasting settings</string>
+    <string name="streamenabled_title">Streaming enabled</string>
+    <string name="streamenabled_summary">Enable direct broadcasting of location</string>
+    <string name="streambroadcast_time_title">Minimum time between broadcasts</string>
+    <string name="streambroadcast_time_summary">Number of minutes which much pass before a new location is broadcasted</string>
+    <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
+    <string name="streambroadcast_distance_summary">Number of miles or  which much pass before a new location is broadcasted</string>
 
 <!-- ***************************
    About information
