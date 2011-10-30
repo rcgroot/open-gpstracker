@@ -245,15 +245,8 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
                String dateString = mTracks.getValueForItem(item, BreadcrumbsTracks.ENDTIME);
                if(dateString != null)
                {
-                  try
-                  {
                      Long date = GpxParser.parseXmlDateTime(dateString);
                      dateView.setText(date.toString());
-                  }
-                  catch (ParseException e)
-                  {
-                     Log.w(TAG, "Unable to parse Breadcrumbs end-time " + dateString);
-                  }
                }
                break;
             default:
