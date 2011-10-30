@@ -170,6 +170,7 @@ public class TrackList extends ListActivity implements ProgressListener
     * Progress listener for the background tasks uploading to gobreadcrumbs
     */
    private ProgressListener mExportListener;
+   private int mPausePosition;
 
    @Override
    protected void onCreate(Bundle savedInstanceState)
@@ -185,14 +186,29 @@ public class TrackList extends ListActivity implements ProgressListener
       listView.setItemsCanFocus(true);
       // Add the context menu (the long press thing)
       registerForContextMenu(listView);
-   }
 
+      if( savedInstanceState != null )
+      {
+         getListView().setSelection(savedInstanceState.getInt("POSITION"));
+      }
+   }
+   
    @Override
-   public Object onRetainNonConfigurationInstance()
+   protected void onResume()
    {
-      return mBreadcrumbAdapter;
+      if( mPausePosition != 0 )
+      {
+         getListView().setSelection(mPausePosition);
+      }
+      super.onResume();
    }
-
+   @Override
+   protected void onPause()
+   {
+      mPausePosition = getListView().getFirstVisiblePosition();
+      super.onPause();
+   }
+   
    @Override
    protected void onDestroy()
    {
@@ -201,6 +217,12 @@ public class TrackList extends ListActivity implements ProgressListener
          mBreadcrumbAdapter.shutdown();
       }
       super.onDestroy();
+   }
+
+   @Override
+   public Object onRetainNonConfigurationInstance()
+   {
+      return mBreadcrumbAdapter;
    }
 
    @Override
@@ -216,10 +238,11 @@ public class TrackList extends ListActivity implements ProgressListener
    @Override
    protected void onRestoreInstanceState(Bundle state)
    {
+      super.onRestoreInstanceState(state);
       mDialogUri = state.getParcelable("URI");
       mDialogCurrentName = state.getString("NAME");
       mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
-      super.onRestoreInstanceState(state);
+      getListView().setSelection(state.getInt("POSITION"));
    }
 
    /*
@@ -229,9 +252,10 @@ public class TrackList extends ListActivity implements ProgressListener
    @Override
    protected void onSaveInstanceState(Bundle outState)
    {
+      super.onSaveInstanceState(outState);
       outState.putParcelable("URI", mDialogUri);
       outState.putString("NAME", mDialogCurrentName);
-      super.onSaveInstanceState(outState);
+      outState.putInt("POSITION",getListView().getFirstVisiblePosition());
    }
 
    @Override
