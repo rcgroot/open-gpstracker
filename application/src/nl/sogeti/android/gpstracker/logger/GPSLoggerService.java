@@ -44,6 +44,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.app.Notification;
@@ -212,6 +213,11 @@ public class GPSLoggerService extends Service
          else if (key.equals(Constants.BROADCAST_STREAM))
          {
             mStreamBroadcast = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
+         }
+         else if(key.equals("STREAM_ENABLED") || key.equals("VOICEOVER_ENABLED") )
+         {
+            StreamUtils.shutdownStreams(GPSLoggerService.this);
+            StreamUtils.initStreams(GPSLoggerService.this);
          }
       }
    };
@@ -1005,7 +1011,15 @@ public class GPSLoggerService extends Service
       Intent broadcast = new Intent(Constants.LOGGING_STATE_CHANGED_ACTION);
       broadcast.putExtra(Constants.EXTRA_LOGGING_PRECISION, mPrecision);
       broadcast.putExtra(Constants.EXTRA_LOGGING_STATE, mLoggingState);
-      this.sendBroadcast(broadcast);
+      this.getApplicationContext().sendBroadcast(broadcast);
+      if( isLogging()  )
+      {
+         StreamUtils.initStreams(this);
+      }
+      else
+      {
+         StreamUtils.shutdownStreams(this);
+      }
    }
 
    private void sendRequestStatusUpdateMessage()
@@ -1370,12 +1384,12 @@ public class GPSLoggerService extends Service
     */
    public void broadcastLocation(Location location)
    {
-      Intent intent = new Intent(Constants.STREAMBROADCAST, ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
+      Intent intent = new Intent(Constants.STREAMBROADCAST);
 
       if (mStreamBroadcast)
       {
-         final long minDistance = Long.parseLong(PreferenceManager.getDefaultSharedPreferences(this).getString("streambroadcast_distance_meter", "5000"));
-         final long minTime = 1000 * Long.parseLong(PreferenceManager.getDefaultSharedPreferences(this).getString("streambroadcast_time", "15"));
+         final long minDistance = (long) PreferenceManager.getDefaultSharedPreferences(this).getFloat("streambroadcast_distance_meter", 5000F);
+         final long minTime = 60000 * Long.parseLong(PreferenceManager.getDefaultSharedPreferences(this).getString("streambroadcast_time", "1"));
          final long nowTime = location.getTime();
          if (mPreviousLocation != null)
          {
@@ -1385,15 +1399,14 @@ public class GPSLoggerService extends Service
          {
             mLastTimeBroadcast = nowTime;
          }
-         long passedTime = nowTime - mLastTimeBroadcast;
-         intent.putExtra(Constants.EXTRA_DISTANCE, mBroadcastDistance);
-         intent.putExtra(Constants.EXTRA_TIME, passedTime);
+         long passedTime = (nowTime - mLastTimeBroadcast);
+         intent.putExtra(Constants.EXTRA_DISTANCE, (int) mBroadcastDistance);
+         intent.putExtra(Constants.EXTRA_TIME, (int) passedTime/60000);
          intent.putExtra(Constants.EXTRA_LOCATION, location);
+         intent.putExtra(Constants.EXTRA_TRACK, ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
 
-         Log.d(TAG, "Comparing the minDistance (" + minDistance + ") to mBroadcastDistance (" + mBroadcastDistance + ")");
-         Log.d(TAG, "Comparing the passedTime (" + passedTime + ") to minTime*60*1000 (" + minTime * 60 * 1000 + ")");
          boolean distanceBroadcast = minDistance > 0 && mBroadcastDistance >= minDistance;
-         boolean timeBroadcast = minTime > 0 && passedTime >= (minTime * 60 * 1000);
+         boolean timeBroadcast = minTime > 0 && passedTime >= minTime;
          if (distanceBroadcast || timeBroadcast)
          {
             if (distanceBroadcast)
@@ -1405,7 +1418,6 @@ public class GPSLoggerService extends Service
                mLastTimeBroadcast = nowTime;
             }
             this.sendBroadcast(intent, "android.permission.ACCESS_FINE_LOCATION");
-            Log.d(TAG, "Sending broadcast " + intent + " with extra's " + intent.getExtras());
          }
       }
    }

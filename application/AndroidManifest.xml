@@ -225,5 +225,6 @@
     			android:name="android.appwidget.provider"
                	android:resource="@xml/control_appwidget_info" />
 		</receiver>  
+
     </application>
 </manifest>
