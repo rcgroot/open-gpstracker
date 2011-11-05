@@ -140,7 +140,7 @@ public class GPSLoggerService extends Service
    private Handler mHandler;
 
    /**
-    * If speeds should be checked to sane values 
+    * If speeds should be checked to sane values
     */
    private boolean mSpeedSanityCheck;
 
@@ -148,7 +148,7 @@ public class GPSLoggerService extends Service
     * If broadcasts of location about should be sent to stream location
     */
    private boolean mStreamBroadcast;
-   
+
    private long mTrackId = -1;
    private long mSegmentId = -1;
    private long mWaypointId = -1;
@@ -896,12 +896,12 @@ public class GPSLoggerService extends Service
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = getResources().getString(R.string.service_start);
       long when = System.currentTimeMillis();
-      
+
       mNotification = new Notification(icon, tickerText, when);
       mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-      
+
       updateNotification();
-      
+
       if (Build.VERSION.SDK_INT >= 5)
       {
          startForegroundReflected(R.layout.map, mNotification);
@@ -1149,12 +1149,12 @@ public class GPSLoggerService extends Service
    public Location locationFilter(Location proposedLocation)
    {
       // Do no include log wrong 0.0 lat 0.0 long, skip to next value in while-loop
-      if( proposedLocation != null && (proposedLocation.getLatitude() == 0.0d || proposedLocation.getLongitude() == 0.0d) )
+      if (proposedLocation != null && (proposedLocation.getLatitude() == 0.0d || proposedLocation.getLongitude() == 0.0d))
       {
-         Log.w(TAG, "A wrong location was received, 0.0 latitude and 0.0 longitude... " );
+         Log.w(TAG, "A wrong location was received, 0.0 latitude and 0.0 longitude... ");
          proposedLocation = null;
       }
-      
+
       // Do not log a waypoint which is more inaccurate then is configured to be acceptable
       if (proposedLocation != null && proposedLocation.getAccuracy() > mMaxAcceptableAccuracy)
       {
@@ -1362,7 +1362,7 @@ public class GPSLoggerService extends Service
       Uri inserted = this.getContentResolver().insert(waypointInsertUri, args);
       mWaypointId = Long.parseLong(inserted.getLastPathSegment());
    }
-   
+
    /**
     * Consult broadcast options and execute broadcast if necessary
     * 
@@ -1371,17 +1371,17 @@ public class GPSLoggerService extends Service
    public void broadcastLocation(Location location)
    {
       Intent intent = new Intent(Constants.STREAMBROADCAST, ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
-      
-      if( mStreamBroadcast )
-      {   
+
+      if (mStreamBroadcast)
+      {
          final long minDistance = Long.parseLong(PreferenceManager.getDefaultSharedPreferences(this).getString("streambroadcast_distance_meter", "5000"));
-         final long minTime = 1000 *Long.parseLong(PreferenceManager.getDefaultSharedPreferences(this).getString("streambroadcast_time", "15"));
+         final long minTime = 1000 * Long.parseLong(PreferenceManager.getDefaultSharedPreferences(this).getString("streambroadcast_time", "15"));
          final long nowTime = location.getTime();
-         if( mPreviousLocation != null )
+         if (mPreviousLocation != null)
          {
             mBroadcastDistance += location.distanceTo(mPreviousLocation);
          }
-         if( mLastTimeBroadcast == 0 )
+         if (mLastTimeBroadcast == 0)
          {
             mLastTimeBroadcast = nowTime;
          }
@@ -1389,15 +1389,23 @@ public class GPSLoggerService extends Service
          intent.putExtra(Constants.EXTRA_DISTANCE, mBroadcastDistance);
          intent.putExtra(Constants.EXTRA_TIME, passedTime);
          intent.putExtra(Constants.EXTRA_LOCATION, location);
-         
-         Log.d(TAG, "Comparing the minDistance ("+minDistance+") to mBroadcastDistance ("+mBroadcastDistance+")");
-         Log.d(TAG, "Comparing the passedTime ("+passedTime+") to minTime*60*1000 ("+minTime*60*1000+")");
-         if( (minDistance > 0 && mBroadcastDistance >= minDistance) || (minTime > 0 && passedTime >= (minTime*60*1000)) )   
+
+         Log.d(TAG, "Comparing the minDistance (" + minDistance + ") to mBroadcastDistance (" + mBroadcastDistance + ")");
+         Log.d(TAG, "Comparing the passedTime (" + passedTime + ") to minTime*60*1000 (" + minTime * 60 * 1000 + ")");
+         boolean distanceBroadcast = minDistance > 0 && mBroadcastDistance >= minDistance;
+         boolean timeBroadcast = minTime > 0 && passedTime >= (minTime * 60 * 1000);
+         if (distanceBroadcast || timeBroadcast)
          {
-            mBroadcastDistance = 0;
-            mLastTimeBroadcast = nowTime;
+            if (distanceBroadcast)
+            {
+               mBroadcastDistance = 0;
+            }
+            if (timeBroadcast)
+            {
+               mLastTimeBroadcast = nowTime;
+            }
             this.sendBroadcast(intent, "android.permission.ACCESS_FINE_LOCATION");
-            Log.d( TAG, "Sending broadcast "+ intent + " with extra's "+intent.getExtras());
+            Log.d(TAG, "Sending broadcast " + intent + " with extra's " + intent.getExtras());
          }
       }
    }
@@ -1471,19 +1479,19 @@ public class GPSLoggerService extends Service
       }
       catch (NoSuchMethodException e)
       {
-         Log.e( TAG, "Failed starting foreground notification using reflection", e);
+         Log.e(TAG, "Failed starting foreground notification using reflection", e);
       }
       catch (IllegalArgumentException e)
       {
-         Log.e( TAG, "Failed starting foreground notification using reflection", e);
+         Log.e(TAG, "Failed starting foreground notification using reflection", e);
       }
       catch (IllegalAccessException e)
       {
-         Log.e( TAG, "Failed starting foreground notification using reflection", e);
+         Log.e(TAG, "Failed starting foreground notification using reflection", e);
       }
       catch (InvocationTargetException e)
       {
-         Log.e( TAG, "Failed starting foreground notification using reflection", e);
+         Log.e(TAG, "Failed starting foreground notification using reflection", e);
       }
 
    }
@@ -1502,19 +1510,19 @@ public class GPSLoggerService extends Service
       }
       catch (NoSuchMethodException e)
       {
-         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
+         Log.e(TAG, "Failed stopping foreground notification using reflection", e);
       }
       catch (IllegalArgumentException e)
       {
-         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
+         Log.e(TAG, "Failed stopping foreground notification using reflection", e);
       }
       catch (IllegalAccessException e)
       {
-         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
+         Log.e(TAG, "Failed stopping foreground notification using reflection", e);
       }
       catch (InvocationTargetException e)
       {
-         Log.e( TAG, "Failed stopping foreground notification using reflection", e);
+         Log.e(TAG, "Failed stopping foreground notification using reflection", e);
       }
 
    }
