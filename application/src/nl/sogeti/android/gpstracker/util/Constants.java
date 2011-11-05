@@ -61,6 +61,7 @@ public class Constants
    public static final String LOGATDOCK = "logatdock";
    public static final String STOPATUNDOCK = "stopatundock";
    public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
+   public static final String STREAMBROADCAST = "nl.sogeti.android.gpstracker.intent.action.STREAMBROADCAST";
    public static final String UNITS = "units";
    public static final int UNITS_DEFAULT      = 0;
    public static final int UNITS_IMPERIAL     = 1;
@@ -231,5 +232,9 @@ public class Constants
    public static final int BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE   = 2;
    public static final int BREADCRUMBS_TRACK_ITEM_VIEW_TYPE    = 3;
    public static final int SECTIONED_HEADER_ITEM_VIEW_TYPE = 0;
+   public static final String BROADCAST_STREAM = "STREAM_ENABLED";
+   public static final String EXTRA_DISTANCE = "nl.sogeti.android.gpstracker.EXTRA_DISTANCE";
+   public static final String EXTRA_TIME = "nl.sogeti.android.gpstracker.EXTRA_TIME";
+   public static final String EXTRA_LOCATION = "nl.sogeti.android.gpstracker.EXTRA_LOCATION";
    
 }

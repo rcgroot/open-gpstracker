@@ -91,7 +91,7 @@
 		        
          <activity 
             android:label="@string/menu_settings" 
-            android:name=".logger.ApplicationPreferenceActivity"/>
+            android:name=".viewer.ApplicationPreferenceActivity"/>
 
          <activity 
             android:theme="@android:style/Theme.Translucent.NoTitleBar"

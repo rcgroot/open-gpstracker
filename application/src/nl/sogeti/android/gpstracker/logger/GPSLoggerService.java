@@ -139,7 +139,16 @@ public class GPSLoggerService extends Service
    private PowerManager.WakeLock mWakeLock;
    private Handler mHandler;
 
+   /**
+    * If speeds should be checked to sane values 
+    */
    private boolean mSpeedSanityCheck;
+
+   /**
+    * If broadcasts of location about should be sent to stream location
+    */
+   private boolean mStreamBroadcast;
+   
    private long mTrackId = -1;
    private long mSegmentId = -1;
    private long mWaypointId = -1;
@@ -180,6 +189,7 @@ public class GPSLoggerService extends Service
     */
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
    {
+
       public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
       {
          if (key.equals(Constants.PRECISION) || key.equals(Constants.LOGGING_DISTANCE) || key.equals(Constants.LOGGING_INTERVAL))
@@ -198,6 +208,10 @@ public class GPSLoggerService extends Service
             mLocationManager.removeGpsStatusListener(mStatusListener);
             sendRequestStatusUpdateMessage();
             updateNotification();
+         }
+         else if (key.equals(Constants.BROADCAST_STREAM))
+         {
+            mStreamBroadcast = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
          }
       }
    };
@@ -232,6 +246,8 @@ public class GPSLoggerService extends Service
                }
             }
             storeLocation(filteredLocation);
+            broadcastLocation(filteredLocation);
+            mPreviousLocation = location;
          }
       }
 
@@ -444,6 +460,10 @@ public class GPSLoggerService extends Service
     */
    private long mCheckPeriod;
 
+   private float mBroadcastDistance;
+
+   private long mLastTimeBroadcast;
+
    private class GPSLoggerServiceThread extends Thread
    {
       public Semaphore ready = new Semaphore(0);
@@ -506,6 +526,7 @@ public class GPSLoggerService extends Service
 
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
       mSpeedSanityCheck = sharedPreferences.getBoolean(Constants.SPEEDSANITYCHECK, true);
+      mStreamBroadcast = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
       boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.LOGATSTARTUP, false);
 
       crashRestoreState();
@@ -1317,8 +1338,6 @@ public class GPSLoggerService extends Service
       {
          Log.e(TAG, String.format("Not logging but storing location %s, prepare to fail", location.toString()));
       }
-
-      mPreviousLocation = location;
       ContentValues args = new ContentValues();
 
       args.put(Waypoints.LATITUDE, new Double(location.getLatitude()));
@@ -1342,6 +1361,45 @@ public class GPSLoggerService extends Service
       Uri waypointInsertUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints");
       Uri inserted = this.getContentResolver().insert(waypointInsertUri, args);
       mWaypointId = Long.parseLong(inserted.getLastPathSegment());
+   }
+   
+   /**
+    * Consult broadcast options and execute broadcast if necessary
+    * 
+    * @param location
+    */
+   public void broadcastLocation(Location location)
+   {
+      Intent intent = new Intent(Constants.STREAMBROADCAST, ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
+      
+      if( mStreamBroadcast )
+      {   
+         final long minDistance = Long.parseLong(PreferenceManager.getDefaultSharedPreferences(this).getString("streambroadcast_distance_meter", "5000"));
+         final long minTime = 1000 *Long.parseLong(PreferenceManager.getDefaultSharedPreferences(this).getString("streambroadcast_time", "15"));
+         final long nowTime = location.getTime();
+         if( mPreviousLocation != null )
+         {
+            mBroadcastDistance += location.distanceTo(mPreviousLocation);
+         }
+         if( mLastTimeBroadcast == 0 )
+         {
+            mLastTimeBroadcast = nowTime;
+         }
+         long passedTime = nowTime - mLastTimeBroadcast;
+         intent.putExtra(Constants.EXTRA_DISTANCE, mBroadcastDistance);
+         intent.putExtra(Constants.EXTRA_TIME, passedTime);
+         intent.putExtra(Constants.EXTRA_LOCATION, location);
+         
+         Log.d(TAG, "Comparing the minDistance ("+minDistance+") to mBroadcastDistance ("+mBroadcastDistance+")");
+         Log.d(TAG, "Comparing the passedTime ("+passedTime+") to minTime*60*1000 ("+minTime*60*1000+")");
+         if( (minDistance > 0 && mBroadcastDistance >= minDistance) || (minTime > 0 && passedTime >= (minTime*60*1000)) )   
+         {
+            mBroadcastDistance = 0;
+            mLastTimeBroadcast = nowTime;
+            this.sendBroadcast(intent, "android.permission.ACCESS_FINE_LOCATION");
+            Log.d( TAG, "Sending broadcast "+ intent + " with extra's "+intent.getExtras());
+         }
+      }
    }
 
    private boolean isNetworkConnected()

@@ -26,17 +26,20 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.logger;
+package nl.sogeti.android.gpstracker.viewer;
 
 import java.util.regex.Pattern;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 
 /**
  * Controller for the settings dialog
@@ -51,6 +54,8 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
    private EditTextPreference distance;
    private EditTextPreference implentWidth;
    
+   private EditTextPreference streambroadcast_distance;
+   
    @Override
    protected void onCreate( Bundle savedInstanceState ) 
    {
@@ -62,11 +67,11 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
        time = (EditTextPreference)findPreference("customprecisiontime");
        distance = (EditTextPreference)findPreference("customprecisiondistance");
        implentWidth = (EditTextPreference)findPreference("units_implement_width");
+       streambroadcast_distance = (EditTextPreference)findPreference("streambroadcast_distance");
        
        setEnabledCustomValues(precision.getValue());
        precision.setOnPreferenceChangeListener( new Preference.OnPreferenceChangeListener()
        {
-         
          public boolean onPreferenceChange(Preference preference, Object newValue)
          {  
             setEnabledCustomValues(newValue);
@@ -75,13 +80,28 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
        });
        implentWidth.setOnPreferenceChangeListener( new Preference.OnPreferenceChangeListener()
        {
-          
           public boolean onPreferenceChange(Preference preference, Object newValue)
           {  
              String fpExpr = "\\d+([,\\.]\\d+)?";
              return Pattern.matches(fpExpr, newValue.toString());
           }
         });
+      streambroadcast_distance.setOnPreferenceChangeListener( new Preference.OnPreferenceChangeListener()
+      {
+         public boolean onPreferenceChange(Preference preference, Object newValue)
+         {
+            String fpExpr = "\\d+";
+            boolean matches = Pattern.matches(fpExpr, newValue.toString());
+            if( matches )
+            {
+               Editor editor = getPreferenceManager().getSharedPreferences().edit();
+               double value = new UnitsI18n(ApplicationPreferenceActivity.this).conversionFromLocalToMeters( Integer.parseInt(newValue.toString()));
+               editor.putFloat("streambroadcast_distance_meter", (float) value);
+               editor.commit();
+            }
+            return matches;
+         }
+      });
    }
    
    private void setEnabledCustomValues(Object newValue)

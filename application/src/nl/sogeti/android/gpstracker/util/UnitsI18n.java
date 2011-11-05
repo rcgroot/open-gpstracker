@@ -255,6 +255,12 @@ public class UnitsI18n
       double value = meters * mConversion_from_meter_to_distance;
       return value;
    }
+   
+   public double conversionFromLocalToMeters(double localizedValue)
+   {
+      double meters = localizedValue / mConversion_from_meter_to_distance;
+      return meters;
+   }
 
    public double conversionFromMeterToHeight(double meters)
    {
