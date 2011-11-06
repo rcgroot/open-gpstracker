@@ -62,25 +62,6 @@ public class ViewFlipper extends android.widget.ViewFlipper
    @Override
    protected void onDetachedFromWindow()
    {
-      if( Build.VERSION.SDK_INT > 7 )
-      {
-         try
-         {
-            super.onDetachedFromWindow();
-         }
-         catch( IllegalArgumentException e )
-         {
-            Log.w( TAG, "Android project issue 6191 workaround." );
-            /* Quick catch and continue on api level 7+, the Eclair 2.1 / 2.2 */
-         }
-         finally
-         {
-            super.stopFlipping();
-         }
-      }
-      else
-      {
          super.onDetachedFromWindow();
-      }
    }
 }

@@ -14,13 +14,13 @@
          android:layout_alignParentTop="true"
          android:layout_height="wrap_content"
          android:id="@+id/activity"
-         android:layout_width="match_parent"
+         android:layout_width="fill_parent"
          android:layout_toRightOf="@+id/textView1"></Spinner>
       <Spinner
          android:layout_below="@+id/activity"
          android:layout_height="wrap_content"
          android:id="@+id/bundle"
-         android:layout_width="match_parent"
+         android:layout_width="fill_parent"
          android:layout_alignLeft="@+id/activity"></Spinner>
       <EditText
          android:layout_alignParentLeft="true"
@@ -28,7 +28,7 @@
          android:id="@+id/description"
          android:layout_height="wrap_content"
          android:hint="@string/dialog_trackdescription_hint"
-         android:layout_width="match_parent"
+         android:layout_width="fill_parent"
          android:maxLines="4"
          android:paddingLeft="3dp"></EditText>
       <CheckBox
@@ -37,7 +37,7 @@
          android:layout_height="wrap_content"
          android:text="@string/dialog_public"
          android:id="@+id/public_checkbox"
-         android:layout_width="match_parent"></CheckBox>
+         android:layout_width="fill_parent"></CheckBox>
       <ProgressBar
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"

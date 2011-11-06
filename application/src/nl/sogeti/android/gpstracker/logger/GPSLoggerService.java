@@ -565,15 +565,6 @@ public class GPSLoggerService extends Service
       handleCommand(intent);
    }
 
-   @Override
-   public int onStartCommand(Intent intent, int flags, int startId)
-   {
-      handleCommand(intent);
-      // We want this service to continue running until it is explicitly
-      // stopped, so return sticky.
-      return START_STICKY;
-   }
-
    private void handleCommand(Intent intent)
    {
       if (DEBUG)
@@ -911,14 +902,7 @@ public class GPSLoggerService extends Service
 
       updateNotification();
 
-      if (Build.VERSION.SDK_INT >= 5)
-      {
-         startForegroundReflected(R.layout.map, mNotification);
-      }
-      else
-      {
          mNoticationManager.notify(R.layout.map, mNotification);
-      }
    }
 
    private void updateNotification()
@@ -953,14 +937,7 @@ public class GPSLoggerService extends Service
 
    private void stopNotification()
    {
-      if (Build.VERSION.SDK_INT >= 5)
-      {
-         stopForegroundReflected(true);
-      }
-      else
-      {
          mNoticationManager.cancel(R.layout.map);
-      }
    }
 
    private void notifyOnEnabledProviderNotification(int resId)
