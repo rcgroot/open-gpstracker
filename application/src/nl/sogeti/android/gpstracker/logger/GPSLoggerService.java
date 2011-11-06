@@ -210,14 +210,17 @@ public class GPSLoggerService extends Service
             sendRequestStatusUpdateMessage();
             updateNotification();
          }
-         else if (key.equals(Constants.BROADCAST_STREAM))
+         else if(key.equals(Constants.BROADCAST_STREAM) || key.equals("VOICEOVER_ENABLED") || key.equals("CUSTOMUPLOAD_ENABLED") )
          {
-            mStreamBroadcast = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
-         }
-         else if(key.equals("STREAM_ENABLED") || key.equals("VOICEOVER_ENABLED") )
-         {
+            if (key.equals(Constants.BROADCAST_STREAM))
+            {
+               mStreamBroadcast = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
+            }
             StreamUtils.shutdownStreams(GPSLoggerService.this);
-            StreamUtils.initStreams(GPSLoggerService.this);
+            if( !mStreamBroadcast )
+            {
+               StreamUtils.initStreams(GPSLoggerService.this);
+            }
          }
       }
    };

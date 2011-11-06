@@ -263,7 +263,12 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="voiceover_title">Audio voice-over</string>
     <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
     <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
-    
+    <string name="customupload_title">Stream to custom server</string>
+    <string name="customupload_summary">URI to stream GET requests with track progress to </string>
+    <string name="customupload_url_title">Custom stream upload URL</string>
+    <string name="customupload_url_summary">The web address to which to upload progress</string>
+    <string name="customupload_url_message">TODO explain @LAT@ @LON@ and @ID@</string>
+            
 <!-- ***************************
    About information
    ***************************-->

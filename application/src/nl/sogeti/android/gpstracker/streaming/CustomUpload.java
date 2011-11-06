@@ -28,80 +28,96 @@
  */
 package nl.sogeti.android.gpstracker.streaming;
 
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.db.GPStracking;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import nl.sogeti.android.gpstracker.util.Constants;
+
+import org.apache.ogt.http.HttpResponse;
+import org.apache.ogt.http.StatusLine;
+import org.apache.ogt.http.client.ClientProtocolException;
+import org.apache.ogt.http.client.HttpClient;
+import org.apache.ogt.http.client.methods.HttpGet;
+import org.apache.ogt.http.impl.client.DefaultHttpClient;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.speech.tts.TextToSpeech;
+import android.location.Location;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
-public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitListener
+public class CustomUpload extends BroadcastReceiver
 {
-   private static VoiceOver sVoiceOver = null;
-   private static final String TAG = "OGT.VoiceOver";
+   private static CustomUpload sCustomUpload = null;
+   private static final String TAG = "OGT.CustomUpload";
    
    public static synchronized void initStreaming(Context ctx)
    {
       Log.d( TAG, "Start");
-      if( sVoiceOver != null )
+      if( sCustomUpload != null )
       {
          shutdownStreaming(ctx);
       }
-      sVoiceOver = new VoiceOver(ctx);
+      sCustomUpload = new CustomUpload();
 
       IntentFilter filter = new IntentFilter(Constants.STREAMBROADCAST);   
-      ctx.registerReceiver(sVoiceOver, filter);
+      ctx.registerReceiver(sCustomUpload, filter);
    }
 
    public static synchronized void shutdownStreaming(Context ctx)
    {
       Log.d( TAG, "Stop");
-      if( sVoiceOver != null )
+      if( sCustomUpload != null )
       {
-         ctx.unregisterReceiver(sVoiceOver);
-         sVoiceOver.onShutdown();
-         sVoiceOver = null;
+         ctx.unregisterReceiver(sCustomUpload);
+         sCustomUpload.onShutdown();
+         sCustomUpload = null;
       }
-   }
-
-   private TextToSpeech mTextToSpeech;
-   private int mVoiceStatus = -1;
-   private Context mContext;
-   
-   public VoiceOver(Context ctx)
-   {
-      mContext = ctx.getApplicationContext();
-      mTextToSpeech = new TextToSpeech(mContext, this);
-   }
-
-   public void onInit(int status)
-   {
-      Log.d( TAG, "Voice init");
-      mVoiceStatus = status;
    }
    
    private void onShutdown()
    {
-      mVoiceStatus = -1;
-      mTextToSpeech.shutdown();
    }
    
    @Override
    public void onReceive(Context context, Intent intent)
    {
-      if( mVoiceStatus == TextToSpeech.SUCCESS )
+      String prefUrl = PreferenceManager.getDefaultSharedPreferences(context).getString("CUSTOMUPLOAD_URL", "http://www.example.com");
+      Location loc = intent.getParcelableExtra(Constants.EXTRA_LOCATION);
+      Uri trackUri =  intent.getParcelableExtra(Constants.EXTRA_TRACK);
+      String buildUrl = prefUrl;
+      buildUrl = buildUrl.replace("@LAT@", Double.toString(loc.getLatitude()));
+      buildUrl = buildUrl.replace("@LON@", Double.toString(loc.getLongitude()));
+      buildUrl = buildUrl.replace("@ID@", trackUri.getLastPathSegment());
+      
+      HttpClient client = new DefaultHttpClient();
+      URI uploadUri;
+      try
       {
-         int meters = intent.getIntExtra(Constants.EXTRA_DISTANCE, 0);
-         int minutes = intent.getIntExtra(Constants.EXTRA_TIME, 0);
-         String myText = context.getString(R.string.voiceover_speaking, minutes, meters);
-         mTextToSpeech.speak(myText, TextToSpeech.QUEUE_ADD, null);
+         uploadUri = new URI(buildUrl);
+         HttpGet request = new HttpGet(uploadUri );
+         Log.d(TAG, "Upload URI "+ request + " with URI "+uploadUri);
+         HttpResponse response = client.execute(request);
+         StatusLine status = response.getStatusLine();
+         if (status.getStatusCode() != 200) {
+             throw new IOException("Invalid response from server: " + status.toString());
+         }
       }
-      else
+      catch (URISyntaxException e)
       {
-         Log.w(TAG, "Voice stream failed TTS not ready");
+         Log.e( TAG, "Fail!", e);
+      }
+      catch (ClientProtocolException e)
+      {
+         Log.e( TAG, "Fail!", e);
+      }
+      catch (IOException e)
+      {
+         Log.e( TAG, "Fail!", e);
       }
    }
 }

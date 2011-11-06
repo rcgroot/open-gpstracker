@@ -186,6 +186,21 @@
             android:summary="@string/voiceover_summary"
             android:defaultValue="false"
             android:dependency="STREAM_ENABLED" />
+         <CheckBoxPreference
+            android:key="CUSTOMUPLOAD_ENABLED"
+            android:title="@string/customupload_title"
+            android:summary="@string/customupload_summary"
+            android:defaultValue="false"
+            android:dependency="STREAM_ENABLED" />
+         <EditTextPreference
+            android:key="CUSTOMUPLOAD_URL"
+            android:title="@string/customupload_url_title"
+            android:summary="@string/customupload_url_summary"
+            android:dialogMessage="@string/customupload_url_message"
+            android:defaultValue="http://www.example.com/upload.php?latitude=@LAT@&amp;longitude=@LON@&amp;trackid=@ID@"
+            android:inputType="textUri"
+            android:singleLine="true"
+            android:dependency="STREAM_ENABLED" />         
       </PreferenceCategory>
    </PreferenceScreen>
 </PreferenceScreen>
