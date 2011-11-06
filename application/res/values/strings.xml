@@ -83,7 +83,7 @@
     \n\n
     <b>Errors</b>
     \n
-    In case of an error, crash or fault please sent a message. Log the error 
+    In case of an error, crash or fault please send a message. Log the error 
     at http://code.google.com/p/open-gpstracker/issues/entry and make an important 
     contribution to improve this application.  
     \n\n
@@ -229,7 +229,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
     <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo.\n </string>
     <string name="import_track">Import a track into Open GPS Tracker</string>
-    <string name="preference_logging">Logging and GPS usage settings</string>
+    <string name="preference_logging">Logging and GPS</string>
     <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
     <string name="customprecisiontime_summary">The time the GPS receiver should sleep between waypoints.</string>
     <string name="customprecisiondistance_title">Target waypoint distance in meters</string>
@@ -252,7 +252,25 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.\n </string>
     <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
-
+    
+    <string name="preference_stream">Location broadcasting settings</string>
+    <string name="streamenabled_title">Streaming enabled</string>
+    <string name="streamenabled_summary">Enable direct broadcasting of location</string>
+    <string name="streambroadcast_time_title">Minimum time between broadcasts</string>
+    <string name="streambroadcast_time_summary">Number of minutes after which new progress is broadcasted</string>
+    <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
+    <string name="streambroadcast_distance_summary">Number of miles or kilometers after which new progress is broadcasted</string>
+    <string name="voiceover_title">Stream to audio voice-over</string>
+    <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
+    <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
+    <string name="customupload_title">Stream to custom web server</string>
+    <string name="customupload_summary">Upload track progress to (personal) web server</string>
+    <string name="customupload_url_title">Custom web server URL</string>
+    <string name="customupload_url_summary">The web address to which to upload progress</string>
+    <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request. 
+        In this URL the placeholders svn upl are replaced with actual information.</string>
+    <string name="customupload_failed">The last upload of track progress failed</string>
+            
 <!-- ***************************
    About information
    ***************************-->

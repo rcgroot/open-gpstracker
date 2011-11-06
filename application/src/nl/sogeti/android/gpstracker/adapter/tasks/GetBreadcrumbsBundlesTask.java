@@ -183,6 +183,10 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       {
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "A problem while reading the XML data");
       }
+      catch (IllegalStateException e) 
+      {
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "A problem during communication");
+      }
       finally
       {
          if (responseEntity != null)

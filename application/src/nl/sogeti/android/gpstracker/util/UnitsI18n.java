@@ -85,7 +85,6 @@ public class UnitsI18n
    {
       mContext = ctx;
       initBasedOnPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
-      PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(mPreferenceListener);
    }
 
    private void initBasedOnPreferences(SharedPreferences sharedPreferences)
@@ -256,6 +255,12 @@ public class UnitsI18n
       double value = meters * mConversion_from_meter_to_distance;
       return value;
    }
+   
+   public double conversionFromLocalToMeters(double localizedValue)
+   {
+      double meters = localizedValue / mConversion_from_meter_to_distance;
+      return meters;
+   }
 
    public double conversionFromMeterToHeight(double meters)
    {
@@ -285,6 +290,15 @@ public class UnitsI18n
    public void setUnitsChangeListener(UnitsChangeListener unitsChangeListener)
    {
       mListener = unitsChangeListener;
+      if( mListener != null )
+      {
+         initBasedOnPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
+         PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(mPreferenceListener);
+      }
+      else
+      {
+         PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(mPreferenceListener);
+      }
    }
 
    /**

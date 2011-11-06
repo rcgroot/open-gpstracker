@@ -26,43 +26,39 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.actions.utils;
+package nl.sogeti.android.gpstracker.streaming;
 
-import android.app.Activity;
-import android.net.Uri;
+import nl.sogeti.android.gpstracker.util.Constants;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
-/**
- * Interface to which a Activity / Context can conform to receive progress
- * updates from async tasks
- * 
- * @version $Id:$
- * @author rene (c) May 29, 2011, Sogeti B.V.
- */
-public interface ProgressListener
+public class StreamUtils
 {
-   void setIndeterminate(boolean indeterminate);
+   private static final String TAG = "OGT.StreamUtils";
 
    /**
-    * Signifies the start of background task, will be followed by setProgress(int) calls. 
+    * Initialize all appropriate stream listeners
+    * TODO
+    * @param ctx
     */
-   void started();
-
-   /**
-    * Set the progress on the scale of 0...10000
-    * 
-    * @param value
-    * 
-    * @see Activity.setProgress 
-    * @see Window.PROGRESS_END
-    */
-   void setProgress(int value);
-
-   /**
-    * Signifies end of background task and the location of the result
-    * 
-    * @param result
-    */
-   void finished(Uri result);
+   public static void initStreams(final Context ctx)
+   {
+      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ctx);
+      boolean streams_enabled = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
+      if (streams_enabled && sharedPreferences.getBoolean("CUSTOMUPLOAD_ENABLED", false))
+      {
+         CustomUpload.initStreaming(ctx);
+      }
+   }
    
-   void showError(String task, String errorMessage, Exception exception);
+   /**
+    * Shutdown all stream listeners
+    * 
+    * @param ctx
+    */
+   public static void shutdownStreams(Context ctx)
+   {
+      CustomUpload.shutdownStreaming(ctx);
+   }
 }

@@ -53,4 +53,15 @@ public class ViewFlipper extends android.widget.ViewFlipper
    {
       super( context, attrs );
    }
+
+   /**
+    * On api level 7 unexpected exception occur during orientation switching.
+    * These are java.lang.IllegalArgumentException: Receiver not registered: android.widget.ViewFlipper$id
+    * exceptions. On level 7, 8 and 9 devices these are ignored.
+    */
+   @Override
+   protected void onDetachedFromWindow()
+   {
+         super.onDetachedFromWindow();
+   }
 }

@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" 
 	android:layout_height="fill_parent"
-	android:orientation="vertical" >
-
-	<ProgressBar 
-	   android:layout_width="fill_parent"
-		android:layout_height="wrap_content" 
-		android:id="@+id/importProgress"
-		android:visibility="gone"
-		style="?android:attr/progressBarStyleHorizontal" />
+   >
 		
 	<LinearLayout 
 	   android:layout_width="fill_parent"
@@ -30,5 +23,5 @@
 			android:text="@string/no_tracks" />
 			
 	</LinearLayout>
-	
-</LinearLayout>
+   
+</FrameLayout>

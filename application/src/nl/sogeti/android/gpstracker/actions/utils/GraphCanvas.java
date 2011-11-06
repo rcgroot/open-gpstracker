@@ -52,7 +52,6 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -335,16 +334,21 @@ public class GraphCanvas extends View
                         currentLocation = new Location( this.getClass().getName() );
                         currentLocation.setLongitude( waypoints.getDouble( 0 ) );
                         currentLocation.setLatitude( waypoints.getDouble( 1 ) );
+                        // Do no include obvious wrong 0.0 lat 0.0 long, skip to next value in while-loop
+                        if( currentLocation.getLatitude() == 0.0d || currentLocation.getLongitude() == 0.0d )
+                        {
+                           continue;
+                        }
                         if( lastLocation != null )
                         {
                            distance += lastLocation.distanceTo( currentLocation );
                         }
                         lastLocation = currentLocation;
                         double value = waypoints.getDouble( 2 );
-                        if( value > minValue && segment < values.length )
+                        if( value != 0 && value > minValue && segment < values.length )
                         {
                            int x = (int) ((distance)*(mWidth-1) / mDistance);
-                           if( x < valueDepth[segment].length )
+                           if( x > 0 && x < valueDepth[segment].length )
                            {
                               valueDepth[segment][x]++;
                               values[segment][x] = values[segment][x]+((value-values[segment][x])/valueDepth[segment][x]);
@@ -422,10 +426,10 @@ public class GraphCanvas extends View
                      {
                         long time = waypoints.getLong( 0 );
                         double value = waypoints.getDouble( 1 );
-                        if( value > minValue && segment < values.length )
+                        if( value != 0 && value > minValue && segment < values.length )
                         {
                            int x = (int) ((time-mStartTime)*(mWidth-1) / duration);
-                           if( x < valueDepth[segment].length )
+                           if( x > 0 && x < valueDepth[segment].length )
                            {
                               valueDepth[segment][x]++;
                               values[segment][x] = values[segment][x]+((value-values[segment][x])/valueDepth[segment][x]);

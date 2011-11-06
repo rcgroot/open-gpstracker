@@ -39,11 +39,12 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.concurrent.CancellationException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
@@ -59,7 +60,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.Window;
 
 /**
  * Async XML creation task Execute without parameters (Void) Update posted with
@@ -81,8 +82,8 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    String mFileName;
    private String mErrorText;
    private Exception mException;
-   private int mMaximumProgress;
    private String mTask;
+   public ProgressAdmin mProgressAdmin;
 
    XmlCreator(Context context, Uri trackUri, String chosenFileName, ProgressListener listener)
    {
@@ -90,20 +91,10 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       mContext = context;
       mTrackUri = trackUri;
       mProgressListener = listener;
-
+      mProgressAdmin = new ProgressAdmin();
+      
       String trackName = extractCleanTrackName();
       mFileName = cleanFilename(mChosenName, trackName);
-   }
-
-   public int getMaximumProgress()
-   {
-      return mMaximumProgress;
-   }
-
-   public void setMaximumProgress(int maximumProgress)
-   {
-      this.mMaximumProgress = maximumProgress;
-      mProgressListener.setMax(mMaximumProgress);
    }
 
    private String extractCleanTrackName()
@@ -138,7 +129,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    {
       if (mProgressListener != null)
       {
-         int maximumProgress = 0;
          Uri allWaypointsUri = Uri.withAppendedPath(mTrackUri, "waypoints");
          Uri allMediaUri = Uri.withAppendedPath(mTrackUri, "media");
          Cursor cursor = null;
@@ -148,23 +138,20 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
             cursor = resolver.query(allWaypointsUri, new String[] { "count(" + Waypoints.TABLE + "." + Waypoints._ID + ")" }, null, null, null);
             if (cursor.moveToLast())
             {
-               maximumProgress += cursor.getInt(0);
+               mProgressAdmin.setWaypointCount(cursor.getInt(0));
             }
             cursor.close();
             cursor = resolver.query(allMediaUri, new String[] { "count(" + Media.TABLE + "." + Media._ID + ")" }, null, null, null);
             if (cursor.moveToLast())
             {
-               maximumProgress += 100 * cursor.getInt(0);
+                mProgressAdmin.setMediaCount(cursor.getInt(0));
             }
             cursor.close();
             cursor = resolver.query(allMediaUri, new String[] { "count(" + Tracks._ID + ")" }, Media.URI + " LIKE ? and " + Media.URI + " NOT LIKE ?",
                   new String[] { "file://%", "%txt" }, null);
             if (cursor.moveToLast())
             {
-               if (cursor.getInt(0) > 0)
-               {
-                  maximumProgress *= 2;
-               }
+               mProgressAdmin.setCompress( cursor.getInt(0) > 0 ); 
             }
          }
          finally
@@ -174,7 +161,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
                cursor.close();
             }
          }
-         this.setMaximumProgress(maximumProgress);
       }
       else
       {
@@ -218,6 +204,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       File source = new File(inputFilePath);
       File target = new File(mExportDirectoryPath + "/" + source.getName());
 
+      //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) ); 
       if (source.exists())
       {
          FileChannel inChannel = new FileInputStream(source).getChannel();
@@ -236,10 +223,8 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       {
          target.createNewFile();
       }
-      if (mProgressListener != null)
-      {
-         mProgressListener.increaseProgress(100);
-      }
+      mProgressAdmin.addMediaProgress();
+
       return target.getName();
    }
 
@@ -295,10 +280,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
             }
             zos.closeEntry();
             in.close();
-            if (mProgressListener != null)
-            {
-               mProgressListener.increaseProgress((mMaximumProgress / 2) / filenames.length);
-            }
+            mProgressAdmin.addCompressProgress();
          }
       }
       finally
@@ -346,6 +328,10 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       if( tag == null)
       {
          tag = "";
+      }
+      if( content == null)
+      {
+         content = "";
       }
       serializer.text("\n");
       serializer.startTag(ns, tag);
@@ -407,25 +393,140 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    @Override
    protected void onPreExecute()
    {
-      mProgressListener.started();
+      if(mProgressListener!= null)
+      {
+         mProgressListener.started();
+      }
    }
 
    @Override
    protected void onProgressUpdate(Integer... progress)
    {
-      mProgressListener.increaseProgress(progress[0]);
+      if(mProgressListener!= null)
+      {
+         mProgressListener.setProgress(mProgressAdmin.getProgress());
+      }
    }
 
    @Override
    protected void onPostExecute(Uri resultFilename)
    {
-      mProgressListener.finished(resultFilename);
+      if(mProgressListener!= null)
+      {
+         mProgressListener.finished(resultFilename);
+      }
    }
 
    @Override
    protected void onCancelled()
    {
-      mProgressListener.finished(null);
-      mProgressListener.showError(mTask, mErrorText, mException);
+      if(mProgressListener!= null)
+      {
+         mProgressListener.finished(null);
+         mProgressListener.showError(mTask, mErrorText, mException);
+      }
+   }
+   
+   public class ProgressAdmin
+   {
+      long lastUpdate;
+      private boolean compressCount;
+      private boolean compressProgress;
+      private boolean uploadCount;
+      private boolean uploadProgress;
+      private int mediaCount;
+      private int mediaProgress;
+      private int waypointCount;
+      private int waypointProgress;
+      private long photoUploadCount ;
+      private long photoUploadProgress ;
+      
+      public void addMediaProgress()
+      {
+         mediaProgress ++;
+      }
+      public void addCompressProgress()
+      {
+         compressProgress = true;
+      }
+      public void addUploadProgress()
+      {
+         uploadProgress = true;
+      }
+      
+      public void addPhotoUploadProgress(long length)
+      {
+         photoUploadProgress += length;
+      }
+      
+      /**
+       * Get the progress on scale 0 ... Window.PROGRESS_END
+       *
+       * @return Returns the progress as a int.
+       */
+      public int getProgress()
+      {
+         int blocks = 0;
+         if( waypointCount > 0     ){ blocks++; }
+         if( mediaCount > 0        ){ blocks++; }
+         if( compressCount         ){ blocks++; }
+         if( uploadCount           ){ blocks++; }
+         if( photoUploadCount > 0 ){ blocks++; }
+         int progress;
+         if( blocks > 0 )
+         {
+            int blockSize = Window.PROGRESS_END / blocks;
+            progress  = waypointCount > 0    ? blockSize * waypointProgress / waypointCount : 0;
+            progress += mediaCount > 0       ? blockSize * mediaProgress / mediaCount : 0;
+            progress += compressProgress     ? blockSize : 0;
+            progress += uploadProgress       ? blockSize : 0;
+            progress += photoUploadCount > 0 ? blockSize * photoUploadProgress / photoUploadCount : 0;
+         }
+         else
+         {
+            progress = 0;
+         }
+         //Log.d( TAG, "Progress updated to "+progress);
+         return progress;
+      }
+      public void setWaypointCount(int waypoint)
+      {
+         waypointCount = waypoint;
+         considerPublishProgress();
+      }
+      public void setMediaCount(int media)
+      {
+         mediaCount = media;
+         considerPublishProgress();
+      }
+      public void setCompress( boolean compress)
+      {
+         compressCount = compress;
+         considerPublishProgress();
+      }
+      public void setUpload( boolean upload)
+      {
+         uploadCount = upload;
+         considerPublishProgress();
+      }
+      public void setPhotoUpload(long length)
+      {
+         photoUploadCount += length;
+         considerPublishProgress();
+      }
+      public void addWaypointProgress(int i)
+      {
+         waypointProgress += i;
+         considerPublishProgress();
+      } 
+      public void considerPublishProgress()
+      {
+         long now = new Date().getTime();
+         if( now - lastUpdate > 1000 )
+         {
+            lastUpdate = now;
+            publishProgress();
+         }         
+      }
    }
 }

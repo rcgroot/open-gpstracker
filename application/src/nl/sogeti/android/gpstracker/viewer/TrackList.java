@@ -62,6 +62,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -106,8 +107,6 @@ public class TrackList extends ListActivity implements ProgressListener
    private EditText mTrackNameView;
    private Uri mDialogUri;
    private String mDialogCurrentName = "";
-
-   private ProgressBar mImportProgress;
    private String mErrorDialogMessage;
    private Exception mErrorDialogException;
 
@@ -167,14 +166,19 @@ public class TrackList extends ListActivity implements ProgressListener
    };
    private String mImportTrackName;
    private String mErrorTask;
+   /**
+    * Progress listener for the background tasks uploading to gobreadcrumbs
+    */
+   private ProgressListener mExportListener;
+   private int mPausePosition;
 
    @Override
    protected void onCreate(Bundle savedInstanceState)
    {
       super.onCreate(savedInstanceState);
 
+      getWindow().requestFeature(Window.FEATURE_PROGRESS);
       this.setContentView(R.layout.tracklist);
-      mImportProgress = (ProgressBar) findViewById(R.id.importProgress);
 
       displayIntent(getIntent());
 
@@ -182,14 +186,29 @@ public class TrackList extends ListActivity implements ProgressListener
       listView.setItemsCanFocus(true);
       // Add the context menu (the long press thing)
       registerForContextMenu(listView);
-   }
 
+      if( savedInstanceState != null )
+      {
+         getListView().setSelection(savedInstanceState.getInt("POSITION"));
+      }
+   }
+   
    @Override
-   public Object onRetainNonConfigurationInstance()
+   protected void onResume()
    {
-      return mBreadcrumbAdapter;
+      if( mPausePosition != 0 )
+      {
+         getListView().setSelection(mPausePosition);
+      }
+      super.onResume();
    }
-
+   @Override
+   protected void onPause()
+   {
+      mPausePosition = getListView().getFirstVisiblePosition();
+      super.onPause();
+   }
+   
    @Override
    protected void onDestroy()
    {
@@ -198,6 +217,12 @@ public class TrackList extends ListActivity implements ProgressListener
          mBreadcrumbAdapter.shutdown();
       }
       super.onDestroy();
+   }
+
+   @Override
+   public Object onRetainNonConfigurationInstance()
+   {
+      return mBreadcrumbAdapter;
    }
 
    @Override
@@ -213,10 +238,11 @@ public class TrackList extends ListActivity implements ProgressListener
    @Override
    protected void onRestoreInstanceState(Bundle state)
    {
+      super.onRestoreInstanceState(state);
       mDialogUri = state.getParcelable("URI");
       mDialogCurrentName = state.getString("NAME");
       mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
-      super.onRestoreInstanceState(state);
+      getListView().setSelection(state.getInt("POSITION"));
    }
 
    /*
@@ -226,9 +252,10 @@ public class TrackList extends ListActivity implements ProgressListener
    @Override
    protected void onSaveInstanceState(Bundle outState)
    {
+      super.onSaveInstanceState(outState);
       outState.putParcelable("URI", mDialogUri);
       outState.putString("NAME", mDialogCurrentName);
-      super.onSaveInstanceState(outState);
+      outState.putInt("POSITION",getListView().getFirstVisiblePosition());
    }
 
    @Override
@@ -337,16 +364,21 @@ public class TrackList extends ListActivity implements ProgressListener
       if (menuInfo instanceof AdapterView.AdapterContextMenuInfo)
       {
          AdapterView.AdapterContextMenuInfo itemInfo = (AdapterView.AdapterContextMenuInfo) menuInfo;
-         TextView textView = (TextView) itemInfo.targetView.findViewById(android.R.id.text1);
+         TextView textView = (TextView) itemInfo.targetView.findViewById(R.id.listitem_name);
          if (textView != null)
          {
             menu.setHeaderTitle(textView.getText());
          }
+         
+         Object listItem = getListAdapter().getItem(itemInfo.position);
+         if( listItem instanceof Cursor)
+         {
+            menu.add(0, MENU_STATS, 0, R.string.menu_statistics);
+            menu.add(0, MENU_SHARE, 0, R.string.menu_shareTrack);
+            menu.add(0, MENU_RENAME, 0, R.string.menu_renameTrack);
+            menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
+         }
       }
-      menu.add(0, MENU_STATS, 0, R.string.menu_statistics);
-      menu.add(0, MENU_SHARE, 0, R.string.menu_shareTrack);
-      menu.add(0, MENU_RENAME, 0, R.string.menu_renameTrack);
-      menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
    }
 
    @Override
@@ -363,45 +395,49 @@ public class TrackList extends ListActivity implements ProgressListener
          Log.e(TAG, "Bad menuInfo", e);
          return handled;
       }
-
-      Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-      mDialogUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, cursor.getLong(0));
-      mDialogCurrentName = cursor.getString(1);
-      mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
-      switch (item.getItemId())
+      
+      Object listItem = getListAdapter().getItem(info.position);
+      if( listItem instanceof Cursor)
       {
-         case MENU_DETELE:
+         Cursor cursor = (Cursor) listItem;
+         mDialogUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, cursor.getLong(0));
+         mDialogCurrentName = cursor.getString(1);
+         mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
+         switch (item.getItemId())
          {
-            showDialog(DIALOG_DELETE);
-            handled = true;
-            break;
+            case MENU_DETELE:
+            {
+               showDialog(DIALOG_DELETE);
+               handled = true;
+               break;
+            }
+            case MENU_SHARE:
+            {
+               Intent actionIntent = new Intent(Intent.ACTION_RUN);
+               actionIntent.setDataAndType(mDialogUri, Tracks.CONTENT_ITEM_TYPE);
+               actionIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+               startActivity(Intent.createChooser(actionIntent, getString(R.string.share_track)));
+               handled = true;
+               break;
+            }
+            case MENU_RENAME:
+            {
+               showDialog(DIALOG_RENAME);
+               handled = true;
+               break;
+            }
+            case MENU_STATS:
+            {
+               Intent actionIntent = new Intent(this, Statistics.class);
+               actionIntent.setData(mDialogUri);
+               startActivity(actionIntent);
+               handled = true;
+               break;
+            }
+            default:
+               handled = super.onContextItemSelected(item);
+               break;
          }
-         case MENU_SHARE:
-         {
-            Intent actionIntent = new Intent(Intent.ACTION_RUN);
-            actionIntent.setDataAndType(mDialogUri, Tracks.CONTENT_ITEM_TYPE);
-            actionIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(actionIntent, getString(R.string.share_track)));
-            handled = true;
-            break;
-         }
-         case MENU_RENAME:
-         {
-            showDialog(DIALOG_RENAME);
-            handled = true;
-            break;
-         }
-         case MENU_STATS:
-         {
-            Intent actionIntent = new Intent(this, Statistics.class);
-            actionIntent.setData(mDialogUri);
-            startActivity(actionIntent);
-            handled = true;
-            break;
-         }
-         default:
-            handled = super.onContextItemSelected(item);
-            break;
       }
       return handled;
    }
@@ -524,7 +560,7 @@ public class TrackList extends ListActivity implements ProgressListener
                {
                   name = "shareToGobreadcrumbs";
                }
-               mBreadcrumbAdapter.startUploadTask(TrackList.this, TrackList.this, trackUri, name);
+               mBreadcrumbAdapter.startUploadTask(TrackList.this, mExportListener, trackUri, name);
                break;
             default:
                super.onActivityResult(requestCode, resultCode, data);
@@ -616,16 +652,18 @@ public class TrackList extends ListActivity implements ProgressListener
          {
             if (columnIndex == 0)
             {
-               final long trackId = cursor.getLong(columnIndex);
+               final long trackId = cursor.getLong(0);
+               final String trackName = cursor.getString(1);
                // Show the check if Breadcrumbs is online
-               CheckBox checkbox = (CheckBox) view;
+               final CheckBox checkbox = (CheckBox) view;
+               final ProgressBar progressbar = (ProgressBar) ((View)view.getParent()).findViewById(R.id.bcExportProgress);
                if (mBreadcrumbAdapter.isOnline())
                {
                   checkbox.setVisibility(View.VISIBLE);
 
                   // Disable the checkbox if marked online
                   BreadcrumbsTracks tracks = mBreadcrumbAdapter.getBreadcrumbsTracks();
-                  boolean isOnline = tracks.isLocalTrackOnline(trackId);
+                  boolean isOnline = tracks.isLocalTrackSynced(trackId);
                   checkbox.setEnabled(!isOnline);
 
                   // Check the checkbox if determined synced
@@ -641,6 +679,37 @@ public class TrackList extends ListActivity implements ProgressListener
                            // Start a description of the track
                            Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
                            namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));
+                           namingIntent.putExtra(Constants.NAME, trackName);
+                           mExportListener = new ProgressListener()
+                           {
+                              public void setIndeterminate(boolean indeterminate)
+                              {
+                                 progressbar.setIndeterminate(indeterminate);
+                              }
+
+                              public void started()
+                              {
+                                 checkbox.setVisibility(View.INVISIBLE);
+                                 progressbar.setVisibility(View.VISIBLE);
+                              }
+
+                              public void finished(Uri result)
+                              {
+                                 checkbox.setVisibility(View.VISIBLE);
+                                 progressbar.setVisibility(View.INVISIBLE);
+                                 progressbar.setIndeterminate(false);
+                              }
+
+                              public void setProgress(int value)
+                              {
+                                 progressbar.setProgress(value);
+                              }
+
+                              public void showError(String task, String errorMessage, Exception exception)
+                              {
+                                 TrackList.this.showError(task, errorMessage, exception);
+                              }
+                           };
                            startActivityForResult(namingIntent, DESCRIBE);
                         }
                      }
@@ -674,47 +743,33 @@ public class TrackList extends ListActivity implements ProgressListener
 
    public void setIndeterminate(boolean indeterminate)
    {
-      mImportProgress.setIndeterminate(indeterminate);
-   }
-
-   public void setMax(int max)
-   {
-      mImportProgress.setMax(max);
+      setProgressBarIndeterminate(indeterminate);
    }
 
    public void started()
    {
-      mImportProgress.setVisibility(View.VISIBLE);
+      setProgressBarVisibility(true);
+      setProgress(Window.PROGRESS_START);
    }
-
-   public void increaseProgress(int value)
-   {
-      mImportProgress.incrementProgressBy(value);
-   }
-
+   
    public void finished(Uri result)
    {
-      mImportProgress.setVisibility(View.GONE);
-      mImportProgress.setIndeterminate(false);
+      setProgressBarVisibility(false);
+      setProgressBarIndeterminate(false);
    }
 
    public void showError(String task, String errorDialogMessage, Exception errorDialogException)
    {
-      mImportProgress.setVisibility(View.GONE);
       mErrorTask = task;
       mErrorDialogMessage = errorDialogMessage;
       mErrorDialogException = errorDialogException;
-      Log.d(TAG, "Most show Error for task: " + task);
-      Log.d(TAG, "Most show Error for errorDialogMessage: " + errorDialogMessage);
-      Log.d(TAG, "Most show Error for errorDialogException: " + errorDialogException);
+      Log.e(TAG, errorDialogMessage, errorDialogException);
       if (!isFinishing())
       {
          showDialog(DIALOG_ERROR);
       }
-      else
-      {
-         Log.e(TAG, errorDialogMessage, errorDialogException);
-      }
+      setProgressBarVisibility(false);
+      setProgressBarIndeterminate(false);
    }
 
 }

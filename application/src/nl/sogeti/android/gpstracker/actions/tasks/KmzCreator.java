@@ -67,11 +67,11 @@ public class KmzCreator extends XmlCreator
 {
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_KML_22 = "http://www.opengis.net/kml/2.2";
-   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+   public static final SimpleDateFormat ZULU_DATE_FORMATER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
    static
    {
       TimeZone utc = TimeZone.getTimeZone("UTC");
-      ZULU_DATE_FORMAT.setTimeZone(utc); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
+      ZULU_DATE_FORMATER.setTimeZone(utc); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
    }
 
    private String TAG = "OGT.KmzCreator";
@@ -181,9 +181,7 @@ public class KmzCreator extends XmlCreator
       serializer.text("\n");
       serializer.startTag("", "Document");
       serializer.text("\n");
-      serializer.startTag("", "name");
-      serializer.text(trackName);
-      serializer.endTag("", "name");
+      quickTag(serializer, "", "name", trackName);
 
       /* from <name/> upto <Folder/> */
       serializeTrackHeader(serializer, trackUri);
@@ -226,9 +224,7 @@ public class KmzCreator extends XmlCreator
             serializer.startTag("", "Folder");
             name = trackCursor.getString(0);
             serializer.text("\n");
-            serializer.startTag("", "name");
-            serializer.text(name);
-            serializer.endTag("", "name");
+            quickTag(serializer, "", "name", name);
             serializer.text("\n");
             serializer.startTag("", "open");
             serializer.text("1");
@@ -371,11 +367,14 @@ public class KmzCreator extends XmlCreator
                serializer.startTag("", "TimeSpan");
                serializer.text("\n");
                serializer.startTag("", "begin");
-               serializer.text(ZULU_DATE_FORMAT.format(segmentStartTime));
-               serializer.endTag("", "begin");
-               serializer.text("\n");
-               serializer.startTag("", "end");
-               serializer.text(ZULU_DATE_FORMAT.format(segmentEndTime));
+               synchronized (ZULU_DATE_FORMATER)
+               {
+                  serializer.text(ZULU_DATE_FORMATER.format(segmentStartTime));
+                  serializer.endTag("", "begin");
+                  serializer.text("\n");
+                  serializer.startTag("", "end");
+                  serializer.text(ZULU_DATE_FORMATER.format(segmentEndTime));
+               }
                serializer.endTag("", "end");
                serializer.text("\n");
                serializer.endTag("", "TimeSpan");
@@ -411,7 +410,7 @@ public class KmzCreator extends XmlCreator
             serializer.startTag("", "coordinates");
             do
             {
-               publishProgress(1);
+               mProgressAdmin.addWaypointProgress(1);
                // Single Coordinate tuple
                serializeCoordinates(serializer, waypointsCursor);
                serializer.text(" ");

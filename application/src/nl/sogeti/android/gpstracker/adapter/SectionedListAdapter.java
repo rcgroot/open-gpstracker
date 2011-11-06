@@ -35,7 +35,6 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
@@ -51,6 +50,7 @@ import android.widget.ListAdapter;
  */
 public class SectionedListAdapter extends BaseAdapter
 {
+   @SuppressWarnings("unused")
    private static final String TAG = "OGT.SectionedListAdapter";
    private Map<String, BaseAdapter> mSections;
    private ArrayAdapter<String> mHeaders;

@@ -41,7 +41,8 @@ public class Pair<F, S> {
      * @param o the Pair to which this one is to be checked for equality
      * @return true if the underlying objects of the Pair are both considered equals()
      */
-    public boolean equals(Object o) {
+    @Override
+   public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof Pair)) return false;
         final Pair<F, S> other;

@@ -40,7 +40,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.logger.ApplicationPreferenceActivity;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
@@ -229,7 +228,6 @@ public class LoggerMap extends MapActivity
 
       mSharedPreferences.registerOnSharedPreferenceChangeListener(mSharedPreferenceChangeListener);
       mUnits.setUnitsChangeListener(mUnitsChangeListener);
-      
       updateTitleBar();
       updateBlankingBehavior();
 
@@ -273,12 +271,12 @@ public class LoggerMap extends MapActivity
       resolver.unregisterContentObserver(this.mSegmentWaypointsObserver);
       resolver.unregisterContentObserver(this.mTrackMediasObserver);
       mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this.mSharedPreferenceChangeListener);
-      mUnits.setUnitsChangeListener(mUnitsChangeListener);
+      mUnits.setUnitsChangeListener(null);
       mMylocation.disableMyLocation();
       mMylocation.disableCompass();
 
       this.mLoggerServiceManager.shutdown(this);
-      
+
       super.onPause();
    }
 
@@ -290,7 +288,6 @@ public class LoggerMap extends MapActivity
    protected void onDestroy()
    {
       super.onDestroy();
-      
 
       mLastSegmentOverlay = null;
       mMapView.clearOverlays();
@@ -480,8 +477,8 @@ public class LoggerMap extends MapActivity
 
    private void createListeners()
    {
-      /*******************************************************8
-       * Runnable listener actions
+      /*******************************************************
+       * 8 Runnable listener actions
        */
       speedCalculator = new Runnable()
       {
@@ -530,8 +527,8 @@ public class LoggerMap extends MapActivity
             updateBlankingBehavior();
          }
       };
-      /*******************************************************8
-       * Various dialog listeners
+      /*******************************************************
+       * 8 Various dialog listeners
        */
       mNoteSelectDialogListener = new DialogInterface.OnClickListener()
       {
@@ -848,7 +845,7 @@ public class LoggerMap extends MapActivity
             Bitmap bm = findViewById(R.id.mapScreen).getDrawingCache();
             Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
             intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
-            startActivity(Intent.createChooser(intent, getString(R.string.share_track)));
+            startActivityForResult(Intent.createChooser( intent, getString( R.string.share_track ) ), MENU_SHARE);
             handled = true;
             break;
          case MENU_CONTRIB:
@@ -1002,21 +999,24 @@ public class LoggerMap extends MapActivity
    protected void onActivityResult(int requestCode, int resultCode, Intent intent)
    {
       super.onActivityResult(requestCode, resultCode, intent);
-      if (resultCode == RESULT_OK)
+      Uri trackUri;
+      long trackId;
+      switch (requestCode)
       {
-         Uri trackUri;
-         long trackId;
-         switch (requestCode)
-         {
-            case MENU_TRACKLIST:
+         case MENU_TRACKLIST:
+            if (resultCode == RESULT_OK)
+            {
                trackUri = intent.getData();
                trackId = Long.parseLong(trackUri.getLastPathSegment());
                mAverageSpeed = 0.0;
                moveToTrack(trackId, true);
-               break;
-            case MENU_ABOUT:
-               break;
-            case MENU_TRACKING:
+            }
+            break;
+         case MENU_ABOUT:
+            break;
+         case MENU_TRACKING:
+            if (resultCode == RESULT_OK)
+            {
                trackUri = intent.getData();
                if (trackUri != null)
                {
@@ -1024,15 +1024,14 @@ public class LoggerMap extends MapActivity
                   mAverageSpeed = 0.0;
                   moveToTrack(trackId, true);
                }
-               break;
-            default:
-               Log.e(TAG, "Returned form unknow activity: " + requestCode);
-               break;
-         }
-      }
-      else
-      {
-         Log.w(TAG, "Received unexpected resultcode " + resultCode);
+            }
+            break;
+         case MENU_SHARE:
+            ShareTrack.clearScreenBitmap();
+            break;
+         default:
+            Log.e(TAG, "Returned form unknow activity: " + requestCode);
+            break;
       }
    }
 
@@ -1251,12 +1250,13 @@ public class LoggerMap extends MapActivity
    private void updateDisplayedSpeedViews()
    {
       Location lastWaypoint = mLoggerServiceManager.getLastWaypoint();
-      if (lastWaypoint != null)
+      UnitsI18n units = mUnits;
+      if (lastWaypoint != null && units != null)
       {
          // Speed number
          double speed = lastWaypoint.getSpeed();
-         speed = mUnits.conversionFromMetersPerSecond(speed);
-         String speedText = String.format("%.0f %s", speed, mUnits.getSpeedUnit());
+         speed = units.conversionFromMetersPerSecond(speed);
+         String speedText = String.format("%.0f %s", speed, units.getSpeedUnit());
          mLastGPSSpeedView.setText(speedText);
 
          // Speed color bar
@@ -1269,8 +1269,8 @@ public class LoggerMap extends MapActivity
 
          //Altitude number
          double altitude = lastWaypoint.getAltitude();
-         altitude = mUnits.conversionFromMeterToHeight(altitude);
-         String altitudeText = String.format("%.0f %s", altitude, mUnits.getHeightUnit());
+         altitude = units.conversionFromMeterToHeight(altitude);
+         String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
          mLastGPSAltitudeView.setText(altitudeText);
       }
    }
@@ -1405,13 +1405,17 @@ public class LoggerMap extends MapActivity
     */
    private void drawSpeedTexts(double avgSpeed)
    {
-      avgSpeed = mUnits.conversionFromMetersPerSecond(avgSpeed);
-      for (int i = 0; i < mSpeedtexts.length; i++)
+      UnitsI18n units = mUnits;
+      if (units != null)
       {
-         mSpeedtexts[i].setVisibility(View.VISIBLE);
-         double speed = ((avgSpeed * 2d) / 5d) * i;
-         String speedText = String.format("%.0f %s", speed, mUnits.getSpeedUnit());
-         mSpeedtexts[i].setText(speedText);
+         avgSpeed = units.conversionFromMetersPerSecond(avgSpeed);
+         for (int i = 0; i < mSpeedtexts.length; i++)
+         {
+            mSpeedtexts[i].setVisibility(View.VISIBLE);
+            double speed = ((avgSpeed * 2d) / 5d) * i;
+            String speedText = String.format("%.0f %s", speed, units.getSpeedUnit());
+            mSpeedtexts[i].setText(speedText);
+         }
       }
    }
 

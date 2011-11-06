@@ -40,6 +40,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator.ProgressAdmin;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -70,11 +71,11 @@ public class GpxCreator extends XmlCreator
    public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
    public static final String NS_GPX_10 = "http://www.topografix.com/GPX/1/0";
    public static final String NS_OGT_10 = "http://gpstracker.android.sogeti.nl/GPX/1/0";
-   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+   public static final SimpleDateFormat ZULU_DATE_FORMATER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
    static
    {
       TimeZone utc = TimeZone.getTimeZone("UTC");
-      ZULU_DATE_FORMAT.setTimeZone(utc); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
+      ZULU_DATE_FORMATER.setTimeZone(utc); // ZULU_DATE_FORMAT format ends with Z for UTC so make that true
    }
 
    private String TAG = "OGT.GpxCreator";
@@ -254,7 +255,10 @@ public class GpxCreator extends XmlCreator
             serializer.text("\n");
             serializer.startTag("", "time");
             Date time = new Date(trackCursor.getLong(2));
-            serializer.text(ZULU_DATE_FORMAT.format(time));
+            synchronized (ZULU_DATE_FORMATER)
+            {
+               serializer.text(ZULU_DATE_FORMATER.format(time));
+            }
             serializer.endTag("", "time");
             serializer.text("\n");
             serializer.endTag("", "metadata");
@@ -267,15 +271,15 @@ public class GpxCreator extends XmlCreator
             trackCursor.close();
          }
       }
-      if( mName == null )
+      if (mName == null)
       {
          mName = "Untitled";
       }
-      if (databaseName != null && !databaseName.equals("") )
+      if (databaseName != null && !databaseName.equals(""))
       {
          mName = databaseName;
       }
-      if (mChosenName != null && !mChosenName.equals("") )
+      if (mChosenName != null && !mChosenName.equals(""))
       {
          mName = mChosenName;
       }
@@ -331,7 +335,7 @@ public class GpxCreator extends XmlCreator
          {
             do
             {
-               publishProgress(1);
+               mProgressAdmin.addWaypointProgress(1);
 
                serializer.text("\n");
                serializer.startTag("", "trkpt");
@@ -344,7 +348,10 @@ public class GpxCreator extends XmlCreator
                serializer.text("\n");
                serializer.startTag("", "time");
                Date time = new Date(waypointsCursor.getLong(2));
-               serializer.text(ZULU_DATE_FORMAT.format(time));
+               synchronized (ZULU_DATE_FORMATER)
+               {
+                  serializer.text(ZULU_DATE_FORMATER.format(time));
+               }
                serializer.endTag("", "time");
                if (includeAttachments)
                {
@@ -391,7 +398,6 @@ public class GpxCreator extends XmlCreator
       {
          throw new IOException("Fail to execute request due to canceling");
       }
-      String mediaPathPrefix = Constants.getSdCardDirectory(context);
       Cursor mediaCursor = null;
       ContentResolver resolver = context.getContentResolver();
       try
@@ -409,19 +415,16 @@ public class GpxCreator extends XmlCreator
                      serializer.text("\n");
                      serializer.startTag("", "link");
                      serializer.attribute(null, "href", includeMediaFile(mediaUri.getLastPathSegment()));
-                     serializer.startTag("", "text");
-                     serializer.text(mediaUri.getLastPathSegment());
-                     serializer.endTag("", "text");
+                     quickTag(serializer, "", "text", mediaUri.getLastPathSegment());
                      serializer.endTag("", "link");
                   }
                   else if (mediaUri.getLastPathSegment().endsWith("jpg"))
                   {
                      serializer.text("\n");
                      serializer.startTag("", "link");
+                     String mediaPathPrefix = Constants.getSdCardDirectory(context);
                      serializer.attribute(null, "href", includeMediaFile(mediaPathPrefix + mediaUri.getLastPathSegment()));
-                     serializer.startTag("", "text");
-                     serializer.text(mediaUri.getLastPathSegment());
-                     serializer.endTag("", "text");
+                     quickTag(serializer, "", "text", mediaUri.getLastPathSegment());
                      serializer.endTag("", "link");
                   }
                   else if (mediaUri.getLastPathSegment().endsWith("txt"))
@@ -440,12 +443,10 @@ public class GpxCreator extends XmlCreator
                }
                else if (mediaUri.getScheme().equals("content"))
                {
-                  if (mediaUri.getAuthority().equals(GPStracking.AUTHORITY + ".string"))
+                  if ((GPStracking.AUTHORITY + ".string").equals(mediaUri.getAuthority()))
                   {
                      serializer.text("\n");
-                     serializer.startTag("", "name");
-                     serializer.text(mediaUri.getLastPathSegment());
-                     serializer.endTag("", "name");
+                     quickTag(serializer, "", "name", mediaUri.getLastPathSegment());
                   }
                   else if (mediaUri.getAuthority().equals("media"))
                   {
@@ -459,9 +460,7 @@ public class GpxCreator extends XmlCreator
                            serializer.text("\n");
                            serializer.startTag("", "link");
                            serializer.attribute(null, "href", includeMediaFile(mediaItemCursor.getString(0)));
-                           serializer.startTag("", "text");
-                           serializer.text(mediaItemCursor.getString(1));
-                           serializer.endTag("", "text");
+                           quickTag(serializer, "", "text", mediaItemCursor.getString(1));
                            serializer.endTag("", "link");
                         }
                      }

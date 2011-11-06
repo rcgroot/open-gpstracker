@@ -77,7 +77,7 @@
     \n\n
     <b>Errors</b>
     \n
-    In case of an error, crash or fault please sent a message. Log the error 
+    In case of an error, crash or fault please send a message. Log the error 
     at http://code.google.com/p/open-gpstracker/issues/entry and make an important 
     contribution to improve this application.  
     \n\n
@@ -211,7 +211,7 @@
     <string name="jogmap_success">Caricamento riuscito della traccia su jogmap.de: </string>
     <string name="jogrunner_message">Entrare chiave accesso ottenuta da http://www.jogmap.de/civic4/?q=mobilinfo. </string>
     <string name="import_track">Importare traccia nel Open GPS Tracker</string>
-    <string name="preference_logging">Parametri localizzazione ed uso GPS</string>
+    <string name="preference_logging">Localizzazione ed GPS</string>
     <string name="customprecisiontime_title">Intervallo in minuti punto targa</string>
     <string name="customprecisiontime_summary">Intervallo pausa del GPS entro punti.</string>
     <string name="customprecisiondistance_title">Distanza in metri punto targa</string>

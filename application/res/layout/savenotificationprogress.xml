@@ -21,6 +21,7 @@
        <ProgressBar android:id="@+id/progress"
            android:layout_width="fill_parent"
            android:layout_height="wrap_content"
+           android:max="10000"
            style="?android:attr/progressBarStyleHorizontal"/>
            
        <TextView android:id="@+id/progresstext"
