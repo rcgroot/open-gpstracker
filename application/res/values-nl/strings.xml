@@ -268,6 +268,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
 <string name="customupload_url_summary">Het webadres waarna publicaties worden verstuurd</string>
 <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request.
 In this URL the placeholders @LAT@ @LON@ and @ID@ are replaced with actual information.</string>
+<string name="customupload_failed">De laatste publicatie van het webadres is mislukt</string>
 
 <!-- ***************************
 About information
