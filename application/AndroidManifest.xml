@@ -123,16 +123,6 @@
             </intent-filter>
          </activity>
 
-         <activity
-             android:name=".viewer.TracksLiveFolder"
-             android:label="@string/track_list"
-             android:icon="@drawable/icon" >
-             <intent-filter>
-                 <action android:name="android.intent.action.CREATE_LIVE_FOLDER" />
-                 <category android:name="android.intent.category.DEFAULT" />
-             </intent-filter>
-         </activity>
-      
         <activity 
             android:label="@string/menu_statistics" 
             android:name=".actions.Statistics">
@@ -176,15 +166,8 @@
 		<provider 
             android:enabled="true" 
             android:authorities="nl.sogeti.android.gpstracker"
+            android:permission="android.permission.ACCESS_FINE_LOCATION"
 			android:name=".db.GPStrackingProvider" >
-            <path-permission android:path="/live_folders/tracks"
-                android:readPermission="android.permission.BIND_APPWIDGET" />
-            <path-permission android:pathPrefix="/tracks"
-                android:readPermission="android.permission.ACCESS_FINE_LOCATION" />
-            <path-permission android:pathPrefix="/media"
-                android:readPermission="android.permission.ACCESS_FINE_LOCATION" />
-            <path-permission android:pathPrefix="/metadata"
-                android:readPermission="android.permission.ACCESS_FINE_LOCATION" />
 		</provider>
          
          <!--  This is used to auto start the application at boot -->
