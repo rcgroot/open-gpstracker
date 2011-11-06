@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 
 import org.apache.ogt.http.HttpResponse;
@@ -41,6 +42,9 @@ import org.apache.ogt.http.client.HttpClient;
 import org.apache.ogt.http.client.methods.HttpGet;
 import org.apache.ogt.http.impl.client.DefaultHttpClient;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -54,10 +58,10 @@ public class CustomUpload extends BroadcastReceiver
 {
    private static CustomUpload sCustomUpload = null;
    private static final String TAG = "OGT.CustomUpload";
+   private static final int NOTIFICATION_ID = R.string.customupload_failed;
    
    public static synchronized void initStreaming(Context ctx)
    {
-      Log.d( TAG, "Start");
       if( sCustomUpload != null )
       {
          shutdownStreaming(ctx);
@@ -66,17 +70,18 @@ public class CustomUpload extends BroadcastReceiver
 
       IntentFilter filter = new IntentFilter(Constants.STREAMBROADCAST);   
       ctx.registerReceiver(sCustomUpload, filter);
+      Log.d( TAG, "Started");
    }
 
    public static synchronized void shutdownStreaming(Context ctx)
    {
-      Log.d( TAG, "Stop");
       if( sCustomUpload != null )
       {
          ctx.unregisterReceiver(sCustomUpload);
          sCustomUpload.onShutdown();
          sCustomUpload = null;
       }
+      Log.d( TAG, "Stopped");
    }
    
    private void onShutdown()
@@ -106,18 +111,49 @@ public class CustomUpload extends BroadcastReceiver
          if (status.getStatusCode() != 200) {
              throw new IOException("Invalid response from server: " + status.toString());
          }
+         clearNotification(context);
       }
       catch (URISyntaxException e)
       {
-         Log.e( TAG, "Fail!", e);
+         notifyError(context, e);
       }
       catch (ClientProtocolException e)
       {
-         Log.e( TAG, "Fail!", e);
+         notifyError(context, e);
       }
       catch (IOException e)
       {
-         Log.e( TAG, "Fail!", e);
+         notifyError(context, e);
       }
    }
+   
+   private void notifyError(Context context, Exception e)
+   {      
+      Log.e( TAG, "Custom upload failed", e);
+      String ns = Context.NOTIFICATION_SERVICE;
+      NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(ns);
+      
+      int icon = R.drawable.ic_maps_indicator_current_position;
+      CharSequence tickerText = context.getText(R.string.customupload_failed);
+      long when = System.currentTimeMillis();
+      Notification notification = new Notification(icon, tickerText, when);
+      
+      Context appContext = context.getApplicationContext();
+      CharSequence contentTitle = tickerText;
+      CharSequence contentText = e.getMessage();
+      Intent notificationIntent = new Intent(context, CustomUpload.class);
+      PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+      notification.setLatestEventInfo(appContext, contentTitle, contentText, contentIntent);
+      notification.flags = Notification.FLAG_AUTO_CANCEL;
+
+      mNotificationManager.notify(NOTIFICATION_ID, notification);
+   }
+   
+   private void clearNotification(Context context)
+   {
+      String ns = Context.NOTIFICATION_SERVICE;
+      NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(ns);
+      mNotificationManager.cancel(NOTIFICATION_ID);
+   }
+   
 }
