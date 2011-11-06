@@ -176,12 +176,15 @@
 		<provider 
             android:enabled="true" 
             android:authorities="nl.sogeti.android.gpstracker"
-            android:permission="android.permission.ACCESS_FINE_LOCATION"
 			android:name=".db.GPStrackingProvider" >
-            <path-permission android:path="/search_suggest_query"
-                android:readPermission="android.permission.GLOBAL_SEARCH" />
             <path-permission android:path="/live_folders/tracks"
                 android:readPermission="android.permission.BIND_APPWIDGET" />
+            <path-permission android:pathPrefix="/tracks"
+                android:readPermission="android.permission.ACCESS_FINE_LOCATION" />
+            <path-permission android:pathPrefix="/media"
+                android:readPermission="android.permission.ACCESS_FINE_LOCATION" />
+            <path-permission android:pathPrefix="/metadata"
+                android:readPermission="android.permission.ACCESS_FINE_LOCATION" />
 		</provider>
          
          <!--  This is used to auto start the application at boot -->
