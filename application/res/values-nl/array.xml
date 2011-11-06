@@ -48,7 +48,7 @@
       name="sharetype_choices">
       <item>KMZ - Google Earth, etc.</item>
       <item>GPX - GPS Exchange formaat</item>
-      <item>Text - Snelheid en afstands samenvatting</item>
+      <item>Afbeelding en text - Snelheid en afstands samenvatting</item>
    </string-array>
 
    <string-array
