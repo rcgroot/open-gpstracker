@@ -260,14 +260,15 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="streambroadcast_time_summary">Number of minutes after which new progress is broadcasted</string>
     <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
     <string name="streambroadcast_distance_summary">Number of miles or kilometers after which new progress is broadcasted</string>
-    <string name="voiceover_title">Audio voice-over</string>
+    <string name="voiceover_title">Stream to audio voice-over</string>
     <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
     <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
-    <string name="customupload_title">Stream to custom server</string>
-    <string name="customupload_summary">URI to stream GET requests with track progress to </string>
-    <string name="customupload_url_title">Custom stream upload URL</string>
+    <string name="customupload_title">Stream to custom web server</string>
+    <string name="customupload_summary">Upload track progress to (personal) web server</string>
+    <string name="customupload_url_title">Custom web server URL</string>
     <string name="customupload_url_summary">The web address to which to upload progress</string>
-    <string name="customupload_url_message">TODO explain @LAT@ @LON@ and @ID@</string>
+    <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request. 
+        In this URL the placeholders @LAT@ @LON@ and @ID@ are replaced with actual information.</string>
             
 <!-- ***************************
    About information
