@@ -109,6 +109,8 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    private static final int DIALOG_CONNECTBREADCRUMBS = Menu.FIRST + 29;
    private static final int DESCRIBE = 312;
 
+   private static File sTempBitmap;
+
    private RemoteViews mContentView;
    private int barProgress = 0;
    private Notification mNotification;
@@ -702,9 +704,13 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       FileOutputStream stream = null;
       try
       {
-         File tmpBitmap = File.createTempFile("shareimage", ".png");
-         fileUri = Uri.fromFile(tmpBitmap);
-         stream = new FileOutputStream(tmpBitmap);
+         if( sTempBitmap != null && sTempBitmap.exists() )
+         {
+            clearScreenBitmap();            
+         }
+         sTempBitmap = File.createTempFile("shareimage", ".png");
+         fileUri = Uri.fromFile(sTempBitmap);
+         stream = new FileOutputStream(sTempBitmap);
          bm.compress(CompressFormat.PNG, 100, stream);
       }
       catch (IOException e)
@@ -726,6 +732,12 @@ public class ShareTrack extends Activity implements StatisticsDelegate
          }
       }
       return fileUri;
+   }
+   
+   public static void clearScreenBitmap()
+   {
+      sTempBitmap.delete();
+      sTempBitmap = null;
    }
 
    private void readScreenBitmap()

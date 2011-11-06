@@ -37,8 +37,8 @@ import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -46,14 +46,15 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -313,7 +314,7 @@ public class Statistics extends Activity implements StatisticsDelegate
             Bitmap bm = mViewFlipper.getDrawingCache();
             Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
             intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
-            startActivity( Intent.createChooser( intent, getString( R.string.share_track ) ) );
+            startActivityForResult(Intent.createChooser( intent, getString( R.string.share_track ) ), MENU_SHARE);
             handled = true;
             break;
          default:
@@ -339,15 +340,20 @@ public class Statistics extends Activity implements StatisticsDelegate
    protected void onActivityResult( int requestCode, int resultCode, Intent intent )
    {
       super.onActivityResult( requestCode, resultCode, intent );
-      if( resultCode != RESULT_CANCELED )
+      switch( requestCode )
       {
-         switch( requestCode )
-         {
-            case MENU_TRACKLIST:
+         case MENU_TRACKLIST:
+            if( resultCode == RESULT_OK )
+            {
                mTrackUri = intent.getData();
                drawTrackingStatistics();
-               break;
-         }
+            }
+            break;
+         case MENU_SHARE:
+            ShareTrack.clearScreenBitmap();
+            break;
+         default:
+            Log.w( TAG, "Unknown activity result request code" );
       }
    }
 
