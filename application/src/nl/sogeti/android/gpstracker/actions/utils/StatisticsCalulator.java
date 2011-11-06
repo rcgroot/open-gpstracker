@@ -211,10 +211,9 @@ public class StatisticsCalulator extends AsyncTask<Uri, Void, Void>
                            }
                         }
                         lastLocation = currentLocation;
-
+                        mEndtime = lastLocation.getTime();
                      }
                      while( waypoints.moveToNext() );
-                     mEndtime = lastLocation.getTime();
                      mDuration = mEndtime - mStarttime;
                   }
                }

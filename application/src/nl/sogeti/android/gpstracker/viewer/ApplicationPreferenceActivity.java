@@ -31,19 +31,14 @@ package nl.sogeti.android.gpstracker.viewer;
 import java.util.regex.Pattern;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.streaming.VoiceOver;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 
 /**
  * Controller for the settings dialog

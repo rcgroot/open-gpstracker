@@ -70,7 +70,6 @@ public class CustomUpload extends BroadcastReceiver
 
       IntentFilter filter = new IntentFilter(Constants.STREAMBROADCAST);   
       ctx.registerReceiver(sCustomUpload, filter);
-      Log.d( TAG, "Started");
    }
 
    public static synchronized void shutdownStreaming(Context ctx)
@@ -81,7 +80,6 @@ public class CustomUpload extends BroadcastReceiver
          sCustomUpload.onShutdown();
          sCustomUpload = null;
       }
-      Log.d( TAG, "Stopped");
    }
    
    private void onShutdown()
@@ -105,7 +103,6 @@ public class CustomUpload extends BroadcastReceiver
       {
          uploadUri = new URI(buildUrl);
          HttpGet request = new HttpGet(uploadUri );
-         Log.d(TAG, "Upload URI "+ request + " with URI "+uploadUri);
          HttpResponse response = client.execute(request);
          StatusLine status = response.getStatusLine();
          if (status.getStatusCode() != 200) {

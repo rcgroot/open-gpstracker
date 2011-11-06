@@ -45,7 +45,6 @@ public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitL
    
    public static synchronized void initStreaming(Context ctx)
    {
-      Log.d( TAG, "Start");
       if( sVoiceOver != null )
       {
          shutdownStreaming(ctx);
@@ -58,7 +57,6 @@ public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitL
 
    public static synchronized void shutdownStreaming(Context ctx)
    {
-      Log.d( TAG, "Stop");
       if( sVoiceOver != null )
       {
          ctx.unregisterReceiver(sVoiceOver);
@@ -79,7 +77,6 @@ public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitL
 
    public void onInit(int status)
    {
-      Log.d( TAG, "Voice init");
       mVoiceStatus = status;
    }
    
