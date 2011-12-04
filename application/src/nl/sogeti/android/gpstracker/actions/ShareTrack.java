@@ -704,10 +704,8 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       FileOutputStream stream = null;
       try
       {
-         if( sTempBitmap != null && sTempBitmap.exists() )
-         {
-            clearScreenBitmap();            
-         }
+         clearScreenBitmap();         
+         
          sTempBitmap = File.createTempFile("shareimage", ".png");
          fileUri = Uri.fromFile(sTempBitmap);
          stream = new FileOutputStream(sTempBitmap);
@@ -736,8 +734,11 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    
    public static void clearScreenBitmap()
    {
-      sTempBitmap.delete();
-      sTempBitmap = null;
+      if( sTempBitmap != null && sTempBitmap.exists() )
+      {
+         sTempBitmap.delete();
+         sTempBitmap = null;         
+      }
    }
 
    private void readScreenBitmap()
