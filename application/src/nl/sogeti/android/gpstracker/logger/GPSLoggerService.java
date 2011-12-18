@@ -440,7 +440,7 @@ public class GPSLoggerService extends Service
             Location managerLocation = mLocationManager.getLastKnownLocation(mProvider);
             if (managerLocation != null && checkLocation != null)
             {
-               if (checkLocation.distanceTo(checkLocation) < 2 * mMaxAcceptableAccuracy)
+               if (checkLocation.distanceTo(managerLocation) < 2 * mMaxAcceptableAccuracy)
                {
                   checkLocation = managerLocation.getTime() > checkLocation.getTime() ? managerLocation : checkLocation;
                }
