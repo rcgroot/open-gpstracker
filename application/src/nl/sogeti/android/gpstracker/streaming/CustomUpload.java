@@ -61,6 +61,7 @@ public class CustomUpload extends BroadcastReceiver
    private static CustomUpload sCustomUpload = null;
    private static final String TAG = "OGT.CustomUpload";
    private static final int NOTIFICATION_ID = R.string.customupload_failed;
+   private static Queue<HttpGet> sRequestBacklog =  new LinkedList<HttpGet>();
    
    public static synchronized void initStreaming(Context ctx)
    {
@@ -69,6 +70,7 @@ public class CustomUpload extends BroadcastReceiver
          shutdownStreaming(ctx);
       }
       sCustomUpload = new CustomUpload();
+      sRequestBacklog =  new LinkedList<HttpGet>();
 
       IntentFilter filter = new IntentFilter(Constants.STREAMBROADCAST);   
       ctx.registerReceiver(sCustomUpload, filter);
@@ -84,7 +86,6 @@ public class CustomUpload extends BroadcastReceiver
       }
    }
 
-   private Queue<HttpGet> sRequestBacklog =  new LinkedList<HttpGet>();
    
    private void onShutdown()
    {
