@@ -633,7 +633,7 @@ public class LoggerMap extends MapActivity
                mAverageSpeed = 0.0;
                updateSpeedColoring();
             }
-            else if (key.equals(Constants.DISABLEBLANKING))
+            else if (key.equals(Constants.DISABLEBLANKING) || key.equals(Constants.DISABLEDIMMING))
             {
                updateBlankingBehavior();
             }
@@ -1131,12 +1131,20 @@ public class LoggerMap extends MapActivity
    private void updateBlankingBehavior()
    {
       boolean disableblanking = mSharedPreferences.getBoolean(Constants.DISABLEBLANKING, false);
+      boolean disabledimming = mSharedPreferences.getBoolean(Constants.DISABLEDIMMING, false);
       if (disableblanking)
       {
          if (mWakeLock == null)
          {
             PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
+            if( disabledimming )
+            {
+               mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, TAG);
+            }
+            else
+            {
+               mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
+            }
          }
          if (mLoggerServiceManager.getLoggingState() == Constants.LOGGING && !mWakeLock.isHeld())
          {
