@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker.actions.tasks;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -346,6 +347,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
 
    public static String convertStreamToString(InputStream is) throws IOException
    {
+      String result = "";
       /*
        * To convert the InputStream to String we use the Reader.read(char[]
        * buffer) method. We iterate until the Reader return -1 which means
@@ -356,7 +358,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       {
          Writer writer = new StringWriter();
 
-         char[] buffer = new char[1024];
+         char[] buffer = new char[8192];
          try
          {
             Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
@@ -370,12 +372,44 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
          {
             is.close();
          }
-         return writer.toString();
+         result = writer.toString(); 
       }
-      else
+      return result;
+   }
+   
+
+   public static InputStream convertStreamToLoggedStream(String tag, InputStream is) throws IOException
+   {
+      String result = "";
+      /*
+       * To convert the InputStream to String we use the Reader.read(char[]
+       * buffer) method. We iterate until the Reader return -1 which means
+       * there's no more data to read. We use the StringWriter class to produce
+       * the string.
+       */
+      if (is != null)
       {
-         return "";
+         Writer writer = new StringWriter();
+
+         char[] buffer = new char[8192];
+         try
+         {
+            Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            int n;
+            while ((n = reader.read(buffer)) != -1)
+            {
+               writer.write(buffer, 0, n);
+            }
+         }
+         finally
+         {
+            is.close();
+         }
+         result = writer.toString(); 
       }
+      Log.d( tag, result );
+      InputStream in = new ByteArrayInputStream(result.getBytes("UTF-8"));  
+      return in;
    }
 
    protected abstract String getContentType();

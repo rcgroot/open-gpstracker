@@ -28,6 +28,7 @@
  */
 package nl.sogeti.android.gpstracker.adapter.tasks;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
@@ -43,6 +45,7 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
+import org.apache.ogt.http.Header;
 import org.apache.ogt.http.HttpEntity;
 import org.apache.ogt.http.HttpResponse;
 import org.apache.ogt.http.client.methods.HttpGet;
@@ -103,26 +106,38 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       try
       {
          HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles.xml");
-
-         mConsumer.sign(request);
          if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
+         mConsumer.sign(request);
+         if( BreadcrumbsAdapter.DEBUG )
+         {
+            Log.d( TAG, "Execute request: "+request.getURI() );
+            for( Header header : request.getAllHeaders() )
+            {
+               Log.d( TAG, "   with header: "+header.toString());
+            }
+         }
          HttpResponse response = mHttpclient.execute(request);
          responseEntity = response.getEntity();
-         InputStream instream = responseEntity.getContent();
-
+         InputStream is = responseEntity.getContent();
+         InputStream stream = new BufferedInputStream(is, 8192);
+         if( BreadcrumbsAdapter.DEBUG )
+         {
+            stream = XmlCreator.convertStreamToLoggedStream(TAG, stream);
+         }
+         
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
          factory.setNamespaceAware(true);
          XmlPullParser xpp = factory.newPullParser();
-         xpp.setInput(instream, "UTF-8");
+         xpp.setInput(stream, "UTF-8");
 
          String tagName = null;
          int eventType = xpp.getEventType();
 
          String bundleName = null, bundleDescription = null;
-         Integer activityId = null, bundleId = null;
+         Integer bundleId = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
             if (eventType == XmlPullParser.START_TAG)
@@ -131,19 +146,15 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-               if ("bundle".equals(xpp.getName()) && activityId != null && bundleId != null)
+               if ("bundle".equals(xpp.getName()) && bundleId != null)
                {
-                  mBundles.add( new Object[]{activityId, bundleId, bundleName, bundleDescription} );
+                  mBundles.add( new Object[]{bundleId, bundleName, bundleDescription} );
                }
                tagName = null;
             }
             else if (eventType == XmlPullParser.TEXT)
             {
-               if ("activity-id".equals(tagName))
-               {
-                  activityId = Integer.parseInt(xpp.getText());
-               }
-               else if ("description".equals(tagName))
+               if ("description".equals(tagName))
                {
                   bundleDescription = xpp.getText();
                }
@@ -211,12 +222,11 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       
       for( Object[] bundle : mBundles )
       {
-         Integer activityId = (Integer) bundle[0];
-         Integer bundleId = (Integer) bundle[1];
-         String bundleName = (String) bundle[2];
-         String bundleDescription = (String) bundle[3];
+         Integer bundleId = (Integer) bundle[0];
+         String bundleName = (String) bundle[1];
+         String bundleDescription = (String) bundle[2];
          
-         tracks.addBundle(activityId, bundleId, bundleName, bundleDescription);
+         tracks.addBundle(bundleId, bundleName, bundleDescription);
       }
    }
 }

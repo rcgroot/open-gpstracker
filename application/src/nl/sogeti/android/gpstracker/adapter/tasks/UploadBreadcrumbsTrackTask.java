@@ -49,6 +49,7 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
+import org.apache.ogt.http.Header;
 import org.apache.ogt.http.HttpEntity;
 import org.apache.ogt.http.HttpResponse;
 import org.apache.ogt.http.client.HttpClient;
@@ -196,7 +197,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          String gpxString = XmlCreator.convertStreamToString(mContext.getContentResolver().openInputStream(gpxFile));
 
          HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/tracks");
-         mConsumer.sign(method);
          if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
@@ -214,6 +214,15 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          method.setEntity(entity);
 
          // Execute the POST to OpenStreetMap
+         mConsumer.sign(method);
+         if( BreadcrumbsAdapter.DEBUG )
+         {
+            Log.d( TAG, "Execute request: "+method.getURI() );
+            for( Header header : method.getAllHeaders() )
+            {
+               Log.d( TAG, "   with header: "+header.toString());
+            }
+         }
          HttpResponse response = mHttpClient.execute(method);
          mProgressAdmin.addUploadProgress();
 
@@ -289,7 +298,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          OAuthCommunicationException, IOException
    {
       HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/bundles.xml");
-      mConsumer.sign(method);
       if (isCancelled())
       {
          throw new IOException("Fail to execute request due to canceling");
@@ -301,6 +309,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       entity.addPart("description", new StringBody(mBundleDescription));
       method.setEntity(entity);
 
+      mConsumer.sign(method);
       HttpResponse response = mHttpClient.execute(method);
       HttpEntity responseEntity = response.getEntity();
       InputStream stream = responseEntity.getContent();
@@ -351,8 +360,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 
    private void uploadPhoto(File photo, Integer trackId) throws IOException, OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException
    {
-      HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/photos.xml");
-      mConsumer.sign(method);
+      HttpPost request = new HttpPost("http://api.gobreadcrumbs.com/v1/photos.xml");
       if (isCancelled())
       {
          throw new IOException("Fail to execute request due to canceling");
@@ -363,9 +371,18 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       entity.addPart("track_id", new StringBody(Integer.toString(trackId)));
       //entity.addPart("description", new StringBody(""));
       entity.addPart("file", new FileBody(photo));
-      method.setEntity(entity);
+      request.setEntity(entity);
 
-      HttpResponse response = mHttpClient.execute(method);
+      mConsumer.sign(request);
+      if( BreadcrumbsAdapter.DEBUG )
+      {
+         Log.d( TAG, "Execute request: "+request.getURI() );
+         for( Header header : request.getAllHeaders() )
+         {
+            Log.d( TAG, "   with header: "+header.toString());
+         }
+      }
+      HttpResponse response = mHttpClient.execute(request);
       HttpEntity responseEntity = response.getEntity();
       InputStream stream = responseEntity.getContent();
       String responseText = XmlCreator.convertStreamToString(stream);
@@ -405,7 +422,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       tracks.addSyncedTrack(new Long(mTrackUri.getLastPathSegment()), bcTrackId);
       if( mIsBundleCreated )
       {
-         mAdapter.getBreadcrumbsTracks().addBundle(Integer.parseInt(mActivityId), Integer.parseInt(mBundleId), mBundleName, mBundleDescription);
+         mAdapter.getBreadcrumbsTracks().addBundle(Integer.parseInt(mBundleId), mBundleName, mBundleDescription);
       }
       //"http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx"
 

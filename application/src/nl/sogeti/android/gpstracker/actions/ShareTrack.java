@@ -748,7 +748,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       if (getIntent().getExtras() != null && getIntent().hasExtra(Intent.EXTRA_STREAM))
       {
          InputStream is = null;
-         try
+         try            
          {
             mImageUri = getIntent().getExtras().getParcelable(Intent.EXTRA_STREAM);
             is = getContentResolver().openInputStream(mImageUri);

@@ -158,7 +158,6 @@ public class OsmSharing extends GpxCreator
 
          // The POST to the create node
          HttpPost method = new HttpPost(url);
-         consumer.sign(method);
          
          String tags = mContext.getString(R.string.osm_tag) + " " +queryForNotes();
          
@@ -171,6 +170,7 @@ public class OsmSharing extends GpxCreator
          method.setEntity(entity);
 
          // Execute the POST to OpenStreetMap
+         consumer.sign(method);
          response = httpclient.execute(method);
 
          // Read the response

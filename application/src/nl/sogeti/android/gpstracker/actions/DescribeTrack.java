@@ -74,6 +74,8 @@ public class DescribeTrack extends Activity implements ProgressListener
 
    private static final String BUNDLE_ID = "BUNDLE_ID";
 
+   private boolean finishedLoading = false;
+   
    private Spinner mActivitySpinner;
    private Spinner mBundleSpinner;
    private EditText mDescriptionText;
@@ -117,20 +119,6 @@ public class DescribeTrack extends Activity implements ProgressListener
       }
    };
 
-   private OnItemSelectedListener mActivitiyListener = new OnItemSelectedListener()
-   {
-      public void onItemSelected(AdapterView< ? > adapter, View arg1, int position, long id)
-      {
-         mBundleSpinner.setEnabled(true);
-         mBundleSpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getBundleAdapter(DescribeTrack.this,
-               (CharSequence) adapter.getItemAtPosition(position)));
-      }
-      public void onNothingSelected(AdapterView< ? > arg0)
-      {
-         mBundleSpinner.setEnabled(false);
-      }
-   };
-
    private BreadcrumbsAdapter mBreadcrumbAdapter;
 
    private ProgressBar mProgressSpinner;
@@ -147,16 +135,6 @@ public class DescribeTrack extends Activity implements ProgressListener
       paused = false;
 
       mTrackUri = this.getIntent().getData();
-   }
-
-   private void connectBreadcrumbs()
-   {
-      mBreadcrumbAdapter = new BreadcrumbsAdapter(this, this);
-      boolean authorized = mBreadcrumbAdapter.connectionSetup();
-      if (!authorized)
-      {
-         mBreadcrumbAdapter.requestBreadcrumbsOauthToken(this);
-      }
    }
 
    @Override
@@ -184,7 +162,7 @@ public class DescribeTrack extends Activity implements ProgressListener
          finish();
       }
    }
-
+   
    @Override
    protected Dialog onCreateDialog(int id)
    {
@@ -198,7 +176,6 @@ public class DescribeTrack extends Activity implements ProgressListener
             factory = LayoutInflater.from(this);
             view = factory.inflate(R.layout.describedialog, null);
             mActivitySpinner = (Spinner) view.findViewById(R.id.activity);
-            mActivitySpinner.setOnItemSelectedListener(mActivitiyListener);
             mBundleSpinner = (Spinner) view.findViewById(R.id.bundle);
             mDescriptionText = (EditText) view.findViewById(R.id.description);
             mPublicCheck = (CheckBox) view.findViewById(R.id.public_checkbox);
@@ -207,6 +184,7 @@ public class DescribeTrack extends Activity implements ProgressListener
                   .setPositiveButton(R.string.btn_okay, mTrackDescriptionDialogListener)
                   .setNegativeButton(R.string.btn_cancel, mTrackDescriptionDialogListener).setView(view);
             mDialog = builder.create();
+            setUiEnabled(finishedLoading);
             
             mDialog.setOnDismissListener(new OnDismissListener()
             {
@@ -230,6 +208,7 @@ public class DescribeTrack extends Activity implements ProgressListener
       switch (id)
       {
          case DIALOG_TRACKDESCRIPTION:
+            setUiEnabled(finishedLoading);
             connectBreadcrumbs();
             break;
          default:
@@ -237,7 +216,16 @@ public class DescribeTrack extends Activity implements ProgressListener
             break;
       }
    }
-
+   
+   private void connectBreadcrumbs()
+   {
+      mBreadcrumbAdapter = new BreadcrumbsAdapter(this, this);
+      boolean authorized = mBreadcrumbAdapter.connectionSetup();
+      if (!authorized)
+      {
+         mBreadcrumbAdapter.requestBreadcrumbsOauthToken(this);
+      }
+   }
    private void saveBreadcrumbsPreference(int activityPosition, int bundlePosition)
    {
       Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
@@ -269,12 +257,13 @@ public class DescribeTrack extends Activity implements ProgressListener
 
    public void started()
    {
-      setUiEnabled(false);
+      finishedLoading = false;
    }
 
    public void finished(Uri result)
    {
-      setUiEnabled(true);
+      finishedLoading = true;
+      setUiEnabled(finishedLoading);
    }
 
    public void showError(String task, String errorMessage, Exception exception)
@@ -316,7 +305,7 @@ public class DescribeTrack extends Activity implements ProgressListener
       if (enabled)
       {
          mActivitySpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getActivityAdapter(this));
-         mBundleSpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getBundleAdapter(this, ""));
+         mBundleSpinner.setAdapter(mBreadcrumbAdapter.getBreadcrumbsTracks().getBundleAdapter(this));
          loadBreadcrumbsPreference();
       }
    }

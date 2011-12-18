@@ -28,11 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.adapter.tasks;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
@@ -42,6 +44,7 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
+import org.apache.ogt.http.Header;
 import org.apache.ogt.http.HttpEntity;
 import org.apache.ogt.http.HttpResponse;
 import org.apache.ogt.http.client.methods.HttpGet;
@@ -97,15 +100,28 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
       try
       {
          HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/activities.xml");
-         mConsumer.sign(request);
          if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
+         mConsumer.sign(request);
+         if( BreadcrumbsAdapter.DEBUG )
+         {
+            Log.d( TAG, "Execute request: "+request.getURI() );
+            for( Header header : request.getAllHeaders() )
+            {
+               Log.d( TAG, "   with header: "+header.toString());
+            }
+         }
          HttpResponse response = mHttpClient.execute(request);
          responseEntity = response.getEntity();
-         InputStream stream = responseEntity.getContent();
-
+         InputStream is = responseEntity.getContent();
+         InputStream stream = new BufferedInputStream(is, 8192);
+         if( BreadcrumbsAdapter.DEBUG )
+         {
+            stream = XmlCreator.convertStreamToLoggedStream(TAG, stream);
+         }
+         
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
          factory.setNamespaceAware(true);
          XmlPullParser xpp = factory.newPullParser();

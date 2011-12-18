@@ -28,12 +28,14 @@
  */
 package nl.sogeti.android.gpstracker.adapter.tasks;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
+import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
@@ -45,6 +47,7 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
+import org.apache.ogt.http.Header;
 import org.apache.ogt.http.HttpEntity;
 import org.apache.ogt.http.HttpResponse;
 import org.apache.ogt.http.client.methods.HttpGet;
@@ -105,22 +108,33 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
       determineProgressGoal(null);
 
       Uri trackUri = null;
-      InputStream fis = null;
       String trackName = mAdapter.getBreadcrumbsTracks().getValueForItem(mTrack, BreadcrumbsTracks.NAME);
       HttpEntity responseEntity = null;
       try
       {
          HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/tracks/" + mTrack.second + "/placemarks.gpx");
-         mConsumer.sign(request);
          if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
-         HttpResponse response = mHttpclient.execute(request);       
+         mConsumer.sign(request);
+         if( BreadcrumbsAdapter.DEBUG )
+         {
+            Log.d( TAG, "Execute request: "+request.getURI() );
+            for( Header header : request.getAllHeaders() )
+            {
+               Log.d( TAG, "   with header: "+header.toString());
+            }
+         }
+         HttpResponse response = mHttpclient.execute(request);
          responseEntity = response.getEntity();
-         mProgressAdmin.setContentLength(responseEntity.getContentLength());
-         fis = responseEntity.getContent();
-         trackUri = importTrack(fis, trackName);
+         InputStream is = responseEntity.getContent();
+         InputStream stream = new BufferedInputStream(is, 8192);
+         if( BreadcrumbsAdapter.DEBUG )
+         {
+            stream = XmlCreator.convertStreamToLoggedStream(TAG, stream);
+         }
+         trackUri = importTrack(stream, trackName);
       }
       catch (OAuthMessageSignerException e)
       {
@@ -166,7 +180,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
       Integer bcTrackId = mTrack.second;
       Integer bcBundleId = tracks.getBundleIdForTrackId(bcTrackId);
-      Integer bcActivityId = tracks.getActivityIdForBundleId(bcBundleId);
+      //TODO Integer bcActivityId = tracks.getActivityIdForBundleId(bcBundleId);
       String bcDifficulty = tracks.getValueForItem(mTrack, BreadcrumbsTracks.DIFFICULTY);
       String bcRating = tracks.getValueForItem(mTrack, BreadcrumbsTracks.RATING);
       String bcPublic = tracks.getValueForItem(mTrack, BreadcrumbsTracks.ISPUBLIC);
@@ -197,10 +211,10 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
       {
          metaValues.add(buildContentValues(BreadcrumbsTracks.BUNDLE_ID, Integer.toString(bcBundleId)));
       }
-      if (bcActivityId != null)
-      {
-         metaValues.add(buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, Integer.toString(bcActivityId)));
-      }
+//      if (bcActivityId != null)
+//      {
+//         metaValues.add(buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, Integer.toString(bcActivityId)));
+//      }
       ContentResolver resolver = mContext.getContentResolver();
       resolver.bulkInsert(metadataUri, metaValues.toArray(new ContentValues[1]));
       
