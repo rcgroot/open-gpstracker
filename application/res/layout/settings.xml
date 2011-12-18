@@ -53,6 +53,12 @@
             android:summary="@string/disableblanking_summary"
             android:defaultValue="false" />
          <CheckBoxPreference
+            android:key="disabledimming"
+            android:title="@string/disabledimming_title"
+            android:summary="@string/disabledimming_summary"
+            android:defaultValue="false" 
+            android:dependency="disableblanking"/>
+         <CheckBoxPreference
             android:key="startupatboot"
             android:title="@string/startupatboot"
             android:summary="@string/startupatboot_summary"

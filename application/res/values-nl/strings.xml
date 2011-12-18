@@ -176,6 +176,8 @@ or PayPal donation are appreciated at rcgroot@gmail.com
 <string name="startupatboot_summary">De log service wordt gestart nadat het apparaat opgestart is.</string>
 <string name="disableblanking_title">Voorkom scherm uitzetten</string>
 <string name="disableblanking_summary">Houd het scherm aan tijdens het opnemen.</string>
+<string name="disabledimming_title">Voorkom scherm dimmen</string>
+<string name="disabledimming_summary">Houd het scherm op normale helderheid aan tijdens het opnemen.</string>       
 <string name="precision_title">Meetprecisie</string>
 <string name="precision_summary">De interval en frequentie van meten.</string>
 <string name="mapprovider_title">Kaarten aanbieder</string>

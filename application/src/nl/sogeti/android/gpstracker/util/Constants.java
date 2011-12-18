@@ -46,6 +46,7 @@ import android.preference.PreferenceManager;
 public class Constants
 {
    public static final String DISABLEBLANKING = "disableblanking";
+   public static final String DISABLEDIMMING = "disabledimming";
    public static final String SATELLITE = "SATELLITE";
    public static final String TRAFFIC = "TRAFFIC";
    public static final String SPEED = "showspeed";
