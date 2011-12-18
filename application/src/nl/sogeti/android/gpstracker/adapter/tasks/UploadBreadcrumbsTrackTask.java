@@ -58,6 +58,7 @@ import org.apache.ogt.http.entity.mime.HttpMultipartMode;
 import org.apache.ogt.http.entity.mime.MultipartEntity;
 import org.apache.ogt.http.entity.mime.content.FileBody;
 import org.apache.ogt.http.entity.mime.content.StringBody;
+import org.apache.ogt.http.params.HttpParams;
 import org.apache.ogt.http.util.EntityUtils;
 
 import android.content.ContentResolver;
@@ -196,13 +197,13 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 
          String gpxString = XmlCreator.convertStreamToString(mContext.getContentResolver().openInputStream(gpxFile));
 
-         HttpPost method = new HttpPost("http://api.gobreadcrumbs.com/v1/tracks");
+         HttpPost method = new HttpPost("http://api.gobreadcrumbs.com:80/v1/tracks");
          if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
          // Build the multipart body with the upload data
-         MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+         MultipartEntity entity = new MultipartEntity(HttpMultipartMode.STRICT);
          entity.addPart("import_type", new StringBody("GPX"));
          //entity.addPart("gpx",         new FileBody(gpxFile));
          entity.addPart("gpx", new StringBody(gpxString));
@@ -217,12 +218,24 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          mConsumer.sign(method);
          if( BreadcrumbsAdapter.DEBUG )
          {
+            Log.d( TAG, "HTTP Method "+method.getMethod() );
+            Log.d( TAG, "URI scheme "+method.getURI().getScheme() );
+            Log.d( TAG, "Host name "+method.getURI().getHost() );
+            Log.d( TAG, "Port "+method.getURI().getPort() );
+            Log.d( TAG, "Request path "+method.getURI().getPath());
+            
+            Log.d( TAG, "Consumer Key: "+mConsumer.getConsumerKey());
+            Log.d( TAG, "Consumer Secret: "+mConsumer.getConsumerSecret());
+            Log.d( TAG, "Token: "+mConsumer.getToken());
+            Log.d( TAG, "Token Secret: "+mConsumer.getTokenSecret());
+            
+            
             Log.d( TAG, "Execute request: "+method.getURI() );
             for( Header header : method.getAllHeaders() )
             {
                Log.d( TAG, "   with header: "+header.toString());
             }
-         }
+         }  
          HttpResponse response = mHttpClient.execute(method);
          mProgressAdmin.addUploadProgress();
 
@@ -287,7 +300,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       else
       {
-         mAdapter.removeAuthentication();
+         //mAdapter.removeAuthentication();
          
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Status code: " + statusCode), responseText);
       }
