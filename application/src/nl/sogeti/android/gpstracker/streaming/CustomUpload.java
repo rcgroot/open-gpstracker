@@ -31,6 +31,8 @@ package nl.sogeti.android.gpstracker.streaming;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -81,6 +83,8 @@ public class CustomUpload extends BroadcastReceiver
          sCustomUpload = null;
       }
    }
+
+   private Queue<HttpGet> sRequestBacklog =  new LinkedList<HttpGet>();
    
    private void onShutdown()
    {
@@ -93,22 +97,38 @@ public class CustomUpload extends BroadcastReceiver
       Location loc = intent.getParcelableExtra(Constants.EXTRA_LOCATION);
       Uri trackUri =  intent.getParcelableExtra(Constants.EXTRA_TRACK);
       String buildUrl = prefUrl;
-      buildUrl = buildUrl.replace("@LAT@", Double.toString(loc.getLatitude()));
-      buildUrl = buildUrl.replace("@LON@", Double.toString(loc.getLongitude()));
-      buildUrl = buildUrl.replace("@ID@", trackUri.getLastPathSegment());
+      buildUrl = buildUrl.replace("@LAT@",   Double.toString(loc.getLatitude()));
+      buildUrl = buildUrl.replace("@LON@",   Double.toString(loc.getLongitude()));
+      buildUrl = buildUrl.replace("@ID@",    trackUri.getLastPathSegment());
+      buildUrl = buildUrl.replace("@TIME@",  trackUri.getLastPathSegment());
+      buildUrl = buildUrl.replace("@SPEED@", Float.toString(loc.getSpeed()));
+      buildUrl = buildUrl.replace("@ACC@",   Float.toString(loc.getAccuracy()));
+      buildUrl = buildUrl.replace("@ALT@",   Double.toString(loc.getAltitude()));
+      buildUrl = buildUrl.replace("@BEAR@",  Float.toString(loc.getBearing()));
       
       HttpClient client = new DefaultHttpClient();
       URI uploadUri;
       try
       {
          uploadUri = new URI(buildUrl);
-         HttpGet request = new HttpGet(uploadUri );
-         HttpResponse response = client.execute(request);
-         StatusLine status = response.getStatusLine();
-         if (status.getStatusCode() != 200) {
-             throw new IOException("Invalid response from server: " + status.toString());
+         HttpGet currentRequest = new HttpGet(uploadUri );
+         sRequestBacklog.add(currentRequest);
+         if( sRequestBacklog.size() > 20 )
+         {
+            sRequestBacklog.poll();
          }
-         clearNotification(context);
+         
+         while( !sRequestBacklog.isEmpty() )
+         {
+            HttpGet request = sRequestBacklog.peek();
+            HttpResponse response = client.execute(request);
+            sRequestBacklog.poll();
+            StatusLine status = response.getStatusLine();
+            if (status.getStatusCode() != 200) {
+                throw new IOException("Invalid response from server: " + status.toString());
+            }
+            clearNotification(context);
+         }
       }
       catch (URISyntaxException e)
       {

@@ -268,7 +268,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customupload_url_title">Custom web server URL</string>
     <string name="customupload_url_summary">The web address to which to upload progress</string>
     <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request. 
-        In this URL the placeholders svn upl are replaced with actual information.</string>
+        In this URL the placeholders are replaced with actual information. The possible placeholders are @LAT@, @LON@, @ALT@, @ACC@, @SPEED@, @BEAR@, @TIME@ and @ID@.</string>
     <string name="customupload_failed">The last upload of track progress failed</string>
             
 <!-- ***************************
