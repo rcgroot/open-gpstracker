@@ -101,7 +101,7 @@ public class CustomUpload extends BroadcastReceiver
       buildUrl = buildUrl.replace("@LAT@",   Double.toString(loc.getLatitude()));
       buildUrl = buildUrl.replace("@LON@",   Double.toString(loc.getLongitude()));
       buildUrl = buildUrl.replace("@ID@",    trackUri.getLastPathSegment());
-      buildUrl = buildUrl.replace("@TIME@",  trackUri.getLastPathSegment());
+      buildUrl = buildUrl.replace("@TIME@",  Long.toString(loc.getTime()));
       buildUrl = buildUrl.replace("@SPEED@", Float.toString(loc.getSpeed()));
       buildUrl = buildUrl.replace("@ACC@",   Float.toString(loc.getAccuracy()));
       buildUrl = buildUrl.replace("@ALT@",   Double.toString(loc.getAltitude()));
