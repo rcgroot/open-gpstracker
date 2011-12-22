@@ -206,7 +206,16 @@
             android:defaultValue="http://www.example.com/upload.php?latitude=@LAT@&amp;longitude=@LON@&amp;trackid=@ID@"
             android:inputType="textUri"
             android:singleLine="true"
-            android:dependency="STREAM_ENABLED" />         
+            android:dependency="CUSTOMUPLOAD_ENABLED" />
+         <EditTextPreference
+            android:key="CUSTOMUPLOAD_BACKLOG"
+            android:title="@string/customupload_backlog_title"
+            android:summary="@string/customupload_backlog_summary"
+            android:dialogMessage="@string/customupload_backlog_message"
+            android:defaultValue="20"
+            android:inputType="number"
+            android:singleLine="true"
+            android:dependency="CUSTOMUPLOAD_ENABLED" />       
       </PreferenceCategory>
    </PreferenceScreen>
 </PreferenceScreen>

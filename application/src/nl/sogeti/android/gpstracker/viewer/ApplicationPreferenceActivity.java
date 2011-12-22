@@ -50,11 +50,20 @@ import android.preference.PreferenceActivity;
 public class ApplicationPreferenceActivity extends PreferenceActivity
 {
 
+   public static final String STREAMBROADCAST_PREFERENCE = "streambroadcast_distance";
+   public static final String UNITS_IMPLEMENT_WIDTH_PREFERENCE = "units_implement_width";
+   public static final String CUSTOMPRECISIONDISTANCE_PREFERENCE = "customprecisiondistance";
+   public static final String CUSTOMPRECISIONTIME_PREFERENCE = "customprecisiontime";
+   public static final String PRECISION_PREFERENCE = "precision";
+   public static final String CUSTOMUPLOAD_BACKLOG = "CUSTOMUPLOAD_BACKLOG";
+   public static final String CUSTOMUPLOAD_URL = "CUSTOMUPLOAD_URL";
+   
    private EditTextPreference time;
    private EditTextPreference distance;
    private EditTextPreference implentWidth;
 
    private EditTextPreference streambroadcast_distance;
+   private EditTextPreference custumupload_backlog;
 
    @Override
    protected void onCreate(Bundle savedInstanceState)
@@ -63,11 +72,12 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
 
       addPreferencesFromResource(R.layout.settings);
 
-      ListPreference precision = (ListPreference) findPreference("precision");
-      time = (EditTextPreference) findPreference("customprecisiontime");
-      distance = (EditTextPreference) findPreference("customprecisiondistance");
-      implentWidth = (EditTextPreference) findPreference("units_implement_width");
-      streambroadcast_distance = (EditTextPreference) findPreference("streambroadcast_distance");
+      ListPreference precision = (ListPreference) findPreference(PRECISION_PREFERENCE);
+      time = (EditTextPreference) findPreference(CUSTOMPRECISIONTIME_PREFERENCE);
+      distance = (EditTextPreference) findPreference(CUSTOMPRECISIONDISTANCE_PREFERENCE);
+      implentWidth = (EditTextPreference) findPreference(UNITS_IMPLEMENT_WIDTH_PREFERENCE);
+      streambroadcast_distance = (EditTextPreference) findPreference(STREAMBROADCAST_PREFERENCE);
+      custumupload_backlog = (EditTextPreference) findPreference(CUSTOMUPLOAD_BACKLOG);
 
       setEnabledCustomValues(precision.getValue());
       precision.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
@@ -100,6 +110,14 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
                editor.commit();
             }
             return matches;
+         }
+      });
+      custumupload_backlog.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+      {
+         public boolean onPreferenceChange(Preference preference, Object newValue)
+         {
+            String fpExpr = "\\d+";
+            return Pattern.matches(fpExpr, newValue.toString());
          }
       });
    }

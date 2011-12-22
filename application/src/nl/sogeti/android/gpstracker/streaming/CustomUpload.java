@@ -36,6 +36,7 @@ import java.util.Queue;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
 
 import org.apache.ogt.http.HttpResponse;
 import org.apache.ogt.http.StatusLine;
@@ -51,6 +52,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -58,6 +60,7 @@ import android.util.Log;
 
 public class CustomUpload extends BroadcastReceiver
 {
+   private static final String CUSTOMUPLOAD_BACKLOG_DEFAULT = "20";
    private static CustomUpload sCustomUpload = null;
    private static final String TAG = "OGT.CustomUpload";
    private static final int NOTIFICATION_ID = R.string.customupload_failed;
@@ -94,7 +97,9 @@ public class CustomUpload extends BroadcastReceiver
    @Override
    public void onReceive(Context context, Intent intent)
    {
-      String prefUrl = PreferenceManager.getDefaultSharedPreferences(context).getString("CUSTOMUPLOAD_URL", "http://www.example.com");
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+      String prefUrl = preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_URL, "http://www.example.com");
+      Integer prefBacklog = Integer.valueOf( preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_BACKLOG, CUSTOMUPLOAD_BACKLOG_DEFAULT) );
       Location loc = intent.getParcelableExtra(Constants.EXTRA_LOCATION);
       Uri trackUri =  intent.getParcelableExtra(Constants.EXTRA_TRACK);
       String buildUrl = prefUrl;
@@ -114,7 +119,7 @@ public class CustomUpload extends BroadcastReceiver
          uploadUri = new URI(buildUrl);
          HttpGet currentRequest = new HttpGet(uploadUri );
          sRequestBacklog.add(currentRequest);
-         if( sRequestBacklog.size() > 20 )
+         if( sRequestBacklog.size() > prefBacklog )
          {
             sRequestBacklog.poll();
          }
