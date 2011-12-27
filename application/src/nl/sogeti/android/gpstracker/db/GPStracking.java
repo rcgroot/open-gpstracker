@@ -28,7 +28,9 @@
  */
 package nl.sogeti.android.gpstracker.db;
 
+import android.content.ContentUris;
 import android.net.Uri;
+import android.net.Uri.Builder;
 import android.provider.BaseColumns;
 
 /**
@@ -84,7 +86,7 @@ public final class GPStracking
       /** The MIME type of CONTENT_URI providing a directory of segments. */
       public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.segment";
 
-      /** The name of this table */
+      /** The name of this table, segments */
       public static final String TABLE = "segments";
       static final String CREATE_STATMENT = 
          "CREATE TABLE " + Segments.TABLE + "(" + " " + Segments._ID   + " " + Segments._ID_TYPE + 
@@ -105,7 +107,7 @@ public final class GPStracking
       /** The MIME type of CONTENT_URI providing a directory of waypoints. */
       public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.waypoint";
       
-      /** The name of this table */
+      /** The name of this table, waypoints */
       public static final String TABLE = "waypoints";
       static final String CREATE_STATEMENT = "CREATE TABLE " + Waypoints.TABLE + 
       "(" + " " + BaseColumns._ID + " " + WaypointsColumns._ID_TYPE + 
@@ -125,6 +127,29 @@ public final class GPStracking
             "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.ALTITUDE + " " + WaypointsColumns.ALTITUDE_TYPE +";",
             "ALTER TABLE " + Waypoints.TABLE + " ADD COLUMN " + WaypointsColumns.BEARING  + " " + WaypointsColumns.BEARING_TYPE +";"
          };
+
+      /**
+       * Build a waypoint Uri like:
+       * content://nl.sogeti.android.gpstracker/tracks/2/segments/1/waypoints/52
+       * using the provided identifiers
+       * 
+       * @param trackId
+       * @param segmentId
+       * @param waypointId
+       * 
+       * @return
+       */
+      public static Uri buildUri(long trackId, long segmentId, long waypointId)
+      {
+         Builder builder = Tracks.CONTENT_URI.buildUpon();
+         ContentUris.appendId(builder, trackId);
+         builder.appendPath(Segments.TABLE);
+         ContentUris.appendId(builder, segmentId);
+         builder.appendPath(Waypoints.TABLE);
+         ContentUris.appendId(builder, waypointId);
+         
+         return builder.build();
+      }
    }
    
    /**

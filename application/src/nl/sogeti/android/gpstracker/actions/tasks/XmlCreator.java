@@ -222,7 +222,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       }
       else
       {
-         target.createNewFile();
+         Log.w( TAG, "Failed to add file to new XML export. Missing: "+inputFilePath );
       }
       mProgressAdmin.addMediaProgress();
 
