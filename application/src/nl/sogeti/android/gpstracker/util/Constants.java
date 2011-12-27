@@ -51,6 +51,7 @@ public class Constants
    public static final String TRAFFIC = "TRAFFIC";
    public static final String SPEED = "showspeed";
    public static final String ALTITUDE = "showaltitude";
+   public static final String DISTANCE = "showdistance";
    public static final String COMPASS = "COMPASS";
    public static final String LOCATION = "LOCATION";
    public static final String MAPPROVIDER = "mapprovider";

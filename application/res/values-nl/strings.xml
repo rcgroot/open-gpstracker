@@ -40,6 +40,7 @@
 <string name="layer_traffic">Verkeer</string>
 <string name="layer_speed">Snelheid</string>
 <string name="layer_altitude">Hoogte</string>
+<string name="layer_distance">Afstand</string>
 <string name="layer_compass">Kompas</string>
 <string name="layer_location">Mijn locatie</string>
 <string name="layer_cloudmade">CloudMade maps</string>
@@ -192,6 +193,8 @@ or PayPal donation are appreciated at rcgroot@gmail.com
 <string name="showspeed_summary">Toon de snelheid zoals van de laatste GPS bepaling.</string>
 <string name="showaltitude_title">GPS hoogte</string>
 <string name="showaltitude_summary">Toon de hoogte zoals van de laatste GPS bepaling.</string>
+<string name="showdistance_title">Afgelegde afstand</string>
+<string name="showdistance_summary">Toon de afstand afgelegd tijdens de route.</string>
 <string name="showcompass_title">Kompas</string>
 <string name="showcompass_summary">Toon een kompas die het noorden aangeeft</string>
 <string name="sanitycheck_title">Snelheids and hoogte normalisatie</string>

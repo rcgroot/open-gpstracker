@@ -124,6 +124,11 @@
             android:summary="@string/showaltitude_summary"
             android:defaultValue="false" />
          <CheckBoxPreference
+            android:key="showdistance"
+            android:title="@string/showdistance_title"
+            android:summary="@string/showdistance_summary"
+            android:defaultValue="false" />
+         <CheckBoxPreference
             android:key="COMPASS"
             android:title="@string/showcompass_title"
             android:summary="@string/showcompass_summary"

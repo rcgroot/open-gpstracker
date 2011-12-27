@@ -11,7 +11,7 @@
       android:layout_height="fill_parent"
       android:enabled="true"
       android:clickable="true"
-      android:apiKey="0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw" 
+      android:apiKey="0bmdf4-ggC50QJGdjml6Turq0NJdMhKFQNdhkYA" 
       android:visibility="visible" />
    <!--  Release         : 0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw -->
    <!--  Emulator        : 0bmdf4-ggC50QJGdjml6Turq0NJdMhKFQNdhkYA -->
@@ -33,7 +33,7 @@
       android:textSize="12pt"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:visibility="invisible"
+      android:visibility="gone"
       android:layout_alignParentTop="true"
       android:layout_centerHorizontal="true"
       android:layout_marginTop="10dp"/>
@@ -46,10 +46,21 @@
       android:textSize="12pt"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:visibility="invisible"
-      android:layout_alignParentTop="true"
+      android:visibility="gone"
       android:layout_centerHorizontal="true"
-      android:layout_marginTop="50dp"/>
+      android:layout_below="@+id/currentSpeed"/>
+
+   <TextView
+      android:id="@+id/currentDistance"
+      android:text=".."
+      android:textStyle="bold"
+      android:textColor="#ff000000"
+      android:textSize="12pt"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:visibility="gone"
+      android:layout_centerHorizontal="true"
+      android:layout_below="@+id/currentAltitude"/>
 
    <TextView
       android:id="@+id/speedview00"

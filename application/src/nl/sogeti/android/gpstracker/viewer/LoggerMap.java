@@ -131,11 +131,13 @@ public class LoggerMap extends MapActivity
    private CheckBox mTraffic;
    private CheckBox mSpeed;
    private CheckBox mAltitude;
+   private CheckBox mDistance;
    private CheckBox mCompass;
    private CheckBox mLocation;
    private TextView[] mSpeedtexts = new TextView[0];
    private TextView mLastGPSSpeedView = null;
    private TextView mLastGPSAltitudeView = null;
+   private TextView mDistanceView = null;
    private Gallery mGallery;
 
    private double mAverageSpeed = 33.33d / 3d;
@@ -215,6 +217,7 @@ public class LoggerMap extends MapActivity
       mSpeedtexts = speeds;
       mLastGPSSpeedView = (TextView) findViewById(R.id.currentSpeed);
       mLastGPSAltitudeView = (TextView) findViewById(R.id.currentAltitude);
+      mDistanceView = (TextView) findViewById(R.id.currentDistance);
 
       createListeners();
       onRestoreInstanceState(load);
@@ -453,6 +456,13 @@ public class LoggerMap extends MapActivity
       editor.putBoolean(Constants.ALTITUDE, b);
       editor.commit();
    }
+   
+   private void setDistanceOverlay(boolean b)
+   {
+      Editor editor = mSharedPreferences.edit();
+      editor.putBoolean(Constants.DISTANCE, b);
+      editor.commit();
+   }
 
    private void setCompassOverlay(boolean b)
    {
@@ -581,6 +591,9 @@ public class LoggerMap extends MapActivity
                   break;
                case R.id.layer_altitude:
                   setAltitudeOverlay(isChecked);
+                  break;
+               case R.id.layer_distance:
+                  setDistanceOverlay(isChecked);
                   break;
                case R.id.layer_compass:
                   setCompassOverlay(isChecked);
@@ -712,7 +725,7 @@ public class LoggerMap extends MapActivity
          {
             if (!selfUpdate)
             {
-               LoggerMap.this.updateDisplayedSpeedViews();
+               LoggerMap.this.updateTrackNumbers();
                if (mLastSegmentOverlay != null)
                {
                   moveActiveViewWindow();
@@ -734,7 +747,7 @@ public class LoggerMap extends MapActivity
          public void onUnitsChange()
          {
             mAverageSpeed = 0.0;
-            updateDisplayedSpeedViews();
+            updateTrackNumbers();
             updateSpeedColoring();
          }
       };
@@ -878,6 +891,7 @@ public class LoggerMap extends MapActivity
             mTraffic = (CheckBox) view.findViewById(R.id.layer_traffic);
             mSpeed = (CheckBox) view.findViewById(R.id.layer_speed);
             mAltitude = (CheckBox) view.findViewById(R.id.layer_altitude);
+            mDistance = (CheckBox) view.findViewById(R.id.layer_distance);
             mCompass = (CheckBox) view.findViewById(R.id.layer_compass);
             mLocation = (CheckBox) view.findViewById(R.id.layer_location);
 
@@ -887,6 +901,7 @@ public class LoggerMap extends MapActivity
             mTraffic.setOnCheckedChangeListener(mCheckedChangeListener);
             mSpeed.setOnCheckedChangeListener(mCheckedChangeListener);
             mAltitude.setOnCheckedChangeListener(mCheckedChangeListener);
+            mDistance.setOnCheckedChangeListener(mCheckedChangeListener);
             mCompass.setOnCheckedChangeListener(mCheckedChangeListener);
             mLocation.setOnCheckedChangeListener(mCheckedChangeListener);
 
@@ -960,6 +975,7 @@ public class LoggerMap extends MapActivity
             mTraffic.setChecked(mSharedPreferences.getBoolean(Constants.TRAFFIC, false));
             mSpeed.setChecked(mSharedPreferences.getBoolean(Constants.SPEED, false));
             mAltitude.setChecked(mSharedPreferences.getBoolean(Constants.ALTITUDE, false));
+            mDistance.setChecked(mSharedPreferences.getBoolean(Constants.DISTANCE, false));
             mCompass.setChecked(mSharedPreferences.getBoolean(Constants.COMPASS, false));
             mLocation.setChecked(mSharedPreferences.getBoolean(Constants.LOCATION, false));
             int provider = new Integer(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
@@ -1206,7 +1222,7 @@ public class LoggerMap extends MapActivity
       }
       else
       {
-         mLastGPSSpeedView.setVisibility(View.INVISIBLE);
+         mLastGPSSpeedView.setVisibility(View.GONE);
       }
    }
 
@@ -1220,10 +1236,24 @@ public class LoggerMap extends MapActivity
       }
       else
       {
-         mLastGPSAltitudeView.setVisibility(View.INVISIBLE);
+         mLastGPSAltitudeView.setVisibility(View.GONE);
       }
    }
-
+   
+   private void updateDistanceDisplayVisibility()
+   {
+      boolean showdistance = mSharedPreferences.getBoolean(Constants.DISTANCE, false);
+      if (showdistance)
+      {
+         mDistanceView.setVisibility(View.VISIBLE);
+         mDistanceView.setText("");
+      }
+      else
+      {
+         mDistanceView.setVisibility(View.GONE);
+      }
+   }
+   
    private void updateCompassDisplayVisibility()
    {
       boolean compass = mSharedPreferences.getBoolean(Constants.COMPASS, false);
@@ -1255,7 +1285,7 @@ public class LoggerMap extends MapActivity
     * recent waypoint and updates UI components with this latest bit of
     * information.
     */
-   private void updateDisplayedSpeedViews()
+   private void updateTrackNumbers()
    {
       Location lastWaypoint = mLoggerServiceManager.getLastWaypoint();
       UnitsI18n units = mUnits;
@@ -1267,7 +1297,7 @@ public class LoggerMap extends MapActivity
          String speedText = units.formatSpeed(speed, true);
          mLastGPSSpeedView.setText(speedText);
 
-         // Speed color bar
+         // Speed color bar and refrence numbers
          if (speed > 2 * mAverageSpeed)
          {
             mAverageSpeed = 0.0;
@@ -1280,6 +1310,11 @@ public class LoggerMap extends MapActivity
          altitude = units.conversionFromMeterToHeight(altitude);
          String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
          mLastGPSAltitudeView.setText(altitudeText);
+         
+         //Distance number
+         //TODO 
+         //TODO
+         //TODO
       }
    }
 
