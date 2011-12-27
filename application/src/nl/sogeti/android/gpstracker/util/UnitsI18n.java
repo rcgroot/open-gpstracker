@@ -317,19 +317,42 @@ public class UnitsI18n
       void onUnitsChange();
    }
 
-   public String formatSpeed(double speed)
+   /**
+    * Format a speed using the current unit and flipping
+    *  
+    * @param speed
+    * @param decimals format a bit larger showing decimals or seconds
+    * @return 
+    */
+   public String formatSpeed(double speed, boolean decimals)
    {
       String speedText;
       if(mUnits == Constants.UNITS_METRICPACE || mUnits == Constants.UNITS_IMPERIALPACE)
       {
-         speedText = String.format( "%02d:%02d %s",
-               (int)speed,
-               (int)((speed-(int)speed)*60), // convert decimal to seconds
-               this.getSpeedUnit() );
+         if( decimals )
+         {
+            speedText = String.format( "%02d %s",
+                  (int)speed,
+                  this.getSpeedUnit() );
+         }
+         else
+         {
+            speedText = String.format( "%02d:%02d %s",
+                  (int)speed,
+                  (int)((speed-(int)speed)*60), // convert decimal to seconds
+                  this.getSpeedUnit() );
+         }
       }
       else
       {
-         speedText = String.format( "%.2f %s", speed, this.getSpeedUnit() );
+         if( decimals )
+         {
+            speedText = String.format( "%.2f %s", speed, this.getSpeedUnit() );
+         }
+         else
+         {
+            speedText = String.format( "%.0f %s", speed, this.getSpeedUnit() );
+         }
 
       }
       return speedText;

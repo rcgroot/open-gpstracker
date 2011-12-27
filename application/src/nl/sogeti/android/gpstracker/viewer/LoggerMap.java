@@ -1264,7 +1264,7 @@ public class LoggerMap extends MapActivity
          // Speed number
          double speed = lastWaypoint.getSpeed();
          speed = units.conversionFromMetersPerSecond(speed);
-         String speedText = units.formatSpeed(speed);
+         String speedText = units.formatSpeed(speed, true);
          mLastGPSSpeedView.setText(speedText);
 
          // Speed color bar
@@ -1429,7 +1429,7 @@ public class LoggerMap extends MapActivity
             {
                speed = ((avgSpeed * 2d) / 5d) * i;
             }
-            String speedText = units.formatSpeed(speed);
+            String speedText = units.formatSpeed(speed, false);
             mSpeedtexts[i].setText(speedText);
          }
       }

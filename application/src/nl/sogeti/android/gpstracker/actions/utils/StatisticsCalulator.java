@@ -240,9 +240,9 @@ public class StatisticsCalulator extends AsyncTask<Uri, Void, Void>
       double overallavgSpeedfl = mUnits.conversionFromMeterAndMiliseconds( mDistanceTraveled, mDuration );
       double avgSpeedfl        = mUnits.conversionFromMeterAndMiliseconds( mDistanceTraveled, duration );
       double traveled          = mUnits.conversionFromMeter( mDistanceTraveled );
-      avgSpeedText        = mUnits.formatSpeed( avgSpeedfl ); 
-      overallavgSpeedText = mUnits.formatSpeed( overallavgSpeedfl );
-      maxSpeedText        = mUnits.formatSpeed( maxSpeed );
+      avgSpeedText        = mUnits.formatSpeed( avgSpeedfl, true ); 
+      overallavgSpeedText = mUnits.formatSpeed( overallavgSpeedfl, true );
+      maxSpeedText        = mUnits.formatSpeed( maxSpeed, true );
       distanceText        = String.format( "%.2f %s", traveled,          mUnits.getDistanceUnit() );
       ascensionText       = String.format( "%.0f %s", ascension,         mUnits.getHeightUnit() );
    }
