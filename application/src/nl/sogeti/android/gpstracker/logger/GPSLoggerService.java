@@ -92,6 +92,22 @@ import android.widget.Toast;
  */
 public class GPSLoggerService extends Service
 {
+   private static final float FINE_DISTANCE = 5F;
+   private static final long  FINE_INTERVAL = 1000l;
+   private static final float FINE_ACCURACY = 20f;
+   
+   private static final float NORMAL_DISTANCE = 10F;
+   private static final long  NORMAL_INTERVAL = 15000l;
+   private static final float NORMAL_ACCURACY = 30f;
+
+   private static final float COARSE_DISTANCE = 25F;
+   private static final long  COARSE_INTERVAL = 30000l;
+   private static final float COARSE_ACCURACY = 75f;
+   
+   private static final float GLOBAL_DISTANCE = 500F;
+   private static final long  GLOBAL_INTERVAL = 300000l;
+   private static final float GLOBAL_ACCURACY = 1000f;
+
    /**
     * <code>MAX_REASONABLE_SPEED</code> is about 324 kilometer per hour or 201
     * mile per hour.
@@ -1087,27 +1103,27 @@ public class GPSLoggerService extends Service
             this.mLocationManager.addGpsStatusListener(mStatusListener);
             break;
          case REQUEST_FINEGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 20f;
-            intervaltime = 1000l;
-            distance = 5F;
+            mMaxAcceptableAccuracy = FINE_ACCURACY;
+            intervaltime = FINE_INTERVAL;
+            distance = FINE_DISTANCE;
             startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
          case REQUEST_NORMALGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 30f;
-            intervaltime = 15000l;
-            distance = 10F;
+            mMaxAcceptableAccuracy = NORMAL_ACCURACY;
+            intervaltime = NORMAL_INTERVAL;
+            distance = NORMAL_DISTANCE;
             startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
          case REQUEST_COARSEGPS_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 75f;
-            intervaltime = 30000l;
-            distance = 25F;
+            mMaxAcceptableAccuracy = COARSE_ACCURACY;
+            intervaltime = COARSE_INTERVAL;
+            distance = COARSE_DISTANCE;
             startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
          case REQUEST_GLOBALNETWORK_LOCATIONUPDATES:
-            mMaxAcceptableAccuracy = 1000f;
-            intervaltime = 300000l;
-            distance = 500F;
+            mMaxAcceptableAccuracy = GLOBAL_ACCURACY;
+            intervaltime = GLOBAL_INTERVAL;
+            distance = GLOBAL_DISTANCE;
             startListening(LocationManager.NETWORK_PROVIDER, intervaltime, distance);
             if (!isNetworkConnected())
             {
