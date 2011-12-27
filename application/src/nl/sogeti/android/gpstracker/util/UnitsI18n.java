@@ -71,6 +71,7 @@ public class UnitsI18n
       }
    };
    private boolean needsUnitFlip;
+   private int mUnits;
 
    @SuppressWarnings("unused")
    private static final String TAG = "OGT.UnitsI18n";
@@ -89,8 +90,8 @@ public class UnitsI18n
 
    private void initBasedOnPreferences(SharedPreferences sharedPreferences)
    {
-      int units = Integer.parseInt(sharedPreferences.getString(Constants.UNITS, Integer.toString(Constants.UNITS_DEFAULT)));
-      switch (units)
+      mUnits = Integer.parseInt(sharedPreferences.getString(Constants.UNITS, Integer.toString(Constants.UNITS_DEFAULT)));
+      switch (mUnits)
       {
          case (Constants.UNITS_DEFAULT):
             setToDefault();
@@ -315,4 +316,22 @@ public class UnitsI18n
        */
       void onUnitsChange();
    }
+
+   public String formatSpeed(double speed)
+   {
+      String speedText;
+      if(mUnits == Constants.UNITS_METRICPACE || mUnits == Constants.UNITS_IMPERIALPACE)
+      {
+         speedText = String.format( "%02d:%02d %s",
+               (int)speed,
+               (int)((speed-(int)speed)*60), // convert decimal to seconds
+               this.getSpeedUnit() );
+      }
+      else
+      {
+         speedText = String.format( "%.2f %s", speed, this.getSpeedUnit() );
+
+      }
+      return speedText;
+  }
 }
