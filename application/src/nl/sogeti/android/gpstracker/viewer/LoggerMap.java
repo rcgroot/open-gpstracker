@@ -1222,7 +1222,6 @@ public class LoggerMap extends MapActivity
       if (showspeed)
       {
          mLastGPSSpeedView.setVisibility(View.VISIBLE);
-         mLastGPSSpeedView.setText("");
       }
       else
       {
@@ -1236,7 +1235,6 @@ public class LoggerMap extends MapActivity
       if (showaltitude)
       {
          mLastGPSAltitudeView.setVisibility(View.VISIBLE);
-         mLastGPSAltitudeView.setText("");
       }
       else
       {
@@ -1250,7 +1248,6 @@ public class LoggerMap extends MapActivity
       if (showdistance)
       {
          mDistanceView.setVisibility(View.VISIBLE);
-         mDistanceView.setText("");
       }
       else
       {
@@ -1317,7 +1314,7 @@ public class LoggerMap extends MapActivity
          
          //Distance number
          float distance = mLoggerServiceManager.getTrackedDistance();
-         String distanceText = mUnits.formatSpeed( mUnits.conversionFromMeter(distance), true);
+         String distanceText = String.format("%.0f %s", distance, units.getDistanceUnit());
          mDistanceView.setText(distanceText);
       }
    }
