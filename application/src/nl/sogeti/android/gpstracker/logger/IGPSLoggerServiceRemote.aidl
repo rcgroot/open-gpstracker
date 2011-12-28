@@ -14,4 +14,5 @@ interface IGPSLoggerServiceRemote {
     boolean isMediaPrepared();
     void storeDerivedDataSource(in String sourceName);
     Location getLastWaypoint();
+    float getTrackedDistance();
 }

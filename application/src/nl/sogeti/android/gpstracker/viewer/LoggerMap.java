@@ -233,7 +233,6 @@ public class LoggerMap extends MapActivity
       mUnits.setUnitsChangeListener(mUnitsChangeListener);
       updateTitleBar();
       updateBlankingBehavior();
-
       updateMapProvider();
 
       if (mTrackId >= 0)
@@ -255,6 +254,7 @@ public class LoggerMap extends MapActivity
       updateSpeedColoring();
       updateSpeedDisplayVisibility();
       updateAltitudeDisplayVisibility();
+      updateDistanceDisplayVisibility();
       updateCompassDisplayVisibility();
       updateLocationDisplayVisibility();
 
@@ -657,6 +657,10 @@ public class LoggerMap extends MapActivity
             else if (key.equals(Constants.ALTITUDE))
             {
                updateAltitudeDisplayVisibility();
+            }
+            else if (key.equals(Constants.DISTANCE))
+            {
+               updateDistanceDisplayVisibility();
             }
             else if (key.equals(Constants.COMPASS))
             {
@@ -1312,9 +1316,9 @@ public class LoggerMap extends MapActivity
          mLastGPSAltitudeView.setText(altitudeText);
          
          //Distance number
-         //TODO 
-         //TODO
-         //TODO
+         float distance = mLoggerServiceManager.getTrackedDistance();
+         String distanceText = mUnits.formatSpeed( mUnits.conversionFromMeter(distance), true);
+         mDistanceView.setText(distanceText);
       }
    }
 

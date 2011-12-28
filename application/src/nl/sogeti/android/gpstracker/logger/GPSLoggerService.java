@@ -124,6 +124,7 @@ public class GPSLoggerService extends Service
    private static final boolean VERBOSE = false;
    private static final String TAG = "OGT.GPSLoggerService";
 
+   private static final String SERVICESTATE_DISTANCE = "SERVICESTATE_DISTANCE";
    private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
    private static final String SERVICESTATE_PRECISION = "SERVICESTATE_PRECISION";
    private static final String SERVICESTATE_SEGMENTID = "SERVICESTATE_SEGMENTID";
@@ -176,6 +177,7 @@ public class GPSLoggerService extends Service
    private String mSources;
 
    private Location mPreviousLocation;
+   private float mDistance;
    private Notification mNotification;
 
    private Vector<Location> mWeakLocations;
@@ -269,6 +271,10 @@ public class GPSLoggerService extends Service
                {
                   startNewSegment();
                }
+            }
+            if( mPreviousLocation != null )
+            {
+               mDistance += mPreviousLocation.distanceTo(filteredLocation);
             }
             storeLocation(filteredLocation);
             broadcastLocation(filteredLocation);
@@ -408,6 +414,11 @@ public class GPSLoggerService extends Service
       public Location getLastWaypoint() throws RemoteException
       {
          return GPSLoggerService.this.getLastWaypoint();
+      }
+      
+      public float getTrackedDistance() throws RemoteException
+      {
+         return GPSLoggerService.this.getTrackedDistance();
       }
    };
 
@@ -663,6 +674,7 @@ public class GPSLoggerService extends Service
       editor.putLong(SERVICESTATE_SEGMENTID, mSegmentId);
       editor.putInt(SERVICESTATE_PRECISION, mPrecision);
       editor.putInt(SERVICESTATE_STATE, mLoggingState);
+      editor.putFloat(SERVICESTATE_DISTANCE, mDistance);
       editor.commit();
       if (DEBUG)
       {
@@ -683,6 +695,7 @@ public class GPSLoggerService extends Service
          mTrackId = preferences.getLong(SERVICESTATE_TRACKID, -1);
          mSegmentId = preferences.getLong(SERVICESTATE_SEGMENTID, -1);
          mPrecision = preferences.getInt(SERVICESTATE_PRECISION, -1);
+         mDistance = preferences.getFloat(SERVICESTATE_DISTANCE, 0F);
          if (previousState == Constants.LOGGING)
          {
             mLoggingState = Constants.PAUSED;
@@ -731,6 +744,16 @@ public class GPSLoggerService extends Service
          myLastWaypoint = mPreviousLocation;
       }
       return myLastWaypoint;
+   }
+   
+   public float getTrackedDistance()
+   {
+      float distance = 0F;
+      if (isLogging())
+      {
+         distance = mDistance;
+      }
+      return distance;
    }
 
    protected boolean isMediaPrepared()
@@ -1329,6 +1352,7 @@ public class GPSLoggerService extends Service
     */
    private void startNewTrack()
    {
+      mDistance = 0;
       Uri newTrack = this.getContentResolver().insert(Tracks.CONTENT_URI, new ContentValues(0));
       mTrackId = new Long(newTrack.getLastPathSegment()).longValue();
       startNewSegment();

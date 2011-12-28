@@ -86,6 +86,31 @@ public class GPSLoggerServiceManager
       }
    }
    
+
+   public float getTrackedDistance()
+   {
+      synchronized (mStartLock)
+      {
+         float distance = 0F;
+         try
+         {
+            if( mBound )
+            {
+               distance = this.mGPSLoggerRemote.getTrackedDistance();
+            }
+            else
+            {
+               Log.w( TAG, "Remote interface to logging service not found. Started: " + mBound );
+            }
+         }
+         catch (RemoteException e)
+         {
+            Log.e( TAG, "Could get tracked distance from GPSLoggerService.", e );
+         }
+         return distance;
+      }
+   }
+   
    public int getLoggingState()
    {
       synchronized (mStartLock)
