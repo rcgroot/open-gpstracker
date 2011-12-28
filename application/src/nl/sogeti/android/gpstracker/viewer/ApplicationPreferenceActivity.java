@@ -92,7 +92,7 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
       {
          public boolean onPreferenceChange(Preference preference, Object newValue)
          {
-            String fpExpr = "\\d+([,\\.]\\d+)?";
+            String fpExpr = "\\d{1,4}([,\\.]\\d+)?";
             return Pattern.matches(fpExpr, newValue.toString());
          }
       });
@@ -100,7 +100,7 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
       {
          public boolean onPreferenceChange(Preference preference, Object newValue)
          {
-            String fpExpr = "\\d+";
+            String fpExpr = "\\d{1,5}";
             boolean matches = Pattern.matches(fpExpr, newValue.toString());
             if (matches)
             {
@@ -116,7 +116,7 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
       {
          public boolean onPreferenceChange(Preference preference, Object newValue)
          {
-            String fpExpr = "\\d+";
+            String fpExpr = "\\d{1,3}";
             return Pattern.matches(fpExpr, newValue.toString());
          }
       });
