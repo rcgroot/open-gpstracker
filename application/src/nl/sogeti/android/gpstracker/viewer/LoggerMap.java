@@ -1295,7 +1295,7 @@ public class LoggerMap extends MapActivity
          // Speed number
          double speed = lastWaypoint.getSpeed();
          speed = units.conversionFromMetersPerSecond(speed);
-         String speedText = units.formatSpeed(speed, true);
+         String speedText = units.formatSpeed(speed, false);
          mLastGPSSpeedView.setText(speedText);
 
          // Speed color bar and refrence numbers
@@ -1313,8 +1313,8 @@ public class LoggerMap extends MapActivity
          mLastGPSAltitudeView.setText(altitudeText);
          
          //Distance number
-         float distance = mLoggerServiceManager.getTrackedDistance();
-         String distanceText = String.format("%.0f %s", distance, units.getDistanceUnit());
+         double distance = units.conversionFromMeter( mLoggerServiceManager.getTrackedDistance() );
+         String distanceText = String.format("%.2f %s", distance, units.getDistanceUnit());
          mDistanceView.setText(distanceText);
       }
    }
