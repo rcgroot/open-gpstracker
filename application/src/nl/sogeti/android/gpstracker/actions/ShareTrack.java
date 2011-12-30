@@ -747,38 +747,41 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       mCloseImageView.setVisibility(View.GONE);
       if (getIntent().getExtras() != null && getIntent().hasExtra(Intent.EXTRA_STREAM))
       {
-         InputStream is = null;
-         try            
+         mImageUri = getIntent().getExtras().getParcelable(Intent.EXTRA_STREAM);
+         if( mImageUri != null )
          {
-            mImageUri = getIntent().getExtras().getParcelable(Intent.EXTRA_STREAM);
-            is = getContentResolver().openInputStream(mImageUri);
-            mImageView.setImageBitmap(BitmapFactory.decodeStream(is));
-            mImageView.setVisibility(View.VISIBLE);
-            mCloseImageView.setVisibility(View.VISIBLE);
-            mCloseImageView.setOnClickListener( new View.OnClickListener()
+            InputStream is = null;
+            try            
             {
-               
-               public void onClick(View v)
+               is = getContentResolver().openInputStream(mImageUri);
+               mImageView.setImageBitmap(BitmapFactory.decodeStream(is));
+               mImageView.setVisibility(View.VISIBLE);
+               mCloseImageView.setVisibility(View.VISIBLE);
+               mCloseImageView.setOnClickListener( new View.OnClickListener()
                {
-                  removeScreenBitmap();
-               }
-            });
-         }
-         catch (FileNotFoundException e)
-         {
-            Log.e(TAG, "Failed reading image from file", e);
-         }
-         finally
-         {
-            if (is != null)
+                  
+                  public void onClick(View v)
+                  {
+                     removeScreenBitmap();
+                  }
+               });
+            }
+            catch (FileNotFoundException e)
             {
-               try
+               Log.e(TAG, "Failed reading image from file", e);
+            }
+            finally
+            {
+               if (is != null)
                {
-                  is.close();
-               }
-               catch (IOException e)
-               {
-                  Log.e(TAG, "Failed close image from file", e);
+                  try
+                  {
+                     is.close();
+                  }
+                  catch (IOException e)
+                  {
+                     Log.e(TAG, "Failed close image from file", e);
+                  }
                }
             }
          }
