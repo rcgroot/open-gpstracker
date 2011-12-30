@@ -90,7 +90,7 @@ import android.widget.Toast;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-public class GPSLoggerService extends Service
+public class GPSLoggerService extends Service implements LocationListener
 {
    private static final float FINE_DISTANCE = 5F;
    private static final long  FINE_INTERVAL = 1000l;
@@ -243,94 +243,88 @@ public class GPSLoggerService extends Service
       }
    };
 
-   /**
-    * Listens to location changes and provider availability
-    */
-   private LocationListener mLocationListener = new LocationListener()
+   
+   public void onLocationChanged(Location location)
    {
-      public void onLocationChanged(Location location)
+      if (VERBOSE)
       {
-         if (VERBOSE)
+         Log.v(TAG, "onLocationChanged( Location " + location + " )");
+      }
+      ;
+      // Might be claiming GPS disabled but when we were paused this changed and this location proves so
+      if (mShowingGpsDisabled)
+      {
+         notifyOnEnabledProviderNotification(R.string.service_gpsenabled);
+      }
+      Location filteredLocation = locationFilter(location);
+      if (filteredLocation != null)
+      {
+         if (mStartNextSegment)
          {
-            Log.v(TAG, "onLocationChanged( Location " + location + " )");
-         }
-         ;
-         // Might be claiming GPS disabled but when we were paused this changed and this location proves so
-         if (mShowingGpsDisabled)
-         {
-            notifyOnEnabledProviderNotification(R.string.service_gpsenabled);
-         }
-         Location filteredLocation = locationFilter(location);
-         if (filteredLocation != null)
-         {
-            if (mStartNextSegment)
+            mStartNextSegment = false;
+            // Obey the start segment if the previous location is unknown or far away
+            if (mPreviousLocation == null || filteredLocation.distanceTo(mPreviousLocation) > 4 * mMaxAcceptableAccuracy)
             {
-               mStartNextSegment = false;
-               // Obey the start segment if the previous location is unknown or far away
-               if (mPreviousLocation == null || filteredLocation.distanceTo(mPreviousLocation) > 4 * mMaxAcceptableAccuracy)
-               {
-                  startNewSegment();
-               }
+               startNewSegment();
             }
-            if( mPreviousLocation != null )
-            {
-               mDistance += mPreviousLocation.distanceTo(filteredLocation);
-            }
-            storeLocation(filteredLocation);
-            broadcastLocation(filteredLocation);
-            mPreviousLocation = location;
          }
+         else if( mPreviousLocation != null )
+         {
+            mDistance += mPreviousLocation.distanceTo(filteredLocation);
+         }
+         storeLocation(filteredLocation);
+         broadcastLocation(filteredLocation);
+         mPreviousLocation = location;
       }
-
-      public void onProviderDisabled(String provider)
+   }
+   public void onProviderDisabled(String provider)
+   {
+      if (DEBUG)
       {
-         if (DEBUG)
-         {
-            Log.d(TAG, "onProviderDisabled( String " + provider + " )");
-         }
-         ;
-         if (mPrecision != Constants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER))
-         {
-            notifyOnDisabledProvider(R.string.service_gpsdisabled);
-         }
-         else if (mPrecision == Constants.LOGGING_GLOBAL && provider.equals(LocationManager.NETWORK_PROVIDER))
-         {
-            notifyOnDisabledProvider(R.string.service_datadisabled);
-         }
-
+         Log.d(TAG, "onProviderDisabled( String " + provider + " )");
       }
-
-      public void onProviderEnabled(String provider)
+      ;
+      if (mPrecision != Constants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER))
       {
-         if (DEBUG)
-         {
-            Log.d(TAG, "onProviderEnabled( String " + provider + " )");
-         }
-         ;
-         if (mPrecision != Constants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER))
-         {
-            notifyOnEnabledProviderNotification(R.string.service_gpsenabled);
-            mStartNextSegment = true;
-         }
-         else if (mPrecision == Constants.LOGGING_GLOBAL && provider.equals(LocationManager.NETWORK_PROVIDER))
-         {
-            notifyOnEnabledProviderNotification(R.string.service_dataenabled);
-         }
+         notifyOnDisabledProvider(R.string.service_gpsdisabled);
+      }
+      else if (mPrecision == Constants.LOGGING_GLOBAL && provider.equals(LocationManager.NETWORK_PROVIDER))
+      {
+         notifyOnDisabledProvider(R.string.service_datadisabled);
       }
 
-      public void onStatusChanged(String provider, int status, Bundle extras)
+   }
+
+   public void onProviderEnabled(String provider)
+   {
+      if (DEBUG)
       {
-         if (DEBUG)
-         {
-            Log.d(TAG, "onStatusChanged( String " + provider + ", int " + status + ", Bundle " + extras + " )");
-         }
-         ;
-         if (status == LocationProvider.OUT_OF_SERVICE)
-         {
-            Log.e(TAG, String.format("Provider %s changed to status %d", provider, status));
-         }
+         Log.d(TAG, "onProviderEnabled( String " + provider + " )");
       }
-   };
+      ;
+      if (mPrecision != Constants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER))
+      {
+         notifyOnEnabledProviderNotification(R.string.service_gpsenabled);
+         mStartNextSegment = true;
+      }
+      else if (mPrecision == Constants.LOGGING_GLOBAL && provider.equals(LocationManager.NETWORK_PROVIDER))
+      {
+         notifyOnEnabledProviderNotification(R.string.service_dataenabled);
+      }
+   }
+
+   public void onStatusChanged(String provider, int status, Bundle extras)
+   {
+      if (DEBUG)
+      {
+         Log.d(TAG, "onStatusChanged( String " + provider + ", int " + status + ", Bundle " + extras + " )");
+      }
+      ;
+      if (status == LocationProvider.OUT_OF_SERVICE)
+      {
+         Log.e(TAG, String.format("Provider %s changed to status %d", provider, status));
+      }
+   }
 
    /**
     * Listens to GPS status changes
@@ -860,8 +854,8 @@ public class GPSLoggerService extends Service
 
    private void startListening(String provider, long intervaltime, float distance)
    {
-      mLocationManager.removeUpdates(mLocationListener);
-      mLocationManager.requestLocationUpdates(provider, intervaltime, distance, mLocationListener);
+      mLocationManager.removeUpdates(this);
+      mLocationManager.requestLocationUpdates(provider, intervaltime, distance, this);
       mCheckPeriod = Math.max(12 * intervaltime, 120 * 1000);
       if (mHeartbeat != null)
       {
@@ -879,7 +873,7 @@ public class GPSLoggerService extends Service
          mHeartbeat.cancel();
          mHeartbeat = null;
       }
-      mLocationManager.removeUpdates(mLocationListener);
+      mLocationManager.removeUpdates(this);
    }
 
    /**
