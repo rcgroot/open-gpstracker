@@ -83,7 +83,6 @@ public class MapViewProxy
          mMapControllerProxy.setController( mOpenStreetMapView );
          mProjectionProxy.setProjection( mOpenStreetMapView );
          
-         
          if( mGoogleMapView != null )
          {
             GeoPoint mapCenter = mGoogleMapView.getMapCenter();
@@ -99,6 +98,12 @@ public class MapViewProxy
          throw new IllegalStateException( "Unusable map provided" );
       }
       setBuiltInZoomControls( buildinzoom );
+      
+      // Add the local overlay to any newly referenced map
+      for( OverlayProxy proxy : getOverlays() )
+      {
+         this.addToMapsOverlays(proxy);
+      }
    }
    
    protected View getMap()
@@ -232,6 +237,11 @@ public class MapViewProxy
    public void addOverlay( OverlayProxy overlay )
    {
       mOverlayProxies.add(overlay);
+      addToMapsOverlays(overlay);
+   }
+
+   private void addToMapsOverlays(OverlayProxy overlay)
+   {
       if( mGoogleMapView != null  )
       {
          mGoogleMapView.getOverlays().add( overlay.getGoogleOverlay() );
