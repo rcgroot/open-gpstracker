@@ -68,16 +68,6 @@
             android:title="@string/logatstartup"
             android:summary="@string/logatstartup_summary"
             android:defaultValue="false" />
-         <CheckBoxPreference
-            android:key="logatdock"
-            android:title="@string/logatdock"
-            android:summary="@string/logatdock_summary"
-            android:defaultValue="false" />
-         <CheckBoxPreference
-            android:key="stopatundock"
-            android:title="@string/stopatundock"
-            android:summary="@string/stopatundock_summary"
-            android:defaultValue="false" />
       </PreferenceCategory>
    </PreferenceScreen>
 
@@ -190,12 +180,6 @@
             android:defaultValue="5"
             android:inputType="number"
             android:singleLine="true"
-            android:dependency="STREAM_ENABLED" />
-         <CheckBoxPreference
-            android:key="VOICEOVER_ENABLED"
-            android:title="@string/voiceover_title"
-            android:summary="@string/voiceover_summary"
-            android:defaultValue="false"
             android:dependency="STREAM_ENABLED" />
          <CheckBoxPreference
             android:key="CUSTOMUPLOAD_ENABLED"

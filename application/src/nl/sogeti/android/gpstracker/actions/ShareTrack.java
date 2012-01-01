@@ -511,7 +511,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
             String p = resolveInfo.activityInfo.packageName;
             if (p != null && p.startsWith(twitterApps[i]))
             {
-               tweetIntent.setPackage(p);
+               //tweetIntent.setPackage(p);
             }
          }
       }
