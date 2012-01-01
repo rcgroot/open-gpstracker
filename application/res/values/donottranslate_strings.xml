@@ -9,5 +9,6 @@
    <string name="osm_post_url">http://api.openstreetmap.org/api/0.6/gpx/create</string>
    <string name="osm_tag">OpenGPSTracker</string>
    <!-- <string name="osm_post_url">http://api06.dev.openstreetmap.org/api/0.6/gpx/create</string> -->
+    <string name="units_implement_width">8</string>
     
 </resources>
