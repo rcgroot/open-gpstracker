@@ -1512,6 +1512,7 @@ public class GPSLoggerService extends Service implements LocationListener
       mHandler.sendMessage(msg);
    }
 
+   @SuppressWarnings("rawtypes")
    private void startForegroundReflected(int id, Notification notification)
    {
 
@@ -1545,6 +1546,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
    }
 
+   @SuppressWarnings("rawtypes")
    private void stopForegroundReflected(boolean b)
    {
       Class[] mStopForegroundSignature = new Class[] { boolean.class };

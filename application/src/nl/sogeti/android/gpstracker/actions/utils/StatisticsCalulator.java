@@ -39,7 +39,6 @@ import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
 
 public class StatisticsCalulator extends AsyncTask<Uri, Void, Void>
 {

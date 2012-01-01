@@ -62,7 +62,7 @@
 <string name="dialog_description_message">Geef meer informatie voor versturen</string>
 <string name="dialog_bundle">Bundle: %1$s</string>
 <string name="authentication_redirect">Verzoeken van authenticatie</string>
-<string name="loading">Laden...</string>
+<string name="loading">Laden&#8230;</string>
 <string name="no_information_available">Geen informatie beschikbaar.</string>
 <string name="taskerror_gpx_import">Importeren GPX data</string>
 <string name="taskerror_xml_write">Schrijven XML data</string>

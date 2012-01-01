@@ -117,7 +117,7 @@
     <string name="menu_deleteTrack">Usuń ścieżkę</string>
     <string name="menu_renameTrack">Zmień nazwę ścieżki</string>
     <string name="menu_statistics">Statystyki</string>
-    <string name="menu_about">O...</string>
+    <string name="menu_about">O&#8230;</string>
     <string name="menu_showLayers">Warstwy</string>
     <string name="menu_graphtype">Typ wykresu</string>
     <string name="menu_insertnote">Dodaj notatkę</string>

@@ -40,7 +40,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator.ProgressAdmin;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -52,7 +51,6 @@ import nl.sogeti.android.gpstracker.util.Constants;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
