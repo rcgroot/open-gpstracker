@@ -407,7 +407,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
          }
          result = writer.toString(); 
       }
-      Log.d( tag, result );
       InputStream in = new ByteArrayInputStream(result.getBytes("UTF-8"));  
       return in;
    }

@@ -81,7 +81,7 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
    public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
    public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
 
-   public static final boolean DEBUG = true;
+   public static final boolean DEBUG = false;
    
    boolean mAuthorized;
    private Context mContext;
