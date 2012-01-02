@@ -54,7 +54,6 @@ public class Constants
    public static final String DISTANCE = "showdistance";
    public static final String COMPASS = "COMPASS";
    public static final String LOCATION = "LOCATION";
-   public static final String MAPPROVIDER = "mapprovider";
    public static final String TRACKCOLORING = "trackcoloring";
    public static final String SPEEDSANITYCHECK = "speedsanitycheck";
    public static final String PRECISION = "precision";
@@ -77,7 +76,6 @@ public class Constants
    public static final String DEFAULT_EXTERNAL_DIR  = "/OpenGPSTracker/";
    public static final String TMPICTUREFILE_SUBPATH = "media_tmp.tmp";
    public static final Uri NAME_URI = Uri.parse( "content://" + GPStracking.AUTHORITY+".string" );
-   public static final int GOOGLE = 0;
    public static final int OSM = 1;
    public static final String JOGRUNNER_AUTH = "JOGRUNNER_AUTH";
    public static final String EXPORT_TYPE = "SHARE_TYPE";

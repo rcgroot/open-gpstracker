@@ -5,24 +5,14 @@
    android:layout_height="fill_parent"
    android:id="@+id/mapScreen"
 >
-   <com.google.android.maps.MapView
-      android:id="@+id/myMapView"
-      android:layout_width="fill_parent"
-      android:layout_height="fill_parent"
-      android:enabled="true"
-      android:clickable="true"
-      android:apiKey="0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw" 
-      android:visibility="visible" />
-   <!--  Release         : 0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw -->
-   <!--  Emulator        : 0bmdf4-ggC50QJGdjml6Turq0NJdMhKFQNdhkYA -->
-
+ 
    <org.osmdroid.views.MapView
       android:id="@+id/myOsmMapView"
       android:layout_width="fill_parent"
       android:layout_height="fill_parent"
       renderer="CLOUDMADESTANDARDTILES"
       cloudmadeStyle="1"
-      android:visibility="gone"
+      android:visibility="visible"
    />
 
    <TextView

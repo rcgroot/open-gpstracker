@@ -86,13 +86,6 @@
       <PreferenceCategory
          android:title="@string/preference_display">
          <ListPreference
-            android:key="mapprovider"
-            android:title="@string/mapprovider_title"
-            android:summary="@string/mapprovider_summary"
-            android:entries="@array/mapprovider_choices"
-            android:entryValues="@array/mapprovider_values"
-            android:defaultValue="0" />
-         <ListPreference
             android:key="trackcoloring"
             android:title="@string/trackcoloring_title"
             android:summary="@string/trackcoloring_summary"

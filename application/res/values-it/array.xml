@@ -14,11 +14,6 @@
         <item>Rete globale</item>
     </string-array>
     
-    <string-array name="mapprovider_choices">
-        <item>Google Maps</item>
-        <item>OpenStreetMap</item>
-    </string-array>   
-    
     <string-array name="trackcoloring_choices">
         <item>Verde</item>
         <item>Rosso</item>

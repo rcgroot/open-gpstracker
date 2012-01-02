@@ -28,15 +28,9 @@
  */
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
-import nl.sogeti.android.gpstracker.viewer.FixedMyLocationOverlay;
-
 import android.content.Context;
 import android.location.Location;
 import android.view.View;
-
-import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
 
 
 public class MyLocationOverlayProxy implements OverlayProxy
@@ -44,7 +38,6 @@ public class MyLocationOverlayProxy implements OverlayProxy
    @SuppressWarnings("unused")
    private static final String TAG = "OGT.MyLocationOverlayProxy";
 
-   private MyLocationOverlay googleLocationOverlay;
    private org.osmdroid.views.overlay.MyLocationOverlay osmLocationOverlay;
    private Context mContext;
 
@@ -58,10 +51,6 @@ public class MyLocationOverlayProxy implements OverlayProxy
 
    public void enableMyLocation()
    {
-      if( googleLocationOverlay != null )
-      {
-         googleLocationOverlay.enableMyLocation();
-      }
       if( osmLocationOverlay != null )
       {
          osmLocationOverlay.enableMyLocation();
@@ -70,10 +59,6 @@ public class MyLocationOverlayProxy implements OverlayProxy
 
    public void disableMyLocation()
    {
-      if( googleLocationOverlay != null )
-      {
-         googleLocationOverlay.disableMyLocation();
-      }
       if( osmLocationOverlay != null )
       {
          osmLocationOverlay.disableMyLocation();
@@ -84,10 +69,6 @@ public class MyLocationOverlayProxy implements OverlayProxy
 
    public void enableCompass()
    {
-      if( googleLocationOverlay != null )
-      {
-         googleLocationOverlay.enableCompass();
-      }
       if( osmLocationOverlay != null )
       {
          osmLocationOverlay.enableCompass();
@@ -96,22 +77,11 @@ public class MyLocationOverlayProxy implements OverlayProxy
 
    public void disableCompass()
    {
-      if( googleLocationOverlay != null )
-      {
-         googleLocationOverlay.disableCompass();
-      }
       if( osmLocationOverlay != null )
       {
          osmLocationOverlay.disableCompass();
          mMapViewProxy.invalidate();
       }
-   }
-
-   public Overlay getGoogleOverlay()
-   {
-      View mapview = mMapViewProxy.getMap();
-      googleLocationOverlay = new FixedMyLocationOverlay( mContext, (MapView) mapview );
-      return googleLocationOverlay;
    }
 
    public org.osmdroid.views.overlay.Overlay getOSMOverlay()

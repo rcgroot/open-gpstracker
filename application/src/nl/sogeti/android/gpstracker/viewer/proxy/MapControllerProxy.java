@@ -28,18 +28,18 @@
  */
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
-import android.util.Log;
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapController;
+import android.util.Log;
 
 public class MapControllerProxy
 {
 
    private static final String TAG = "OGT.MapControllerProxy";
-   private MapController mMapController;
    private org.osmdroid.views.MapView mOpenStreetMapViewControllerSource;
-   private GeoPoint mPostponedSetCenterPoint = null;
+   private IGeoPoint mPostponedSetCenterPoint = null;
    private int mPostponedSetZoom = -1;
 
    public MapControllerProxy()
@@ -52,21 +52,12 @@ public class MapControllerProxy
       if( controller instanceof org.osmdroid.views.MapView )
       {
          mOpenStreetMapViewControllerSource = (org.osmdroid.views.MapView) controller;
-         mMapController = null;
-      } else if( controller instanceof MapController )
-      {
-         mMapController = (MapController) controller;
-         mOpenStreetMapViewControllerSource = null;
-      }
+      } 
    }
 
    public void setZoom( int i )
    {
-      if( mMapController != null )
-      {
-         mMapController.setZoom( i );
-      }
-      else if( mOpenStreetMapViewControllerSource != null )
+      if( mOpenStreetMapViewControllerSource != null )
       {
          mOpenStreetMapViewControllerSource.getController().setZoom( i );
          mPostponedSetZoom = i;
@@ -81,11 +72,7 @@ public class MapControllerProxy
    {
       if( point.getLatitudeE6() != 0 && point.getLongitudeE6() != 0 )
       {
-         if( mMapController != null )
-         {
-            mMapController.animateTo( point );
-         }
-         else if( mOpenStreetMapViewControllerSource != null )
+         if( mOpenStreetMapViewControllerSource != null )
          {
             mOpenStreetMapViewControllerSource.getController().animateTo( new org.osmdroid.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
             mPostponedSetCenterPoint = point;
@@ -97,17 +84,13 @@ public class MapControllerProxy
       }
    }
 
-   public void setCenter( GeoPoint point )
+   public void setCenter( IGeoPoint point )
    {
       if( point.getLatitudeE6() != 0 && point.getLongitudeE6() != 0 )
       {
-         if( mMapController != null )
+         if( mOpenStreetMapViewControllerSource != null )
          {
-            mMapController.setCenter( point );
-         }
-         else if( mOpenStreetMapViewControllerSource != null )
-         {
-            mOpenStreetMapViewControllerSource.getController().setCenter( new org.osmdroid.util.GeoPoint( point.getLatitudeE6(), point.getLongitudeE6() ) );
+            mOpenStreetMapViewControllerSource.getController().setCenter( point );
             mPostponedSetCenterPoint = point;
          }
       }
@@ -116,10 +99,6 @@ public class MapControllerProxy
 
    public boolean zoomIn()
    {
-      if( mMapController != null )
-      {
-         return mMapController.zoomIn();
-      }
       if( mOpenStreetMapViewControllerSource != null )
       {
          return mOpenStreetMapViewControllerSource.getController().zoomIn();
@@ -129,11 +108,7 @@ public class MapControllerProxy
 
    public boolean zoomOut()
    {
-      if( mMapController != null )
-      {
-         return mMapController.zoomOut();
-      }
-      else if( mOpenStreetMapViewControllerSource != null )
+      if( mOpenStreetMapViewControllerSource != null )
       {
          return mOpenStreetMapViewControllerSource.getController().zoomOut();
       }

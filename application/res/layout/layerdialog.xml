@@ -9,22 +9,6 @@
       android:layout_height="wrap_content"
       android:orientation="vertical"
    >
-
-      <RadioGroup 
-        android:id="@+id/google_backgrounds" 
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content" >
-          <RadioButton
-             android:text="@string/layer_regular"
-             android:id="@+id/layer_google_regular"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-          <RadioButton
-             android:text="@string/layer_satellite"
-             android:id="@+id/layer_google_satellite"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-      </RadioGroup>
       
       <RadioGroup 
         android:id="@+id/osm_backgrounds" 
@@ -77,18 +61,6 @@
 	         android:layout_width="fill_parent"
 	         android:layout_height="wrap_content" />
       </RadioGroup>
-      
-      <RadioGroup 
-        android:id="@+id/google_overlays" 
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content">
-	      <CheckBox
-	         android:text="@string/layer_traffic"
-	         android:id="@+id/layer_traffic"
-	         android:layout_width="fill_parent"
-	         android:layout_height="wrap_content" />
-      </RadioGroup>
-         
-   
+     
 </LinearLayout>
 </ScrollView>

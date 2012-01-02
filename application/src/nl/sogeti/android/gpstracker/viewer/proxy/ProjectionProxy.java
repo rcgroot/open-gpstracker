@@ -28,18 +28,16 @@
  */
 package nl.sogeti.android.gpstracker.viewer.proxy;
 
-import android.graphics.Point;
-import android.util.Log;
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.util.GeoPoint;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.Projection;
+import android.graphics.Point;
 
 public class ProjectionProxy
 {
 
    private static final String TAG = "OGT.ProjectionProxy";
-   
-   private Projection mProjection;
+  
    private org.osmdroid.views.MapView mOpenStreetMapViewProjectionSource;
 
    public ProjectionProxy()
@@ -48,38 +46,20 @@ public class ProjectionProxy
    
    public void setProjection( Object projection )
    {
-      if( projection instanceof Projection )
-      {
-         mProjection = (Projection) projection;
-         mOpenStreetMapViewProjectionSource = null;
-      } 
-      else if( projection instanceof org.osmdroid.views.MapView )
+      if( projection instanceof org.osmdroid.views.MapView )
       {
          mOpenStreetMapViewProjectionSource = (org.osmdroid.views.MapView) projection;
-         mProjection = null;
       }
    }
 
-   public void toPixels( GeoPoint geoPoint, Point out )
+   public void toPixels( IGeoPoint geoPoint, Point out )
    {
-      if( mProjection != null )
-      {
-         try
-         {
-            mProjection.toPixels( geoPoint, out );
-         }
-         catch (NullPointerException e) 
-         {
-            Log.w( TAG, "Problem using the Google map projection" );
-         }
-      } 
-      else if( mOpenStreetMapViewProjectionSource != null )
+      if( mOpenStreetMapViewProjectionSource != null )
       {
          org.osmdroid.views.MapView.Projection projection = mOpenStreetMapViewProjectionSource.getProjection();
          if( projection != null )
          {
-            org.osmdroid.util.GeoPoint osmGeopoint = MapViewProxy.convertMapGeoPoint(geoPoint);
-            projection.toMapPixels(osmGeopoint, out );
+            projection.toMapPixels(geoPoint, out );
          }
       }
       else 
@@ -88,16 +68,12 @@ public class ProjectionProxy
       }
    }
 
-   public GeoPoint fromPixels( int i, int j )
+   public IGeoPoint fromPixels( int i, int j )
    {
-      GeoPoint point = null;
-      if( mProjection != null )
+      IGeoPoint point = null;
+      if( mOpenStreetMapViewProjectionSource != null )
       {
-         point  = mProjection.fromPixels( i, j );
-      } 
-      else if( mOpenStreetMapViewProjectionSource != null )
-      {
-         point = MapViewProxy.convertOSMGeoPoint( mOpenStreetMapViewProjectionSource.getProjection().fromPixels( i, j ) );
+         point = mOpenStreetMapViewProjectionSource.getProjection().fromPixels( i, j );
       }
       else
       {
@@ -109,11 +85,7 @@ public class ProjectionProxy
    public float metersToEquatorPixels( float i )
    {
       float pixels = 0f;
-      if( mProjection != null )
-      {
-         pixels  = mProjection.metersToEquatorPixels( i );
-      } 
-      else if( mOpenStreetMapViewProjectionSource != null )
+      if( mOpenStreetMapViewProjectionSource != null )
       {
          pixels = mOpenStreetMapViewProjectionSource.getProjection().metersToEquatorPixels( i ) ;
       }

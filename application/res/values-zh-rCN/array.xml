@@ -14,11 +14,6 @@
         <item>总的</item>
     </string-array>
     
-    <string-array name="mapprovider_choices">
-        <item>谷歌地图</item>
-        <item>OpenStreetMap</item>
-    </string-array>   
-    
     <string-array name="trackcoloring_choices">
         <item>绿色</item>
         <item>红色</item>

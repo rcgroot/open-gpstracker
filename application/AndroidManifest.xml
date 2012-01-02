@@ -30,9 +30,7 @@
       android:description="@string/app_name" 
       android:allowClearUserData="true"
       android:hardwareAccelerated="true">
-      
-         <uses-library android:name="com.google.android.maps"  />
-      
+            
          <meta-data
             android:name="org.openintents.metadata.COMMENTS"
             android:value="@string/about_comments" />
