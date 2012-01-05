@@ -125,7 +125,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    private GeoPoint mStartPoint;
    private GeoPoint mEndPoint;
-   private int mCalculatedPoints;
    private Point mPrevDrawnScreenPoint;
    private Point mScreenPointBackup;
    private Point mScreenPoint;
@@ -391,9 +390,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       this.mShader = null;
    
       GeoPoint geoPoint;
-      mCalculatedPoints = 0;
       this.mPrevLocation = null;
-      int moves = 0;
    
       if( mWaypointsCursor == null )
       {
@@ -449,7 +446,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                   Log.w( TAG, "Unknown coloring method" );
                   break;
             }
-            moves++;
          }
          while( moveToNextWayPoint() );
    
@@ -470,8 +466,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mPathCalculation.reset();
       mDotPathCalculation.clear();
       
-      mCalculatedPoints = 0;
-
       if( mWaypointsCursor == null )
       {
          mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME, Waypoints.ACCURACY }, null, null, null );
@@ -575,7 +569,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             if( isGeoPointOnScreen( mediaVO.geopoint ) )
             {
                this.mProjection.toPixels( mediaVO.geopoint, this.mMediaScreenPoint );
-               mCalculatedPoints++;
                if( mediaVO.geopoint.equals( lastPoint ) )
                {
                   wiggle += 4;
@@ -850,7 +843,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mScreenPointBackup.y = this.mScreenPoint.x;
       
       this.mProjection.toPixels( geoPoint, this.mScreenPoint );
-      mCalculatedPoints++;
    }
 
    /**

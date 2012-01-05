@@ -40,7 +40,6 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.concurrent.CancellationException;
 import java.util.zip.ZipEntry;

@@ -76,7 +76,6 @@ public class Statistics extends Activity implements StatisticsDelegate
    private static final int MENU_TRACKLIST = 12;
    private static final int MENU_SHARE = 41;
    private static final String TRACKURI = "TRACKURI";
-   @SuppressWarnings("unused")
    private static final String TAG = "OGT.Statistics";
 
    private static final int SWIPE_MIN_DISTANCE = 120;

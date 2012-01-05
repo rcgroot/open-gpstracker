@@ -35,11 +35,11 @@ import android.preference.PreferenceManager;
 
 public class StreamUtils
 {
+   @SuppressWarnings("unused")
    private static final String TAG = "OGT.StreamUtils";
 
    /**
     * Initialize all appropriate stream listeners
-    * TODO
     * @param ctx
     */
    public static void initStreams(final Context ctx)

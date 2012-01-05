@@ -58,7 +58,6 @@ import org.apache.ogt.http.entity.mime.HttpMultipartMode;
 import org.apache.ogt.http.entity.mime.MultipartEntity;
 import org.apache.ogt.http.entity.mime.content.FileBody;
 import org.apache.ogt.http.entity.mime.content.StringBody;
-import org.apache.ogt.http.params.HttpParams;
 import org.apache.ogt.http.util.EntityUtils;
 
 import android.content.ContentResolver;
