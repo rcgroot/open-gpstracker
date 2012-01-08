@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.adapter;
 
-import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
@@ -81,6 +80,8 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
 
    public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
    public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
+
+   public static final boolean DEBUG = false;
    
    boolean mAuthorized;
    private Context mContext;
@@ -125,6 +126,12 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
          {
             new GetBreadcrumbsActivitiesTask(mContext, this, mListener, mHttpClient, consumer).execute();
             mPlannedBundleTask = new GetBreadcrumbsBundlesTask(mContext, this, mListener, mHttpClient, consumer);
+         }
+         else if( mListener != null ) // Simulate behavior simulair as if a GetBreadcrumbsBundlesTask has run
+         {
+            mListener.setIndeterminate(true);
+            mListener.started();
+            mListener.finished(null);
          }
       }
       return mAuthorized;
@@ -207,9 +214,6 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
          {
             switch (type)
             {
-               case Constants.BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE:
-                  view = mInflater.inflate(R.layout.breadcrumbs_activity, null);
-                  break;
                case Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE:
                   view = mInflater.inflate(R.layout.breadcrumbs_bundle, null);
                   break;
@@ -229,10 +233,6 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
          String name;
          switch (type)
          {
-            case Constants.BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE:
-               name = mTracks.getValueForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
-               ((TextView) view).setText(name);
-               break;
             case Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE:
                name = mTracks.getValueForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
                ((TextView) view.findViewById(R.id.listitem_name)).setText(name);
