@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Open GPS Tracker</string>
+	<string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Aktywuję usługę zapisywania</string>
-    <string name="service_gpsstatus">Zapisywanie: %1$s (%2$s z %3$d satelitami)</string>
-    <string name="service_gpsnostatus">Zapisywanie: %1$s (Precyzja - %2$s)</string>
+	<string name="service_gpsstatus">Zapisywanie: %1$s (%2$s z %3$d satelitami)</string>
+	<string name="service_gpsnostatus">Zapisywanie: %1$s (Precyzja - %2$s)</string>
     <string name="service_networkstatus">Zapisywanie: %1$s (%2$s z nadajników sieci komórkowej i wifi)</string>
     <string name="service_gpsdisabled">GPS jest wyłączony, zapisywanie niemożliwe.</string>
     <string name="service_gpsenabled">GPS jest włączony, zaczynam zapisywanie.</string>
@@ -16,7 +16,7 @@
     <string name="dialog_select_media_title">Wybierz notatkę</string>
     <string name="dialog_select_media_message">Znaleziono wiele notatek dla tej lokalizacji, wybierz jedną do otwarcia</string>
     <string name="dialog_tracking_title">Kontrola śledzenia</string>
-    <string name="dialog_routename_title">Nazwa scieżki</string>
+	<string name="dialog_routename_title">Nazwa scieżki</string>
     <string name="dialog_routename_message">Podaj nazwę ścieżki</string>
     <string name="dialog_routename_default">Ścieżka %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">Nie wybrano ścieżki</string>
@@ -40,6 +40,7 @@
     <string name="layer_traffic">Warunki drogowe</string>
     <string name="layer_speed">Prędkość</string>
     <string name="layer_altitude">Wysokość</string>
+    <string name="layer_distance">Dystans</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">Moja lokalizacja</string>
     <string name="layer_cloudmade">Mapy CloudMade</string>
@@ -60,6 +61,21 @@
     <string name="dialog_description_title">Opis ścieżki</string>
     <string name="dialog_description_message">Podaj więcej informacji przed wysłaniem.</string>
     <string name="dialog_bundle">Paczka: %1$s</string>
+    <string name="authentication_redirect">Wysyłanie prośby o uwierzytelnienie</string>
+    <string name="loading">Wczytywanie&#8230;</string>
+    <string name="msg_connecting_to">Łączenie &#8230;</string>
+    <string name="no_information_available">Brak dostępnych informacji.</string>
+    <string name="taskerror_gpx_import">Importowanie danych GPX</string>
+    <string name="taskerror_xml_write">Zapisywanie danych XML</string>
+    <string name="taskerror_gpx_write">Zapisywanie danych GPX</string>
+    <string name="taskerror_kmz_write">Zapisywanie danych KMZ</string>
+    <string name="taskerror_breadcrumbs_activity">Otrzymywanie listy aktywności z serwisu GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_bundle">Otrzymywanie listy pakietów z serwisu GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_track">Retrieving track list from GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs">Otrzymywanie danych z serwisu GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_upload">Wysyłanie trasy do serwisu GoBreadcrumbs</string>
+    <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
+    <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
     <string name="dialog_contrib_message">
     <b>Kod</b>
     \n
@@ -83,8 +99,7 @@
     Mamy nadzieję, że podoba Ci się nasza aplikacja, jeśli tak, powiedz nam o tym. 
     Podziękowania lub dotacje PayPal można przesyłać na rcgroot@gmail.com
     \n\n
-    </string>
-    
+    </string>    
     
     <!-- Messages -->
     <string name="from">Śledzono dnia: </string>
@@ -96,25 +111,27 @@
     <string name="error_filename"> powód: Błędna nazwa pliku</string>
     <string name="error_buildxml"> powód: Błąd przy tworzeniu XML</string>
     <string name="error_writesdcard"> powód: Błąd zapisu na kartę SD</string>
+    <string name="error_response"> reason: Server response indicates error</string>
     <string name="tweettext">%1$s: Przebyto %2$s ze średnią prędkością %3$s w czasie %4$s #opengpstracker</string>
     <string name="error_importgpx_xml">Błąd odczytu XML podczas importu.</string>
     <string name="error_importgpx_io">Błąd odczytu pliku podczas importu.</string>
     <string name="error_importgpx_parse">Błąd odczytu liczby podczas importu.</string>
+    <string name="time_and_speed">At %1$s going %2$s</string>
     
     <!-- Buttons -->
-    <string name="btn_okay">OK</string>
-    <string name="btn_cancel">Anuluj</string>
-    <string name="btn_save">Zapisz</string>
-    <string name="btn_selecttrack">Wybierz ścieżkę</string>
+	<string name="btn_okay">OK</string>
+	<string name="btn_cancel">Anuluj</string>
+	<string name="btn_save">Zapisz</string>
+	<string name="btn_selecttrack">Wybierz ścieżkę</string>
     <string name="btn_install">Instaluj</string>
     <string name="btn_skip">Pomiń</string>
 	
     <!-- Menu's -->
-    <string name="menu_settings">Ustawienia</string>
+	<string name="menu_settings">Ustawienia</string>
     <string name="menu_tracking">Śledzenie</string>
-    <string name="menu_tracklist">Lista ścieżek</string>
-    <string name="menu_shareTrack">Udostępnij ścieżkę</string>
-    <string name="menu_deleteTrack">Usuń ścieżkę</string>
+	<string name="menu_tracklist">Lista ścieżek</string>
+	<string name="menu_shareTrack">Udostępnij ścieżkę</string>
+	<string name="menu_deleteTrack">Usuń ścieżkę</string>
     <string name="menu_renameTrack">Zmień nazwę ścieżki</string>
     <string name="menu_statistics">Statystyki</string>
     <string name="menu_about">O&#8230;</string>
@@ -152,11 +169,17 @@
     <string name="preference_display">Ustawienia wyświetlania</string>
     <string name="preference_behavior">Ustawienia działania</string>
     <string name="logatstartup">Zapisuj od uruchomienia</string>
-    <string name="logatstartup_summary">Po uruchomieniu programu natychmiast rozpocznij zapisywanie ścieżki.</string>   
+    <string name="logatstartup_summary">Po uruchomieniu programu natychmiast rozpocznij zapisywanie ścieżki.</string>
+    <string name="logatdock">Log at car docking</string>
+    <string name="logatdock_summary">After inserting in a car dock, the logging immediately records.</string>
+    <string name="stopatundock">Stop logging at undocking</string>
+    <string name="stopatundock_summary">After exiting a dock, the logging immediately stops.</string>
     <string name="startupatboot">Uruchom przy włączeniu</string>
     <string name="startupatboot_summary">Po włączeniu urządzenia uruchom program i rozpocznij zapisywanie ścieżki.</string>   
     <string name="disableblanking_title">Wyłącz wygaszanie ekranu</string>
-    <string name="disableblanking_summary">Pozostawia ekran włączony podczas śledzenia.</string>       
+    <string name="disableblanking_summary">Pozostawia ekran włączony podczas śledzenia.</string>
+    <string name="disabledimming_title">Disable screen dimming</string>
+    <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>       
     <string name="precision_title">Precyzja zapisywania</string>
     <string name="precision_summary">Rozmiar przerwy pomiędzy namiarami GPS.</string>
     <string name="mapprovider_title">Dostawca mapy</string>
@@ -171,6 +194,8 @@
     <string name="showspeed_summary">Pokaż prędkość z ostatniego namiaru GPS.</string>
     <string name="showaltitude_title">Wysokość GPS</string>
     <string name="showaltitude_summary">Pokaż wysokość z ostatniego namiaru GPS.</string>
+    <string name="showdistance_title">Distance covered</string>
+    <string name="showdistance_summary">Show the distance covered by the track.</string>
     <string name="showcompass_title">Kompas</string>
     <string name="showcompass_summary">Pokaż kompas z igłą wskazującą północ.</string>
     <string name="sanitycheck_title">Kontrola poprawności danych</string>
@@ -179,6 +204,11 @@
     <string name="showlocation_summary">Pokaż moją lokalizację na mapie.</string>
     <string name="units_title">Jednostki</string>
     <string name="units_summary">Określ czy używać metrycznego czy imperialnego systemu miar.</string>
+    <string name="units_implement_width_title">Implement width</string>
+    <string name="units_implement_width_summary">Width of the implement the tractor is pulling</string>
+    <string name="units_implement_width_message">The width of the implement the tractor is pulling or
+     other machine that works/covers an area over a given time. For example, width of a swather. \n\n
+Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
     <string name="stat_title">Statystyki - %s</string>
     <string name="stat_maximumspeed">Prędkość maksymalna</string>
     <string name="stat_maximumaltitude">Wysokość maksymalna</string>
@@ -199,6 +229,7 @@
     <string name="preference_sharing">Ustawienia udostępniania</string>
     <string name="jogmap_title">Kod wysyłania Jogmap.de</string>
     <string name="jogmap_summary">Kod wymagany do wysłania danych na konto w jogmap.de</string>
+    <string name="jogmap_task">Wysyłanie trasy do serwisu jogmap.de</string>
     <string name="jogmap_failed">Nieudane wysyłanie danych do jogmap.de: </string>
     <string name="jogmap_success">Udane wysyłanie danych do jogmap.de: </string>
     <string name="jogrunner_message">Wprowadź Zugangskey otrzymany z http://www.jogmap.de/civic4/?q=mobilinfo</string>
@@ -210,27 +241,47 @@
     <string name="customprecisiondistance_summary">Odległość, którą należy przebyć pomiędzy kolejnymi punktami orientacyjnymi.</string>
     <string name="gpsstatusmonitor_title">Monitorowanie statusu GPS</string>
     <string name="gpsstatusmonitor_summary">Wyświetla liczbę używanych satelit i alarmuje w razie słabego sygnału.</string>
-    <string name="osmusername_title">Nazwa użytkownika OpenStreetMap</string>
-    <string name="osmusername_summary">Nazwa użytkownika utworzona na http://www.openstreetmap.org/user/new</string>
-    <string name="osmusername_message">Konto OpenStreetMap umożliwia edycję mapy aby wspomóc projekt. Open GPS Tracker umożliwia dodanie nowych danych GPS za pomocą tego konta.</string>
-    <string name="osmpassword_title">Hasło OpenStreetMap</string>
-    <string name="osmpassword_summary">Hasło podane przy tworzeniu konta na http://www.openstreetmap.org/user/new</string>
-    <string name="osmpassword_message">Hasło będzie użyte do podstawowego uwierzytelniania HTTP na serwerze openstreetmap.org</string>
-    <string name="osmvisibility_title">Widoczność ścieżek na openstreetmap.org</string>
-    <string name="osmvisibility_summary">Informacje o poszczególnych poziomach widoczności można znaleźć w wiki na openstreetmap.org</string>
+	<string name="osmusername_title">Nazwa użytkownika OpenStreetMap</string>
+	<string name="osmusername_summary">Nazwa użytkownika utworzona na http://www.openstreetmap.org/user/new</string>
+	<string name="osmusername_message">Konto OpenStreetMap umożliwia edycję mapy aby wspomóc projekt. Open GPS Tracker umożliwia dodanie nowych danych GPS za pomocą tego konta.</string>
+	<string name="osmpassword_title">Hasło OpenStreetMap</string>
+	<string name="osmpassword_summary">Hasło podane przy tworzeniu konta na http://www.openstreetmap.org/user/new</string>
+	<string name="osmpassword_message">Hasło będzie użyte do podstawowego uwierzytelniania HTTP na serwerze openstreetmap.org</string>
+	<string name="osmvisibility_title">Widoczność ścieżek na openstreetmap.org</string>
+	<string name="osmvisibility_summary">Informacje o poszczególnych poziomach widoczności można znaleźć w wiki na openstreetmap.org</string>
     <string name="osm_success">Udane wysyłanie ścieżki na openstreetmap.org: </string>
     <string name="osm_failed">Nieudane wysyłanie ścieżki na openstreetmap.org: </string>
+    <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
+    <string name="osm_task">Wysyłanie trasy do serwisu OpenStreetMap</string>
     <string name="sddirectory_title">Folder na karcie SD służący do przechowywania ścieżek</string>
     <string name="sddirectory_summary">Utworzone ścieżki i pliki multimedialne będą przechowywane w tym folderze na karcie SD.</string>
     <string name="sddirectory_message">Wprowadź ścieżkę na karcie SD, która będzie używana dla plików. Domyślna wartość /OpenGPSTracker/ utworzy jeden folder na karcie SD w lokalizacji /Apps/OpenGPSTracker/.</string>
     <string name="breadcrumbs_connect">Połącz z GoBreadcrumbs.com</string>
-
-
+    
+    <string name="preference_stream">Ustawienia nadawania lokalizacji</string>
+    <string name="streamenabled_title">Streaming włączony</string>
+    <string name="streamenabled_summary">Enable direct broadcasting of location</string>
+    <string name="streambroadcast_time_title">Minimalny czas pomiędzy nadawaniami</string>
+    <string name="streambroadcast_time_summary">Number of minutes after which new progress is broadcasted</string>
+    <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
+    <string name="streambroadcast_distance_summary">Ilość mil/kilometrów, po których postępy wysyłane są ponownie</string>
+    <string name="voiceover_title">Stream to audio voice-over</string>
+    <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
+    <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
+    <string name="customupload_title">Strumieniuj na serwer sieci web</string>
+    <string name="customupload_summary">Upload track progress to (personal) web server</string>
+    <string name="customupload_url_title">Custom web server URL</string>
+    <string name="customupload_url_summary">The web address to which to upload progress</string>
+    <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request. 
+        In this URL the placeholders are replaced with actual information. The possible placeholders are @LAT@, @LON@, @ALT@, @ACC@, @SPEED@, @BEAR@, @TIME@ and @ID@.</string>
+    <string name="customupload_failed">The last upload of track progress failed</string>
+    <string name="customupload_backlog_title">On failure keep a backlog</string>
+    <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
+    <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>
+            
 <!-- ***************************
    About information
    ***************************-->
    <string name="about_comments">Aplikacja zapisująca podróże twojego urządzenia na podstawie GPS.</string>
    <string name="about_activity_name_extended">O %s</string>
-   <string name="no_information_available">Brak dostępnych informacji.</string>
-   
 </resources>

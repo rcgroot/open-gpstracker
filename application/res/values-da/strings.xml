@@ -37,11 +37,11 @@
     <string name="logcontrol_stop">Stop tracking</string>
     <string name="layer_regular">Normal map</string>
     <string name="layer_satellite">Satellite</string>
-    <string name="layer_traffic">Traffic</string>
-    <string name="layer_speed">Speed</string>
+    <string name="layer_traffic">Trafik</string>
+    <string name="layer_speed">Hastighed</string>
     <string name="layer_altitude">Altitude</string>
-    <string name="layer_distance">Distance</string>
-    <string name="layer_compass">Compass</string>
+    <string name="layer_distance">Afstand</string>
+    <string name="layer_compass">Kompas</string>
     <string name="layer_location">My Location</string>
     <string name="layer_cloudmade">CloudMade maps</string>
     <string name="layer_maknik">Mapnik</string>
@@ -51,7 +51,7 @@
     <string name="dialog_import_title">GPX import</string>
     <string name="dialog_import_message">Would you like to import the GPX %1$s ?</string>
     <string name="dialog_import_picker">Import GPX file</string>
-    <string name="menu_picker">Import</string>
+    <string name="menu_picker">Importer</string>
     <string name="dialog_nooipicker">OI File Manager</string>
     <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files. After accepting OI File Manager EULA the import button works.</string>
     <string name="dialog_contrib_title">Contribute</string>
@@ -65,10 +65,10 @@
     <string name="loading">Loading&#8230;</string>
     <string name="msg_connecting_to">Connecting to&#8230;</string>
     <string name="no_information_available">No information available.</string>
-    <string name="taskerror_gpx_import">Importing GPX data</string>
-    <string name="taskerror_xml_write">Writing XML data</string>
-    <string name="taskerror_gpx_write">Writing GPX data</string>
-    <string name="taskerror_kmz_write">Writing KMZ data</string>
+    <string name="taskerror_gpx_import">Importerer GPX data</string>
+    <string name="taskerror_xml_write">Skriver XML data</string>
+    <string name="taskerror_gpx_write">Skriver GPX data</string>
+    <string name="taskerror_kmz_write">Skriver KMZ data</string>
     <string name="taskerror_breadcrumbs_activity">Retrieving activity list from GoBreadcrumbs</string>
     <string name="taskerror_breadcrumbs_bundle">Retrieving bundle list from GoBreadcrumbs</string>
     <string name="taskerror_breadcrumbs_track">Retrieving track list from GoBreadcrumbs</string>
@@ -89,11 +89,6 @@
     at http://code.google.com/p/open-gpstracker/issues/entry and make an important 
     contribution to improve this application.  
     \n\n
-    <b>Translations</b>
-    \n
-    Help make this application understandable to more people by adding your translations. 
-    Complete online hosted translation service by Get Localization.
-    http://www.getlocalization.com/OpenGPSTracker/
     <b>Idea\'s</b>
     \n
     Do you have an idea that could improve this application? Explain your idea at
@@ -109,7 +104,7 @@
     <!-- Messages -->
     <string name="from">Tracked on: </string>
     <string name="no_tracks">No tracks stored</string>
-    <string name="ticker_saving">Saving: </string>
+    <string name="ticker_saving">Gemmer:</string>
     <string name="ticker_stored">Stored: </string>
     <string name="ticker_failed">Unable to save the route: </string>
     <string name="error_filenotfound"> reason: Can not find file or directory on SD card</string>
@@ -125,29 +120,29 @@
     
     <!-- Buttons -->
 	<string name="btn_okay">OK</string>
-	<string name="btn_cancel">Cancel</string>
-	<string name="btn_save">Save</string>
+	<string name="btn_cancel">Annuller</string>
+	<string name="btn_save">Gem</string>
 	<string name="btn_selecttrack">Select track</string>
-    <string name="btn_install">Install</string>
+    <string name="btn_install">Installer</string>
     <string name="btn_skip">Skip</string>
 	
     <!-- Menu's -->
-	<string name="menu_settings">Settings</string>
+	<string name="menu_settings">Indstillinger</string>
     <string name="menu_tracking">Tracking</string>
 	<string name="menu_tracklist">List tracks</string>
 	<string name="menu_shareTrack">Share track</string>
 	<string name="menu_deleteTrack">Delete track</string>
     <string name="menu_renameTrack">Rename track</string>
     <string name="menu_statistics">Statistics</string>
-    <string name="menu_about">About</string>
+    <string name="menu_about">Om</string>
     <string name="menu_showLayers">Overlays</string>
     <string name="menu_graphtype">Graph type</string>
     <string name="menu_insertnote">Make note</string>
     <string name="menu_notename">Mark with a name</string>
-    <string name="menu_notepicture">Take Picture</string>
-    <string name="menu_notetext">Write Text</string>
+    <string name="menu_notepicture">Tag billede</string>
+    <string name="menu_notetext">Skriv tekst</string>
     <string name="menu_notespeech">Record Speech</string>
-    <string name="menu_notevideo">Record Video</string>
+    <string name="menu_notevideo">Optag video</string>
     <string name="graphtype_timespeed">Speed over time</string>
     <string name="graphtype_timealtitude">Altitude over time</string>
     <string name="graphtype_distancespeed">Speed over distance</string>
@@ -170,8 +165,8 @@
     <string name="share_target">Means of sharing:</string>
     <string name="sender_chooser">Choose sender application</string>
     <string name="opengpstracker_title">Open GPS Tracker</string>
-    <string name="opengpstracker_settings">Settings</string>
-    <string name="preference_display">Display settings</string>
+    <string name="opengpstracker_settings">Indstillinger</string>
+    <string name="preference_display">Vis indstilliinger</string>
     <string name="preference_behavior">Run settings</string>
     <string name="logatstartup">Log at service start</string>
     <string name="logatstartup_summary">After starting, the logging service immediately records.</string>
@@ -193,21 +188,21 @@
     <string name="trackcoloring_summary">The coloring used to draw the track.</string>
     <string name="showsatellite_title">Satellite images</string>
     <string name="showsatellite_summary">Show the Google Maps satellite view</string>
-    <string name="showtraffic_title">Traffic</string>
+    <string name="showtraffic_title">Trafik</string>
     <string name="showtraffic_summary">Show the Google Maps traffic information</string>
-    <string name="showspeed_title">GPS speed</string>
+    <string name="showspeed_title">GPS hastighed</string>
     <string name="showspeed_summary">Show the speed from the last received GPS fix.</string>
     <string name="showaltitude_title">GPS altitude</string>
     <string name="showaltitude_summary">Show the altitude from the last received GPS fix.</string>
     <string name="showdistance_title">Distance covered</string>
     <string name="showdistance_summary">Show the distance covered by the track.</string>
-    <string name="showcompass_title">Compass</string>
+    <string name="showcompass_title">Kompas</string>
     <string name="showcompass_summary">Show a compass with a needle pointing north</string>
     <string name="sanitycheck_title">Speed and altitude sanity check </string>
     <string name="sanitycheck_summary">Only accept reasonable GPS speeds and altitudes</string>
     <string name="showlocation_title">My location </string>
     <string name="showlocation_summary">Show my location on the map</string>
-    <string name="units_title">Units</string>
+    <string name="units_title">Enheder</string>
     <string name="units_summary">Determine if metric or imperial units are used</string>
     <string name="units_implement_width_title">Implement width</string>
     <string name="units_implement_width_summary">Width of the implement the tractor is pulling</string>
@@ -215,7 +210,7 @@
      other machine that works/covers an area over a given time. For example, width of a swather. \n\n
 Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
     <string name="stat_title">Statistics - %s</string>
-    <string name="stat_maximumspeed">Maximum speed</string>
+    <string name="stat_maximumspeed">Maximal hastighed</string>
     <string name="stat_maximumaltitude">Maximum altitude</string>
     <string name="stat_minimalaltitide">Minimum altitude</string>
     <string name="stat_overallaveragespeed">Travel speed</string>
@@ -288,5 +283,5 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
    About information
    ***************************-->
    <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
-   <string name="about_activity_name_extended">About %s</string>
+   <string name="about_activity_name_extended">Om %s</string>
 </resources>

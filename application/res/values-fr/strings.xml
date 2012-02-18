@@ -40,6 +40,7 @@
     <string name="layer_traffic">Trafic</string>
     <string name="layer_speed">Vitesse</string>
     <string name="layer_altitude">Altitude</string>
+    <string name="layer_distance">Distance</string>
     <string name="layer_compass">Compas</string>
     <string name="layer_location">Ma Location</string>
     <string name="layer_cloudmade">CloudMade maps</string>
@@ -62,10 +63,17 @@
     <string name="dialog_bundle">Bundle: %1$s</string>
     <string name="authentication_redirect">Placing authentication request</string>
     <string name="loading">Loading&#8230;</string>
+    <string name="msg_connecting_to">Connection à &#8230;</string>
     <string name="no_information_available">No information available.</string>
     <string name="taskerror_gpx_import">Importing GPX data</string>
     <string name="taskerror_xml_write">Writing XML data</string>
+    <string name="taskerror_gpx_write">Écriture des données GPX</string>
+    <string name="taskerror_kmz_write">Écriture des données KMZ</string>
+    <string name="taskerror_breadcrumbs_activity">Récupération de la liste des activités à partir de GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_bundle">Retrieving bundle list from GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_track">Retrieving track list from GoBreadcrumbs</string>
     <string name="taskerror_breadcrumbs">Retrieving data from GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_upload">Télécharger la trace vers GoBreadcrumbs</string>
     <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
     <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
     <string name="dialog_contrib_message">
@@ -91,7 +99,7 @@
     Hopefully you enjoyed the application, I love to hear if you did. A thank you 
     or PayPal donation are appreciated at rcgroot@gmail.com
     \n\n
-    </string>
+    </string>    
     
     <!-- Messages -->
     <string name="from">Sauvegardé sur: </string>
@@ -108,6 +116,7 @@
     <string name="error_importgpx_xml">Lecture XML échoué durant import.</string>
     <string name="error_importgpx_io">Lecture fichier échoué durant import</string>
     <string name="error_importgpx_parse">Lecture de chiffre échoué durant import</string>
+    <string name="time_and_speed">At %1$s going %2$s</string>
     
     <!-- Buttons -->
 	<string name="btn_okay">OK</string>
@@ -160,11 +169,17 @@
     <string name="preference_display">Paramètres écran</string>
     <string name="preference_behavior">Exécuter paramètres</string>
     <string name="logatstartup">Déclencher localisation au démarrage de l\'application</string>
-    <string name="logatstartup_summary">Enregistrements localisation immédiat après déclenchement.</string>   
+    <string name="logatstartup_summary">Enregistrements localisation immédiat après déclenchement.</string>
+    <string name="logatdock">Log at car docking</string>
+    <string name="logatdock_summary">After inserting in a car dock, the logging immediately records.</string>
+    <string name="stopatundock">Stop logging at undocking</string>
+    <string name="stopatundock_summary">After exiting a dock, the logging immediately stops.</string>
     <string name="startupatboot">Déclencher application au démarrage du dispositif</string>
     <string name="startupatboot_summary">Déclencher application immédiatement après démarrage dispositif.</string>   
     <string name="disableblanking_title">Désactiver veille écran</string>
-    <string name="disableblanking_summary">Maintien l\'écran allumé pendant localisation .</string>       
+    <string name="disableblanking_summary">Maintien l\'écran allumé pendant localisation .</string>
+    <string name="disabledimming_title">Disable screen dimming</string>
+    <string name="disabledimming_summary">Luminosité écran maximale pendant l\'enregistrement.</string>       
     <string name="precision_title">Précision localisation</string>
     <string name="precision_summary">Taille de l\'intervalle entre les repères GPS</string>
     <string name="mapprovider_title">Fournisseur plan</string>
@@ -179,6 +194,8 @@
     <string name="showspeed_summary">Montre la vitesse du  dernier repère GPS reçu.</string>
     <string name="showaltitude_title">Altitude GPS</string>
     <string name="showaltitude_summary">Montre l\'altitude du  dernier repère GPS reçu.</string>
+    <string name="showdistance_title">Distance couverte</string>
+    <string name="showdistance_summary">Afficher la distance totale de la trace.</string>
     <string name="showcompass_title">Compas</string>
     <string name="showcompass_summary">Affiche un compas avec aiguille pointant nord.</string>
     <string name="sanitycheck_title">Test validation vitesse et altitude</string>
@@ -187,6 +204,11 @@
     <string name="showlocation_summary">Voir mon emplacement sur la carte.</string>
     <string name="units_title">Unités</string>
     <string name="units_summary">Détermine si unités métriques ou impériales sont utilisées.</string>
+    <string name="units_implement_width_title">Implement width</string>
+    <string name="units_implement_width_summary">Width of the implement the tractor is pulling</string>
+    <string name="units_implement_width_message">The width of the implement the tractor is pulling or
+     other machine that works/covers an area over a given time. For example, width of a swather. \n\n
+Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
     <string name="stat_title">Statistiques - %s</string>
     <string name="stat_maximumspeed">Vitesse maximale</string>
     <string name="stat_maximumaltitude">Altitude maximale</string>
@@ -207,6 +229,7 @@
     <string name="preference_sharing">Paramètres de partage</string>
     <string name="jogmap_title">Code téléchargement Jogmap</string>
     <string name="jogmap_summary">Code d\'authentification du compte pour téléchargement jogmap.de.</string>
+    <string name="jogmap_task">Envoi du parcours sur jogmap.de</string>
     <string name="jogmap_failed">Erreur téléchargement sur jogmap.de:</string>
     <string name="jogmap_success">Téléchargement réussi sur jogmap.de:</string>
     <string name="jogrunner_message">Entrez la clef d\'accés obtenue à partir de http://www.jogmap.de/civic4/?q=mobilinfo.</string>
@@ -229,11 +252,33 @@
     <string name="osm_success">Téléchargement du parcours réussi sur www.openstreetmap.org:</string>
     <string name="osm_failed">Erreur téléchargement du parcours sur www.openstreetmap.org:</string>
     <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
+    <string name="osm_task">Envoi trace sur OpenStreetMap</string>
     <string name="sddirectory_title">Répertoire carte SD utilisé pour enregistrer les parcours partagées.</string>
     <string name="sddirectory_summary">Parcours et fichiers multimédias créé sont enregistrés dans ce répertoire carte SD.</string>
     <string name="sddirectory_message">Entrez le chemin ajouté à la carte SD à utiliser pour les fichiers. Par exemple, le défaut /OpenGPSTracker/ va ajouter un dossier unique pour la carte SD et /Apps/OpenGPSTracker / vas abriter les deux.</string>
     <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
     
+    <string name="preference_stream">Paramètre de publication de la position</string>
+    <string name="streamenabled_title">Streaming activé</string>
+    <string name="streamenabled_summary">Enable direct broadcasting of location</string>
+    <string name="streambroadcast_time_title">Délai minimum entre les émissions</string>
+    <string name="streambroadcast_time_summary">Nombre de minutes entre les diffusions de la progression</string>
+    <string name="streambroadcast_distance_title">Distance minimum entre les émissions</string>
+    <string name="streambroadcast_distance_summary">Nombre de miles ou de kilomètres entre les diffusions de la progression</string>
+    <string name="voiceover_title">Stream to audio voice-over</string>
+    <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
+    <string name="voiceover_speaking">%2$d mètres couverts durant les %1$d dernières minutes</string>
+    <string name="customupload_title">Transmettre vers un serveur web</string>
+    <string name="customupload_summary">Upload track progress to (personal) web server</string>
+    <string name="customupload_url_title">Modifier URL du serveur web</string>
+    <string name="customupload_url_summary">The web address to which to upload progress</string>
+    <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request. 
+        In this URL the placeholders are replaced with actual information. The possible placeholders are @LAT@, @LON@, @ALT@, @ACC@, @SPEED@, @BEAR@, @TIME@ and @ID@.</string>
+    <string name="customupload_failed">The last upload of track progress failed</string>
+    <string name="customupload_backlog_title">On failure keep a backlog</string>
+    <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
+    <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>
+            
 <!-- ***************************
    About information
    ***************************-->

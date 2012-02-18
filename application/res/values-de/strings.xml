@@ -40,6 +40,7 @@
     <string name="layer_traffic">Verkehr</string>
     <string name="layer_speed">Geschwindigkeit</string>
     <string name="layer_altitude">Höhe</string>
+    <string name="layer_distance">Entfernung</string>
     <string name="layer_compass">Kompass</string>
     <string name="layer_location">Mein Standort</string>
     <string name="layer_cloudmade">CloudMade maps</string>
@@ -62,37 +63,44 @@
     <string name="dialog_bundle">Bundle: %1$s</string>
     <string name="authentication_redirect">Placing authentication request</string>
     <string name="loading">Loading&#8230;</string>
+    <string name="msg_connecting_to">Connecting to&#8230;</string>
     <string name="no_information_available">No information available.</string>
     <string name="taskerror_gpx_import">Importing GPX data</string>
     <string name="taskerror_xml_write">Writing XML data</string>
+    <string name="taskerror_gpx_write">Writing GPX data</string>
+    <string name="taskerror_kmz_write">Writing KMZ data</string>
+    <string name="taskerror_breadcrumbs_activity">Retrieving activity list from GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_bundle">Retrieving bundle list from GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_track">Retrieving track list from GoBreadcrumbs</string>
     <string name="taskerror_breadcrumbs">Retrieving data from GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_upload">Uploading track to GoBreadcrumbs</string>
     <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
     <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <string name="dialog_contrib_message">
+    <b>Code</b>
+    \n
+    This application and the source code are publicly available. Feel free to submit
+    a patch. All code contributions are very welcome. The complete application source is 
+    available under GPL license at http://code.google.com/p/open-gpstracker/source
+    \n\n
+    <b>Errors</b>
+    \n
+    In case of an error, crash or fault please send a message. Log the error 
+    at http://code.google.com/p/open-gpstracker/issues/entry and make an important 
+    contribution to improve this application.  
+    \n\n
+    <b>Idea\'s</b>
+    \n
+    Do you have an idea that could improve this application? Explain your idea at
+    http://code.google.com/p/open-gpstracker/issues/entry
+    \n\n
+    <b>Donate</b>
+    \n
+    Hopefully you enjoyed the application, I love to hear if you did. A thank you 
+    or PayPal donation are appreciated at rcgroot@gmail.com
+    \n\n
+    </string>    
+    
     <!-- Messages -->
     <string name="from">Aufgezeichnet auf: </string>
     <string name="no_tracks">Keine gespeicherten Tracks</string>
@@ -108,7 +116,8 @@
     <string name="error_importgpx_xml">Failed reading the XML during import.</string>
     <string name="error_importgpx_io">Failed reading the file during import.</string>
     <string name="error_importgpx_parse">Failed reading a number during import.</string>
-        
+    <string name="time_and_speed">At %1$s going %2$s</string>
+    
     <!-- Buttons -->
 	<string name="btn_okay">OK</string>
 	<string name="btn_cancel">Abbrechen</string>
@@ -140,7 +149,7 @@
     <string name="graphtype_distancealtitude">Höhe/Länge</string>
     <string name="menu_vacuum">Aufräumen</string>
     <string name="menu_contrib">Contribute</string>
-
+    
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Track data</string>
     <string name="email_gpxbody">Angehängt ist ein Track im GPS Exchange Format (GPX). Formatdetails hier: http://www.topografix.com/gpx.asp</string>
@@ -160,11 +169,17 @@
     <string name="preference_display">Displayeinstellungen</string>
     <string name="preference_behavior">Run Einstellungen</string>
     <string name="logatstartup">Aufzeichnung-Autostart</string>
-    <string name="logatstartup_summary">Beim Appstart, startet die Trackaufzeichnung automatisch</string>   
+    <string name="logatstartup_summary">Beim Appstart, startet die Trackaufzeichnung automatisch</string>
+    <string name="logatdock">Log at car docking</string>
+    <string name="logatdock_summary">After inserting in a car dock, the logging immediately records.</string>
+    <string name="stopatundock">Stop logging at undocking</string>
+    <string name="stopatundock_summary">After exiting a dock, the logging immediately stops.</string>
     <string name="startupatboot">Aufzeichnung bei Neustart</string>
     <string name="startupatboot_summary">Beim Gerätestart, automatisch Trackaufzeichnung starten</string>   
     <string name="disableblanking_title">Display anlassen</string>
-    <string name="disableblanking_summary">Display bleibt beim Tracking an.</string>       
+    <string name="disableblanking_summary">Display bleibt beim Tracking an.</string>
+    <string name="disabledimming_title">Disable screen dimming</string>
+    <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>       
     <string name="precision_title">Aufzeichnungspräzision</string>
     <string name="precision_summary">Genauigkeit der GPS Aufzeichnung .</string>
     <string name="mapprovider_title">Kartenanbieter</string>
@@ -179,6 +194,8 @@
     <string name="showspeed_summary">Zeige von GPS ermittelte Geschwindigkeit an.</string>
     <string name="showaltitude_title">GPS Höhe</string>
     <string name="showaltitude_summary">Zeige von GPS ermittelte Höhe an.</string>
+    <string name="showdistance_title">Distance covered</string>
+    <string name="showdistance_summary">Show the distance covered by the track.</string>
     <string name="showcompass_title">Kompass</string>
     <string name="showcompass_summary">Zeige Kompassnadel für Nordrichtung an.</string>
     <string name="sanitycheck_title">Höhe und Geschwindigkeit checken </string>
@@ -187,6 +204,11 @@
     <string name="showlocation_summary">Zeigt meinen Standort auf der Karte</string>
     <string name="units_title">Maßeinheiten</string>
     <string name="units_summary">Metrische oder Anglo-Amerikanische Maßeinheiten wählen</string>
+    <string name="units_implement_width_title">Implement width</string>
+    <string name="units_implement_width_summary">Width of the implement the tractor is pulling</string>
+    <string name="units_implement_width_message">The width of the implement the tractor is pulling or
+     other machine that works/covers an area over a given time. For example, width of a swather. \n\n
+Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
     <string name="stat_title">Statistiken - %s</string>
     <string name="stat_maximumspeed">Maximalgeschwindigkeit</string>
     <string name="stat_maximumaltitude">Maximalhöhe</string>
@@ -207,6 +229,7 @@
     <string name="preference_sharing">Sharing-Einstellungen</string>
     <string name="jogmap_title">jogmap upload code</string>
     <string name="jogmap_summary">jogmap-Zugangskey, um zu einem jogmap.de Account hochzuladen</string>
+    <string name="jogmap_task">Uploading the track to jogmap.de</string>
     <string name="jogmap_failed">Fehler beim Upload zu jogmap.de: </string>
     <string name="jogmap_success">Track wurde zu jogmap.de hochgeladen: </string>
     <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo. </string>
@@ -229,11 +252,33 @@
     <string name="osm_success">Successfully uploading the track to www.openstreetmap.org: </string>
     <string name="osm_failed">Failed uploading the track to www.openstreetmap.org: </string>
     <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
+    <string name="osm_task">Uploading trace to OpenStreetMap</string>
     <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.</string>
     <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
-
+    
+    <string name="preference_stream">Location broadcasting settings</string>
+    <string name="streamenabled_title">Streaming enabled</string>
+    <string name="streamenabled_summary">Enable direct broadcasting of location</string>
+    <string name="streambroadcast_time_title">Minimum time between broadcasts</string>
+    <string name="streambroadcast_time_summary">Number of minutes after which new progress is broadcasted</string>
+    <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
+    <string name="streambroadcast_distance_summary">Number of miles or kilometers after which new progress is broadcasted</string>
+    <string name="voiceover_title">Stream to audio voice-over</string>
+    <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
+    <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
+    <string name="customupload_title">Stream to custom web server</string>
+    <string name="customupload_summary">Upload track progress to (personal) web server</string>
+    <string name="customupload_url_title">Custom web server URL</string>
+    <string name="customupload_url_summary">The web address to which to upload progress</string>
+    <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request. 
+        In this URL the placeholders are replaced with actual information. The possible placeholders are @LAT@, @LON@, @ALT@, @ACC@, @SPEED@, @BEAR@, @TIME@ and @ID@.</string>
+    <string name="customupload_failed">The last upload of track progress failed</string>
+    <string name="customupload_backlog_title">On failure keep a backlog</string>
+    <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
+    <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>
+            
 <!-- ***************************
    About information
    ***************************-->
