@@ -10,12 +10,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <ImageButton
-            android:id="@+id/imageButton1"
+        <ImageView
+            android:id="@+id/image1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:background="@style/Theme.NoBackground"
             android:src="@drawable/icon" />
 
         <TextView
@@ -65,7 +64,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
-            android:id="@+id/TextView02"
+            android:id="@+id/license_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about_license" />
@@ -85,7 +84,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/contribution_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about_contributions" />
@@ -105,7 +104,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
-            android:id="@+id/TextView04"
+            android:id="@+id/notices_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about_notices" />

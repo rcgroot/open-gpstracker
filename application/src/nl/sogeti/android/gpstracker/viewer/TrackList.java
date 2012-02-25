@@ -151,16 +151,16 @@ public class TrackList extends ListActivity implements ProgressListener
       public void onClick(DialogInterface dialog, int which)
       {
          Uri oiDownload = Uri.parse("market://details?id=org.openintents.filemanager");
-         Intent oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
+         Intent oiFileIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
          try
          {
-            startActivity(oiAboutIntent);
+            startActivity(oiFileIntent);
          }
          catch (ActivityNotFoundException e)
          {
-            oiDownload = Uri.parse("http://openintents.googlecode.com/files/FileManager-1.1.3.apk");
-            oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-            startActivity(oiAboutIntent);
+            oiDownload = Uri.parse("http://openintents.googlecode.com/files/FileManager-1.2.apk");
+            oiFileIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
+            startActivity(oiFileIntent);
          }
       }
    };

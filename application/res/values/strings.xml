@@ -289,4 +289,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
    ***************************-->
    <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
    <string name="about_activity_name_extended">About %s</string>
+   <string name="about_license">License</string>
+   <string name="about_contributions">Contributions</string>
+   <string name="about_notices">Notices</string>
 </resources>

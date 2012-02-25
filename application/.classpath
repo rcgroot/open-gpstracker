@@ -19,5 +19,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/httpcore"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/httpmime"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/signpost-commonshttp4"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

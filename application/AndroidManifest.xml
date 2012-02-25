@@ -176,6 +176,10 @@
 			</intent-filter>
 		</activity>
 
+        <activity 
+            android:label="@string/menu_about" 
+            android:name=".viewer.About">
+        </activity> 
 
          
 		<service 

@@ -51,7 +51,6 @@ import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -122,7 +121,6 @@ public class LoggerMap extends MapActivity
    private static final int MENU_SHARE = 13;
    private static final int MENU_CONTRIB = 14;
    private static final int DIALOG_NOTRACK = 24;
-   private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
    private static final int DIALOG_URIS = 34;
    private static final int DIALOG_CONTRIB = 35;
@@ -158,7 +156,6 @@ public class LoggerMap extends MapActivity
    private ContentObserver mSegmentWaypointsObserver;
    private ContentObserver mTrackMediasObserver;
    private DialogInterface.OnClickListener mNoTrackDialogListener;
-   private DialogInterface.OnClickListener mOiAboutDialogListener;
    private OnClickListener mNoteSelectDialogListener;
    private OnCheckedChangeListener mCheckedChangeListener;
    private android.widget.RadioGroup.OnCheckedChangeListener mGroupCheckedChangeListener;
@@ -616,24 +613,6 @@ public class LoggerMap extends MapActivity
             startActivityForResult(tracklistIntent, MENU_TRACKLIST);
          }
       };
-      mOiAboutDialogListener = new DialogInterface.OnClickListener()
-      {
-         public void onClick(DialogInterface dialog, int which)
-         {
-            Uri oiDownload = Uri.parse("market://details?id=org.openintents.about");
-            Intent oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-            try
-            {
-               startActivity(oiAboutIntent);
-            }
-            catch (ActivityNotFoundException e)
-            {
-               oiDownload = Uri.parse("http://openintents.googlecode.com/files/AboutApp-1.0.0.apk");
-               oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-               startActivity(oiAboutIntent);
-            }
-         }
-      };
       /**
        * Listeners to events outside this mapview
        */
@@ -844,15 +823,8 @@ public class LoggerMap extends MapActivity
             handled = true;
             break;
          case MENU_ABOUT:
-            intent = new Intent("org.openintents.action.SHOW_ABOUT_DIALOG");
-            try
-            {
-               startActivityForResult(intent, MENU_ABOUT);
-            }
-            catch (ActivityNotFoundException e)
-            {
-               showDialog(DIALOG_INSTALL_ABOUT);
-            }
+            intent = new Intent(this, About.class);
+            startActivity(intent);
             break;
          case MENU_SHARE:
             intent = new Intent(Intent.ACTION_RUN);
@@ -916,12 +888,6 @@ public class LoggerMap extends MapActivity
             builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.dialog_notrack_title).setMessage(R.string.dialog_notrack_message).setIcon(android.R.drawable.ic_dialog_alert)
                   .setPositiveButton(R.string.btn_selecttrack, mNoTrackDialogListener).setNegativeButton(R.string.btn_cancel, null);
-            dialog = builder.create();
-            return dialog;
-         case DIALOG_INSTALL_ABOUT:
-            builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_nooiabout).setMessage(R.string.dialog_nooiabout_message).setIcon(android.R.drawable.ic_dialog_alert)
-                  .setPositiveButton(R.string.btn_install, mOiAboutDialogListener).setNegativeButton(R.string.btn_cancel, null);
             dialog = builder.create();
             return dialog;
          case DIALOG_URIS:
@@ -1031,8 +997,6 @@ public class LoggerMap extends MapActivity
                mAverageSpeed = 0.0;
                moveToTrack(trackId, true);
             }
-            break;
-         case MENU_ABOUT:
             break;
          case MENU_TRACKING:
             if (resultCode == RESULT_OK)
