@@ -41,15 +41,6 @@
             android:name="org.openintents.metadata.COPYRIGHT"
             android:value="@string/about_copyright" />
          <meta-data
-            android:name="org.openintents.metadata.AUTHORS"
-            android:resource="@array/about_authors" />
-         <meta-data
-            android:name="org.openintents.metadata.DOCUMENTERS"
-            android:resource="@array/about_documenters" />
-         <meta-data
-            android:name="org.openintents.metadata.ARTISTS"
-            android:resource="@array/about_artists" />
-         <meta-data
             android:name="org.openintents.metadata.WEBSITE_LABEL"
             android:value="@string/about_website_label" />
          <meta-data

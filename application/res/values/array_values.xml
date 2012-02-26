@@ -37,20 +37,5 @@
         <item>public</item>
         <item>trackable</item>
         <item>private</item>
-    </string-array>  
-
-    <string-array name="about_authors" translatable="false"><!-- Add your name here if you helped out -->
-        <item>René de Groot</item>
-        <item>Tom Van Braeckel</item>
     </string-array>
-
-    <string-array name="about_documenters" translatable="false">
-        <item>René de Groot</item>
-    </string-array>
-
-    <string-array name="about_artists" translatable="false">
-        <item>Program icons: The Android Open Source Project</item>
-        <item>Bubbles icons: ICONS etc. MySiteMyWay</item>
-    </string-array>
-    
 </resources>
