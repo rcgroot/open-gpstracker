@@ -12,18 +12,9 @@
       android:enabled="true"
       android:clickable="true"
       android:apiKey="0bmdf4-ggC50QJGdjml6Turq0NJdMhKFQNdhkYA" 
-      android:visibility="visible" />
+     />
    <!--  Release         : 0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw -->
    <!--  Debug           : 0bmdf4-ggC50QJGdjml6Turq0NJdMhKFQNdhkYA -->
-
-   <org.osmdroid.views.MapView
-      android:id="@+id/myOsmMapView"
-      android:layout_width="fill_parent"
-      android:layout_height="fill_parent"
-      renderer="CLOUDMADESTANDARDTILES"
-      cloudmadeStyle="1"
-      android:visibility="gone"
-   />
 
    <TextView
       android:id="@+id/currentSpeed"

@@ -40,7 +40,8 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import nl.sogeti.android.gpstracker.viewer.GoogleLoggerMap;
+import nl.sogeti.android.gpstracker.viewer.LoggerMapHelper;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -151,7 +152,7 @@ public class OsmSharing extends GpxCreator
          {
             sources = metaData.getString(0);
          }
-         if (sources != null && sources.contains(LoggerMap.GOOGLE_PROVIDER))
+         if (sources != null && sources.contains(LoggerMapHelper.GOOGLE_PROVIDER))
          {
             throw new IOException("Unable to upload track with materials derived from Google Maps.");
          }

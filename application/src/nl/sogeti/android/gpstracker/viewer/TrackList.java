@@ -352,7 +352,7 @@ public class TrackList extends ListActivity implements ProgressListener
          }
          else
          {
-            intent.setClass(this, LoggerMap.class);
+            intent.setClass(this, GoogleLoggerMap.class);
             startActivity(intent);
          }
       }
@@ -592,7 +592,7 @@ public class TrackList extends ListActivity implements ProgressListener
          if ("content".equals(uri.getScheme()) && GPStracking.AUTHORITY.equals(uri.getAuthority()))
          {
             // Got to VIEW a single track, instead hand it of to the LoggerMap
-            Intent notificationIntent = new Intent(this, LoggerMap.class);
+            Intent notificationIntent = new Intent(this, GoogleLoggerMap.class);
             notificationIntent.setData(uri);
             startActivity(notificationIntent);
             finish();

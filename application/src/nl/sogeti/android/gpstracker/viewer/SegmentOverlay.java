@@ -40,9 +40,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
-import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProxy;
-import nl.sogeti.android.gpstracker.viewer.proxy.ProjectionProxy;
+import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -85,7 +83,7 @@ import com.google.android.maps.Overlay;
  * @version $Id$
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */
-public class SegmentOverlay extends Overlay implements OverlayProxy
+public class SegmentOverlay extends Overlay implements OverlayProvider
 {
    public static final int MIDDLE_SEGMENT = 0;
    public static final int FIRST_SEGMENT = 1;
@@ -104,7 +102,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    private ContentResolver mResolver;
    private LoggerMap mLoggerMap;
-   private ProjectionProxy mProjection;
    private org.osmdroid.views.overlay.Overlay mOsmOverlay;
 
    private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
@@ -131,7 +128,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Point mMediaScreenPoint;
    private Point startStopCirclePoint;
    private int mStepSize = -1;
-   private MapViewProxy mMapView;
    private Location mLocation;
    private Location mPrevLocation;
    private Cursor mWaypointsCursor;
@@ -175,23 +171,21 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     * @param segmentUri
     * @param color
     * @param avgSpeed
-    * @param mMapView
+    * @param handler
     */
-   public SegmentOverlay(LoggerMap loggermap, Uri segmentUri, int color, double avgSpeed, MapViewProxy mapView, Handler handler)
+   public SegmentOverlay(LoggerMap loggermap, Uri segmentUri, int color, double avgSpeed, Handler handler)
    {
       super();
       mHandler = handler;
       mLoggerMap = loggermap;
-      mMapView = mapView;
       mTrackColoringMethod = color;
       mAvgSpeed = avgSpeed;
       mSegmentUri = segmentUri;
       mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
-      mResolver = mLoggerMap.getContentResolver();
+      mResolver = mLoggerMap.getActivity().getContentResolver();
       mRequeryFlag = true;
       mCurrentColor = Color.rgb( 255, 0, 0 );
-      mProjection = mapView.getProjection();
       
       dotpaint = new Paint();
       radiusPaint = new Paint();
@@ -216,27 +210,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mMediaPath = new Vector<MediaVO>();
       mMediaPathCalculation = new Vector<MediaVO>();
       
-      mOsmOverlay = new org.osmdroid.views.overlay.Overlay(mLoggerMap) {
-         
-         @Override
-         public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView) 
-         {
-            int x = (int) e.getX();
-            int y = (int) e.getY();
-            GeoPoint tappedGeoPoint = mProjection.fromPixels(x, y);
-            return SegmentOverlay.this.commonOnTap(tappedGeoPoint );
-         }
-
-         @Override
-         protected void draw(Canvas canvas, org.osmdroid.views.MapView view, boolean shadow)
-         {
-            if( !shadow )
-            {
-               mProjection.setProjection(view);
-               SegmentOverlay.this.draw( canvas );
-            }
-         }      
-      };
+      mOsmOverlay = new SegmentOsmOverlay(mLoggerMap.getActivity(), this);
       
       mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
@@ -285,7 +259,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       super.draw( canvas, mapView, shadow );
       if( !shadow )
       {
-         mProjection.setProjection( mapView.getProjection() ); 
          draw( canvas );
       }
    }
@@ -333,8 +306,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    {
       GeoPoint oldTopLeft = mGeoTopLeft;
       GeoPoint oldBottumRight = mGeoBottumRight;
-      mGeoTopLeft = mProjection.fromPixels( 0, 0 );
-      mGeoBottumRight = mProjection.fromPixels( mWidth, mHeight );
+      mGeoTopLeft = mLoggerMap.fromPixels( 0, 0 );
+      mGeoBottumRight = mLoggerMap.fromPixels( mWidth, mHeight );
 
       if( mRequeryFlag
               || oldTopLeft == null 
@@ -402,7 +375,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          mWaypointsCursor.requery();
          mRequeryFlag = false;
       }
-      if( mProjection != null && mWaypointsCursor.moveToFirst() )
+      if( mLoggerMap.hasProjection() && mWaypointsCursor.moveToFirst() )
       {
          // Start point of the segments, possible a dot
          this.mStartPoint = extractGeoPoint();
@@ -475,7 +448,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          mWaypointsCursor.requery();
          mRequeryFlag = false;
       }
-      if( mProjection != null && mWaypointsCursor.moveToFirst() )
+      if( mLoggerMap.hasProjection() && mWaypointsCursor.moveToFirst() )
       {
          GeoPoint geoPoint;
 
@@ -500,7 +473,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                dotVO.y = this.mScreenPoint.y;
                dotVO.speed = mWaypointsCursor.getLong( 2 );
                dotVO.time = mWaypointsCursor.getLong( 3 );
-               dotVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 4 ) );
+               dotVO.radius = mLoggerMap.metersToEquatorPixels( mWaypointsCursor.getFloat( 4 ) );
                mDotPathCalculation.add( dotVO );
 
                this.mPrevDrawnScreenPoint.x = this.mScreenPoint.x;
@@ -515,7 +488,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          pointVO.y = this.mScreenPoint.y;
          pointVO.speed = mWaypointsCursor.getLong( 2 );
          pointVO.time = mWaypointsCursor.getLong( 3 );
-         pointVO.radius = mProjection.metersToEquatorPixels( mWaypointsCursor.getFloat( 4 ) );
+         pointVO.radius = mLoggerMap.metersToEquatorPixels( mWaypointsCursor.getFloat( 4 ) );
          mDotPathCalculation.add( pointVO );
       }
    }
@@ -537,7 +510,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          mMediaCursor.requery();
       }
-      if (mProjection != null && mMediaCursor.moveToFirst())
+      if (mLoggerMap.hasProjection() && mMediaCursor.moveToFirst())
       {
          GeoPoint lastPoint = null;
          int wiggle = 0;
@@ -568,7 +541,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             }
             if( isGeoPointOnScreen( mediaVO.geopoint ) )
             {
-               this.mProjection.toPixels( mediaVO.geopoint, this.mMediaScreenPoint );
+               mLoggerMap.toPixels( mediaVO.geopoint, this.mMediaScreenPoint );
                if( mediaVO.geopoint.equals( lastPoint ) )
                {
                   wiggle += 4;
@@ -577,7 +550,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
                {
                   wiggle = 0;
                }
-               mediaVO.bitmapKey = getResourceForMedia( mLoggerMap.getResources(), mediaVO.uri );
+               mediaVO.bitmapKey = getResourceForMedia( mLoggerMap.getActivity().getResources(), mediaVO.uri );
                mediaVO.w = sBitmapCache.get(mediaVO.bitmapKey).getWidth();
                mediaVO.h = sBitmapCache.get(mediaVO.bitmapKey).getHeight();
                int left = ( mediaVO.w * 3 ) / 7 + wiggle;
@@ -640,7 +613,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    {
       synchronized ( mDotPath )
       {   
-         Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );      
+         Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getActivity().getResources(), R.drawable.stip2 );      
          for( DotVO dotVO : mDotPath )
          {
             canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
@@ -718,18 +691,18 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       {
          if( mStartBitmap == null )
          {
-            mStartBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip );
+            mStartBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getActivity().getResources(), R.drawable.stip );
          }
-         this.mProjection.toPixels( this.mStartPoint, startStopCirclePoint );
+         mLoggerMap.toPixels( this.mStartPoint, startStopCirclePoint );
          canvas.drawBitmap( mStartBitmap, startStopCirclePoint.x - 8, startStopCirclePoint.y - 8, defaultPaint );
       }
       if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
       {
          if( mStopBitmap == null )
          {
-            mStopBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getResources(), R.drawable.stip2 );
+            mStopBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getActivity().getResources(), R.drawable.stip2 );
          }
-         this.mProjection.toPixels( this.mEndPoint, startStopCirclePoint );
+         mLoggerMap.toPixels( this.mEndPoint, startStopCirclePoint );
          canvas.drawBitmap( mStopBitmap, startStopCirclePoint.x - 5, startStopCirclePoint.y - 5, defaultPaint );
       }
    }
@@ -842,7 +815,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mScreenPointBackup.x = this.mScreenPoint.x;
       mScreenPointBackup.y = this.mScreenPoint.x;
       
-      this.mProjection.toPixels( geoPoint, this.mScreenPoint );
+      mLoggerMap.toPixels( geoPoint, this.mScreenPoint );
    }
 
    /**
@@ -974,8 +947,8 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
       else
       {
-         int zoomLevel = mMapView.getZoomLevel();
-         int maxZoomLevel = mMapView.getMaxZoomLevel();
+         int zoomLevel = mLoggerMap.getZoomLevel();
+         int maxZoomLevel = mLoggerMap.getMaxZoomLevel();
          if( zoomLevel >= maxZoomLevel - 2 )
          {
             mStepSize = 1;
@@ -1179,12 +1152,12 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    {
       if( tappedUri.size() == 1 )
       {
-         return handleMedia( mLoggerMap, tappedUri.get( 0 ) );
+         return handleMedia( mLoggerMap.getActivity(), tappedUri.get( 0 ) );
       }
       else
       {
-         BaseAdapter adapter = new MediaAdapter( mLoggerMap, tappedUri );
-         mLoggerMap.showDialog( adapter );
+         BaseAdapter adapter = new MediaAdapter( mLoggerMap.getActivity(), tappedUri );
+         mLoggerMap.showMediaDialog( adapter );
          return true;
       }
    }
@@ -1249,7 +1222,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       List<Uri> tappedUri = new Vector<Uri>();
 
       Point tappedPoint = new Point();
-      mProjection.toPixels( tappedGeoPoint, tappedPoint );
+      mLoggerMap.toPixels( tappedGeoPoint, tappedPoint );
       for( MediaVO media : mMediaPath )
       {
          if( media.x < tappedPoint.x && tappedPoint.x < media.x + media.w && media.y < tappedPoint.y && tappedPoint.y < media.y + media.h )
@@ -1288,13 +1261,13 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
             }
             if( tapped != null )
             {
-               DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(mLoggerMap.getApplicationContext());
+               DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(mLoggerMap.getActivity().getApplicationContext());
                String timetxt = timeFormat.format(new Date(tapped.time));
-               UnitsI18n units = new UnitsI18n( mLoggerMap, null);
+               UnitsI18n units = new UnitsI18n( mLoggerMap.getActivity(), null);
                double speed = units.conversionFromMetersPerSecond( tapped.speed );
                String speedtxt = String.format( "%.1f %s", speed, units.getSpeedUnit() );
-               String text = mLoggerMap.getString(R.string.time_and_speed, timetxt, speedtxt );
-               Toast toast = Toast.makeText(mLoggerMap, text, Toast.LENGTH_SHORT);
+               String text = mLoggerMap.getActivity().getString(R.string.time_and_speed, timetxt, speedtxt );
+               Toast toast = Toast.makeText(mLoggerMap.getActivity(), text, Toast.LENGTH_SHORT);
                toast.show();
             }
          }
@@ -1368,7 +1341,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       public View getView( int position, View convertView, ViewGroup parent )
       {
          ImageView imageView = new ImageView( mContext );
-         imageView.setImageBitmap( sBitmapCache.get(getResourceForMedia( mLoggerMap.getResources(), mTappedUri.get( position ) ) ) );
+         imageView.setImageBitmap( sBitmapCache.get(getResourceForMedia( mLoggerMap.getActivity().getResources(), mTappedUri.get( position ) ) ) );
          imageView.setScaleType( ImageView.ScaleType.FIT_XY );
          imageView.setBackgroundResource( itemBackground );
          return imageView;
@@ -1384,5 +1357,44 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    public org.osmdroid.views.overlay.Overlay getOSMOverlay()
    {
       return mOsmOverlay;
+   }
+   
+   static class SegmentOsmOverlay extends org.osmdroid.views.overlay.Overlay
+   {
+      SegmentOverlay mSegmentOverlay ;
+      
+      public SegmentOverlay getSegmentOverlay()
+      {
+         return mSegmentOverlay;
+      }
+
+      public SegmentOsmOverlay(Context ctx, SegmentOverlay segmentOverlay)
+      {
+         super(ctx);
+         mSegmentOverlay = segmentOverlay;
+      }
+
+      @Override
+      public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView) 
+      {
+         int x = (int) e.getX();
+         int y = (int) e.getY();
+         GeoPoint tappedGeoPoint = mSegmentOverlay.fromPixels(x, y);
+         return mSegmentOverlay.commonOnTap(tappedGeoPoint );
+      }
+
+      @Override
+      protected void draw(Canvas canvas, org.osmdroid.views.MapView view, boolean shadow)
+      {
+         if( !shadow )
+         {
+            mSegmentOverlay.draw( canvas );
+         }
+      }      
+   }
+
+   public GeoPoint fromPixels(int x, int y)
+   {
+      return mLoggerMap.fromPixels(x, y);
    }
 }

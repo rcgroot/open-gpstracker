@@ -49,7 +49,7 @@ import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import nl.sogeti.android.gpstracker.viewer.GoogleLoggerMap;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -616,7 +616,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
 
          mNotification = new Notification();
          PendingIntent contentIntent = PendingIntent.getActivity(ShareTrack.this, 0,
-               new Intent(ShareTrack.this, LoggerMap.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT);
+               new Intent(ShareTrack.this, GoogleLoggerMap.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT);
 
          mNotification.contentIntent = contentIntent;
          mNotification.tickerText = tickerText;
