@@ -69,9 +69,4 @@
         <item>可追踪</item>
         <item>私有</item>
     </string-array>
-
-    <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
-        <item>安智网汉化 (bbs.goapk.com)</item>
-        <item>NetDragon Websoft Inc. http://www.nd.com.cn/</item>
-    </string-array>
 </resources>

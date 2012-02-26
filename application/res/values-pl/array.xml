@@ -80,11 +80,4 @@
       <item>Niezidentyfikowany</item>
       <item>Prywatny</item>
    </string-array>
-
-   <string-array
-      name="about_translators"
-      translatable="false"><!-- Add your name here if you translated -->
-      <item>Marcin Kost</item>
-   </string-array>
-
 </resources>

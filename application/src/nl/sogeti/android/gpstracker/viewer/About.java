@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 /**
@@ -56,8 +57,10 @@ public class About extends Activity
       {
          version.setText("");
       }
-      TextView license = (TextView) findViewById(R.id.license_body);
-      license.setText(readRawTextFile(this, R.raw.licence_short));
+      WebView license = (WebView) findViewById(R.id.license_body);
+      license.loadUrl("file:///android_asset/license_short.html");
+      WebView notice = (WebView) findViewById(R.id.notices_body);
+      notice.loadUrl("file:///android_asset/notices.html");
    }
 
    public static String readRawTextFile(Context ctx, int resId)
