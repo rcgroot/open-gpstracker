@@ -14,6 +14,8 @@ package nl.sogeti.android.gpstracker.viewer;
 
 import java.util.List;
 
+import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProvider;
+
 import com.google.android.maps.GeoPoint;
 
 import android.app.Activity;
@@ -26,7 +28,7 @@ import android.widget.TextView;
 /**
  * ????
  *
- * @version $Id:$
+ * @version $Id$
  * @author rene (c) Feb 26, 2012, Sogeti B.V.
  */
 public interface LoggerMap
@@ -60,8 +62,6 @@ public interface LoggerMap
 
    void disableCompass();
 
-   void clearSegmentOverlays();
-
    void setZoom(int int1);
 
    void animateTo(GeoPoint storedPoint);
@@ -76,13 +76,11 @@ public interface LoggerMap
 
    void postInvalidate();
 
-   List<SegmentOverlay> getSegmentOverlays();
-
    void enableCompass();
 
    void enableMyLocation();
 
-   void addSegmentOverlay(SegmentOverlay segmentOverlay);
+   void addOverlay(OverlayProvider overlay);
 
    void clearAnimation();
 
@@ -105,4 +103,6 @@ public interface LoggerMap
    TextView getSpeedTextView();
 
    TextView getDistanceTextView();
+
+   void clearOverlays();
 }

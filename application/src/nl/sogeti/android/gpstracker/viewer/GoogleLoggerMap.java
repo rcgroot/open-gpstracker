@@ -33,6 +33,7 @@ import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProvider;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -393,36 +394,6 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
       mMapView.postInvalidate();
    }
 
-   public List<SegmentOverlay> getSegmentOverlays()
-   {
-      List<SegmentOverlay> segments = new LinkedList<SegmentOverlay>();
-      for( Overlay overlay : mMapView.getOverlays() )
-      {
-         if( overlay instanceof SegmentOverlay )
-         {
-            segments.add((SegmentOverlay) overlay);
-         }
-      }
-      return segments;
-   }
-
-   public void addSegmentOverlay(SegmentOverlay segmentOverlay)
-   {
-      mMapView.getOverlays().add(segmentOverlay);
-   }
-   
-   public void clearSegmentOverlays()
-   {
-      List<Overlay> overlays = mMapView.getOverlays();
-      for( int i=0;i<overlays.size();i++)
-      {
-         if (overlays.get(i) instanceof SegmentOverlay)
-         {
-            overlays.remove(i);
-         }
-      }
-   }
-
    public void clearAnimation()
    {
       mMapView.clearAnimation();
@@ -476,5 +447,15 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
    public TextView getDistanceTextView()
    {
       return mDistanceView;
+   }
+
+   public void addOverlay(OverlayProvider overlay)
+   {
+      mMapView.getOverlays().add(overlay.getGoogleOverlay());
+   }
+
+   public void clearOverlays()
+   { 
+      mMapView.getOverlays().clear();
    }
 }

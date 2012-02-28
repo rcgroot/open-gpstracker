@@ -228,13 +228,13 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
             }
          }
       };
-      mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
+      openResources();
    }
 
    public void closeResources()
    {
+      Log.d( TAG, "Segment overlay "+this+" closing content observer");
       mResolver.unregisterContentObserver( mTrackSegmentsObserver );
-      mTrackSegmentsObserver = null;
       mHandler.removeCallbacks(mMediaCalculator);
       mHandler.removeCallbacks(mTrackCalculator);
       mHandler.postAtFrontOfQueue(new Runnable()
@@ -244,13 +244,21 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
             if( mWaypointsCursor != null )
             {
                mWaypointsCursor.close();
+               mWaypointsCursor = null;
             }
             if( mMediaCursor != null )
             {
                mMediaCursor.close();
+               mMediaCursor = null;
             }
          }
       });
+   }
+   
+   public void openResources()
+   {
+      Log.d( TAG, "Segment overlay "+this+" opening content observer");
+      mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
    }
    
    @Override

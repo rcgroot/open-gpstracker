@@ -12,6 +12,7 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -74,7 +75,7 @@ import com.google.android.maps.GeoPoint;
 
 /**
  * ????
- *
+ * 
  * @version $Id:$
  * @author rene (c) Feb 26, 2012, Sogeti B.V.
  */
@@ -129,6 +130,8 @@ public class LoggerMapHelper
    private android.widget.RadioGroup.OnCheckedChangeListener mGroupCheckedChangeListener;
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener;
    private UnitsI18n.UnitsChangeListener mUnitsChangeListener;
+   
+   private LinkedList<SegmentOverlay> mSegments;
 
    /**
     * Run after the ServiceManager completes the binding to the remote service
@@ -136,14 +139,13 @@ public class LoggerMapHelper
    private Runnable mServiceConnected;
    private Runnable speedCalculator;
 
-   
    private LoggerMap mLoggerMap;
-   
+
    public LoggerMapHelper(LoggerMap loggerMap)
    {
       mLoggerMap = loggerMap;
    }
-   
+
    /**
     * Called when the activity is first created.
     */
@@ -174,17 +176,18 @@ public class LoggerMapHelper
       {
          Log.e(TAG, "Failed waiting for a semaphore", e);
       }
+      mSegments = new LinkedList<SegmentOverlay>();
+      
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mLoggerMap.getActivity());
       createListeners();
       onRestoreInstanceState(load);
-      
       mLoggerMap.updateOverlays();
    }
 
    protected void onResume()
    {
       updateMapProvider();
-      
+
       mLoggerServiceManager.startup(mLoggerMap.getActivity(), mServiceConnected);
 
       mSharedPreferences.registerOnSharedPreferenceChangeListener(mSharedPreferenceChangeListener);
@@ -233,14 +236,18 @@ public class LoggerMapHelper
       mUnits.setUnitsChangeListener(null);
       mLoggerMap.disableMyLocation();
       mLoggerMap.disableCompass();
-
+      for (SegmentOverlay segment : mSegments)
+      {
+         segment.closeResources();
+      }
       this.mLoggerServiceManager.shutdown(mLoggerMap.getActivity());
    }
 
    protected void onDestroy()
    {
       mLastSegmentOverlay = null;
-      mLoggerMap.clearSegmentOverlays();
+      mLoggerMap.clearOverlays();
+      mSegments.clear();
       mHandler.post(new Runnable()
       {
          public void run()
@@ -260,7 +267,7 @@ public class LoggerMapHelper
       }
       mUnits = null;
    }
-   
+
    public void onNewIntent(Intent newIntent)
    {
       Uri data = newIntent.getData();
@@ -365,7 +372,7 @@ public class LoggerMapHelper
       editor.putBoolean(Constants.ALTITUDE, b);
       editor.commit();
    }
-   
+
    private void setDistanceOverlay(boolean b)
    {
       Editor editor = mSharedPreferences.edit();
@@ -455,6 +462,7 @@ public class LoggerMapHelper
          {
             mSelected = (Uri) parent.getSelectedItem();
          }
+
          public void onNothingSelected(AdapterView< ? > arg0)
          {
             mSelected = null;
@@ -573,7 +581,7 @@ public class LoggerMapHelper
             {
                mLoggerMap.updateOverlays();
             }
-            else 
+            else
             {
                mLoggerMap.onSharedPreferenceChanged(sharedPreferences, key);
             }
@@ -624,7 +632,7 @@ public class LoggerMapHelper
                if (mLastSegmentOverlay != null)
                {
                   moveActiveViewWindow();
-                  updateMapProviderAdministration( mLoggerMap.getDataSourceId() );
+                  updateMapProviderAdministration(mLoggerMap.getDataSourceId());
                }
                else
                {
@@ -733,7 +741,7 @@ public class LoggerMapHelper
             Bitmap bm = mLoggerMap.getDrawingCache();
             Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
             intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
-            mLoggerMap.getActivity().startActivityForResult(Intent.createChooser( intent, mLoggerMap.getActivity().getString( R.string.share_track ) ), MENU_SHARE);
+            mLoggerMap.getActivity().startActivityForResult(Intent.createChooser(intent, mLoggerMap.getActivity().getString(R.string.share_track)), MENU_SHARE);
             handled = true;
             break;
          case MENU_CONTRIB:
@@ -829,7 +837,7 @@ public class LoggerMapHelper
             cloudmade.setChecked(osmbase == Constants.OSM_CLOUDMADE);
             mapnik.setChecked(osmbase == Constants.OSM_MAKNIK);
             cycle.setChecked(osmbase == Constants.OSM_CYCLE);
-            
+
             ((CheckBox) dialog.findViewById(R.id.layer_traffic)).setChecked(mSharedPreferences.getBoolean(Constants.TRAFFIC, false));
             ((CheckBox) dialog.findViewById(R.id.layer_speed)).setChecked(mSharedPreferences.getBoolean(Constants.SPEED, false));
             ((CheckBox) dialog.findViewById(R.id.layer_altitude)).setChecked(mSharedPreferences.getBoolean(Constants.ALTITUDE, false));
@@ -864,7 +872,7 @@ public class LoggerMapHelper
             break;
       }
    }
-   
+
    protected void onActivityResult(int requestCode, int resultCode, Intent intent)
    {
       Uri trackUri;
@@ -925,7 +933,7 @@ public class LoggerMapHelper
 
    private void updateMapProvider()
    {
-      Class<?> mapClass = null;
+      Class< ? > mapClass = null;
       int provider = new Integer(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
       switch (provider)
       {
@@ -940,13 +948,13 @@ public class LoggerMapHelper
             Log.e(TAG, "Fault in value " + provider + " as MapProvider, defaulting to Google Maps.");
             break;
       }
-      if( mapClass != mLoggerMap.getActivity().getClass() )
+      if (mapClass != mLoggerMap.getActivity().getClass())
       {
          Intent myIntent = mLoggerMap.getActivity().getIntent();
          Intent realIntent;
-         if( myIntent != null )
+         if (myIntent != null)
          {
-            realIntent = new Intent(myIntent.getAction(), myIntent.getData(),  mLoggerMap.getActivity(), mapClass);
+            realIntent = new Intent(myIntent.getAction(), myIntent.getData(), mLoggerMap.getActivity(), mapClass);
             realIntent.putExtras(myIntent);
          }
          else
@@ -973,7 +981,7 @@ public class LoggerMapHelper
          if (mWakeLock == null)
          {
             PowerManager pm = (PowerManager) mLoggerMap.getActivity().getSystemService(Context.POWER_SERVICE);
-            if( disabledimming )
+            if (disabledimming)
             {
                mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, TAG);
             }
@@ -995,7 +1003,8 @@ public class LoggerMapHelper
       int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
       View speedbar = mLoggerMap.getActivity().findViewById(R.id.speedbar);
 
-      TextView[] speedtexts = mLoggerMap.getSpeedTextViews();;
+      TextView[] speedtexts = mLoggerMap.getSpeedTextViews();
+      ;
       if (trackColoringMethod == SegmentOverlay.DRAW_MEASURED || trackColoringMethod == SegmentOverlay.DRAW_CALCULATED)
       {
          // mAverageSpeed is set to 0 if unknown or to trigger an recalculation here
@@ -1023,8 +1032,7 @@ public class LoggerMapHelper
             speedtexts[i].setVisibility(View.INVISIBLE);
          }
       }
-      List<SegmentOverlay> overlays = mLoggerMap.getSegmentOverlays();
-      for (SegmentOverlay overlay : overlays)
+      for (SegmentOverlay overlay : mSegments)
       {
          overlay.setTrackColoringMethod(trackColoringMethod, mAverageSpeed);
       }
@@ -1057,7 +1065,7 @@ public class LoggerMapHelper
          lastGPSAltitudeView.setVisibility(View.GONE);
       }
    }
-   
+
    private void updateDistanceDisplayVisibility()
    {
       boolean showdistance = mSharedPreferences.getBoolean(Constants.DISTANCE, false);
@@ -1071,7 +1079,7 @@ public class LoggerMapHelper
          distanceView.setVisibility(View.GONE);
       }
    }
-   
+
    private void updateCompassDisplayVisibility()
    {
       boolean compass = mSharedPreferences.getBoolean(Constants.COMPASS, false);
@@ -1130,9 +1138,9 @@ public class LoggerMapHelper
          String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
          TextView mLastGPSAltitudeView = mLoggerMap.getAltitideTextView();
          mLastGPSAltitudeView.setText(altitudeText);
-         
+
          //Distance number
-         double distance = units.conversionFromMeter( mLoggerServiceManager.getTrackedDistance() );
+         double distance = units.conversionFromMeter(mLoggerServiceManager.getTrackedDistance());
          String distanceText = String.format("%.2f %s", distance, units.getDistanceUnit());
          TextView mDistanceView = mLoggerMap.getDistanceTextView();
          mDistanceView.setText(distanceText);
@@ -1149,7 +1157,12 @@ public class LoggerMapHelper
    private void createDataOverlays()
    {
       mLastSegmentOverlay = null;
-      mLoggerMap.clearSegmentOverlays();
+      for (SegmentOverlay segment : mSegments)
+      {
+         segment.closeResources();
+      }
+      mSegments.clear();
+      mLoggerMap.clearOverlays();
 
       ContentResolver resolver = mLoggerMap.getActivity().getContentResolver();
       Cursor segments = null;
@@ -1166,7 +1179,8 @@ public class LoggerMapHelper
                long segmentsId = segments.getLong(0);
                Uri segmentUri = ContentUris.withAppendedId(segmentsUri, segmentsId);
                SegmentOverlay segmentOverlay = new SegmentOverlay(mLoggerMap, segmentUri, trackColoringMethod, mAverageSpeed, mHandler);
-               mLoggerMap.addSegmentOverlay(segmentOverlay);
+               mSegments.add(segmentOverlay);
+               mLoggerMap.addOverlay(segmentOverlay);
                mLastSegmentOverlay = segmentOverlay;
                if (segments.isFirst())
                {
@@ -1199,7 +1213,7 @@ public class LoggerMapHelper
       ContentResolver resolver = mLoggerMap.getActivity().getContentResolver();
       Uri segmentsUri = Uri.withAppendedPath(Tracks.CONTENT_URI, this.mTrackId + "/segments");
       Cursor segmentsCursor = null;
-      int segmentOverlaysCount = mLoggerMap.getSegmentOverlays().size();
+      int segmentOverlaysCount = mSegments.size();
       try
       {
          segmentsCursor = resolver.query(segmentsUri, new String[] { Segments._ID }, null, null, null);
@@ -1225,18 +1239,17 @@ public class LoggerMapHelper
     * Call when an overlay has recalulated and has new information to be redrawn
     */
 
-
    private void moveActiveViewWindow()
    {
       GeoPoint lastPoint = getLastTrackPoint();
       if (lastPoint != null && mLoggerServiceManager.getLoggingState() == Constants.LOGGING)
       {
-         if( mLoggerMap.isOutsideScreen(lastPoint) )
+         if (mLoggerMap.isOutsideScreen(lastPoint))
          {
             mLoggerMap.clearAnimation();
             mLoggerMap.setCenter(lastPoint);
          }
-         else if( mLoggerMap.isNearScreenEdge(lastPoint) ) 
+         else if (mLoggerMap.isNearScreenEdge(lastPoint))
          {
             mLoggerMap.clearAnimation();
             mLoggerMap.animateTo(lastPoint);
@@ -1253,14 +1266,14 @@ public class LoggerMapHelper
       if (units != null)
       {
          avgSpeed = units.conversionFromMetersPerSecond(avgSpeed);
-         TextView[] mSpeedtexts =  mLoggerMap.getSpeedTextViews();
+         TextView[] mSpeedtexts = mLoggerMap.getSpeedTextViews();
          for (int i = 0; i < mSpeedtexts.length; i++)
          {
             mSpeedtexts[i].setVisibility(View.VISIBLE);
             double speed;
-            if( mUnits.isUnitFlipped() )
+            if (mUnits.isUnitFlipped())
             {
-               speed = ((avgSpeed * 2d) / 5d) * (mSpeedtexts.length - i - 1) ;
+               speed = ((avgSpeed * 2d) / 5d) * (mSpeedtexts.length - i - 1);
             }
             else
             {
@@ -1280,6 +1293,10 @@ public class LoggerMapHelper
     */
    private void moveToTrack(long trackId, boolean center)
    {
+      if( trackId == mTrackId )
+      {
+         return;
+      }
       Cursor track = null;
       try
       {
@@ -1297,7 +1314,8 @@ public class LoggerMapHelper
             resolver.registerContentObserver(tracksegmentsUri, false, this.mTrackSegmentsObserver);
             resolver.registerContentObserver(Media.CONTENT_URI, true, this.mTrackMediasObserver);
 
-            mLoggerMap.clearSegmentOverlays();
+            mLoggerMap.clearOverlays();
+            mSegments.clear();
 
             updateTitleBar();
             updateDataOverlays();

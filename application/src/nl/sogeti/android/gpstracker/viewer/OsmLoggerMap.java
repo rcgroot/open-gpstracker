@@ -27,6 +27,7 @@ import com.google.android.maps.GeoPoint;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.viewer.SegmentOverlay.SegmentOsmOverlay;
+import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProvider;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -391,21 +392,9 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       return segments;
    }
 
-   public void addSegmentOverlay(SegmentOverlay segmentOverlay)
+   public void addOverlay(OverlayProvider overlay)
    {
-      mMapView.getOverlays().add(segmentOverlay.getOSMOverlay());
-   }
-   
-   public void clearSegmentOverlays()
-   {
-      List<Overlay> overlays = mMapView.getOverlays();
-      for( int i=0;i<overlays.size();i++)
-      {
-         if (overlays.get(i) instanceof SegmentOverlay.SegmentOsmOverlay)
-         {
-            overlays.remove(i);
-         }
-      }
+      mMapView.getOverlays().add(overlay.getOSMOverlay());
    }
 
    public void clearAnimation()
@@ -472,5 +461,9 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    {
       return new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
    }
-   
+
+   public void clearOverlays()
+   {
+      mMapView.getOverlayManager().clear();
+   }
 }
