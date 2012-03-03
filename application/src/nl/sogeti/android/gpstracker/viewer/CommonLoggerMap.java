@@ -46,6 +46,9 @@ public class CommonLoggerMap extends Activity
          case Constants.OSM:
             mapClass = OsmLoggerMap.class;
             break;
+         case Constants.MAPQUEST:
+            mapClass = MapQuestLoggerMap.class;
+            break;
          default:
             mapClass = GoogleLoggerMap.class;
             Log.e(TAG, "Fault in value " + provider + " as MapProvider, defaulting to Google Maps.");

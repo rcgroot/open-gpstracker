@@ -17,6 +17,7 @@
     <string-array name="mapprovider_choices">
         <item>Google Maps</item>
         <item>OpenStreetMap</item>
+        <item>Mapquest</item>
     </string-array>   
     
     <string-array name="trackcoloring_choices">

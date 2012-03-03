@@ -5,6 +5,7 @@
 	<classpathentry kind="lib" path="lib/slf4j-android-1.5.8.jar"/>
 	<classpathentry kind="lib" path="lib/signpost-core-1.2.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/osmdroid-android-3.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/mapquest-android-sdk-1.0.1.jar"/>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>

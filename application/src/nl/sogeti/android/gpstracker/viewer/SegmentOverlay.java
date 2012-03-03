@@ -41,6 +41,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProvider;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -103,6 +104,7 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
    private ContentResolver mResolver;
    private LoggerMap mLoggerMap;
    private org.osmdroid.views.overlay.Overlay mOsmOverlay;
+   private com.mapquest.android.maps.Overlay mMapQuestOverlay;
 
    private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
    private Uri mWaypointsUri;
@@ -211,6 +213,7 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
       mMediaPathCalculation = new Vector<MediaVO>();
       
       mOsmOverlay = new SegmentOsmOverlay(mLoggerMap.getActivity(), this);
+      mMapQuestOverlay = new SegmentMapQuestOverlay(this);
       
       mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
@@ -1367,21 +1370,26 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
       return mOsmOverlay;
    }
    
+   public com.mapquest.android.maps.Overlay getMapQuestOverlay()
+   {
+      return mMapQuestOverlay;
+   }
+
    static class SegmentOsmOverlay extends org.osmdroid.views.overlay.Overlay
    {
       SegmentOverlay mSegmentOverlay ;
       
-      public SegmentOverlay getSegmentOverlay()
-      {
-         return mSegmentOverlay;
-      }
-
       public SegmentOsmOverlay(Context ctx, SegmentOverlay segmentOverlay)
       {
          super(ctx);
          mSegmentOverlay = segmentOverlay;
       }
 
+      public SegmentOverlay getSegmentOverlay()
+      {
+         return mSegmentOverlay;
+      }
+      
       @Override
       public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView) 
       {
@@ -1399,6 +1407,40 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
             mSegmentOverlay.draw( canvas );
          }
       }      
+   }
+   
+
+   static class SegmentMapQuestOverlay extends com.mapquest.android.maps.Overlay
+   {
+      SegmentOverlay mSegmentOverlay ;
+      
+      public SegmentMapQuestOverlay(SegmentOverlay segmentOverlay)
+      {
+         super();
+         mSegmentOverlay = segmentOverlay;
+      }
+
+      public SegmentOverlay getSegmentOverlay()
+      {
+         return mSegmentOverlay;
+      }
+      
+      @Override
+      public boolean onTap(com.mapquest.android.maps.GeoPoint p, com.mapquest.android.maps.MapView mapView)
+      {
+         GeoPoint tappedGeoPoint = new GeoPoint(p.getLatitudeE6(), p.getLongitudeE6());
+         return mSegmentOverlay.commonOnTap(tappedGeoPoint );
+      }
+      
+      @Override
+      public void draw(Canvas canvas, com.mapquest.android.maps.MapView mapView, boolean shadow)
+      {
+         if( !shadow )
+         {
+            mSegmentOverlay.draw( canvas );
+         }
+      }
+      
    }
 
    public GeoPoint fromPixels(int x, int y)

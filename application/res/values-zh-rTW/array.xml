@@ -21,6 +21,7 @@
       name="mapprovider_choices">
       <item>谷歌地圖</item>
       <item>OpenStreetMap</item>
+      <item>Mapquest</item>
    </string-array>
 
    <string-array

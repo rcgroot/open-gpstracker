@@ -79,6 +79,7 @@ public class Constants
    public static final Uri NAME_URI = Uri.parse( "content://" + GPStracking.AUTHORITY+".string" );
    public static final int GOOGLE = 0;
    public static final int OSM = 1;
+   public static final int MAPQUEST = 2;
    public static final String JOGRUNNER_AUTH = "JOGRUNNER_AUTH";
    public static final String EXPORT_TYPE = "SHARE_TYPE";
    public static final String EXPORT_GPXTARGET = "EXPORT_GPXTARGET";
