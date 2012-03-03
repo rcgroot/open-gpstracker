@@ -193,22 +193,6 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
       super.onPrepareDialog(id, dialog);
    }
    
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
    /******************************/
    /** Loggermap methods        **/ 
    /******************************/
@@ -229,23 +213,10 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
 
    public void onLayerCheckedChanged(int checkedId, boolean isChecked)
    {
-      switch (checkedId)
-      {
-         default:
-            break;
-      }
    }
 
    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
    {
-      if (key.equals(Constants.TRAFFIC))
-      {
-         updateOverlays();
-      }
-      else if (key.equals(Constants.SATELLITE))
-      {
-         updateOverlays();
-      }
    }
 
    public Bitmap getDrawingCache()
@@ -265,13 +236,13 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
    
    public String getDataSourceId()
    {
-      return LoggerMapHelper.GOOGLE_PROVIDER;
+      return LoggerMapHelper.MAPQUEST_PROVIDER;
    }
 
    public boolean isOutsideScreen(GeoPoint lastPoint)
    {
       Point out = new Point();
-      this.mMapView.getProjection().toPixels(convertGeoPoint(lastPoint), out);
+      this.mMapView.getProjection().toPixels(MapQuestLoggerMap.convertGeoPoint(lastPoint), out);
       int height = this.mMapView.getHeight();
       int width = this.mMapView.getWidth();
       return (out.x < 0 || out.y < 0 || out.y > height || out.x > width);
@@ -280,7 +251,7 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
    public boolean isNearScreenEdge(GeoPoint lastPoint)
    {
       Point out = new Point();
-      this.mMapView.getProjection().toPixels(convertGeoPoint(lastPoint), out);
+      this.mMapView.getProjection().toPixels(MapQuestLoggerMap.convertGeoPoint(lastPoint), out);
       int height = this.mMapView.getHeight();
       int width = this.mMapView.getWidth();
       return (out.x < width / 4 || out.y < height / 4 || out.x > (width / 4) * 3 || out.y > (height / 4) * 3);
@@ -288,7 +259,6 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
 
    public void executePostponedActions()
    {
-      // NOOP for Google Maps
    }
    
    public void enableCompass()
@@ -317,7 +287,7 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
 
    public void animateTo(GeoPoint storedPoint)
    {
-      mMapView.getController().animateTo(convertGeoPoint(storedPoint));
+      mMapView.getController().animateTo(MapQuestLoggerMap.convertGeoPoint(storedPoint));
    }
 
    public int getZoomLevel()
@@ -327,7 +297,7 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
 
    public GeoPoint getMapCenter()
    {
-      return convertOSMGeoPoint(mMapView.getMapCenter());
+      return MapQuestLoggerMap.convertMapQuestGeoPoint(mMapView.getMapCenter());
    }
 
    public boolean zoomOut()
@@ -371,7 +341,7 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
 
    public void setCenter(GeoPoint lastPoint)
    {
-      mMapView.getController().setCenter( convertGeoPoint(lastPoint));
+      mMapView.getController().setCenter( MapQuestLoggerMap.convertGeoPoint(lastPoint));
    }
 
    public int getMaxZoomLevel()
@@ -381,7 +351,7 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
 
    public GeoPoint fromPixels(int x, int y)
    {
-      return convertOSMGeoPoint(mMapView.getProjection().fromPixels(x, y));
+      return convertMapQuestGeoPoint(mMapView.getProjection().fromPixels(x, y));
    }
 
    public boolean hasProjection()
@@ -396,7 +366,7 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
 
    public void toPixels(GeoPoint geoPoint, Point screenPoint)
    {
-      mMapView.getProjection().toPixels( convertGeoPoint(geoPoint), screenPoint);
+      mMapView.getProjection().toPixels( MapQuestLoggerMap.convertGeoPoint(geoPoint), screenPoint);
    }
 
    public TextView[] getSpeedTextViews()
@@ -424,7 +394,7 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
       return new com.mapquest.android.maps.GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
    }
    
-   static GeoPoint convertOSMGeoPoint( com.mapquest.android.maps.GeoPoint point )
+   static GeoPoint convertMapQuestGeoPoint( com.mapquest.android.maps.GeoPoint point )
    {
       return new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
    }

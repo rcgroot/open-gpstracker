@@ -84,6 +84,7 @@ public class LoggerMapHelper
 
    public static final String OSM_PROVIDER = "OSM";
    public static final String GOOGLE_PROVIDER = "GOOGLE";
+   public static final String MAPQUEST_PROVIDER = "MAPQUEST";
 
    private static final String INSTANCE_E6LONG = "e6long";
    private static final String INSTANCE_E6LAT = "e6lat";
@@ -860,7 +861,10 @@ public class LoggerMapHelper
                   dialog.findViewById(R.id.google_overlays).setVisibility(View.GONE);
                   break;
                default:
-                  Log.e(TAG, "Fault in value " + provider + " as MapProvider.");
+                  dialog.findViewById(R.id.osm_backgrounds).setVisibility(View.GONE);
+                  dialog.findViewById(R.id.google_backgrounds).setVisibility(View.GONE);
+                  dialog.findViewById(R.id.shared_layers).setVisibility(View.VISIBLE);
+                  dialog.findViewById(R.id.google_overlays).setVisibility(View.GONE);
                   break;
             }
             break;
