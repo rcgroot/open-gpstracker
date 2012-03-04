@@ -16,10 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.map.SegmentOverlay.SegmentMapQuestOverlay;
-import nl.sogeti.android.gpstracker.viewer.map.SegmentOverlay.SegmentOsmOverlay;
-
+import nl.sogeti.android.gpstracker.viewer.map.AsyncOverlay.SegmentMapQuestOverlay;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -311,20 +308,6 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
    public void postInvalidate()
    {
       mMapView.postInvalidate();
-   }
-
-   public List<SegmentOverlay> getSegmentOverlays()
-   {
-      List<SegmentOverlay> segments = new LinkedList<SegmentOverlay>();
-      for( Overlay overlay : mMapView.getOverlays() )
-      {
-         if( overlay instanceof SegmentMapQuestOverlay )
-         {
-            SegmentMapQuestOverlay segmentOverlay = (SegmentMapQuestOverlay) overlay;
-            segments.add(segmentOverlay.getSegmentOverlay());
-         }
-      }
-      return segments;
    }
 
    public void addOverlay(OverlayProvider overlay)

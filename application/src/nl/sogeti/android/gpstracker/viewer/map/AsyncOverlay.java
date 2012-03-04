@@ -1,183 +1,257 @@
 package nl.sogeti.android.gpstracker.viewer.map;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.Handler;
+import android.util.Log;
+import android.view.MotionEvent;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.Projection;
 
-public abstract class AsyncOverlay extends Overlay
+public abstract class AsyncOverlay extends Overlay implements OverlayProvider
 {
 
-    private static final String TAG = "GG.AsyncOverlay";
+   private static final String TAG = "GG.AsyncOverlay";
 
-    /**
-     * Handler postable object to schedule an recalculation
-     */
-    private final Runnable mCalculator = new Runnable()
-        {
-            public void run()
-            {
-                AsyncOverlay.this.considerCalculate();
-            }
-        };
+   /**
+    * Handler provided by the MapActivity to recalculate graphics
+    */
+   private Handler mHandler;
 
-    /**
-     * Handler provided by the MapActivity to recalculate graphics
-     */
-    private Handler mHandler;
+   private GeoPoint mGeoTopLeft;
 
-    protected Projection mProjection;
+   private GeoPoint mGeoBottumRight;
 
-    private GeoPoint mGeoTopLeft;
+   private int mWidth;
 
-    private GeoPoint mGeoBottumRight;
+   private int mHeight;
 
-    private int mWidth;
+   private Bitmap mActiveBitmap;
 
-    private int mHeight;
+   private GeoPoint mActiveTopLeft;
 
-    private Bitmap mActiveBitmap;
+   private Point mActivePointTopLeft;
 
-    private GeoPoint mActiveTopLeft;
-    
-    private Point mActivePointTopLeft;
-    
-    private boolean mRecalculationFlag;
+   private boolean mNeedNewRerendering;
 
-    private Bitmap mCalculationBitmap;
+   private Bitmap mCalculationBitmap;
 
-    private Canvas mCalculationCanvas;
-        
-    private Paint mPaint;
+   private Canvas mCalculationCanvas;
 
-    private MapView mMapView;
+   private Paint mPaint;
 
-    AsyncOverlay(MapView mapView, Handler handler)
-    {
-        mMapView = mapView;
-        mProjection = mMapView.getProjection();
-        mHandler = handler;
-        mWidth = 1;
-        mHeight = 1;
-        mPaint = new Paint();
-        mRecalculationFlag = true;
-        mActiveBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
-        mActiveTopLeft = new GeoPoint(0, 0);
-        mActivePointTopLeft = new Point();
-        mCalculationBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
-        mCalculationCanvas = new Canvas(mCalculationBitmap);
-    }
+   private LoggerMap mLoggerMap;
 
-    protected void postRecalculation()
-    {
-        mRecalculationFlag = true;
-        asyncCalculate();
-    }
-    
-    /**
-     * Schedule an async recalculation of the image based on the datasource
-     */
-    public void asyncCalculate()
-    {
-        mHandler.removeCallbacks(mCalculator);
-        mHandler.post(mCalculator);
-    }
-    
-    protected void considerCalculate()
-    {
-        GeoPoint oldTopLeft = mGeoTopLeft;
-        GeoPoint oldBottumRight = mGeoBottumRight;
-        mGeoTopLeft = mProjection.fromPixels( 0, 0 );
-        mGeoBottumRight = mProjection.fromPixels( mWidth, mHeight );
+   SegmentOsmOverlay mOsmOverlay;
 
-        if( mCalculationBitmap.getWidth() != mWidth || mCalculationBitmap.getHeight() != mHeight )
-        {
-            mCalculationBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+   private SegmentMapQuestOverlay mMapQuestOverlay;
+
+   private int mActiveZoomLevel;
+
+   private Runnable mBitmapUpdater = new Runnable()
+   {
+      public void run()
+      {
+         postedBitmapUpdater = false;
+         mCalculationBitmap.eraseColor(Color.TRANSPARENT);
+         redrawOffscreen(mCalculationCanvas, mLoggerMap);
+         synchronized (mActiveBitmap)
+         {
+            Bitmap oldActiveBitmap = mActiveBitmap;
+            mActiveBitmap = mCalculationBitmap;
+            mActiveTopLeft = mGeoTopLeft;
+            mCalculationBitmap = oldActiveBitmap;
             mCalculationCanvas.setBitmap(mCalculationBitmap);
-            mRecalculationFlag = true;
-        }
-        
-        if( mRecalculationFlag
-                || oldTopLeft == null 
-                || oldBottumRight == null 
-                || mGeoTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 
-                || mGeoTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
-                || mGeoBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 
-                || mGeoBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
-        {
-            mCalculationBitmap.eraseColor(Color.TRANSPARENT);
-            calculate( mCalculationCanvas );
-            synchronized (mActiveBitmap)
-            {
-                Bitmap oldActiveBitmap = mActiveBitmap;
-                mActiveBitmap = mCalculationBitmap;
-                mActiveTopLeft = mGeoTopLeft;
-                mCalculationBitmap = oldActiveBitmap;
-                mCalculationCanvas.setBitmap(mCalculationBitmap);
-            }
-            mRecalculationFlag = false;
-            mMapView.postInvalidate();
-        }
-    }
+         }
+         mLoggerMap.postInvalidate();
+      }
+   };
 
-    protected abstract void calculate( Canvas asyncBuffer );
+   private boolean postedBitmapUpdater;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void draw(Canvas canvas, MapView mapView, boolean shadow)
-    {
-        mWidth = canvas.getWidth();
-        mHeight = canvas.getHeight();
-        mProjection = mapView.getProjection();
-        if (!shadow)
-        {
-            draw(canvas);
-        }
-    }
-    
-    private void draw(Canvas canvas)
-    {
-        asyncCalculate();
-        synchronized (mActiveBitmap)
-        {
-            mProjection.toPixels(mActiveTopLeft, mActivePointTopLeft);
-            canvas.drawBitmap(mActiveBitmap, mActivePointTopLeft.x, mActivePointTopLeft.y, mPaint);
-        }
-    }
-    
-    protected boolean isPointOnScreen(Point point)
-    {
-        return point.x < 0 || point.y < 0 || point.x > mWidth || point.y > mHeight;
-    }
+   AsyncOverlay(LoggerMap loggermap, Handler handler)
+   {
+      mLoggerMap = loggermap;
+      mHandler = handler;
+      mWidth = 1;
+      mHeight = 1;
+      mPaint = new Paint();
+      mActiveZoomLevel = -1;
+      mActiveBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+      mActiveTopLeft = new GeoPoint(0, 0);
+      mActivePointTopLeft = new Point();
+      mCalculationBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+      mCalculationCanvas = new Canvas(mCalculationBitmap);
+      
+      mOsmOverlay = new SegmentOsmOverlay(mLoggerMap.getActivity(), mLoggerMap, this);
+      mMapQuestOverlay = new SegmentMapQuestOverlay(this);
+   }
 
-    protected boolean isGeoPointOnScreen(GeoPoint geopoint)
-    {
-        boolean onscreen = true;
-        if (geopoint != null && mGeoTopLeft != null && mGeoBottumRight != null)
-        {
-            onscreen = onscreen && mGeoTopLeft.getLatitudeE6() > geopoint.getLatitudeE6();
-            onscreen = onscreen && mGeoBottumRight.getLatitudeE6() < geopoint.getLatitudeE6();
-            if (mGeoTopLeft.getLongitudeE6() < mGeoBottumRight.getLongitudeE6())
-            {
-                onscreen = onscreen && mGeoTopLeft.getLongitudeE6() < geopoint.getLongitudeE6();
-                onscreen = onscreen && mGeoBottumRight.getLongitudeE6() > geopoint.getLongitudeE6();
-            }
-            else
-            {
-                onscreen = onscreen
-                        && (mGeoTopLeft.getLongitudeE6() < geopoint.getLongitudeE6() || mGeoBottumRight
-                                .getLongitudeE6() > geopoint.getLongitudeE6());
-            }
-        }
-        return onscreen;
-    }
+   protected void considerRedrawOffscreen()
+   {
+      GeoPoint oldTopLeft = mGeoTopLeft;
+      GeoPoint oldBottumRight = mGeoBottumRight;
+      int oldZoomLevel = mActiveZoomLevel;
+      
+      mGeoTopLeft = mLoggerMap.fromPixels(0, 0);
+      mGeoBottumRight = mLoggerMap.fromPixels(mWidth, mHeight);
+      mActiveZoomLevel = mLoggerMap.getZoomLevel();
+      
+      boolean needNewCalculation = false;
+      
+      if (mCalculationBitmap.getWidth() != mWidth || mCalculationBitmap.getHeight() != mHeight)
+      {
+         mCalculationBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+         mCalculationCanvas.setBitmap(mCalculationBitmap);
+         needNewCalculation = true;
+      }
+
+      if ( needNewCalculation 
+            || mActiveZoomLevel != oldZoomLevel 
+            || oldTopLeft == null || oldBottumRight == null || mGeoTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100
+            || mGeoTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
+            || mGeoBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100
+            || mGeoBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100)
+      {
+         scheduleRecalculation();
+      }
+   }
+   
+   public void onDateOverlayChanged()
+   {
+      if( !postedBitmapUpdater)
+      {
+         postedBitmapUpdater = true;
+         mHandler.post(mBitmapUpdater);
+      }
+   }
+   
+   protected abstract void redrawOffscreen(Canvas asyncBuffer, LoggerMap loggermap);
+
+   protected abstract void scheduleRecalculation();
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void draw(Canvas canvas, MapView mapView, boolean shadow)
+   {
+      mWidth = canvas.getWidth();
+      mHeight = canvas.getHeight();
+      if (!shadow)
+      {
+         draw(canvas);
+      }
+   }
+
+   private void draw(Canvas canvas)
+   {
+      considerRedrawOffscreen();
+      synchronized (mActiveBitmap)
+      {
+         mLoggerMap.toPixels(mActiveTopLeft, mActivePointTopLeft);
+         canvas.drawBitmap(mActiveBitmap, mActivePointTopLeft.x, mActivePointTopLeft.y, mPaint);
+      }
+   }
+
+   protected boolean isPointOnScreen(Point point)
+   {
+      return point.x < 0 || point.y < 0 || point.x > mWidth || point.y > mHeight;
+   }
+   
+   /**************************************/
+   /**   Multi map support              **/
+   /**************************************/
+   
+   public Overlay getGoogleOverlay()
+   {
+      return this;
+   }
+
+   public org.osmdroid.views.overlay.Overlay getOSMOverlay()
+   {
+      return mOsmOverlay;
+   }
+   
+   public com.mapquest.android.maps.Overlay getMapQuestOverlay()
+   {
+      return mMapQuestOverlay;
+   }
+   
+   protected abstract boolean commonOnTap(GeoPoint tappedGeoPoint);
+
+   static class SegmentOsmOverlay extends org.osmdroid.views.overlay.Overlay
+   {
+      AsyncOverlay mSegmentOverlay ;
+      LoggerMap mLoggerMap;
+      
+      public SegmentOsmOverlay(Context ctx, LoggerMap map, AsyncOverlay segmentOverlay)
+      {
+         super(ctx);
+         mLoggerMap = map;
+         mSegmentOverlay = segmentOverlay;
+      }
+
+      public AsyncOverlay getSegmentOverlay()
+      {
+         return mSegmentOverlay;
+      }
+      
+      @Override
+      public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView) 
+      {
+         int x = (int) e.getX();
+         int y = (int) e.getY();
+         GeoPoint tappedGeoPoint = mLoggerMap.fromPixels(x, y);
+         return mSegmentOverlay.commonOnTap(tappedGeoPoint );
+      }
+
+      @Override
+      protected void draw(Canvas canvas, org.osmdroid.views.MapView view, boolean shadow)
+      {
+         if( !shadow )
+         {
+            mSegmentOverlay.draw( canvas );
+         }
+      }      
+   }
+
+   static class SegmentMapQuestOverlay extends com.mapquest.android.maps.Overlay
+   {
+      AsyncOverlay mSegmentOverlay ;
+      
+      public SegmentMapQuestOverlay(AsyncOverlay segmentOverlay)
+      {
+         super();
+         mSegmentOverlay = segmentOverlay;
+      }
+
+      public AsyncOverlay getSegmentOverlay()
+      {
+         return mSegmentOverlay;
+      }
+      
+      @Override
+      public boolean onTap(com.mapquest.android.maps.GeoPoint p, com.mapquest.android.maps.MapView mapView)
+      {
+         GeoPoint tappedGeoPoint = new GeoPoint(p.getLatitudeE6(), p.getLongitudeE6());
+         return mSegmentOverlay.commonOnTap(tappedGeoPoint );
+      }
+      
+      @Override
+      public void draw(Canvas canvas, com.mapquest.android.maps.MapView mapView, boolean shadow)
+      {
+         if( !shadow )
+         {
+            mSegmentOverlay.draw( canvas );
+         }
+      }
+      
+   }
 }

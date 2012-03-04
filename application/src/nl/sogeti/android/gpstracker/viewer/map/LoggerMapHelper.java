@@ -12,8 +12,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer.map;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import nl.sogeti.android.gpstracker.R;
@@ -134,8 +132,6 @@ public class LoggerMapHelper
    private android.widget.RadioGroup.OnCheckedChangeListener mGroupCheckedChangeListener;
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener;
    private UnitsI18n.UnitsChangeListener mUnitsChangeListener;
-   
-   private LinkedList<SegmentOverlay> mSegments;
 
    /**
     * Run after the ServiceManager completes the binding to the remote service
@@ -144,6 +140,7 @@ public class LoggerMapHelper
    private Runnable speedCalculator;
 
    private LoggerMap mLoggerMap;
+   private BitmapSegmentsOverlay mBitmapSegmentsOverlay;
 
    public LoggerMapHelper(LoggerMap loggerMap)
    {
@@ -180,8 +177,7 @@ public class LoggerMapHelper
       {
          Log.e(TAG, "Failed waiting for a semaphore", e);
       }
-      mSegments = new LinkedList<SegmentOverlay>();
-      
+      mBitmapSegmentsOverlay = new BitmapSegmentsOverlay(mLoggerMap, mHandler);
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mLoggerMap.getActivity());
       createListeners();
       onRestoreInstanceState(load);
@@ -232,6 +228,7 @@ public class LoggerMapHelper
          this.mWakeLock.release();
          Log.w(TAG, "onPause(): Released lock to keep screen on!");
       }
+      mBitmapSegmentsOverlay.clearSegments();
       ContentResolver resolver = mLoggerMap.getActivity().getContentResolver();
       resolver.unregisterContentObserver(this.mTrackSegmentsObserver);
       resolver.unregisterContentObserver(this.mSegmentWaypointsObserver);
@@ -240,10 +237,6 @@ public class LoggerMapHelper
       mUnits.setUnitsChangeListener(null);
       mLoggerMap.disableMyLocation();
       mLoggerMap.disableCompass();
-      for (SegmentOverlay segment : mSegments)
-      {
-         segment.closeResources();
-      }
       this.mLoggerServiceManager.shutdown(mLoggerMap.getActivity());
    }
 
@@ -251,7 +244,7 @@ public class LoggerMapHelper
    {
       mLastSegmentOverlay = null;
       mLoggerMap.clearOverlays();
-      mSegments.clear();
+      mBitmapSegmentsOverlay.clearSegments();
       mHandler.post(new Runnable()
       {
          public void run()
@@ -1042,10 +1035,7 @@ public class LoggerMapHelper
             speedtexts[i].setVisibility(View.INVISIBLE);
          }
       }
-      for (SegmentOverlay overlay : mSegments)
-      {
-         overlay.setTrackColoringMethod(trackColoringMethod, mAverageSpeed);
-      }
+      mBitmapSegmentsOverlay.setTrackColoringMethod(trackColoringMethod, mAverageSpeed);
    }
 
    private void updateSpeedDisplayVisibility()
@@ -1167,12 +1157,9 @@ public class LoggerMapHelper
    private void createDataOverlays()
    {
       mLastSegmentOverlay = null;
-      for (SegmentOverlay segment : mSegments)
-      {
-         segment.closeResources();
-      }
-      mSegments.clear();
+      mBitmapSegmentsOverlay.clearSegments();
       mLoggerMap.clearOverlays();
+      mLoggerMap.addOverlay(mBitmapSegmentsOverlay);
 
       ContentResolver resolver = mLoggerMap.getActivity().getContentResolver();
       Cursor segments = null;
@@ -1189,8 +1176,7 @@ public class LoggerMapHelper
                long segmentsId = segments.getLong(0);
                Uri segmentUri = ContentUris.withAppendedId(segmentsUri, segmentsId);
                SegmentOverlay segmentOverlay = new SegmentOverlay(mLoggerMap, segmentUri, trackColoringMethod, mAverageSpeed, mHandler);
-               mSegments.add(segmentOverlay);
-               mLoggerMap.addOverlay(segmentOverlay);
+               mBitmapSegmentsOverlay.addSegment(segmentOverlay);
                mLastSegmentOverlay = segmentOverlay;
                if (segments.isFirst())
                {
@@ -1223,7 +1209,7 @@ public class LoggerMapHelper
       ContentResolver resolver = mLoggerMap.getActivity().getContentResolver();
       Uri segmentsUri = Uri.withAppendedPath(Tracks.CONTENT_URI, this.mTrackId + "/segments");
       Cursor segmentsCursor = null;
-      int segmentOverlaysCount = mSegments.size();
+      int segmentOverlaysCount = mBitmapSegmentsOverlay.size();
       try
       {
          segmentsCursor = resolver.query(segmentsUri, new String[] { Segments._ID }, null, null, null);
@@ -1325,7 +1311,7 @@ public class LoggerMapHelper
             resolver.registerContentObserver(Media.CONTENT_URI, true, this.mTrackMediasObserver);
 
             mLoggerMap.clearOverlays();
-            mSegments.clear();
+            mBitmapSegmentsOverlay.clearSegments();
 
             updateTitleBar();
             updateDataOverlays();

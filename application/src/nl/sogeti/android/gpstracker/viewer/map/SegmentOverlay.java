@@ -40,7 +40,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -66,7 +65,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -75,7 +73,6 @@ import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
 
 /**
  * Creates an overlay that can draw a single segment of connected waypoints
@@ -83,7 +80,7 @@ import com.google.android.maps.Overlay;
  * @version $Id$
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */
-public class SegmentOverlay extends Overlay implements OverlayProvider
+public class SegmentOverlay
 {
    public static final int MIDDLE_SEGMENT = 0;
    public static final int FIRST_SEGMENT = 1;
@@ -102,8 +99,6 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
 
    private ContentResolver mResolver;
    private LoggerMap mLoggerMap;
-   private org.osmdroid.views.overlay.Overlay mOsmOverlay;
-   private com.mapquest.android.maps.Overlay mMapQuestOverlay;
 
    private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
    private Uri mWaypointsUri;
@@ -114,7 +109,9 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
 
    private Vector<DotVO> mDotPath;
    private Vector<DotVO> mDotPathCalculation;
-   private Path mPath;
+   private Path mCalculatedPath;
+   private Point mCalculatedStart;
+   private Point mCalculatedStop;
    private Path mPathCalculation;
    private Shader mShader;
    private Vector<MediaVO> mMediaPath;
@@ -127,7 +124,6 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
    private Point mScreenPointBackup;
    private Point mScreenPoint;
    private Point mMediaScreenPoint;
-   private Point startStopCirclePoint;
    private int mStepSize = -1;
    private Location mLocation;
    private Location mPrevLocation;
@@ -145,8 +141,9 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
    private Paint defaultPaint;
    private boolean mRequeryFlag;
    private Handler mHandler;
-   private static Bitmap mStartBitmap;
-   private static Bitmap mStopBitmap;
+   private static Bitmap sStartBitmap;
+   private static Bitmap sStopBitmap;
+   private AsyncOverlay mAsyncOverlay;
    
    private ContentObserver mTrackSegmentsObserver; 
    
@@ -200,20 +197,16 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
       defaultPaint = new Paint();
       mScreenPoint = new Point();
       mMediaScreenPoint = new Point();
-      startStopCirclePoint = new Point();
       mScreenPointBackup = new Point();
       mPrevDrawnScreenPoint = new Point();
       
       mDotPath = new Vector<DotVO>();
       mDotPathCalculation = new Vector<DotVO>();
-      mPath = new Path();
+      mCalculatedPath = new Path();
       mPathCalculation = new Path();
       mMediaPath = new Vector<MediaVO>();
       mMediaPathCalculation = new Vector<MediaVO>();
-      
-      mOsmOverlay = new SegmentOsmOverlay(mLoggerMap.getActivity(), this);
-      mMapQuestOverlay = new SegmentMapQuestOverlay(this);
-      
+            
       mTrackSegmentsObserver = new ContentObserver( new Handler() )
       {
 
@@ -255,6 +248,8 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
             }
          }
       });
+      SegmentOverlay.sStopBitmap = null;
+      SegmentOverlay.sStartBitmap = null;
    }
    
    public void openResources()
@@ -262,23 +257,13 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
       Log.d( TAG, "Segment overlay "+this+" opening content observer");
       mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
    }
-   
-   @Override
-   public void draw( Canvas canvas, MapView mapView, boolean shadow )
-   {
-      super.draw( canvas, mapView, shadow );
-      if( !shadow )
-      {
-         draw( canvas );
-      }
-   }
-      
+         
    /** 
     * Private draw method called by both the draw from Google Overlay and the OSM Overlay  
     * 
     * @param canvas
     */
-   private void draw( Canvas canvas )
+   public void draw( Canvas canvas )
    {
       switch( mTrackColoringMethod )
       {
@@ -297,8 +282,6 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
 
       mWidth = canvas.getWidth();
       mHeight = canvas.getHeight();
-      calculateMedia();
-      calculateTrack(); // Screen changed, need to adjust the path to match the screen
    }
    
    public void calculateTrack()
@@ -314,6 +297,7 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
     */
    private synchronized void calculateTrackAsync()
    {
+      Log.d( TAG, "calculateTrackAsync() "+mSegmentUri);
       GeoPoint oldTopLeft = mGeoTopLeft;
       GeoPoint oldBottumRight = mGeoBottumRight;
       mGeoTopLeft = mLoggerMap.fromPixels( 0, 0 );
@@ -341,10 +325,10 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
             case ( DRAW_RED ):
             case ( DRAW_GREEN ):
                calculatePath();
-               synchronized (mPath) // Switch the fresh path with the old Path object
+               synchronized (mCalculatedPath) // Switch the fresh path with the old Path object
                {
-                  Path oldPath = mPath;
-                  mPath = mPathCalculation;
+                  Path oldPath = mCalculatedPath;
+                  mCalculatedPath = mPathCalculation;
                   mPathCalculation = oldPath;
                }
                break;
@@ -358,7 +342,8 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
                }
                break;
          }
-         mLoggerMap.onDateOverlayChanged();
+         calculateStartStopCircles();
+         mAsyncOverlay.onDateOverlayChanged();
       }
    }
 
@@ -583,7 +568,36 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
       }
       if( mMediaPathCalculation.size() != mMediaPath.size() )
       {
-         mLoggerMap.onDateOverlayChanged();
+         mAsyncOverlay.onDateOverlayChanged();
+      }
+   }
+
+   private void calculateStartStopCircles()
+   {
+      if( ( this.mPlacement == FIRST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mStartPoint != null )
+      {
+         if( sStartBitmap == null )
+         {
+            sStartBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getActivity().getResources(), R.drawable.stip );
+         }
+         if( mCalculatedStart == null )
+         {
+            mCalculatedStart = new Point();
+         }
+         mLoggerMap.toPixels( this.mStartPoint, mCalculatedStart );
+         
+      }
+      if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
+      {
+         if( sStopBitmap == null )
+         {
+            sStopBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getActivity().getResources(), R.drawable.stip2 );
+         }
+         if( mCalculatedStop == null )
+         {
+            mCalculatedStop = new Point();
+         }
+         mLoggerMap.toPixels( this.mEndPoint, mCalculatedStop );
       }
    }
 
@@ -613,9 +627,9 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
             routePaint.setColor( Color.YELLOW );
             break;
       }
-      synchronized ( mPath )
+      synchronized ( mCalculatedPath )
       {
-         canvas.drawPath( mPath, routePaint );         
+         canvas.drawPath( mCalculatedPath, routePaint );         
       }
    }
 
@@ -648,6 +662,18 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
                canvas.drawBitmap( sBitmapCache.get(mediaVO.bitmapKey), mediaVO.x, mediaVO.y, defaultPaint );
             }
          }
+      }
+   }
+
+   private void drawStartStopCircles( Canvas canvas )
+   {
+      if (mCalculatedStart != null)
+      {
+         canvas.drawBitmap( sStartBitmap, mCalculatedStart.x - 8, mCalculatedStart.y - 8, defaultPaint );
+      }
+      if (mCalculatedStop != null)
+      {
+         canvas.drawBitmap( sStopBitmap, mCalculatedStop.x - 5, mCalculatedStop.y - 5, defaultPaint );
       }
    }
 
@@ -693,28 +719,6 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
          bitmap = sBitmapCache.get( bitmapKey ); 
       }
       return bitmapKey;
-   }
-
-   private void drawStartStopCircles( Canvas canvas )
-   {
-      if( ( this.mPlacement == FIRST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mStartPoint != null )
-      {
-         if( mStartBitmap == null )
-         {
-            mStartBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getActivity().getResources(), R.drawable.stip );
-         }
-         mLoggerMap.toPixels( this.mStartPoint, startStopCirclePoint );
-         canvas.drawBitmap( mStartBitmap, startStopCirclePoint.x - 8, startStopCirclePoint.y - 8, defaultPaint );
-      }
-      if( ( this.mPlacement == LAST_SEGMENT || this.mPlacement == FIRST_SEGMENT + LAST_SEGMENT ) && this.mEndPoint != null )
-      {
-         if( mStopBitmap == null )
-         {
-            mStopBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getActivity().getResources(), R.drawable.stip2 );
-         }
-         mLoggerMap.toPixels( this.mEndPoint, startStopCirclePoint );
-         canvas.drawBitmap( mStopBitmap, startStopCirclePoint.x - 5, startStopCirclePoint.y - 5, defaultPaint );
-      }
    }
 
    /**
@@ -1217,17 +1221,7 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
       return false;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.google.android.maps.Overlay#onTap(com.google.android.maps.GeoPoint, com.google.android.maps.MapView)
-    */
-   @Override
-   public boolean onTap( GeoPoint tappedGeoPoint, MapView mapView )
-   {
-      return commonOnTap(tappedGeoPoint) ;
-   }
-
-   private boolean commonOnTap(GeoPoint tappedGeoPoint)
+   public boolean commonOnTap(GeoPoint tappedGeoPoint)
    {
       List<Uri> tappedUri = new Vector<Uri>();
 
@@ -1359,91 +1353,8 @@ public class SegmentOverlay extends Overlay implements OverlayProvider
       }
    }
 
-   public Overlay getGoogleOverlay()
+   public void setBitmapHolder(AsyncOverlay bitmapOverlay)
    {
-      return this;
-   }
-
-   public org.osmdroid.views.overlay.Overlay getOSMOverlay()
-   {
-      return mOsmOverlay;
-   }
-   
-   public com.mapquest.android.maps.Overlay getMapQuestOverlay()
-   {
-      return mMapQuestOverlay;
-   }
-
-   static class SegmentOsmOverlay extends org.osmdroid.views.overlay.Overlay
-   {
-      SegmentOverlay mSegmentOverlay ;
-      
-      public SegmentOsmOverlay(Context ctx, SegmentOverlay segmentOverlay)
-      {
-         super(ctx);
-         mSegmentOverlay = segmentOverlay;
-      }
-
-      public SegmentOverlay getSegmentOverlay()
-      {
-         return mSegmentOverlay;
-      }
-      
-      @Override
-      public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView) 
-      {
-         int x = (int) e.getX();
-         int y = (int) e.getY();
-         GeoPoint tappedGeoPoint = mSegmentOverlay.fromPixels(x, y);
-         return mSegmentOverlay.commonOnTap(tappedGeoPoint );
-      }
-
-      @Override
-      protected void draw(Canvas canvas, org.osmdroid.views.MapView view, boolean shadow)
-      {
-         if( !shadow )
-         {
-            mSegmentOverlay.draw( canvas );
-         }
-      }      
-   }
-   
-
-   static class SegmentMapQuestOverlay extends com.mapquest.android.maps.Overlay
-   {
-      SegmentOverlay mSegmentOverlay ;
-      
-      public SegmentMapQuestOverlay(SegmentOverlay segmentOverlay)
-      {
-         super();
-         mSegmentOverlay = segmentOverlay;
-      }
-
-      public SegmentOverlay getSegmentOverlay()
-      {
-         return mSegmentOverlay;
-      }
-      
-      @Override
-      public boolean onTap(com.mapquest.android.maps.GeoPoint p, com.mapquest.android.maps.MapView mapView)
-      {
-         GeoPoint tappedGeoPoint = new GeoPoint(p.getLatitudeE6(), p.getLongitudeE6());
-         return mSegmentOverlay.commonOnTap(tappedGeoPoint );
-      }
-      
-      @Override
-      public void draw(Canvas canvas, com.mapquest.android.maps.MapView mapView, boolean shadow)
-      {
-         if( !shadow )
-         {
-            mSegmentOverlay.draw( canvas );
-         }
-      }
-      
-   }
-
-   public GeoPoint fromPixels(int x, int y)
-   {
-      return mLoggerMap.fromPixels(x, y);
+      mAsyncOverlay = bitmapOverlay;
    }
 }

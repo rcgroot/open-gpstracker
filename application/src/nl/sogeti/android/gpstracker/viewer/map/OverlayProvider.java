@@ -35,6 +35,5 @@ public interface OverlayProvider
 {
    public com.google.android.maps.Overlay getGoogleOverlay();
    public org.osmdroid.views.overlay.Overlay getOSMOverlay();
-   public void closeResources();
    public Overlay getMapQuestOverlay();
 }

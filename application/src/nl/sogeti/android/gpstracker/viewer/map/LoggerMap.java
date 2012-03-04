@@ -47,8 +47,6 @@ public interface LoggerMap
 
    void showMediaDialog(BaseAdapter mediaAdapter);
 
-   void onDateOverlayChanged();
-
    String getDataSourceId();
 
    boolean isOutsideScreen(GeoPoint lastPoint);

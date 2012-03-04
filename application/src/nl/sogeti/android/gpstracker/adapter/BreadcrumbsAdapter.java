@@ -60,6 +60,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -344,9 +345,16 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
       mFinishing = true;
       mPlannedBundleTask = null;
       mPlannedTrackTasks.clear();
-      mHttpClient.getConnectionManager().shutdown();
-      mHttpClient = null;
-
+      new AsyncTask<Void, Void, Void>()
+      {
+         @Override
+         protected Void doInBackground(Void... params)
+         {      
+            mHttpClient.getConnectionManager().shutdown();
+            mHttpClient = null;
+            return null;
+         };
+      }.execute();
       mTracks.persistCache(mContext);
    }
 

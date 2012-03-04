@@ -12,21 +12,14 @@
  */
 package nl.sogeti.android.gpstracker.viewer.map;
 
-import java.util.LinkedList;
-import java.util.List;
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.util.Constants;
 
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MyLocationOverlay;
-import org.osmdroid.views.overlay.Overlay;
-
-import com.google.android.maps.GeoPoint;
-
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.map.SegmentOverlay.SegmentOsmOverlay;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -41,6 +34,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.google.android.maps.GeoPoint;
 
 /**
  * ????
@@ -374,20 +369,6 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    public void postInvalidate()
    {
       mMapView.postInvalidate();
-   }
-
-   public List<SegmentOverlay> getSegmentOverlays()
-   {
-      List<SegmentOverlay> segments = new LinkedList<SegmentOverlay>();
-      for( Overlay overlay : mMapView.getOverlays() )
-      {
-         if( overlay instanceof SegmentOverlay.SegmentOsmOverlay )
-         {
-            SegmentOverlay.SegmentOsmOverlay segmentOverlay = (SegmentOsmOverlay) overlay;
-            segments.add(segmentOverlay.getSegmentOverlay());
-         }
-      }
-      return segments;
    }
 
    public void addOverlay(OverlayProvider overlay)
