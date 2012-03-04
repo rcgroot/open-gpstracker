@@ -24,6 +24,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -332,7 +333,8 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
 
    public GeoPoint fromPixels(int x, int y)
    {
-      return convertMapQuestGeoPoint(mMapView.getProjection().fromPixels(x, y));
+      com.mapquest.android.maps.GeoPoint mqGeopoint = mMapView.getProjection().fromPixels(x, y);
+      return convertMapQuestGeoPoint(mqGeopoint);
    }
 
    public boolean hasProjection()
@@ -347,7 +349,8 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
 
    public void toPixels(GeoPoint geoPoint, Point screenPoint)
    {
-      mMapView.getProjection().toPixels( MapQuestLoggerMap.convertGeoPoint(geoPoint), screenPoint);
+      com.mapquest.android.maps.GeoPoint mqGeopoint = MapQuestLoggerMap.convertGeoPoint(geoPoint);
+      mMapView.getProjection().toPixels( mqGeopoint, screenPoint);
    }
 
    public TextView[] getSpeedTextViews()
@@ -375,9 +378,9 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
       return new com.mapquest.android.maps.GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
    }
    
-   static GeoPoint convertMapQuestGeoPoint( com.mapquest.android.maps.GeoPoint point )
+   static GeoPoint convertMapQuestGeoPoint( com.mapquest.android.maps.GeoPoint mqPoint )
    {
-      return new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
+      return new GeoPoint(mqPoint.getLatitudeE6(), mqPoint.getLongitudeE6() );
    }
 
    public void clearOverlays()

@@ -38,8 +38,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
 
    private Point mActivePointTopLeft;
 
-   private boolean mNeedNewRerendering;
-
    private Bitmap mCalculationBitmap;
 
    private Canvas mCalculationCanvas;
@@ -142,8 +140,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
    @Override
    public void draw(Canvas canvas, MapView mapView, boolean shadow)
    {
-      mWidth = canvas.getWidth();
-      mHeight = canvas.getHeight();
       if (!shadow)
       {
          draw(canvas);
@@ -152,11 +148,17 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
 
    private void draw(Canvas canvas)
    {
+      mWidth = canvas.getWidth();
+      mHeight = canvas.getHeight();
       considerRedrawOffscreen();
-      synchronized (mActiveBitmap)
+      
+      if(mActiveBitmap.getWidth() > 1)
       {
-         mLoggerMap.toPixels(mActiveTopLeft, mActivePointTopLeft);
-         canvas.drawBitmap(mActiveBitmap, mActivePointTopLeft.x, mActivePointTopLeft.y, mPaint);
+         synchronized (mActiveBitmap)
+         {
+            mLoggerMap.toPixels(mActiveTopLeft, mActivePointTopLeft);
+            canvas.drawBitmap(mActiveBitmap, mActivePointTopLeft.x, mActivePointTopLeft.y, mPaint);
+         }
       }
    }
 

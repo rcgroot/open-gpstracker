@@ -228,7 +228,6 @@ public class SegmentOverlay
 
    public void closeResources()
    {
-      Log.d( TAG, "Segment overlay "+this+" closing content observer");
       mResolver.unregisterContentObserver( mTrackSegmentsObserver );
       mHandler.removeCallbacks(mMediaCalculator);
       mHandler.removeCallbacks(mTrackCalculator);
@@ -254,7 +253,6 @@ public class SegmentOverlay
    
    public void openResources()
    {
-      Log.d( TAG, "Segment overlay "+this+" opening content observer");
       mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
    }
          
@@ -297,7 +295,6 @@ public class SegmentOverlay
     */
    private synchronized void calculateTrackAsync()
    {
-      Log.d( TAG, "calculateTrackAsync() "+mSegmentUri);
       GeoPoint oldTopLeft = mGeoTopLeft;
       GeoPoint oldBottumRight = mGeoBottumRight;
       mGeoTopLeft = mLoggerMap.fromPixels( 0, 0 );

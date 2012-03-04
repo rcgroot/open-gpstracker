@@ -91,7 +91,7 @@ public interface LoggerMap
 
    float metersToEquatorPixels(float float1);
 
-   void toPixels(GeoPoint geopoint, Point mMediaScreenPoint);
+   void toPixels(GeoPoint geopoint, Point screenPoint);
 
    TextView[] getSpeedTextViews();
 
