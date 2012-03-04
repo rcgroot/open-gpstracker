@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------
- **     Ident: Delivery Center Java
+ **     Ident: Sogeti Smart Mobile Solutions
  **    Author: rene
- ** Copyright: (c) Feb 26, 2012 Sogeti Nederland B.V. All Rights Reserved.
+ ** Copyright: (c) Apr 24, 2011 Sogeti Nederland B.V. All Rights Reserved.
  **------------------------------------------------------------------------------
  ** Sogeti Nederland B.V.            |  No part of this file may be reproduced  
  ** Distributed Software Engineering |  or transmitted in any form or by any        
@@ -9,26 +9,30 @@
  ** 4131 NJ Vianen                   |  purpose, without the express written    
  ** The Netherlands                  |  permission of the copyright holder.
  *------------------------------------------------------------------------------
+ *
+ *   This file is part of OpenGPSTracker.
+ *
+ *   OpenGPSTracker is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   OpenGPSTracker is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
-package nl.sogeti.android.gpstracker.viewer;
+package nl.sogeti.android.gpstracker.viewer.map;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.osmdroid.api.IGeoPoint;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.tileprovider.util.CloudmadeUtil;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.MyLocationOverlay;
-import org.osmdroid.views.overlay.Overlay;
-
-import com.google.android.maps.GeoPoint;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.SegmentOverlay.SegmentOsmOverlay;
-import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProvider;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -43,13 +47,18 @@ import android.view.MenuItem;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapView;
+import com.google.android.maps.Overlay;
+
 /**
- * ????
- *
- * @version $Id:$
- * @author rene (c) Feb 26, 2012, Sogeti B.V.
+ * Main activity showing a track and allowing logging control
+ * 
+ * @version $Id$
+ * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */
-public class OsmLoggerMap extends Activity implements LoggerMap
+public class GoogleLoggerMap extends MapActivity implements LoggerMap
 {
    LoggerMapHelper mHelper;
    private MapView mMapView;
@@ -57,7 +66,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    private TextView mLastGPSSpeedView;
    private TextView mLastGPSAltitudeView;
    private TextView mDistanceView;
-   private MyLocationOverlay mMylocation;
+   private FixedMyLocationOverlay mMylocation;
    
    /**
     * Called when the activity is first created.
@@ -66,14 +75,12 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    protected void onCreate(Bundle load)
    {
       super.onCreate(load);
-      setContentView(R.layout.osmmap);
+      setContentView(R.layout.googlemap);
       
-      mMapView = (MapView) findViewById(R.id.myMapView);
       mHelper = new LoggerMapHelper(this);
       mMapView = (MapView) findViewById(R.id.myMapView);
-      mMylocation = new MyLocationOverlay(this, mMapView);
+      mMylocation = new FixedMyLocationOverlay(this, mMapView);
       mMapView.setBuiltInZoomControls(true);
-      mMapView.setClickable(true);
       TextView[] speeds = { (TextView) findViewById(R.id.speedview05), (TextView) findViewById(R.id.speedview04), (TextView) findViewById(R.id.speedview03),
             (TextView) findViewById(R.id.speedview02), (TextView) findViewById(R.id.speedview01), (TextView) findViewById(R.id.speedview00) };
       mSpeedtexts = speeds;
@@ -167,6 +174,14 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       boolean propagate = true;
       switch (keyCode)
       {
+         case KeyEvent.KEYCODE_S:
+            setSatelliteOverlay(!this.mMapView.isSatellite());
+            propagate = false;
+            break;
+         case KeyEvent.KEYCODE_A:
+            setTrafficOverlay(!this.mMapView.isTraffic());
+            propagate = false;
+            break;
          default:
             propagate = mHelper.onKeyDown(keyCode, event);
             if( propagate )
@@ -215,6 +230,19 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       editor.putBoolean(Constants.SATELLITE, b);
       editor.commit();
    }
+   
+   @Override
+   protected boolean isRouteDisplayed()
+   {
+      return true;
+   }
+   
+   @Override
+   protected boolean isLocationDisplayed()
+   {
+      SharedPreferences sharedPreferences = mHelper.getPreferences();
+      return sharedPreferences.getBoolean(Constants.LOCATION, false) || mHelper.isLogging();
+   }
 
    /******************************/
    /** Loggermap methods        **/ 
@@ -223,22 +251,8 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    public void updateOverlays()
    {
       SharedPreferences sharedPreferences = mHelper.getPreferences();
-      int renderer = sharedPreferences.getInt(Constants.OSMBASEOVERLAY, 0);
-      switch( renderer )
-      {
-         case Constants.OSM_CLOUDMADE:
-            CloudmadeUtil.retrieveCloudmadeKey(this.getApplicationContext());
-            mMapView.setTileSource(TileSourceFactory.CLOUDMADESTANDARDTILES);
-            break;
-         case Constants.OSM_MAKNIK:
-            mMapView.setTileSource(TileSourceFactory.MAPNIK);
-            break;
-         case Constants.OSM_CYCLE:
-            mMapView.setTileSource(TileSourceFactory.CYCLEMAP);
-            break;
-         default:
-            break;
-      }
+      GoogleLoggerMap.this.mMapView.setSatellite(sharedPreferences.getBoolean(Constants.SATELLITE, false));
+      GoogleLoggerMap.this.mMapView.setTraffic(sharedPreferences.getBoolean(Constants.TRAFFIC, false));
    }
    
    public void setDrawingCacheEnabled(boolean b)
@@ -304,7 +318,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    public boolean isOutsideScreen(GeoPoint lastPoint)
    {
       Point out = new Point();
-      this.mMapView.getProjection().toPixels(convertGeoPoint(lastPoint), out);
+      this.mMapView.getProjection().toPixels(lastPoint, out);
       int height = this.mMapView.getHeight();
       int width = this.mMapView.getWidth();
       return (out.x < 0 || out.y < 0 || out.y > height || out.x > width);
@@ -313,7 +327,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    public boolean isNearScreenEdge(GeoPoint lastPoint)
    {
       Point out = new Point();
-      this.mMapView.getProjection().toPixels(convertGeoPoint(lastPoint), out);
+      this.mMapView.getProjection().toPixels(lastPoint, out);
       int height = this.mMapView.getHeight();
       int width = this.mMapView.getWidth();
       return (out.x < width / 4 || out.y < height / 4 || out.x > (width / 4) * 3 || out.y > (height / 4) * 3);
@@ -350,7 +364,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
 
    public void animateTo(GeoPoint storedPoint)
    {
-      mMapView.getController().animateTo(convertGeoPoint(storedPoint));
+      mMapView.getController().animateTo(storedPoint);
    }
 
    public int getZoomLevel()
@@ -360,7 +374,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
 
    public GeoPoint getMapCenter()
    {
-      return convertOSMGeoPoint(mMapView.getMapCenter());
+      return mMapView.getMapCenter();
    }
 
    public boolean zoomOut()
@@ -378,25 +392,6 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       mMapView.postInvalidate();
    }
 
-   public List<SegmentOverlay> getSegmentOverlays()
-   {
-      List<SegmentOverlay> segments = new LinkedList<SegmentOverlay>();
-      for( Overlay overlay : mMapView.getOverlays() )
-      {
-         if( overlay instanceof SegmentOverlay.SegmentOsmOverlay )
-         {
-            SegmentOverlay.SegmentOsmOverlay segmentOverlay = (SegmentOsmOverlay) overlay;
-            segments.add(segmentOverlay.getSegmentOverlay());
-         }
-      }
-      return segments;
-   }
-
-   public void addOverlay(OverlayProvider overlay)
-   {
-      mMapView.getOverlays().add(overlay.getOSMOverlay());
-   }
-
    public void clearAnimation()
    {
       mMapView.clearAnimation();
@@ -404,7 +399,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
 
    public void setCenter(GeoPoint lastPoint)
    {
-      mMapView.getController().setCenter( convertGeoPoint(lastPoint));
+      mMapView.getController().setCenter(lastPoint);
    }
 
    public int getMaxZoomLevel()
@@ -414,7 +409,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
 
    public GeoPoint fromPixels(int x, int y)
    {
-      return convertOSMGeoPoint(mMapView.getProjection().fromPixels(x, y));
+      return mMapView.getProjection().fromPixels(x, y);
    }
 
    public boolean hasProjection()
@@ -429,7 +424,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
 
    public void toPixels(GeoPoint geoPoint, Point screenPoint)
    {
-      mMapView.getProjection().toPixels( convertGeoPoint(geoPoint), screenPoint);
+      mMapView.getProjection().toPixels(geoPoint, screenPoint);
    }
 
    public TextView[] getSpeedTextViews()
@@ -451,19 +446,14 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    {
       return mDistanceView;
    }
-   
-   static org.osmdroid.util.GeoPoint convertGeoPoint( GeoPoint point )
+
+   public void addOverlay(OverlayProvider overlay)
    {
-      return new org.osmdroid.util.GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
-   }
-   
-   static GeoPoint convertOSMGeoPoint( IGeoPoint point )
-   {
-      return new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
+      mMapView.getOverlays().add(overlay.getGoogleOverlay());
    }
 
    public void clearOverlays()
-   {
-      mMapView.getOverlayManager().clear();
+   { 
+      mMapView.getOverlays().clear();
    }
 }

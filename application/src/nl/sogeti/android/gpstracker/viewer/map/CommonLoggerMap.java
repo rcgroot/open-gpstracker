@@ -10,7 +10,7 @@
  ** The Netherlands                  |  permission of the copyright holder.
  *------------------------------------------------------------------------------
  */
-package nl.sogeti.android.gpstracker.viewer;
+package nl.sogeti.android.gpstracker.viewer.map;
 
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.app.Activity;

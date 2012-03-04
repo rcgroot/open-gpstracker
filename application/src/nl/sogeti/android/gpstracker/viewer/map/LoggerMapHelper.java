@@ -10,7 +10,7 @@
  ** The Netherlands                  |  permission of the copyright holder.
  *------------------------------------------------------------------------------
  */
-package nl.sogeti.android.gpstracker.viewer;
+package nl.sogeti.android.gpstracker.viewer.map;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +28,9 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import nl.sogeti.android.gpstracker.viewer.About;
+import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;

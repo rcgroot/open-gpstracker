@@ -11,6 +11,7 @@
       android:layout_height="fill_parent"
       renderer="CLOUDMADESTANDARDTILES"
       cloudmadeStyle="1"
+      android:clickable="true"
    />
 
    <TextView

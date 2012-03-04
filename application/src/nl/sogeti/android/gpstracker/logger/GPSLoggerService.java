@@ -46,7 +46,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.GoogleLoggerMap;
+import nl.sogeti.android.gpstracker.viewer.map.GoogleLoggerMap;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;

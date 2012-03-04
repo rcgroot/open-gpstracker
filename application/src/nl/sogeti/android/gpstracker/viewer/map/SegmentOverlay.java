@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.viewer;
+package nl.sogeti.android.gpstracker.viewer.map;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -40,7 +40,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProvider;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;

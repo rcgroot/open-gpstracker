@@ -17,7 +17,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.viewer;
+package nl.sogeti.android.gpstracker.viewer.map;
 
 import nl.sogeti.android.gpstracker.R;
 import android.content.Context;

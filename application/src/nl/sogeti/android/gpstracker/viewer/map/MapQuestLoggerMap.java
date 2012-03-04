@@ -10,16 +10,15 @@
  ** The Netherlands                  |  permission of the copyright holder.
  *------------------------------------------------------------------------------
  */
-package nl.sogeti.android.gpstracker.viewer;
+package nl.sogeti.android.gpstracker.viewer.map;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.SegmentOverlay.SegmentMapQuestOverlay;
-import nl.sogeti.android.gpstracker.viewer.SegmentOverlay.SegmentOsmOverlay;
-import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProvider;
+import nl.sogeti.android.gpstracker.viewer.map.SegmentOverlay.SegmentMapQuestOverlay;
+import nl.sogeti.android.gpstracker.viewer.map.SegmentOverlay.SegmentOsmOverlay;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -70,7 +69,6 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
       mMapView = (MapView) findViewById(R.id.myMapView);
       mMylocation = new MyLocationOverlay(this, mMapView);
       mMapView.setBuiltInZoomControls(true);
-      mMapView.setClickable(true);
       TextView[] speeds = { (TextView) findViewById(R.id.speedview05), (TextView) findViewById(R.id.speedview04), (TextView) findViewById(R.id.speedview03),
             (TextView) findViewById(R.id.speedview02), (TextView) findViewById(R.id.speedview01), (TextView) findViewById(R.id.speedview00) };
       mSpeedtexts = speeds;

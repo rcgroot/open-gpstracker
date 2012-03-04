@@ -10,11 +10,10 @@
  ** The Netherlands                  |  permission of the copyright holder.
  *------------------------------------------------------------------------------
  */
-package nl.sogeti.android.gpstracker.viewer;
+package nl.sogeti.android.gpstracker.viewer.map;
 
 import java.util.List;
 
-import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProvider;
 
 import com.google.android.maps.GeoPoint;
 
