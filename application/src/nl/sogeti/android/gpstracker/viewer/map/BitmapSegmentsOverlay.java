@@ -10,20 +10,20 @@ import com.google.android.maps.GeoPoint;
 
 public class BitmapSegmentsOverlay extends AsyncOverlay
 {
-   List<SegmentOverlay> mOverlays;
+   List<SegmentRendering> mOverlays;
    Handler mOverlayHandler;
    
    BitmapSegmentsOverlay(LoggerMap loggermap, Handler handler)
    {
       super(loggermap, handler);
-      mOverlays = new LinkedList<SegmentOverlay>();
+      mOverlays = new LinkedList<SegmentRendering>();
       mOverlayHandler = handler;
    }
 
    @Override
    synchronized protected void redrawOffscreen(Canvas asyncBuffer, LoggerMap loggermap)
    {
-      for( SegmentOverlay segment : mOverlays)
+      for( SegmentRendering segment : mOverlays)
       {
          segment.draw(asyncBuffer);
       }
@@ -32,7 +32,7 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
    @Override 
    synchronized protected void scheduleRecalculation()
    {
-      for( SegmentOverlay segment : mOverlays)
+      for( SegmentRendering segment : mOverlays)
       {
          segment.calculateMedia();
          segment.calculateTrack(); 
@@ -43,7 +43,7 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
    synchronized protected boolean commonOnTap(GeoPoint tappedGeoPoint)
    {
       boolean handled = false;
-      for( SegmentOverlay segment : mOverlays)
+      for( SegmentRendering segment : mOverlays)
       {
          if( !handled )
          {
@@ -53,7 +53,7 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
       return handled;
    }
 
-   synchronized public void addSegment(SegmentOverlay segment)
+   synchronized public void addSegment(SegmentRendering segment)
    {
       segment.setBitmapHolder(this);
       mOverlays.add(segment);
@@ -61,7 +61,7 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
    
    synchronized public void clearSegments()
    {
-      for( SegmentOverlay segment : mOverlays)
+      for( SegmentRendering segment : mOverlays)
       {
          segment.closeResources();
       }
@@ -70,7 +70,7 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
 
    synchronized public void setTrackColoringMethod(int color, double speed)
    {
-      for( SegmentOverlay segment : mOverlays)
+      for( SegmentRendering segment : mOverlays)
       {
          segment.setTrackColoringMethod(color, speed);
       }

@@ -116,7 +116,7 @@ public class LoggerMapHelper
    private WakeLock mWakeLock = null;
    private SharedPreferences mSharedPreferences;
    private GPSLoggerServiceManager mLoggerServiceManager;
-   private SegmentOverlay mLastSegmentOverlay;
+   private SegmentRendering mLastSegmentOverlay;
    private BaseAdapter mMediaAdapter;
 
    private Handler mHandler;
@@ -470,7 +470,7 @@ public class LoggerMapHelper
 
          public void onClick(DialogInterface dialog, int which)
          {
-            SegmentOverlay.handleMedia(mLoggerMap.getActivity(), mSelected);
+            SegmentRendering.handleMedia(mLoggerMap.getActivity(), mSelected);
             mSelected = null;
          }
       };
@@ -1008,7 +1008,7 @@ public class LoggerMapHelper
 
       TextView[] speedtexts = mLoggerMap.getSpeedTextViews();
       ;
-      if (trackColoringMethod == SegmentOverlay.DRAW_MEASURED || trackColoringMethod == SegmentOverlay.DRAW_CALCULATED)
+      if (trackColoringMethod == SegmentRendering.DRAW_MEASURED || trackColoringMethod == SegmentRendering.DRAW_CALCULATED)
       {
          // mAverageSpeed is set to 0 if unknown or to trigger an recalculation here
          if (mAverageSpeed == 0.0)
@@ -1152,7 +1152,7 @@ public class LoggerMapHelper
     * adding a OverLay for each segments in the track
     * 
     * @param trackId
-    * @see SegmentOverlay
+    * @see SegmentRendering
     */
    private void createDataOverlays()
    {
@@ -1175,16 +1175,16 @@ public class LoggerMapHelper
             {
                long segmentsId = segments.getLong(0);
                Uri segmentUri = ContentUris.withAppendedId(segmentsUri, segmentsId);
-               SegmentOverlay segmentOverlay = new SegmentOverlay(mLoggerMap, segmentUri, trackColoringMethod, mAverageSpeed, mHandler);
+               SegmentRendering segmentOverlay = new SegmentRendering(mLoggerMap, segmentUri, trackColoringMethod, mAverageSpeed, mHandler);
                mBitmapSegmentsOverlay.addSegment(segmentOverlay);
                mLastSegmentOverlay = segmentOverlay;
                if (segments.isFirst())
                {
-                  segmentOverlay.addPlacement(SegmentOverlay.FIRST_SEGMENT);
+                  segmentOverlay.addPlacement(SegmentRendering.FIRST_SEGMENT);
                }
                if (segments.isLast())
                {
-                  segmentOverlay.addPlacement(SegmentOverlay.LAST_SEGMENT);
+                  segmentOverlay.addPlacement(SegmentRendering.LAST_SEGMENT);
                }
                mLastSegment = segmentsId;
             }

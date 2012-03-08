@@ -80,7 +80,7 @@ import com.google.android.maps.MapView;
  * @version $Id$
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  */
-public class SegmentOverlay
+public class SegmentRendering
 {
    public static final int MIDDLE_SEGMENT = 0;
    public static final int FIRST_SEGMENT = 1;
@@ -100,7 +100,7 @@ public class SegmentOverlay
    private ContentResolver mResolver;
    private LoggerMap mLoggerMap;
 
-   private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
+   private int mPlacement = SegmentRendering.MIDDLE_SEGMENT;
    private Uri mWaypointsUri;
    private Uri mMediaUri;
    private double mAvgSpeed;
@@ -151,7 +151,7 @@ public class SegmentOverlay
    {
       public void run()
       {
-         SegmentOverlay.this.calculateMediaAsync();
+         SegmentRendering.this.calculateMediaAsync();
       }
    };
    
@@ -159,7 +159,7 @@ public class SegmentOverlay
    {
       public void run()
       {
-         SegmentOverlay.this.calculateTrackAsync();
+         SegmentRendering.this.calculateTrackAsync();
       }
    };
    /**
@@ -171,7 +171,7 @@ public class SegmentOverlay
     * @param avgSpeed
     * @param handler
     */
-   public SegmentOverlay(LoggerMap loggermap, Uri segmentUri, int color, double avgSpeed, Handler handler)
+   public SegmentRendering(LoggerMap loggermap, Uri segmentUri, int color, double avgSpeed, Handler handler)
    {
       super();
       mHandler = handler;
@@ -247,8 +247,8 @@ public class SegmentOverlay
             }
          }
       });
-      SegmentOverlay.sStopBitmap = null;
-      SegmentOverlay.sStartBitmap = null;
+      SegmentRendering.sStopBitmap = null;
+      SegmentRendering.sStartBitmap = null;
    }
    
    public void openResources()
@@ -424,7 +424,7 @@ public class SegmentOverlay
     * @param canvas
     * @param mapView
     * @param shadow
-    * @see SegmentOverlay#draw(Canvas, MapView, boolean)
+    * @see SegmentRendering#draw(Canvas, MapView, boolean)
     */
    private void calculateDots()
    {
@@ -601,7 +601,7 @@ public class SegmentOverlay
    /**
     * @param canvas
     * 
-    * @see SegmentOverlay#draw(Canvas, MapView, boolean)
+    * @see SegmentRendering#draw(Canvas, MapView, boolean)
     */
    private void drawPath( Canvas canvas )
    {
@@ -721,9 +721,9 @@ public class SegmentOverlay
    /**
     * Set the mPlace to the specified value.
     * 
-    * @see SegmentOverlay.FIRST
-    * @see SegmentOverlay.MIDDLE
-    * @see SegmentOverlay.LAST
+    * @see SegmentRendering.FIRST
+    * @see SegmentRendering.MIDDLE
+    * @see SegmentRendering.LAST
     * @param place The placement of this segment in the line.
     */
    public void addPlacement( int place )
