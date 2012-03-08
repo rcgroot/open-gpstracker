@@ -26,6 +26,7 @@
         <item>Velocità</item>
         <item>Velocità media</item>
         <item>Punto</item>
+        <item>Height</item>
     </string-array>
     
     <string-array name="units_choices">

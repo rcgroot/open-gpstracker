@@ -90,6 +90,7 @@ public class SegmentRendering
    public static final int DRAW_MEASURED = 2;
    public static final int DRAW_CALCULATED = 3;
    public static final int DRAW_DOTS = 4;
+   public static final int DRAW_HEIGHT = 5;
    private static final String TAG = "OGT.SegmentOverlay";
    private static final float MINIMUM_PX_DISTANCE = 15;
    
@@ -104,6 +105,7 @@ public class SegmentRendering
    private Uri mWaypointsUri;
    private Uri mMediaUri;
    private double mAvgSpeed;
+   private double mAvgHeight;
    private GeoPoint mGeoTopLeft;
    private GeoPoint mGeoBottumRight;
 
@@ -171,13 +173,14 @@ public class SegmentRendering
     * @param avgSpeed
     * @param handler
     */
-   public SegmentRendering(LoggerMap loggermap, Uri segmentUri, int color, double avgSpeed, Handler handler)
+   public SegmentRendering(LoggerMap loggermap, Uri segmentUri, int color, double avgSpeed, double avgHeight, Handler handler)
    {
       super();
       mHandler = handler;
       mLoggerMap = loggermap;
       mTrackColoringMethod = color;
       mAvgSpeed = avgSpeed;
+      mAvgHeight = avgHeight;
       mSegmentUri = segmentUri;
       mMediaUri = Uri.withAppendedPath( mSegmentUri, "media" );
       mWaypointsUri = Uri.withAppendedPath( mSegmentUri, "waypoints" );
@@ -265,13 +268,14 @@ public class SegmentRendering
    {
       switch( mTrackColoringMethod )
       {
-         case ( DRAW_CALCULATED ):
-         case ( DRAW_MEASURED ):
-         case ( DRAW_RED ):
-         case ( DRAW_GREEN ):
+         case DRAW_HEIGHT:
+         case DRAW_CALCULATED:
+         case DRAW_MEASURED:
+         case DRAW_RED:
+         case DRAW_GREEN:
             drawPath( canvas );
             break;
-         case ( DRAW_DOTS ):
+         case DRAW_DOTS:
             drawDots( canvas );
             break;
       }
@@ -317,10 +321,11 @@ public class SegmentRendering
          
          switch( mTrackColoringMethod )
          {
-            case ( DRAW_CALCULATED ):
-            case ( DRAW_MEASURED ):
-            case ( DRAW_RED ):
-            case ( DRAW_GREEN ):
+            case DRAW_HEIGHT:
+            case DRAW_CALCULATED:
+            case DRAW_MEASURED:
+            case DRAW_RED:
+            case DRAW_GREEN:
                calculatePath();
                synchronized (mCalculatedPath) // Switch the fresh path with the old Path object
                {
@@ -329,7 +334,7 @@ public class SegmentRendering
                   mPathCalculation = oldPath;
                }
                break;
-            case ( DRAW_DOTS ):
+            case DRAW_DOTS:
                calculateDots();
                synchronized (mDotPath) // Switch the fresh path with the old Path object
                {
@@ -359,7 +364,7 @@ public class SegmentRendering
    
       if( mWaypointsCursor == null )
       {
-         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME, Waypoints.ACCURACY }, null, null, null );
+         mWaypointsCursor = this.mResolver.query( this.mWaypointsUri, new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE, Waypoints.SPEED, Waypoints.TIME, Waypoints.ACCURACY, Waypoints.ALTITUDE }, null, null, null );
          mRequeryFlag = false;
       }
       if( mRequeryFlag )
@@ -393,10 +398,10 @@ public class SegmentRendering
             {
                case DRAW_GREEN:
                case DRAW_RED:
-                  lineToGeoPoint( geoPoint, speed );
+                  plainLineToGeoPoint( geoPoint );
                   break;
                case DRAW_MEASURED:
-                  lineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
+                  speedLineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 2 ) );
                   break;
                case DRAW_CALCULATED:
                   this.mPrevLocation = this.mLocation;
@@ -405,8 +410,10 @@ public class SegmentRendering
                   this.mLocation.setLongitude( mWaypointsCursor.getDouble( 1 ) );
                   this.mLocation.setTime( mWaypointsCursor.getLong( 3 ) );
                   speed = calculateSpeedBetweenLocations( this.mPrevLocation, this.mLocation );
-                  lineToGeoPoint( geoPoint, speed );
+                  speedLineToGeoPoint( geoPoint, speed );
                   break;
+               case DRAW_HEIGHT:
+                  heightLineToGeoPoint( geoPoint, mWaypointsCursor.getDouble( 5 ) );
                default:
                   Log.w( TAG, "Unknown coloring method" );
                   break;
@@ -607,15 +614,16 @@ public class SegmentRendering
    {
       switch( mTrackColoringMethod )
       {
-         case ( DRAW_CALCULATED ):
-         case ( DRAW_MEASURED ):
+         case DRAW_HEIGHT:
+         case DRAW_CALCULATED:
+         case DRAW_MEASURED:
             routePaint.setShader( this.mShader );
             break;
-         case ( DRAW_RED ):
+         case DRAW_RED:
             routePaint.setShader( null );
             routePaint.setColor( Color.RED );
             break;
-         case ( DRAW_GREEN ):
+         case DRAW_GREEN:
             routePaint.setShader( null );
             routePaint.setColor( Color.GREEN );
             break;
@@ -757,16 +765,48 @@ public class SegmentRendering
          this.mPrevDrawnScreenPoint.y = this.mScreenPoint.y;
       }
    }
-
-   private void lineToGeoPoint( GeoPoint geoPoint, double speed )
+   
+   /**
+    * Line to point without shaders
+    * @param geoPoint
+    */
+   private void plainLineToGeoPoint( GeoPoint geoPoint )
+   {
+      shaderLineToGeoPoint(geoPoint, 0, 0);
+   }
+   
+   /**
+    * Line to point with speed
+    * 
+    * @param geoPoint
+    * @param height
+    */
+   private void heightLineToGeoPoint( GeoPoint geoPoint, double height )
+   {
+      shaderLineToGeoPoint(geoPoint, height, mAvgHeight);
+   }
+   
+   /**
+    * Line to point with speed
+    * 
+    * @param geoPoint
+    * @param speed
+    */
+   private void speedLineToGeoPoint( GeoPoint geoPoint, double speed )
+   {
+      shaderLineToGeoPoint(geoPoint, speed, mAvgSpeed);
+   }
+   
+   
+   private void shaderLineToGeoPoint( GeoPoint geoPoint, double value, double average )
    {
       setScreenPoint( geoPoint );
 
       //      Log.d( TAG, "Draw line to " + geoPoint+" with speed "+speed );
 
-      if( speed > 0 )
+      if( value > 0 )
       {
-         int greenfactor = (int) Math.min( ( 127 * speed ) / mAvgSpeed, 255 );
+         int greenfactor = (int) Math.min( ( 127 * value ) / average, 255 );
          int redfactor = 255 - greenfactor;
          mCurrentColor = Color.rgb( redfactor, greenfactor, 0 );
       }
@@ -1097,15 +1137,16 @@ public class SegmentRendering
       return !safe;
    }
 
-   public void setTrackColoringMethod( int coloring, double avgspeed )
+   public void setTrackColoringMethod( int coloring, double avgspeed, double avgHeight )
    {
       if( mTrackColoringMethod != coloring )
       {
-         this.mTrackColoringMethod = coloring;
+         mTrackColoringMethod = coloring;
          mRequeryFlag = true;
          calculateTrack();
       }
-      this.mAvgSpeed = avgspeed;
+      mAvgSpeed = avgspeed;
+      mAvgHeight = avgHeight;
    }
 
    /**

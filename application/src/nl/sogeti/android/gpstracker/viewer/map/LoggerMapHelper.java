@@ -91,6 +91,7 @@ public class LoggerMapHelper
    private static final String INSTANCE_E6LAT = "e6lat";
    private static final String INSTANCE_ZOOM = "zoom";
    private static final String INSTANCE_SPEED = "averagespeed";
+   private static final String INSTANCE_HEIGHT = "averageheight";
    private static final String INSTANCE_TRACK = "track";
    private static final int ZOOM_LEVEL = 16;
    // MENU'S
@@ -110,6 +111,7 @@ public class LoggerMapHelper
    private static final String TAG = "OGT.LoggerMap";
 
    private double mAverageSpeed = 33.33d / 3d;
+   private double mAverageHeight = 33.33d / 3d;
    private long mTrackId = -1;
    private long mLastSegment = -1;
    private UnitsI18n mUnits;
@@ -138,6 +140,7 @@ public class LoggerMapHelper
     */
    private Runnable mServiceConnected;
    private Runnable speedCalculator;
+   private Runnable heightCalculator;
 
    private LoggerMap mLoggerMap;
    private BitmapSegmentsOverlay mBitmapSegmentsOverlay;
@@ -280,16 +283,19 @@ public class LoggerMapHelper
       if (load != null && load.containsKey(INSTANCE_TRACK)) // 1st method: track from a previous instance of this activity
       {
          long loadTrackId = load.getLong(INSTANCE_TRACK);
+         moveToTrack(loadTrackId, false);
          if (load.containsKey(INSTANCE_SPEED))
          {
             mAverageSpeed = load.getDouble(INSTANCE_SPEED);
          }
-         moveToTrack(loadTrackId, false);
+         if (load.containsKey(INSTANCE_HEIGHT))
+         {
+            mAverageHeight = load.getDouble(INSTANCE_HEIGHT);
+         }
       }
       else if (data != null) // 2nd method: track ordered to make
       {
          long loadTrackId = Long.parseLong(data.getLastPathSegment());
-         mAverageSpeed = 0.0;
          moveToTrack(loadTrackId, true);
       }
       else
@@ -323,6 +329,7 @@ public class LoggerMapHelper
    {
       save.putLong(INSTANCE_TRACK, this.mTrackId);
       save.putDouble(INSTANCE_SPEED, mAverageSpeed);
+      save.putDouble(INSTANCE_HEIGHT, mAverageHeight);
       save.putInt(INSTANCE_ZOOM, mLoggerMap.getZoomLevel());
       GeoPoint point = mLoggerMap.getMapCenter();
       save.putInt(INSTANCE_E6LAT, point.getLatitudeE6());
@@ -343,12 +350,10 @@ public class LoggerMapHelper
             propagate = false;
             break;
          case KeyEvent.KEYCODE_F:
-            mAverageSpeed = 0.0;
             moveToTrack(this.mTrackId - 1, true);
             propagate = false;
             break;
          case KeyEvent.KEYCODE_H:
-            mAverageSpeed = 0.0;
             moveToTrack(this.mTrackId + 1, true);
             propagate = false;
             break;
@@ -434,6 +439,42 @@ public class LoggerMapHelper
                }
             }
             mAverageSpeed = avgspeed;
+            mLoggerMap.getActivity().runOnUiThread(new Runnable()
+            {
+               public void run()
+               {
+                  updateSpeedColoring();
+               }
+            });
+         }
+      };
+      heightCalculator = new Runnable()
+      {
+         public void run()
+         {
+            double avgHeight = 0.0;
+            ContentResolver resolver = mLoggerMap.getActivity().getContentResolver();
+            Cursor waypointsCursor = null;
+            try
+            {
+               waypointsCursor = resolver.query(Uri.withAppendedPath(Tracks.CONTENT_URI, LoggerMapHelper.this.mTrackId + "/waypoints"), new String[] {
+                     "avg(" + Waypoints.ALTITUDE + ")", "max(" + Waypoints.ALTITUDE + ")" }, null, null, null);
+
+               if (waypointsCursor != null && waypointsCursor.moveToLast())
+               {
+                  double average = waypointsCursor.getDouble(0);
+                  double maxBasedAverage = waypointsCursor.getDouble(1) / 2;
+                  avgHeight = Math.min(average, maxBasedAverage);
+               }
+            }
+            finally
+            {
+               if (waypointsCursor != null)
+               {
+                  waypointsCursor.close();
+               }
+            }
+            mAverageHeight = avgHeight;
             mLoggerMap.getActivity().runOnUiThread(new Runnable()
             {
                public void run()
@@ -544,6 +585,7 @@ public class LoggerMapHelper
             if (key.equals(Constants.TRACKCOLORING))
             {
                mAverageSpeed = 0.0;
+               mAverageHeight = 0.0;
                updateSpeedColoring();
             }
             else if (key.equals(Constants.DISABLEBLANKING) || key.equals(Constants.DISABLEDIMMING))
@@ -647,6 +689,7 @@ public class LoggerMapHelper
          public void onUnitsChange()
          {
             mAverageSpeed = 0.0;
+            mAverageHeight = 0.0;
             updateTrackNumbers();
             updateSpeedColoring();
          }
@@ -884,7 +927,6 @@ public class LoggerMapHelper
             {
                trackUri = intent.getData();
                trackId = Long.parseLong(trackUri.getLastPathSegment());
-               mAverageSpeed = 0.0;
                moveToTrack(trackId, true);
             }
             break;
@@ -895,7 +937,6 @@ public class LoggerMapHelper
                if (trackUri != null)
                {
                   trackId = Long.parseLong(trackUri.getLastPathSegment());
-                  mAverageSpeed = 0.0;
                   moveToTrack(trackId, true);
                }
             }
@@ -1007,35 +1048,55 @@ public class LoggerMapHelper
       View speedbar = mLoggerMap.getActivity().findViewById(R.id.speedbar);
 
       TextView[] speedtexts = mLoggerMap.getSpeedTextViews();
-      ;
-      if (trackColoringMethod == SegmentRendering.DRAW_MEASURED || trackColoringMethod == SegmentRendering.DRAW_CALCULATED)
+      switch (trackColoringMethod)
       {
-         // mAverageSpeed is set to 0 if unknown or to trigger an recalculation here
-         if (mAverageSpeed == 0.0)
-         {
-            mHandler.removeCallbacks(speedCalculator);
-            mHandler.post(speedCalculator);
-         }
-         else
-         {
-            drawSpeedTexts(mAverageSpeed);
-            speedtexts = mLoggerMap.getSpeedTextViews();
-            speedbar.setVisibility(View.VISIBLE);
+         case SegmentRendering.DRAW_MEASURED:
+         case SegmentRendering.DRAW_CALCULATED:
+            // mAverageSpeed is set to 0 if unknown or to trigger an recalculation here
+            if (mAverageSpeed == 0.0)
+            {
+               mHandler.removeCallbacks(speedCalculator);
+               mHandler.post(speedCalculator);
+            }
+            else
+            {
+               drawSpeedTexts();
+               speedtexts = mLoggerMap.getSpeedTextViews();
+               speedbar.setVisibility(View.VISIBLE);
+               for (int i = 0; i < speedtexts.length; i++)
+               {
+                  speedtexts[i].setVisibility(View.VISIBLE);
+               }
+            }
+            break;
+         case SegmentRendering.DRAW_DOTS:
+         case SegmentRendering.DRAW_GREEN:
+         case SegmentRendering.DRAW_RED:
+            speedbar.setVisibility(View.INVISIBLE);
             for (int i = 0; i < speedtexts.length; i++)
             {
-               speedtexts[i].setVisibility(View.VISIBLE);
+               speedtexts[i].setVisibility(View.INVISIBLE);
             }
-         }
+         case SegmentRendering.DRAW_HEIGHT:
+            if (mAverageHeight == 0.0)
+            {
+               mHandler.removeCallbacks(heightCalculator);
+               mHandler.post(heightCalculator);
+            }
+            else
+            {
+               drawHeightTexts();
+               speedtexts = mLoggerMap.getSpeedTextViews();
+               speedbar.setVisibility(View.VISIBLE);
+               for (int i = 0; i < speedtexts.length; i++)
+               {
+                  speedtexts[i].setVisibility(View.VISIBLE);
+               }
+            }
+         default:
+            break;
       }
-      else
-      {
-         speedbar.setVisibility(View.INVISIBLE);
-         for (int i = 0; i < speedtexts.length; i++)
-         {
-            speedtexts[i].setVisibility(View.INVISIBLE);
-         }
-      }
-      mBitmapSegmentsOverlay.setTrackColoringMethod(trackColoringMethod, mAverageSpeed);
+      mBitmapSegmentsOverlay.setTrackColoringMethod(trackColoringMethod, mAverageSpeed, mAverageHeight);
    }
 
    private void updateSpeedDisplayVisibility()
@@ -1123,9 +1184,8 @@ public class LoggerMapHelper
          String speedText = units.formatSpeed(speed, false);
          TextView lastGPSSpeedView = mLoggerMap.getSpeedTextView();
          lastGPSSpeedView.setText(speedText);
-
-         // Speed color bar and refrence numbers
-         if (speed > 2 * mAverageSpeed)
+         // Speed color bar and reference numbers
+         if (speed > 2 * mAverageSpeed )
          {
             mAverageSpeed = 0.0;
             updateSpeedColoring();
@@ -1138,7 +1198,14 @@ public class LoggerMapHelper
          String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
          TextView mLastGPSAltitudeView = mLoggerMap.getAltitideTextView();
          mLastGPSAltitudeView.setText(altitudeText);
-
+         // Speed color bar and reference numbers
+         if (altitude > 2 * mAverageHeight )
+         {
+            mAverageHeight = 0.0;
+            updateSpeedColoring();
+            mLoggerMap.postInvalidate();
+         }
+         
          //Distance number
          double distance = units.conversionFromMeter(mLoggerServiceManager.getTrackedDistance());
          String distanceText = String.format("%.2f %s", distance, units.getDistanceUnit());
@@ -1175,7 +1242,7 @@ public class LoggerMapHelper
             {
                long segmentsId = segments.getLong(0);
                Uri segmentUri = ContentUris.withAppendedId(segmentsUri, segmentsId);
-               SegmentRendering segmentOverlay = new SegmentRendering(mLoggerMap, segmentUri, trackColoringMethod, mAverageSpeed, mHandler);
+               SegmentRendering segmentOverlay = new SegmentRendering(mLoggerMap, segmentUri, trackColoringMethod, mAverageSpeed, mAverageHeight, mHandler);
                mBitmapSegmentsOverlay.addSegment(segmentOverlay);
                mLastSegmentOverlay = segmentOverlay;
                if (segments.isFirst())
@@ -1254,14 +1321,14 @@ public class LoggerMapHelper
    }
 
    /**
-    * @param avgSpeed avgSpeed in m/s
+    * Updates the labels next to the color bar with speeds
     */
-   private void drawSpeedTexts(double avgSpeed)
+   private void drawSpeedTexts()
    {
       UnitsI18n units = mUnits;
       if (units != null)
       {
-         avgSpeed = units.conversionFromMetersPerSecond(avgSpeed);
+         double avgSpeed = units.conversionFromMetersPerSecond(mAverageSpeed);
          TextView[] mSpeedtexts = mLoggerMap.getSpeedTextViews();
          for (int i = 0; i < mSpeedtexts.length; i++)
          {
@@ -1277,6 +1344,25 @@ public class LoggerMapHelper
             }
             String speedText = units.formatSpeed(speed, false);
             mSpeedtexts[i].setText(speedText);
+         }
+      }
+   }
+   /**
+    * Updates the labels next to the color bar with heights
+    */
+   private void drawHeightTexts()
+   {
+      UnitsI18n units = mUnits;
+      if (units != null)
+      {
+         double avgHeight = units.conversionFromMeterToHeight(mAverageHeight);
+         TextView[] mSpeedtexts = mLoggerMap.getSpeedTextViews();
+         for (int i = 0; i < mSpeedtexts.length; i++)
+         {
+            mSpeedtexts[i].setVisibility(View.VISIBLE);
+            double height = ((avgHeight * 2d) / 5d) * i;
+            String heightText = String.format( "%d %s", (int)height,  units.getHeightUnit() );
+            mSpeedtexts[i].setText(heightText);
          }
       }
    }
@@ -1312,7 +1398,9 @@ public class LoggerMapHelper
 
             mLoggerMap.clearOverlays();
             mBitmapSegmentsOverlay.clearSegments();
-
+            mAverageSpeed = 0.0;
+            mAverageHeight = 0.0;
+            
             updateTitleBar();
             updateDataOverlays();
             updateSpeedColoring();
@@ -1429,7 +1517,6 @@ public class LoggerMapHelper
          if (track != null && track.moveToLast())
          {
             trackId = track.getInt(0);
-            mAverageSpeed = 0.0;
             moveToTrack(trackId, false);
          }
       }

@@ -31,6 +31,7 @@
       <item>Prędkość</item>
       <item>Średnia prędkość</item>
       <item>Punkty orientacyjne</item>
+      <item>Height</item>
    </string-array>
 
    <string-array

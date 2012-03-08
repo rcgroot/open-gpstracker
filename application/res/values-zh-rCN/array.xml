@@ -26,6 +26,7 @@
         <item>速度</item>
         <item>平均速度</item>
         <item>路点</item>
+        <item>Height</item>
     </string-array>
     
     <string-array

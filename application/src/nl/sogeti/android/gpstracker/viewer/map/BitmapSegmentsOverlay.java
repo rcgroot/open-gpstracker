@@ -68,11 +68,11 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
       mOverlays.clear();
    }
 
-   synchronized public void setTrackColoringMethod(int color, double speed)
+   synchronized public void setTrackColoringMethod(int color, double speed, double height)
    {
       for( SegmentRendering segment : mOverlays)
       {
-         segment.setTrackColoringMethod(color, speed);
+         segment.setTrackColoringMethod(color, speed, height);
       }
    }
 
