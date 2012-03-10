@@ -25,6 +25,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.About;
 import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
@@ -1103,13 +1104,16 @@ public class LoggerMapHelper
    {
       boolean showspeed = mSharedPreferences.getBoolean(Constants.SPEED, false);
       TextView lastGPSSpeedView = mLoggerMap.getSpeedTextView();
+      SlidingIndicatorView lastGPSSpeedIndicator = mLoggerMap.getScaleIndicatorView();
       if (showspeed)
       {
          lastGPSSpeedView.setVisibility(View.VISIBLE);
+         lastGPSSpeedIndicator.setVisibility(View.VISIBLE);
       }
       else
       {
          lastGPSSpeedView.setVisibility(View.GONE);
+         lastGPSSpeedIndicator.setVisibility(View.GONE);
       }
    }
 
@@ -1184,6 +1188,8 @@ public class LoggerMapHelper
          String speedText = units.formatSpeed(speed, false);
          TextView lastGPSSpeedView = mLoggerMap.getSpeedTextView();
          lastGPSSpeedView.setText(speedText);
+         SlidingIndicatorView currentScaleIndicator = mLoggerMap.getScaleIndicatorView();
+         currentScaleIndicator.setValue((float) speed);
          // Speed color bar and reference numbers
          if (speed > 2 * mAverageSpeed )
          {
@@ -1198,6 +1204,7 @@ public class LoggerMapHelper
          String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
          TextView mLastGPSAltitudeView = mLoggerMap.getAltitideTextView();
          mLastGPSAltitudeView.setText(altitudeText);
+         currentScaleIndicator.setValue((float) altitude);
          // Speed color bar and reference numbers
          if (altitude > 2 * mAverageHeight )
          {
@@ -1330,6 +1337,7 @@ public class LoggerMapHelper
       {
          double avgSpeed = units.conversionFromMetersPerSecond(mAverageSpeed);
          TextView[] mSpeedtexts = mLoggerMap.getSpeedTextViews();
+         SlidingIndicatorView currentScaleIndicator = mLoggerMap.getScaleIndicatorView();
          for (int i = 0; i < mSpeedtexts.length; i++)
          {
             mSpeedtexts[i].setVisibility(View.VISIBLE);
@@ -1341,6 +1349,14 @@ public class LoggerMapHelper
             else
             {
                speed = ((avgSpeed * 2d) / 5d) * i;
+            }
+            if( i == 0 )
+            {
+               currentScaleIndicator.setMin((float) speed);
+            }
+            else
+            {
+               currentScaleIndicator.setMax((float) speed);
             }
             String speedText = units.formatSpeed(speed, false);
             mSpeedtexts[i].setText(speedText);

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+   <TextView
+      android:id="@+id/currentSpeed"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentTop="true"
+      android:layout_centerHorizontal="true"
+      android:layout_marginTop="10dp"
+      android:textColor="#ff000000"
+      android:textSize="12pt"
+      android:textStyle="bold"
+      android:visibility="gone" />
+
+   <TextView
+      android:id="@+id/currentAltitude"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/currentSpeed"
+      android:layout_centerHorizontal="true"
+      android:textColor="#ff000000"
+      android:textSize="12pt"
+      android:textStyle="bold"
+      android:visibility="gone" />
+
+   <TextView
+      android:id="@+id/currentDistance"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/currentAltitude"
+      android:layout_centerHorizontal="true"
+      android:textColor="#ff000000"
+      android:textSize="12pt"
+      android:textStyle="bold"
+      android:visibility="gone" />
+
+   <TextView
+      android:id="@+id/speedview00"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginRight="45dp"
+      android:layout_marginTop="5dp"
+      android:background="#80aaaaaa"
+      android:textColor="#000000"
+      android:visibility="invisible" />
+
+   <TextView
+      android:id="@+id/speedview01"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginRight="45dp"
+      android:layout_marginTop="45dp"
+      android:background="#80aaaaaa"
+      android:textColor="#000000"
+      android:visibility="invisible" />
+
+   <TextView
+      android:id="@+id/speedview02"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginRight="45dp"
+      android:layout_marginTop="100dp"
+      android:background="#80aaaaaa"
+      android:textColor="#ff000000"
+      android:visibility="invisible" />
+
+   <TextView
+      android:id="@+id/speedview03"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginRight="45dp"
+      android:layout_marginTop="150dp"
+      android:background="#80aaaaaa"
+      android:textColor="#ff000000"
+      android:visibility="invisible" />
+
+   <TextView
+      android:id="@+id/speedview04"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginRight="45dp"
+      android:layout_marginTop="200dp"
+      android:background="#80aaaaaa"
+      android:textColor="#ff000000"
+      android:visibility="invisible" />
+
+   <TextView
+      android:id="@+id/speedview05"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginRight="45dp"
+      android:layout_marginTop="250dp"
+      android:background="#80aaaaaa"
+      android:textColor="#ff000000"
+      android:visibility="invisible" />
+
+   <ImageView
+      android:id="@+id/speedbar"
+      android:layout_width="30dp"
+      android:layout_height="250dp"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginRight="10dp"
+      android:layout_marginTop="10dp"
+      android:src="@drawable/speedindexbar"
+      android:visibility="invisible" />
+
+   <nl.sogeti.android.gpstracker.util.SlidingIndicatorView
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/scaleindicator"
+      android:layout_width="30dp"
+      android:layout_height="250dp"
+      android:layout_alignLeft="@+id/speedbar"
+      android:layout_alignRight="@+id/speedbar"
+      android:layout_alignTop="@+id/speedbar"
+      android:layout_alignBottom="@+id/speedbar"
+      android:visibility="invisible"  />
+
+</merge>

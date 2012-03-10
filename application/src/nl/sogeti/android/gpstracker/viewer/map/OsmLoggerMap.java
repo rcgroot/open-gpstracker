@@ -14,6 +14,7 @@ package nl.sogeti.android.gpstracker.viewer.map;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
 
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -444,5 +445,10 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    public void clearOverlays()
    {
       mMapView.getOverlayManager().clear();
+   }
+
+   public SlidingIndicatorView getScaleIndicatorView()
+   {
+      return (SlidingIndicatorView) findViewById(R.id.scaleindicator);
    }
 }

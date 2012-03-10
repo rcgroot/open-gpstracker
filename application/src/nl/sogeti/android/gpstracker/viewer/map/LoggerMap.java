@@ -14,6 +14,8 @@ package nl.sogeti.android.gpstracker.viewer.map;
 
 import java.util.List;
 
+import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
+
 
 import com.google.android.maps.GeoPoint;
 
@@ -102,4 +104,6 @@ public interface LoggerMap
    TextView getDistanceTextView();
 
    void clearOverlays();
+
+   SlidingIndicatorView getScaleIndicatorView();
 }

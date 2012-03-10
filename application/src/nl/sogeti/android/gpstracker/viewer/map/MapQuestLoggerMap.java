@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
 import nl.sogeti.android.gpstracker.viewer.map.AsyncOverlay.SegmentMapQuestOverlay;
 import android.app.Activity;
 import android.app.Dialog;
@@ -386,6 +387,11 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
    public void clearOverlays()
    {
       mMapView.getOverlays().clear();
+   }
+   
+   public SlidingIndicatorView getScaleIndicatorView()
+   {
+      return (SlidingIndicatorView) findViewById(R.id.scaleindicator);
    }
 
    /******************************/
