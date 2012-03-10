@@ -75,7 +75,7 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
    protected void onCreate(Bundle load)
    {
       super.onCreate(load);
-      setContentView(R.layout.googlemap);
+      setContentView(R.layout.map_google);
       
       mHelper = new LoggerMapHelper(this);
       mMapView = (MapView) findViewById(R.id.myMapView);

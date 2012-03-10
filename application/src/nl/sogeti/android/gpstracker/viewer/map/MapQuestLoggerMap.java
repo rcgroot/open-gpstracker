@@ -60,7 +60,7 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
    protected void onCreate(Bundle load)
    {
       super.onCreate(load);
-      setContentView(R.layout.mapquestmap);
+      setContentView(R.layout.map_mapquest);
       
       mMapView = (MapView) findViewById(R.id.myMapView);
       mHelper = new LoggerMapHelper(this);

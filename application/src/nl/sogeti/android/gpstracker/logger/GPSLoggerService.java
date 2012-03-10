@@ -653,7 +653,7 @@ public class GPSLoggerService extends Service implements LocationListener
       PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this.mSharedPreferenceChangeListener);
       mLocationManager.removeGpsStatusListener(mStatusListener);
       stopListening();
-      mNoticationManager.cancel(R.layout.googlemap);
+      mNoticationManager.cancel(R.layout.map_google);
 
       Message msg = Message.obtain();
       msg.what = STOPLOOPER;
@@ -933,7 +933,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
    private void startNotification()
    {
-      mNoticationManager.cancel(R.layout.googlemap);
+      mNoticationManager.cancel(R.layout.map_google);
 
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = getResources().getString(R.string.service_start);
@@ -946,11 +946,11 @@ public class GPSLoggerService extends Service implements LocationListener
 
       if (Build.VERSION.SDK_INT >= 5)
       {
-         startForegroundReflected(R.layout.googlemap, mNotification);
+         startForegroundReflected(R.layout.map_google, mNotification);
       }
       else
       {
-         mNoticationManager.notify(R.layout.googlemap, mNotification);
+         mNoticationManager.notify(R.layout.map_google, mNotification);
       }
    }
 
@@ -981,7 +981,7 @@ public class GPSLoggerService extends Service implements LocationListener
       notificationIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
       mNotification.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText, mNotification.contentIntent);
-      mNoticationManager.notify(R.layout.googlemap, mNotification);
+      mNoticationManager.notify(R.layout.map_google, mNotification);
    }
 
    private void stopNotification()
@@ -992,7 +992,7 @@ public class GPSLoggerService extends Service implements LocationListener
       }
       else
       {
-         mNoticationManager.cancel(R.layout.googlemap);
+         mNoticationManager.cancel(R.layout.map_google);
       }
    }
 

@@ -60,7 +60,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    protected void onCreate(Bundle load)
    {
       super.onCreate(load);
-      setContentView(R.layout.osmmap);
+      setContentView(R.layout.map_osm);
       
       mMapView = (MapView) findViewById(R.id.myMapView);
       mHelper = new LoggerMapHelper(this);
