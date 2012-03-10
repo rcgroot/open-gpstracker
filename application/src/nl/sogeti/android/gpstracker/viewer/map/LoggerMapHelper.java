@@ -91,9 +91,13 @@ public class LoggerMapHelper
    private static final String INSTANCE_E6LONG = "e6long";
    private static final String INSTANCE_E6LAT = "e6lat";
    private static final String INSTANCE_ZOOM = "zoom";
-   private static final String INSTANCE_SPEED = "averagespeed";
+   private static final String INSTANCE_AVGSPEED = "averagespeed";
    private static final String INSTANCE_HEIGHT = "averageheight";
    private static final String INSTANCE_TRACK = "track";
+   private static final String INSTANCE_SPEED = "speed";
+   private static final String INSTANCE_ALTITUDE = "altitude";
+   private static final String INSTANCE_DISTANCE = "distance";
+   
    private static final int ZOOM_LEVEL = 16;
    // MENU'S
    private static final int MENU_SETTINGS = 1;
@@ -145,6 +149,9 @@ public class LoggerMapHelper
 
    private LoggerMap mLoggerMap;
    private BitmapSegmentsOverlay mBitmapSegmentsOverlay;
+   private float mSpeed;
+   private double mAltitude;
+   private float mDistance;
 
    public LoggerMapHelper(LoggerMap loggerMap)
    {
@@ -221,7 +228,9 @@ public class LoggerMapHelper
       updateDistanceDisplayVisibility();
       updateCompassDisplayVisibility();
       updateLocationDisplayVisibility();
-
+      
+      updateTrackNumbers();
+      
       mLoggerMap.executePostponedActions();
    }
 
@@ -285,13 +294,25 @@ public class LoggerMapHelper
       {
          long loadTrackId = load.getLong(INSTANCE_TRACK);
          moveToTrack(loadTrackId, false);
-         if (load.containsKey(INSTANCE_SPEED))
+         if (load.containsKey(INSTANCE_AVGSPEED))
          {
-            mAverageSpeed = load.getDouble(INSTANCE_SPEED);
+            mAverageSpeed = load.getDouble(INSTANCE_AVGSPEED);
          }
          if (load.containsKey(INSTANCE_HEIGHT))
          {
             mAverageHeight = load.getDouble(INSTANCE_HEIGHT);
+         }
+         if( load.containsKey(INSTANCE_SPEED))
+         {
+            mSpeed = load.getFloat(INSTANCE_HEIGHT);
+         }
+         if( load.containsKey(INSTANCE_ALTITUDE))
+         {
+            mAltitude = load.getDouble(INSTANCE_HEIGHT);
+         }
+         if( load.containsKey(INSTANCE_DISTANCE))
+         {
+            mDistance = load.getFloat(INSTANCE_DISTANCE);
          }
       }
       else if (data != null) // 2nd method: track ordered to make
@@ -329,9 +350,12 @@ public class LoggerMapHelper
    protected void onSaveInstanceState(Bundle save)
    {
       save.putLong(INSTANCE_TRACK, this.mTrackId);
-      save.putDouble(INSTANCE_SPEED, mAverageSpeed);
+      save.putDouble(INSTANCE_AVGSPEED, mAverageSpeed);
       save.putDouble(INSTANCE_HEIGHT, mAverageHeight);
       save.putInt(INSTANCE_ZOOM, mLoggerMap.getZoomLevel());
+      save.putFloat(INSTANCE_SPEED, mSpeed);
+      save.putDouble(INSTANCE_ALTITUDE, mAltitude);
+      save.putFloat(INSTANCE_DISTANCE, mDistance);
       GeoPoint point = mLoggerMap.getMapCenter();
       save.putInt(INSTANCE_E6LAT, point.getLatitudeE6());
       save.putInt(INSTANCE_E6LONG, point.getLongitudeE6());
@@ -1104,17 +1128,15 @@ public class LoggerMapHelper
    {
       boolean showspeed = mSharedPreferences.getBoolean(Constants.SPEED, false);
       TextView lastGPSSpeedView = mLoggerMap.getSpeedTextView();
-      SlidingIndicatorView lastGPSSpeedIndicator = mLoggerMap.getScaleIndicatorView();
       if (showspeed)
       {
          lastGPSSpeedView.setVisibility(View.VISIBLE);
-         lastGPSSpeedIndicator.setVisibility(View.VISIBLE);
       }
       else
       {
          lastGPSSpeedView.setVisibility(View.GONE);
-         lastGPSSpeedIndicator.setVisibility(View.GONE);
       }
+      updateScaleDisplayVisibility();
    }
 
    private void updateAltitudeDisplayVisibility()
@@ -1128,6 +1150,40 @@ public class LoggerMapHelper
       else
       {
          lastGPSAltitudeView.setVisibility(View.GONE);
+      }
+      updateScaleDisplayVisibility();
+   }
+   
+   private void updateScaleDisplayVisibility()
+   {
+      SlidingIndicatorView scaleIndicator = mLoggerMap.getScaleIndicatorView();
+      boolean showspeed = mSharedPreferences.getBoolean(Constants.SPEED, false);
+      boolean showaltitude = mSharedPreferences.getBoolean(Constants.ALTITUDE, false);
+      int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
+      switch (trackColoringMethod)
+      {
+         case SegmentRendering.DRAW_MEASURED:
+         case SegmentRendering.DRAW_CALCULATED:
+            if( showspeed )
+            {
+               scaleIndicator.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+               scaleIndicator.setVisibility(View.GONE);
+            }
+            break;
+         case SegmentRendering.DRAW_HEIGHT:
+         default:
+            if( showaltitude )
+            {
+               scaleIndicator.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+               scaleIndicator.setVisibility(View.GONE);
+            }
+            break;
       }
    }
 
@@ -1183,42 +1239,43 @@ public class LoggerMapHelper
       if (lastWaypoint != null && units != null)
       {
          // Speed number
-         double speed = lastWaypoint.getSpeed();
-         speed = units.conversionFromMetersPerSecond(speed);
-         String speedText = units.formatSpeed(speed, false);
-         TextView lastGPSSpeedView = mLoggerMap.getSpeedTextView();
-         lastGPSSpeedView.setText(speedText);
-         SlidingIndicatorView currentScaleIndicator = mLoggerMap.getScaleIndicatorView();
-         currentScaleIndicator.setValue((float) speed);
-         // Speed color bar and reference numbers
-         if (speed > 2 * mAverageSpeed )
-         {
-            mAverageSpeed = 0.0;
-            updateSpeedColoring();
-            mLoggerMap.postInvalidate();
-         }
-
-         //Altitude number
-         double altitude = lastWaypoint.getAltitude();
-         altitude = units.conversionFromMeterToHeight(altitude);
-         String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
-         TextView mLastGPSAltitudeView = mLoggerMap.getAltitideTextView();
-         mLastGPSAltitudeView.setText(altitudeText);
-         currentScaleIndicator.setValue((float) altitude);
-         // Speed color bar and reference numbers
-         if (altitude > 2 * mAverageHeight )
-         {
-            mAverageHeight = 0.0;
-            updateSpeedColoring();
-            mLoggerMap.postInvalidate();
-         }
-         
-         //Distance number
-         double distance = units.conversionFromMeter(mLoggerServiceManager.getTrackedDistance());
-         String distanceText = String.format("%.2f %s", distance, units.getDistanceUnit());
-         TextView mDistanceView = mLoggerMap.getDistanceTextView();
-         mDistanceView.setText(distanceText);
+         mSpeed = lastWaypoint.getSpeed();
+         mAltitude = lastWaypoint.getAltitude();
+         mDistance = mLoggerServiceManager.getTrackedDistance();
       }
+      double speed = units.conversionFromMetersPerSecond(mSpeed);
+      String speedText = units.formatSpeed(speed, false);
+      TextView lastGPSSpeedView = mLoggerMap.getSpeedTextView();
+      lastGPSSpeedView.setText(speedText);
+      SlidingIndicatorView currentScaleIndicator = mLoggerMap.getScaleIndicatorView();
+      currentScaleIndicator.setValue((float) speed);
+      // Speed color bar and reference numbers
+      if (speed > 2 * mAverageSpeed )
+      {
+         mAverageSpeed = 0.0;
+         updateSpeedColoring();
+         mLoggerMap.postInvalidate();
+      }
+
+      //Altitude number
+      double altitude = units.conversionFromMeterToHeight(mAltitude);
+      String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
+      TextView mLastGPSAltitudeView = mLoggerMap.getAltitideTextView();
+      mLastGPSAltitudeView.setText(altitudeText);
+      currentScaleIndicator.setValue((float) altitude);
+      // Speed color bar and reference numbers
+      if (altitude > 2 * mAverageHeight )
+      {
+         mAverageHeight = 0.0;
+         updateSpeedColoring();
+         mLoggerMap.postInvalidate();
+      }
+      
+      //Distance number
+      double distance = units.conversionFromMeter(mDistance);
+      String distanceText = String.format("%.2f %s", distance, units.getDistanceUnit());
+      TextView mDistanceView = mLoggerMap.getDistanceTextView();
+      mDistanceView.setText(distanceText);
    }
 
    /**
@@ -1373,12 +1430,21 @@ public class LoggerMapHelper
       {
          double avgHeight = units.conversionFromMeterToHeight(mAverageHeight);
          TextView[] mSpeedtexts = mLoggerMap.getSpeedTextViews();
+         SlidingIndicatorView currentScaleIndicator = mLoggerMap.getScaleIndicatorView();
          for (int i = 0; i < mSpeedtexts.length; i++)
          {
             mSpeedtexts[i].setVisibility(View.VISIBLE);
             double height = ((avgHeight * 2d) / 5d) * i;
             String heightText = String.format( "%d %s", (int)height,  units.getHeightUnit() );
             mSpeedtexts[i].setText(heightText);
+            if( i == 0 )
+            {
+               currentScaleIndicator.setMin((float) height);
+            }
+            else
+            {
+               currentScaleIndicator.setMax((float) height);
+            }
          }
       }
    }
