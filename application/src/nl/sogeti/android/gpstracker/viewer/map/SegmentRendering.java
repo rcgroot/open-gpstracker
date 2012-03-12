@@ -642,17 +642,18 @@ public class SegmentRendering
    {
       synchronized ( mDotPath )
       {   
-         Bitmap bitmap = BitmapFactory.decodeResource( this.mLoggerMap.getActivity().getResources(), R.drawable.stip2 );      
+         if( sStopBitmap == null )
+         {
+            sStopBitmap = BitmapFactory.decodeResource( this.mLoggerMap.getActivity().getResources(), R.drawable.stip2 );
+         }
          for( DotVO dotVO : mDotPath )
          {
-            canvas.drawBitmap( bitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
+            canvas.drawBitmap( sStopBitmap, dotVO.x - 8, dotVO.y - 8, dotpaint );
             if( dotVO.radius > 8f )
             {
                canvas.drawCircle( dotVO.x, dotVO.y, dotVO.radius, radiusPaint );
             }
          }
-         bitmap.recycle();
-         bitmap = null; 
       }
    }
 
@@ -1142,7 +1143,6 @@ public class SegmentRendering
       if( mTrackColoringMethod != coloring )
       {
          mTrackColoringMethod = coloring;
-         mRequeryFlag = true;
          calculateTrack();
       }
       mAvgSpeed = avgspeed;

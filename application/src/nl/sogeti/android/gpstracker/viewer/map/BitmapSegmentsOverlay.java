@@ -5,11 +5,14 @@ import java.util.List;
 
 import android.graphics.Canvas;
 import android.os.Handler;
+import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 
 public class BitmapSegmentsOverlay extends AsyncOverlay
 {
+   private static final String TAG = "GG.BitmapSegmentsOverlay";
+   
    List<SegmentRendering> mOverlays;
    Handler mOverlayHandler;
    
@@ -23,6 +26,7 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
    @Override
    synchronized protected void redrawOffscreen(Canvas asyncBuffer, LoggerMap loggermap)
    {
+      Log.d( TAG, "redrawOffscreen()");
       for( SegmentRendering segment : mOverlays)
       {
          segment.draw(asyncBuffer);
