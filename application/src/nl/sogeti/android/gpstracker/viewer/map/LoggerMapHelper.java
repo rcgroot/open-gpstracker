@@ -188,8 +188,9 @@ public class LoggerMapHelper
       {
          Log.e(TAG, "Failed waiting for a semaphore", e);
       }
-      mBitmapSegmentsOverlay = new BitmapSegmentsOverlay(mLoggerMap, mHandler);
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mLoggerMap.getActivity());
+
+      mBitmapSegmentsOverlay = new BitmapSegmentsOverlay(mLoggerMap, mHandler);
       createListeners();
       onRestoreInstanceState(load);
       mLoggerMap.updateOverlays();
@@ -241,7 +242,9 @@ public class LoggerMapHelper
          this.mWakeLock.release();
          Log.w(TAG, "onPause(): Released lock to keep screen on!");
       }
+      mLoggerMap.clearOverlays();
       mBitmapSegmentsOverlay.clearSegments();
+      mLastSegmentOverlay = null;
       ContentResolver resolver = mLoggerMap.getActivity().getContentResolver();
       resolver.unregisterContentObserver(this.mTrackSegmentsObserver);
       resolver.unregisterContentObserver(this.mSegmentWaypointsObserver);
@@ -255,9 +258,7 @@ public class LoggerMapHelper
 
    protected void onDestroy()
    {
-      mLastSegmentOverlay = null;
       mLoggerMap.clearOverlays();
-      mBitmapSegmentsOverlay.clearSegments();
       mHandler.post(new Runnable()
       {
          public void run()
@@ -1071,7 +1072,8 @@ public class LoggerMapHelper
    {
       int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
       View speedbar = mLoggerMap.getActivity().findViewById(R.id.speedbar);
-
+      SlidingIndicatorView scaleIndicator = mLoggerMap.getScaleIndicatorView();
+      
       TextView[] speedtexts = mLoggerMap.getSpeedTextViews();
       switch (trackColoringMethod)
       {
@@ -1088,6 +1090,7 @@ public class LoggerMapHelper
                drawSpeedTexts();
                speedtexts = mLoggerMap.getSpeedTextViews();
                speedbar.setVisibility(View.VISIBLE);
+               scaleIndicator.setVisibility(View.VISIBLE);
                for (int i = 0; i < speedtexts.length; i++)
                {
                   speedtexts[i].setVisibility(View.VISIBLE);
@@ -1098,10 +1101,12 @@ public class LoggerMapHelper
          case SegmentRendering.DRAW_GREEN:
          case SegmentRendering.DRAW_RED:
             speedbar.setVisibility(View.INVISIBLE);
+            scaleIndicator.setVisibility(View.INVISIBLE);
             for (int i = 0; i < speedtexts.length; i++)
             {
                speedtexts[i].setVisibility(View.INVISIBLE);
             }
+            break;
          case SegmentRendering.DRAW_HEIGHT:
             if (mAverageHeight == 0.0)
             {
@@ -1113,11 +1118,13 @@ public class LoggerMapHelper
                drawHeightTexts();
                speedtexts = mLoggerMap.getSpeedTextViews();
                speedbar.setVisibility(View.VISIBLE);
+               scaleIndicator.setVisibility(View.VISIBLE);
                for (int i = 0; i < speedtexts.length; i++)
                {
                   speedtexts[i].setVisibility(View.VISIBLE);
                }
             }
+            break;
          default:
             break;
       }

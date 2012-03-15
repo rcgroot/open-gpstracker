@@ -59,6 +59,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
          mCalculationBitmap.eraseColor(Color.TRANSPARENT);
          mGeoTopLeft = mLoggerMap.fromPixels(0, 0);
          mGeoBottumRight = mLoggerMap.fromPixels(mWidth, mHeight);
+         Log.d( TAG, "redrawOffscreen() to "+mCalculationBitmap);
          redrawOffscreen(mCalculationCanvas, mLoggerMap);
          synchronized (mActiveBitmap)
          {
@@ -67,7 +68,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
             mActiveTopLeft = mGeoTopLeft;
             mCalculationBitmap = oldActiveBitmap;
             mCalculationCanvas.setBitmap(mCalculationBitmap);
-            Log.d( TAG, "Switched bitmaps");
+            Log.d( TAG, "Switched bitmaps to "+mActiveBitmap);
          }
          mLoggerMap.postInvalidate();
       }
@@ -92,6 +93,16 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
       mOsmOverlay = new SegmentOsmOverlay(mLoggerMap.getActivity(), mLoggerMap, this);
       mMapQuestOverlay = new SegmentMapQuestOverlay(this);
    }
+   
+   protected void reset()
+   {
+      synchronized (mActiveBitmap)
+      {
+         mCalculationBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+         mCalculationCanvas = new Canvas(mCalculationBitmap);
+         mActiveBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+      }
+   }
 
    protected void considerRedrawOffscreen()
    {
@@ -107,17 +118,22 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
          needNewCalculation = true;
       }
       
-      Point screenPoint = new Point(0,0);
-      if( mGeoTopLeft != null )
-      {
-         mLoggerMap.toPixels(mGeoTopLeft, screenPoint);
-      }
-      boolean unaligned = mGeoTopLeft == null || mGeoBottumRight == null || screenPoint.x > 50 || screenPoint.y > 50 || screenPoint.x < -50 || screenPoint.y < -50;     
+      boolean unaligned = isOutAlignment();
       if (needNewCalculation || mActiveZoomLevel != oldZoomLevel || unaligned )
       {
          Log.d( TAG, "scheduleRecalculation()" );
          scheduleRecalculation();
       }
+   }
+   
+   private boolean isOutAlignment()
+   {
+      Point screenPoint = new Point(0,0);
+      if( mGeoTopLeft != null )
+      {
+         mLoggerMap.toPixels(mGeoTopLeft, screenPoint);
+      }
+      return mGeoTopLeft == null || mGeoBottumRight == null || screenPoint.x > 50 || screenPoint.y > 50 || screenPoint.x < -50 || screenPoint.y < -50;
    }
 
    public void onDateOverlayChanged()
@@ -158,6 +174,8 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
          {
             mLoggerMap.toPixels(mActiveTopLeft, mActivePointTopLeft);
             canvas.drawBitmap(mActiveBitmap, mActivePointTopLeft.x, mActivePointTopLeft.y, mPaint);
+
+            Log.d( TAG, "Did draw "+mActiveBitmap);
          }
       }
    }

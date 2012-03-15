@@ -299,54 +299,43 @@ public class SegmentRendering
     */
    private synchronized void calculateTrackAsync()
    {
-      GeoPoint oldTopLeft = mGeoTopLeft;
-      GeoPoint oldBottumRight = mGeoBottumRight;
       mGeoTopLeft = mLoggerMap.fromPixels( 0, 0 );
       mGeoBottumRight = mLoggerMap.fromPixels( mWidth, mHeight );
 
-      if( mRequeryFlag
-              || oldTopLeft == null 
-              || oldBottumRight == null 
-              || mGeoTopLeft.getLatitudeE6() / 100 != oldTopLeft.getLatitudeE6() / 100 
-              || mGeoTopLeft.getLongitudeE6() / 100 != oldTopLeft.getLongitudeE6() / 100
-              || mGeoBottumRight.getLatitudeE6() / 100 != oldBottumRight.getLatitudeE6() / 100 
-              || mGeoBottumRight.getLongitudeE6() / 100 != oldBottumRight.getLongitudeE6() / 100 )
+      calculateStepSize();
+     
+      mScreenPoint.x = -1;
+      mScreenPoint.y = -1;
+      this.mPrevDrawnScreenPoint.x = -1;
+      this.mPrevDrawnScreenPoint.y = -1;
+      
+      switch( mTrackColoringMethod )
       {
-         calculateStepSize();
-        
-         mScreenPoint.x = -1;
-         mScreenPoint.y = -1;
-         this.mPrevDrawnScreenPoint.x = -1;
-         this.mPrevDrawnScreenPoint.y = -1;
-         
-         switch( mTrackColoringMethod )
-         {
-            case DRAW_HEIGHT:
-            case DRAW_CALCULATED:
-            case DRAW_MEASURED:
-            case DRAW_RED:
-            case DRAW_GREEN:
-               calculatePath();
-               synchronized (mCalculatedPath) // Switch the fresh path with the old Path object
-               {
-                  Path oldPath = mCalculatedPath;
-                  mCalculatedPath = mPathCalculation;
-                  mPathCalculation = oldPath;
-               }
-               break;
-            case DRAW_DOTS:
-               calculateDots();
-               synchronized (mDotPath) // Switch the fresh path with the old Path object
-               {
-                  Vector<DotVO> oldDotPath = mDotPath;
-                  mDotPath = mDotPathCalculation;
-                  mDotPathCalculation = oldDotPath;
-               }
-               break;
-         }
-         calculateStartStopCircles();
-         mAsyncOverlay.onDateOverlayChanged();
+         case DRAW_HEIGHT:
+         case DRAW_CALCULATED:
+         case DRAW_MEASURED:
+         case DRAW_RED:
+         case DRAW_GREEN:
+            calculatePath();
+            synchronized (mCalculatedPath) // Switch the fresh path with the old Path object
+            {
+               Path oldPath = mCalculatedPath;
+               mCalculatedPath = mPathCalculation;
+               mPathCalculation = oldPath;
+            }
+            break;
+         case DRAW_DOTS:
+            calculateDots();
+            synchronized (mDotPath) // Switch the fresh path with the old Path object
+            {
+               Vector<DotVO> oldDotPath = mDotPath;
+               mDotPath = mDotPathCalculation;
+               mDotPathCalculation = oldDotPath;
+            }
+            break;
       }
+      calculateStartStopCircles();
+      mAsyncOverlay.onDateOverlayChanged();
    }
 
    /**
@@ -655,6 +644,7 @@ public class SegmentRendering
             }
          }
       }
+      Log.d( TAG, "Draw dots of size "+mDotPath.size()) ; 
    }
 
    private void drawMedia( Canvas canvas )
