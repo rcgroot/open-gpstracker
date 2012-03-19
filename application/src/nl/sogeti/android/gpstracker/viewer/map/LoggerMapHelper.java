@@ -662,7 +662,6 @@ public class LoggerMapHelper
                if (mLastSegmentOverlay != null)
                {
                   mLastSegmentOverlay.calculateMedia();
-                  mLoggerMap.postInvalidate();
                }
             }
             else
@@ -1250,39 +1249,52 @@ public class LoggerMapHelper
          mAltitude = lastWaypoint.getAltitude();
          mDistance = mLoggerServiceManager.getTrackedDistance();
       }
+
+      //Distance number
+      double distance = units.conversionFromMeter(mDistance);
+      String distanceText = String.format("%.2f %s", distance, units.getDistanceUnit());
+      TextView mDistanceView = mLoggerMap.getDistanceTextView();
+      mDistanceView.setText(distanceText);
+      
+      //Speed number
       double speed = units.conversionFromMetersPerSecond(mSpeed);
       String speedText = units.formatSpeed(speed, false);
       TextView lastGPSSpeedView = mLoggerMap.getSpeedTextView();
       lastGPSSpeedView.setText(speedText);
-      SlidingIndicatorView currentScaleIndicator = mLoggerMap.getScaleIndicatorView();
-      currentScaleIndicator.setValue((float) speed);
-      // Speed color bar and reference numbers
-      if (speed > 2 * mAverageSpeed )
-      {
-         mAverageSpeed = 0.0;
-         updateSpeedColoring();
-         mLoggerMap.postInvalidate();
-      }
 
       //Altitude number
       double altitude = units.conversionFromMeterToHeight(mAltitude);
       String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
       TextView mLastGPSAltitudeView = mLoggerMap.getAltitideTextView();
       mLastGPSAltitudeView.setText(altitudeText);
-      currentScaleIndicator.setValue((float) altitude);
-      // Speed color bar and reference numbers
-      if (altitude > 2 * mAverageHeight )
-      {
-         mAverageHeight = 0.0;
-         updateSpeedColoring();
-         mLoggerMap.postInvalidate();
-      }
       
-      //Distance number
-      double distance = units.conversionFromMeter(mDistance);
-      String distanceText = String.format("%.2f %s", distance, units.getDistanceUnit());
-      TextView mDistanceView = mLoggerMap.getDistanceTextView();
-      mDistanceView.setText(distanceText);
+      // Slider indicator
+      SlidingIndicatorView currentScaleIndicator = mLoggerMap.getScaleIndicatorView();
+      int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
+      if( trackColoringMethod == SegmentRendering.DRAW_MEASURED || trackColoringMethod == SegmentRendering.DRAW_CALCULATED)
+      {
+         currentScaleIndicator.setValue((float) speed);
+         // Speed color bar and reference numbers
+         if (speed > 2 * mAverageSpeed )
+         {
+            mAverageSpeed = 0.0;
+            updateSpeedColoring();
+            mBitmapSegmentsOverlay.scheduleRecalculation();
+         }
+      }
+      else if(trackColoringMethod == SegmentRendering.DRAW_HEIGHT)
+      {
+         currentScaleIndicator.setValue((float) altitude);
+         // Speed color bar and reference numbers
+         if (altitude > 2 * mAverageHeight )
+         {
+            mAverageHeight = 0.0;
+            updateSpeedColoring();
+            mLoggerMap.postInvalidate();
+         }
+      }
+
+      
    }
 
    /**
