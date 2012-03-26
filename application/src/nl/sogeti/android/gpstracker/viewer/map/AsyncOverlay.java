@@ -16,6 +16,8 @@ import com.google.android.maps.Overlay;
 
 public abstract class AsyncOverlay extends Overlay implements OverlayProvider
 {
+   private static final int OFFSET = 20;
+
    private static final String TAG = "GG.AsyncOverlay";
 
    /**
@@ -59,7 +61,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
          mCalculationBitmap.eraseColor(Color.TRANSPARENT);
          mGeoTopLeft = mLoggerMap.fromPixels(0, 0);
          mGeoBottumRight = mLoggerMap.fromPixels(mWidth, mHeight);
-         Log.d( TAG, "redrawOffscreen() to "+mCalculationBitmap);
+         Log.d(TAG, "redrawOffscreen() to " + mCalculationBitmap);
          redrawOffscreen(mCalculationCanvas, mLoggerMap);
          synchronized (mActiveBitmap)
          {
@@ -68,8 +70,9 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
             mActiveTopLeft = mGeoTopLeft;
             mCalculationBitmap = oldActiveBitmap;
             mCalculationCanvas.setBitmap(mCalculationBitmap);
-            Log.d( TAG, "Switched bitmaps to "+mActiveBitmap);
+            Log.d(TAG, "Switched bitmaps to " + mActiveBitmap);
          }
+         Log.d(TAG, "Ran the mBitmapUpdater: mLoggerMap.postInvalidate()");
          mLoggerMap.postInvalidate();
       }
    };
@@ -93,7 +96,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
       mOsmOverlay = new SegmentOsmOverlay(mLoggerMap.getActivity(), mLoggerMap, this);
       mMapQuestOverlay = new SegmentMapQuestOverlay(this);
    }
-   
+
    protected void reset()
    {
       synchronized (mActiveBitmap)
@@ -117,28 +120,29 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
          mCalculationCanvas.setBitmap(mCalculationBitmap);
          needNewCalculation = true;
       }
-      
+
       boolean unaligned = isOutAlignment();
-      if (needNewCalculation || mActiveZoomLevel != oldZoomLevel || unaligned )
+      if (needNewCalculation || mActiveZoomLevel != oldZoomLevel || unaligned)
       {
-         Log.d( TAG, "scheduleRecalculation()" );
+         Log.d(TAG, "scheduleRecalculation()");
          scheduleRecalculation();
       }
    }
-   
+
    private boolean isOutAlignment()
    {
-      Point screenPoint = new Point(0,0);
-      if( mGeoTopLeft != null )
+      Point screenPoint = new Point(0, 0);
+      if (mGeoTopLeft != null)
       {
          mLoggerMap.toPixels(mGeoTopLeft, screenPoint);
       }
-      return mGeoTopLeft == null || mGeoBottumRight == null || screenPoint.x > 50 || screenPoint.y > 50 || screenPoint.x < -50 || screenPoint.y < -50;
+      return mGeoTopLeft == null || mGeoBottumRight == null || screenPoint.x > OFFSET || screenPoint.y > OFFSET || screenPoint.x < -OFFSET
+            || screenPoint.y < -OFFSET;
    }
 
    public void onDateOverlayChanged()
    {
-      Log.d( TAG, "onDateOverlayChanged posted yet "+postedBitmapUpdater); 
+      Log.d(TAG, "onDateOverlayChanged posted yet " + postedBitmapUpdater);
       if (!postedBitmapUpdater)
       {
          postedBitmapUpdater = true;
@@ -175,7 +179,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
             mLoggerMap.toPixels(mActiveTopLeft, mActivePointTopLeft);
             canvas.drawBitmap(mActiveBitmap, mActivePointTopLeft.x, mActivePointTopLeft.y, mPaint);
 
-            Log.d( TAG, "Did draw "+mActiveBitmap);
+            Log.d(TAG, "Did draw " + mActiveBitmap + " based on "+mActiveTopLeft+ " on point "+mActivePointTopLeft);
          }
       }
    }

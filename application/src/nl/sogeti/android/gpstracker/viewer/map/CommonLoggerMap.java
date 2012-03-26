@@ -37,7 +37,7 @@ public class CommonLoggerMap extends Activity
       Intent realIntent;
 
       Class<?> mapClass = GoogleLoggerMap.class;
-      int provider = new Integer(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
+      int provider = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
       switch (provider)
       {
          case Constants.GOOGLE:

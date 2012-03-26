@@ -158,7 +158,6 @@
             android:entries="@array/osmvisibility_choices"
             android:entryValues="@array/osmvisibility_values"
             android:defaultValue="trackable" />
-         />
          <EditTextPreference
             android:key="SDDIR_DIR"
             android:title="@string/sddirectory_title"

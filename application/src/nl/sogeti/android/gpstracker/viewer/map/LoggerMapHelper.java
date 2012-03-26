@@ -909,7 +909,7 @@ public class LoggerMapHelper
             ((CheckBox) dialog.findViewById(R.id.layer_distance)).setChecked(mSharedPreferences.getBoolean(Constants.DISTANCE, false));
             ((CheckBox) dialog.findViewById(R.id.layer_compass)).setChecked(mSharedPreferences.getBoolean(Constants.COMPASS, false));
             ((CheckBox) dialog.findViewById(R.id.layer_location)).setChecked(mSharedPreferences.getBoolean(Constants.LOCATION, false));
-            int provider = new Integer(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
+            int provider = Integer.valueOf(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
             switch (provider)
             {
                case Constants.GOOGLE:
@@ -1000,7 +1000,7 @@ public class LoggerMapHelper
    private void updateMapProvider()
    {
       Class< ? > mapClass = null;
-      int provider = new Integer(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
+      int provider = Integer.valueOf(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
       switch (provider)
       {
          case Constants.GOOGLE:
@@ -1069,7 +1069,7 @@ public class LoggerMapHelper
 
    private void updateSpeedColoring()
    {
-      int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
+      int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
       View speedbar = mLoggerMap.getActivity().findViewById(R.id.speedbar);
       SlidingIndicatorView scaleIndicator = mLoggerMap.getScaleIndicatorView();
       
@@ -1165,7 +1165,7 @@ public class LoggerMapHelper
       SlidingIndicatorView scaleIndicator = mLoggerMap.getScaleIndicatorView();
       boolean showspeed = mSharedPreferences.getBoolean(Constants.SPEED, false);
       boolean showaltitude = mSharedPreferences.getBoolean(Constants.ALTITUDE, false);
-      int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
+      int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
       switch (trackColoringMethod)
       {
          case SegmentRendering.DRAW_MEASURED:
@@ -1270,7 +1270,7 @@ public class LoggerMapHelper
       
       // Slider indicator
       SlidingIndicatorView currentScaleIndicator = mLoggerMap.getScaleIndicatorView();
-      int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
+      int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
       if( trackColoringMethod == SegmentRendering.DRAW_MEASURED || trackColoringMethod == SegmentRendering.DRAW_CALCULATED)
       {
          currentScaleIndicator.setValue((float) speed);
@@ -1313,7 +1313,7 @@ public class LoggerMapHelper
 
       ContentResolver resolver = mLoggerMap.getActivity().getContentResolver();
       Cursor segments = null;
-      int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "2")).intValue();
+      int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "2")).intValue();
 
       try
       {

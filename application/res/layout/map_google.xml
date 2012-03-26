@@ -10,7 +10,7 @@
         android:layout_height="fill_parent"
         android:apiKey="0bmdf4-ggC50QJGdjml6Turq0NJdMhKFQNdhkYA"
         android:clickable="true"
-        android:enabled="true" />
+        android:state_enabled="true" />
     <!-- Release         : 0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw -->
     <!-- Debug           : 0bmdf4-ggC50QJGdjml6Turq0NJdMhKFQNdhkYA -->
     

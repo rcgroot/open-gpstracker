@@ -252,7 +252,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          Matcher m = p.matcher(responseText);
          if (m.find())
          {
-            Integer trackId = new Integer(m.group(1));
+            Integer trackId = Integer.valueOf(m.group(1));
             trackUri = Uri.parse("http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx");
             for( File photo :mPhotoUploadQueue )
             {
@@ -415,11 +415,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
       Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
       List<String> segments = result.getPathSegments();
-      Integer bcTrackId = new Integer(segments.get(segments.size() - 2));
+      int bcTrackId = Integer.valueOf(segments.get(segments.size() - 2));
 
       ArrayList<ContentValues> metaValues = new ArrayList<ContentValues>();
 
-      metaValues.add(buildContentValues(BreadcrumbsTracks.TRACK_ID, Long.toString(bcTrackId)));
+      metaValues.add(buildContentValues(BreadcrumbsTracks.TRACK_ID, Integer.toString(bcTrackId)));
       if (mDescription != null)
       {
          metaValues.add(buildContentValues(BreadcrumbsTracks.DESCRIPTION, mDescription));
@@ -437,13 +437,14 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 
       // Store in Breadcrumbs adapter
       tracks.addSyncedTrack(new Long(mTrackUri.getLastPathSegment()), bcTrackId);
+      int parsedBundleId = Integer.parseInt(mBundleId);
       if( mIsBundleCreated )
       {
-         mAdapter.getBreadcrumbsTracks().addBundle(Integer.parseInt(mBundleId), mBundleName, mBundleDescription);
+         mAdapter.getBreadcrumbsTracks().addBundle(parsedBundleId, mBundleName, mBundleDescription);
       }
       //"http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx"
 
-      mAdapter.getBreadcrumbsTracks().addTrack(bcTrackId, mName, new Integer(mBundleId), mDescription, null, null, null, mIsPublic, null, null, null, null, null);
+      mAdapter.getBreadcrumbsTracks().addTrack(bcTrackId, mName,  parsedBundleId, mDescription, null, null, null, mIsPublic, null, null, null, null, null);
       mAdapter.finishedTask();
 
       super.onPostExecute(result);

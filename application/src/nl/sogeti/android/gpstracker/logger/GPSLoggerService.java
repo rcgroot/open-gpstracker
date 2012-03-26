@@ -1069,7 +1069,7 @@ public class GPSLoggerService extends Service implements LocationListener
    private void sendRequestLocationUpdatesMessage()
    {
       stopListening();
-      mPrecision = new Integer(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PRECISION, "2")).intValue();
+      mPrecision = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PRECISION, "2")).intValue();
       Message msg = Message.obtain();
       switch (mPrecision)
       {
@@ -1149,7 +1149,7 @@ public class GPSLoggerService extends Service implements LocationListener
             break;
          case REQUEST_CUSTOMGPS_LOCATIONUPDATES:
             intervaltime = 60 * 1000 * new Long(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_INTERVAL, "15000"));
-            distance = new Float(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_DISTANCE, "10"));
+            distance = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_DISTANCE, "10"));
             mMaxAcceptableAccuracy = Math.max(10f, Math.min(distance, 50f));
             startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
@@ -1391,22 +1391,22 @@ public class GPSLoggerService extends Service implements LocationListener
       }
       ContentValues args = new ContentValues();
 
-      args.put(Waypoints.LATITUDE, new Double(location.getLatitude()));
-      args.put(Waypoints.LONGITUDE, new Double(location.getLongitude()));
-      args.put(Waypoints.SPEED, new Float(location.getSpeed()));
-      args.put(Waypoints.TIME, new Long(System.currentTimeMillis()));
+      args.put(Waypoints.LATITUDE, Double.valueOf(location.getLatitude()));
+      args.put(Waypoints.LONGITUDE, Double.valueOf(location.getLongitude()));
+      args.put(Waypoints.SPEED, Float.valueOf(location.getSpeed()));
+      args.put(Waypoints.TIME, Long.valueOf(System.currentTimeMillis()));
       if (location.hasAccuracy())
       {
-         args.put(Waypoints.ACCURACY, new Float(location.getAccuracy()));
+         args.put(Waypoints.ACCURACY, Float.valueOf(location.getAccuracy()));
       }
       if (location.hasAltitude())
       {
-         args.put(Waypoints.ALTITUDE, new Double(location.getAltitude()));
+         args.put(Waypoints.ALTITUDE, Double.valueOf(location.getAltitude()));
 
       }
       if (location.hasBearing())
       {
-         args.put(Waypoints.BEARING, new Float(location.getBearing()));
+         args.put(Waypoints.BEARING, Double.valueOf(location.getBearing()));
       }
 
       Uri waypointInsertUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints");

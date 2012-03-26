@@ -28,7 +28,7 @@
 		android:layout_width="1dip" 
 		android:gravity="center_vertical|center_horizontal|"
 		android:layout_weight="2.0"
-		android:enabled="true" 
+		android:state_enabled="true" 
         android:clickable="true"
 		android:visibility="gone" 
 		/>
@@ -44,7 +44,7 @@
 		android:layout_width="1dip" 
 		android:gravity="center_vertical|center_horizontal|"
 		android:layout_weight="2.0"
-		android:enabled="false"
+		android:state_enabled="false"
 		android:clickable="false"
 		android:visibility="visible" 
 		/>

@@ -197,11 +197,11 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
                         attributeName = xmlParser.getAttributeName(i);
                         if (attributeName.equals(LATITUDE_ATRIBUTE))
                         {
-                           lastPosition.put(Waypoints.LATITUDE, new Double(xmlParser.getAttributeValue(i)));
+                           lastPosition.put(Waypoints.LATITUDE, Double.valueOf(xmlParser.getAttributeValue(i)));
                         }
                         else if (attributeName.equals(LONGITUDE_ATTRIBUTE))
                         {
-                           lastPosition.put(Waypoints.LONGITUDE, new Double(xmlParser.getAttributeValue(i)));
+                           lastPosition.put(Waypoints.LONGITUDE, Double.valueOf(xmlParser.getAttributeValue(i)));
                         }
                      }
                   }

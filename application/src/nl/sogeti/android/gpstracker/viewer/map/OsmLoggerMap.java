@@ -30,6 +30,7 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -394,7 +395,14 @@ public class OsmLoggerMap extends Activity implements LoggerMap
 
    public GeoPoint fromPixels(int x, int y)
    {
-      return convertOSMGeoPoint(mMapView.getProjection().fromPixels(x, y));
+      IGeoPoint osmGeopoint = mMapView.getProjection().fromPixels(x, y);
+      GeoPoint geopoint = convertOSMGeoPoint(osmGeopoint);
+      return geopoint;
+   }
+   
+   public void toPixels(GeoPoint geoPoint, Point screenPoint)
+   {
+      mMapView.getProjection().toPixels( convertGeoPoint(geoPoint), screenPoint);
    }
 
    public boolean hasProjection()
@@ -405,11 +413,6 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    public float metersToEquatorPixels(float float1)
    {
       return mMapView.getProjection().metersToEquatorPixels(float1);
-   }
-
-   public void toPixels(GeoPoint geoPoint, Point screenPoint)
-   {
-      mMapView.getProjection().toPixels( convertGeoPoint(geoPoint), screenPoint);
    }
 
    public TextView[] getSpeedTextViews()
@@ -434,7 +437,8 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    
    static org.osmdroid.util.GeoPoint convertGeoPoint( GeoPoint point )
    {
-      return new org.osmdroid.util.GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
+      org.osmdroid.util.GeoPoint geopoint = new org.osmdroid.util.GeoPoint(point.getLatitudeE6(), point.getLongitudeE6());
+      return geopoint;
    }
    
    static GeoPoint convertOSMGeoPoint( IGeoPoint point )

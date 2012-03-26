@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -55,6 +54,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
+import android.util.SparseArray;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 
@@ -96,7 +96,7 @@ public class BreadcrumbsTracks extends Observable
 
    private static final String TAG = "OGT.BreadcrumbsTracks";
 
-   private static final Integer CACHE_VERSION = new Integer(3);
+   private static final Integer CACHE_VERSION = Integer.valueOf(4);
    private static final String BREADCRUMSB_BUNDLES_CACHE_FILE = "breadcrumbs_bundles_cache.data";
    private static final String BREADCRUMSB_ACTIVITY_CACHE_FILE = "breadcrumbs_activity_cache.data";
    /**
@@ -108,23 +108,23 @@ public class BreadcrumbsTracks extends Observable
    /**
     * Mapping from bundleId to a list of trackIds
     */
-   private static Map<Integer, List<Integer>> sBundlesWithTracks;
+   private static SparseArray<List<Integer>> sBundlesWithTracks;
    /**
     * Map from activityId to a dictionary containing keys like NAME
     */
-   private static Map<Integer, Map<String, String>> sActivityMappings;
+   private static SparseArray<Map<String, String>> sActivityMappings;
 
    /**
     * Map from bundleId to a dictionary containing keys like NAME and
     * DESCRIPTION
     */
-   private static Map<Integer, Map<String, String>> sBundleMappings;
+   private static SparseArray<Map<String, String>> sBundleMappings;
 
    /**
     * Map from trackId to a dictionary containing keys like NAME, ISPUBLIC,
     * DESCRIPTION and more
     */
-   private static Map<Integer, Map<String, String>> sTrackMappings;
+   private static SparseArray<Map<String, String>> sTrackMappings;
    /**
     * Cache of OGT Tracks that have a Breadcrumbs track id stored in the
     * meta-data table
@@ -140,10 +140,10 @@ public class BreadcrumbsTracks extends Observable
 
    private static void initCacheVariables()
    {
-      sBundlesWithTracks = new LinkedHashMap<Integer, List<Integer>>();
-      sActivityMappings = new HashMap<Integer, Map<String, String>>();
-      sBundleMappings = new HashMap<Integer, Map<String, String>>();
-      sTrackMappings = new HashMap<Integer, Map<String, String>>();
+      sBundlesWithTracks = new SparseArray<List<Integer>>();
+      sActivityMappings = new SparseArray<Map<String, String>>();
+      sBundleMappings = new SparseArray<Map<String, String>>();
+      sTrackMappings = new SparseArray<Map<String, String>>();
       sScheduledTracksLoading = new HashSet<Pair<Integer, Integer>>();
    }
 
@@ -159,13 +159,13 @@ public class BreadcrumbsTracks extends Observable
       mResolver = resolver;
    }
 
-   public void addActivity(Integer activityId, String activityName)
+   public void addActivity(int activityId, String activityName)
    {
-      if( BreadcrumbsAdapter.DEBUG )
+      if (BreadcrumbsAdapter.DEBUG)
       {
-         Log.d( TAG, "addActivity(Integer "+activityId+" String "+activityName+")");
+         Log.d(TAG, "addActivity(Integer " + activityId + " String " + activityName + ")");
       }
-      if (!sActivityMappings.containsKey(activityId))
+      if (sActivityMappings.get(activityId) == null)
       {
          sActivityMappings.put(activityId, new HashMap<String, String>());
       }
@@ -182,17 +182,17 @@ public class BreadcrumbsTracks extends Observable
     * @param bundleName
     * @param bundleDescription
     */
-   public void addBundle(Integer bundleId, String bundleName, String bundleDescription)
+   public void addBundle(int bundleId, String bundleName, String bundleDescription)
    {
-      if( BreadcrumbsAdapter.DEBUG )
+      if (BreadcrumbsAdapter.DEBUG)
       {
-         Log.d( TAG, "addBundle(Integer "+bundleId+", String "+bundleName+", String "+bundleDescription+")");
+         Log.d(TAG, "addBundle(Integer " + bundleId + ", String " + bundleName + ", String " + bundleDescription + ")");
       }
-      if (!sBundleMappings.containsKey(bundleId))
+      if (sBundleMappings.get(bundleId) == null)
       {
          sBundleMappings.put(bundleId, new HashMap<String, String>());
       }
-      if (!sBundlesWithTracks.containsKey(bundleId))
+      if (sBundlesWithTracks.get(bundleId) == null)
       {
          sBundlesWithTracks.put(bundleId, new ArrayList<Integer>());
       }
@@ -219,14 +219,14 @@ public class BreadcrumbsTracks extends Observable
     * @param totalTime
     * @param trackRating
     */
-   public void addTrack(Integer trackId, String trackName, Integer bundleId, String trackDescription, String difficulty, String startTime, String endTime,
+   public void addTrack(int trackId, String trackName, int bundleId, String trackDescription, String difficulty, String startTime, String endTime,
          String isPublic, Float lat, Float lng, Float totalDistance, Integer totalTime, String trackRating)
    {
-      if( BreadcrumbsAdapter.DEBUG )
+      if (BreadcrumbsAdapter.DEBUG)
       {
-         Log.d( TAG, "addTrack(Integer "+trackId+", String "+trackName+", Integer "+bundleId +"...");
+         Log.d(TAG, "addTrack(Integer " + trackId + ", String " + trackName + ", Integer " + bundleId + "...");
       }
-      if (!sBundlesWithTracks.containsKey(bundleId))
+      if (sBundlesWithTracks.get(bundleId) == null)
       {
          sBundlesWithTracks.put(bundleId, new ArrayList<Integer>());
       }
@@ -236,7 +236,7 @@ public class BreadcrumbsTracks extends Observable
          sScheduledTracksLoading.remove(Pair.create(Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE, trackId));
       }
 
-      if (!sTrackMappings.containsKey(trackId))
+      if (sTrackMappings.get(trackId) == null)
       {
          sTrackMappings.put(trackId, new HashMap<String, String>());
       }
@@ -254,7 +254,7 @@ public class BreadcrumbsTracks extends Observable
       notifyObservers();
    }
 
-   public void addSyncedTrack(Long trackId, Integer bcTrackId)
+   public void addSyncedTrack(Long trackId, int bcTrackId)
    {
       if (mSyncedTracks == null)
       {
@@ -279,8 +279,11 @@ public class BreadcrumbsTracks extends Observable
     */
    public void setAllBundleIds(Set<Integer> mBundleIds)
    {
-      for (Integer oldBundleId : getAllBundleIds())
+
+      SparseArray<List<Integer>> oldBundles = sBundlesWithTracks.clone();
+      for (int index = 0; index < oldBundles.size(); index++)
       {
+         int oldBundleId = oldBundles.keyAt(index);
          if (!mBundleIds.contains(oldBundleId))
          {
             removeBundle(oldBundleId);
@@ -288,7 +291,7 @@ public class BreadcrumbsTracks extends Observable
       }
    }
 
-   public void setAllTracksForBundleId(Integer mBundleId, Set<Integer> updatedbcTracksIdList)
+   public void setAllTracksForBundleId(int mBundleId, Set<Integer> updatedbcTracksIdList)
    {
       List<Integer> trackIdList = sBundlesWithTracks.get(mBundleId);
       for (int location = 0; location < trackIdList.size(); location++)
@@ -303,7 +306,7 @@ public class BreadcrumbsTracks extends Observable
       notifyObservers();
    }
 
-   private void putForTrack(Integer trackId, String key, Object value)
+   private void putForTrack(int trackId, String key, Object value)
    {
       if (value != null)
       {
@@ -318,7 +321,7 @@ public class BreadcrumbsTracks extends Observable
     * 
     * @param deletedId
     */
-   public void removeBundle(Integer deletedId)
+   public void removeBundle(int deletedId)
    {
       sBundleMappings.remove(deletedId);
       sBundlesWithTracks.remove(deletedId);
@@ -331,17 +334,17 @@ public class BreadcrumbsTracks extends Observable
     * 
     * @param deletedId
     */
-   public void removeTrack(Integer bundleId, Integer trackId)
+   public void removeTrack(int bundleId, int trackId)
    {
       sTrackMappings.remove(trackId);
-      if (sBundlesWithTracks.containsKey(bundleId))
+      if (sBundlesWithTracks.get(bundleId) != null)
       {
          sBundlesWithTracks.get(bundleId).remove(trackId);
       }
       setChanged();
       notifyObservers();
 
-      mResolver.delete(MetaData.CONTENT_URI, MetaData.TRACK + " = ? AND " + MetaData.KEY + " = ? ", new String[] { trackId.toString(), TRACK_ID });
+      mResolver.delete(MetaData.CONTENT_URI, MetaData.TRACK + " = ? AND " + MetaData.KEY + " = ? ", new String[] { Integer.toString(trackId), TRACK_ID });
       if (mSyncedTracks != null && mSyncedTracks.containsKey(trackId))
       {
          mSyncedTracks.remove(trackId);
@@ -351,50 +354,41 @@ public class BreadcrumbsTracks extends Observable
    public int positions()
    {
       int size = 0;
-      for (Integer bundleId : sBundlesWithTracks.keySet())
+      for (int index = 0; index < sBundlesWithTracks.size(); index++)
       {
          // One row for the Bundle header
          size += 1;
-         int bundleSize = sBundlesWithTracks.get(bundleId) != null ? sBundlesWithTracks.get(bundleId).size() : 0;
+         List<Integer> trackIds = sBundlesWithTracks.valueAt(index);
+         int bundleSize = trackIds != null ? trackIds.size() : 0;
          // One row per track in each bundle
          size += bundleSize;
       }
       return size;
    }
 
-   public Integer getBundleIdForTrackId(Integer trackId)
+   public Integer getBundleIdForTrackId(int trackId)
    {
-      for (Integer bundlId : sBundlesWithTracks.keySet())
+      for (int index = 0; index < sBundlesWithTracks.size(); index++)
       {
-         List<Integer> trackIds = sBundlesWithTracks.get(bundlId);
+         List<Integer> trackIds = sBundlesWithTracks.valueAt(index);
          if (trackIds.contains(trackId))
          {
-            return bundlId;
+            return sBundlesWithTracks.keyAt(index);
          }
       }
       return null;
    }
 
    /**
-    * Get all bundles
-    * 
-    * @return
-    */
-   public Integer[] getAllBundleIds()
-   {
-      return sBundlesWithTracks.keySet().toArray(new Integer[sBundlesWithTracks.keySet().size()]);
-   }
-
-   /**
-    * 
     * @param position list postition 0...n
     * @return a pair of a TYPE and an ID
     */
    public Pair<Integer, Integer> getItemForPosition(int position)
    {
       int countdown = position;
-      for (Integer bundleId : sBundlesWithTracks.keySet())
+      for (int index = 0; index < sBundlesWithTracks.size(); index++)
       {
+         int bundleId = sBundlesWithTracks.keyAt(index);
          if (countdown == 0)
          {
             return Pair.create(Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE, bundleId);
@@ -433,8 +427,9 @@ public class BreadcrumbsTracks extends Observable
    public SpinnerAdapter getActivityAdapter(Context ctx)
    {
       List<String> activities = new Vector<String>();
-      for (Integer activityId : sActivityMappings.keySet())
+      for (int index = 0; index < sActivityMappings.size(); index++)
       {
+         int activityId = sActivityMappings.keyAt(index);
          String name = sActivityMappings.get(activityId).get(NAME);
          name = name != null ? name : "";
          activities.add(name);
@@ -448,8 +443,9 @@ public class BreadcrumbsTracks extends Observable
    public SpinnerAdapter getBundleAdapter(Context ctx)
    {
       List<String> bundles = new Vector<String>();
-      for (Integer bundleId : sBundlesWithTracks.keySet())
+      for (int index = 0; index < sBundlesWithTracks.size(); index++)
       {
+         int bundleId = sBundlesWithTracks.keyAt(index);
          bundles.add(sBundleMappings.get(bundleId).get(NAME));
       }
       Collections.sort(bundles);
@@ -462,14 +458,15 @@ public class BreadcrumbsTracks extends Observable
       return adapter;
    }
 
-   public static Integer getIdForActivity(String selectedItem)
+   public static int getIdForActivity(String selectedItem)
    {
       if (selectedItem == null)
       {
          return -1;
       }
-      for (Integer activityId : sActivityMappings.keySet())
+      for (int index = 0; index < sActivityMappings.size(); index++)
       {
+         int activityId = sActivityMappings.keyAt(index);
          Map<String, String> mapping = sActivityMappings.get(activityId);
          if (mapping != null && selectedItem.equals(mapping.get(NAME)))
          {
@@ -479,10 +476,11 @@ public class BreadcrumbsTracks extends Observable
       return -1;
    }
 
-   public static Integer getIdForBundle(Integer activityId, String selectedItem)
+   public static int getIdForBundle(int activityId, String selectedItem)
    {
-      for (Integer bundleId : sBundlesWithTracks.keySet())
+      for (int index = 0; index < sBundlesWithTracks.size(); index++)
       {
+         int bundleId = sBundlesWithTracks.keyAt(index);
          if (selectedItem.equals(sBundleMappings.get(bundleId).get(NAME)))
          {
             return bundleId;
@@ -536,13 +534,13 @@ public class BreadcrumbsTracks extends Observable
    public boolean isLocalTrackSynced(Long qtrackId)
    {
       boolean uploaded = isLocalTrackOnline(qtrackId);
-      boolean synced = sTrackMappings.containsKey(mSyncedTracks.get(qtrackId));
+      boolean synced = sTrackMappings.get(mSyncedTracks.get(qtrackId)) != null;
       return uploaded && synced;
    }
 
    public boolean areTracksLoaded(Pair<Integer, Integer> item)
    {
-      return sBundlesWithTracks.containsKey(item.second) && item.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE;
+      return sBundlesWithTracks.get(item.second) != null && item.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE;
    }
 
    public boolean areTracksLoadingScheduled(Pair<Integer, Integer> item)
@@ -575,9 +573,9 @@ public class BreadcrumbsTracks extends Observable
             if (cache[0] instanceof Integer && CACHE_VERSION.equals(cache[0]))
             {
                bundlesPersisted = (Date) cache[1];
-               Map<Integer, List<Integer>> bundles = (Map<Integer, List<Integer>>) cache[2];
-               Map<Integer, Map<String, String>> bundlemappings = (Map<Integer, Map<String, String>>) cache[3];
-               Map<Integer, Map<String, String>> trackmappings = (Map<Integer, Map<String, String>>) cache[4];
+               SparseArray<List<Integer>> bundles = (SparseArray<List<Integer>>) cache[2];
+               SparseArray<Map<String, String>> bundlemappings = (SparseArray<Map<String, String>>) cache[3];
+               SparseArray<Map<String, String>> trackmappings = (SparseArray<Map<String, String>>) cache[4];
                sBundlesWithTracks = bundles != null ? bundles : sBundlesWithTracks;
                sBundleMappings = bundlemappings != null ? bundlemappings : sBundleMappings;
                sTrackMappings = trackmappings != null ? trackmappings : sTrackMappings;
@@ -594,7 +592,7 @@ public class BreadcrumbsTracks extends Observable
             if (cache[0] instanceof Integer && CACHE_VERSION.equals(cache[0]))
             {
                activitiesPersisted = (Date) cache[1];
-               Map<Integer, Map<String, String>> activitymappings = (Map<Integer, Map<String, String>>) cache[2];
+               SparseArray<Map<String, String>> activitymappings = (SparseArray<Map<String, String>>) cache[2];
                sActivityMappings = activitymappings != null ? activitymappings : sActivityMappings;
             }
             else

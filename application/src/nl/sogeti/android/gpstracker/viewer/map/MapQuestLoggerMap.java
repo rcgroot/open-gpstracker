@@ -12,12 +12,8 @@
  */
 package nl.sogeti.android.gpstracker.viewer.map;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
-import nl.sogeti.android.gpstracker.viewer.map.AsyncOverlay.SegmentMapQuestOverlay;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -25,7 +21,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,7 +31,6 @@ import com.google.android.maps.GeoPoint;
 import com.mapquest.android.maps.MapActivity;
 import com.mapquest.android.maps.MapView;
 import com.mapquest.android.maps.MyLocationOverlay;
-import com.mapquest.android.maps.Overlay;
 
 /**
  * ????
