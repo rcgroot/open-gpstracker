@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2010  Just Objects B.V.
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+
+        >
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#FF3333"
+            >
+
+        <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                     android:layout_width="fill_parent"
+                     android:layout_height="fill_parent"
+                     android:background="#ffffff"
+                     android:stretchColumns="*"
+                >
+
+            <TableRow android:layout_span="3">
+
+                <View
+                        android:visibility="invisible"
+                        android:layout_height="16px"
+                        android:layout_width="fill_parent"
+                        android:layout_weight="1"/>
+
+                />
+
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                        android:text="Speed"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+                <TextView
+                        android:text="Time"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+
+                <TextView
+                        android:text="Dist "
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                        android:id="@+id/currentSpeed"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textStyle="normal"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+                <TextView
+                        android:id="@+id/currentTime"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textStyle="normal"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+
+
+                <TextView
+                        android:id="@+id/totalDist"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textStyle="normal"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                        android:text="Points"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+                <TextView
+                        android:text="Accuracy"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        android:padding="4dip"/>
+                <TextView
+                        android:text="Rating"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        android:padding="4dip"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                        android:id="@+id/waypointCount"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textStyle="normal"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+
+                <TextView
+                        android:id="@+id/currentAccuracy"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textStyle="normal"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+                <TextView
+                        android:id="@+id/currentRoadRating"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textStyle="normal"
+                        android:textColor="#ff000000"
+                        android:gravity="center_horizontal"
+                        />
+            </TableRow>
+            <TableRow android:layout_span="3">
+
+                <View
+                        android:visibility="invisible"
+                        android:layout_height="16px"
+                        android:layout_width="fill_parent"
+                        android:layout_weight="1"/>
+
+                />
+            </TableRow>
+
+
+        </TableLayout>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            android:layout_weight="1.0"
+            android:background="#0000FF"
+            android:gravity="bottom"
+            >
+        <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                     android:layout_width="fill_parent"
+                     android:layout_height="fill_parent"
+                     android:background="#FFFFFF"
+                     android:stretchColumns="*"
+                >
+
+            <TableRow>
+                <TextView
+                        android:text=" "
+                        android:background="#808080"
+                        android:gravity="center_horizontal"
+                        android:layout_height="6sp"/>
+                <TextView
+                        android:text=" "
+                        android:background="#cc0099"
+                        android:gravity="center_horizontal"
+                        android:layout_height="6sp"/>
+                <TextView
+                        android:text=" "
+                        android:background="#ee0000"
+                        android:gravity="center_horizontal"
+                        android:layout_height="6sp"/>
+
+
+            </TableRow>
+            <TableRow
+                    android:layout_weight="1.0">
+
+                <Button android:id="@+id/road_qual_none"
+                        android:layout_height="fill_parent"
+                        android:textSize="20sp"
+                        android:background="#808080"
+                        android:text="None"/>
+
+                <Button android:id="@+id/road_qual_nogo"
+                        android:layout_height="fill_parent"
+                        android:textSize="20sp"
+                        android:background="#ffffff"
+                        android:text="Klune"/>
+
+                <Button android:id="@+id/road_qual_bad"
+                        android:layout_height="fill_parent"
+                        android:textSize="20sp"
+                        android:background="#ffffff"
+                        android:text="Bad "/>
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                        android:text=" "
+                        android:background="#ff6600"
+                        android:gravity="center_horizontal"
+                        android:layout_height="6sp"/>
+
+                <TextView
+                        android:text=" "
+                        android:background="#ffcc00"
+                        android:gravity="center_horizontal"
+                        android:layout_height="6sp"/>
+                <TextView
+                        android:text=" "
+                        android:background="#33cc33"
+                        android:gravity="center_horizontal"
+                        android:layout_height="6sp"/>
+            </TableRow>
+            <TableRow
+                    android:layout_weight="1.0">
+
+
+                <Button
+                        android:id="@+id/road_qual_poor"
+                        android:layout_height="fill_parent"
+                        android:textSize="20sp"
+                        android:background="#ffffff"
+                        android:text="Poor"/>
+
+                <Button
+                        android:id="@+id/road_qual_good"
+                        android:layout_height="fill_parent"
+                        android:textSize="20sp"
+                        android:background="#ffffff"
+                        android:text="Good"/>
+                <Button
+                        android:id="@+id/road_qual_best"
+                        android:layout_height="fill_parent"
+                        android:textSize="20sp"
+                        android:background="#ffffff"
+                        android:text="Best"/>
+            </TableRow>
+
+        </TableLayout>
+    </LinearLayout>
+</LinearLayout>
