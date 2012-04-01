@@ -12,10 +12,6 @@
 			<accessrule kind="nonaccessible" pattern="org/apache/http/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/httpclient"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/httpcore"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/httpmime"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/signpost-commonshttp4"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="lib" path="libs/mapquest-android-sdk-1.0.1.jar"/>
 	<classpathentry kind="lib" path="libs/osmdroid-android-3.0.7.jar"/>

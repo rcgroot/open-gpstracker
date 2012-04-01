@@ -25,27 +25,16 @@
 
 package org.apache.ogt.http.impl.auth;
 
-import java.io.IOException;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ogt.http.Header;
-import org.apache.ogt.http.HttpHost;
 import org.apache.ogt.http.HttpRequest;
 import org.apache.ogt.http.auth.AuthenticationException;
 import org.apache.ogt.http.auth.Credentials;
-import org.apache.ogt.http.auth.InvalidCredentialsException;
 import org.apache.ogt.http.auth.MalformedChallengeException;
-import org.apache.ogt.http.message.BasicHeader;
-import org.apache.ogt.http.protocol.ExecutionContext;
 import org.apache.ogt.http.protocol.HttpContext;
 import org.apache.ogt.http.util.CharArrayBuffer;
-import org.ietf.jgss.GSSContext;
-import org.ietf.jgss.GSSException;
-import org.ietf.jgss.GSSManager;
-import org.ietf.jgss.GSSName;
-import org.ietf.jgss.Oid;
 
 /**
  * SPNEGO (Simple and Protected GSSAPI Negotiation Mechanism) authentication
@@ -62,24 +51,10 @@ public class NegotiateScheme extends AuthSchemeBase {
         FAILED,
     }
 
-    private static final String SPNEGO_OID       = "1.3.6.1.5.5.2";
-    private static final String KERBEROS_OID     = "1.2.840.113554.1.2.2";
-
     private final Log log = LogFactory.getLog(getClass());
-
-    private final SpnegoTokenGenerator spengoGenerator;
-
-    private final boolean stripPort;
-
-    private GSSContext gssContext = null;
 
     /** Authentication process state */
     private State state;
-
-    /** base64 decoded challenge **/
-    private byte[] token;
-
-    private Oid negotiationOid = null;
 
     /**
      * Default constructor for the Negotiate authentication scheme.
@@ -88,8 +63,6 @@ public class NegotiateScheme extends AuthSchemeBase {
     public NegotiateScheme(final SpnegoTokenGenerator spengoGenerator, boolean stripPort) {
         super();
         this.state = State.UNINITIATED;
-        this.spengoGenerator = spengoGenerator;
-        this.stripPort = stripPort;
     }
 
     public NegotiateScheme(final SpnegoTokenGenerator spengoGenerator) {
@@ -127,10 +100,6 @@ public class NegotiateScheme extends AuthSchemeBase {
         return authenticate(credentials, request, null);
     }
 
-    protected GSSManager getManager() {
-        return GSSManager.getInstance();
-    }
-
     /**
      * Produces Negotiate authorization Header based on token created by
      * processChallenge.
@@ -156,117 +125,8 @@ public class NegotiateScheme extends AuthSchemeBase {
             throw new IllegalStateException(
                     "Negotiation authentication process has not been initiated");
         }
-        try {
-            String key = null;
-            if (isProxy()) {
-                key = ExecutionContext.HTTP_PROXY_HOST;
-            } else {
-                key = ExecutionContext.HTTP_TARGET_HOST;
-            }
-            HttpHost host = (HttpHost) context.getAttribute(key);
-            if (host == null) {
-                throw new AuthenticationException("Authentication host is not set " +
-                        "in the execution context");
-            }
-            String authServer;
-            if (!this.stripPort && host.getPort() > 0) {
-                authServer = host.toHostString();
-            } else {
-                authServer = host.getHostName();
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("init " + authServer);
-            }
-            /* Using the SPNEGO OID is the correct method.
-             * Kerberos v5 works for IIS but not JBoss. Unwrapping
-             * the initial token when using SPNEGO OID looks like what is
-             * described here...
-             *
-             * http://msdn.microsoft.com/en-us/library/ms995330.aspx
-             *
-             * Another helpful URL...
-             *
-             * http://publib.boulder.ibm.com/infocenter/wasinfo/v7r0/index.jsp?topic=/com.ibm.websphere.express.doc/info/exp/ae/tsec_SPNEGO_token.html
-             *
-             * Unfortunately SPNEGO is JRE >=1.6.
-             */
-
-            /** Try SPNEGO by default, fall back to Kerberos later if error */
-            negotiationOid  = new Oid(SPNEGO_OID);
-
-            boolean tryKerberos = false;
-            try {
-                GSSManager manager = getManager();
-                GSSName serverName = manager.createName("HTTP/" + authServer, null);
-                gssContext = manager.createContext(
-                        serverName.canonicalize(negotiationOid), negotiationOid, null,
-                        GSSContext.DEFAULT_LIFETIME);
-                gssContext.requestMutualAuth(true);
-                gssContext.requestCredDeleg(true);
-            } catch (GSSException ex){
-                // BAD MECH means we are likely to be using 1.5, fall back to Kerberos MECH.
-                // Rethrow any other exception.
-                if (ex.getMajor() == GSSException.BAD_MECH ){
-                    log.debug("GSSException BAD_MECH, retry with Kerberos MECH");
-                    tryKerberos = true;
-                } else {
-                    throw ex;
-                }
-
-            }
-            if (tryKerberos){
-                /* Kerberos v5 GSS-API mechanism defined in RFC 1964.*/
-                log.debug("Using Kerberos MECH " + KERBEROS_OID);
-                negotiationOid  = new Oid(KERBEROS_OID);
-                GSSManager manager = getManager();
-                GSSName serverName = manager.createName("HTTP/" + authServer, null);
-                gssContext = manager.createContext(
-                        serverName.canonicalize(negotiationOid), negotiationOid, null,
-                        GSSContext.DEFAULT_LIFETIME);
-                gssContext.requestMutualAuth(true);
-                gssContext.requestCredDeleg(true);
-            }
-            if (token == null) {
-                token = new byte[0];
-            }
-            token = gssContext.initSecContext(token, 0, token.length);
-            if (token == null) {
-                state = State.FAILED;
-                throw new AuthenticationException("GSS security context initialization failed");
-            }
-
-            /*
-             * IIS accepts Kerberos and SPNEGO tokens. Some other servers Jboss, Glassfish?
-             * seem to only accept SPNEGO. Below wraps Kerberos into SPNEGO token.
-             */
-            if (spengoGenerator != null && negotiationOid.toString().equals(KERBEROS_OID)) {
-                token = spengoGenerator.generateSpnegoDERObject(token);
-            }
-
-            state = State.TOKEN_GENERATED;
-            String tokenstr = new String(Base64.encodeBase64(token, false));
-            if (log.isDebugEnabled()) {
-                log.debug("Sending response '" + tokenstr + "' back to the auth server");
-            }
-            return new BasicHeader("Authorization", "Negotiate " + tokenstr);
-        } catch (GSSException gsse) {
-            state = State.FAILED;
-            if (gsse.getMajor() == GSSException.DEFECTIVE_CREDENTIAL
-                    || gsse.getMajor() == GSSException.CREDENTIALS_EXPIRED)
-                throw new InvalidCredentialsException(gsse.getMessage(), gsse);
-            if (gsse.getMajor() == GSSException.NO_CRED )
-                throw new InvalidCredentialsException(gsse.getMessage(), gsse);
-            if (gsse.getMajor() == GSSException.DEFECTIVE_TOKEN
-                    || gsse.getMajor() == GSSException.DUPLICATE_TOKEN
-                    || gsse.getMajor() == GSSException.OLD_TOKEN)
-                throw new AuthenticationException(gsse.getMessage(), gsse);
-            // other error
-            throw new AuthenticationException(gsse.getMessage());
-        } catch (IOException ex){
-            state = State.FAILED;
-            throw new AuthenticationException(ex.getMessage());
-        }
+        state = State.FAILED;
+        throw new AuthenticationException();
     }
 
 
@@ -315,13 +175,8 @@ public class NegotiateScheme extends AuthSchemeBase {
         if (log.isDebugEnabled()) {
             log.debug("Received challenge '" + challenge + "' from the auth server");
         }
-        if (state == State.UNINITIATED) {
-            token = new Base64().decode(challenge.getBytes());
-            state = State.CHALLENGE_RECEIVED;
-        } else {
-            log.debug("Authentication already attempted");
-            state = State.FAILED;
-        }
+        log.debug("Authentication already attempted");
+        state = State.FAILED;
     }
 
 }

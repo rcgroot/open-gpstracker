@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Only here to generate resource keys in clean clones
+     Create your own (git ignored) version in /values/donottranslate_private.xml
+     which contains keys used in your own branch
+ -->
 <resources>
     <string name="CONSUMER_KEY">unused</string>
     <string name="CONSUMER_SECRET">unused</string>
