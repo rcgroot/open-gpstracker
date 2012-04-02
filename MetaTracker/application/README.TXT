@@ -11,13 +11,13 @@ http://groups.google.com/group/geoskating . As all GeoSkaters are from The Nethe
 
 For now GeoSkating and its users are the main audience for the MetaTracker but one can envisage other specific
 applications that require extra (hence "meta") information to be added easily while recording a track. Think for example of
-adding scenery ratings ("green routes"), animal sightings, ... whatever.
+adding scenery ratings ("green routes"), animal sightings, ...whatever.
 
 AUTHOR
 The MetaTracker is developed by Just van den Broecke. His website is www.justobjects.nl
 
 CREDITS
-A big thanks to RenŽ de Groot, the main OGT author, for helping me out and providing this space !
+A big thanks to RenÂŽ de Groot, the main OGT author, for helping me out and providing this space !
 
 LICENSE
 MetaTracker is free source (GPLv3). See the file LICENSE for details.
