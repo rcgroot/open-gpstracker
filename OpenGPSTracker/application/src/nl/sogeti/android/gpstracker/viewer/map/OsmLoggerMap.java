@@ -402,7 +402,8 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    
    public void toPixels(GeoPoint geoPoint, Point screenPoint)
    {
-      mMapView.getProjection().toPixels( convertGeoPoint(geoPoint), screenPoint);
+      org.osmdroid.util.GeoPoint localGeopoint = convertGeoPoint(geoPoint);
+      mMapView.getProjection().toPixels( localGeopoint, screenPoint);
    }
 
    public boolean hasProjection()
