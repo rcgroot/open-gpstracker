@@ -15,6 +15,7 @@
   </buildSpec>
   <natures>
     <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>com.android.ide.eclipse.adt.AndroidNature</nature>
     <nature>org.maven.ide.eclipse.maven2Nature</nature>
   </natures>
 </projectDescription>

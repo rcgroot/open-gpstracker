@@ -2,9 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="lib/slf4j-android-1.5.8.jar"/>
-	<classpathentry kind="lib" path="lib/signpost-core-1.2.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/osmdroid-android-3.0.6.jar"/>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>
@@ -19,5 +16,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/httpcore"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/httpmime"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/signpost-commonshttp4"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/signpost-core"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
