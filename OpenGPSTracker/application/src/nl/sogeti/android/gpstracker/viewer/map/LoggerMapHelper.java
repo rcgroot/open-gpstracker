@@ -305,7 +305,7 @@ public class LoggerMapHelper
          }
          if( load.containsKey(INSTANCE_SPEED))
          {
-            mSpeed = load.getFloat(INSTANCE_HEIGHT);
+            mSpeed = load.getFloat(INSTANCE_SPEED);
          }
          if( load.containsKey(INSTANCE_ALTITUDE))
          {
