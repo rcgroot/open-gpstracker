@@ -50,7 +50,6 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
-import nl.sogeti.android.gpstracker.util.SerializableSparseArray;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -97,7 +96,7 @@ public class BreadcrumbsTracks extends Observable
 
    private static final String TAG = "OGT.BreadcrumbsTracks";
 
-   private static final Integer CACHE_VERSION = Integer.valueOf(5);
+   private static final Integer CACHE_VERSION = Integer.valueOf(8);
    private static final String BREADCRUMSB_BUNDLES_CACHE_FILE = "breadcrumbs_bundles_cache.data";
    private static final String BREADCRUMSB_ACTIVITY_CACHE_FILE = "breadcrumbs_activity_cache.data";
    /**
@@ -109,23 +108,23 @@ public class BreadcrumbsTracks extends Observable
    /**
     * Mapping from bundleId to a list of trackIds
     */
-   private static SerializableSparseArray<List<Integer>> sBundlesWithTracks;
+   private static HashMap<Integer, List<Integer>> sBundlesWithTracks;
    /**
     * Map from activityId to a dictionary containing keys like NAME
     */
-   private static SerializableSparseArray<Map<String, String>> sActivityMappings;
+   private static HashMap<Integer, Map<String, String>> sActivityMappings;
 
    /**
     * Map from bundleId to a dictionary containing keys like NAME and
     * DESCRIPTION
     */
-   private static SerializableSparseArray<Map<String, String>> sBundleMappings;
+   private static HashMap<Integer, Map<String, String>> sBundleMappings;
 
    /**
     * Map from trackId to a dictionary containing keys like NAME, ISPUBLIC,
     * DESCRIPTION and more
     */
-   private static SerializableSparseArray<Map<String, String>> sTrackMappings;
+   private static HashMap<Integer, Map<String, String>> sTrackMappings;
    /**
     * Cache of OGT Tracks that have a Breadcrumbs track id stored in the
     * meta-data table
@@ -141,10 +140,10 @@ public class BreadcrumbsTracks extends Observable
 
    private static void initCacheVariables()
    {
-      sBundlesWithTracks = new SerializableSparseArray<List<Integer>>();
-      sActivityMappings = new SerializableSparseArray<Map<String, String>>();
-      sBundleMappings = new SerializableSparseArray<Map<String, String>>();
-      sTrackMappings = new SerializableSparseArray<Map<String, String>>();
+      sBundlesWithTracks = new HashMap<Integer, List<Integer>>();
+      sActivityMappings = new HashMap<Integer, Map<String, String>>();
+      sBundleMappings = new HashMap<Integer, Map<String, String>>();
+      sTrackMappings = new HashMap<Integer, Map<String, String>>();
       sScheduledTracksLoading = new HashSet<Pair<Integer, Integer>>();
    }
 
@@ -276,16 +275,14 @@ public class BreadcrumbsTracks extends Observable
    /**
     * Cleans old bundles based a set of all bundles
     * 
-    * @param mBundleIds
+    * @param newBundleIds
     */
-   public void setAllBundleIds(Set<Integer> mBundleIds)
+   public void setAllBundleIds(Set<Integer> currentBundleIds)
    {
-
-      SerializableSparseArray<List<Integer>> oldBundles = sBundlesWithTracks.clone();
-      for (int index = 0; index < oldBundles.size(); index++)
+      Set<Integer> keySet = sBundlesWithTracks.keySet();
+      for (Integer oldBundleId : keySet)
       {
-         int oldBundleId = oldBundles.keyAt(index);
-         if (!mBundleIds.contains(oldBundleId))
+         if (!currentBundleIds.contains(oldBundleId))
          {
             removeBundle(oldBundleId);
          }
@@ -359,7 +356,7 @@ public class BreadcrumbsTracks extends Observable
       {
          // One row for the Bundle header
          size += 1;
-         List<Integer> trackIds = sBundlesWithTracks.valueAt(index);
+         List<Integer> trackIds = sBundlesWithTracks.get(index);
          int bundleSize = trackIds != null ? trackIds.size() : 0;
          // One row per track in each bundle
          size += bundleSize;
@@ -369,12 +366,12 @@ public class BreadcrumbsTracks extends Observable
 
    public Integer getBundleIdForTrackId(int trackId)
    {
-      for (int index = 0; index < sBundlesWithTracks.size(); index++)
+      for (Integer bundleId : sBundlesWithTracks.keySet())
       {
-         List<Integer> trackIds = sBundlesWithTracks.valueAt(index);
+         List<Integer> trackIds = sBundlesWithTracks.get(bundleId);
          if (trackIds.contains(trackId))
          {
-            return sBundlesWithTracks.keyAt(index);
+            return bundleId;
          }
       }
       return null;
@@ -387,9 +384,8 @@ public class BreadcrumbsTracks extends Observable
    public Pair<Integer, Integer> getItemForPosition(int position)
    {
       int countdown = position;
-      for (int index = 0; index < sBundlesWithTracks.size(); index++)
+      for (Integer bundleId : sBundlesWithTracks.keySet())
       {
-         int bundleId = sBundlesWithTracks.keyAt(index);
          if (countdown == 0)
          {
             return Pair.create(Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE, bundleId);
@@ -428,9 +424,8 @@ public class BreadcrumbsTracks extends Observable
    public SpinnerAdapter getActivityAdapter(Context ctx)
    {
       List<String> activities = new Vector<String>();
-      for (int index = 0; index < sActivityMappings.size(); index++)
+      for (Integer activityId : sActivityMappings.keySet())
       {
-         int activityId = sActivityMappings.keyAt(index);
          String name = sActivityMappings.get(activityId).get(NAME);
          name = name != null ? name : "";
          activities.add(name);
@@ -444,9 +439,8 @@ public class BreadcrumbsTracks extends Observable
    public SpinnerAdapter getBundleAdapter(Context ctx)
    {
       List<String> bundles = new Vector<String>();
-      for (int index = 0; index < sBundlesWithTracks.size(); index++)
+      for (Integer bundleId : sBundlesWithTracks.keySet())
       {
-         int bundleId = sBundlesWithTracks.keyAt(index);
          bundles.add(sBundleMappings.get(bundleId).get(NAME));
       }
       Collections.sort(bundles);
@@ -465,9 +459,8 @@ public class BreadcrumbsTracks extends Observable
       {
          return -1;
       }
-      for (int index = 0; index < sActivityMappings.size(); index++)
+      for (Integer activityId : sActivityMappings.keySet())
       {
-         int activityId = sActivityMappings.keyAt(index);
          Map<String, String> mapping = sActivityMappings.get(activityId);
          if (mapping != null && selectedItem.equals(mapping.get(NAME)))
          {
@@ -479,9 +472,8 @@ public class BreadcrumbsTracks extends Observable
 
    public static int getIdForBundle(int activityId, String selectedItem)
    {
-      for (int index = 0; index < sBundlesWithTracks.size(); index++)
+      for (Integer bundleId : sBundlesWithTracks.keySet())
       {
-         int bundleId = sBundlesWithTracks.keyAt(index);
          if (selectedItem.equals(sBundleMappings.get(bundleId).get(NAME)))
          {
             return bundleId;
@@ -535,7 +527,8 @@ public class BreadcrumbsTracks extends Observable
    public boolean isLocalTrackSynced(Long qtrackId)
    {
       boolean uploaded = isLocalTrackOnline(qtrackId);
-      boolean synced = sTrackMappings.get(mSyncedTracks.get(qtrackId)) != null;
+      Integer trackId = mSyncedTracks.get(qtrackId);
+      boolean synced = trackId != null && sTrackMappings.get(trackId) != null;
       return uploaded && synced;
    }
 
@@ -574,9 +567,9 @@ public class BreadcrumbsTracks extends Observable
             if (cache[0] instanceof Integer && CACHE_VERSION.equals(cache[0]))
             {
                bundlesPersisted = (Date) cache[1];
-               SerializableSparseArray<List<Integer>> bundles = (SerializableSparseArray<List<Integer>>) cache[2];
-               SerializableSparseArray<Map<String, String>> bundlemappings = (SerializableSparseArray<Map<String, String>>) cache[3];
-               SerializableSparseArray<Map<String, String>> trackmappings = (SerializableSparseArray<Map<String, String>>) cache[4];
+               HashMap<Integer, List<Integer>> bundles = (HashMap<Integer, List<Integer>>) cache[2];
+               HashMap<Integer, Map<String, String>> bundlemappings = (HashMap<Integer, Map<String, String>>) cache[3];
+               HashMap<Integer, Map<String, String>> trackmappings = (HashMap<Integer, Map<String, String>>) cache[4];
                sBundlesWithTracks = bundles != null ? bundles : sBundlesWithTracks;
                sBundleMappings = bundlemappings != null ? bundlemappings : sBundleMappings;
                sTrackMappings = trackmappings != null ? trackmappings : sTrackMappings;
@@ -593,7 +586,7 @@ public class BreadcrumbsTracks extends Observable
             if (cache[0] instanceof Integer && CACHE_VERSION.equals(cache[0]))
             {
                activitiesPersisted = (Date) cache[1];
-               SerializableSparseArray<Map<String, String>> activitymappings = (SerializableSparseArray<Map<String, String>>) cache[2];
+               HashMap<Integer, Map<String, String>> activitymappings = (HashMap<Integer, Map<String, String>>) cache[2];
                sActivityMappings = activitymappings != null ? activitymappings : sActivityMappings;
             }
             else
