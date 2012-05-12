@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import nl.sogeti.android.gpstracker.BuildConfig;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
@@ -63,6 +64,7 @@ import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.util.SparseArray;
@@ -281,9 +283,10 @@ public class SegmentRendering
             drawDots(canvas);
             break;
       }
+
       drawMedia(canvas);
       drawStartStopCircles(canvas);
-
+      
       mWidth = canvas.getWidth();
       mHeight = canvas.getHeight();
    }
@@ -492,6 +495,10 @@ public class SegmentRendering
 
    public synchronized void calculateMediaAsync()
    {
+      if (BuildConfig.DEBUG)
+      {
+         Log.d(TAG, "calculateMediaAsync()");
+      }
       mMediaPathCalculation.clear();
       if (mMediaCursor == null)
       {
@@ -651,12 +658,17 @@ public class SegmentRendering
 
    private void drawMedia(Canvas canvas)
    {
+      if (BuildConfig.DEBUG)
+      {
+         Log.d(TAG, "drawMedia()");
+      }
       synchronized (mMediaPath)
       {
          for (MediaVO mediaVO : mMediaPath)
          {
             if (mediaVO.bitmapKey != null)
             {
+               Log.d(TAG, "Draw bitmap at (" + mediaVO.x + ", " + mediaVO.y + ") on " + canvas);
                canvas.drawBitmap(sBitmapCache.get(mediaVO.bitmapKey), mediaVO.x, mediaVO.y, defaultPaint);
             }
          }
@@ -708,7 +720,7 @@ public class SegmentRendering
       int bitmapKey = drawable;
       synchronized (sBitmapCache)
       {
-         if (sBitmapCache.get(bitmapKey) != null)
+         if (sBitmapCache.get(bitmapKey) == null)
          {
             bitmap = BitmapFactory.decodeResource(resources, drawable);
             sBitmapCache.put(bitmapKey, bitmap);

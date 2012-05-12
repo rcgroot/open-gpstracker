@@ -50,6 +50,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
+import nl.sogeti.android.gpstracker.util.SerializableSparseArray;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -96,7 +97,7 @@ public class BreadcrumbsTracks extends Observable
 
    private static final String TAG = "OGT.BreadcrumbsTracks";
 
-   private static final Integer CACHE_VERSION = Integer.valueOf(4);
+   private static final Integer CACHE_VERSION = Integer.valueOf(5);
    private static final String BREADCRUMSB_BUNDLES_CACHE_FILE = "breadcrumbs_bundles_cache.data";
    private static final String BREADCRUMSB_ACTIVITY_CACHE_FILE = "breadcrumbs_activity_cache.data";
    /**
@@ -108,23 +109,23 @@ public class BreadcrumbsTracks extends Observable
    /**
     * Mapping from bundleId to a list of trackIds
     */
-   private static SparseArray<List<Integer>> sBundlesWithTracks;
+   private static SerializableSparseArray<List<Integer>> sBundlesWithTracks;
    /**
     * Map from activityId to a dictionary containing keys like NAME
     */
-   private static SparseArray<Map<String, String>> sActivityMappings;
+   private static SerializableSparseArray<Map<String, String>> sActivityMappings;
 
    /**
     * Map from bundleId to a dictionary containing keys like NAME and
     * DESCRIPTION
     */
-   private static SparseArray<Map<String, String>> sBundleMappings;
+   private static SerializableSparseArray<Map<String, String>> sBundleMappings;
 
    /**
     * Map from trackId to a dictionary containing keys like NAME, ISPUBLIC,
     * DESCRIPTION and more
     */
-   private static SparseArray<Map<String, String>> sTrackMappings;
+   private static SerializableSparseArray<Map<String, String>> sTrackMappings;
    /**
     * Cache of OGT Tracks that have a Breadcrumbs track id stored in the
     * meta-data table
@@ -140,10 +141,10 @@ public class BreadcrumbsTracks extends Observable
 
    private static void initCacheVariables()
    {
-      sBundlesWithTracks = new SparseArray<List<Integer>>();
-      sActivityMappings = new SparseArray<Map<String, String>>();
-      sBundleMappings = new SparseArray<Map<String, String>>();
-      sTrackMappings = new SparseArray<Map<String, String>>();
+      sBundlesWithTracks = new SerializableSparseArray<List<Integer>>();
+      sActivityMappings = new SerializableSparseArray<Map<String, String>>();
+      sBundleMappings = new SerializableSparseArray<Map<String, String>>();
+      sTrackMappings = new SerializableSparseArray<Map<String, String>>();
       sScheduledTracksLoading = new HashSet<Pair<Integer, Integer>>();
    }
 
@@ -280,7 +281,7 @@ public class BreadcrumbsTracks extends Observable
    public void setAllBundleIds(Set<Integer> mBundleIds)
    {
 
-      SparseArray<List<Integer>> oldBundles = sBundlesWithTracks.clone();
+      SerializableSparseArray<List<Integer>> oldBundles = sBundlesWithTracks.clone();
       for (int index = 0; index < oldBundles.size(); index++)
       {
          int oldBundleId = oldBundles.keyAt(index);
@@ -573,9 +574,9 @@ public class BreadcrumbsTracks extends Observable
             if (cache[0] instanceof Integer && CACHE_VERSION.equals(cache[0]))
             {
                bundlesPersisted = (Date) cache[1];
-               SparseArray<List<Integer>> bundles = (SparseArray<List<Integer>>) cache[2];
-               SparseArray<Map<String, String>> bundlemappings = (SparseArray<Map<String, String>>) cache[3];
-               SparseArray<Map<String, String>> trackmappings = (SparseArray<Map<String, String>>) cache[4];
+               SerializableSparseArray<List<Integer>> bundles = (SerializableSparseArray<List<Integer>>) cache[2];
+               SerializableSparseArray<Map<String, String>> bundlemappings = (SerializableSparseArray<Map<String, String>>) cache[3];
+               SerializableSparseArray<Map<String, String>> trackmappings = (SerializableSparseArray<Map<String, String>>) cache[4];
                sBundlesWithTracks = bundles != null ? bundles : sBundlesWithTracks;
                sBundleMappings = bundlemappings != null ? bundlemappings : sBundleMappings;
                sTrackMappings = trackmappings != null ? trackmappings : sTrackMappings;
@@ -592,7 +593,7 @@ public class BreadcrumbsTracks extends Observable
             if (cache[0] instanceof Integer && CACHE_VERSION.equals(cache[0]))
             {
                activitiesPersisted = (Date) cache[1];
-               SparseArray<Map<String, String>> activitymappings = (SparseArray<Map<String, String>>) cache[2];
+               SerializableSparseArray<Map<String, String>> activitymappings = (SerializableSparseArray<Map<String, String>>) cache[2];
                sActivityMappings = activitymappings != null ? activitymappings : sActivityMappings;
             }
             else
