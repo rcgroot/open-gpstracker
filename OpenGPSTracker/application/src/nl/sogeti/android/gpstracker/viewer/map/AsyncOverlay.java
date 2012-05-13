@@ -41,8 +41,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
 
    private Bitmap mCalculationBitmap;
 
-   private Canvas mCalculationCanvas;
-
    private Paint mPaint;
 
    private LoggerMap mLoggerMap;
@@ -61,15 +59,15 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
          mCalculationBitmap.eraseColor(Color.TRANSPARENT);
          mGeoTopLeft = mLoggerMap.fromPixels(0, 0);
          mGeoBottumRight = mLoggerMap.fromPixels(mWidth, mHeight);
-         Log.d(TAG, "redrawOffscreen() to " + mCalculationBitmap);
-         redrawOffscreen(mCalculationCanvas, mLoggerMap);
+         Canvas calculationCanvas = new Canvas(mCalculationBitmap);
+         Log.d(TAG, "redrawOffscreen() to (" +calculationCanvas.getWidth()+","+calculationCanvas.getHeight()+")");
+         redrawOffscreen(calculationCanvas, mLoggerMap);
          synchronized (mActiveBitmap)
          {
             Bitmap oldActiveBitmap = mActiveBitmap;
             mActiveBitmap = mCalculationBitmap;
             mActiveTopLeft = mGeoTopLeft;
             mCalculationBitmap = oldActiveBitmap;
-            mCalculationCanvas.setBitmap(mCalculationBitmap);
             Log.d(TAG, "Switched bitmaps to " + mActiveBitmap);
          }
          Log.d(TAG, "Ran the mBitmapUpdater: mLoggerMap.postInvalidate()");
@@ -91,7 +89,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
       mActiveTopLeft = new GeoPoint(0, 0);
       mActivePointTopLeft = new Point();
       mCalculationBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
-      mCalculationCanvas = new Canvas(mCalculationBitmap);
 
       mOsmOverlay = new SegmentOsmOverlay(mLoggerMap.getActivity(), mLoggerMap, this);
       mMapQuestOverlay = new SegmentMapQuestOverlay(this);
@@ -102,7 +99,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
       synchronized (mActiveBitmap)
       {
          mCalculationBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-         mCalculationCanvas = new Canvas(mCalculationBitmap);
          mActiveBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
       }
    }
@@ -117,7 +113,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
       if (mCalculationBitmap.getWidth() != mWidth || mCalculationBitmap.getHeight() != mHeight)
       {
          mCalculationBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
-         mCalculationCanvas.setBitmap(mCalculationBitmap);
          needNewCalculation = true;
       }
 
@@ -179,7 +174,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
             mLoggerMap.toPixels(mActiveTopLeft, mActivePointTopLeft);
             canvas.drawBitmap(mActiveBitmap, mActivePointTopLeft.x, mActivePointTopLeft.y, mPaint);
 
-            Log.d(TAG, "Did draw " + mActiveBitmap + " based on "+mActiveTopLeft+ " on point "+mActivePointTopLeft);
+            Log.d(TAG, "Did draw (" + mActiveBitmap.getWidth() +","+mActiveBitmap.getHeight() + ") bitmap based on "+mActiveTopLeft+ " on point "+mActivePointTopLeft);
          }
       }
    }

@@ -19,6 +19,6 @@
 		android:targetPackage="nl.sogeti.android.gpstracker">
 	</instrumentation>
 	
-	<uses-sdk android:minSdkVersion="4"></uses-sdk>
+	<uses-sdk android:minSdkVersion="7"></uses-sdk>
 
 </manifest>
