@@ -1,7 +1,9 @@
-package nl.sogeti.android.gpstracker.viewer.map;
+package nl.sogeti.android.gpstracker.viewer.map.overlay;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import nl.sogeti.android.gpstracker.viewer.map.LoggerMap;
 
 import android.graphics.Canvas;
 import android.os.Handler;
@@ -12,11 +14,11 @@ import com.google.android.maps.GeoPoint;
 public class BitmapSegmentsOverlay extends AsyncOverlay
 {
    private static final String TAG = "GG.BitmapSegmentsOverlay";
-   
+
    List<SegmentRendering> mOverlays;
    Handler mOverlayHandler;
-   
-   BitmapSegmentsOverlay(LoggerMap loggermap, Handler handler)
+
+   public BitmapSegmentsOverlay(LoggerMap loggermap, Handler handler)
    {
       super(loggermap, handler);
       mOverlays = new LinkedList<SegmentRendering>();
@@ -26,20 +28,20 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
    @Override
    synchronized protected void redrawOffscreen(Canvas asyncBuffer, LoggerMap loggermap)
    {
-      for( SegmentRendering segment : mOverlays)
+      for (SegmentRendering segment : mOverlays)
       {
          segment.draw(asyncBuffer);
       }
    }
-   
-   @Override 
-   synchronized protected void scheduleRecalculation()
+
+   @Override
+   public synchronized void scheduleRecalculation()
    {
-      Log.d( TAG, "scheduleRecalculation()");
-      for( SegmentRendering segment : mOverlays)
+      Log.d(TAG, "scheduleRecalculation()");
+      for (SegmentRendering segment : mOverlays)
       {
          segment.calculateMedia();
-         segment.calculateTrack(); 
+         segment.calculateTrack();
       }
    }
 
@@ -47,9 +49,9 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
    synchronized protected boolean commonOnTap(GeoPoint tappedGeoPoint)
    {
       boolean handled = false;
-      for( SegmentRendering segment : mOverlays)
+      for (SegmentRendering segment : mOverlays)
       {
-         if( !handled )
+         if (!handled)
          {
             handled = segment.commonOnTap(tappedGeoPoint);
          }
@@ -59,15 +61,15 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
 
    synchronized public void addSegment(SegmentRendering segment)
    {
-      Log.d( TAG, "addSegment(SegmentRendering segment)");
+      Log.d(TAG, "addSegment(SegmentRendering segment)");
       segment.setBitmapHolder(this);
       mOverlays.add(segment);
    }
-   
+
    synchronized public void clearSegments()
    {
-      Log.d( TAG, "clearSegments()");
-      for( SegmentRendering segment : mOverlays)
+      Log.d(TAG, "clearSegments()");
+      for (SegmentRendering segment : mOverlays)
       {
          segment.closeResources();
       }
@@ -77,8 +79,8 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
 
    synchronized public void setTrackColoringMethod(int color, double speed, double height)
    {
-      Log.d( TAG, "setTrackColoringMethod(int color, double speed, double height)");
-      for( SegmentRendering segment : mOverlays)
+      Log.d(TAG, "setTrackColoringMethod(int color, double speed, double height)");
+      for (SegmentRendering segment : mOverlays)
       {
          segment.setTrackColoringMethod(color, speed, height);
       }

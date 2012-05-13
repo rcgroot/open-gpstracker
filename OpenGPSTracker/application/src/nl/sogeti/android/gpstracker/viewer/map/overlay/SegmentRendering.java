@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.viewer.map;
+package nl.sogeti.android.gpstracker.viewer.map.overlay;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -41,6 +41,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import nl.sogeti.android.gpstracker.viewer.map.LoggerMap;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -283,9 +284,8 @@ public class SegmentRendering
             drawDots(canvas);
             break;
       }
-
-      drawMedia(canvas);
       drawStartStopCircles(canvas);
+      drawMedia(canvas);
       
       mWidth = canvas.getWidth();
       mHeight = canvas.getHeight();
@@ -1275,11 +1275,11 @@ public class SegmentRendering
 
       Point tappedPoint = new Point();
       mLoggerMap.toPixels(tappedGeoPoint, tappedPoint);
+      Log.d( TAG, String.format( "Tapped at a (x,y) (%d,%d)", tappedPoint.x, tappedPoint.y ) );
       for (MediaVO media : mMediaPath)
       {
          if (media.x < tappedPoint.x && tappedPoint.x < media.x + media.w && media.y < tappedPoint.y && tappedPoint.y < media.y + media.h)
          {
-            //Log.d( TAG, String.format( "Tapped at a (x,y) (%d,%d)", tappedPoint.x, tappedPoint.y ) );
             tappedUri.add(media.uri);
          }
       }

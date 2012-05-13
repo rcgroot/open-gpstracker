@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.viewer.map;
+package nl.sogeti.android.gpstracker.viewer.map.overlay;
 
 import com.mapquest.android.maps.Overlay;
 

@@ -34,6 +34,8 @@ import java.util.List;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
+import nl.sogeti.android.gpstracker.viewer.map.overlay.FixedMyLocationOverlay;
+import nl.sogeti.android.gpstracker.viewer.map.overlay.OverlayProvider;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;

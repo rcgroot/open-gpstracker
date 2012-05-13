@@ -15,6 +15,7 @@ package nl.sogeti.android.gpstracker.viewer.map;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
+import nl.sogeti.android.gpstracker.viewer.map.overlay.OverlayProvider;
 
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;

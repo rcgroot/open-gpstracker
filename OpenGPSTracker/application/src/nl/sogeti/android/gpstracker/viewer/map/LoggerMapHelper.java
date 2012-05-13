@@ -30,6 +30,8 @@ import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.About;
 import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
+import nl.sogeti.android.gpstracker.viewer.map.overlay.BitmapSegmentsOverlay;
+import nl.sogeti.android.gpstracker.viewer.map.overlay.SegmentRendering;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;

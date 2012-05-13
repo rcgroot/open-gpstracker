@@ -1,7 +1,7 @@
 package nl.sogeti.android.gpstracker.tests.userinterface;
 
 import junit.framework.Assert;
-import nl.sogeti.android.gpstracker.viewer.map.SegmentRendering;
+import nl.sogeti.android.gpstracker.viewer.map.overlay.SegmentRendering;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 

@@ -1,5 +1,6 @@
-package nl.sogeti.android.gpstracker.viewer.map;
+package nl.sogeti.android.gpstracker.viewer.map.overlay;
 
+import nl.sogeti.android.gpstracker.viewer.map.LoggerMap;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -184,6 +185,12 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
       return point.x < 0 || point.y < 0 || point.x > mWidth || point.y > mHeight;
    }
 
+   @Override
+   public boolean onTap(GeoPoint tappedGeoPoint, MapView mapview)
+   {
+      return commonOnTap(tappedGeoPoint);
+   }
+   
    /**************************************/
    /** Multi map support **/
    /**************************************/
