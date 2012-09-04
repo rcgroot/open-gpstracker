@@ -21,7 +21,9 @@ import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.MyLocationOverlay;
+import org.osmdroid.views.overlay.Overlay;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -29,12 +31,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -48,6 +52,7 @@ import com.google.android.maps.GeoPoint;
  */
 public class OsmLoggerMap extends Activity implements LoggerMap
 {
+   protected static final String TAG = "OsmLoggerMap";
    LoggerMapHelper mHelper;
    private MapView mMapView;
    private TextView[] mSpeedtexts;
@@ -55,6 +60,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    private TextView mLastGPSAltitudeView;
    private TextView mDistanceView;
    private MyLocationOverlay mMylocation;
+   private Projection mProjecton;
    
    /**
     * Called when the activity is first created.
@@ -66,18 +72,32 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       setContentView(R.layout.map_osm);
       
       mMapView = (MapView) findViewById(R.id.myMapView);
-      mHelper = new LoggerMapHelper(this);
-      mMapView = (MapView) findViewById(R.id.myMapView);
-      mMylocation = new MyLocationOverlay(this, mMapView);
-      mMapView.setBuiltInZoomControls(true);
       TextView[] speeds = { (TextView) findViewById(R.id.speedview05), (TextView) findViewById(R.id.speedview04), (TextView) findViewById(R.id.speedview03),
             (TextView) findViewById(R.id.speedview02), (TextView) findViewById(R.id.speedview01), (TextView) findViewById(R.id.speedview00) };
       mSpeedtexts = speeds;
       mLastGPSSpeedView = (TextView) findViewById(R.id.currentSpeed);
       mLastGPSAltitudeView = (TextView) findViewById(R.id.currentAltitude);
       mDistanceView = (TextView) findViewById(R.id.currentDistance);
-      
+
+      mHelper = new LoggerMapHelper(this);
+      mMapView.setBuiltInZoomControls(true);
+      mProjecton = mMapView.getProjection();
       mHelper.onCreate(load);
+      
+      mMylocation = new MyLocationOverlay(this, mMapView);
+      mMapView.getOverlays().add( new Overlay(this)
+      {
+         
+         @Override
+         protected void draw(Canvas arg0, MapView map, boolean arg2)
+         {
+            Projection projecton = map.getProjection();
+            mProjecton = projecton;
+            IGeoPoint gepoint = map.getMapCenter();
+            Point point = projecton.toPixels(gepoint, null);
+            Log.d(TAG, "Found center ("+gepoint.getLatitudeE6()+","+gepoint.getLongitudeE6()+") matching screen point ("+point.x+","+point.y+") ");
+         }
+      } );
    }
    
    @Override
@@ -300,7 +320,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    public boolean isOutsideScreen(GeoPoint lastPoint)
    {
       Point out = new Point();
-      this.mMapView.getProjection().toPixels(convertGeoPoint(lastPoint), out);
+      mProjecton.toMapPixels(convertGeoPoint(lastPoint), out);
       int height = this.mMapView.getHeight();
       int width = this.mMapView.getWidth();
       return (out.x < 0 || out.y < 0 || out.y > height || out.x > width);
@@ -309,7 +329,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    public boolean isNearScreenEdge(GeoPoint lastPoint)
    {
       Point out = new Point();
-      this.mMapView.getProjection().toPixels(convertGeoPoint(lastPoint), out);
+      mProjecton.toMapPixels(convertGeoPoint(lastPoint), out);
       int height = this.mMapView.getHeight();
       int width = this.mMapView.getWidth();
       return (out.x < width / 4 || out.y < height / 4 || out.x > (width / 4) * 3 || out.y > (height / 4) * 3);
@@ -396,7 +416,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
 
    public GeoPoint fromPixels(int x, int y)
    {
-      IGeoPoint osmGeopoint = mMapView.getProjection().fromPixels(x, y);
+      IGeoPoint osmGeopoint = mProjecton.fromPixels(x, y);
       GeoPoint geopoint = convertOSMGeoPoint(osmGeopoint);
       return geopoint;
    }
@@ -404,17 +424,17 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    public void toPixels(GeoPoint geoPoint, Point screenPoint)
    {
       org.osmdroid.util.GeoPoint localGeopoint = convertGeoPoint(geoPoint);
-      mMapView.getProjection().toPixels( localGeopoint, screenPoint);
+      mProjecton.toMapPixels( localGeopoint, screenPoint);
    }
 
    public boolean hasProjection()
    {
-      return mMapView.getProjection() != null;
+      return mProjecton != null;
    }
 
    public float metersToEquatorPixels(float float1)
    {
-      return mMapView.getProjection().metersToEquatorPixels(float1);
+      return mProjecton.metersToEquatorPixels(float1);
    }
 
    public TextView[] getSpeedTextViews()
