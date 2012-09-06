@@ -110,8 +110,8 @@
             android:name=".actions.InsertNote"/>
 
          <activity
-            android:label="@string/track_list" 
             android:name=".viewer.TrackList"
+            android:label="@string/track_list" 
             android:launchMode="singleTop" >
             <intent-filter>
                <action android:name="android.intent.action.SEARCH" />
@@ -153,8 +153,9 @@
         </activity> 
 
          <activity
-            android:label="@string/share_track"
             android:name=".actions.ShareTrack" 
+            android:label="@string/share_track"
+            android:exported="false"
             android:windowSoftInputMode="stateUnchanged" >
             <intent-filter>
                <action android:name="android.intent.action.RUN" />
@@ -165,6 +166,7 @@
          
 		<activity 
 		    android:name=".oauth.PrepareRequestTokenActivity"
+            android:exported="false"
             android:theme="@android:style/Theme.Dialog"
             android:label="@string/authentication_redirect"
 			android:launchMode="singleTask">
@@ -175,12 +177,10 @@
 				<data android:scheme="x-oauthflow-opengpstracker" android:host="callback" />
 			</intent-filter>
 		</activity>
-
-
          
 		<service 
-		      android:enabled="true" 
 		      android:name=".logger.GPSLoggerService"
+              android:enabled="true" 
 		      android:permission="android.permission.ACCESS_FINE_LOCATION">
 			<intent-filter android:label="GPS logger">
 				<action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
@@ -192,6 +192,7 @@
             android:authorities="nl.sogeti.android.gpstracker"
             android:permission="android.permission.ACCESS_FINE_LOCATION"
 			android:name=".db.GPStrackingProvider" >
+            <grant-uri-permission android:pathPrefix="/tracks/" />
             <path-permission android:path="/search_suggest_query"
                 android:readPermission="android.permission.GLOBAL_SEARCH" />
             <path-permission android:path="/live_folders/tracks"
@@ -199,14 +200,19 @@
 		</provider>
          
          <!--  This is used to auto start the application at boot -->
-         <receiver android:name=".util.BootReceiver">
+         <receiver 
+             android:name=".util.BootReceiver"
+             android:exported="false">
+             
          	<intent-filter>
 	        	<action android:name="android.intent.action.BOOT_COMPLETED" />
 	        </intent-filter>
 	     </receiver>
 	    
          <!--  This is used to auto start the application at boot -->
-         <receiver android:name=".util.DockReceiver">
+         <receiver 
+             android:name=".util.DockReceiver"
+             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.DOCK_EVENT" />
             </intent-filter>
@@ -214,7 +220,8 @@
        
 	    <!-- This receiver defines the app widget and the broadcasts it receives -->
         <receiver 
-	     	android:name=".widget.ControlWidgetProvider" 
+	     	android:name=".widget.ControlWidgetProvider"
+            android:exported="false"
 	     	android:label="Logger control">
     		<intent-filter>
         		<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
