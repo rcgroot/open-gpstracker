@@ -105,7 +105,7 @@ public class TrackList extends ListActivity implements ProgressListener
 
    private BreadcrumbsAdapter mBreadcrumbAdapter;
    private EditText mTrackNameView;
-   private Uri mDialogUri;
+   private Uri mDialogTrackUri;
    private String mDialogCurrentName = "";
    private String mErrorDialogMessage;
    private Exception mErrorDialogException;
@@ -116,7 +116,7 @@ public class TrackList extends ListActivity implements ProgressListener
    {
       public void onClick(DialogInterface dialog, int which)
       {
-         getContentResolver().delete(mDialogUri, null, null);
+         getContentResolver().delete(mDialogTrackUri, null, null);
       }
    };
    private OnClickListener mRenameOnClickListener = new DialogInterface.OnClickListener()
@@ -128,7 +128,7 @@ public class TrackList extends ListActivity implements ProgressListener
          String trackName = mTrackNameView.getText().toString();
          ContentValues values = new ContentValues();
          values.put(Tracks.NAME, trackName);
-         TrackList.this.getContentResolver().update(mDialogUri, values, null, null);
+         TrackList.this.getContentResolver().update(mDialogTrackUri, values, null, null);
       }
    };
    private OnClickListener mVacuumOnClickListener = new DialogInterface.OnClickListener()
@@ -239,7 +239,7 @@ public class TrackList extends ListActivity implements ProgressListener
    protected void onRestoreInstanceState(Bundle state)
    {
       super.onRestoreInstanceState(state);
-      mDialogUri = state.getParcelable("URI");
+      mDialogTrackUri = state.getParcelable("URI");
       mDialogCurrentName = state.getString("NAME");
       mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
       getListView().setSelection(state.getInt("POSITION"));
@@ -253,7 +253,7 @@ public class TrackList extends ListActivity implements ProgressListener
    protected void onSaveInstanceState(Bundle outState)
    {
       super.onSaveInstanceState(outState);
-      outState.putParcelable("URI", mDialogUri);
+      outState.putParcelable("URI", mDialogTrackUri);
       outState.putString("NAME", mDialogCurrentName);
       outState.putInt("POSITION",getListView().getFirstVisiblePosition());
    }
@@ -400,7 +400,7 @@ public class TrackList extends ListActivity implements ProgressListener
       if( listItem instanceof Cursor)
       {
          Cursor cursor = (Cursor) listItem;
-         mDialogUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, cursor.getLong(0));
+         mDialogTrackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, cursor.getLong(0));
          mDialogCurrentName = cursor.getString(1);
          mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
          switch (item.getItemId())
@@ -414,7 +414,7 @@ public class TrackList extends ListActivity implements ProgressListener
             case MENU_SHARE:
             {
                Intent actionIntent = new Intent(Intent.ACTION_RUN);
-               actionIntent.setDataAndType(mDialogUri, Tracks.CONTENT_ITEM_TYPE);
+               actionIntent.setDataAndType(mDialogTrackUri, Tracks.CONTENT_ITEM_TYPE);
                actionIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                startActivity(Intent.createChooser(actionIntent, getString(R.string.share_track)));
                handled = true;
@@ -429,7 +429,7 @@ public class TrackList extends ListActivity implements ProgressListener
             case MENU_STATS:
             {
                Intent actionIntent = new Intent(this, Statistics.class);
-               actionIntent.setData(mDialogUri);
+               actionIntent.setData(mDialogTrackUri);
                startActivity(actionIntent);
                handled = true;
                break;
