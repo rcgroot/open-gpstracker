@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.Executor;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
@@ -55,6 +56,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 import android.view.Window;
 
@@ -95,6 +97,18 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       mContext = context;
       mProgressListener = progressListener;
       mContentResolver = mContext.getContentResolver();
+   }
+   
+   public void executeOn(Executor executor)
+   {
+      if (Build.VERSION.SDK_INT >= 11)
+      {
+         executeOn(executor);
+      }
+      else
+      {
+         execute();
+      }
    }
    
    public void determineProgressGoal(Uri importFileUri)

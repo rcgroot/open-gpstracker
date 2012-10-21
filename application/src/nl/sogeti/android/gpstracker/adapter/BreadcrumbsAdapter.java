@@ -54,7 +54,7 @@ public class BreadcrumbsAdapter extends BaseAdapter
 {
    private static final String TAG = "OGT.BreadcrumbsAdapter";
 
-   public static final boolean DEBUG = true;
+   public static final boolean DEBUG = false;
 
    private Activity mContext;
    private LayoutInflater mInflater;
@@ -248,5 +248,4 @@ public class BreadcrumbsAdapter extends BaseAdapter
       int itemViewType = getItemViewType(position);
       return itemViewType == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE || itemViewType == Constants.BREADCRUMBS_CONNECT_ITEM_VIEW_TYPE;
    }
-   
 }

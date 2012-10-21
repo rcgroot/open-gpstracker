@@ -42,6 +42,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -69,7 +70,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    public static final int PROGRESS_STARTED = 1;
    public static final int PROGRESS_FINISHED = 2;
    public static final int PROGRESS_ERROR = 3;
-   
+
    private final IBinder mBinder = new LocalBinder();
 
    private BreadcrumbsTracks mTracks;
@@ -78,7 +79,6 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    private boolean mFinishing;
    boolean mAuthorized;
    ExecutorService mExecutor;
-   
 
    @Override
    public void onCreate()
@@ -110,6 +110,18 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
       mFinishing = true;
       new AsyncTask<Void, Void, Void>()
          {
+            public void executeOn(Executor executor)
+            {
+               if (Build.VERSION.SDK_INT >= 11)
+               {
+                  executeOn(executor);
+               }
+               else
+               {
+                  execute();
+               }
+            }
+
             @Override
             protected Void doInBackground(Void... params)
             {
@@ -118,7 +130,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
                mHttpClient = null;
                return null;
             }
-         }.executeOnExecutor(mExecutor);
+         }.executeOn(mExecutor);
       mTracks.persistCache(this);
 
       super.onDestroy();
@@ -142,7 +154,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    public IBinder onBind(Intent intent)
    {
       Log.d(TAG, "Binding to BreadcrumbsService");
-   
+
       return mBinder;
    }
 
@@ -157,8 +169,8 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
          CommonsHttpOAuthConsumer consumer = getOAuthConsumer();
          if (mTracks.readCache(this))
          {
-            new GetBreadcrumbsActivitiesTask(this, this, this, mHttpClient, consumer).executeOnExecutor(mExecutor);
-            new GetBreadcrumbsBundlesTask(this, this, this, mHttpClient, consumer).executeOnExecutor(mExecutor);
+            new GetBreadcrumbsActivitiesTask(this, this, this, mHttpClient, consumer).executeOn(mExecutor);
+            new GetBreadcrumbsBundlesTask(this, this, this, mHttpClient, consumer).executeOn(mExecutor);
          }
       }
       return mAuthorized;
@@ -221,12 +233,12 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
 
    public void startDownloadTask(Context context, ProgressListener listener, Pair<Integer, Integer> track)
    {
-      new DownloadBreadcrumbsTrackTask(context, listener, this, mHttpClient, getOAuthConsumer(), track).executeOnExecutor(mExecutor);
+      new DownloadBreadcrumbsTrackTask(context, listener, this, mHttpClient, getOAuthConsumer(), track).executeOn(mExecutor);
    }
 
    public void startUploadTask(Context context, ProgressListener listener, Uri trackUri, String name)
    {
-      new UploadBreadcrumbsTrackTask(context, this, listener, mHttpClient, getOAuthConsumer(), trackUri, name).executeOnExecutor(mExecutor);
+      new UploadBreadcrumbsTrackTask(context, this, listener, mHttpClient, getOAuthConsumer(), trackUri, name).executeOn(mExecutor);
    }
 
    public boolean isAuthorized()
@@ -240,7 +252,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
       {
          if (!mFinishing && !mTracks.areTracksLoaded(item) && !mTracks.areTracksLoadingScheduled(item))
          {
-            new GetBreadcrumbsTracksTask(this, this, this, mHttpClient, getOAuthConsumer(), item.second).executeOnExecutor(mExecutor);
+            new GetBreadcrumbsTracksTask(this, this, this, mHttpClient, getOAuthConsumer(), item.second).executeOn(mExecutor);
             mTracks.addTracksLoadingScheduled(item);
          }
       }
@@ -249,10 +261,10 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    public List<Pair<Integer, Integer>> getAllItems()
    {
       List<Pair<Integer, Integer>> items = mTracks.getAllItems();
-   
+
       return items;
    }
-   
+
    public List<Pair<Integer, Integer>> getActivityList()
    {
       List<Pair<Integer, Integer>> activities = mTracks.getActivityList();
@@ -262,7 +274,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    public List<Pair<Integer, Integer>> getBundleList()
    {
       List<Pair<Integer, Integer>> bundles = mTracks.getBundleList();
-      
+
       return bundles;
    }
 
@@ -285,7 +297,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    {
       return mTracks.isLocalTrackSynced(trackId);
    }
-   
+
    /****
     * Observer interface
     */
@@ -301,7 +313,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    /****
     * ProgressListener interface
     */
-   
+
    @Override
    public void setIndeterminate(boolean indeterminate)
    {

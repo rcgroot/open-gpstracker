@@ -42,6 +42,7 @@ import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.util.Date;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.Executor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -58,6 +59,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Window;
@@ -95,6 +97,18 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       
       String trackName = extractCleanTrackName();
       mFileName = cleanFilename(mChosenName, trackName);
+   }
+   
+   public void executeOn(Executor executor)
+   {
+      if (Build.VERSION.SDK_INT >= 11)
+      {
+         executeOn(executor);
+      }
+      else
+      {
+         execute();
+      }
    }
 
    private String extractCleanTrackName()

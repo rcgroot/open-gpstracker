@@ -28,9 +28,12 @@
  */
 package nl.sogeti.android.gpstracker.breadcrumbs;
 
+import java.util.concurrent.Executor;
+
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 /**
@@ -60,10 +63,22 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
       mService = adapter;
    }
 
+   public void executeOn(Executor executor)
+   {
+      if (Build.VERSION.SDK_INT >= 11)
+      {
+         executeOn(executor);
+      }
+      else
+      {
+         execute();
+      }
+   }
+
    protected void handleError(String task, Exception e, String text)
    {
       Log.e(TAG, "Received error will cancel background task " + this.getClass().getName(), e);
-      
+
       mService.removeAuthentication();
       mTask = task;
       mException = e;
@@ -74,7 +89,7 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    @Override
    protected void onPreExecute()
    {
-      if( mListener != null )
+      if (mListener != null)
       {
          mListener.setIndeterminate(true);
          mListener.started();
@@ -85,7 +100,7 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    protected void onPostExecute(Void result)
    {
       this.updateTracksData(mService.getBreadcrumbsTracks());
-      if( mListener != null )
+      if (mListener != null)
       {
          mListener.finished(null);
       }
@@ -96,7 +111,7 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    @Override
    protected void onCancelled()
    {
-      if( mListener != null )
+      if (mListener != null)
       {
          mListener.finished(null);
       }
