@@ -155,6 +155,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    
    private final Runnable mMediaCalculator = new Runnable()
    {
+      @Override
       public void run()
       {
          SegmentOverlay.this.calculateMediaAsync();
@@ -163,6 +164,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    
    private final Runnable mTrackCalculator = new Runnable()
    {
+      @Override
       public void run()
       {
          SegmentOverlay.this.calculateTrackAsync();
@@ -257,6 +259,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mResolver.registerContentObserver( mWaypointsUri, false, mTrackSegmentsObserver );
    }
 
+   @Override
    public void closeResources()
    {
       mResolver.unregisterContentObserver( mTrackSegmentsObserver );
@@ -265,6 +268,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mHandler.removeCallbacks(mTrackCalculator);
       mHandler.postAtFrontOfQueue(new Runnable()
       {
+         @Override
          public void run()
          {
             if( mWaypointsCursor != null )
@@ -698,7 +702,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
          }
       }
       Bitmap bitmap = null;
-      Integer bitmapKey = new Integer(drawable);
+      Integer bitmapKey = Integer.valueOf(drawable);
       synchronized (sBitmapCache)
       {
          if( !sBitmapCache.containsKey( bitmapKey) )
@@ -1350,21 +1354,25 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
       }
 
+      @Override
       public int getCount()
       {
          return mTappedUri.size();
       }
 
+      @Override
       public Object getItem( int position )
       {
          return mTappedUri.get( position );
       }
 
+      @Override
       public long getItemId( int position )
       {
          return position;
       }
 
+      @Override
       public View getView( int position, View convertView, ViewGroup parent )
       {
          ImageView imageView = new ImageView( mContext );
@@ -1376,11 +1384,13 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       }
    }
 
+   @Override
    public Overlay getGoogleOverlay()
    {
       return this;
    }
 
+   @Override
    public org.osmdroid.views.overlay.Overlay getOSMOverlay()
    {
       return mOsmOverlay;

@@ -207,8 +207,10 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) ); 
       if (source.exists())
       {
-         FileChannel inChannel = new FileInputStream(source).getChannel();
-         FileChannel outChannel = new FileOutputStream(target).getChannel();
+         FileInputStream fileInputStream = new FileInputStream(source);
+         FileChannel inChannel = fileInputStream.getChannel();
+         FileOutputStream fileOutputStream = new FileOutputStream(target);
+         FileChannel outChannel = fileOutputStream.getChannel();
          try
          {
             inChannel.transferTo(0, inChannel.size(), outChannel);
@@ -217,6 +219,8 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
          {
             if (inChannel != null) inChannel.close();
             if (outChannel != null) outChannel.close();
+            if (fileInputStream != null) fileInputStream.close();
+            if (fileOutputStream != null) fileOutputStream.close();
          }
       }
       else

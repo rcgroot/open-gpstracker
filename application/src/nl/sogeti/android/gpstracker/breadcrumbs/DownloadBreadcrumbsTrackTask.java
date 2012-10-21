@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter.tasks;
+package nl.sogeti.android.gpstracker.breadcrumbs;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -38,7 +38,6 @@ import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
-import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Pair;
@@ -72,7 +71,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
 {
 
    final String TAG = "OGT.GetBreadcrumbsTracksTask";
-   private BreadcrumbsAdapter mAdapter;
+   private BreadcrumbsService mAdapter;
    private OAuthConsumer mConsumer;
    private DefaultHttpClient mHttpclient;
    private Pair<Integer, Integer> mTrack;
@@ -88,7 +87,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
     * @param consumer
     * @param track
     */
-   public DownloadBreadcrumbsTrackTask(Context context, ProgressListener progressListener, BreadcrumbsAdapter adapter, DefaultHttpClient httpclient,
+   public DownloadBreadcrumbsTrackTask(Context context, ProgressListener progressListener, BreadcrumbsService adapter, DefaultHttpClient httpclient,
          OAuthConsumer consumer, Pair<Integer, Integer> track)
    {
       super(context, progressListener);

@@ -69,6 +69,7 @@ public class NameTrack extends Activity
 
    private final DialogInterface.OnClickListener mTrackNameDialogListener = new DialogInterface.OnClickListener()
    {
+      @Override
       public void onClick( DialogInterface dialog, int which )
       {
          String trackName = null;
@@ -188,6 +189,7 @@ public class NameTrack extends Activity
             dialog = builder.create();
             dialog.setOnDismissListener( new OnDismissListener()
             {
+               @Override
                public void onDismiss( DialogInterface dialog )
                {
                   if( !paused )

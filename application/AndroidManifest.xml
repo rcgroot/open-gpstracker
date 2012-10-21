@@ -166,7 +166,7 @@
          
 		<activity 
 		    android:name=".oauth.PrepareRequestTokenActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@android:style/Theme.Dialog"
             android:label="@string/authentication_redirect"
 			android:launchMode="singleTask">
@@ -186,6 +186,9 @@
 				<action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
 			</intent-filter>
 		</service>
+        
+        <service 
+            android:name=".breadcrumbs.BreadcrumbsService"/>
       
 		<provider 
             android:enabled="true" 

@@ -451,6 +451,7 @@ public class KmzCreator extends XmlCreator
       String mediaPathPrefix = Constants.getSdCardDirectory(mContext);
       Cursor mediaCursor = null;
       ContentResolver resolver = mContext.getContentResolver();
+      BufferedReader buf = null;
       try
       {
          mediaCursor = resolver.query(media, new String[] { Media.URI, Media.TRACK, Media.SEGMENT, Media.WAYPOINT }, null, null, null);
@@ -502,7 +503,8 @@ public class KmzCreator extends XmlCreator
                      quickTag(serializer, "", "name", lastPathSegment);
                      serializer.text("\n");
                      serializer.startTag("", "description");
-                     BufferedReader buf = new BufferedReader(new FileReader(mediaUri.getEncodedPath()));
+                     if(buf  != null ) buf.close();
+                     buf = new BufferedReader(new FileReader(mediaUri.getEncodedPath()));
                      String line;
                      while ((line = buf.readLine()) != null)
                      {
@@ -569,6 +571,7 @@ public class KmzCreator extends XmlCreator
          {
             mediaCursor.close();
          }
+         if(buf != null ) buf.close();
       }
    }
 

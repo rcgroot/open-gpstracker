@@ -68,6 +68,7 @@ public class ControlTracking extends Activity
 
    private final View.OnClickListener mLoggingControlListener = new View.OnClickListener()
       {
+         @Override
          public void onClick( View v )
          {
             int id = v.getId();
@@ -111,6 +112,7 @@ public class ControlTracking extends Activity
       };
    private OnClickListener mDialogClickListener = new OnClickListener()
       {
+         @Override
          public void onClick( DialogInterface dialog, int which )
          {
             setResult( RESULT_CANCELED,  new Intent() );
@@ -134,6 +136,7 @@ public class ControlTracking extends Activity
       super.onResume();
       mLoggerServiceManager.startup( this, new Runnable()
          {
+            @Override
             public void run()
             {
                showDialog( DIALOG_LOGCONTROL );
@@ -177,6 +180,7 @@ public class ControlTracking extends Activity
             stop.setOnClickListener( mLoggingControlListener );
             dialog.setOnDismissListener( new OnDismissListener()
                {
+                  @Override
                   public void onDismiss( DialogInterface dialog )
                   {
                      if( !paused )

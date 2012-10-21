@@ -96,6 +96,7 @@ public class InsertNote extends Activity
 
    private final OnClickListener mNoteTextDialogListener = new DialogInterface.OnClickListener()
    {
+      @Override
       public void onClick(DialogInterface dialog, int which)
       {
          String noteText = mNoteTextView.getText().toString();
@@ -140,6 +141,7 @@ public class InsertNote extends Activity
    };
    private final OnClickListener mNoteNameDialogListener = new DialogInterface.OnClickListener()
    {
+      @Override
       public void onClick(DialogInterface dialog, int which)
       {
          String name = mNoteNameView.getText().toString();
@@ -153,6 +155,7 @@ public class InsertNote extends Activity
 
    private final View.OnClickListener mNoteInsertListener = new View.OnClickListener()
    {
+      @Override
       public void onClick(View v)
       {
          int id = v.getId();
@@ -182,6 +185,7 @@ public class InsertNote extends Activity
    };
    private OnClickListener mDialogClickListener = new OnClickListener()
    {
+      @Override
       public void onClick(DialogInterface dialog, int which)
       {
          setResult(RESULT_CANCELED, new Intent());
@@ -206,6 +210,7 @@ public class InsertNote extends Activity
       {
          mServiceBindAction = new Runnable()
          {
+            @Override
             public void run()
             {
                showDialog(DIALOG_INSERTNOTE);
@@ -236,6 +241,7 @@ public class InsertNote extends Activity
       mServiceBindAction = new Runnable()
       {
 
+         @Override
          public void run()
          {
             if (resultCode != RESULT_CANCELED)
@@ -360,6 +366,7 @@ public class InsertNote extends Activity
             video.setOnClickListener(mNoteInsertListener);
             dialog.setOnDismissListener(new OnDismissListener()
             {
+               @Override
                public void onDismiss(DialogInterface dialog)
                {
                   if (!paused)

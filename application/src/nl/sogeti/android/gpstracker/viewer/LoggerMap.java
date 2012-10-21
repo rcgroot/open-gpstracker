@@ -296,6 +296,7 @@ public class LoggerMap extends MapActivity
       mMapView.clearOverlays();
       mHandler.post(new Runnable()
       {
+         @Override
          public void run()
          {
             Looper.myLooper().quit();
@@ -492,6 +493,7 @@ public class LoggerMap extends MapActivity
        */
       speedCalculator = new Runnable()
       {
+         @Override
          public void run()
          {
             double avgspeed = 0.0;
@@ -523,6 +525,7 @@ public class LoggerMap extends MapActivity
             mAverageSpeed = avgspeed;
             runOnUiThread(new Runnable()
             {
+               @Override
                public void run()
                {
                   updateSpeedColoring();
@@ -532,6 +535,7 @@ public class LoggerMap extends MapActivity
       };
       mServiceConnected = new Runnable()
       {
+         @Override
          public void run()
          {
             updateBlankingBehavior();
@@ -543,6 +547,7 @@ public class LoggerMap extends MapActivity
       mNoteSelectDialogListener = new DialogInterface.OnClickListener()
       {
 
+         @Override
          public void onClick(DialogInterface dialog, int which)
          {
             Uri selected = (Uri) mGallery.getSelectedItem();
@@ -551,6 +556,7 @@ public class LoggerMap extends MapActivity
       };
       mGroupCheckedChangeListener = new android.widget.RadioGroup.OnCheckedChangeListener()
       {
+         @Override
          public void onCheckedChanged(RadioGroup group, int checkedId)
          {
             switch (checkedId)
@@ -577,6 +583,7 @@ public class LoggerMap extends MapActivity
       };
       mCheckedChangeListener = new OnCheckedChangeListener()
       {
+         @Override
          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
          {
             int checkedId;
@@ -608,6 +615,7 @@ public class LoggerMap extends MapActivity
       };
       mNoTrackDialogListener = new DialogInterface.OnClickListener()
       {
+         @Override
          public void onClick(DialogInterface dialog, int which)
          {
             //            Log.d( TAG, "mNoTrackDialogListener" + which);
@@ -618,6 +626,7 @@ public class LoggerMap extends MapActivity
       };
       mOiAboutDialogListener = new DialogInterface.OnClickListener()
       {
+         @Override
          public void onClick(DialogInterface dialog, int which)
          {
             Uri oiDownload = Uri.parse("market://details?id=org.openintents.about");
@@ -639,6 +648,7 @@ public class LoggerMap extends MapActivity
        */
       mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
       {
+         @Override
          public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
          {
             if (key.equals(Constants.TRACKCOLORING))
@@ -748,6 +758,7 @@ public class LoggerMap extends MapActivity
       };
       mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
       {
+         @Override
          public void onUnitsChange()
          {
             mAverageSpeed = 0.0;
@@ -982,7 +993,7 @@ public class LoggerMap extends MapActivity
             mDistance.setChecked(mSharedPreferences.getBoolean(Constants.DISTANCE, false));
             mCompass.setChecked(mSharedPreferences.getBoolean(Constants.COMPASS, false));
             mLocation.setChecked(mSharedPreferences.getBoolean(Constants.LOCATION, false));
-            int provider = new Integer(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
+            int provider = Integer.valueOf(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
             switch (provider)
             {
                case Constants.GOOGLE:
@@ -1101,7 +1112,7 @@ public class LoggerMap extends MapActivity
 
    private void updateMapProvider()
    {
-      int provider = new Integer(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
+      int provider = Integer.valueOf(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
       switch (provider)
       {
          case Constants.GOOGLE:
@@ -1176,7 +1187,7 @@ public class LoggerMap extends MapActivity
 
    private void updateSpeedColoring()
    {
-      int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
+      int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
       View speedbar = findViewById(R.id.speedbar);
 
       if (trackColoringMethod == SegmentOverlay.DRAW_MEASURED || trackColoringMethod == SegmentOverlay.DRAW_CALCULATED)
@@ -1334,7 +1345,7 @@ public class LoggerMap extends MapActivity
 
       ContentResolver resolver = this.getContentResolver();
       Cursor segments = null;
-      int trackColoringMethod = new Integer(mSharedPreferences.getString(Constants.TRACKCOLORING, "2")).intValue();
+      int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "2")).intValue();
 
       try
       {

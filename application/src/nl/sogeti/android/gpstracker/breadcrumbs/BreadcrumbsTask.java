@@ -26,11 +26,9 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter.tasks;
+package nl.sogeti.android.gpstracker.breadcrumbs;
 
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
-import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -49,24 +47,24 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    private String mErrorText;
    private Exception mException;
 
-   protected BreadcrumbsAdapter mAdapter;
+   protected BreadcrumbsService mService;
 
    private String mTask;
 
    protected Context mContext;
 
-   public BreadcrumbsTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener)
+   public BreadcrumbsTask(Context context, BreadcrumbsService adapter, ProgressListener listener)
    {
       mContext = context;
       mListener = listener;
-      mAdapter = adapter;
+      mService = adapter;
    }
 
    protected void handleError(String task, Exception e, String text)
    {
       Log.e(TAG, "Received error will cancel background task " + this.getClass().getName(), e);
       
-      mAdapter.removeAuthentication();
+      mService.removeAuthentication();
       mTask = task;
       mException = e;
       mErrorText = text;
@@ -86,8 +84,7 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
    @Override
    protected void onPostExecute(Void result)
    {
-      this.updateTracksData(mAdapter.getBreadcrumbsTracks());
-      mAdapter.finishedTask();
+      this.updateTracksData(mService.getBreadcrumbsTracks());
       if( mListener != null )
       {
          mListener.finished(null);
@@ -103,7 +100,6 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
       {
          mListener.finished(null);
       }
-      mAdapter.finishedTask();
       if (mListener != null && mErrorText != null && mException != null)
       {
          mListener.showError(mTask, mErrorText, mException);

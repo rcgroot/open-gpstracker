@@ -107,6 +107,7 @@ public class MyLocationOverlayProxy implements OverlayProxy
       }
    }
 
+   @Override
    public Overlay getGoogleOverlay()
    {
       View mapview = mMapViewProxy.getMap();
@@ -114,6 +115,7 @@ public class MyLocationOverlayProxy implements OverlayProxy
       return googleLocationOverlay;
    }
 
+   @Override
    public org.osmdroid.views.overlay.Overlay getOSMOverlay()
    {
       View mapview = mMapViewProxy.getMap();
@@ -121,6 +123,7 @@ public class MyLocationOverlayProxy implements OverlayProxy
       return osmLocationOverlay;
    }
 
+   @Override
    public void closeResources()
    {
       disableCompass();

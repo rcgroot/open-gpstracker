@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter.tasks;
+package nl.sogeti.android.gpstracker.breadcrumbs;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +42,6 @@ import nl.sogeti.android.gpstracker.actions.tasks.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
-import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -77,7 +76,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 {
 
    final String TAG = "OGT.UploadBreadcrumbsTrackTask";
-   private BreadcrumbsAdapter mAdapter;
+   private BreadcrumbsService mService;
    private OAuthConsumer mConsumer;
    private HttpClient mHttpClient;
    private String mActivityId;
@@ -100,11 +99,11 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
     * @param trackUri
     * @param name
     */
-   public UploadBreadcrumbsTrackTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener, HttpClient httpclient, OAuthConsumer consumer,
+   public UploadBreadcrumbsTrackTask(Context context, BreadcrumbsService adapter, ProgressListener listener, HttpClient httpclient, OAuthConsumer consumer,
          Uri trackUri, String name)
    {
       super(context, trackUri, name, true, listener);
-      mAdapter = adapter;
+      mService = adapter;
       mHttpClient = httpclient;
       mConsumer = consumer;
       mPhotoUploadQueue = new LinkedList<File>();
@@ -207,6 +206,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          //entity.addPart("gpx",         new FileBody(gpxFile));
          entity.addPart("gpx", new StringBody(gpxString));
          entity.addPart("bundle_id", new StringBody(mBundleId));
+         entity.addPart("activity_id", new StringBody(mActivityId));
          entity.addPart("description", new StringBody(mDescription));
          //         entity.addPart("difficulty",  new StringBody("3"));
          //         entity.addPart("rating",      new StringBody("4"));
@@ -252,7 +252,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          Matcher m = p.matcher(responseText);
          if (m.find())
          {
-            Integer trackId = new Integer(m.group(1));
+            Integer trackId = Integer.valueOf(m.group(1));
             trackUri = Uri.parse("http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx");
             for( File photo :mPhotoUploadQueue )
             {
@@ -263,17 +263,17 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       }
       catch (OAuthMessageSignerException e)
       {
-         mAdapter.removeAuthentication();
+         mService.removeAuthentication();
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
-         mAdapter.removeAuthentication();
+         mService.removeAuthentication();
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
-         mAdapter.removeAuthentication();
+         mService.removeAuthentication();
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "The authentication communication failed");
       }
       catch (IOException e)
@@ -412,10 +412,10 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
    @Override
    protected void onPostExecute(Uri result)
    {
-      BreadcrumbsTracks tracks = mAdapter.getBreadcrumbsTracks();
+      BreadcrumbsTracks tracks = mService.getBreadcrumbsTracks();
       Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
       List<String> segments = result.getPathSegments();
-      Integer bcTrackId = new Integer(segments.get(segments.size() - 2));
+      Integer bcTrackId = Integer.valueOf(segments.get(segments.size() - 2));
 
       ArrayList<ContentValues> metaValues = new ArrayList<ContentValues>();
 
@@ -436,15 +436,13 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       resolver.bulkInsert(metadataUri, metaValues.toArray(new ContentValues[1]));
 
       // Store in Breadcrumbs adapter
-      tracks.addSyncedTrack(new Long(mTrackUri.getLastPathSegment()), bcTrackId);
+      tracks.addSyncedTrack(Long.valueOf(mTrackUri.getLastPathSegment()), bcTrackId);
       if( mIsBundleCreated )
       {
-         mAdapter.getBreadcrumbsTracks().addBundle(Integer.parseInt(mBundleId), mBundleName, mBundleDescription);
+         mService.getBreadcrumbsTracks().addBundle(Integer.parseInt(mBundleId), mBundleName, mBundleDescription);
       }
       //"http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx"
-
-      mAdapter.getBreadcrumbsTracks().addTrack(bcTrackId, mName, new Integer(mBundleId), mDescription, null, null, null, mIsPublic, null, null, null, null, null);
-      mAdapter.finishedTask();
+      mService.getBreadcrumbsTracks().addTrack(bcTrackId, mName, Integer.valueOf(mBundleId), mDescription, null, null, null, mIsPublic, null, null, null, null, null);
 
       super.onPostExecute(result);
    }

@@ -209,6 +209,7 @@ public class GPSLoggerService extends Service implements LocationListener
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
    {
 
+      @Override
       public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
       {
          if (key.equals(Constants.PRECISION) || key.equals(Constants.LOGGING_DISTANCE) || key.equals(Constants.LOGGING_INTERVAL))
@@ -244,6 +245,7 @@ public class GPSLoggerService extends Service implements LocationListener
    };
 
    
+   @Override
    public void onLocationChanged(Location location)
    {
       if (VERBOSE)
@@ -277,6 +279,7 @@ public class GPSLoggerService extends Service implements LocationListener
          mPreviousLocation = location;
       }
    }
+   @Override
    public void onProviderDisabled(String provider)
    {
       if (DEBUG)
@@ -295,6 +298,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
    }
 
+   @Override
    public void onProviderEnabled(String provider)
    {
       if (DEBUG)
@@ -313,6 +317,7 @@ public class GPSLoggerService extends Service implements LocationListener
       }
    }
 
+   @Override
    public void onStatusChanged(String provider, int status, Bundle extras)
    {
       if (DEBUG)
@@ -331,6 +336,7 @@ public class GPSLoggerService extends Service implements LocationListener
     */
    private Listener mStatusListener = new GpsStatus.Listener()
    {
+      @Override
       public synchronized void onGpsStatusChanged(int event)
       {
          switch (event)
@@ -362,54 +368,64 @@ public class GPSLoggerService extends Service implements LocationListener
    };
    private IBinder mBinder = new IGPSLoggerServiceRemote.Stub()
    {
+      @Override
       public int loggingState() throws RemoteException
       {
          return mLoggingState;
       }
 
+      @Override
       public long startLogging() throws RemoteException
       {
          GPSLoggerService.this.startLogging();
          return mTrackId;
       }
 
+      @Override
       public void pauseLogging() throws RemoteException
       {
          GPSLoggerService.this.pauseLogging();
       }
 
+      @Override
       public long resumeLogging() throws RemoteException
       {
          GPSLoggerService.this.resumeLogging();
          return mSegmentId;
       }
 
+      @Override
       public void stopLogging() throws RemoteException
       {
          GPSLoggerService.this.stopLogging();
       }
 
+      @Override
       public Uri storeMediaUri(Uri mediaUri) throws RemoteException
       {
          GPSLoggerService.this.storeMediaUri(mediaUri);
          return null;
       }
 
+      @Override
       public boolean isMediaPrepared() throws RemoteException
       {
          return GPSLoggerService.this.isMediaPrepared();
       }
 
+      @Override
       public void storeDerivedDataSource(String sourceName) throws RemoteException
       {
          GPSLoggerService.this.storeDerivedDataSource(sourceName);
       }
 
+      @Override
       public Location getLastWaypoint() throws RemoteException
       {
          return GPSLoggerService.this.getLastWaypoint();
       }
       
+      @Override
       public float getTrackedDistance() throws RemoteException
       {
          return GPSLoggerService.this.getTrackedDistance();
@@ -1069,7 +1085,7 @@ public class GPSLoggerService extends Service implements LocationListener
    private void sendRequestLocationUpdatesMessage()
    {
       stopListening();
-      mPrecision = new Integer(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PRECISION, "2")).intValue();
+      mPrecision = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PRECISION, "2")).intValue();
       Message msg = Message.obtain();
       switch (mPrecision)
       {
@@ -1148,8 +1164,8 @@ public class GPSLoggerService extends Service implements LocationListener
             }
             break;
          case REQUEST_CUSTOMGPS_LOCATIONUPDATES:
-            intervaltime = 60 * 1000 * new Long(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_INTERVAL, "15000"));
-            distance = new Float(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_DISTANCE, "10"));
+            intervaltime = 60 * 1000 * Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_INTERVAL, "15000"));
+            distance = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_DISTANCE, "10"));
             mMaxAcceptableAccuracy = Math.max(10f, Math.min(distance, 50f));
             startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
@@ -1348,7 +1364,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       mDistance = 0;
       Uri newTrack = this.getContentResolver().insert(Tracks.CONTENT_URI, new ContentValues(0));
-      mTrackId = new Long(newTrack.getLastPathSegment()).longValue();
+      mTrackId = Long.valueOf(newTrack.getLastPathSegment()).longValue();
       startNewSegment();
    }
 
@@ -1359,7 +1375,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       this.mPreviousLocation = null;
       Uri newSegment = this.getContentResolver().insert(Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/segments"), new ContentValues(0));
-      mSegmentId = new Long(newSegment.getLastPathSegment()).longValue();
+      mSegmentId = Long.valueOf(newSegment.getLastPathSegment()).longValue();
       crashProtectState();
    }
 
@@ -1391,22 +1407,22 @@ public class GPSLoggerService extends Service implements LocationListener
       }
       ContentValues args = new ContentValues();
 
-      args.put(Waypoints.LATITUDE, new Double(location.getLatitude()));
-      args.put(Waypoints.LONGITUDE, new Double(location.getLongitude()));
-      args.put(Waypoints.SPEED, new Float(location.getSpeed()));
-      args.put(Waypoints.TIME, new Long(System.currentTimeMillis()));
+      args.put(Waypoints.LATITUDE, Double.valueOf(location.getLatitude()));
+      args.put(Waypoints.LONGITUDE, Double.valueOf(location.getLongitude()));
+      args.put(Waypoints.SPEED, Float.valueOf(location.getSpeed()));
+      args.put(Waypoints.TIME, Long.valueOf(System.currentTimeMillis()));
       if (location.hasAccuracy())
       {
-         args.put(Waypoints.ACCURACY, new Float(location.getAccuracy()));
+         args.put(Waypoints.ACCURACY, Float.valueOf(location.getAccuracy()));
       }
       if (location.hasAltitude())
       {
-         args.put(Waypoints.ALTITUDE, new Double(location.getAltitude()));
+         args.put(Waypoints.ALTITUDE, Double.valueOf(location.getAltitude()));
 
       }
       if (location.hasBearing())
       {
-         args.put(Waypoints.BEARING, new Float(location.getBearing()));
+         args.put(Waypoints.BEARING, Float.valueOf(location.getBearing()));
       }
 
       Uri waypointInsertUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints");

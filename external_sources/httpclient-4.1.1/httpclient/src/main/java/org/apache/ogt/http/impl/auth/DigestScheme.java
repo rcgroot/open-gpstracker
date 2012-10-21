@@ -201,6 +201,7 @@ public class DigestScheme extends RFC2617Scheme {
             StringBuilder sb = new StringBuilder();
             Formatter formatter = new Formatter(sb, Locale.US);
             formatter.format("%08x", this.nounceCount);
+            formatter.close();
             this.nc = sb.toString();
         }
         return this.nc;

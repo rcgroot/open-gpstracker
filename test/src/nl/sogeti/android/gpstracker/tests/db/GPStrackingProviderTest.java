@@ -30,12 +30,12 @@ package nl.sogeti.android.gpstracker.tests.db;
 
 import junit.framework.Assert;
 import nl.sogeti.android.gpstracker.db.GPStracking;
-import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.db.GPStrackingProvider;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.db.GPStrackingProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -43,7 +43,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.view.View.MeasureSpec;
 
 /**
  * Basically test that the functions offered by the content://nl.sogeti.android.gpstracker does what is documented.
@@ -163,9 +162,9 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    public void testTrackAltitudeWaypoint()
    {
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
-      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
-      wp.put( Waypoints.ALTITUDE, new Double( -123.456d ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 200d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( 100d ) );
+      wp.put( Waypoints.ALTITUDE, Double.valueOf( -123.456d ) );
       
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
       Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
@@ -184,9 +183,9 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    public void testTrackBearingWaypoint()
    {
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
-      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
-      wp.put( Waypoints.BEARING, new Float( 23.456f ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 200d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( 100d ) );
+      wp.put( Waypoints.BEARING, Float.valueOf( 23.456f ) );
       
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
       Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
@@ -205,9 +204,9 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    public void testTrackAccuracyWaypoint()
    {
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
-      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
-      wp.put( Waypoints.ACCURACY, new Float( -123.456f ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 200d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( 100d ) );
+      wp.put( Waypoints.ACCURACY, Float.valueOf( -123.456f ) );
       
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
       Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
@@ -228,8 +227,8 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    public void testTrackWaypointWaypoint()
    {
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
-      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 200d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( 100d ) );
 
       // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
@@ -287,14 +286,14 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       waypointsOneCursor.close();
 
       wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
-      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( coord ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( coord ) );
       this.mResolver.insert( waypointsOneUri, wp );
       coord++;
 
       wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
-      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( coord ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( coord ) );
       this.mResolver.insert( waypointsOneUri, wp );
       coord++;
 
@@ -316,13 +315,13 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Uri waypointsTwoUri = Uri.withAppendedPath( segmentTwoUri, "waypoints" );
 
       wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
-      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( coord ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( coord ) );
       this.mResolver.insert( waypointsTwoUri, wp );
       coord++;
       wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
-      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( coord ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( coord ) );
       this.mResolver.insert( waypointsTwoUri, wp );
       coord++;
 
@@ -364,12 +363,12 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Assert.assertEquals( "One segment created", 1, segmentCursor.getCount() );
       // Stuff 2 waypoints as the segment contents
       wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
-      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( coord ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( coord ) );
       Uri wp1 = this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
       wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( coord ) );
-      wp.put( Waypoints.LATITUDE, new Double( coord ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( coord ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( coord ) );
       Uri wp2 = this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
 
       // Pivot of the test case: THE DELETE
@@ -408,12 +407,12 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
          
          // Stuff 2 waypoints as the segment contents
          wp = new ContentValues();
-         wp.put( Waypoints.LONGITUDE, new Double( coord ) );
-         wp.put( Waypoints.LATITUDE, new Double( coord ) );
+         wp.put( Waypoints.LONGITUDE, Double.valueOf( coord ) );
+         wp.put( Waypoints.LATITUDE, Double.valueOf( coord ) );
          this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
          wp = new ContentValues();
-         wp.put( Waypoints.LONGITUDE, new Double( coord ) );
-         wp.put( Waypoints.LATITUDE, new Double( coord ) );
+         wp.put( Waypoints.LONGITUDE, Double.valueOf( coord ) );
+         wp.put( Waypoints.LATITUDE, Double.valueOf( coord ) );
          this.mResolver.insert( Uri.withAppendedPath( segmentUri, "waypoints" ), wp );
       }
 
@@ -443,10 +442,10 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    public void testWaypointTime()
    {
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 200d ) );
-      wp.put( Waypoints.LATITUDE, new Double( 100d ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 200d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( 100d ) );
       long msTime = 1234567890000l;
-      wp.put( Waypoints.TIME, new Long( msTime ) );
+      wp.put( Waypoints.TIME, Long.valueOf( msTime ) );
 
       // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
@@ -470,9 +469,9 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       double lon = 5.123456789d;
       double lat = 51.123456789d;
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( lon ) );
-      wp.put( Waypoints.LATITUDE, new Double( lat ) );
-      wp.put( Waypoints.TIME, new Long( 1234567890000l ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( lon ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( lat ) );
+      wp.put( Waypoints.TIME, Long.valueOf( 1234567890000l ) );
 
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
       Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
@@ -496,9 +495,9 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       double lon = 37.8657d;
       double lat = -122.305d;
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( lon ) );
-      wp.put( Waypoints.LATITUDE, new Double( lat ) );
-      wp.put( Waypoints.TIME, new Long( 1234567890000l ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( lon ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( lat ) );
+      wp.put( Waypoints.TIME, Long.valueOf( 1234567890000l ) );
 
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
       Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
@@ -521,8 +520,8 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
       Uri waypointsUri = Uri.withAppendedPath( segmentUri, "waypoints" );
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 37.8657d ) );
-      wp.put( Waypoints.LATITUDE, new Double( -122.305d ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 37.8657d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( -122.305d ) );
       Uri waypointUri = this.mResolver.insert( waypointsUri, wp );
 
       Uri trackMediaUri = Uri.withAppendedPath( trackUri, "media" );
@@ -560,8 +559,8 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    public void testDeleteTrackWithMedia()
    {
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 37.8657d ) );
-      wp.put( Waypoints.LATITUDE, new Double( -122.305d ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 37.8657d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( -122.305d ) );
       ContentValues args = new ContentValues();
       args.put( Media.URI, "a test" );
       Uri trackUri = this.mResolver.insert( Tracks.CONTENT_URI, null );
@@ -600,8 +599,8 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Uri segmentUri = this.mResolver.insert( Uri.withAppendedPath( trackUri, "segments" ), null );
       Uri waypointsUri = Uri.withAppendedPath( segmentUri, "waypoints" );
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 37.8657d ) );
-      wp.put( Waypoints.LATITUDE, new Double( -122.305d ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 37.8657d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( -122.305d ) );
       Uri waypointUri = this.mResolver.insert( waypointsUri, wp );
 
       Uri trackMetaDataUri = Uri.withAppendedPath( trackUri, "metadata" );
@@ -675,8 +674,8 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    public void testDeleteTrackWithMetaData()
    {
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 37.8657d ) );
-      wp.put( Waypoints.LATITUDE, new Double( -122.305d ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 37.8657d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( -122.305d ) );
       ContentValues args = new ContentValues();
       args.put( MetaData.KEY, "a test" );
       args.put( MetaData.VALUE, "value" );
@@ -717,8 +716,8 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
    public void testUpdateTrackWithMetaData()
    {
       ContentValues wp = new ContentValues();
-      wp.put( Waypoints.LONGITUDE, new Double( 37.8657d ) );
-      wp.put( Waypoints.LATITUDE, new Double( -122.305d ) );
+      wp.put( Waypoints.LONGITUDE, Double.valueOf( 37.8657d ) );
+      wp.put( Waypoints.LATITUDE, Double.valueOf( -122.305d ) );
       ContentValues args = new ContentValues();
       args.put( MetaData.KEY, "a test" );
       args.put( MetaData.VALUE, "firstvalue" );

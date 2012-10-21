@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter.tasks;
+package nl.sogeti.android.gpstracker.breadcrumbs;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -39,7 +39,6 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
-import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -85,7 +84,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsBundlesTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public GetBreadcrumbsBundlesTask(Context context, BreadcrumbsService adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
    {
       super(context, adapter, listener);
       mHttpclient = httpclient;
@@ -173,17 +172,17 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       }
       catch (OAuthMessageSignerException e)
       {
-         mAdapter.removeAuthentication();
+         mService.removeAuthentication();
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
-         mAdapter.removeAuthentication();
+         mService.removeAuthentication();
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
-         mAdapter.removeAuthentication();
+         mService.removeAuthentication();
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "The authentication communication failed");
       }
       catch (IOException e)

@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter;
+package nl.sogeti.android.gpstracker.breadcrumbs;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -48,6 +49,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
@@ -100,8 +102,7 @@ public class BreadcrumbsTracks extends Observable
    private static final String BREADCRUMSB_BUNDLES_CACHE_FILE = "breadcrumbs_bundles_cache.data";
    private static final String BREADCRUMSB_ACTIVITY_CACHE_FILE = "breadcrumbs_activity_cache.data";
    /**
-    * Time in milliseconds that a persisted breadcrumbs cache is used without a
-    * refresh
+    * Time in milliseconds that a persisted breadcrumbs cache is used without a refresh
     */
    private static final long CACHE_TIMEOUT = 1000 * 60;//1000*60*10 ;
 
@@ -115,19 +116,16 @@ public class BreadcrumbsTracks extends Observable
    private static Map<Integer, Map<String, String>> sActivityMappings;
 
    /**
-    * Map from bundleId to a dictionary containing keys like NAME and
-    * DESCRIPTION
+    * Map from bundleId to a dictionary containing keys like NAME and DESCRIPTION
     */
    private static Map<Integer, Map<String, String>> sBundleMappings;
 
    /**
-    * Map from trackId to a dictionary containing keys like NAME, ISPUBLIC,
-    * DESCRIPTION and more
+    * Map from trackId to a dictionary containing keys like NAME, ISPUBLIC, DESCRIPTION and more
     */
    private static Map<Integer, Map<String, String>> sTrackMappings;
    /**
-    * Cache of OGT Tracks that have a Breadcrumbs track id stored in the
-    * meta-data table
+    * Cache of OGT Tracks that have a Breadcrumbs track id stored in the meta-data table
     */
    private Map<Long, Integer> mSyncedTracks = null;
 
@@ -161,9 +159,9 @@ public class BreadcrumbsTracks extends Observable
 
    public void addActivity(Integer activityId, String activityName)
    {
-      if( BreadcrumbsAdapter.DEBUG )
+      if (BreadcrumbsAdapter.DEBUG)
       {
-         Log.d( TAG, "addActivity(Integer "+activityId+" String "+activityName+")");
+         Log.d(TAG, "addActivity(Integer " + activityId + " String " + activityName + ")");
       }
       if (!sActivityMappings.containsKey(activityId))
       {
@@ -184,9 +182,9 @@ public class BreadcrumbsTracks extends Observable
     */
    public void addBundle(Integer bundleId, String bundleName, String bundleDescription)
    {
-      if( BreadcrumbsAdapter.DEBUG )
+      if (BreadcrumbsAdapter.DEBUG)
       {
-         Log.d( TAG, "addBundle(Integer "+bundleId+", String "+bundleName+", String "+bundleDescription+")");
+         Log.d(TAG, "addBundle(Integer " + bundleId + ", String " + bundleName + ", String " + bundleDescription + ")");
       }
       if (!sBundleMappings.containsKey(bundleId))
       {
@@ -219,12 +217,12 @@ public class BreadcrumbsTracks extends Observable
     * @param totalTime
     * @param trackRating
     */
-   public void addTrack(Integer trackId, String trackName, Integer bundleId, String trackDescription, String difficulty, String startTime, String endTime,
-         String isPublic, Float lat, Float lng, Float totalDistance, Integer totalTime, String trackRating)
+   public void addTrack(Integer trackId, String trackName, Integer bundleId, String trackDescription, String difficulty, String startTime, String endTime, String isPublic, Float lat, Float lng,
+         Float totalDistance, Integer totalTime, String trackRating)
    {
-      if( BreadcrumbsAdapter.DEBUG )
+      if (BreadcrumbsAdapter.DEBUG)
       {
-         Log.d( TAG, "addTrack(Integer "+trackId+", String "+trackName+", Integer "+bundleId +"...");
+         Log.d(TAG, "addTrack(Integer " + trackId + ", String " + trackName + ", Integer " + bundleId + "...");
       }
       if (!sBundlesWithTracks.containsKey(bundleId))
       {
@@ -375,6 +373,11 @@ public class BreadcrumbsTracks extends Observable
       return null;
    }
 
+   public Integer[] getAllActivityIds()
+   {
+      return sActivityMappings.keySet().toArray(new Integer[sActivityMappings.keySet().size()]);
+   }
+
    /**
     * Get all bundles
     * 
@@ -386,30 +389,45 @@ public class BreadcrumbsTracks extends Observable
    }
 
    /**
-    * 
     * @param position list postition 0...n
     * @return a pair of a TYPE and an ID
     */
-   public Pair<Integer, Integer> getItemForPosition(int position)
+   public List<Pair<Integer, Integer>> getAllItems()
    {
-      int countdown = position;
+      List<Pair<Integer, Integer>> items = new LinkedList<Pair<Integer, Integer>>();
       for (Integer bundleId : sBundlesWithTracks.keySet())
       {
-         if (countdown == 0)
+         items.add(Pair.create(Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE, bundleId));
+         for(Integer trackId : sBundlesWithTracks.get(bundleId))
          {
-            return Pair.create(Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE, bundleId);
+            items.add(Pair.create(Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE, trackId));
          }
-         countdown--;
-
-         int bundleSize = sBundlesWithTracks.get(bundleId) != null ? sBundlesWithTracks.get(bundleId).size() : 0;
-         if (countdown < bundleSize)
-         {
-            Integer trackId = sBundlesWithTracks.get(bundleId).get(countdown);
-            return Pair.create(Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE, trackId);
-         }
-         countdown -= bundleSize;
       }
-      return null;
+      return items;
+   }
+
+   public List<Pair<Integer, Integer>> getActivityList()
+   {
+      List<Pair<Integer, Integer>> items = new LinkedList<Pair<Integer, Integer>>();
+      for (Integer activityId : sActivityMappings.keySet())
+      {
+         Pair<Integer, Integer> pair = Pair.create(Constants.BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE, activityId);
+         pair.overrideToString(getValueForItem(pair, NAME));
+         items.add(pair);
+      }
+      return items;
+   }
+
+   public List<Pair<Integer, Integer>> getBundleList()
+   {
+      List<Pair<Integer, Integer>> items = new LinkedList<Pair<Integer, Integer>>();
+      for (Integer bundleId : sBundleMappings.keySet())
+      {
+         Pair<Integer, Integer> pair = Pair.create(Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE, bundleId);
+         pair.overrideToString(getValueForItem(pair, NAME));
+         items.add(pair);
+      }
+      return items;
    }
 
    public String getValueForItem(Pair<Integer, Integer> item, String key)
@@ -423,72 +441,14 @@ public class BreadcrumbsTracks extends Observable
          case Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE:
             value = sTrackMappings.get(item.second).get(key);
             break;
+         case Constants.BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE:
+            value = sActivityMappings.get(item.second).get(key);
+            break;
          default:
             value = null;
             break;
       }
       return value;
-   }
-
-   public SpinnerAdapter getActivityAdapter(Context ctx)
-   {
-      List<String> activities = new Vector<String>();
-      for (Integer activityId : sActivityMappings.keySet())
-      {
-         String name = sActivityMappings.get(activityId).get(NAME);
-         name = name != null ? name : "";
-         activities.add(name);
-      }
-      Collections.sort(activities);
-      ArrayAdapter<String> adapter = new ArrayAdapter<String>(ctx, android.R.layout.simple_spinner_item, activities);
-      adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-      return adapter;
-   }
-
-   public SpinnerAdapter getBundleAdapter(Context ctx)
-   {
-      List<String> bundles = new Vector<String>();
-      for (Integer bundleId : sBundlesWithTracks.keySet())
-      {
-         bundles.add(sBundleMappings.get(bundleId).get(NAME));
-      }
-      Collections.sort(bundles);
-      if (!bundles.contains(ctx.getString(R.string.app_name)))
-      {
-         bundles.add(ctx.getString(R.string.app_name));
-      }
-      ArrayAdapter<String> adapter = new ArrayAdapter<String>(ctx, android.R.layout.simple_spinner_item, bundles);
-      adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-      return adapter;
-   }
-
-   public static Integer getIdForActivity(String selectedItem)
-   {
-      if (selectedItem == null)
-      {
-         return -1;
-      }
-      for (Integer activityId : sActivityMappings.keySet())
-      {
-         Map<String, String> mapping = sActivityMappings.get(activityId);
-         if (mapping != null && selectedItem.equals(mapping.get(NAME)))
-         {
-            return activityId;
-         }
-      }
-      return -1;
-   }
-
-   public static Integer getIdForBundle(Integer activityId, String selectedItem)
-   {
-      for (Integer bundleId : sBundlesWithTracks.keySet())
-      {
-         if (selectedItem.equals(sBundleMappings.get(bundleId).get(NAME)))
-         {
-            return bundleId;
-         }
-      }
-      return -1;
    }
 
    private boolean isLocalTrackOnline(Long qtrackId)
@@ -499,8 +459,7 @@ public class BreadcrumbsTracks extends Observable
          Cursor cursor = null;
          try
          {
-            cursor = mResolver.query(MetaData.CONTENT_URI, new String[] { MetaData.TRACK, MetaData.VALUE }, MetaData.KEY + " = ? ", new String[] { TRACK_ID },
-                  null);
+            cursor = mResolver.query(MetaData.CONTENT_URI, new String[] { MetaData.TRACK, MetaData.VALUE }, MetaData.KEY + " = ? ", new String[] { TRACK_ID }, null);
             if (cursor.moveToFirst())
             {
                do
@@ -742,7 +701,7 @@ public class BreadcrumbsTracks extends Observable
    @Override
    public String toString()
    {
-      return "BreadcrumbsTracks [mActivityMappings=" + sActivityMappings + ", mBundleMappings=" + sBundleMappings + ", mTrackMappings=" + sTrackMappings
-            + ", mActivities=" + sActivityMappings + ", mBundles=" + sBundlesWithTracks + "]";
+      return "BreadcrumbsTracks [mActivityMappings=" + sActivityMappings + ", mBundleMappings=" + sBundleMappings + ", mTrackMappings=" + sTrackMappings + ", mActivities=" + sActivityMappings
+            + ", mBundles=" + sBundlesWithTracks + "]";
    }
 }
