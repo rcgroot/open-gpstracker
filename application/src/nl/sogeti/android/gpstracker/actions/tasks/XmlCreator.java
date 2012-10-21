@@ -103,7 +103,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    {
       if (Build.VERSION.SDK_INT >= 11)
       {
-         executeOn(executor);
+         executeOnExecutor(executor);
       }
       else
       {

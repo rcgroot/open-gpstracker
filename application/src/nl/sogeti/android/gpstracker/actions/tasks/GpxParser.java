@@ -103,7 +103,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
    {
       if (Build.VERSION.SDK_INT >= 11)
       {
-         executeOn(executor);
+         executeOnExecutor(executor);
       }
       else
       {

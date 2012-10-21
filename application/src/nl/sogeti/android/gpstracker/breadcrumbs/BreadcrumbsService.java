@@ -114,7 +114,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
             {
                if (Build.VERSION.SDK_INT >= 11)
                {
-                  executeOn(executor);
+                  executeOnExecutor(executor);
                }
                else
                {

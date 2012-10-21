@@ -31,6 +31,7 @@ package nl.sogeti.android.gpstracker.breadcrumbs;
 import java.util.concurrent.Executor;
 
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -63,11 +64,12 @@ public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
       mService = adapter;
    }
 
+   @TargetApi(11)
    public void executeOn(Executor executor)
    {
       if (Build.VERSION.SDK_INT >= 11)
       {
-         executeOn(executor);
+         executeOnExecutor(executor);
       }
       else
       {
