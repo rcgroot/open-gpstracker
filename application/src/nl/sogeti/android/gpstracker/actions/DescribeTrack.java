@@ -28,15 +28,12 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
-import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService.LocalBinder;
+import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;

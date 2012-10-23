@@ -164,7 +164,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       boolean elevation = false;
       boolean name = false;
       boolean time = false;
-      Long importDate = new Long(new Date().getTime());
+      Long importDate = Long.valueOf(new Date().getTime());
       try
       {
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -211,11 +211,11 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
                         attributeName = xmlParser.getAttributeName(i);
                         if (attributeName.equals(LATITUDE_ATRIBUTE))
                         {
-                           lastPosition.put(Waypoints.LATITUDE, new Double(xmlParser.getAttributeValue(i)));
+                           lastPosition.put(Waypoints.LATITUDE, Double.valueOf(xmlParser.getAttributeValue(i)));
                         }
                         else if (attributeName.equals(LONGITUDE_ATTRIBUTE))
                         {
-                           lastPosition.put(Waypoints.LONGITUDE, new Double(xmlParser.getAttributeValue(i)));
+                           lastPosition.put(Waypoints.LONGITUDE, Double.valueOf(xmlParser.getAttributeValue(i)));
                         }
                      }
                   }
@@ -378,19 +378,19 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
             case 20:
                synchronized (ZULU_DATE_FORMAT)
                {
-                  dateTime = new Long(ZULU_DATE_FORMAT.parse(text).getTime());
+                  dateTime = Long.valueOf(ZULU_DATE_FORMAT.parse(text).getTime());
                }
                break;
             case 23:
                synchronized (ZULU_DATE_FORMAT_BC)
                {
-                  dateTime = new Long(ZULU_DATE_FORMAT_BC.parse(text).getTime());
+                  dateTime = Long.valueOf(ZULU_DATE_FORMAT_BC.parse(text).getTime());
                }
                break;
             case 24:
                synchronized (ZULU_DATE_FORMAT_MS)
                {
-                  dateTime = new Long(ZULU_DATE_FORMAT_MS.parse(text).getTime());
+                  dateTime = Long.valueOf(ZULU_DATE_FORMAT_MS.parse(text).getTime());
                }
                break;
             default:

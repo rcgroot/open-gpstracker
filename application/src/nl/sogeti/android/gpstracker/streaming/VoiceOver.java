@@ -74,6 +74,7 @@ public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitL
       mTextToSpeech = new TextToSpeech(mContext, this);
    }
 
+   @Override
    public void onInit(int status)
    {
       mVoiceStatus = status;

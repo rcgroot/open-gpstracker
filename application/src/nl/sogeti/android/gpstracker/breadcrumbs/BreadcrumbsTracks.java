@@ -36,7 +36,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,9 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
-import java.util.Vector;
 
-import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.util.Constants;
@@ -57,8 +54,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.SpinnerAdapter;
 
 /**
  * Model containing agregrated data retrieved from the GoBreadcrumbs.com API
@@ -98,7 +93,7 @@ public class BreadcrumbsTracks extends Observable
 
    private static final String TAG = "OGT.BreadcrumbsTracks";
 
-   private static final Integer CACHE_VERSION = new Integer(3);
+   private static final Integer CACHE_VERSION = Integer.valueOf(3);
    private static final String BREADCRUMSB_BUNDLES_CACHE_FILE = "breadcrumbs_bundles_cache.data";
    private static final String BREADCRUMSB_ACTIVITY_CACHE_FILE = "breadcrumbs_activity_cache.data";
    /**
