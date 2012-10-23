@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Öppna GPS Tracker</string>
+    <string name="service_start">Aktiverar loggningstjänsten</string>
+	<string name="service_gpsstatus">Loggar: %1$s (%2$s med %3$d satelliter)</string>
+	<string name="service_gpsnostatus">Loggar: %1$s (Precision %2$s)</string>
+    <string name="service_networkstatus">Loggar: %1$s (%2$s med mobilmast and wifi)</string>
+    <string name="service_gpsdisabled">GPSen är avstängd, loggning har ingen effekt.</string>
+    <string name="service_gpsenabled">GPS:en är på, påbörjar loggning.</string>
+    <string name="service_connectiondisabled">Nätverk är avstängt, nätverksplats loggning har ingen effekt.</string>
+    <string name="service_datadisabled">Nätverksposionering är avstängd, loggningen har ingen effekt.</string>
+    <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
+    <string name="service_gpsproblem">Tar emot platsinformation</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_select_media_title">Select note</string>
+    <string name="dialog_select_media_message">Flertalet anteckningar funna vid denna plats, välj en för att öppna</string>
+    <string name="dialog_tracking_title">Tracking control</string>
+	<string name="dialog_routename_title">Namnge bana</string>
+    <string name="dialog_routename_message">Skriv in namnet på spåret</string>
+    <string name="dialog_routename_default">Spår %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
+    <string name="dialog_notrack_title">Inget spår är valt</string>
+    <string name="dialog_notrack_message">Välj spår innan export</string>
+    <string name="dialog_delete_title">Ta bort spår</string>
+    <string name="dialog_delete_message">Var god att konfirmera borttagandet av %s</string>
+    <string name="dialog_nooiabout">OI About missing</string>
+    <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
+    <string name="dialog_layer_title">Activate overlays</string>
+    <string name="dialog_graphtype_title">Graftyp</string>
+    <string name="dialog_notetext_title">Textanteckning</string>
+    <string name="dialog_notetext_message">Skriv in en text anteckning för den nuvarande positionen</string>
+    <string name="dialog_notename_title">Markering</string>
+    <string name="dialog_notename_message">Skriv in namnet på platsen</string>
+    <string name="logcontrol_start">Börja spåra</string>
+    <string name="logcontrol_pause">Pausa spårningen</string>
+    <string name="logcontrol_resume">Forsätt spåra</string>
+    <string name="logcontrol_stop">Sluta spåra</string>
+    <string name="layer_regular">Normal karta</string>
+    <string name="layer_satellite">Satellit</string>
+    <string name="layer_traffic">Trafik</string>
+    <string name="layer_speed">Hastighet</string>
+    <string name="layer_altitude">Höjd</string>
+    <string name="layer_distance">Avstånd</string>
+    <string name="layer_compass">Kompass</string>
+    <string name="layer_location">Min position</string>
+    <string name="layer_cloudmade">CloudMade maps</string>
+    <string name="layer_maknik">Mapnik</string>
+    <string name="layer_bicycle">OpenCycleMap</string>
+    <string name="dialog_vacuum_title">Beskär data</string>
+    <string name="dialog_vacuum_message">Bygger om databasen för att återta utrymme förlorat pga fragmentering.</string>
+    <string name="dialog_import_title">Importera GPX</string>
+    <string name="dialog_import_message">Vill du importera GPX-fil %1$s ?</string>
+    <string name="dialog_import_picker">Importera GPX fil</string>
+    <string name="menu_picker">Importera</string>
+    <string name="dialog_nooipicker">OI File Manager</string>
+    <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files. After accepting OI File Manager EULA the import button works.</string>
+    <string name="dialog_contrib_title">Bidra</string>
+    <string name="dialog_bundlecreate_hint">Nytt paketnamn</string>
+    <string name="dialog_trackdescription_hint">Beskrivning av spåret</string>
+    <string name="dialog_public">Publik postning</string>
+    <string name="dialog_description_title">Spårbeskrivelse</string>
+    <string name="dialog_description_message">Var vänlig och fyll i mer information innan uppladdning</string>
+    <string name="dialog_bundle">Paket: %1$s</string>
+    <string name="authentication_redirect">Placing authentication request</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="msg_connecting_to">Ansluter till&#8230;</string>
+    <string name="no_information_available">Ingen information tillgänglig.</string>
+    <string name="taskerror_gpx_import">Importerar GPX-data</string>
+    <string name="taskerror_xml_write">Skriver XML-data</string>
+    <string name="taskerror_gpx_write">Skriver XML-data</string>
+    <string name="taskerror_kmz_write">Skriver KMZ-data</string>
+    <string name="taskerror_breadcrumbs_activity">Tar emot aktivitetslista från GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_bundle">Tar emot paketlista från GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_track">Tar emot spårlista från GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs">Tar emot data från GoBreadcrumbs</string>
+    <string name="taskerror_breadcrumbs_upload">Laddar upp spår till GoBreadcrumbs</string>
+    <string name="dialog_breadcrumbsconnect">Brödsmulor</string>
+    <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
+    <string name="dialog_contrib_message">
+    <b>Code</b>
+    \n
+    This application and the source code are publicly available. Feel free to submit
+    a patch. All code contributions are very welcome. The complete application source is 
+    available under GPL license at http://code.google.com/p/open-gpstracker/source
+    \n\n
+    <b>Errors</b>
+    \n
+    In case of an error, crash or fault please send a message. Log the error 
+    at http://code.google.com/p/open-gpstracker/issues/entry and make an important 
+    contribution to improve this application.  
+    \n\n
+    <b>Idea\'s</b>
+    \n
+    Do you have an idea that could improve this application? Explain your idea at
+    http://code.google.com/p/open-gpstracker/issues/entry
+    \n\n
+    <b>Donate</b>
+    \n
+    Hopefully you enjoyed the application, I love to hear if you did. A thank you 
+    or PayPal donation are appreciated at rcgroot@gmail.com
+    \n\n
+    </string>    
+    
+    <!-- Messages -->
+    <string name="from">Spår på:</string>
+    <string name="no_tracks">Inga spår sparade</string>
+    <string name="ticker_saving">Sparar:</string>
+    <string name="ticker_stored">Sparad:</string>
+    <string name="ticker_failed">Kan inte spara spår:</string>
+    <string name="error_filenotfound">anledning: Kan inte hitta fil eller mapp på SD-kortet</string>
+    <string name="error_filename">anledning: Fel filnamn</string>
+    <string name="error_buildxml">anledning: Fel i XML</string>
+    <string name="error_writesdcard">anledning: Fel på skrivningen till SD-kort</string>
+    <string name="error_response">anledning: Servern rapporterade ett fel</string>
+    <string name="tweettext">%1$s: Traveled %2$s with an average speed of %3$s during %4$s #opengpstracker</string>
+    <string name="error_importgpx_xml">Failed reading the XML during import.</string>
+    <string name="error_importgpx_io">Failed reading the file during import.</string>
+    <string name="error_importgpx_parse">Failed reading a number during import.</string>
+    <string name="time_and_speed">At %1$s going %2$s</string>
+    
+    <!-- Buttons -->
+	<string name="btn_okay">OK</string>
+	<string name="btn_cancel">Avbryt</string>
+	<string name="btn_save">Spara</string>
+	<string name="btn_selecttrack">Välj spår</string>
+    <string name="btn_install">Installera</string>
+    <string name="btn_skip">Hoppa över</string>
+	
+    <!-- Menu's -->
+	<string name="menu_settings">Inställningar</string>
+    <string name="menu_tracking">Spårar</string>
+	<string name="menu_tracklist">Lista spår</string>
+	<string name="menu_shareTrack">Dela spår</string>
+	<string name="menu_deleteTrack">Ta bort spår</string>
+    <string name="menu_renameTrack">Döp om spår</string>
+    <string name="menu_statistics">Statistik</string>
+    <string name="menu_about">Om</string>
+    <string name="menu_showLayers">Overlays</string>
+    <string name="menu_graphtype">Graftyp</string>
+    <string name="menu_insertnote">Gör anteckning</string>
+    <string name="menu_notename">Markera med ett namn</string>
+    <string name="menu_notepicture">Ta bild</string>
+    <string name="menu_notetext">Skriv text</string>
+    <string name="menu_notespeech">Spela in ljud</string>
+    <string name="menu_notevideo">Spela in video</string>
+    <string name="graphtype_timespeed">Hastighet över tid</string>
+    <string name="graphtype_timealtitude">Höjd över tid</string>
+    <string name="graphtype_distancespeed">Hastighet över sträcka</string>
+    <string name="graphtype_distancealtitude">Höjd över sträcka</string>
+    <string name="menu_vacuum">Crop data</string>
+    <string name="menu_contrib">Bidra</string>
+    
+    <!-- Communicated -->
+    <string name="email_subject">Open GPS Tracker - Spåra data</string>
+    <string name="email_gpxbody">Attached is a track in GPS Exchange Format (GPX) format as described on http://www.topografix.com/gpx.asp</string>
+    <string name="email_kmzbody">Attached is a track in KMZ format as described on http://code.google.com/apis/kml/documentation/kml_tut.html</string>
+    <string name="kmlVideoUnsupported">Embedded video is not supported, please use a zip tools to retrieve the %s video file from the KMZ file.</string>
+    <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retrieve the %s audio file from the KMZ file.</string>
+    
+    <!-- Screens -->
+    <string name="share_track">Share this track</string>
+    <string name="share_explained">Sharing creates a track export with as much of the recorded data as possible.</string>
+    <string name="share_type">Choose format of shared track:</string>
+    <string name="share_name">Name of export:</string>
+    <string name="share_target">Means of sharing:</string>
+    <string name="sender_chooser">Choose sender application</string>
+    <string name="opengpstracker_title">Open GPS Tracker</string>
+    <string name="opengpstracker_settings">Settings</string>
+    <string name="preference_display">Display settings</string>
+    <string name="preference_behavior">Run settings</string>
+    <string name="logatstartup">Log at service start</string>
+    <string name="logatstartup_summary">After starting, the logging service immediately records.</string>
+    <string name="logatdock">Log at car docking</string>
+    <string name="logatdock_summary">After inserting in a car dock, the logging immediately records.</string>
+    <string name="stopatundock">Stop logging at undocking</string>
+    <string name="stopatundock_summary">After exiting a dock, the logging immediately stops.</string>
+    <string name="startupatboot">Start up at boot</string>
+    <string name="startupatboot_summary">After starting the device, the logging service starts.</string>   
+    <string name="disableblanking_title">Disable screen blanking</string>
+    <string name="disableblanking_summary">Keeps the screen on during tracking.</string>
+    <string name="disabledimming_title">Disable screen dimming</string>
+    <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>       
+    <string name="precision_title">Logging precision</string>
+    <string name="precision_summary">The size of interval between GPS fixes.</string>
+    <string name="mapprovider_title">Map provider</string>
+    <string name="mapprovider_summary">The source from which to retrieve mapdata.</string>      
+    <string name="trackcoloring_title">Track color</string>
+    <string name="trackcoloring_summary">The coloring used to draw the track.</string>
+    <string name="showsatellite_title">Satellite images</string>
+    <string name="showsatellite_summary">Show the Google Maps satellite view</string>
+    <string name="showtraffic_title">Traffic</string>
+    <string name="showtraffic_summary">Show the Google Maps traffic information</string>
+    <string name="showspeed_title">GPS-hastighet</string>
+    <string name="showspeed_summary">Show the speed from the last received GPS fix.</string>
+    <string name="showaltitude_title">GPS altitude</string>
+    <string name="showaltitude_summary">Show the altitude from the last received GPS fix.</string>
+    <string name="showdistance_title">Distance covered</string>
+    <string name="showdistance_summary">Show the distance covered by the track.</string>
+    <string name="showcompass_title">Compass</string>
+    <string name="showcompass_summary">Show a compass with a needle pointing north</string>
+    <string name="sanitycheck_title">Speed and altitude sanity check </string>
+    <string name="sanitycheck_summary">Only accept reasonable GPS speeds and altitudes</string>
+    <string name="showlocation_title">My location </string>
+    <string name="showlocation_summary">Show my location on the map</string>
+    <string name="units_title">Enheter</string>
+    <string name="units_summary">Determine if metric or imperial units are used</string>
+    <string name="units_implement_width_title">Implement width</string>
+    <string name="units_implement_width_summary">Width of the implement the tractor is pulling</string>
+    <string name="units_implement_width_message">The width of the implement the tractor is pulling or
+     other machine that works/covers an area over a given time. For example, width of a swather. \n\n
+Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
+    <string name="stat_title">Statistics - %s</string>
+    <string name="stat_maximumspeed">Maxhastighet</string>
+    <string name="stat_maximumaltitude">Maxhöjd</string>
+    <string name="stat_minimalaltitide">Minimihöjd</string>
+    <string name="stat_overallaveragespeed">Resehastighet</string>
+    <string name="stat_averagespeed">Medelhastighet</string>    
+    <string name="stat_distance">Spårad längd</string>    
+    <string name="stat_endtime">Senaste tid</string>    
+    <string name="stat_starttime">Starttid</string>    
+    <string name="stat_trackname">Spårets namn</string>
+    <string name="stat_waypoints">Vägpunkter</string>
+    <string name="stat_elapsedtime">Elapsed</string>
+    <string name="stat_ascension">Total höjdskillnad</string>
+    <string name="track_list">Spår</string>
+    <string name="search_label">Spår</string>
+    <string name="search_description">Öppna GPS Tracker spårnamn</string>
+    <string name="search_hint">Sök spår</string>
+    <string name="preference_sharing">Delningsinställningar</string>
+    <string name="jogmap_title">Jogmap uppladdningskod</string>
+    <string name="jogmap_summary">Aktiveringskoden för uppladdning till jogmap.de konto</string>
+    <string name="jogmap_task">Laddar upp spåret till jogmap.de</string>
+    <string name="jogmap_failed">Mislyckades med uppladdning till jogmap.de:</string>
+    <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
+    <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo.\n </string>
+    <string name="import_track">Importera spår till Open GPS Tracker</string>
+    <string name="preference_logging">Loggning och GPS</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
+    <string name="customprecisiontime_summary">The time the GPS receiver should sleep between waypoints.</string>
+    <string name="customprecisiondistance_title">Target waypoint distance in meters</string>
+    <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
+    <string name="gpsstatusmonitor_title">Övervaka GPS-status</string>
+    <string name="gpsstatusmonitor_summary">Displays the number of satellites used and sounds alarm on poor signal.</string>
+	<string name="osmusername_title">OpenStreetMap username</string>
+	<string name="osmusername_summary">The username created at http://www.openstreetmap.org/user/new</string>
+	<string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
+	<string name="osmpassword_title">OpenStreetMap password</string>
+	<string name="osmpassword_summary">The password used at http://www.openstreetmap.org/user/new</string>
+	<string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
+	<string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
+	<string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
+    <string name="osm_success">Successfully uploading the track to www.openstreetmap.org: </string>
+    <string name="osm_failed">Failed uploading the track to www.openstreetmap.org: </string>
+    <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
+    <string name="osm_task">Uploading trace to OpenStreetMap</string>
+    <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
+    <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
+    <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.\n </string>
+    <string name="breadcrumbs_connect">Ansluten till GoBreadcrumbs</string>
+    
+    <string name="preference_stream">Location broadcasting settings</string>
+    <string name="streamenabled_title">Streaming enabled</string>
+    <string name="streamenabled_summary">Enable direct broadcasting of location</string>
+    <string name="streambroadcast_time_title">Minimum time between broadcasts</string>
+    <string name="streambroadcast_time_summary">Number of minutes after which new progress is broadcasted</string>
+    <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
+    <string name="streambroadcast_distance_summary">Number of miles or kilometers after which new progress is broadcasted</string>
+    <string name="voiceover_title">Stream to audio voice-over</string>
+    <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
+    <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
+    <string name="customupload_title">Stream to custom web server</string>
+    <string name="customupload_summary">Upload track progress to (personal) web server</string>
+    <string name="customupload_url_title">Custom web server URL</string>
+    <string name="customupload_url_summary">The web address to which to upload progress</string>
+    <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request. 
+        In this URL the placeholders are replaced with actual information. The possible placeholders are @LAT@, @LON@, @ALT@, @ACC@, @SPEED@, @BEAR@, @TIME@ and @ID@.</string>
+    <string name="customupload_failed">The last upload of track progress failed</string>
+    <string name="customupload_backlog_title">On failure keep a backlog</string>
+    <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
+    <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>
+            
+<!-- ***************************
+   About information
+   ***************************-->
+   <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
+   <string name="about_activity_name_extended">Om %s</string>
+</resources>
