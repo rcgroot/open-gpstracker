@@ -84,8 +84,6 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    public void onCreate()
    {
       super.onCreate();
-      Log.d(TAG, "Creating BreadcrumbsService");
-
       mExecutor = Executors.newFixedThreadPool(1);
       SchemeRegistry schemeRegistry = new SchemeRegistry();
       schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
@@ -101,7 +99,6 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    @Override
    public void onDestroy()
    {
-      Log.d(TAG, "Destroying BreadcrumbsService");
       if (tokenChangedListener != null)
       {
          PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
@@ -153,8 +150,6 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    @Override
    public IBinder onBind(Intent intent)
    {
-      Log.d(TAG, "Binding to BreadcrumbsService");
-
       return mBinder;
    }
 

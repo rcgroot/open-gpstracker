@@ -755,7 +755,6 @@ public class TrackList extends ListActivity implements ProgressListener
          @Override
          public void onServiceConnected(ComponentName className, IBinder service)
          {
-            Log.d(TAG, "Connected to Service");
             LocalBinder binder = (LocalBinder) service;
             mService = binder.getService();
             mBound = true;
@@ -765,7 +764,6 @@ public class TrackList extends ListActivity implements ProgressListener
          @Override
          public void onServiceDisconnected(ComponentName arg0)
          {
-            Log.d(TAG, "Disconnected to Service");
             mBound = false;
             mService = null;
          }
