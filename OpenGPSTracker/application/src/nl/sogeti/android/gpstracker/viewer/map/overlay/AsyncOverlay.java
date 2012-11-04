@@ -1,15 +1,12 @@
 package nl.sogeti.android.gpstracker.viewer.map.overlay;
 
 import nl.sogeti.android.gpstracker.viewer.map.LoggerMap;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.Handler;
-import android.util.Log;
-import android.view.MotionEvent;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -45,8 +42,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
    private Paint mPaint;
 
    private LoggerMap mLoggerMap;
-
-   SegmentOsmOverlay mOsmOverlay;
 
    private SegmentMapQuestOverlay mMapQuestOverlay;
 
@@ -89,7 +84,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
       mActivePointTopLeft = new Point();
       mCalculationBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
 
-      mOsmOverlay = new SegmentOsmOverlay(mLoggerMap.getActivity(), mLoggerMap, this);
       mMapQuestOverlay = new SegmentMapQuestOverlay(this);
    }
 
@@ -196,54 +190,12 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
    }
 
    @Override
-   public org.osmdroid.views.overlay.Overlay getOSMOverlay()
-   {
-      return mOsmOverlay;
-   }
-
-   @Override
    public com.mapquest.android.maps.Overlay getMapQuestOverlay()
    {
       return mMapQuestOverlay;
    }
 
    protected abstract boolean commonOnTap(GeoPoint tappedGeoPoint);
-
-   static class SegmentOsmOverlay extends org.osmdroid.views.overlay.Overlay
-   {
-      AsyncOverlay mSegmentOverlay;
-      LoggerMap mLoggerMap;
-
-      public SegmentOsmOverlay(Context ctx, LoggerMap map, AsyncOverlay segmentOverlay)
-      {
-         super(ctx);
-         mLoggerMap = map;
-         mSegmentOverlay = segmentOverlay;
-      }
-
-      public AsyncOverlay getSegmentOverlay()
-      {
-         return mSegmentOverlay;
-      }
-
-      @Override
-      public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView)
-      {
-         int x = (int) e.getX();
-         int y = (int) e.getY();
-         GeoPoint tappedGeoPoint = mLoggerMap.fromPixels(x, y);
-         return mSegmentOverlay.commonOnTap(tappedGeoPoint);
-      }
-
-      @Override
-      protected void draw(Canvas canvas, org.osmdroid.views.MapView view, boolean shadow)
-      {
-         if (!shadow)
-         {
-            mSegmentOverlay.draw(canvas);
-         }
-      }
-   }
 
    static class SegmentMapQuestOverlay extends com.mapquest.android.maps.Overlay
    {

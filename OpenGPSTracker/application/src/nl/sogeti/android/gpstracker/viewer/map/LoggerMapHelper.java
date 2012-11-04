@@ -934,12 +934,6 @@ public class LoggerMapHelper
                   dialog.findViewById(R.id.shared_layers).setVisibility(View.VISIBLE);
                   dialog.findViewById(R.id.google_overlays).setVisibility(View.VISIBLE);
                   break;
-               case Constants.OSM:
-                  dialog.findViewById(R.id.osm_backgrounds).setVisibility(View.VISIBLE);
-                  dialog.findViewById(R.id.google_backgrounds).setVisibility(View.GONE);
-                  dialog.findViewById(R.id.shared_layers).setVisibility(View.VISIBLE);
-                  dialog.findViewById(R.id.google_overlays).setVisibility(View.GONE);
-                  break;
                default:
                   dialog.findViewById(R.id.osm_backgrounds).setVisibility(View.GONE);
                   dialog.findViewById(R.id.google_backgrounds).setVisibility(View.GONE);
@@ -1021,9 +1015,6 @@ public class LoggerMapHelper
       {
          case Constants.GOOGLE:
             mapClass = GoogleLoggerMap.class;
-            break;
-         case Constants.OSM:
-            mapClass = OsmLoggerMap.class;
             break;
          case Constants.MAPQUEST:
             mapClass = MapQuestLoggerMap.class;

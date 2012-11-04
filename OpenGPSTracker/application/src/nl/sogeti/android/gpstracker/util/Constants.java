@@ -78,7 +78,6 @@ public class Constants
    public static final String TMPICTUREFILE_SUBPATH = "media_tmp.tmp";
    public static final Uri NAME_URI = Uri.parse( "content://" + GPStracking.AUTHORITY+".string" );
    public static final int GOOGLE = 0;
-   public static final int OSM = 1;
    public static final int MAPQUEST = 2;
    public static final String JOGRUNNER_AUTH = "JOGRUNNER_AUTH";
    public static final String EXPORT_TYPE = "SHARE_TYPE";
@@ -91,6 +90,7 @@ public class Constants
    public static final int OSM_MAKNIK    = 1;
    public static final int OSM_CYCLE   = 2;
    public static final String OSMBASEOVERLAY = "OSM_BASE_OVERLAY";
+   public static final String MAPFORGE_BASEOVERLAY = "MAPFORGE_BASEOVERLAY";
    
    public static final String LOGGING_INTERVAL = "customprecisiontime";
    public static final String LOGGING_DISTANCE = "customprecisiondistance";

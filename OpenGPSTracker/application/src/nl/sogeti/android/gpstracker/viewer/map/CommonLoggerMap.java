@@ -43,9 +43,6 @@ public class CommonLoggerMap extends Activity
          case Constants.GOOGLE:
             mapClass = GoogleLoggerMap.class;
             break;
-         case Constants.OSM:
-            mapClass = OsmLoggerMap.class;
-            break;
          case Constants.MAPQUEST:
             mapClass = MapQuestLoggerMap.class;
             break;
