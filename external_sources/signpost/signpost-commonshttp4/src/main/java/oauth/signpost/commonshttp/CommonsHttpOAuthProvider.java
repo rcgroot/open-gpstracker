@@ -65,7 +65,8 @@ public class CommonsHttpOAuthProvider extends AbstractOAuthProvider {
         return new HttpResponseAdapter(response);
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+   @Override
     protected void closeConnection(HttpRequest request, oauth.signpost.http.HttpResponse response)
             throws Exception {
         if (response != null) {
