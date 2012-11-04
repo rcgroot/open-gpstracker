@@ -6,7 +6,6 @@
 		<project>httpclient</project>
 		<project>httpcore</project>
 		<project>httpmime</project>
-		<project>Open GPS Tracker WIKI</project>
 		<project>OpenGPSTracker-Libraries</project>
 		<project>OpenGPSTrackerTests</project>
 		<project>signpost-commonshttp4</project>
@@ -30,11 +29,6 @@
 		</buildCommand>
 		<buildCommand>
 			<name>com.android.ide.eclipse.adt.ApkBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>net.rim.ajde.internal.verifier</name>
 			<arguments>
 			</arguments>
 		</buildCommand>

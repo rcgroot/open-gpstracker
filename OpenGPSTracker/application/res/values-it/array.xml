@@ -5,7 +5,6 @@
         <item>Pausa</item>
         <item>Fermo</item>
     </string-array>
-    
     <string-array name="precision_choices">
         <item>Personalizzato</item>
         <item>Fine</item>
@@ -13,13 +12,11 @@
         <item>Grezzo</item>
         <item>Rete globale</item>
     </string-array>
-    
     <string-array name="mapprovider_choices">
         <item>Google Maps</item>
         <item>OpenStreetMap</item>
         <item>Mapquest</item>
-    </string-array>   
-    
+    </string-array>
     <string-array name="trackcoloring_choices">
         <item>Verde</item>
         <item>Rosso</item>
@@ -28,7 +25,6 @@
         <item>Punto</item>
         <item>Height</item>
     </string-array>
-    
     <string-array name="units_choices">
         <item>Dispositivo locale</item>
         <item>Imperiale (miglie)</item>
@@ -39,13 +35,11 @@
         <item>Acres/hour (Imperiale)</item>
         <item>Hectares/hour (Metrico)</item>
     </string-array>
-    
     <string-array name="sharetype_choices">
         <item>KMZ - Google Earth, etc.</item>
         <item>GPX - Formato scambio GPS</item>
         <item>Testo - Sommario distanza e velocità</item>
     </string-array>
-    
     <string-array name="sharegpxtarget_choices">
         <item>Salvare su scheda SD</item>
         <item>Invio con applicazione (email)</item>
@@ -53,22 +47,23 @@
         <item>Pubblicare su OpenStreetMap trace</item>
         <item>Pubblicare su Breadcrumbs</item>
     </string-array>
-    
     <string-array name="sharekmztarget_choices">
         <item>Salvare su scheda SD</item>
         <item>Invio con applicazione (email)</item>
     </string-array>
-    
     <string-array name="sharetexttarget_choices">
         <item>Tweet</item>
         <item>SMS</item>
         <item>Invio testo generico</item>
     </string-array>
-    
     <string-array name="osmvisibility_choices">
         <item>Identificabile (Raccomandato)</item>
         <item>Pubblico</item>
         <item>Tracciabile (Preferito a Privato</item>
         <item>Privato</item>
     </string-array>
+    <string-array name="about_translators" translatable="false"> <!-- Add your name here if you translated -->
+        <item>Paul Meier</item>
+    </string-array>
+
 </resources>

@@ -297,6 +297,7 @@ public class GPSLoggerServiceManager
             mOnServiceConnected = onServiceConnected;
             mServiceConnection = new ServiceConnection()
             {
+               @Override
                public void onServiceConnected( ComponentName className, IBinder service )
                {
                   synchronized (mStartLock)
@@ -311,6 +312,7 @@ public class GPSLoggerServiceManager
                      mOnServiceConnected = null;
                   }
                }
+               @Override
                public void onServiceDisconnected( ComponentName className )
                {
                   synchronized (mStartLock)

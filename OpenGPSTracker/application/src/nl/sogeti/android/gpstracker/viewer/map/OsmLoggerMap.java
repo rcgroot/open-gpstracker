@@ -38,7 +38,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -236,6 +235,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
    /** Loggermap methods        **/ 
    /******************************/
    
+   @Override
    public void updateOverlays()
    {
       SharedPreferences sharedPreferences = mHelper.getPreferences();
@@ -257,16 +257,19 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       }
    }
    
+   @Override
    public void setDrawingCacheEnabled(boolean b)
    {
       findViewById(R.id.mapScreen).setDrawingCacheEnabled(true);
    }
    
+   @Override
    public Activity getActivity()
    {
       return this;
    }
 
+   @Override
    public void onLayerCheckedChanged(int checkedId, boolean isChecked)
    {
       switch (checkedId)
@@ -285,6 +288,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       }
    }
 
+   @Override
    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
    {
       if (key.equals(Constants.TRAFFIC))
@@ -297,11 +301,13 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       }
    }
 
+   @Override
    public Bitmap getDrawingCache()
    {
       return findViewById(R.id.mapScreen).getDrawingCache();
    }
 
+   @Override
    public void showMediaDialog(BaseAdapter mediaAdapter)
    {
       mHelper.showMediaDialog(mediaAdapter);
@@ -312,11 +318,13 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       mMapView.postInvalidate();
    }
    
+   @Override
    public String getDataSourceId()
    {
       return LoggerMapHelper.GOOGLE_PROVIDER;
    }
 
+   @Override
    public boolean isOutsideScreen(GeoPoint lastPoint)
    {
       Point out = new Point();
@@ -326,6 +334,7 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       return (out.x < 0 || out.y < 0 || out.y > height || out.x > width);
    }
 
+   @Override
    public boolean isNearScreenEdge(GeoPoint lastPoint)
    {
       Point out = new Point();
@@ -335,85 +344,102 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       return (out.x < width / 4 || out.y < height / 4 || out.x > (width / 4) * 3 || out.y > (height / 4) * 3);
    }
 
+   @Override
    public void executePostponedActions()
    {
       // NOOP for Google Maps
    }
    
+   @Override
    public void enableCompass()
    {
       mMylocation.enableCompass();
    }
 
+   @Override
    public void enableMyLocation()
    {
       mMylocation.enableMyLocation(); 
    }
+   @Override
    public void disableMyLocation()
    {
       mMylocation.disableMyLocation();
    }
 
+   @Override
    public void disableCompass()
    {
       mMylocation.disableCompass();
    }
 
+   @Override
    public void setZoom(int zoom)
    {
       mMapView.getController().setZoom(zoom);
    }
 
+   @Override
    public void animateTo(GeoPoint storedPoint)
    {
       mMapView.getController().animateTo(convertGeoPoint(storedPoint));
    }
 
+   @Override
    public int getZoomLevel()
    {
       return mMapView.getZoomLevel();
    }
 
+   @Override
    public GeoPoint getMapCenter()
    {
       return convertOSMGeoPoint(mMapView.getMapCenter());
    }
 
+   @Override
    public boolean zoomOut()
    {
       return mMapView.getController().zoomOut();
    }
 
+   @Override
    public boolean zoomIn()
    {
       return  mMapView.getController().zoomIn();
    }
 
+   @Override
    public void postInvalidate()
    {
       mMapView.postInvalidate();
    }
 
+   @Override
    public void addOverlay(OverlayProvider overlay)
    {
       mMapView.getOverlays().add(overlay.getOSMOverlay());
    }
 
+   @Override
    public void clearAnimation()
    {
       mMapView.clearAnimation();
    }
 
+   @Override
    public void setCenter(GeoPoint lastPoint)
    {
       mMapView.getController().setCenter( convertGeoPoint(lastPoint));
    }
 
+   @Override
    public int getMaxZoomLevel()
    {
       return mMapView.getMaxZoomLevel();
    }
 
+   @Override
    public GeoPoint fromPixels(int x, int y)
    {
       IGeoPoint osmGeopoint = mProjecton.fromPixels(x, y);
@@ -421,37 +447,44 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       return geopoint;
    }
    
+   @Override
    public void toPixels(GeoPoint geoPoint, Point screenPoint)
    {
       org.osmdroid.util.GeoPoint localGeopoint = convertGeoPoint(geoPoint);
       mProjecton.toMapPixels( localGeopoint, screenPoint);
    }
 
+   @Override
    public boolean hasProjection()
    {
       return mProjecton != null;
    }
 
+   @Override
    public float metersToEquatorPixels(float float1)
    {
       return mProjecton.metersToEquatorPixels(float1);
    }
 
+   @Override
    public TextView[] getSpeedTextViews()
    {
       return mSpeedtexts;
    }
 
+   @Override
    public TextView getAltitideTextView()
    {
       return mLastGPSAltitudeView;
    }
 
+   @Override
    public TextView getSpeedTextView()
    {
       return mLastGPSSpeedView;
    }
 
+   @Override
    public TextView getDistanceTextView()
    {
       return mDistanceView;
@@ -468,11 +501,13 @@ public class OsmLoggerMap extends Activity implements LoggerMap
       return new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6() );
    }
 
+   @Override
    public void clearOverlays()
    {
       mMapView.getOverlayManager().clear();
    }
 
+   @Override
    public SlidingIndicatorView getScaleIndicatorView()
    {
       return (SlidingIndicatorView) findViewById(R.id.scaleindicator);

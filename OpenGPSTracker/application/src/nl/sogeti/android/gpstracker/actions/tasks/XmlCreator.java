@@ -42,6 +42,7 @@ import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.util.Date;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.Executor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -58,6 +59,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Window;
@@ -95,6 +97,18 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       
       String trackName = extractCleanTrackName();
       mFileName = cleanFilename(mChosenName, trackName);
+   }
+   
+   public void executeOn(Executor executor)
+   {
+      if (Build.VERSION.SDK_INT >= 11)
+      {
+         executeOnExecutor(executor);
+      }
+      else
+      {
+         execute();
+      }
    }
 
    private String extractCleanTrackName()
@@ -207,8 +221,10 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) ); 
       if (source.exists())
       {
-         FileChannel inChannel = new FileInputStream(source).getChannel();
-         FileChannel outChannel = new FileOutputStream(target).getChannel();
+         FileInputStream fileInputStream = new FileInputStream(source);
+         FileChannel inChannel = fileInputStream.getChannel();
+         FileOutputStream fileOutputStream = new FileOutputStream(target);
+         FileChannel outChannel = fileOutputStream.getChannel();
          try
          {
             inChannel.transferTo(0, inChannel.size(), outChannel);
@@ -217,6 +233,8 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
          {
             if (inChannel != null) inChannel.close();
             if (outChannel != null) outChannel.close();
+            if (fileInputStream != null) fileInputStream.close();
+            if (fileOutputStream != null) fileOutputStream.close();
          }
       }
       else

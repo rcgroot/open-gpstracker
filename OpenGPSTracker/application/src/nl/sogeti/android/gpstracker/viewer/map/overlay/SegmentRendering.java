@@ -30,9 +30,7 @@ package nl.sogeti.android.gpstracker.viewer.map.overlay;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.BuildConfig;
@@ -65,7 +63,6 @@ import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.util.SparseArray;
@@ -95,7 +92,7 @@ public class SegmentRendering
    public static final int DRAW_CALCULATED = 3;
    public static final int DRAW_DOTS = 4;
    public static final int DRAW_HEIGHT = 5;
-   private static final String TAG = "OGT.SegmentOverlay";
+   private static final String TAG = "OGT.SegmentRendering";
    private static final float MINIMUM_PX_DISTANCE = 15;
 
    private static SparseArray<Bitmap> sBitmapCache = new SparseArray<Bitmap>();;
@@ -154,6 +151,7 @@ public class SegmentRendering
 
    private final Runnable mMediaCalculator = new Runnable()
    {
+      @Override
       public void run()
       {
          SegmentRendering.this.calculateMediaAsync();
@@ -162,6 +160,7 @@ public class SegmentRendering
 
    private final Runnable mTrackCalculator = new Runnable()
    {
+      @Override
       public void run()
       {
          SegmentRendering.this.calculateTrackAsync();
@@ -240,6 +239,7 @@ public class SegmentRendering
       mHandler.removeCallbacks(mTrackCalculator);
       mHandler.postAtFrontOfQueue(new Runnable()
       {
+         @Override
          public void run()
          {
             if (mWaypointsCursor != null)
@@ -408,6 +408,7 @@ public class SegmentRendering
                   break;
                case DRAW_HEIGHT:
                   heightLineToGeoPoint(geoPoint, mWaypointsCursor.getDouble(5));
+                  break;
                default:
                   Log.w(TAG, "Unknown coloring method");
                   break;
@@ -495,10 +496,6 @@ public class SegmentRendering
 
    public synchronized void calculateMediaAsync()
    {
-      if (BuildConfig.DEBUG)
-      {
-         Log.d(TAG, "calculateMediaAsync()");
-      }
       mMediaPathCalculation.clear();
       if (mMediaCursor == null)
       {
@@ -653,15 +650,10 @@ public class SegmentRendering
             }
          }
       }
-      Log.d(TAG, "Draw dots of size " + mDotPath.size());
    }
 
    private void drawMedia(Canvas canvas)
    {
-      if (BuildConfig.DEBUG)
-      {
-         Log.d(TAG, "drawMedia()");
-      }
       synchronized (mMediaPath)
       {
          for (MediaVO mediaVO : mMediaPath)
@@ -1275,7 +1267,6 @@ public class SegmentRendering
 
       Point tappedPoint = new Point();
       mLoggerMap.toPixels(tappedGeoPoint, tappedPoint);
-      Log.d( TAG, String.format( "Tapped at a (x,y) (%d,%d)", tappedPoint.x, tappedPoint.y ) );
       for (MediaVO media : mMediaPath)
       {
          if (media.x < tappedPoint.x && tappedPoint.x < media.x + media.w && media.y < tappedPoint.y && tappedPoint.y < media.y + media.h)
@@ -1376,21 +1367,25 @@ public class SegmentRendering
 
       }
 
+      @Override
       public int getCount()
       {
          return mTappedUri.size();
       }
 
+      @Override
       public Object getItem(int position)
       {
          return mTappedUri.get(position);
       }
 
+      @Override
       public long getItemId(int position)
       {
          return position;
       }
 
+      @Override
       public View getView(int position, View convertView, ViewGroup parent)
       {
          ImageView imageView = new ImageView(mContext);

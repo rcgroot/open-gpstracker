@@ -24,6 +24,7 @@ package nl.sogeti.android.gpstracker.util;
 public class Pair<F, S> {
     public final F first;
     public final S second;
+    private String toStringOverride;
 
     /**
      * Constructor for a Pair. If either are null then equals() and hashCode() will throw
@@ -76,4 +77,22 @@ public class Pair<F, S> {
     public static <A, B> Pair <A, B> create(A a, B b) {
         return new Pair<A, B>(a, b);
     }
+
+   public void overrideToString(String toStringOverride)
+   {
+      this.toStringOverride = toStringOverride;
+   }
+   
+   @Override
+   public String toString()
+   {
+      if( toStringOverride == null )
+      {
+         return super.toString();
+      }
+      else
+      {
+         return toStringOverride;
+      }
+   }
 }

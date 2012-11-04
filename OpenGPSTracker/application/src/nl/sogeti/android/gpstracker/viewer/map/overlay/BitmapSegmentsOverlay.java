@@ -37,7 +37,6 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
    @Override
    public synchronized void scheduleRecalculation()
    {
-      Log.d(TAG, "scheduleRecalculation()");
       for (SegmentRendering segment : mOverlays)
       {
          segment.calculateMedia();
@@ -61,14 +60,12 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
 
    synchronized public void addSegment(SegmentRendering segment)
    {
-      Log.d(TAG, "addSegment(SegmentRendering segment)");
       segment.setBitmapHolder(this);
       mOverlays.add(segment);
    }
 
    synchronized public void clearSegments()
    {
-      Log.d(TAG, "clearSegments()");
       for (SegmentRendering segment : mOverlays)
       {
          segment.closeResources();
@@ -79,7 +76,6 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
 
    synchronized public void setTrackColoringMethod(int color, double speed, double height)
    {
-      Log.d(TAG, "setTrackColoringMethod(int color, double speed, double height)");
       for (SegmentRendering segment : mOverlays)
       {
          segment.setTrackColoringMethod(color, speed, height);

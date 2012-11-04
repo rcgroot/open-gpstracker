@@ -18,7 +18,7 @@
     <string name="dialog_tracking_title">Управление треком</string>
 	<string name="dialog_routename_title">Название</string>
     <string name="dialog_routename_message">Введите название трека</string>
-    <string name="dialog_routename_default">Track %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
+    <string name="dialog_routename_default">Трек %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">Не выбран трек</string>
     <string name="dialog_notrack_message">Для экспорта сначала выберите трек</string>
     <string name="dialog_delete_title">Удалить трек</string>
@@ -149,9 +149,9 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="menu_contrib">Сотрудничество</string>
     
     <!-- Communicated -->
-    <string name="email_subject">Open GPS Tracker - Track data</string>
-    <string name="email_gpxbody">Attached is a track in GPS Exchange Format (GPX) format as described on http://www.topografix.com/gpx.asp</string>
-    <string name="email_kmzbody">Attached is a track in KMZ format as described on http://code.google.com/apis/kml/documentation/kml_tut.html</string>
+    <string name="email_subject">Open GPS Tracker - Данные трека</string>
+    <string name="email_gpxbody">Трек присоединен в формате GPS Exchange Format (GPX) описание здесь http://www.topografix.com/gpx.asp</string>
+    <string name="email_kmzbody">Трек присоединен в формате KMZ, описание здесь http://code.google.com/apis/kml/documentation/kml_tut.html</string>
     <string name="kmlVideoUnsupported">Встроенное видео не поддерживается, используйте zip утилиты для получения %s видео-файла из файла KMZ.</string>
     <string name="kmlAudioUnsupported">Встроенное аудио не поддерживается, используйте zip утилиты для получения %s аудио-файла из файла KMZ.</string>
     
@@ -186,8 +186,8 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="trackcoloring_summary">Цвет для отрисовки трека.</string>
     <string name="showsatellite_title">Спутниковые снимки</string>
     <string name="showsatellite_summary">Показывать спутниковые карты Google Maps</string>
-    <string name="showtraffic_title">Траффик</string>
-    <string name="showtraffic_summary">Показывать информацию траффика Google Maps</string>
+    <string name="showtraffic_title">Пробки</string>
+    <string name="showtraffic_summary">Показывать пробки Google Maps</string>
     <string name="showspeed_title">Скорость GPS</string>
     <string name="showspeed_summary">Показывать скорость по последней корректировке GPS.</string>
     <string name="showaltitude_title">Высота GPS</string>
@@ -202,7 +202,7 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="showlocation_summary">Показывать мое положение на карте</string>
     <string name="units_title">Единицы измерения</string>
     <string name="units_summary">Настроить использование метрических или британских единиц измерения</string>
-    <string name="units_implement_width_title">Ширина инвентаря</string>
+    <string name="units_implement_width_title">Реализованная ширина</string>
     <string name="units_implement_width_summary">Ширина инвентаря трактора</string>
     <string name="units_implement_width_message">Ширина инвентаря трактора (отвала грейдера) или другой машины, 
 которая обрабатывает некоторую площадь за определенное время. Например, ширина мотовила комбайна. \n\n

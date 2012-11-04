@@ -58,6 +58,7 @@ public class UnitsI18n
    private UnitsChangeListener mListener;
    private OnSharedPreferenceChangeListener mPreferenceListener = new OnSharedPreferenceChangeListener()
    {
+      @Override
       public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
       {
          if (key.equals(Constants.UNITS))

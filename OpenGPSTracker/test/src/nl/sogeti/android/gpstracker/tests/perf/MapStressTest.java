@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
 
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.viewer.map.GoogleLoggerMap;
+import nl.sogeti.android.gpstracker.viewer.map.CommonLoggerMap;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -55,9 +55,9 @@ import android.util.Log;
  * @version $Id: LoggerMapStressTest.java 47 2009-05-17 19:15:00Z rcgroot $
  * @author rene (c) Mar 15, 2009, Sogeti B.V.
  */
-public class MapStressTest extends ActivityInstrumentationTestCase2<GoogleLoggerMap> implements PerformanceTestCase
+public class MapStressTest extends ActivityInstrumentationTestCase2<CommonLoggerMap> implements PerformanceTestCase
 {
-   private static final Class<GoogleLoggerMap> CLASS = GoogleLoggerMap.class;
+   private static final Class<CommonLoggerMap> CLASS = CommonLoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
    private static final String TAG = "OGT.MapStressTest";
    private Intermediates mIntermediates;

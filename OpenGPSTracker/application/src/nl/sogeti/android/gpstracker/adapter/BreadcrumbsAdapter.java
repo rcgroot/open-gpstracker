@@ -29,40 +29,15 @@
 package nl.sogeti.android.gpstracker.adapter;
 
 import java.util.LinkedList;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Queue;
+import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
-import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.adapter.tasks.DownloadBreadcrumbsTrackTask;
-import nl.sogeti.android.gpstracker.adapter.tasks.GetBreadcrumbsActivitiesTask;
-import nl.sogeti.android.gpstracker.adapter.tasks.GetBreadcrumbsBundlesTask;
-import nl.sogeti.android.gpstracker.adapter.tasks.GetBreadcrumbsTracksTask;
-import nl.sogeti.android.gpstracker.adapter.tasks.UploadBreadcrumbsTrackTask;
-import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
+import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
+import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
-import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
-
-import org.apache.ogt.http.conn.ClientConnectionManager;
-import org.apache.ogt.http.conn.scheme.PlainSocketFactory;
-import org.apache.ogt.http.conn.scheme.Scheme;
-import org.apache.ogt.http.conn.scheme.SchemeRegistry;
-import org.apache.ogt.http.impl.client.DefaultHttpClient;
-import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,113 +45,89 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 /**
- * Organizes Breadcrumbs tasks based on demands on the BaseAdapter functions 
+ * Organizes Breadcrumbs tasks based on demands on the BaseAdapter functions
  * 
  * @version $Id:$
  * @author rene (c) Apr 24, 2011, Sogeti B.V.
  */
-public class BreadcrumbsAdapter extends BaseAdapter implements Observer
+public class BreadcrumbsAdapter extends BaseAdapter
 {
    private static final String TAG = "OGT.BreadcrumbsAdapter";
 
-   public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
-   public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
-
    public static final boolean DEBUG = false;
-   
-   boolean mAuthorized;
-   private Context mContext;
+
+   private Activity mContext;
    private LayoutInflater mInflater;
-   private BreadcrumbsTracks mTracks;
-   private DefaultHttpClient mHttpClient;
+   private BreadcrumbsService mService;
+   private List<Pair<Integer, Integer>> breadcrumbItems = new LinkedList<Pair<Integer, Integer>>();
 
-   private GetBreadcrumbsBundlesTask mPlannedBundleTask;
-   private Queue<GetBreadcrumbsTracksTask> mPlannedTrackTasks;
-
-   private boolean mFinishing;
-   private OnSharedPreferenceChangeListener tokenChangedListener;
-   private ProgressListener mListener;
-
-   public BreadcrumbsAdapter(Context ctx, ProgressListener listener)
+   public BreadcrumbsAdapter(Activity ctx, BreadcrumbsService service)
    {
       super();
       mContext = ctx;
-      mListener = listener;
+      mService = service;
       mInflater = LayoutInflater.from(mContext);
-
-      SchemeRegistry schemeRegistry = new SchemeRegistry();
-      schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-      ClientConnectionManager cm = new ThreadSafeClientConnManager(schemeRegistry);
-      mHttpClient = new DefaultHttpClient(cm);
-
-      mTracks = new BreadcrumbsTracks(mContext.getContentResolver());
-      mTracks.addObserver(this);
-      mPlannedTrackTasks = new LinkedList<GetBreadcrumbsTracksTask>();
    }
 
-   public boolean connectionSetup()
+   public void setService(BreadcrumbsService service)
    {
-      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-      String token = prefs.getString(OAUTH_TOKEN, "");
-      String secret = prefs.getString(OAUTH_TOKEN_SECRET, "");
-      mAuthorized = !"".equals(token) && !"".equals(secret);
-      if (mAuthorized)
-      {
-         CommonsHttpOAuthConsumer consumer = getOAuthConsumer();
-         if (mTracks.readCache(mContext))
+      mService = service;
+      updateItemList();
+   }
+
+   /**
+    * Reloads the current list of known breadcrumb listview items
+    * 
+    */
+   public void updateItemList()
+   {
+      mContext.runOnUiThread(new Runnable()
          {
-            new GetBreadcrumbsActivitiesTask(mContext, this, mListener, mHttpClient, consumer).execute();
-            mPlannedBundleTask = new GetBreadcrumbsBundlesTask(mContext, this, mListener, mHttpClient, consumer);
-         }
-      }
-      return mAuthorized;
+            @Override
+            public void run()
+            {
+               if (mService != null)
+               {
+                  breadcrumbItems = mService.getAllItems();
+                  notifyDataSetChanged();
+               }
+            }
+         });
    }
 
-   public CommonsHttpOAuthConsumer getOAuthConsumer()
-   {
-      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-      String token = prefs.getString(OAUTH_TOKEN, "");
-      String secret = prefs.getString(OAUTH_TOKEN_SECRET, "");
-      CommonsHttpOAuthConsumer consumer = new CommonsHttpOAuthConsumer(mContext.getString(R.string.CONSUMER_KEY), mContext.getString(R.string.CONSUMER_SECRET));
-      consumer.setTokenWithSecret(token, secret);
-      return consumer;
-   }
-
-
-   public void removeAuthentication()
-   {
-      Log.w( TAG, "Removing Breadcrumbs OAuth tokens");
-      Editor e = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-      e.remove(OAUTH_TOKEN);
-      e.remove(OAUTH_TOKEN_SECRET);
-      e.commit();
-   }
-   
-   /*
-    * (non-Javadoc)
+   /**
     * @see android.widget.Adapter#getCount()
     */
+   @Override
    public int getCount()
    {
-      if (mAuthorized)
+      if (mService != null)
       {
-         return mTracks.positions();
+         if (mService.isAuthorized())
+         {
+            return breadcrumbItems.size();
+         }
+         else
+         {
+            return 1;
+         }
       }
       else
       {
-         return 1;
+         return 0;
       }
+
    }
 
-   /*
-    * (non-Javadoc)
+   /**
     * @see android.widget.Adapter#getItem(int)
     */
+   @Override
    public Object getItem(int position)
    {
-      if (mAuthorized)
+      if (mService.isAuthorized())
       {
-         return mTracks.getItemForPosition(position);
+         return breadcrumbItems.get(position);
       }
       else
       {
@@ -185,24 +136,23 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
 
    }
 
-   /*
-    * (non-Javadoc)
+   /**
     * @see android.widget.Adapter#getItemId(int)
     */
+   @Override
    public long getItemId(int position)
    {
       return position;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see android.widget.Adapter#getView(int, android.view.View,
-    * android.view.ViewGroup)
+   /**
+    * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
     */
+   @Override
    public View getView(int position, View convertView, ViewGroup parent)
    {
       View view = null;
-      if (mAuthorized)
+      if (mService.isAuthorized())
       {
          int type = getItemViewType(position);
          if (convertView == null)
@@ -224,24 +174,25 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
          {
             view = convertView;
          }
-         Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
+         Pair<Integer, Integer> item = breadcrumbItems.get(position);
+         mService.willDisplayItem(item);
          String name;
          switch (type)
          {
             case Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE:
-               name = mTracks.getValueForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
+               name = mService.getValueForItem((Pair<Integer, Integer>) item, BreadcrumbsTracks.NAME);
                ((TextView) view.findViewById(R.id.listitem_name)).setText(name);
                break;
             case Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE:
                TextView nameView = (TextView) view.findViewById(R.id.listitem_name);
                TextView dateView = (TextView) view.findViewById(R.id.listitem_from);
 
-               nameView.setText(mTracks.getValueForItem(item, BreadcrumbsTracks.NAME));
-               String dateString = mTracks.getValueForItem(item, BreadcrumbsTracks.ENDTIME);
-               if(dateString != null)
+               nameView.setText(mService.getValueForItem(item, BreadcrumbsTracks.NAME));
+               String dateString = mService.getValueForItem(item, BreadcrumbsTracks.ENDTIME);
+               if (dateString != null)
                {
-                     Long date = GpxParser.parseXmlDateTime(dateString);
-                     dateView.setText(date.toString());
+                  Long date = GpxParser.parseXmlDateTime(dateString);
+                  dateView.setText(date.toString());
                }
                break;
             default:
@@ -274,18 +225,9 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
    @Override
    public int getItemViewType(int position)
    {
-      if (mAuthorized)
+      if (mService.isAuthorized())
       {
-         Pair<Integer, Integer> item = mTracks.getItemForPosition(position);
-         if (item.first == Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE)
-         {
-            if (!mFinishing && !mTracks.areTracksLoaded(item) && !mTracks.areTracksLoadingScheduled(item))
-            {
-               mPlannedTrackTasks.add(new GetBreadcrumbsTracksTask(mContext, this, mListener, mHttpClient, getOAuthConsumer(), item.second));
-               mTracks.addTracksLoadingScheduled(item);
-               executeNextTask();
-            }
-         }
+         Pair<Integer, Integer> item = breadcrumbItems.get(position);
          return item.first;
       }
       else
@@ -305,110 +247,5 @@ public class BreadcrumbsAdapter extends BaseAdapter implements Observer
    {
       int itemViewType = getItemViewType(position);
       return itemViewType == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE || itemViewType == Constants.BREADCRUMBS_CONNECT_ITEM_VIEW_TYPE;
-   }
-
-   public BreadcrumbsTracks getBreadcrumbsTracks()
-   {
-      return mTracks;
-   }
-
-   public synchronized void finishedTask()
-   {
-      executeNextTask();
-   }
-
-   private synchronized void executeNextTask()
-   {
-      if (mPlannedBundleTask != null)
-      {
-         mPlannedBundleTask.execute();
-         mPlannedBundleTask = null;
-      }
-      else
-      {
-         GetBreadcrumbsTracksTask next = mPlannedTrackTasks.poll();
-         if (next != null)
-         {
-            GetBreadcrumbsTracksTask task = (GetBreadcrumbsTracksTask) next;
-            task.execute();
-         }
-      }
-   }
-
-   public synchronized void shutdown()
-   {
-      if (tokenChangedListener != null)
-      {
-         PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
-      }
-      mAuthorized = false;
-      mFinishing = true;
-      mPlannedBundleTask = null;
-      mPlannedTrackTasks.clear();
-      new AsyncTask<Void, Void, Void>()
-      {
-         @Override
-         protected Void doInBackground(Void... params)
-         {      
-            mHttpClient.getConnectionManager().shutdown();
-            mHttpClient = null;
-            return null;
-         };
-      }.execute();
-      mTracks.persistCache(mContext);
-   }
-
-   public void startDownloadTask(Context context, ProgressListener listener, Pair<Integer, Integer> track)
-   {
-      new DownloadBreadcrumbsTrackTask(context, listener, this, mHttpClient, getOAuthConsumer(), track).execute();
-   }
-
-   public void startUploadTask(Context context, ProgressListener listener, Uri trackUri, String name)
-   {
-      new UploadBreadcrumbsTrackTask(context, this, listener, mHttpClient, getOAuthConsumer(), trackUri, name).execute();
-   }
-
-   public boolean isOnline()
-   {
-      return mAuthorized;
-   }
-
-   public void requestBreadcrumbsOauthToken(final Activity activity)
-   {
-      tokenChangedListener = new OnSharedPreferenceChangeListener()
-      {
-         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
-         {
-            if (OAUTH_TOKEN.equals(key))
-            {
-               PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
-               activity.runOnUiThread(new Runnable()
-               {
-                  public void run()
-                  {
-                     connectionSetup();
-                  }
-               });
-            }
-         }
-      };
-      PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(tokenChangedListener);
-
-      Intent i = new Intent(mContext.getApplicationContext(), PrepareRequestTokenActivity.class);
-      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
-      i.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
-
-      i.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, mContext.getString(R.string.CONSUMER_KEY));
-      i.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, mContext.getString(R.string.CONSUMER_SECRET));
-      i.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.REQUEST_URL);
-      i.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.ACCESS_URL);
-      i.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.AUTHORIZE_URL);
-
-      mContext.startActivity(i);
-   }
-
-   public void update(Observable observable, Object data)
-   {
-      notifyDataSetChanged();
    }
 }

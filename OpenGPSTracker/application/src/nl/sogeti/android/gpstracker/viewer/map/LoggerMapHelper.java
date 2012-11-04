@@ -263,6 +263,7 @@ public class LoggerMapHelper
       mLoggerMap.clearOverlays();
       mHandler.post(new Runnable()
       {
+         @Override
          public void run()
          {
             Looper.myLooper().quit();
@@ -438,6 +439,7 @@ public class LoggerMapHelper
        */
       speedCalculator = new Runnable()
       {
+         @Override
          public void run()
          {
             double avgspeed = 0.0;
@@ -469,6 +471,7 @@ public class LoggerMapHelper
             mAverageSpeed = avgspeed;
             mLoggerMap.getActivity().runOnUiThread(new Runnable()
             {
+               @Override
                public void run()
                {
                   updateSpeedColoring();
@@ -478,6 +481,7 @@ public class LoggerMapHelper
       };
       heightCalculator = new Runnable()
       {
+         @Override
          public void run()
          {
             double avgHeight = 0.0;
@@ -505,6 +509,7 @@ public class LoggerMapHelper
             mAverageHeight = avgHeight;
             mLoggerMap.getActivity().runOnUiThread(new Runnable()
             {
+               @Override
                public void run()
                {
                   updateSpeedColoring();
@@ -514,6 +519,7 @@ public class LoggerMapHelper
       };
       mServiceConnected = new Runnable()
       {
+         @Override
          public void run()
          {
             updateBlankingBehavior();
@@ -524,11 +530,13 @@ public class LoggerMapHelper
        */
       mGalerySelectListener = new AdapterView.OnItemSelectedListener()
       {
+         @Override
          public void onItemSelected(AdapterView< ? > parent, View view, int pos, long id)
          {
             mSelected = (Uri) parent.getSelectedItem();
          }
 
+         @Override
          public void onNothingSelected(AdapterView< ? > arg0)
          {
             mSelected = null;
@@ -537,6 +545,7 @@ public class LoggerMapHelper
       mNoteSelectDialogListener = new DialogInterface.OnClickListener()
       {
 
+         @Override
          public void onClick(DialogInterface dialog, int which)
          {
             SegmentRendering.handleMedia(mLoggerMap.getActivity(), mSelected);
@@ -545,6 +554,7 @@ public class LoggerMapHelper
       };
       mGroupCheckedChangeListener = new android.widget.RadioGroup.OnCheckedChangeListener()
       {
+         @Override
          public void onCheckedChanged(RadioGroup group, int checkedId)
          {
             switch (checkedId)
@@ -566,6 +576,7 @@ public class LoggerMapHelper
       };
       mCheckedChangeListener = new OnCheckedChangeListener()
       {
+         @Override
          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
          {
             int checkedId;
@@ -595,6 +606,7 @@ public class LoggerMapHelper
       };
       mNoTrackDialogListener = new DialogInterface.OnClickListener()
       {
+         @Override
          public void onClick(DialogInterface dialog, int which)
          {
             //            Log.d( TAG, "mNoTrackDialogListener" + which);
@@ -608,6 +620,7 @@ public class LoggerMapHelper
        */
       mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
       {
+         @Override
          public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
          {
             if (key.equals(Constants.TRACKCOLORING))
@@ -713,6 +726,7 @@ public class LoggerMapHelper
       };
       mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
       {
+         @Override
          public void onUnitsChange()
          {
             mAverageSpeed = 0.0;

@@ -54,7 +54,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
-import android.util.SparseArray;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 

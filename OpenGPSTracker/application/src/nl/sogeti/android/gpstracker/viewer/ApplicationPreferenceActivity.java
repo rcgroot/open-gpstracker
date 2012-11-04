@@ -82,6 +82,7 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
       setEnabledCustomValues(precision.getValue());
       precision.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
       {
+         @Override
          public boolean onPreferenceChange(Preference preference, Object newValue)
          {
             setEnabledCustomValues(newValue);
@@ -90,6 +91,7 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
       });
       implentWidth.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
       {
+         @Override
          public boolean onPreferenceChange(Preference preference, Object newValue)
          {
             String fpExpr = "\\d{1,4}([,\\.]\\d+)?";
@@ -98,6 +100,7 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
       });
       streambroadcast_distance.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
       {
+         @Override
          public boolean onPreferenceChange(Preference preference, Object newValue)
          {
             String fpExpr = "\\d{1,5}";
@@ -114,6 +117,7 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
       });
       custumupload_backlog.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
       {
+         @Override
          public boolean onPreferenceChange(Preference preference, Object newValue)
          {
             String fpExpr = "\\d{1,3}";

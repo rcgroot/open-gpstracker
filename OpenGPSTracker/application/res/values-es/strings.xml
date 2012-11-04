@@ -33,7 +33,7 @@
     <string name="dialog_notename_message">Introduzca el nombre de esta ubicación</string>
     <string name="logcontrol_start">Iniciar tracking</string>
     <string name="logcontrol_pause">Pausar tracking</string>
-    <string name="logcontrol_resume">Continuar tracking</string>
+    <string name="logcontrol_resume">Continuar ruta</string>
     <string name="logcontrol_stop">Parar tracking</string>
     <string name="layer_regular">Mapa normal</string>
     <string name="layer_satellite">Satélite</string>
@@ -178,7 +178,7 @@
     <string name="startupatboot_summary">After starting the device, the logging service starts.</string>   
     <string name="disableblanking_title">Disable screen blanking</string>
     <string name="disableblanking_summary">Keeps the screen on during tracking.</string>
-    <string name="disabledimming_title">Disable screen dimming</string>
+    <string name="disabledimming_title">Desactivar el oscurecimiento de pantalla</string>
     <string name="disabledimming_summary">Mantiene la pantalla con iluminacion completa durante el rastreo.</string>       
     <string name="precision_title">Precisión de registro</string>
     <string name="precision_summary">The size of interval between GPS fixes.</string>

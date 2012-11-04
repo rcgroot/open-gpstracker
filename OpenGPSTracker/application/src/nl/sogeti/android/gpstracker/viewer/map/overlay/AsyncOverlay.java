@@ -54,6 +54,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
 
    private Runnable mBitmapUpdater = new Runnable()
    {
+      @Override
       public void run()
       {
          postedBitmapUpdater = false;
@@ -61,7 +62,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
          mGeoTopLeft = mLoggerMap.fromPixels(0, 0);
          mGeoBottumRight = mLoggerMap.fromPixels(mWidth, mHeight);
          Canvas calculationCanvas = new Canvas(mCalculationBitmap);
-         Log.d(TAG, "redrawOffscreen() to (" +calculationCanvas.getWidth()+","+calculationCanvas.getHeight()+")");
          redrawOffscreen(calculationCanvas, mLoggerMap);
          synchronized (mActiveBitmap)
          {
@@ -69,9 +69,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
             mActiveBitmap = mCalculationBitmap;
             mActiveTopLeft = mGeoTopLeft;
             mCalculationBitmap = oldActiveBitmap;
-            Log.d(TAG, "Switched bitmaps to " + mActiveBitmap);
          }
-         Log.d(TAG, "Ran the mBitmapUpdater: mLoggerMap.postInvalidate()");
          mLoggerMap.postInvalidate();
       }
    };
@@ -120,7 +118,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
       boolean unaligned = isOutAlignment();
       if (needNewCalculation || mActiveZoomLevel != oldZoomLevel || unaligned)
       {
-         Log.d(TAG, "scheduleRecalculation()");
          scheduleRecalculation();
       }
    }
@@ -138,7 +135,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
 
    public void onDateOverlayChanged()
    {
-      Log.d(TAG, "onDateOverlayChanged posted yet " + postedBitmapUpdater);
       if (!postedBitmapUpdater)
       {
          postedBitmapUpdater = true;
@@ -174,8 +170,6 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
          {
             mLoggerMap.toPixels(mActiveTopLeft, mActivePointTopLeft);
             canvas.drawBitmap(mActiveBitmap, mActivePointTopLeft.x, mActivePointTopLeft.y, mPaint);
-
-            Log.d(TAG, "Did draw (" + mActiveBitmap.getWidth() +","+mActiveBitmap.getHeight() + ") bitmap based on "+mActiveTopLeft+ " on point "+mActivePointTopLeft);
          }
       }
    }
@@ -195,16 +189,19 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
    /** Multi map support **/
    /**************************************/
 
+   @Override
    public Overlay getGoogleOverlay()
    {
       return this;
    }
 
+   @Override
    public org.osmdroid.views.overlay.Overlay getOSMOverlay()
    {
       return mOsmOverlay;
    }
 
+   @Override
    public com.mapquest.android.maps.Overlay getMapQuestOverlay()
    {
       return mMapQuestOverlay;

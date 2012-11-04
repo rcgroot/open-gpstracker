@@ -10,34 +10,34 @@
       android:id="@+id/noteinsert_name"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:state_enabled="false"
+      android:enabled="false"
    ></Button>
    <Button
       android:text="@string/menu_notetext"
       android:id="@+id/noteinsert_text"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:state_enabled="false"
+      android:enabled="false"
    ></Button>
    <Button
       android:text="@string/menu_notespeech"
       android:id="@+id/noteinsert_voice"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:state_enabled="false"
+      android:enabled="false"
    ></Button>
    <Button
       android:text="@string/menu_notepicture"
       android:id="@+id/noteinsert_picture"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:state_enabled="false"
+      android:enabled="false"
    ></Button>
    <Button
       android:text="@string/menu_notevideo"
       android:id="@+id/noteinsert_video"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:state_enabled="false"
+      android:enabled="false"
    ></Button>
 </LinearLayout>

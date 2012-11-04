@@ -98,11 +98,6 @@ public class CustomUpload extends BroadcastReceiver
    public void onReceive(Context context, Intent intent)
    {
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-      if( !preferences.contains(ApplicationPreferenceActivity.CUSTOMUPLOAD_URL) )
-      {
-         return;
-      }
-
       String prefUrl = preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_URL, "http://www.example.com");
       Integer prefBacklog = Integer.valueOf( preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_BACKLOG, CUSTOMUPLOAD_BACKLOG_DEFAULT) );
       Location loc = intent.getParcelableExtra(Constants.EXTRA_LOCATION);

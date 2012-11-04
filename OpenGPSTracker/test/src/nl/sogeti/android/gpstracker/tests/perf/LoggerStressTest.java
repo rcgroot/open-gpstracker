@@ -30,7 +30,7 @@ package nl.sogeti.android.gpstracker.tests.perf;
 
 import nl.sogeti.android.gpstracker.tests.R;
 import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
-import nl.sogeti.android.gpstracker.viewer.map.GoogleLoggerMap;
+import nl.sogeti.android.gpstracker.viewer.map.CommonLoggerMap;
 import android.os.Debug;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.PerformanceTestCase;
@@ -42,9 +42,9 @@ import android.test.suitebuilder.annotation.LargeTest;
  * @version $Id$
  * @author rene (c) Mar 15, 2009, Sogeti B.V.
  */
-public class LoggerStressTest extends ActivityInstrumentationTestCase2<GoogleLoggerMap> implements PerformanceTestCase
+public class LoggerStressTest extends ActivityInstrumentationTestCase2<CommonLoggerMap> implements PerformanceTestCase
 {
-   private static final Class<GoogleLoggerMap> CLASS = GoogleLoggerMap.class;
+   private static final Class<CommonLoggerMap> CLASS = CommonLoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
    private Intermediates mIntermediates;
 

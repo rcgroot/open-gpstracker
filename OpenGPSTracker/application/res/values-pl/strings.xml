@@ -116,7 +116,7 @@
     <string name="error_importgpx_xml">Błąd odczytu XML podczas importu.</string>
     <string name="error_importgpx_io">Błąd odczytu pliku podczas importu.</string>
     <string name="error_importgpx_parse">Błąd odczytu liczby podczas importu.</string>
-    <string name="time_and_speed">At %1$s going %2$s</string>
+    <string name="time_and_speed">O godzinie %1$s jedzie %2$s</string>
     
     <!-- Buttons -->
 	<string name="btn_okay">OK</string>
@@ -178,7 +178,7 @@
     <string name="startupatboot_summary">Po włączeniu urządzenia uruchom program i rozpocznij zapisywanie ścieżki.</string>   
     <string name="disableblanking_title">Wyłącz wygaszanie ekranu</string>
     <string name="disableblanking_summary">Pozostawia ekran włączony podczas śledzenia.</string>
-    <string name="disabledimming_title">Disable screen dimming</string>
+    <string name="disabledimming_title">Wylacz przyciemnianie ekranu</string>
     <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>       
     <string name="precision_title">Precyzja zapisywania</string>
     <string name="precision_summary">Rozmiar przerwy pomiędzy namiarami GPS.</string>
@@ -195,7 +195,7 @@
     <string name="showaltitude_title">Wysokość GPS</string>
     <string name="showaltitude_summary">Pokaż wysokość z ostatniego namiaru GPS.</string>
     <string name="showdistance_title">Distance covered</string>
-    <string name="showdistance_summary">Show the distance covered by the track.</string>
+    <string name="showdistance_summary">Pokaz dlugosc calej sciezki</string>
     <string name="showcompass_title">Kompas</string>
     <string name="showcompass_summary">Pokaż kompas z igłą wskazującą północ.</string>
     <string name="sanitycheck_title">Kontrola poprawności danych</string>
@@ -205,7 +205,7 @@
     <string name="units_title">Jednostki</string>
     <string name="units_summary">Określ czy używać metrycznego czy imperialnego systemu miar.</string>
     <string name="units_implement_width_title">Implement width</string>
-    <string name="units_implement_width_summary">Width of the implement the tractor is pulling</string>
+    <string name="units_implement_width_summary">Szerokosc markera oznaczajacego ruch</string>
     <string name="units_implement_width_message">The width of the implement the tractor is pulling or
      other machine that works/covers an area over a given time. For example, width of a swather. \n\n
 Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
@@ -251,7 +251,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
 	<string name="osmvisibility_summary">Informacje o poszczególnych poziomach widoczności można znaleźć w wiki na openstreetmap.org</string>
     <string name="osm_success">Udane wysyłanie ścieżki na openstreetmap.org: </string>
     <string name="osm_failed">Nieudane wysyłanie ścieżki na openstreetmap.org: </string>
-    <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
+    <string name="osmauth_message">Upowaznij Open GPS Tracker  do przesylania sciezek do OpenStreetMap</string>
     <string name="osm_task">Wysyłanie trasy do serwisu OpenStreetMap</string>
     <string name="sddirectory_title">Folder na karcie SD służący do przechowywania ścieżek</string>
     <string name="sddirectory_summary">Utworzone ścieżki i pliki multimedialne będą przechowywane w tym folderze na karcie SD.</string>

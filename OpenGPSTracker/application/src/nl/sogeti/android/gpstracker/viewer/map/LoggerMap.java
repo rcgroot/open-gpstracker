@@ -12,20 +12,16 @@
  */
 package nl.sogeti.android.gpstracker.viewer.map;
 
-import java.util.List;
-
 import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
 import nl.sogeti.android.gpstracker.viewer.map.overlay.OverlayProvider;
-
-
-import com.google.android.maps.GeoPoint;
-
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.google.android.maps.GeoPoint;
 
 /**
  * ????

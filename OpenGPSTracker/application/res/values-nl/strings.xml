@@ -78,27 +78,39 @@
     <string name="dialog_breadcrumbsconnect_message">Authenticeer Open GPS Tracker met Breadcrumbs?</string>
     <string name="dialog_contrib_message">
 <b>Code</b>
-\n
+
+
 This application and the source code are publicly available. Feel free to submit
 a patch. All code contributions are very welcome. The complete application source is
 available under GPL license at http://code.google.com/p/open-gpstracker/source
-\n\n
+
+
+
 <b>Errors</b>
-\n
+
+
 In case of an error, crash or fault please send a message. Log the error
 at http://code.google.com/p/open-gpstracker/issues/entry and make an important
 contribution to improve this application.
-\n\n
+
+
+
 <b>Idea\'s</b>
-\n
+
+
 Do you have an idea that could improve this application? Explain your idea at
 http://code.google.com/p/open-gpstracker/issues/entry
-\n\n
+
+
+
 <b>Donate</b>
-\n
+
+
 Hopefully you enjoyed the application, I love to hear if you did. A thank you
 or PayPal donation are appreciated at rcgroot@gmail.com
-\n\n
+
+
+
 </string>    
     
     <!-- Messages -->
@@ -207,8 +219,11 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="units_implement_width_title">Werktuig breedte</string>
     <string name="units_implement_width_summary">De breedte van het werktuig dat de grond bewerkt</string>
     <string name="units_implement_width_message">The width of the implement the tractor is pulling or
-other machine that works/covers an area over a given time. For example, width of a swather. \n\n
-Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
+other machine that works/covers an area over a given time. For example, width of a swather. 
+
+
+Enter number of feet for acres/hour or meters for use in hectares/hour.
+ </string>
     <string name="stat_title">Statistieken - %s</string>
     <string name="stat_maximumspeed">Maximale snelheid</string>
     <string name="stat_maximumaltitude">Maximale hoogte</string>

@@ -46,7 +46,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.map.GoogleLoggerMap;
+import nl.sogeti.android.gpstracker.viewer.map.CommonLoggerMap;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -209,6 +209,7 @@ public class GPSLoggerService extends Service implements LocationListener
    private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
    {
 
+      @Override
       public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
       {
          if (key.equals(Constants.PRECISION) || key.equals(Constants.LOGGING_DISTANCE) || key.equals(Constants.LOGGING_INTERVAL))
@@ -244,6 +245,7 @@ public class GPSLoggerService extends Service implements LocationListener
    };
 
    
+   @Override
    public void onLocationChanged(Location location)
    {
       if (VERBOSE)
@@ -277,6 +279,7 @@ public class GPSLoggerService extends Service implements LocationListener
          mPreviousLocation = location;
       }
    }
+   @Override
    public void onProviderDisabled(String provider)
    {
       if (DEBUG)
@@ -295,6 +298,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
    }
 
+   @Override
    public void onProviderEnabled(String provider)
    {
       if (DEBUG)
@@ -313,6 +317,7 @@ public class GPSLoggerService extends Service implements LocationListener
       }
    }
 
+   @Override
    public void onStatusChanged(String provider, int status, Bundle extras)
    {
       if (DEBUG)
@@ -331,6 +336,7 @@ public class GPSLoggerService extends Service implements LocationListener
     */
    private Listener mStatusListener = new GpsStatus.Listener()
    {
+      @Override
       public synchronized void onGpsStatusChanged(int event)
       {
          switch (event)
@@ -362,54 +368,64 @@ public class GPSLoggerService extends Service implements LocationListener
    };
    private IBinder mBinder = new IGPSLoggerServiceRemote.Stub()
    {
+      @Override
       public int loggingState() throws RemoteException
       {
          return mLoggingState;
       }
 
+      @Override
       public long startLogging() throws RemoteException
       {
          GPSLoggerService.this.startLogging();
          return mTrackId;
       }
 
+      @Override
       public void pauseLogging() throws RemoteException
       {
          GPSLoggerService.this.pauseLogging();
       }
 
+      @Override
       public long resumeLogging() throws RemoteException
       {
          GPSLoggerService.this.resumeLogging();
          return mSegmentId;
       }
 
+      @Override
       public void stopLogging() throws RemoteException
       {
          GPSLoggerService.this.stopLogging();
       }
 
+      @Override
       public Uri storeMediaUri(Uri mediaUri) throws RemoteException
       {
          GPSLoggerService.this.storeMediaUri(mediaUri);
          return null;
       }
 
+      @Override
       public boolean isMediaPrepared() throws RemoteException
       {
          return GPSLoggerService.this.isMediaPrepared();
       }
 
+      @Override
       public void storeDerivedDataSource(String sourceName) throws RemoteException
       {
          GPSLoggerService.this.storeDerivedDataSource(sourceName);
       }
 
+      @Override
       public Location getLastWaypoint() throws RemoteException
       {
          return GPSLoggerService.this.getLastWaypoint();
       }
       
+      @Override
       public float getTrackedDistance() throws RemoteException
       {
          return GPSLoggerService.this.getTrackedDistance();
@@ -653,7 +669,7 @@ public class GPSLoggerService extends Service implements LocationListener
       PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this.mSharedPreferenceChangeListener);
       mLocationManager.removeGpsStatusListener(mStatusListener);
       stopListening();
-      mNoticationManager.cancel(R.layout.map_google);
+      mNoticationManager.cancel(R.layout.map_widgets);
 
       Message msg = Message.obtain();
       msg.what = STOPLOOPER;
@@ -933,7 +949,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
    private void startNotification()
    {
-      mNoticationManager.cancel(R.layout.map_google);
+      mNoticationManager.cancel(R.layout.map_widgets);
 
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = getResources().getString(R.string.service_start);
@@ -946,11 +962,11 @@ public class GPSLoggerService extends Service implements LocationListener
 
       if (Build.VERSION.SDK_INT >= 5)
       {
-         startForegroundReflected(R.layout.map_google, mNotification);
+         startForegroundReflected(R.layout.map_widgets, mNotification);
       }
       else
       {
-         mNoticationManager.notify(R.layout.map_google, mNotification);
+         mNoticationManager.notify(R.layout.map_widgets, mNotification);
       }
    }
 
@@ -977,11 +993,11 @@ public class GPSLoggerService extends Service implements LocationListener
             }
             break;
       }
-      Intent notificationIntent = new Intent(this, GoogleLoggerMap.class);
+      Intent notificationIntent = new Intent(this, CommonLoggerMap.class);
       notificationIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
       mNotification.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       mNotification.setLatestEventInfo(this, contentTitle, contentText, mNotification.contentIntent);
-      mNoticationManager.notify(R.layout.map_google, mNotification);
+      mNoticationManager.notify(R.layout.map_widgets, mNotification);
    }
 
    private void stopNotification()
@@ -992,7 +1008,7 @@ public class GPSLoggerService extends Service implements LocationListener
       }
       else
       {
-         mNoticationManager.cancel(R.layout.map_google);
+         mNoticationManager.cancel(R.layout.map_widgets);
       }
    }
 
@@ -1012,7 +1028,7 @@ public class GPSLoggerService extends Service implements LocationListener
       long when = System.currentTimeMillis();
       Notification signalNotification = new Notification(icon, tickerText, when);
       CharSequence contentTitle = getResources().getString(R.string.app_name);
-      Intent notificationIntent = new Intent(this, GoogleLoggerMap.class);
+      Intent notificationIntent = new Intent(this, CommonLoggerMap.class);
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       signalNotification.setLatestEventInfo(this, contentTitle, tickerText, contentIntent);
       signalNotification.flags |= Notification.FLAG_AUTO_CANCEL;
@@ -1030,7 +1046,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
       CharSequence contentTitle = getResources().getString(R.string.app_name);
       CharSequence contentText = getResources().getString(resId);
-      Intent notificationIntent = new Intent(this, GoogleLoggerMap.class);
+      Intent notificationIntent = new Intent(this, CommonLoggerMap.class);
       notificationIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
       PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
       gpsNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
@@ -1148,7 +1164,7 @@ public class GPSLoggerService extends Service implements LocationListener
             }
             break;
          case REQUEST_CUSTOMGPS_LOCATIONUPDATES:
-            intervaltime = 60 * 1000 * new Long(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_INTERVAL, "15000"));
+            intervaltime = 60 * 1000 * Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_INTERVAL, "15000"));
             distance = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_DISTANCE, "10"));
             mMaxAcceptableAccuracy = Math.max(10f, Math.min(distance, 50f));
             startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
@@ -1348,7 +1364,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       mDistance = 0;
       Uri newTrack = this.getContentResolver().insert(Tracks.CONTENT_URI, new ContentValues(0));
-      mTrackId = new Long(newTrack.getLastPathSegment()).longValue();
+      mTrackId = Long.valueOf(newTrack.getLastPathSegment()).longValue();
       startNewSegment();
    }
 
@@ -1359,7 +1375,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       this.mPreviousLocation = null;
       Uri newSegment = this.getContentResolver().insert(Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/segments"), new ContentValues(0));
-      mSegmentId = new Long(newSegment.getLastPathSegment()).longValue();
+      mSegmentId = Long.valueOf(newSegment.getLastPathSegment()).longValue();
       crashProtectState();
    }
 
@@ -1406,7 +1422,7 @@ public class GPSLoggerService extends Service implements LocationListener
       }
       if (location.hasBearing())
       {
-         args.put(Waypoints.BEARING, Double.valueOf(location.getBearing()));
+         args.put(Waypoints.BEARING, Float.valueOf(location.getBearing()));
       }
 
       Uri waypointInsertUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/segments/" + mSegmentId + "/waypoints");

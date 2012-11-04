@@ -45,11 +45,12 @@ import nl.sogeti.android.gpstracker.actions.tasks.OsmSharing;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
-import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
+import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
+import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService.LocalBinder;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.gpstracker.viewer.map.GoogleLoggerMap;
+import nl.sogeti.android.gpstracker.viewer.map.LoggerMap;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -57,11 +58,13 @@ import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
@@ -72,6 +75,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -121,14 +125,8 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    private Spinner mShareTypeSpinner;
    private Spinner mShareTargetSpinner;
    private Uri mTrackUri;
-   private OnClickListener mBreadcrumbsDialogListener = new OnClickListener()
-   {
-      public void onClick(DialogInterface dialog, int which)
-      {
-         BreadcrumbsAdapter breadcrumbAdapter = new BreadcrumbsAdapter(ShareTrack.this, null);
-         breadcrumbAdapter.requestBreadcrumbsOauthToken(ShareTrack.this);
-      }
-   };
+   private BreadcrumbsService mService;
+   boolean mBound = false;
    private String mErrorDialogMessage;
    private Throwable mErrorDialogException;
 
@@ -142,6 +140,8 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.sharedialog);
+      Intent service = new Intent(this, BreadcrumbsService.class);
+      startService(service);
 
       mTrackUri = getIntent().getData();
 
@@ -156,44 +156,47 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       mShareTypeSpinner.setAdapter(shareTypeAdapter);
       mShareTargetSpinner = (Spinner) findViewById(R.id.shareTargetSpinner);
       mShareTargetSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
-      {
-         public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
          {
-            if (mShareTypeSpinner.getSelectedItemPosition() == EXPORT_TYPE_GPX && position == EXPORT_TARGET_BREADCRUMBS)
+            @Override
+            public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
             {
-               BreadcrumbsAdapter breadcrumbAdapter = new BreadcrumbsAdapter(ShareTrack.this, null);
-               boolean authorized = breadcrumbAdapter.connectionSetup();
-               if (!authorized)
+               if (mShareTypeSpinner.getSelectedItemPosition() == EXPORT_TYPE_GPX && position == EXPORT_TARGET_BREADCRUMBS)
                {
-                  showDialog(DIALOG_CONNECTBREADCRUMBS);
+                  boolean authorized = mService.isAuthorized();
+                  if (!authorized)
+                  {
+                     showDialog(DIALOG_CONNECTBREADCRUMBS);
+                  }
+               }
+               else if (mShareTypeSpinner.getSelectedItemPosition() == EXPORT_TYPE_TEXTLINE && position != EXPORT_TARGET_SMS)
+               {
+                  readScreenBitmap();
+               }
+               else
+               {
+                  removeScreenBitmap();
                }
             }
-            else if (mShareTypeSpinner.getSelectedItemPosition() == EXPORT_TYPE_TEXTLINE && position != EXPORT_TARGET_SMS )
-            {
-               readScreenBitmap();
-            }
-            else
-            {
-               removeScreenBitmap();
-            }
-         }
 
-         public void onNothingSelected(AdapterView< ? > arg0)
-         { /* NOOP */
-         }
-      });
+            @Override
+            public void onNothingSelected(AdapterView< ? > arg0)
+            { /* NOOP */
+            }
+         });
 
       mShareTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
-      {
-         public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
          {
-            adjustTargetToType(position);
-         }
+            @Override
+            public void onItemSelected(AdapterView< ? > arg0, View arg1, int position, long arg3)
+            {
+               adjustTargetToType(position);
+            }
 
-         public void onNothingSelected(AdapterView< ? > arg0)
-         { /* NOOP */
-         }
-      });
+            @Override
+            public void onNothingSelected(AdapterView< ? > arg0)
+            { /* NOOP */
+            }
+         });
 
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
       int lastType = prefs.getInt(Constants.EXPORT_TYPE, EXPORT_TYPE_KMZ);
@@ -204,23 +207,33 @@ public class ShareTrack extends Activity implements StatisticsDelegate
 
       Button okay = (Button) findViewById(R.id.okayshare_button);
       okay.setOnClickListener(new View.OnClickListener()
-      {
-         public void onClick(View v)
          {
-            v.setEnabled(false);
-            share();
-         }
-      });
+            @Override
+            public void onClick(View v)
+            {
+               v.setEnabled(false);
+               share();
+            }
+         });
 
       Button cancel = (Button) findViewById(R.id.cancelshare_button);
       cancel.setOnClickListener(new View.OnClickListener()
-      {
-         public void onClick(View v)
          {
-            v.setEnabled(false);
-            ShareTrack.this.finish();
-         }
-      });
+            @Override
+            public void onClick(View v)
+            {
+               v.setEnabled(false);
+               ShareTrack.this.finish();
+            }
+         });
+   }
+
+   @Override
+   protected void onStart()
+   {
+      super.onStart();
+      Intent intent = new Intent(this, BreadcrumbsService.class);
+      bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
    }
 
    @Override
@@ -241,6 +254,29 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       findViewById(R.id.cancelshare_button).setEnabled(true);
    }
 
+   @Override
+   protected void onStop()
+   {
+      if (mBound)
+      {
+         unbindService(mConnection);
+         mBound = false;
+         mService = null;
+      }
+      super.onStop();
+   }
+
+   @Override
+   protected void onDestroy()
+   {
+      if (isFinishing())
+      {
+         Intent service = new Intent(this, BreadcrumbsService.class);
+         stopService(service);
+      }
+      super.onDestroy();
+   }
+   
    /**
     * @see android.app.Activity#onCreateDialog(int)
     */
@@ -254,15 +290,14 @@ public class ShareTrack extends Activity implements StatisticsDelegate
          case DIALOG_ERROR:
             builder = new AlertDialog.Builder(this);
             String exceptionMessage = mErrorDialogException == null ? "" : " (" + mErrorDialogException.getMessage() + ") ";
-            builder.setIcon(android.R.drawable.ic_dialog_alert).setTitle(android.R.string.dialog_alert_title)
-                  .setMessage(mErrorDialogMessage + exceptionMessage).setNeutralButton(android.R.string.cancel, null);
+            builder.setIcon(android.R.drawable.ic_dialog_alert).setTitle(android.R.string.dialog_alert_title).setMessage(mErrorDialogMessage + exceptionMessage)
+                  .setNeutralButton(android.R.string.cancel, null);
             dialog = builder.create();
             return dialog;
          case DIALOG_CONNECTBREADCRUMBS:
             builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_breadcrumbsconnect).setMessage(R.string.dialog_breadcrumbsconnect_message)
-                  .setIcon(android.R.drawable.ic_dialog_alert).setPositiveButton(R.string.btn_okay, mBreadcrumbsDialogListener)
-                  .setNegativeButton(R.string.btn_cancel, null);
+            builder.setTitle(R.string.dialog_breadcrumbsconnect).setMessage(R.string.dialog_breadcrumbsconnect_message).setIcon(android.R.drawable.ic_dialog_alert)
+                  .setPositiveButton(R.string.btn_okay, mBreadcrumbsDialogListener).setNegativeButton(R.string.btn_cancel, null);
             dialog = builder.create();
             return dialog;
          default:
@@ -290,32 +325,29 @@ public class ShareTrack extends Activity implements StatisticsDelegate
 
    private void setGpxExportTargets()
    {
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharegpxtarget_choices,
-            android.R.layout.simple_spinner_item);
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharegpxtarget_choices, android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
       int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_GPXTARGET, EXPORT_TARGET_SEND);
       mShareTargetSpinner.setSelection(lastTarget);
-      
+
       removeScreenBitmap();
    }
 
    private void setKmzExportTargets()
    {
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharekmztarget_choices,
-            android.R.layout.simple_spinner_item);
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharekmztarget_choices, android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
       int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_KMZTARGET, EXPORT_TARGET_SEND);
       mShareTargetSpinner.setSelection(lastTarget);
-      
+
       removeScreenBitmap();
    }
 
    private void setTextLineExportTargets()
    {
-      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharetexttarget_choices,
-            android.R.layout.simple_spinner_item);
+      ArrayAdapter<CharSequence> shareTargetAdapter = ArrayAdapter.createFromResource(this, R.array.sharetexttarget_choices, android.R.layout.simple_spinner_item);
       shareTargetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       mShareTargetSpinner.setAdapter(shareTargetAdapter);
       int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TXTTARGET, EXPORT_TARGET_TWITTER);
@@ -439,8 +471,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
                {
                   name = "shareToGobreadcrumbs";
                }
-               BreadcrumbsAdapter adapter = new BreadcrumbsAdapter(this, null);
-               adapter.startUploadTask(this, new ShareProgressListener(name), trackUri, name);
+               mService.startUploadTask(this, new ShareProgressListener(name), trackUri, name);
                finish();
                break;
             default:
@@ -461,6 +492,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       startActivity(intent);
       ShareTrack.this.finish();
    }
+
    private void sendSMS(String msg)
    {
       final Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -525,6 +557,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       calculator.execute(mTrackUri);
    }
 
+   @Override
    public void finishedCalculations(StatisticsCalulator calculated)
    {
       String name = queryForTrackName(getContentResolver(), mTrackUri);
@@ -597,115 +630,14 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       return name;
    }
 
-   public class ShareProgressListener implements ProgressListener
-   {
-      private String mFileName;
-      private int mProgress;
-
-      public ShareProgressListener(String sharename)
-      {
-         mFileName = sharename;
-      }
-
-      public void startNotification()
-      {
-         String ns = Context.NOTIFICATION_SERVICE;
-         mNotificationManager = (NotificationManager) ShareTrack.this.getSystemService(ns);
-         int icon = android.R.drawable.ic_menu_save;
-         CharSequence tickerText = getString(R.string.ticker_saving) + "\"" + mFileName + "\"";
-
-         mNotification = new Notification();
-         PendingIntent contentIntent = PendingIntent.getActivity(ShareTrack.this, 0,
-               new Intent(ShareTrack.this, GoogleLoggerMap.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT);
-
-         mNotification.contentIntent = contentIntent;
-         mNotification.tickerText = tickerText;
-         mNotification.icon = icon;
-         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-         mContentView = new RemoteViews(getPackageName(), R.layout.savenotificationprogress);
-         mContentView.setImageViewResource(R.id.icon, icon);
-         mContentView.setTextViewText(R.id.progresstext, tickerText);
-
-         mNotification.contentView = mContentView;
-      }
-
-      private void updateNotification()
-      {
-         //         Log.d( "TAG", "Progress " + progress + " of " + goal );
-         if (mProgress > 0 && mProgress < Window.PROGRESS_END)
-         {
-            if ((mProgress * PROGRESS_STEPS) / Window.PROGRESS_END != barProgress)
-            {
-               barProgress = (mProgress * PROGRESS_STEPS) / Window.PROGRESS_END;
-               mContentView.setProgressBar(R.id.progress, Window.PROGRESS_END, mProgress, false);
-               mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
-            }
-         }
-         else if (mProgress == 0)
-         {
-            mContentView.setProgressBar(R.id.progress, Window.PROGRESS_END, mProgress, true);
-            mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
-         }
-         else if (mProgress >= Window.PROGRESS_END)
-         {
-            mContentView.setProgressBar(R.id.progress, Window.PROGRESS_END, mProgress, false);
-            mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
-         }
-      }
-
-      public void endNotification(Uri file)
-      {
-         mNotificationManager.cancel(R.layout.savenotificationprogress);
-      }
-      
-      public void setIndeterminate(boolean indeterminate)
-      {
-         Log.w(TAG, "Unsupported indeterminate progress display");
-      }
-      
-      public void started()
-      {
-         startNotification();
-      }
-
-      public void setProgress(int value)
-      {
-         mProgress = value;
-         updateNotification();
-      }
-
-      public void finished(Uri result)
-      {
-         endNotification(result);
-      }
-
-      public void showError(String task, String errorDialogMessage, Exception errorDialogException)
-      {
-         endNotification(null);
-
-         mErrorDialogMessage = errorDialogMessage;
-         mErrorDialogException = errorDialogException;
-         if (!isFinishing())
-         {
-            showDialog(DIALOG_ERROR);
-         }
-         else
-         {
-            Toast toast = Toast.makeText(ShareTrack.this, errorDialogMessage, Toast.LENGTH_LONG);
-            toast.show();
-         }
-      }
-
-   }
-
    public static Uri storeScreenBitmap(Bitmap bm)
    {
       Uri fileUri = null;
       FileOutputStream stream = null;
       try
       {
-         clearScreenBitmap();         
-         
+         clearScreenBitmap();
+
          sTempBitmap = File.createTempFile("shareimage", ".png");
          fileUri = Uri.fromFile(sTempBitmap);
          stream = new FileOutputStream(sTempBitmap);
@@ -731,13 +663,13 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       }
       return fileUri;
    }
-   
+
    public static void clearScreenBitmap()
    {
-      if( sTempBitmap != null && sTempBitmap.exists() )
+      if (sTempBitmap != null && sTempBitmap.exists())
       {
          sTempBitmap.delete();
-         sTempBitmap = null;         
+         sTempBitmap = null;
       }
    }
 
@@ -748,23 +680,24 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       if (getIntent().getExtras() != null && getIntent().hasExtra(Intent.EXTRA_STREAM))
       {
          mImageUri = getIntent().getExtras().getParcelable(Intent.EXTRA_STREAM);
-         if( mImageUri != null )
+         if (mImageUri != null)
          {
             InputStream is = null;
-            try            
+            try
             {
                is = getContentResolver().openInputStream(mImageUri);
                mImageView.setImageBitmap(BitmapFactory.decodeStream(is));
                mImageView.setVisibility(View.VISIBLE);
                mCloseImageView.setVisibility(View.VISIBLE);
-               mCloseImageView.setOnClickListener( new View.OnClickListener()
-               {
-                  
-                  public void onClick(View v)
+               mCloseImageView.setOnClickListener(new View.OnClickListener()
                   {
-                     removeScreenBitmap();
-                  }
-               });
+
+                     @Override
+                     public void onClick(View v)
+                     {
+                        removeScreenBitmap();
+                     }
+                  });
             }
             catch (FileNotFoundException e)
             {
@@ -787,10 +720,145 @@ public class ShareTrack extends Activity implements StatisticsDelegate
          }
       }
    }
+
    private void removeScreenBitmap()
    {
       mImageView.setVisibility(View.GONE);
       mCloseImageView.setVisibility(View.GONE);
       mImageUri = null;
+   }
+
+   private ServiceConnection mConnection = new ServiceConnection()
+      {
+         @Override
+         public void onServiceConnected(ComponentName className, IBinder service)
+         {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            LocalBinder binder = (LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+         }
+
+         @Override
+         public void onServiceDisconnected(ComponentName arg0)
+         {
+            mBound = false;
+            mService = null;
+         }
+      };
+
+   private OnClickListener mBreadcrumbsDialogListener = new OnClickListener()
+   {
+      @Override
+      public void onClick(DialogInterface dialog, int which)
+      {
+         mService.collectBreadcrumbsOauthToken();
+      }
+   };
+
+   public class ShareProgressListener implements ProgressListener
+   {
+      private String mFileName;
+      private int mProgress;
+   
+      public ShareProgressListener(String sharename)
+      {
+         mFileName = sharename;
+      }
+   
+      public void startNotification()
+      {
+         String ns = Context.NOTIFICATION_SERVICE;
+         mNotificationManager = (NotificationManager) ShareTrack.this.getSystemService(ns);
+         int icon = android.R.drawable.ic_menu_save;
+         CharSequence tickerText = getString(R.string.ticker_saving) + "\"" + mFileName + "\"";
+   
+         mNotification = new Notification();
+         PendingIntent contentIntent = PendingIntent.getActivity(ShareTrack.this, 0, new Intent(ShareTrack.this, LoggerMap.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+               PendingIntent.FLAG_UPDATE_CURRENT);
+   
+         mNotification.contentIntent = contentIntent;
+         mNotification.tickerText = tickerText;
+         mNotification.icon = icon;
+         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
+         mContentView = new RemoteViews(getPackageName(), R.layout.savenotificationprogress);
+         mContentView.setImageViewResource(R.id.icon, icon);
+         mContentView.setTextViewText(R.id.progresstext, tickerText);
+   
+         mNotification.contentView = mContentView;
+      }
+   
+      private void updateNotification()
+      {
+         //         Log.d( "TAG", "Progress " + progress + " of " + goal );
+         if (mProgress > 0 && mProgress < Window.PROGRESS_END)
+         {
+            if ((mProgress * PROGRESS_STEPS) / Window.PROGRESS_END != barProgress)
+            {
+               barProgress = (mProgress * PROGRESS_STEPS) / Window.PROGRESS_END;
+               mContentView.setProgressBar(R.id.progress, Window.PROGRESS_END, mProgress, false);
+               mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
+            }
+         }
+         else if (mProgress == 0)
+         {
+            mContentView.setProgressBar(R.id.progress, Window.PROGRESS_END, mProgress, true);
+            mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
+         }
+         else if (mProgress >= Window.PROGRESS_END)
+         {
+            mContentView.setProgressBar(R.id.progress, Window.PROGRESS_END, mProgress, false);
+            mNotificationManager.notify(R.layout.savenotificationprogress, mNotification);
+         }
+      }
+   
+      public void endNotification(Uri file)
+      {
+         mNotificationManager.cancel(R.layout.savenotificationprogress);
+      }
+   
+      @Override
+      public void setIndeterminate(boolean indeterminate)
+      {
+         Log.w(TAG, "Unsupported indeterminate progress display");
+      }
+   
+      @Override
+      public void started()
+      {
+         startNotification();
+      }
+   
+      @Override
+      public void setProgress(int value)
+      {
+         mProgress = value;
+         updateNotification();
+      }
+   
+      @Override
+      public void finished(Uri result)
+      {
+         endNotification(result);
+      }
+   
+      @Override
+      public void showError(String task, String errorDialogMessage, Exception errorDialogException)
+      {
+         endNotification(null);
+   
+         mErrorDialogMessage = errorDialogMessage;
+         mErrorDialogException = errorDialogException;
+         if (!isFinishing())
+         {
+            showDialog(DIALOG_ERROR);
+         }
+         else
+         {
+            Toast toast = Toast.makeText(ShareTrack.this, errorDialogMessage, Toast.LENGTH_LONG);
+            toast.show();
+         }
+      }
+   
    }
 }

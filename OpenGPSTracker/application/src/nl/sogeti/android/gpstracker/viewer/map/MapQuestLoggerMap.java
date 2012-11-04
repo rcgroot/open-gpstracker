@@ -189,33 +189,40 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
    /** Loggermap methods        **/ 
    /******************************/
    
+   @Override
    public void updateOverlays()
    {
    }
    
+   @Override
    public void setDrawingCacheEnabled(boolean b)
    {
       findViewById(R.id.mapScreen).setDrawingCacheEnabled(true);
    }
    
+   @Override
    public Activity getActivity()
    {
       return this;
    }
 
+   @Override
    public void onLayerCheckedChanged(int checkedId, boolean isChecked)
    {
    }
 
+   @Override
    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
    {
    }
 
+   @Override
    public Bitmap getDrawingCache()
    {
       return findViewById(R.id.mapScreen).getDrawingCache();
    }
 
+   @Override
    public void showMediaDialog(BaseAdapter mediaAdapter)
    {
       mHelper.showMediaDialog(mediaAdapter);
@@ -226,11 +233,13 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
       mMapView.postInvalidate();
    }
    
+   @Override
    public String getDataSourceId()
    {
       return LoggerMapHelper.MAPQUEST_PROVIDER;
    }
 
+   @Override
    public boolean isOutsideScreen(GeoPoint lastPoint)
    {
       Point out = new Point();
@@ -240,6 +249,7 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
       return (out.x < 0 || out.y < 0 || out.y > height || out.x > width);
    }
 
+   @Override
    public boolean isNearScreenEdge(GeoPoint lastPoint)
    {
       Point out = new Point();
@@ -249,121 +259,145 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
       return (out.x < width / 4 || out.y < height / 4 || out.x > (width / 4) * 3 || out.y > (height / 4) * 3);
    }
 
+   @Override
    public void executePostponedActions()
    {
    }
    
+   @Override
    public void enableCompass()
    {
       mMylocation.enableCompass();
    }
 
+   @Override
    public void enableMyLocation()
    {
       mMylocation.enableMyLocation(); 
    }
+   @Override
    public void disableMyLocation()
    {
       mMylocation.disableMyLocation();
    }
 
+   @Override
    public void disableCompass()
    {
       mMylocation.disableCompass();
    }
 
+   @Override
    public void setZoom(int zoom)
    {
       mMapView.getController().setZoom(zoom);
    }
 
+   @Override
    public void animateTo(GeoPoint storedPoint)
    {
       mMapView.getController().animateTo(MapQuestLoggerMap.convertGeoPoint(storedPoint));
    }
 
+   @Override
    public int getZoomLevel()
    {
       return mMapView.getZoomLevel();
    }
 
+   @Override
    public GeoPoint getMapCenter()
    {
       return MapQuestLoggerMap.convertMapQuestGeoPoint(mMapView.getMapCenter());
    }
 
+   @Override
    public boolean zoomOut()
    {
       return mMapView.getController().zoomOut();
    }
 
+   @Override
    public boolean zoomIn()
    {
       return  mMapView.getController().zoomIn();
    }
 
+   @Override
    public void postInvalidate()
    {
       mMapView.postInvalidate();
    }
 
+   @Override
    public void addOverlay(OverlayProvider overlay)
    {
       mMapView.getOverlays().add(overlay.getMapQuestOverlay());
    }
 
+   @Override
    public void clearAnimation()
    {
       mMapView.clearAnimation();
    }
 
+   @Override
    public void setCenter(GeoPoint lastPoint)
    {
       mMapView.getController().setCenter( MapQuestLoggerMap.convertGeoPoint(lastPoint));
    }
 
+   @Override
    public int getMaxZoomLevel()
    {
       return mMapView.getMaxZoomLevel();
    }
 
+   @Override
    public GeoPoint fromPixels(int x, int y)
    {
       com.mapquest.android.maps.GeoPoint mqGeopoint = mMapView.getProjection().fromPixels(x, y);
       return convertMapQuestGeoPoint(mqGeopoint);
    }
 
+   @Override
    public boolean hasProjection()
    {
       return mMapView.getProjection() != null;
    }
 
+   @Override
    public float metersToEquatorPixels(float float1)
    {
       return mMapView.getProjection().metersToEquatorPixels(float1);
    }
 
+   @Override
    public void toPixels(GeoPoint geoPoint, Point screenPoint)
    {
       com.mapquest.android.maps.GeoPoint mqGeopoint = MapQuestLoggerMap.convertGeoPoint(geoPoint);
       mMapView.getProjection().toPixels( mqGeopoint, screenPoint);
    }
 
+   @Override
    public TextView[] getSpeedTextViews()
    {
       return mSpeedtexts;
    }
 
+   @Override
    public TextView getAltitideTextView()
    {
       return mLastGPSAltitudeView;
    }
 
+   @Override
    public TextView getSpeedTextView()
    {
       return mLastGPSSpeedView;
    }
 
+   @Override
    public TextView getDistanceTextView()
    {
       return mDistanceView;
@@ -379,11 +413,13 @@ public class MapQuestLoggerMap extends MapActivity implements LoggerMap
       return new GeoPoint(mqPoint.getLatitudeE6(), mqPoint.getLongitudeE6() );
    }
 
+   @Override
    public void clearOverlays()
    {
       mMapView.getOverlays().clear();
    }
    
+   @Override
    public SlidingIndicatorView getScaleIndicatorView()
    {
       return (SlidingIndicatorView) findViewById(R.id.scaleindicator);

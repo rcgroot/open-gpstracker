@@ -41,7 +41,7 @@
       android:layout_centerVertical="true"
       android:paddingLeft="3dip"
       android:focusable="false"
-      android:state_enabled="false"
+      android:enabled="false"
       android:visibility="invisible" />
 
    <ProgressBar

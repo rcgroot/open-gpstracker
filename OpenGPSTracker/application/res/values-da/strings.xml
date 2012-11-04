@@ -27,7 +27,7 @@
     <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
     <string name="dialog_layer_title">Activate overlays</string>
     <string name="dialog_graphtype_title">Graph type</string>
-    <string name="dialog_notetext_title">Text note</string>
+    <string name="dialog_notetext_title">Tekstnote</string>
     <string name="dialog_notetext_message">Enter a text note for the current location</string>
     <string name="dialog_notename_title">Mark</string>
     <string name="dialog_notename_message">Enter the name of this location</string>
@@ -36,10 +36,10 @@
     <string name="logcontrol_resume">Resume tracking</string>
     <string name="logcontrol_stop">Stop tracking</string>
     <string name="layer_regular">Normal map</string>
-    <string name="layer_satellite">Satellite</string>
+    <string name="layer_satellite">Satelit</string>
     <string name="layer_traffic">Trafik</string>
     <string name="layer_speed">Hastighed</string>
-    <string name="layer_altitude">Altitude</string>
+    <string name="layer_altitude">Højde</string>
     <string name="layer_distance">Afstand</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">My Location</string>
@@ -124,7 +124,7 @@
 	<string name="btn_save">Gem</string>
 	<string name="btn_selecttrack">Select track</string>
     <string name="btn_install">Installer</string>
-    <string name="btn_skip">Skip</string>
+    <string name="btn_skip">Spring over</string>
 	
     <!-- Menu's -->
 	<string name="menu_settings">Indstillinger</string>
@@ -137,7 +137,7 @@
     <string name="menu_about">Om</string>
     <string name="menu_showLayers">Overlays</string>
     <string name="menu_graphtype">Graph type</string>
-    <string name="menu_insertnote">Make note</string>
+    <string name="menu_insertnote">Lav en note</string>
     <string name="menu_notename">Mark with a name</string>
     <string name="menu_notepicture">Tag billede</string>
     <string name="menu_notetext">Skriv tekst</string>
@@ -214,7 +214,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="stat_maximumaltitude">Maximum altitude</string>
     <string name="stat_minimalaltitide">Minimum altitude</string>
     <string name="stat_overallaveragespeed">Travel speed</string>
-    <string name="stat_averagespeed">Average speed</string>    
+    <string name="stat_averagespeed">Middelfart</string>    
     <string name="stat_distance">Tracked distance</string>    
     <string name="stat_endtime">Last time</string>    
     <string name="stat_starttime">Start time</string>    

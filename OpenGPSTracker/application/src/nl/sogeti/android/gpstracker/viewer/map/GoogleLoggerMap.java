@@ -28,9 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer.map;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
@@ -53,7 +50,6 @@ import android.widget.TextView;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
 
 /**
  * Main activity showing a track and allowing logging control
@@ -251,6 +247,7 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
    /** Loggermap methods        **/ 
    /******************************/
    
+   @Override
    public void updateOverlays()
    {
       SharedPreferences sharedPreferences = mHelper.getPreferences();
@@ -258,16 +255,19 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
       GoogleLoggerMap.this.mMapView.setTraffic(sharedPreferences.getBoolean(Constants.TRAFFIC, false));
    }
    
+   @Override
    public void setDrawingCacheEnabled(boolean b)
    {
       findViewById(R.id.mapScreen).setDrawingCacheEnabled(true);
    }
    
+   @Override
    public Activity getActivity()
    {
       return this;
    }
 
+   @Override
    public void onLayerCheckedChanged(int checkedId, boolean isChecked)
    {
       switch (checkedId)
@@ -286,6 +286,7 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
       }
    }
 
+   @Override
    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
    {
       if (key.equals(Constants.TRAFFIC))
@@ -298,11 +299,13 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
       }
    }
 
+   @Override
    public Bitmap getDrawingCache()
    {
       return findViewById(R.id.mapScreen).getDrawingCache();
    }
 
+   @Override
    public void showMediaDialog(BaseAdapter mediaAdapter)
    {
       mHelper.showMediaDialog(mediaAdapter);
@@ -313,11 +316,13 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
       mMapView.postInvalidate();
    }
    
+   @Override
    public String getDataSourceId()
    {
       return LoggerMapHelper.GOOGLE_PROVIDER;
    }
 
+   @Override
    public boolean isOutsideScreen(GeoPoint lastPoint)
    {
       Point out = new Point();
@@ -327,6 +332,7 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
       return (out.x < 0 || out.y < 0 || out.y > height || out.x > width);
    }
 
+   @Override
    public boolean isNearScreenEdge(GeoPoint lastPoint)
    {
       Point out = new Point();
@@ -336,130 +342,156 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
       return (out.x < width / 4 || out.y < height / 4 || out.x > (width / 4) * 3 || out.y > (height / 4) * 3);
    }
 
+   @Override
    public void executePostponedActions()
    {
       // NOOP for Google Maps
    }
    
+   @Override
    public void enableCompass()
    {
       mMylocation.enableCompass();
    }
 
+   @Override
    public void enableMyLocation()
    {
       mMylocation.enableMyLocation(); 
    }
+   @Override
    public void disableMyLocation()
    {
       mMylocation.disableMyLocation();
    }
 
+   @Override
    public void disableCompass()
    {
       mMylocation.disableCompass();
    }
 
+   @Override
    public void setZoom(int zoom)
    {
       mMapView.getController().setZoom(zoom);
    }
 
+   @Override
    public void animateTo(GeoPoint storedPoint)
    {
       mMapView.getController().animateTo(storedPoint);
    }
 
+   @Override
    public int getZoomLevel()
    {
       return mMapView.getZoomLevel();
    }
 
+   @Override
    public GeoPoint getMapCenter()
    {
       return mMapView.getMapCenter();
    }
 
+   @Override
    public boolean zoomOut()
    {
       return mMapView.getController().zoomOut();
    }
 
+   @Override
    public boolean zoomIn()
    {
       return  mMapView.getController().zoomIn();
    }
 
+   @Override
    public void postInvalidate()
    {
       mMapView.postInvalidate();
    }
 
+   @Override
    public void clearAnimation()
    {
       mMapView.clearAnimation();
    }
 
+   @Override
    public void setCenter(GeoPoint lastPoint)
    {
       mMapView.getController().setCenter(lastPoint);
    }
 
+   @Override
    public int getMaxZoomLevel()
    {
       return mMapView.getMaxZoomLevel();
    }
 
+   @Override
    public GeoPoint fromPixels(int x, int y)
    {
       return mMapView.getProjection().fromPixels(x, y);
    }
 
+   @Override
    public boolean hasProjection()
    {
       return mMapView.getProjection() != null;
    }
 
+   @Override
    public float metersToEquatorPixels(float float1)
    {
       return mMapView.getProjection().metersToEquatorPixels(float1);
    }
 
+   @Override
    public void toPixels(GeoPoint geoPoint, Point screenPoint)
    {
       mMapView.getProjection().toPixels(geoPoint, screenPoint);
    }
 
+   @Override
    public TextView[] getSpeedTextViews()
    {
       return mSpeedtexts;
    }
 
+   @Override
    public TextView getAltitideTextView()
    {
       return mLastGPSAltitudeView;
    }
 
+   @Override
    public TextView getSpeedTextView()
    {
       return mLastGPSSpeedView;
    }
 
+   @Override
    public TextView getDistanceTextView()
    {
       return mDistanceView;
    }
 
+   @Override
    public void addOverlay(OverlayProvider overlay)
    {
       mMapView.getOverlays().add(overlay.getGoogleOverlay());
    }
 
+   @Override
    public void clearOverlays()
    { 
       mMapView.getOverlays().clear();
    }
    
+   @Override
    public SlidingIndicatorView getScaleIndicatorView()
    {
       return (SlidingIndicatorView) findViewById(R.id.scaleindicator);

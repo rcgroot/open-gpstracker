@@ -26,19 +26,19 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.adapter.tasks;
+package nl.sogeti.android.gpstracker.breadcrumbs;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
-import nl.sogeti.android.gpstracker.adapter.BreadcrumbsTracks;
-import nl.sogeti.android.gpstracker.util.Pair;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -64,13 +64,14 @@ import android.util.Log;
  * pop a browser to the user to authorize the Request Token.
  * (OAuthAuthorizeToken)
  */
-public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
+public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
 {
 
-   private LinkedList<Pair<Integer, String>> mActivities;
-   final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
+   final String TAG = "OGT.GetBreadcrumbsTracksTask";
    private OAuthConsumer mConsumer;
-   private DefaultHttpClient mHttpClient;
+   private DefaultHttpClient mHttpclient;
+   private Integer mBundleId;
+   private LinkedList<Object[]> mTracks;
 
    /**
     * We pass the OAuth consumer and provider.
@@ -81,11 +82,12 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsActivitiesTask(Context context, BreadcrumbsAdapter adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public GetBreadcrumbsTracksTask(Context context, BreadcrumbsService adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer, Integer bundleId)
    {
       super(context, adapter, listener);
-      mHttpClient = httpclient;
+      mHttpclient = httpclient;
       mConsumer = consumer;
+      mBundleId = bundleId;
    }
 
    /**
@@ -95,11 +97,12 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
    @Override
    protected Void doInBackground(Void... params)
    {
-      mActivities = new LinkedList<Pair<Integer,String>>(); 
+      mTracks = new LinkedList<Object[]>();
       HttpEntity responseEntity = null;
       try
       {
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/activities.xml");
+
+         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/bundles/"+mBundleId+"/tracks.xml");
          if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
@@ -113,7 +116,7 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
                Log.d( TAG, "   with header: "+header.toString());
             }
          }
-         HttpResponse response = mHttpClient.execute(request);
+         HttpResponse response = mHttpclient.execute(request);
          responseEntity = response.getEntity();
          InputStream is = responseEntity.getContent();
          InputStream stream = new BufferedInputStream(is, 8192);
@@ -121,6 +124,7 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
          {
             stream = XmlCreator.convertStreamToLoggedStream(TAG, stream);
          }
+         
          
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
          factory.setNamespaceAware(true);
@@ -130,8 +134,9 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
          String tagName = null;
          int eventType = xpp.getEventType();
 
-         String activityName = null;
-         Integer activityId = null;
+         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null, trackRating = null, isPublic = null;
+         Integer trackId = null, bundleId = null, totalTime = null;
+         Float lat = null, lng = null, totalDistance = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
          {
             if (eventType == XmlPullParser.START_TAG)
@@ -140,21 +145,58 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-               if ("activity".equals(xpp.getName()) && activityId != null && activityName != null)
+               if ("track".equals(xpp.getName()) && trackId != null && bundleId != null)
                {
-                  mActivities.add(new Pair<Integer, String>(activityId, activityName));
+                  mTracks.add(new Object[] { trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance,
+                        totalTime, trackRating });
                }
                tagName = null;
             }
             else if (eventType == XmlPullParser.TEXT)
             {
-               if ("id".equals(tagName))
+               if ("bundle-id".equals(tagName))
                {
-                  activityId = Integer.parseInt(xpp.getText());
+                  bundleId = Integer.parseInt(xpp.getText());
+               }
+               else if ("description".equals(tagName))
+               {
+                  description = xpp.getText();
+               }
+               else if ("difficulty".equals(tagName))
+               {
+                  difficulty = xpp.getText();
+               }
+               else if ("start-time".equals(tagName))
+               {
+                  startTime = xpp.getText();
+               }
+               else if ("end-time".equals(tagName))
+               {
+                  endTime = xpp.getText();
+               }
+               else if ("id".equals(tagName))
+               {
+                  trackId = Integer.parseInt(xpp.getText());
+               }
+               else if ("is-public".equals(tagName))
+               {
+                  isPublic = xpp.getText();
+               }
+               else if ("lat".equals(tagName))
+               {
+                  lat = Float.parseFloat(xpp.getText());
+               }
+               else if ("lng".equals(tagName))
+               {
+                  lng = Float.parseFloat(xpp.getText());
                }
                else if ("name".equals(tagName))
                {
-                  activityName = xpp.getText();
+                  trackName = xpp.getText();
+               }
+               else if ("track-rating".equals(tagName))
+               {
+                  trackRating = xpp.getText();
                }
             }
             eventType = xpp.next();
@@ -162,26 +204,26 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
       }
       catch (OAuthMessageSignerException e)
       {
-         mAdapter.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_activity), e, "Failed to sign the request with authentication signature");
+         mService.removeAuthentication();
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
-         mAdapter.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_activity), e, "The request did not authenticate");
+         mService.removeAuthentication();
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "The request did not authenticate");
       }
       catch (OAuthCommunicationException e)
       {
-         mAdapter.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_activity), e, "The authentication communication failed");
+         mService.removeAuthentication();
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "The authentication communication failed");
       }
       catch (IOException e)
       {
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_activity), e, "A problem during communication");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "A problem during communication");
       }
       catch (XmlPullParserException e)
       {
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_activity), e, "A problem while reading the XML data");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "A problem while reading the XML data");
       }
       finally
       {
@@ -199,13 +241,36 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
       }
       return null;
    }
-   
+
    @Override
-   protected void updateTracksData( BreadcrumbsTracks tracks )
+   protected void updateTracksData(BreadcrumbsTracks tracks)
    {
-      for( Pair<Integer, String> activity : mActivities )
+
+      Set<Integer> mTracksIds = new HashSet<Integer>() ;
+      for (Object[] track : mTracks)
       {
-        tracks.addActivity(activity.first, activity.second);
+         mTracksIds.add((Integer) track[0]);
       }
+      tracks.setAllTracksForBundleId( mBundleId, mTracksIds );
+      
+      for (Object[] track : mTracks)
+      {
+         Integer trackId = (Integer) track[0];
+         String trackName = (String) track[1];
+         Integer bundleId = (Integer) track[2];
+         String description = (String) track[3];
+         String difficulty = (String) track[4];
+         String startTime = (String) track[5];
+         String endTime = (String) track[6];
+         String isPublic = (String) track[7];
+         Float lat = (Float) track[8];
+         Float lng = (Float) track[9];
+         Float totalDistance = (Float) track[10];
+         Integer totalTime = (Integer) track[11];
+         String trackRating = (String) track[12];
+         
+         tracks.addTrack(trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance, totalTime, trackRating);
+      }
+
    }
 }

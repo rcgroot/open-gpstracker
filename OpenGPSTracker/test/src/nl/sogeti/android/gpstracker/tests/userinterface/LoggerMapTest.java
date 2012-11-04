@@ -34,8 +34,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.map.GoogleLoggerMap;
-import nl.sogeti.android.gpstracker.viewer.map.LoggerMap;
+import nl.sogeti.android.gpstracker.viewer.map.CommonLoggerMap;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -54,11 +53,11 @@ import com.google.android.maps.MapView;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-public class LoggerMapTest extends ActivityInstrumentationTestCase2<GoogleLoggerMap>
+public class LoggerMapTest extends ActivityInstrumentationTestCase2<CommonLoggerMap>
 {
-   private static final Class<GoogleLoggerMap> CLASS = GoogleLoggerMap.class;
+   private static final Class<CommonLoggerMap> CLASS = CommonLoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
-   private GoogleLoggerMap mLoggermap;
+   private CommonLoggerMap mLoggermap;
    private MapView mMapView;
 
    public LoggerMapTest()
@@ -220,7 +219,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<GoogleLogger
                   public void run()
                   {
                      Intent newTrack = new Intent( Intent.ACTION_VIEW, trackUri );
-                     mLoggermap.onNewIntent( newTrack );
+                     mLoggermap.startActivity(newTrack);
                   }
                }
             );

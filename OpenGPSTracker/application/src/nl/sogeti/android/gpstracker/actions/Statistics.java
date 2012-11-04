@@ -121,6 +121,7 @@ public class Statistics extends Activity implements StatisticsDelegate
    };
    private OnClickListener mGraphControlListener = new View.OnClickListener()
    {
+      @Override
       public void onClick( View v )
       {
          int id = v.getId();
@@ -178,6 +179,7 @@ public class Statistics extends Activity implements StatisticsDelegate
       super.onCreate( load );
       mUnits = new UnitsI18n( this, new UnitsI18n.UnitsChangeListener()
          {
+            @Override
             public void onUnitsChange()
             {
                drawTrackingStatistics();
@@ -412,6 +414,7 @@ public class Statistics extends Activity implements StatisticsDelegate
       calculator.execute(mTrackUri);
    }
 
+   @Override
    public void finishedCalculations(StatisticsCalulator calculated)
    {
       mGraphTimeSpeed.setData       ( mTrackUri, calculated );

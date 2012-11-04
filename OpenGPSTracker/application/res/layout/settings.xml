@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<PreferenceScreen
-   xmlns:android="http://schemas.android.com/apk/res/android"
-   android:title="@string/opengpstracker_title">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:title="@string/opengpstracker_title" >
 
    <PreferenceScreen
       android:title="@string/preference_logging">

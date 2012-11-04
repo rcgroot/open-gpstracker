@@ -10,27 +10,27 @@
       android:id="@+id/logcontrol_start"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:state_enabled="false"
+      android:enabled="false"
    ></Button>
    <Button
       android:text="@string/logcontrol_pause"
       android:id="@+id/logcontrol_pause"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:state_enabled="false"
+      android:enabled="false"
    ></Button>
    <Button
       android:text="@string/logcontrol_resume"
       android:id="@+id/logcontrol_resume"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:state_enabled="false"
+      android:enabled="false"
    ></Button>
    <Button
       android:text="@string/logcontrol_stop"
       android:id="@+id/logcontrol_stop"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:state_enabled="false"
+      android:enabled="false"
    ></Button>
 </LinearLayout>

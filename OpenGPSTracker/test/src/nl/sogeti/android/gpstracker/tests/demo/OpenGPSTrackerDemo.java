@@ -30,8 +30,7 @@ package nl.sogeti.android.gpstracker.tests.demo;
 
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
-import nl.sogeti.android.gpstracker.viewer.map.GoogleLoggerMap;
-import nl.sogeti.android.gpstracker.viewer.map.LoggerMap;
+import nl.sogeti.android.gpstracker.viewer.map.CommonLoggerMap;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -43,13 +42,13 @@ import com.google.android.maps.MapView;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<GoogleLoggerMap>
+public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<CommonLoggerMap>
 {
 
    private static final int ZOOM_LEVEL = 16;
-   private static final Class<GoogleLoggerMap> CLASS = GoogleLoggerMap.class;
+   private static final Class<CommonLoggerMap> CLASS = CommonLoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
-   private GoogleLoggerMap mLoggermap;
+   private CommonLoggerMap mLoggermap;
    private GPSLoggerServiceManager mLoggerServiceManager;
    private MapView mMapView;
    private MockGPSLoggerDriver mSender;
@@ -284,6 +283,7 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<GoogleL
    private void h_shareTrack30Seconds()
    {
       // TODO Auto-generated method stub
+      
    }
 
    @SmallTest
