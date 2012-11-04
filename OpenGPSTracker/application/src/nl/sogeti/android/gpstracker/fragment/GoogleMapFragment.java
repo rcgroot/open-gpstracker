@@ -26,194 +26,79 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.viewer.map;
+package nl.sogeti.android.gpstracker.fragment;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.googlemapfragment.ActivityHostFragment;
+import nl.sogeti.android.gpstracker.googlemapfragment.FixedMyLocationOverlay;
+import nl.sogeti.android.gpstracker.googlemapfragment.MyGoogleMapActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
-import nl.sogeti.android.gpstracker.viewer.map.overlay.FixedMyLocationOverlay;
+import nl.sogeti.android.gpstracker.viewer.map.LoggerMapHelper;
 import nl.sogeti.android.gpstracker.viewer.map.overlay.OverlayProvider;
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 
 /**
- * Main activity showing a track and allowing logging control
+ * Fragment showing a track and allowing logging control
  * 
  * @version $Id$
  * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */
-public class GoogleLoggerMap extends MapActivity implements LoggerMap
+public class GoogleMapFragment extends ActivityHostFragment
 {
-   LoggerMapHelper mHelper;
    private MapView mMapView;
-   private TextView[] mSpeedtexts;
-   private TextView mLastGPSSpeedView;
-   private TextView mLastGPSAltitudeView;
-   private TextView mDistanceView;
    private FixedMyLocationOverlay mMylocation;
-   
-   /**
-    * Called when the activity is first created.
-    */
+
    @Override
-   protected void onCreate(Bundle load)
+   protected Class< ? extends Activity> getActivityClass()
    {
-      super.onCreate(load);
-      setContentView(R.layout.map_google);
-      
-      mHelper = new LoggerMapHelper(this);
-      mMapView = (MapView) findViewById(R.id.myMapView);
-      mMylocation = new FixedMyLocationOverlay(this, mMapView);
-      mMapView.setBuiltInZoomControls(true);
-      TextView[] speeds = { (TextView) findViewById(R.id.speedview05), (TextView) findViewById(R.id.speedview04), (TextView) findViewById(R.id.speedview03),
-            (TextView) findViewById(R.id.speedview02), (TextView) findViewById(R.id.speedview01), (TextView) findViewById(R.id.speedview00) };
-      mSpeedtexts = speeds;
-      mLastGPSSpeedView = (TextView) findViewById(R.id.currentSpeed);
-      mLastGPSAltitudeView = (TextView) findViewById(R.id.currentAltitude);
-      mDistanceView = (TextView) findViewById(R.id.currentDistance);
-      
-      mHelper.onCreate(load);
-   }
-   
-   @Override
-   protected void onResume()
-   {
-      super.onResume();
-      mHelper.onResume();
-   }
-   
-   @Override
-   protected void onPause()
-   {
-      mHelper.onPause();
-      super.onPause();
-   }
-   
-   @Override
-   protected void onDestroy()
-   {
-      mHelper.onDestroy();
-      super.onDestroy();
-   }
-   
-   @Override
-   public void onNewIntent(Intent newIntent)
-   {
-      mHelper.onNewIntent(newIntent);
+      return MyGoogleMapActivity.class;
    }
 
    @Override
-   protected void onRestoreInstanceState(Bundle load)
+   public void onAttach(Activity activity)
    {
-      if (load != null)
-      {
-         super.onRestoreInstanceState(load);
-      }
-      mHelper.onRestoreInstanceState(load);
+      super.onAttach(activity);
    }
-   
+
    @Override
-   protected void onSaveInstanceState(Bundle save)
+   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
    {
-      super.onSaveInstanceState(save);
-      mHelper.onSaveInstanceState(save);
+      View v = super.onCreateView(inflater, container, savedInstanceState);
+      mMapView = (MapView) getHostedActivity().findViewById(R.id.myMapView);
+      mMapView.setBuiltInZoomControls(true);
+      mMylocation = new FixedMyLocationOverlay(this.getActivity(), mMapView);
+      super.didCreateView(v, savedInstanceState);
+      
+      return v;
    }
-   
+
    @Override
-   public boolean onCreateOptionsMenu(Menu menu)
+   public void onCreate(Bundle savedInstanceState)
    {
-      boolean result = super.onCreateOptionsMenu(menu);
-      mHelper.onCreateOptionsMenu(menu);
-      return result;
+      super.onCreate(savedInstanceState);
+      setHasOptionsMenu(true);
    }
-   
+
    @Override
-   public boolean onPrepareOptionsMenu(Menu menu)
+   public void onDestroyView()
    {
-      mHelper.onPrepareOptionsMenu(menu);
-      return super.onPrepareOptionsMenu(menu);
+      mMapView = null;
+      super.onDestroyView();
    }
-   
-   @Override
-   public boolean onOptionsItemSelected(MenuItem item)
-   {
-      boolean handled = mHelper.onOptionsItemSelected(item);
-      if( !handled )
-      {
-         handled = super.onOptionsItemSelected(item);
-      }
-      return handled;
-   }
-   
-   @Override
-   protected void onActivityResult(int requestCode, int resultCode, Intent intent)
-   {
-      super.onActivityResult(requestCode, resultCode, intent);
-      mHelper.onActivityResult(requestCode, resultCode, intent);
-   }
-   
-   @Override
-   public boolean onKeyDown(int keyCode, KeyEvent event)
-   {
-      boolean propagate = true;
-      switch (keyCode)
-      {
-         case KeyEvent.KEYCODE_S:
-            setSatelliteOverlay(!this.mMapView.isSatellite());
-            propagate = false;
-            break;
-         case KeyEvent.KEYCODE_A:
-            setTrafficOverlay(!this.mMapView.isTraffic());
-            propagate = false;
-            break;
-         default:
-            propagate = mHelper.onKeyDown(keyCode, event);
-            if( propagate )
-            {
-               propagate = super.onKeyDown(keyCode, event);
-            }
-            break;
-      }
-      return propagate;
-   }
-   
-   @Override
-   protected Dialog onCreateDialog(int id)
-   {
-      Dialog dialog = mHelper.onCreateDialog(id);
-      if( dialog == null )
-      {
-         dialog = super.onCreateDialog(id);
-      }
-      return dialog;
-   }
-   
-   @Override
-   protected void onPrepareDialog(int id, Dialog dialog)
-   {
-      mHelper.onPrepareDialog(id, dialog);
-      super.onPrepareDialog(id, dialog);
-   }
-   
-   /******************************/
-   /** Own methods              **/ 
-   /******************************/
-   
+
    private void setTrafficOverlay(boolean b)
    {
       SharedPreferences sharedPreferences = mHelper.getPreferences();
@@ -229,42 +114,23 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
       editor.putBoolean(Constants.SATELLITE, b);
       editor.commit();
    }
-   
-   @Override
-   protected boolean isRouteDisplayed()
-   {
-      return true;
-   }
-   
-   @Override
-   protected boolean isLocationDisplayed()
-   {
-      SharedPreferences sharedPreferences = mHelper.getPreferences();
-      return sharedPreferences.getBoolean(Constants.LOCATION, false) || mHelper.isLogging();
-   }
 
    /******************************/
-   /** Loggermap methods        **/ 
+   /** Loggermap methods **/
    /******************************/
-   
+
    @Override
    public void updateOverlays()
    {
       SharedPreferences sharedPreferences = mHelper.getPreferences();
-      GoogleLoggerMap.this.mMapView.setSatellite(sharedPreferences.getBoolean(Constants.SATELLITE, false));
-      GoogleLoggerMap.this.mMapView.setTraffic(sharedPreferences.getBoolean(Constants.TRAFFIC, false));
+      mMapView.setSatellite(sharedPreferences.getBoolean(Constants.SATELLITE, false));
+      mMapView.setTraffic(sharedPreferences.getBoolean(Constants.TRAFFIC, false));
    }
-   
+
    @Override
    public void setDrawingCacheEnabled(boolean b)
    {
-      findViewById(R.id.mapScreen).setDrawingCacheEnabled(true);
-   }
-   
-   @Override
-   public Activity getActivity()
-   {
-      return this;
+      mMapView.getRootView().setDrawingCacheEnabled(true);
    }
 
    @Override
@@ -302,7 +168,7 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
    @Override
    public Bitmap getDrawingCache()
    {
-      return findViewById(R.id.mapScreen).getDrawingCache();
+      return mMapView.getRootView().getDrawingCache();
    }
 
    @Override
@@ -315,7 +181,7 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
    {
       mMapView.postInvalidate();
    }
-   
+
    @Override
    public String getDataSourceId()
    {
@@ -347,7 +213,7 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
    {
       // NOOP for Google Maps
    }
-   
+
    @Override
    public void enableCompass()
    {
@@ -357,8 +223,9 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
    @Override
    public void enableMyLocation()
    {
-      mMylocation.enableMyLocation(); 
+      mMylocation.enableMyLocation();
    }
+
    @Override
    public void disableMyLocation()
    {
@@ -404,7 +271,7 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
    @Override
    public boolean zoomIn()
    {
-      return  mMapView.getController().zoomIn();
+      return mMapView.getController().zoomIn();
    }
 
    @Override
@@ -456,30 +323,6 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
    }
 
    @Override
-   public TextView[] getSpeedTextViews()
-   {
-      return mSpeedtexts;
-   }
-
-   @Override
-   public TextView getAltitideTextView()
-   {
-      return mLastGPSAltitudeView;
-   }
-
-   @Override
-   public TextView getSpeedTextView()
-   {
-      return mLastGPSSpeedView;
-   }
-
-   @Override
-   public TextView getDistanceTextView()
-   {
-      return mDistanceView;
-   }
-
-   @Override
    public void addOverlay(OverlayProvider overlay)
    {
       mMapView.getOverlays().add(overlay.getGoogleOverlay());
@@ -487,13 +330,13 @@ public class GoogleLoggerMap extends MapActivity implements LoggerMap
 
    @Override
    public void clearOverlays()
-   { 
+   {
       mMapView.getOverlays().clear();
    }
-   
+
    @Override
    public SlidingIndicatorView getScaleIndicatorView()
    {
-      return (SlidingIndicatorView) findViewById(R.id.scaleindicator);
+      return (SlidingIndicatorView) getView().findViewById(R.id.scaleindicator);
    }
 }

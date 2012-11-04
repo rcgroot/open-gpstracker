@@ -33,6 +33,7 @@ import nl.sogeti.android.gpstracker.actions.DescribeTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import nl.sogeti.android.gpstracker.activity.LoggerMapActivity;
 import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
 import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
@@ -40,10 +41,9 @@ import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService.LocalBinder;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.fragment.LoggerMapFragment;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
-import nl.sogeti.android.gpstracker.viewer.map.CommonLoggerMap;
-import nl.sogeti.android.gpstracker.viewer.map.LoggerMap;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -333,7 +333,7 @@ public class TrackList extends ListActivity implements ProgressListener
          }
          else
          {
-            intent.setClass(this, CommonLoggerMap.class);
+            intent.setClass(this, LoggerMapActivity.class);
             startActivity(intent);
          }
       }
@@ -569,7 +569,7 @@ public class TrackList extends ListActivity implements ProgressListener
          if ("content".equals(uri.getScheme()) && GPStracking.AUTHORITY.equals(uri.getAuthority()))
          {
             // Got to VIEW a single track, instead hand it of to the LoggerMap
-            Intent notificationIntent = new Intent(this, LoggerMap.class);
+            Intent notificationIntent = new Intent(this, LoggerMapFragment.class);
             notificationIntent.setData(uri);
             startActivity(notificationIntent);
             finish();

@@ -19,10 +19,12 @@ import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
 import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
+import nl.sogeti.android.gpstracker.activity.LoggerMapActivity;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.fragment.LoggerMapFragment;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
@@ -149,23 +151,31 @@ public class LoggerMapHelper
    private Runnable speedCalculator;
    private Runnable heightCalculator;
 
-   private LoggerMap mLoggerMap;
+   private LoggerMapFragment mLoggerMap;
    private BitmapSegmentsOverlay mBitmapSegmentsOverlay;
    private float mSpeed;
    private double mAltitude;
    private float mDistance;
+   private int mZoom;
+   private GeoPoint mStoredPoint;
 
-   public LoggerMapHelper(LoggerMap loggerMap)
+   public LoggerMapHelper(LoggerMapFragment loggerMap)
    {
       mLoggerMap = loggerMap;
    }
 
+
+   public void onCreateView()
+   {
+      mLoggerMap.setDrawingCacheEnabled(true);
+      
+   }
+   
    /**
     * Called when the activity is first created.
     */
-   protected void onCreate(Bundle load)
+   public void onCreate(Bundle load)
    {
-      mLoggerMap.setDrawingCacheEnabled(true);
       mUnits = new UnitsI18n(mLoggerMap.getActivity());
       mLoggerServiceManager = new GPSLoggerServiceManager(mLoggerMap.getActivity());
 
@@ -195,13 +205,10 @@ public class LoggerMapHelper
       mBitmapSegmentsOverlay = new BitmapSegmentsOverlay(mLoggerMap, mHandler);
       createListeners();
       onRestoreInstanceState(load);
-      mLoggerMap.updateOverlays();
    }
 
-   protected void onResume()
+   public void onResume()
    {
-      updateMapProvider();
-
       mLoggerServiceManager.startup(mLoggerMap.getActivity(), mServiceConnected);
 
       mSharedPreferences.registerOnSharedPreferenceChangeListener(mSharedPreferenceChangeListener);
@@ -223,6 +230,7 @@ public class LoggerMapHelper
          resolver.registerContentObserver(lastSegmentUri, true, this.mSegmentWaypointsObserver);
          resolver.registerContentObserver(mediaUri, true, this.mTrackMediasObserver);
       }
+      mLoggerMap.updateOverlays();
       updateDataOverlays();
 
       updateSpeedColoring();
@@ -231,13 +239,17 @@ public class LoggerMapHelper
       updateDistanceDisplayVisibility();
       updateCompassDisplayVisibility();
       updateLocationDisplayVisibility();
-      
       updateTrackNumbers();
+      
+
+      mLoggerMap.setZoom(mZoom);
+      moveToTrack(mTrackId, true);
+      mLoggerMap.animateTo(mStoredPoint);
       
       mLoggerMap.executePostponedActions();
    }
 
-   protected void onPause()
+   public void onPause()
    {
       if (this.mWakeLock != null && this.mWakeLock.isHeld())
       {
@@ -258,7 +270,7 @@ public class LoggerMapHelper
       this.mLoggerServiceManager.shutdown(mLoggerMap.getActivity());
    }
 
-   protected void onDestroy()
+   public void onDestroy()
    {
       mLoggerMap.clearOverlays();
       mHandler.post(new Runnable()
@@ -291,13 +303,13 @@ public class LoggerMapHelper
       }
    }
 
-   protected void onRestoreInstanceState(Bundle load)
+   public void onRestoreInstanceState(Bundle load)
    {
       Uri data = mLoggerMap.getActivity().getIntent().getData();
       if (load != null && load.containsKey(INSTANCE_TRACK)) // 1st method: track from a previous instance of this activity
       {
          long loadTrackId = load.getLong(INSTANCE_TRACK);
-         moveToTrack(loadTrackId, false);
+         mTrackId = loadTrackId;
          if (load.containsKey(INSTANCE_AVGSPEED))
          {
             mAverageSpeed = load.getDouble(INSTANCE_AVGSPEED);
@@ -322,7 +334,7 @@ public class LoggerMapHelper
       else if (data != null) // 2nd method: track ordered to make
       {
          long loadTrackId = Long.parseLong(data.getLastPathSegment());
-         moveToTrack(loadTrackId, true);
+         mTrackId = loadTrackId;
       }
       else
       // 3rd method: just try the last track
@@ -332,26 +344,24 @@ public class LoggerMapHelper
 
       if (load != null && load.containsKey(INSTANCE_ZOOM))
       {
-         mLoggerMap.setZoom(load.getInt(INSTANCE_ZOOM));
+         mZoom = load.getInt(INSTANCE_ZOOM);
       }
       else
       {
-         mLoggerMap.setZoom(ZOOM_LEVEL);
+         mZoom = ZOOM_LEVEL;
       }
-
+      
       if (load != null && load.containsKey(INSTANCE_E6LAT) && load.containsKey(INSTANCE_E6LONG))
       {
-         GeoPoint storedPoint = new GeoPoint(load.getInt(INSTANCE_E6LAT), load.getInt(INSTANCE_E6LONG));
-         mLoggerMap.animateTo(storedPoint);
+         mStoredPoint = new GeoPoint(load.getInt(INSTANCE_E6LAT), load.getInt(INSTANCE_E6LONG));
       }
       else
       {
-         GeoPoint lastPoint = getLastTrackPoint();
-         mLoggerMap.animateTo(lastPoint);
+         mStoredPoint = getLastTrackPoint();
       }
    }
 
-   protected void onSaveInstanceState(Bundle save)
+   public void onSaveInstanceState(Bundle save)
    {
       save.putLong(INSTANCE_TRACK, this.mTrackId);
       save.putDouble(INSTANCE_AVGSPEED, mAverageSpeed);
@@ -655,7 +665,8 @@ public class LoggerMapHelper
             }
             else if (key.equals(Constants.MAPPROVIDER))
             {
-               updateMapProvider();
+               LoggerMapActivity activity = (LoggerMapActivity) mLoggerMap.getActivity();
+               activity.updateMapProvider();
             }
             else if (key.equals(Constants.OSMBASEOVERLAY))
             {
@@ -1007,42 +1018,6 @@ public class LoggerMapHelper
       }
    }
 
-   private void updateMapProvider()
-   {
-      Class< ? > mapClass = null;
-      int provider = Integer.valueOf(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
-      switch (provider)
-      {
-         case Constants.GOOGLE:
-            mapClass = GoogleLoggerMap.class;
-            break;
-         case Constants.MAPQUEST:
-            mapClass = MapQuestLoggerMap.class;
-            break;
-         default:
-            mapClass = GoogleLoggerMap.class;
-            Log.e(TAG, "Fault in value " + provider + " as MapProvider, defaulting to Google Maps.");
-            break;
-      }
-      if (mapClass != mLoggerMap.getActivity().getClass())
-      {
-         Intent myIntent = mLoggerMap.getActivity().getIntent();
-         Intent realIntent;
-         if (myIntent != null)
-         {
-            realIntent = new Intent(myIntent.getAction(), myIntent.getData(), mLoggerMap.getActivity(), mapClass);
-            realIntent.putExtras(myIntent);
-         }
-         else
-         {
-            realIntent = new Intent(mLoggerMap.getActivity(), mapClass);
-            realIntent.putExtras(myIntent);
-         }
-         mLoggerMap.getActivity().startActivity(realIntent);
-         mLoggerMap.getActivity().finish();
-      }
-   }
-
    protected void updateMapProviderAdministration(String provider)
    {
       mLoggerServiceManager.storeDerivedDataSource(provider);
@@ -1077,7 +1052,7 @@ public class LoggerMapHelper
    private void updateSpeedColoring()
    {
       int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
-      View speedbar = mLoggerMap.getActivity().findViewById(R.id.speedbar);
+      View speedbar = mLoggerMap.getSpeedbar();
       SlidingIndicatorView scaleIndicator = mLoggerMap.getScaleIndicatorView();
       
       TextView[] speedtexts = mLoggerMap.getSpeedTextViews();
@@ -1616,7 +1591,6 @@ public class LoggerMapHelper
 
    private void moveToLastTrack()
    {
-      int trackId = -1;
       Cursor track = null;
       try
       {
@@ -1624,8 +1598,7 @@ public class LoggerMapHelper
          track = resolver.query(Tracks.CONTENT_URI, new String[] { "max(" + Tracks._ID + ")", Tracks.NAME, }, null, null, null);
          if (track != null && track.moveToLast())
          {
-            trackId = track.getInt(0);
-            moveToTrack(trackId, false);
+            mTrackId = track.getInt(0);
          }
       }
       finally
@@ -1658,5 +1631,4 @@ public class LoggerMapHelper
    {
       return mLoggerServiceManager.getLoggingState() == Constants.LOGGING;
    }
-
 }

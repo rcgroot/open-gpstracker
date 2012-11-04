@@ -30,11 +30,11 @@ package nl.sogeti.android.gpstracker.tests.userinterface;
 
 import junit.framework.Assert;
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.activity.LoggerMapActivity;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.map.CommonLoggerMap;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -53,11 +53,11 @@ import com.google.android.maps.MapView;
  * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  */
-public class LoggerMapTest extends ActivityInstrumentationTestCase2<CommonLoggerMap>
+public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMapActivity>
 {
-   private static final Class<CommonLoggerMap> CLASS = CommonLoggerMap.class;
+   private static final Class<LoggerMapActivity> CLASS = LoggerMapActivity.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
-   private CommonLoggerMap mLoggermap;
+   private LoggerMapActivity mLoggermap;
    private MapView mMapView;
 
    public LoggerMapTest()

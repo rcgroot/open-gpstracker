@@ -10,14 +10,16 @@
  ** The Netherlands                  |  permission of the copyright holder.
  *------------------------------------------------------------------------------
  */
-package nl.sogeti.android.gpstracker.viewer.map;
+package nl.sogeti.android.gpstracker.fragment;
 
 import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
 import nl.sogeti.android.gpstracker.viewer.map.overlay.OverlayProvider;
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -29,12 +31,10 @@ import com.google.android.maps.GeoPoint;
  * @version $Id$
  * @author rene (c) Feb 26, 2012, Sogeti B.V.
  */
-public interface LoggerMap
+public interface LoggerMapFragment
 {
 
    void setDrawingCacheEnabled(boolean b);
-
-   Activity getActivity();
 
    void updateOverlays();
 
@@ -103,4 +103,8 @@ public interface LoggerMap
    void clearOverlays();
 
    SlidingIndicatorView getScaleIndicatorView();
+
+   Activity getActivity();
+
+   View getSpeedbar();
 }

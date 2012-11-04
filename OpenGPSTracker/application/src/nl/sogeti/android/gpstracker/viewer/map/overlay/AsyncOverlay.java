@@ -1,6 +1,6 @@
 package nl.sogeti.android.gpstracker.viewer.map.overlay;
 
-import nl.sogeti.android.gpstracker.viewer.map.LoggerMap;
+import nl.sogeti.android.gpstracker.fragment.LoggerMapFragment;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -41,7 +41,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
 
    private Paint mPaint;
 
-   private LoggerMap mLoggerMap;
+   private LoggerMapFragment mLoggerMap;
 
    private SegmentMapQuestOverlay mMapQuestOverlay;
 
@@ -71,7 +71,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
 
    private boolean postedBitmapUpdater;
 
-   AsyncOverlay(LoggerMap loggermap, Handler handler)
+   AsyncOverlay(LoggerMapFragment loggermap, Handler handler)
    {
       mLoggerMap = loggermap;
       mHandler = handler;
@@ -136,7 +136,7 @@ public abstract class AsyncOverlay extends Overlay implements OverlayProvider
       }
    }
 
-   protected abstract void redrawOffscreen(Canvas asyncBuffer, LoggerMap loggermap);
+   protected abstract void redrawOffscreen(Canvas asyncBuffer, LoggerMapFragment loggermap);
 
    protected abstract void scheduleRecalculation();
 

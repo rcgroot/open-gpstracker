@@ -45,7 +45,7 @@
             android:value="534dfce474894e218f363a5473248ff6" />
 
         <activity
-            android:name=".viewer.map.CommonLoggerMap"
+            android:name=".activity.LoggerMapActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask" >
             <intent-filter>
@@ -64,23 +64,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".viewer.map.GoogleLoggerMap"
-            android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:theme="@style/Theme.NoBackground" >
-        </activity>
+            android:name=".googlemapfragment.MyGoogleMapActivity"
+            android:label="@string/app_name" />
         <activity
-            android:name=".viewer.map.OsmLoggerMap"
-            android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:theme="@style/Theme.NoBackground" >
-        </activity>
-        <activity
-            android:name=".viewer.map.MapQuestLoggerMap"
-            android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:theme="@style/Theme.NoBackground" >
-        </activity>
+            android:name=".googlemapfragment.MyMapquestMapActivity"
+            android:label="@string/app_name" />
         <activity
             android:name=".viewer.ApplicationPreferenceActivity"
             android:label="@string/menu_settings" />
