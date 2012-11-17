@@ -7,12 +7,13 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="4" />
+        android:targetSdkVersion="17" />
 
     <supports-screens
         android:largeScreens="true"
         android:normalScreens="true"
-        android:smallScreens="true" />
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -79,7 +80,7 @@
             android:name=".actions.DescribeTrack"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name=".actions.ControlTracking"
+            android:name=".activity.ControlTrackingActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".actions.InsertNote"

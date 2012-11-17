@@ -68,12 +68,6 @@ public class GoogleMapFragment extends ActivityHostFragment
    }
 
    @Override
-   public void onAttach(Activity activity)
-   {
-      super.onAttach(activity);
-   }
-
-   @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
    {
       View v = super.onCreateView(inflater, container, savedInstanceState);

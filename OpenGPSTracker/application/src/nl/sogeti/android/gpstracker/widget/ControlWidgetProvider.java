@@ -29,8 +29,8 @@
 package nl.sogeti.android.gpstracker.widget;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
+import nl.sogeti.android.gpstracker.activity.ControlTrackingActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -187,7 +187,7 @@ public class ControlWidgetProvider extends AppWidgetProvider
          int buttonId = Integer.parseInt(data.getSchemeSpecificPart());
          if (buttonId == BUTTON_TRACKINGCONTROL)
          {
-            Intent controlIntent = new Intent( context, ControlTracking.class );
+            Intent controlIntent = new Intent( context, ControlTrackingActivity.class );
             controlIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(controlIntent);
          }

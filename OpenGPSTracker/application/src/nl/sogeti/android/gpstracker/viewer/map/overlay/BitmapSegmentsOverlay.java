@@ -3,7 +3,7 @@ package nl.sogeti.android.gpstracker.viewer.map.overlay;
 import java.util.LinkedList;
 import java.util.List;
 
-import nl.sogeti.android.gpstracker.fragment.LoggerMapFragment;
+import nl.sogeti.android.gpstracker.fragment.LoggerMapFragmentInterface;
 
 import android.graphics.Canvas;
 import android.os.Handler;
@@ -18,7 +18,7 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
    List<SegmentRendering> mOverlays;
    Handler mOverlayHandler;
 
-   public BitmapSegmentsOverlay(LoggerMapFragment loggermap, Handler handler)
+   public BitmapSegmentsOverlay(LoggerMapFragmentInterface loggermap, Handler handler)
    {
       super(loggermap, handler);
       mOverlays = new LinkedList<SegmentRendering>();
@@ -26,7 +26,7 @@ public class BitmapSegmentsOverlay extends AsyncOverlay
    }
 
    @Override
-   synchronized protected void redrawOffscreen(Canvas asyncBuffer, LoggerMapFragment loggermap)
+   synchronized protected void redrawOffscreen(Canvas asyncBuffer, LoggerMapFragmentInterface loggermap)
    {
       for (SegmentRendering segment : mOverlays)
       {

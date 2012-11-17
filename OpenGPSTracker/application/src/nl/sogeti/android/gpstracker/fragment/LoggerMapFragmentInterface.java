@@ -31,7 +31,7 @@ import com.google.android.maps.GeoPoint;
  * @version $Id$
  * @author rene (c) Feb 26, 2012, Sogeti B.V.
  */
-public interface LoggerMapFragment
+public interface LoggerMapFragmentInterface
 {
 
    void setDrawingCacheEnabled(boolean b);

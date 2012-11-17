@@ -30,7 +30,7 @@ import android.widget.TextView;
  * @version $Id:$
  * @author rene (c) Nov 4, 2012, Sogeti B.V.
  */
-public abstract class AbstractLoggerFragment extends Fragment implements LoggerMapFragment
+public abstract class AbstractLoggerFragment extends Fragment implements LoggerMapFragmentInterface
 {
 
    protected LoggerMapHelper mHelper;

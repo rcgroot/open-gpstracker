@@ -38,7 +38,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.fragment.LoggerMapFragment;
+import nl.sogeti.android.gpstracker.fragment.LoggerMapFragmentInterface;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -100,7 +100,7 @@ public class SegmentRendering
    private int mTrackColoringMethod = DRAW_CALCULATED;
 
    private ContentResolver mResolver;
-   private LoggerMapFragment mLoggerMap;
+   private LoggerMapFragmentInterface mLoggerMap;
 
    private int mPlacement = SegmentRendering.MIDDLE_SEGMENT;
    private Uri mWaypointsUri;
@@ -176,7 +176,7 @@ public class SegmentRendering
     * @param avgSpeed
     * @param handler
     */
-   public SegmentRendering(LoggerMapFragment loggermap, Uri segmentUri, int color, double avgSpeed, double avgHeight, Handler handler)
+   public SegmentRendering(LoggerMapFragmentInterface loggermap, Uri segmentUri, int color, double avgSpeed, double avgHeight, Handler handler)
    {
       super();
       mHandler = handler;

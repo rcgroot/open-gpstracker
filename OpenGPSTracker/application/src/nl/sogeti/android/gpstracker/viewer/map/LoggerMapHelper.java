@@ -15,16 +15,17 @@ package nl.sogeti.android.gpstracker.viewer.map;
 import java.util.concurrent.Semaphore;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
 import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
+import nl.sogeti.android.gpstracker.activity.ControlTrackingActivity;
 import nl.sogeti.android.gpstracker.activity.LoggerMapActivity;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.fragment.LoggerMapFragment;
+import nl.sogeti.android.gpstracker.fragment.ControlTrackingFragment;
+import nl.sogeti.android.gpstracker.fragment.LoggerMapFragmentInterface;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.SlidingIndicatorView;
@@ -151,7 +152,7 @@ public class LoggerMapHelper
    private Runnable speedCalculator;
    private Runnable heightCalculator;
 
-   private LoggerMapFragment mLoggerMap;
+   private LoggerMapFragmentInterface mLoggerMap;
    private BitmapSegmentsOverlay mBitmapSegmentsOverlay;
    private float mSpeed;
    private double mAltitude;
@@ -159,7 +160,7 @@ public class LoggerMapHelper
    private int mZoom;
    private GeoPoint mStoredPoint;
 
-   public LoggerMapHelper(LoggerMapFragment loggerMap)
+   public LoggerMapHelper(LoggerMapFragmentInterface loggerMap)
    {
       mLoggerMap = loggerMap;
    }
@@ -782,7 +783,7 @@ public class LoggerMapHelper
       switch (item.getItemId())
       {
          case MENU_TRACKING:
-            intent = new Intent(mLoggerMap.getActivity(), ControlTracking.class);
+            intent = new Intent(mLoggerMap.getActivity(), ControlTrackingActivity.class);
             mLoggerMap.getActivity().startActivityForResult(intent, MENU_TRACKING);
             handled = true;
             break;

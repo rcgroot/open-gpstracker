@@ -41,7 +41,7 @@ import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService.LocalBinder;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.fragment.LoggerMapFragment;
+import nl.sogeti.android.gpstracker.fragment.LoggerMapFragmentInterface;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
 import android.app.AlertDialog;
@@ -569,7 +569,7 @@ public class TrackList extends ListActivity implements ProgressListener
          if ("content".equals(uri.getScheme()) && GPStracking.AUTHORITY.equals(uri.getAuthority()))
          {
             // Got to VIEW a single track, instead hand it of to the LoggerMap
-            Intent notificationIntent = new Intent(this, LoggerMapFragment.class);
+            Intent notificationIntent = new Intent(this, LoggerMapFragmentInterface.class);
             notificationIntent.setData(uri);
             startActivity(notificationIntent);
             finish();

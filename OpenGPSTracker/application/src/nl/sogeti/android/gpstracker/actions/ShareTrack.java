@@ -48,7 +48,7 @@ import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
 import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
 import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService.LocalBinder;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.fragment.LoggerMapFragment;
+import nl.sogeti.android.gpstracker.fragment.LoggerMapFragmentInterface;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import android.app.Activity;
@@ -774,7 +774,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
          CharSequence tickerText = getString(R.string.ticker_saving) + "\"" + mFileName + "\"";
    
          mNotification = new Notification();
-         PendingIntent contentIntent = PendingIntent.getActivity(ShareTrack.this, 0, new Intent(ShareTrack.this, LoggerMapFragment.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+         PendingIntent contentIntent = PendingIntent.getActivity(ShareTrack.this, 0, new Intent(ShareTrack.this, LoggerMapFragmentInterface.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                PendingIntent.FLAG_UPDATE_CURRENT);
    
          mNotification.contentIntent = contentIntent;
