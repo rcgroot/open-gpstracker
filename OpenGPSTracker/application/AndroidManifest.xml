@@ -1,241 +1,234 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest 
-    xmlns:android="http://schemas.android.com/apk/res/android" 
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nl.sogeti.android.gpstracker"
-	android:installLocation="auto"
-        android:versionCode="80" android:versionName="1.3.4">
+    android:installLocation="auto"
+    android:versionCode="80"
+    android:versionName="1.4" >
 
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4"/>
+    <permission
+        android:name="nl.sogeti.android.gpstracker.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
 
-    
+    <uses-permission android:name="nl.sogeti.android.gpstracker.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="17" />
+
     <supports-screens
-         android:largeScreens="true"
-         android:normalScreens="true"
-         android:smallScreens="true" />
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
 
-   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-   <uses-permission android:name="android.permission.INTERNET" />
-   <uses-permission android:name="android.permission.WAKE_LOCK" />
-   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-   <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> 
-   
-   <uses-feature android:name="android.hardware.location.gps" android:required="true" />
-   
-	<application 
-      android:icon="@drawable/icon" 
-      android:label="@string/app_name"
-      android:description="@string/app_name" 
-      android:allowClearUserData="true"
-      android:hardwareAccelerated="true">
-      
-         <uses-library android:name="com.google.android.maps"  />
-      
-         <meta-data
-            android:name="org.openintents.metadata.COMMENTS"
-            android:value="@string/about_comments" />
-         <meta-data
-            android:name="org.openintents.metadata.COPYRIGHT"
-            android:value="@string/about_copyright" />
-         <meta-data
-            android:name="org.openintents.metadata.AUTHORS"
-            android:resource="@array/about_authors" />
-         <meta-data
-            android:name="org.openintents.metadata.DOCUMENTERS"
-            android:resource="@array/about_documenters" />
-         <meta-data
-            android:name="org.openintents.metadata.TRANSLATORS"
-            android:resource="@array/about_translators" />
-         <meta-data
-            android:name="org.openintents.metadata.ARTISTS"
-            android:resource="@array/about_artists" />
-         <meta-data
-            android:name="org.openintents.metadata.WEBSITE_LABEL"
-            android:value="@string/about_website_label" />
-         <meta-data
-            android:name="org.openintents.metadata.WEBSITE_URL"
-            android:value="@string/about_website_url" />
-         <meta-data
-            android:name="org.openintents.metadata.LICENSE"
-            android:resource="@raw/licence_short" />
-         <meta-data
-            android:name="org.openintents.metadata.EMAIL"
-            android:value="@string/about_email" />
-         <meta-data 
-              android:name="android.app.default_searchable"
-              android:value=".viewer.TrackList" />
-         <meta-data 
-              android:name="CLOUDMADE_KEY" 
-              android:value="534dfce474894e218f363a5473248ff6" />
-       	
-		<activity
-            android:label="@string/app_name" 
-            android:name=".viewer.LoggerMap" 
-            android:launchMode="singleTask"
-            android:theme="@style/Theme.NoBackground"
-            android:hardwareAccelerated="false" > <!-- TODO honeycomb hardware acceleration breaks the line coloring -->
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-            <intent-filter android:label="Show track on map">
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="true" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:allowClearUserData="true"
+        android:description="@string/app_name"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name" >
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".viewer.TrackList" />
+        <meta-data
+            android:name="CLOUDMADE_KEY"
+            android:value="534dfce474894e218f363a5473248ff6" />
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyBOvjftoANGhCgSZSpCAB6UecUBoeMFggA" />
+        <!-- release.keystore AIzaSyAGAjfG1CqhS-QvIjjO_s6lINhI1mpB7GI -->
+        <!-- debug.keystore:  AIzaSyBOvjftoANGhCgSZSpCAB6UecUBoeMFggA -->
+
+        <activity
+            android:name=".viewer.LoggerMap"
+            android:label="@string/app_name"
+            android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter android:label="Show track on map" >
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:scheme="content" />
                 <data android:host="nl.sogeti.android.gpstracker" />
                 <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
-		</activity>
-		        
-         <activity 
-            android:label="@string/menu_settings" 
-            android:name=".viewer.ApplicationPreferenceActivity"/>
-
-         <activity 
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:name=".actions.NameTrack"/>
-         <activity 
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:name=".actions.DescribeTrack"/>
-         
-         <activity 
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:name=".actions.ControlTracking"/>
-        
-         <activity  
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:name=".actions.InsertNote"/>
-
-         <activity
+        </activity>
+        <activity
+            android:name=".viewer.ApplicationPreferenceActivity"
+            android:label="@string/menu_settings" />
+        <activity
+            android:name=".actions.NameTrack"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name=".actions.DescribeTrack"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name=".actions.ControlTracking"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name=".actions.InsertNote"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
             android:name=".viewer.TrackList"
-            android:label="@string/track_list" 
+            android:label="@string/track_list"
             android:launchMode="singleTop" >
             <intent-filter>
-               <action android:name="android.intent.action.SEARCH" />
-               <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.SEARCH" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="file" />                               
+
+                <data android:scheme="file" />
                 <data android:mimeType="*/*" />
                 <data android:pathPattern=".*\\.gpx" />
                 <data android:host="*" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:mimeType="text/xml" />
             </intent-filter>
+
             <meta-data
-               android:name="android.app.searchable"
-               android:resource="@xml/searchable" />
-         </activity>
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name=".viewer.TracksLiveFolder"
+            android:icon="@drawable/icon"
+            android:label="@string/track_list" >
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_LIVE_FOLDER" />
 
-         <activity
-             android:name=".viewer.TracksLiveFolder"
-             android:label="@string/track_list"
-             android:icon="@drawable/icon" >
-             <intent-filter>
-                 <action android:name="android.intent.action.CREATE_LIVE_FOLDER" />
-                 <category android:name="android.intent.category.DEFAULT" />
-             </intent-filter>
-         </activity>
-      
-        <activity 
-            android:label="@string/menu_statistics" 
-            android:name=".actions.Statistics">
-        </activity> 
-
-         <activity
-            android:name=".actions.ShareTrack" 
-            android:label="@string/share_track"
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".actions.Statistics"
+            android:label="@string/menu_statistics" >
+        </activity>
+        <activity
+            android:name=".actions.ShareTrack"
             android:exported="false"
+            android:label="@string/share_track"
             android:windowSoftInputMode="stateUnchanged" >
             <intent-filter>
-               <action android:name="android.intent.action.RUN" />
-               <category android:name="android.intent.category.DEFAULT" />
-               <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
+                <action android:name="android.intent.action.RUN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
-         </activity>
-         
-		<activity 
-		    android:name=".oauth.PrepareRequestTokenActivity"
+        </activity>
+        <activity
+            android:name=".oauth.PrepareRequestTokenActivity"
             android:exported="true"
-            android:theme="@android:style/Theme.Dialog"
             android:label="@string/authentication_redirect"
-			android:launchMode="singleTask">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="x-oauthflow-opengpstracker" android:host="callback" />
-			</intent-filter>
-		</activity>
-         
-		<service 
-		      android:name=".logger.GPSLoggerService"
-              android:enabled="true" 
-		      android:permission="android.permission.ACCESS_FINE_LOCATION">
-			<intent-filter android:label="GPS logger">
-				<action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
-			</intent-filter>
-		</service>
-        
-        <service 
-            android:name=".breadcrumbs.BreadcrumbsService"/>
-      
-		<provider 
-            android:enabled="true" 
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="callback"
+                    android:scheme="x-oauthflow-opengpstracker" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".logger.GPSLoggerService"
+            android:enabled="true"
+            android:permission="android.permission.ACCESS_FINE_LOCATION" >
+            <intent-filter android:label="GPS logger" >
+                <action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService" >
+                </action>
+            </intent-filter>
+        </service>
+        <service android:name=".breadcrumbs.BreadcrumbsService" />
+
+        <provider
+            android:name=".db.GPStrackingProvider"
             android:authorities="nl.sogeti.android.gpstracker"
-            android:permission="android.permission.ACCESS_FINE_LOCATION"
-			android:name=".db.GPStrackingProvider" >
+            android:enabled="true"
+            android:permission="android.permission.ACCESS_FINE_LOCATION" >
             <grant-uri-permission android:pathPrefix="/tracks/" />
-            <path-permission android:path="/search_suggest_query"
+
+            <path-permission
+                android:path="/search_suggest_query"
                 android:readPermission="android.permission.GLOBAL_SEARCH" />
-            <path-permission android:path="/live_folders/tracks"
+            <path-permission
+                android:path="/live_folders/tracks"
                 android:readPermission="android.permission.BIND_APPWIDGET" />
-		</provider>
-         
-         <!--  This is used to auto start the application at boot -->
-         <receiver 
-             android:name=".util.BootReceiver"
-             android:exported="false">
-             
-         	<intent-filter>
-	        	<action android:name="android.intent.action.BOOT_COMPLETED" />
-	        </intent-filter>
-	     </receiver>
-	    
-         <!--  This is used to auto start the application at boot -->
-         <receiver 
-             android:name=".util.DockReceiver"
-             android:exported="false">
+        </provider>
+
+        <!-- This is used to auto start the application at boot -->
+        <receiver
+            android:name=".util.BootReceiver"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- This is used to auto start the application at boot -->
+        <receiver
+            android:name=".util.DockReceiver"
+            android:exported="false" >
             <intent-filter>
                 <action android:name="android.intent.action.DOCK_EVENT" />
             </intent-filter>
-         </receiver>
-       
-	    <!-- This receiver defines the app widget and the broadcasts it receives -->
-        <receiver 
-	     	android:name=".widget.ControlWidgetProvider"
-            android:exported="false"
-	     	android:label="Logger control">
-    		<intent-filter>
-        		<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-    		</intent-filter>
-    		<intent-filter>
-    			<action android:name="nl.sogeti.android.gpstracker.LOGGING_STATE_CHANGED" />
-    		</intent-filter>
-    		<meta-data 
-    			android:name="android.appwidget.provider"
-               	android:resource="@xml/control_appwidget_info" />
-		</receiver>  
+        </receiver>
 
+        <!-- This receiver defines the app widget and the broadcasts it receives -->
+        <receiver
+            android:name=".widget.ControlWidgetProvider"
+            android:exported="false"
+            android:label="Logger control" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="nl.sogeti.android.gpstracker.LOGGING_STATE_CHANGED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/control_appwidget_info" />
+        </receiver>
     </application>
+
 </manifest>

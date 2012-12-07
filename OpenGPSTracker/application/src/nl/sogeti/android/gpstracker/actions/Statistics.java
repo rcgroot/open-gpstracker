@@ -72,9 +72,6 @@ public class Statistics extends Activity implements StatisticsDelegate
 {
 
    private static final int DIALOG_GRAPHTYPE = 3;
-   private static final int MENU_GRAPHTYPE = 11;
-   private static final int MENU_TRACKLIST = 12;
-   private static final int MENU_SHARE = 41;
    private static final String TRACKURI = "TRACKURI";
    private static final String TAG = "OGT.Statistics";
 
@@ -285,11 +282,9 @@ public class Statistics extends Activity implements StatisticsDelegate
    @Override
    public boolean onCreateOptionsMenu( Menu menu )
    {
-      boolean result = super.onCreateOptionsMenu( menu );
-      menu.add( ContextMenu.NONE, MENU_GRAPHTYPE, ContextMenu.NONE, R.string.menu_graphtype ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 't' );
-      menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'l' );
-      menu.add( ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack ).setIcon( R.drawable.ic_menu_share ).setAlphabeticShortcut( 's' );
-      return result;
+      super.onCreateOptionsMenu( menu );
+      getMenuInflater().inflate(R.menu.statistics, menu);
+      return true;
    }
 
    @Override
@@ -299,23 +294,23 @@ public class Statistics extends Activity implements StatisticsDelegate
       Intent intent;
       switch( item.getItemId() )
       {
-         case MENU_GRAPHTYPE:
+         case R.id.menu_statistics_type:
             showDialog( DIALOG_GRAPHTYPE );
             handled = true;
             break;
-         case MENU_TRACKLIST:
+         case R.id.menu_statistics_tracklist:
             intent = new Intent( this, TrackList.class );
             intent.putExtra( Tracks._ID, mTrackUri.getLastPathSegment() );
-            startActivityForResult( intent, MENU_TRACKLIST );
+            startActivityForResult( intent, R.id.menu_statistics_tracklist );
             break;
-         case MENU_SHARE:
+         case R.id.menu_statistics_share:
             intent = new Intent( Intent.ACTION_RUN );
             intent.setDataAndType( mTrackUri, Tracks.CONTENT_ITEM_TYPE );
             intent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
             Bitmap bm = mViewFlipper.getDrawingCache();
             Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
             intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
-            startActivityForResult(Intent.createChooser( intent, getString( R.string.share_track ) ), MENU_SHARE);
+            startActivityForResult(Intent.createChooser( intent, getString( R.string.share_track ) ), R.id.menu_statistics_share);
             handled = true;
             break;
          default:
@@ -343,14 +338,14 @@ public class Statistics extends Activity implements StatisticsDelegate
       super.onActivityResult( requestCode, resultCode, intent );
       switch( requestCode )
       {
-         case MENU_TRACKLIST:
+         case R.id.menu_statistics_tracklist:
             if( resultCode == RESULT_OK )
             {
                mTrackUri = intent.getData();
                drawTrackingStatistics();
             }
             break;
-         case MENU_SHARE:
+         case R.id.menu_statistics_share:
             ShareTrack.clearScreenBitmap();
             break;
          default:

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_statistics_type"
+        android:alphabeticShortcut="t"
+        android:icon="@drawable/ic_menu_picture"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_graphtype"/>
+    <item
+        android:id="@+id/menu_statistics_tracklist"
+        android:alphabeticShortcut="l"
+        android:icon="@drawable/ic_menu_show_list"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_tracklist"/>
+    <item
+        android:id="@+id/menu_statistics_share"
+        android:alphabeticShortcut="s"
+        android:icon="@drawable/ic_menu_share"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_shareTrack"/>
+
+</menu>

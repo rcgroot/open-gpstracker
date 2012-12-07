@@ -25,28 +25,7 @@
              android:layout_width="fill_parent"
              android:layout_height="wrap_content" />
       </RadioGroup>
-      
-      <RadioGroup 
-        android:id="@+id/osm_backgrounds" 
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content" >
-          <RadioButton
-             android:text="@string/layer_cloudmade"
-             android:id="@+id/layer_osm_cloudmade"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-          <RadioButton
-             android:text="@string/layer_maknik"
-             android:id="@+id/layer_osm_maknik"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-          <RadioButton
-             android:text="@string/layer_bicycle"
-             android:id="@+id/layer_osm_bicycle"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-      </RadioGroup>
-         
+    
       <RadioGroup 
         android:id="@+id/shared_layers" 
 		android:layout_width="fill_parent" 
@@ -89,6 +68,5 @@
 	         android:layout_height="wrap_content" />
       </RadioGroup>
          
-   
 </LinearLayout>
 </ScrollView>
