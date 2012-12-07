@@ -45,12 +45,6 @@
         android:showAsAction="collapseActionView"
         android:title="@string/menu_settings"/>
     <item
-        android:id="@+id/menu_loggermap_about"
-        android:alphabeticShortcut="a"
-        android:icon="@drawable/ic_menu_info_details"
-        android:showAsAction="collapseActionView"
-        android:title="@string/menu_about"/>
-    <item
         android:id="@+id/menu_loggermap_contrib"
         android:alphabeticShortcut="o"
         android:icon="@drawable/ic_menu_allfriends"

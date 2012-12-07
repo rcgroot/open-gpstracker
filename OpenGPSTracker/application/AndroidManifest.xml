@@ -168,6 +168,10 @@
                     android:scheme="x-oauthflow-opengpstracker" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".viewer.About"
+            android:label="@string/menu_about" >
+        </activity>
 
         <service
             android:name=".logger.GPSLoggerService"

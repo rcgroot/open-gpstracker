@@ -78,6 +78,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -114,7 +115,6 @@ public class LoggerMap extends FragmentActivity
    // MENU'S
    private static final int MENU_PLAYERROR = 15;
    private static final int DIALOG_NOTRACK = 24;
-   private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
    private static final int DIALOG_URIS = 34;
    private static final int DIALOG_CONTRIB = 35;
@@ -155,7 +155,6 @@ public class LoggerMap extends FragmentActivity
    private ContentObserver mSegmentWaypointsObserver;
    private ContentObserver mTrackMediasObserver;
    private DialogInterface.OnClickListener mNoTrackDialogListener;
-   private DialogInterface.OnClickListener mOiAboutDialogListener;
    private OnClickListener mNoteSelectDialogListener;
    private OnCheckedChangeListener mCheckedChangeListener;
    private android.widget.RadioGroup.OnCheckedChangeListener mGroupCheckedChangeListener;
@@ -595,25 +594,6 @@ public class LoggerMap extends FragmentActivity
                startActivityForResult(tracklistIntent, MENU_LOGGERMAP_TRACKLIST);
             }
          };
-      mOiAboutDialogListener = new DialogInterface.OnClickListener()
-         {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-               Uri oiDownload = Uri.parse("market://details?id=org.openintents.about");
-               Intent oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-               try
-               {
-                  startActivity(oiAboutIntent);
-               }
-               catch (ActivityNotFoundException e)
-               {
-                  oiDownload = Uri.parse("http://openintents.googlecode.com/files/AboutApp-1.0.0.apk");
-                  oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-                  startActivity(oiAboutIntent);
-               }
-            }
-         };
       /**
        * Listeners to events outside this mapview
        */
@@ -799,17 +779,6 @@ public class LoggerMap extends FragmentActivity
             }
             handled = true;
             break;
-         case R.id.menu_loggermap_about:
-            intent = new Intent("org.openintents.action.SHOW_ABOUT_DIALOG");
-            try
-            {
-               startActivityForResult(intent, MENU_LOGGERMAP_ABOUT);
-            }
-            catch (ActivityNotFoundException e)
-            {
-               showDialog(DIALOG_INSTALL_ABOUT);
-            }
-            break;
          case R.id.menu_loggermap_share:
             intent = new Intent(Intent.ACTION_RUN);
             trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId);
@@ -823,6 +792,8 @@ public class LoggerMap extends FragmentActivity
             break;
          case R.id.menu_loggermap_contrib:
             showDialog(DIALOG_CONTRIB);
+            handled = true;
+            break;
          default:
             handled = super.onOptionsItemSelected(item);
             break;
@@ -873,12 +844,6 @@ public class LoggerMap extends FragmentActivity
                   .setPositiveButton(R.string.btn_selecttrack, mNoTrackDialogListener).setNegativeButton(R.string.btn_cancel, null);
             dialog = builder.create();
             return dialog;
-         case DIALOG_INSTALL_ABOUT:
-            builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_nooiabout).setMessage(R.string.dialog_nooiabout_message).setIcon(android.R.drawable.ic_dialog_alert)
-                  .setPositiveButton(R.string.btn_install, mOiAboutDialogListener).setNegativeButton(R.string.btn_cancel, null);
-            dialog = builder.create();
-            return dialog;
          case DIALOG_URIS:
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
@@ -892,8 +857,8 @@ public class LoggerMap extends FragmentActivity
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
             view = factory.inflate(R.layout.contrib, null);
-            TextView contribView = (TextView) view.findViewById(R.id.contrib_view);
-            contribView.setText(R.string.dialog_contrib_message);
+            WebView contribView = (WebView) view.findViewById(R.id.contrib_view);
+            contribView.loadUrl("file:///android_asset/contrib.html");
             builder.setTitle(R.string.dialog_contrib_title).setView(view).setIcon(android.R.drawable.ic_dialog_email).setPositiveButton(R.string.btn_okay, null);
             dialog = builder.create();
             return dialog;
@@ -913,6 +878,8 @@ public class LoggerMap extends FragmentActivity
    @Override
    protected void onPrepareDialog(int id, Dialog dialog)
    {
+      super.onPrepareDialog(id, dialog);
+      
       RadioButton satellite;
       RadioButton regular;
       RadioButton cloudmade;
@@ -938,7 +905,6 @@ public class LoggerMap extends FragmentActivity
          default:
             break;
       }
-      super.onPrepareDialog(id, dialog);
    }
 
    /*
@@ -986,6 +952,13 @@ public class LoggerMap extends FragmentActivity
             Log.e(TAG, "Returned form unknow activity: " + requestCode);
             break;
       }
+   }
+   
+   public void showAboutInfo(View v )
+   {
+      dismissDialog(DIALOG_CONTRIB);
+      Intent intent = new Intent(this, About.class);
+      startActivityForResult(intent, MENU_LOGGERMAP_ABOUT);
    }
 
    private void updateTitleBar()
