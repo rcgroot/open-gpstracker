@@ -8,19 +8,16 @@
         android:title="@android:string/search_go"/>
     <item
         android:id="@+id/menu_tracklist_vacuum"
-        android:alphabeticShortcut=""
         android:icon="@android:drawable/ic_menu_crop"
         android:showAsAction="ifRoom"
         android:title="@string/menu_vacuum"/>
     <item
         android:id="@+id/menu_tracklist_picker"
-        android:alphabeticShortcut=""
         android:icon="@android:drawable/ic_menu_add"
         android:showAsAction="ifRoom"
         android:title="@string/menu_picker"/>
     <item
         android:id="@+id/menu_tracklist_breadcrumbs"
-        android:alphabeticShortcut=""
         android:icon="@android:drawable/ic_menu_revert"
         android:showAsAction="ifRoom"
         android:title="@string/dialog_breadcrumbsconnect"/>
