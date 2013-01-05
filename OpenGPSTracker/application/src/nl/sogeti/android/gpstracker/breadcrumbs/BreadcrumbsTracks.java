@@ -393,7 +393,7 @@ public class BreadcrumbsTracks extends Observable
       for (Integer bundleId : sBundlesWithTracks.keySet())
       {
          items.add(Pair.create(Constants.BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE, bundleId));
-         for(Integer trackId : sBundlesWithTracks.get(bundleId))
+         for (Integer trackId : sBundlesWithTracks.get(bundleId))
          {
             items.add(Pair.create(Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE, trackId));
          }
