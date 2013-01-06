@@ -90,8 +90,7 @@
             android:id="@+id/contribution_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="3dip"
-            />
+            android:layout_margin="3dip" />
 
         <View
             android:layout_width="match_parent"
@@ -108,12 +107,18 @@
             android:text="@string/about_notices"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dip"
+            android:layout_marginLeft="10dip"
+            android:layout_marginRight="10dip"
+            android:background="#7A7A7A" />
+
         <android.webkit.WebView
             android:id="@+id/notices_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="3dip"
-            />
+            android:layout_margin="3dip" />
 
         <View
             android:layout_width="match_parent"
@@ -121,6 +126,25 @@
             android:layout_marginLeft="10dip"
             android:layout_marginRight="10dip"
             android:background="#7A7A7A" />
+
+        <TextView
+            android:id="@+id/playservices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dip" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dip"
+            android:layout_marginLeft="10dip"
+            android:layout_marginRight="10dip"
+            android:background="#7A7A7A" />
+
+        <android.webkit.WebView
+            android:id="@+id/apachelong_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dip" />
     </LinearLayout>
 
 </ScrollView>

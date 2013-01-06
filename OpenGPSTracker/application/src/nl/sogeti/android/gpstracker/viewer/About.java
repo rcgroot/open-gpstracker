@@ -26,6 +26,8 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.google.android.gms.common.GooglePlayServicesUtil;
+
 /**
  * ????
  * 
@@ -63,6 +65,12 @@ public class About extends Activity
       contributions.loadUrl("file:///android_asset/contributions.html");
       WebView notice = (WebView) findViewById(R.id.notices_body);
       notice.loadUrl("file:///android_asset/notices.html");
+
+      WebView apacheLicense = (WebView) findViewById(R.id.apachelong_body);
+      apacheLicense.loadUrl("file:///android_asset/apache_license_version_20.html");
+
+      TextView playservices = (TextView) findViewById(R.id.playservices);
+      playservices.setText(GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(this));
    }
 
    public static String readRawTextFile(Context ctx, int resId)

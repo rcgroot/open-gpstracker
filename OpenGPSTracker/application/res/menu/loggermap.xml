@@ -20,18 +20,18 @@
         android:showAsAction="ifRoom"
         android:title="@string/menu_insertnote"/>
     <item
-        android:id="@+id/menu_loggermap_stats"
-        android:alphabeticShortcut="s"
-        android:icon="@drawable/ic_menu_picture"
-        android:showAsAction="ifRoom"
-        android:title="@string/menu_statistics"/>
-    <item
         android:id="@+id/menu_loggermap_share"
         android:alphabeticShortcut="i"
         android:icon="@drawable/ic_menu_share"
         android:showAsAction="ifRoom"
         android:title="@string/menu_shareTrack"/>
-      // More
+    <!-- More -->
+    <item
+        android:id="@+id/menu_loggermap_stats"
+        android:alphabeticShortcut="s"
+        android:icon="@drawable/ic_menu_picture"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_statistics"/>
     <item
         android:id="@+id/menu_loggermap_tracklist"
         android:alphabeticShortcut="p"
@@ -44,12 +44,6 @@
         android:icon="@drawable/ic_menu_preferences"
         android:showAsAction="collapseActionView"
         android:title="@string/menu_settings"/>
-    <item
-        android:id="@+id/menu_loggermap_about"
-        android:alphabeticShortcut="a"
-        android:icon="@drawable/ic_menu_info_details"
-        android:showAsAction="collapseActionView"
-        android:title="@string/menu_about"/>
     <item
         android:id="@+id/menu_loggermap_contrib"
         android:alphabeticShortcut="o"

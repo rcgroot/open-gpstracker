@@ -19,13 +19,13 @@ import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.viewer.About;
 import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -45,6 +45,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
@@ -54,7 +55,6 @@ import android.widget.Gallery;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SpinnerAdapter;
-import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -70,7 +70,6 @@ public class LoggerMapActivity extends Activity
    private static final String TAG = "LoggerMapActivity";
 
    private static final int MENU_LOGGERMAP_TRACKLIST = 0;
-   private static final int MENU_LOGGERMAP_ABOUT = 2;
    private static final int MENU_LOGGERMAP_TRACKING = 4;
    private static final int MENU_LOGGERMAP_SHARE = 6;
    private static final int MENU_LOGGERMAP_NOTE = 8;
@@ -168,7 +167,7 @@ public class LoggerMapActivity extends Activity
                moveToTrack(trackId, true);
             }
             break;
-         case MENU_LOGGERMAP_ABOUT:
+         case DIALOG_CONTRIB:
             break;
          case MENU_LOGGERMAP_TRACKING:
             if (resultCode == RESULT_OK)
@@ -276,17 +275,6 @@ public class LoggerMapActivity extends Activity
             }
             handled = true;
             break;
-         case R.id.menu_loggermap_about:
-            intent = new Intent("org.openintents.action.SHOW_ABOUT_DIALOG");
-            try
-            {
-               startActivityForResult(intent, MENU_LOGGERMAP_ABOUT);
-            }
-            catch (ActivityNotFoundException e)
-            {
-               showDialog(DIALOG_INSTALL_ABOUT);
-            }
-            break;
          case R.id.menu_loggermap_share:
             intent = new Intent(Intent.ACTION_RUN);
             trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId);
@@ -300,6 +288,8 @@ public class LoggerMapActivity extends Activity
             break;
          case R.id.menu_loggermap_contrib:
             showDialog(DIALOG_CONTRIB);
+            handled = true;
+            break;
          default:
             handled = super.onOptionsItemSelected(item);
             break;
@@ -362,8 +352,8 @@ public class LoggerMapActivity extends Activity
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
             view = factory.inflate(R.layout.contrib, null);
-            TextView contribView = (TextView) view.findViewById(R.id.contrib_view);
-            contribView.setText(R.string.dialog_contrib_message);
+            WebView contribView = (WebView) view.findViewById(R.id.contrib_view);
+            contribView.loadUrl("file:///android_asset/contrib.html");
             builder.setTitle(R.string.dialog_contrib_title).setView(view).setIcon(android.R.drawable.ic_dialog_email).setPositiveButton(R.string.btn_okay, null);
             dialog = builder.create();
             return dialog;
@@ -383,6 +373,8 @@ public class LoggerMapActivity extends Activity
    @Override
    protected void onPrepareDialog(int id, Dialog dialog, Bundle bundle)
    {
+      super.onPrepareDialog(id, dialog, bundle);
+
       RadioButton satellite;
       RadioButton regular;
       switch (id)
@@ -412,7 +404,6 @@ public class LoggerMapActivity extends Activity
          default:
             break;
       }
-      super.onPrepareDialog(id, dialog, bundle);
    }
 
    private void moveToTrack(long trackId, boolean center)
@@ -438,6 +429,13 @@ public class LoggerMapActivity extends Activity
             track.close();
          }
       }
+   }
+
+   public void showAboutInfo(View v)
+   {
+      dismissDialog(DIALOG_CONTRIB);
+      Intent intent = new Intent(this, About.class);
+      startActivityForResult(intent, DIALOG_CONTRIB);
    }
 
    private void updateTitleBar()
@@ -471,6 +469,29 @@ public class LoggerMapActivity extends Activity
          {
             mWakeLock.acquire();
             Log.w(TAG, "Acquired lock to keep screen on!");
+         }
+      }
+   }
+
+   private void moveToLastTrack()
+   {
+      int trackId = -1;
+      Cursor track = null;
+      try
+      {
+         ContentResolver resolver = this.getContentResolver();
+         track = resolver.query(Tracks.CONTENT_URI, new String[] { "max(" + Tracks._ID + ")", Tracks.NAME, }, null, null, null);
+         if (track != null && track.moveToLast())
+         {
+            trackId = track.getInt(0);
+            moveToTrack(trackId, false);
+         }
+      }
+      finally
+      {
+         if (track != null)
+         {
+            track.close();
          }
       }
    }
