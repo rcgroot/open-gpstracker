@@ -56,68 +56,11 @@
             android:layout_marginRight="10dip"
             android:background="#7A7A7A" />
 
-        <TextView
-            android:id="@+id/TextView01"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="3dip"
-            android:text="@string/about_license"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
         <android.webkit.WebView
-            android:id="@+id/license_body"
+            android:id="@+id/notices"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:layout_margin="3dip" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
-            android:background="#7A7A7A" />
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="3dip"
-            android:text="@string/about_contributions"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <android.webkit.WebView
-            android:id="@+id/contribution_body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="3dip" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
-            android:background="#7A7A7A" />
-
-        <TextView
-            android:id="@+id/TextView03"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="3dip"
-            android:text="@string/about_notices"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
-            android:background="#7A7A7A" />
-
-        <android.webkit.WebView
-            android:id="@+id/notices_body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:layout_margin="3dip" />
 
         <View
