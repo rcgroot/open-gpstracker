@@ -1,94 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-   xmlns:android="http://schemas.android.com/apk/res/android"
-   android:layout_width="wrap_content"
-   android:layout_height="wrap_content"
->
-   <LinearLayout
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-   >
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
 
-      <RadioGroup 
-        android:id="@+id/google_backgrounds" 
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content" >
-          <RadioButton
-             android:text="@string/layer_regular"
-             android:id="@+id/layer_google_regular"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-          <RadioButton
-             android:text="@string/layer_satellite"
-             android:id="@+id/layer_google_satellite"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-      </RadioGroup>
-      
-      <RadioGroup 
-        android:id="@+id/osm_backgrounds" 
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content" >
-          <RadioButton
-             android:text="@string/layer_cloudmade"
-             android:id="@+id/layer_osm_cloudmade"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-          <RadioButton
-             android:text="@string/layer_maknik"
-             android:id="@+id/layer_osm_maknik"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-          <RadioButton
-             android:text="@string/layer_bicycle"
-             android:id="@+id/layer_osm_bicycle"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-      </RadioGroup>
-         
-      <RadioGroup 
-        android:id="@+id/shared_layers" 
-		android:layout_width="fill_parent" 
-        android:layout_height="wrap_content">
-	      <CheckBox
-	         android:text="@string/layer_speed"
-	         android:id="@+id/layer_speed"
-	         android:layout_width="fill_parent"
-	         android:layout_height="wrap_content" />
-	      <CheckBox
-	         android:text="@string/layer_altitude"
-	         android:id="@+id/layer_altitude"
-	         android:layout_width="fill_parent"
-	         android:layout_height="wrap_content" />
-          <CheckBox
-             android:text="@string/layer_distance"
-             android:id="@+id/layer_distance"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content" />
-	      <CheckBox
-	         android:text="@string/layer_compass"
-	         android:id="@+id/layer_compass"
-	         android:layout_width="fill_parent"
-	         android:layout_height="wrap_content" />
-	      <CheckBox
-	         android:text="@string/layer_location"
-	         android:id="@+id/layer_location"
-	         android:layout_width="fill_parent"
-	         android:layout_height="wrap_content" />
-      </RadioGroup>
-      
-      <RadioGroup 
-        android:id="@+id/google_overlays" 
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content">
-	      <CheckBox
-	         android:text="@string/layer_traffic"
-	         android:id="@+id/layer_traffic"
-	         android:layout_width="fill_parent"
-	         android:layout_height="wrap_content" />
-      </RadioGroup>
-         
-   
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <RadioGroup
+            android:id="@+id/google_backgrounds"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <RadioButton
+                android:id="@+id/layer_google_regular"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_regular" />
+
+            <RadioButton
+                android:id="@+id/layer_google_satellite"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_satellite" />
+        </RadioGroup>
+
+        <RadioGroup
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <CheckBox
+                android:id="@+id/layer_speed"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_speed" />
+
+            <CheckBox
+                android:id="@+id/layer_altitude"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_altitude" />
+
+            <CheckBox
+                android:id="@+id/layer_distance"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_distance" />
+
+            <CheckBox
+                android:id="@+id/layer_location"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_location" />
+
+            <CheckBox
+                android:id="@+id/layer_traffic"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_traffic" />
+        </RadioGroup>
+
+    </LinearLayout>
+
 </ScrollView>

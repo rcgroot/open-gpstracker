@@ -94,10 +94,6 @@ public class TrackList extends ListActivity implements ProgressListener
    private static final int MENU_SHARE = Menu.FIRST + 1;
    private static final int MENU_RENAME = Menu.FIRST + 2;
    private static final int MENU_STATS = Menu.FIRST + 3;
-   private static final int MENU_SEARCH = Menu.FIRST + 4;
-   private static final int MENU_VACUUM = Menu.FIRST + 5;
-   private static final int MENU_PICKER = Menu.FIRST + 6;
-   private static final int MENU_BREADCRUMBS = Menu.FIRST + 7;
 
    public static final int DIALOG_FILENAME = Menu.FIRST + 22;
    private static final int DIALOG_RENAME = Menu.FIRST + 23;
@@ -241,13 +237,9 @@ public class TrackList extends ListActivity implements ProgressListener
    @Override
    public boolean onCreateOptionsMenu(Menu menu)
    {
-      boolean result = super.onCreateOptionsMenu(menu);
-
-      menu.add(ContextMenu.NONE, MENU_SEARCH, ContextMenu.NONE, android.R.string.search_go).setIcon(android.R.drawable.ic_search_category_default).setAlphabeticShortcut(SearchManager.MENU_KEY);
-      menu.add(ContextMenu.NONE, MENU_VACUUM, ContextMenu.NONE, R.string.menu_vacuum).setIcon(android.R.drawable.ic_menu_crop);
-      menu.add(ContextMenu.NONE, MENU_PICKER, ContextMenu.NONE, R.string.menu_picker).setIcon(android.R.drawable.ic_menu_add);
-      menu.add(ContextMenu.NONE, MENU_BREADCRUMBS, ContextMenu.NONE, R.string.dialog_breadcrumbsconnect).setIcon(android.R.drawable.ic_menu_revert);
-      return result;
+      super.onCreateOptionsMenu(menu);
+      getMenuInflater().inflate(R.menu.tracklist, menu);
+      return true;
    }
 
    @Override
@@ -256,14 +248,14 @@ public class TrackList extends ListActivity implements ProgressListener
       boolean handled = false;
       switch (item.getItemId())
       {
-         case MENU_SEARCH:
+         case R.id.menu_tracklist_search:
             onSearchRequested();
             handled = true;
             break;
-         case MENU_VACUUM:
+         case R.id.menu_tracklist_vacuum:
             showDialog(DIALOG_VACUUM);
             break;
-         case MENU_PICKER:
+         case R.id.menu_tracklist_picker:
             try
             {
                Intent intent = new Intent("org.openintents.action.PICK_FILE");
@@ -276,7 +268,7 @@ public class TrackList extends ListActivity implements ProgressListener
                showDialog(DIALOG_INSTALL);
             }
             break;
-         case MENU_BREADCRUMBS:
+         case R.id.menu_tracklist_breadcrumbs:
             mService.removeAuthentication();
             mService.clearAllCache();
             mService.collectBreadcrumbsOauthToken();
