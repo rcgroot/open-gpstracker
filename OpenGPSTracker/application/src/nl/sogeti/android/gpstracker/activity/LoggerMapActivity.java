@@ -148,6 +148,51 @@ public class LoggerMapActivity extends Activity
       super.onDestroy();
    }
 
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+    */
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent intent)
+   {
+      super.onActivityResult(requestCode, resultCode, intent);
+      Uri trackUri;
+      long trackId;
+      switch (requestCode)
+      {
+         case MENU_LOGGERMAP_TRACKLIST:
+            if (resultCode == RESULT_OK)
+            {
+               trackUri = intent.getData();
+               trackId = Long.parseLong(trackUri.getLastPathSegment());
+               moveToTrack(trackId, true);
+            }
+            break;
+         case MENU_LOGGERMAP_ABOUT:
+            break;
+         case MENU_LOGGERMAP_TRACKING:
+            if (resultCode == RESULT_OK)
+            {
+               trackUri = intent.getData();
+               if (trackUri != null)
+               {
+                  trackId = Long.parseLong(trackUri.getLastPathSegment());
+                  moveToTrack(trackId, true);
+               }
+            }
+            break;
+         case MENU_LOGGERMAP_SHARE:
+            ShareTrack.clearScreenBitmap();
+            break;
+         case DIALOG_PLAYERROR:
+            Log.i(TAG, "Play services error dialog finished");
+            break;
+         default:
+            Log.e(TAG, "Returned form unknow activity: " + requestCode);
+            break;
+      }
+   }
+
    @Override
    public void onNewIntent(Intent newIntent)
    {
@@ -380,7 +425,7 @@ public class LoggerMapActivity extends Activity
          track = resolver.query(trackUri, new String[] { Tracks.NAME }, null, null, null);
          if (track != null && track.moveToFirst())
          {
-            this.mTrackId = trackId;
+            mTrackId = trackId;
             Uri tracksegmentsUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments");
 
             updateTitleBar();
