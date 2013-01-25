@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<ScrollView
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content">
-  <WebView 
+  <TextView 
       android:id="@+id/contrib_view"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent" />
-
-  <Button
-      android:id="@+id/about"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_alignParentRight="true"
-      android:layout_alignParentTop="true"
-      android:text="@string/about_license"
-      android:onClick="showAboutInfo"/>
-
-</RelativeLayout>
+      android:linksClickable="true"
+      android:inputType="textMultiLine"
+      android:autoLink="web|email" />
+</ScrollView>

@@ -812,7 +812,7 @@ public class TrackList extends ListActivity implements ProgressListener
             }
             catch (ActivityNotFoundException e)
             {
-               oiDownload = Uri.parse("http://openintents.googlecode.com/files/FileManager-2.0.2.apk");
+               oiDownload = Uri.parse("http://openintents.googlecode.com/files/FileManager-1.1.3.apk");
                oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
                startActivity(oiAboutIntent);
             }
