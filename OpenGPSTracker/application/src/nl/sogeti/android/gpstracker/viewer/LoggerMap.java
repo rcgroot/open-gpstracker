@@ -28,6 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import nl.sogeti.android.gpstracker.R;
@@ -45,6 +47,7 @@ import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -69,6 +72,7 @@ import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -86,12 +90,11 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.TileOverlay;
-import com.google.android.gms.maps.model.TileOverlayOptions;
 
 /**
  * Main activity showing a track and allowing logging control
@@ -142,6 +145,7 @@ public class LoggerMap extends FragmentActivity
    private WakeLock mWakeLock = null;
    private SharedPreferences mSharedPreferences;
    private GPSLoggerServiceManager mLoggerServiceManager;
+   private SegmentOverlay mLastSegmentOverlay;
    private BaseAdapter mMediaAdapter;
 
    private GoogleMap mMapView = null;
@@ -164,8 +168,8 @@ public class LoggerMap extends FragmentActivity
    private Runnable speedCalculator;
 
    private View mMapscreen;
-   private TileOverlay mTrackTileOverlay;
-   private TrackTileProvider mTrackTileProvider;
+
+   private List<Object> overlays = new LinkedList<Object>();
 
    /**
     * Called when the activity is first created.
@@ -272,8 +276,7 @@ public class LoggerMap extends FragmentActivity
       mUnits.setUnitsChangeListener(null);
       mMapView.setMyLocationEnabled(false);
 
-      mTrackTileProvider.shutdown();
-      mLoggerServiceManager.shutdown(this);
+      this.mLoggerServiceManager.shutdown(this);
 
       super.onPause();
    }
@@ -287,6 +290,9 @@ public class LoggerMap extends FragmentActivity
    {
       super.onDestroy();
 
+      mLastSegmentOverlay = null;
+      mMapView.clear();
+      overlays.clear();
       mHandler.post(new Runnable()
          {
             @Override
@@ -638,7 +644,10 @@ public class LoggerMap extends FragmentActivity
             {
                if (!selfUpdate)
                {
-                  mTrackTileProvider.calculateMediaOnLastSegment();
+                  if (mLastSegmentOverlay != null)
+                  {
+                     mLastSegmentOverlay.calculateMedia();
+                  }
                }
                else
                {
@@ -669,8 +678,15 @@ public class LoggerMap extends FragmentActivity
                if (!selfUpdate)
                {
                   LoggerMap.this.updateTrackNumbers();
-                  moveActiveViewWindow();
-                  LoggerMap.this.updateMapProviderAdministration();
+                  if (mLastSegmentOverlay != null)
+                  {
+                     moveActiveViewWindow();
+                     LoggerMap.this.updateMapProviderAdministration();
+                  }
+                  else
+                  {
+                     Log.e(TAG, "Error the last segment changed but it is not on screen! " + mLastSegment);
+                  }
                }
                else
                {
@@ -863,7 +879,7 @@ public class LoggerMap extends FragmentActivity
    protected void onPrepareDialog(int id, Dialog dialog)
    {
       super.onPrepareDialog(id, dialog);
-
+      
       RadioButton satellite;
       RadioButton regular;
       RadioButton cloudmade;
@@ -937,8 +953,8 @@ public class LoggerMap extends FragmentActivity
             break;
       }
    }
-
-   public void showAboutInfo(View v)
+   
+   public void showAboutInfo(View v )
    {
       dismissDialog(DIALOG_CONTRIB);
       Intent intent = new Intent(this, About.class);
@@ -1048,8 +1064,14 @@ public class LoggerMap extends FragmentActivity
             mSpeedtexts[i].setVisibility(View.INVISIBLE);
          }
       }
-      mTrackTileProvider.setTrackColoringMethod(trackColoringMethod, mAverageSpeed);
-
+      
+      for (Object overlay : overlays)
+      {
+         if (overlay instanceof SegmentOverlay)
+         {
+            ((SegmentOverlay) overlay).setTrackColoringMethod(trackColoringMethod, mAverageSpeed);
+         }
+      }
    }
 
    private void updateSpeedDisplayVisibility()
@@ -1140,14 +1162,49 @@ public class LoggerMap extends FragmentActivity
     */
    private void createDataOverlays()
    {
+      mLastSegmentOverlay = null;
       mMapView.clear();
+      overlays.clear();
 
-      mTrackTileProvider = new TrackTileProvider(this);
-      mLastSegment = mTrackTileProvider.setTrackId(mTrackId, mAverageSpeed);
-      mTrackTileOverlay = mMapView.addTileOverlay(new TileOverlayOptions().tileProvider(mTrackTileProvider).visible(true).zIndex(5F));
+      ContentResolver resolver = this.getContentResolver();
+      Cursor segments = null;
+      int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "2")).intValue();
+
+      try
+      {
+         Uri segmentsUri = Uri.withAppendedPath(Tracks.CONTENT_URI, this.mTrackId + "/segments");
+         segments = resolver.query(segmentsUri, new String[] { Segments._ID }, null, null, null);
+         if (segments != null && segments.moveToFirst())
+         {
+            do
+            {
+               long segmentsId = segments.getLong(0);
+               Uri segmentUri = ContentUris.withAppendedId(segmentsUri, segmentsId);
+               SegmentOverlay segmentOverlay = new SegmentOverlay(this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView, mHandler);
+               overlays.add(segmentOverlay);
+               mLastSegmentOverlay = segmentOverlay;
+               if (segments.isFirst())
+               {
+                  segmentOverlay.addPlacement(SegmentOverlay.FIRST_SEGMENT);
+               }
+               if (segments.isLast())
+               {
+                  segmentOverlay.addPlacement(SegmentOverlay.LAST_SEGMENT);
+               }
+               mLastSegment = segmentsId;
+            }
+            while (segments.moveToNext());
+         }
+      }
+      finally
+      {
+         if (segments != null)
+         {
+            segments.close();
+         }
+      }
 
       Uri lastSegmentUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/segments/" + mLastSegment + "/waypoints");
-      ContentResolver resolver = getContentResolver();
       resolver.unregisterContentObserver(this.mSegmentWaypointsObserver);
       resolver.registerContentObserver(lastSegmentUri, false, this.mSegmentWaypointsObserver);
    }
@@ -1158,39 +1215,33 @@ public class LoggerMap extends FragmentActivity
       Uri segmentsUri = Uri.withAppendedPath(Tracks.CONTENT_URI, this.mTrackId + "/segments");
       Cursor segmentsCursor = null;
       int segmentOverlaysCount = 0;
-      long segmentsTrackId = -1;
-      if (mTrackTileProvider != null)
-      {
-         segmentsTrackId = mTrackTileProvider.getTrackId();
-         segmentOverlaysCount = mTrackTileProvider.getSegmentCount();
-      }
-      if (segmentsTrackId == mTrackId)
-      {
-         try
-         {
-            segmentsCursor = resolver.query(segmentsUri, new String[] { Segments._ID }, null, null, null);
-            if (segmentsCursor != null && segmentsCursor.getCount() == segmentOverlaysCount)
-            {
-               //            Log.d( TAG, "Alignment of segments" );
-            }
-            else
-            {
-               createDataOverlays();
-            }
-         }
-         finally
-         {
-            if (segmentsCursor != null)
-            {
-               segmentsCursor.close();
-            }
-         }
-      }
-      else
-      {
-         createDataOverlays();
-      }
 
+      for (Object overlay : overlays)
+      {
+         if (overlay instanceof SegmentOverlay)
+         {
+            segmentOverlaysCount++;
+         }
+      }
+      try
+      {
+         segmentsCursor = resolver.query(segmentsUri, new String[] { Segments._ID }, null, null, null);
+         if (segmentsCursor != null && segmentsCursor.getCount() == segmentOverlaysCount)
+         {
+            //            Log.d( TAG, "Alignment of segments" );
+         }
+         else
+         {
+            createDataOverlays();
+         }
+      }
+      finally
+      {
+         if (segmentsCursor != null)
+         {
+            segmentsCursor.close();
+         }
+      }
    }
 
    /**
@@ -1198,7 +1249,7 @@ public class LoggerMap extends FragmentActivity
     */
    public void onDateOverlayChanged()
    {
-      //      this.mMapView.postInvalidate();
+//      this.mMapView.postInvalidate();
    }
 
    private void moveActiveViewWindow()
@@ -1275,8 +1326,11 @@ public class LoggerMap extends FragmentActivity
             resolver.registerContentObserver(tracksegmentsUri, false, this.mTrackSegmentsObserver);
             resolver.registerContentObserver(Media.CONTENT_URI, true, this.mTrackMediasObserver);
 
+            this.mMapView.clear();
+            overlays.clear();
+            
             updateTitleBar();
-            createDataOverlays();
+            updateDataOverlays();
             updateSpeedColoring();
             if (center)
             {
