@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -44,6 +43,11 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
+import nl.sogeti.android.gpstracker.viewer.proxy.MyLocationOverlayProxy;
+
+import org.osmdroid.tileprovider.util.CloudmadeUtil;
+
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -70,7 +74,6 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -87,13 +90,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapActivity;
 
 /**
  * Main activity showing a track and allowing logging control
@@ -101,30 +99,34 @@ import com.google.android.gms.maps.model.LatLng;
  * @version $Id$
  * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */
-public class LoggerMap extends FragmentActivity
+public class LoggerMap extends MapActivity
 {
+
+   public static final String OSM_PROVIDER = "OSM";
    public static final String GOOGLE_PROVIDER = "GOOGLE";
 
-   private static final String INSTANCE_LONG = "long";
-   private static final String INSTANCE_LAT = "lat";
+   private static final String INSTANCE_E6LONG = "e6long";
+   private static final String INSTANCE_E6LAT = "e6lat";
    private static final String INSTANCE_ZOOM = "zoom";
    private static final String INSTANCE_SPEED = "averagespeed";
    private static final String INSTANCE_TRACK = "track";
    private static final int ZOOM_LEVEL = 16;
    // MENU'S
-   private static final int MENU_PLAYERROR = 15;
+   private static final int MENU_SETTINGS = 1;
+   private static final int MENU_TRACKING = 2;
+   private static final int MENU_TRACKLIST = 3;
+   private static final int MENU_STATS = 4;
+   private static final int MENU_ABOUT = 5;
+   private static final int MENU_LAYERS = 6;
+   private static final int MENU_NOTE = 7;
+   private static final int MENU_SHARE = 13;
+   private static final int MENU_CONTRIB = 14;
    private static final int DIALOG_NOTRACK = 24;
    private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
    private static final int DIALOG_URIS = 34;
    private static final int DIALOG_CONTRIB = 35;
    private static final String TAG = "OGT.LoggerMap";
-
-   private static final int MENU_LOGGERMAP_TRACKLIST = 0;
-   private static final int MENU_LOGGERMAP_ABOUT = 2;
-   private static final int MENU_LOGGERMAP_TRACKING = 4;
-   private static final int MENU_LOGGERMAP_SHARE = 6;
-   private static final int MENU_LOGGERMAP_NOTE = 8;
    // UI's
    private CheckBox mTraffic;
    private CheckBox mSpeed;
@@ -148,7 +150,8 @@ public class LoggerMap extends FragmentActivity
    private SegmentOverlay mLastSegmentOverlay;
    private BaseAdapter mMediaAdapter;
 
-   private GoogleMap mMapView = null;
+   private MapViewProxy mMapView = null;
+   private MyLocationOverlayProxy mMylocation;
    private Handler mHandler;
 
    private ContentObserver mTrackSegmentsObserver;
@@ -168,10 +171,6 @@ public class LoggerMap extends FragmentActivity
    private Runnable mServiceConnected;
    private Runnable speedCalculator;
 
-   private View mMapscreen;
-
-   private List<Object> overlays = new LinkedList<Object>();
-
    /**
     * Called when the activity is first created.
     */
@@ -181,25 +180,22 @@ public class LoggerMap extends FragmentActivity
       super.onCreate(load);
 
       setContentView(R.layout.map);
-      mMapView = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.myMapView)).getMap();
-
-      mMapscreen = findViewById(R.id.mapScreen);
-      mMapscreen.setDrawingCacheEnabled(true);
+      findViewById(R.id.mapScreen).setDrawingCacheEnabled(true);
       mUnits = new UnitsI18n(this);
       mLoggerServiceManager = new GPSLoggerServiceManager(this);
 
       final Semaphore calulatorSemaphore = new Semaphore(0);
       Thread calulator = new Thread("OverlayCalculator")
+      {
+         @Override
+         public void run()
          {
-            @Override
-            public void run()
-            {
-               Looper.prepare();
-               mHandler = new Handler();
-               calulatorSemaphore.release();
-               Looper.loop();
-            }
-         };
+            Looper.prepare();
+            mHandler = new Handler();
+            calulatorSemaphore.release();
+            Looper.loop();
+         }
+      };
       calulator.start();
       try
       {
@@ -210,9 +206,14 @@ public class LoggerMap extends FragmentActivity
          Log.e(TAG, "Failed waiting for a semaphore", e);
       }
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+      mMapView = new MapViewProxy();
+      updateMapProvider();
+      mMylocation = new MyLocationOverlayProxy(this, mMapView);
+      mMapView.setBuiltInZoomControls(true);
+      mMapView.setClickable(true);
 
-      TextView[] speeds = { (TextView) findViewById(R.id.speedview05), (TextView) findViewById(R.id.speedview04), (TextView) findViewById(R.id.speedview03), (TextView) findViewById(R.id.speedview02),
-            (TextView) findViewById(R.id.speedview01), (TextView) findViewById(R.id.speedview00) };
+      TextView[] speeds = { (TextView) findViewById(R.id.speedview05), (TextView) findViewById(R.id.speedview04), (TextView) findViewById(R.id.speedview03),
+            (TextView) findViewById(R.id.speedview02), (TextView) findViewById(R.id.speedview01), (TextView) findViewById(R.id.speedview00) };
       mSpeedtexts = speeds;
       mLastGPSSpeedView = (TextView) findViewById(R.id.currentSpeed);
       mLastGPSAltitudeView = (TextView) findViewById(R.id.currentAltitude);
@@ -226,17 +227,13 @@ public class LoggerMap extends FragmentActivity
    protected void onResume()
    {
       super.onResume();
-      if (ConnectionResult.SUCCESS != GooglePlayServicesUtil.isGooglePlayServicesAvailable(this))
-      {
-         showDialog(MENU_PLAYERROR);
-      }
-
       mLoggerServiceManager.startup(this, mServiceConnected);
 
       mSharedPreferences.registerOnSharedPreferenceChangeListener(mSharedPreferenceChangeListener);
       mUnits.setUnitsChangeListener(mUnitsChangeListener);
       updateTitleBar();
       updateBlankingBehavior();
+      updateMapProvider();
 
       if (mTrackId >= 0)
       {
@@ -258,7 +255,10 @@ public class LoggerMap extends FragmentActivity
       updateSpeedDisplayVisibility();
       updateAltitudeDisplayVisibility();
       updateDistanceDisplayVisibility();
+      updateCompassDisplayVisibility();
       updateLocationDisplayVisibility();
+
+      mMapView.executePostponedActions();
    }
 
    @Override
@@ -275,7 +275,8 @@ public class LoggerMap extends FragmentActivity
       resolver.unregisterContentObserver(this.mTrackMediasObserver);
       mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this.mSharedPreferenceChangeListener);
       mUnits.setUnitsChangeListener(null);
-      mMapView.setMyLocationEnabled(false);
+      mMylocation.disableMyLocation();
+      mMylocation.disableCompass();
 
       this.mLoggerServiceManager.shutdown(this);
 
@@ -292,16 +293,15 @@ public class LoggerMap extends FragmentActivity
       super.onDestroy();
 
       mLastSegmentOverlay = null;
-      mMapView.clear();
-      overlays.clear();
+      mMapView.clearOverlays();
       mHandler.post(new Runnable()
+      {
+         @Override
+         public void run()
          {
-            @Override
-            public void run()
-            {
-               Looper.myLooper().quit();
-            }
-         });
+            Looper.myLooper().quit();
+         }
+      });
 
       if (mWakeLock != null && mWakeLock.isHeld())
       {
@@ -317,7 +317,8 @@ public class LoggerMap extends FragmentActivity
 
    /*
     * (non-Javadoc)
-    * @see com.google.android.maps.MapActivity#onNewIntent(android.content.Intent)
+    * @see
+    * com.google.android.maps.MapActivity#onNewIntent(android.content.Intent)
     */
    @Override
    public void onNewIntent(Intent newIntent)
@@ -361,22 +362,22 @@ public class LoggerMap extends FragmentActivity
 
       if (load != null && load.containsKey(INSTANCE_ZOOM))
       {
-         mMapView.animateCamera(CameraUpdateFactory.zoomTo(load.getInt(INSTANCE_ZOOM)));
+         mMapView.getController().setZoom(load.getInt(INSTANCE_ZOOM));
       }
       else
       {
-         mMapView.animateCamera(CameraUpdateFactory.zoomTo(LoggerMap.ZOOM_LEVEL));
+         mMapView.getController().setZoom(LoggerMap.ZOOM_LEVEL);
       }
 
-      if (load != null && load.containsKey(INSTANCE_LAT) && load.containsKey(INSTANCE_LONG))
+      if (load != null && load.containsKey(INSTANCE_E6LAT) && load.containsKey(INSTANCE_E6LONG))
       {
-         LatLng storedPoint = new LatLng(load.getDouble(INSTANCE_LAT), load.getDouble(INSTANCE_LONG));
-         mMapView.animateCamera(CameraUpdateFactory.newLatLng(storedPoint));
+         GeoPoint storedPoint = new GeoPoint(load.getInt(INSTANCE_E6LAT), load.getInt(INSTANCE_E6LONG));
+         this.mMapView.getController().animateTo(storedPoint);
       }
       else
       {
-         LatLng lastPoint = getLastTrackPoint();
-         mMapView.animateCamera(CameraUpdateFactory.newLatLng(lastPoint));
+         GeoPoint lastPoint = getLastTrackPoint();
+         this.mMapView.getController().animateTo(lastPoint);
       }
    }
 
@@ -386,6 +387,10 @@ public class LoggerMap extends FragmentActivity
       super.onSaveInstanceState(save);
       save.putLong(INSTANCE_TRACK, this.mTrackId);
       save.putDouble(INSTANCE_SPEED, mAverageSpeed);
+      save.putInt(INSTANCE_ZOOM, this.mMapView.getZoomLevel());
+      GeoPoint point = this.mMapView.getMapCenter();
+      save.putInt(INSTANCE_E6LAT, point.getLatitudeE6());
+      save.putInt(INSTANCE_E6LONG, point.getLongitudeE6());
    }
 
    @Override
@@ -395,19 +400,17 @@ public class LoggerMap extends FragmentActivity
       switch (keyCode)
       {
          case KeyEvent.KEYCODE_T:
-            mMapView.animateCamera(CameraUpdateFactory.zoomIn());
-            propagate = false;
+            propagate = this.mMapView.getController().zoomIn();
             break;
          case KeyEvent.KEYCODE_G:
-            mMapView.animateCamera(CameraUpdateFactory.zoomOut());
-            propagate = false;
+            propagate = this.mMapView.getController().zoomOut();
             break;
          case KeyEvent.KEYCODE_S:
-            setSatelliteOverlay(this.mMapView.getMapType() != GoogleMap.MAP_TYPE_NORMAL);
+            setSatelliteOverlay(!this.mMapView.isSatellite());
             propagate = false;
             break;
          case KeyEvent.KEYCODE_A:
-            setTrafficOverlay(!this.mMapView.isTrafficEnabled());
+            setTrafficOverlay(!this.mMapView.isTraffic());
             propagate = false;
             break;
          case KeyEvent.KEYCODE_F:
@@ -454,11 +457,18 @@ public class LoggerMap extends FragmentActivity
       editor.putBoolean(Constants.ALTITUDE, b);
       editor.commit();
    }
-
+   
    private void setDistanceOverlay(boolean b)
    {
       Editor editor = mSharedPreferences.edit();
       editor.putBoolean(Constants.DISTANCE, b);
+      editor.commit();
+   }
+
+   private void setCompassOverlay(boolean b)
+   {
+      Editor editor = mSharedPreferences.edit();
+      editor.putBoolean(Constants.COMPASS, b);
       editor.commit();
    }
 
@@ -469,269 +479,314 @@ public class LoggerMap extends FragmentActivity
       editor.commit();
    }
 
+   private void setOsmBaseOverlay(int b)
+   {
+      Editor editor = mSharedPreferences.edit();
+      editor.putInt(Constants.OSMBASEOVERLAY, b);
+      editor.commit();
+   }
+
    private void createListeners()
    {
       /*******************************************************
        * 8 Runnable listener actions
        */
       speedCalculator = new Runnable()
+      {
+         @Override
+         public void run()
          {
-            @Override
-            public void run()
+            double avgspeed = 0.0;
+            ContentResolver resolver = LoggerMap.this.getContentResolver();
+            Cursor waypointsCursor = null;
+            try
             {
-               double avgspeed = 0.0;
-               ContentResolver resolver = LoggerMap.this.getContentResolver();
-               Cursor waypointsCursor = null;
-               try
-               {
-                  waypointsCursor = resolver.query(Uri.withAppendedPath(Tracks.CONTENT_URI, LoggerMap.this.mTrackId + "/waypoints"), new String[] { "avg(" + Waypoints.SPEED + ")",
-                        "max(" + Waypoints.SPEED + ")" }, null, null, null);
+               waypointsCursor = resolver.query(Uri.withAppendedPath(Tracks.CONTENT_URI, LoggerMap.this.mTrackId + "/waypoints"), new String[] {
+                     "avg(" + Waypoints.SPEED + ")", "max(" + Waypoints.SPEED + ")" }, null, null, null);
 
-                  if (waypointsCursor != null && waypointsCursor.moveToLast())
-                  {
-                     double average = waypointsCursor.getDouble(0);
-                     double maxBasedAverage = waypointsCursor.getDouble(1) / 2;
-                     avgspeed = Math.min(average, maxBasedAverage);
-                  }
-                  if (avgspeed < 2)
-                  {
-                     avgspeed = 5.55d / 2;
-                  }
-               }
-               finally
+               if (waypointsCursor != null && waypointsCursor.moveToLast())
                {
-                  if (waypointsCursor != null)
-                  {
-                     waypointsCursor.close();
-                  }
+                  double average = waypointsCursor.getDouble(0);
+                  double maxBasedAverage = waypointsCursor.getDouble(1) / 2;
+                  avgspeed = Math.min(average, maxBasedAverage);
                }
-               mAverageSpeed = avgspeed;
-               runOnUiThread(new Runnable()
-                  {
-                     @Override
-                     public void run()
-                     {
-                        updateSpeedColoring();
-                     }
-                  });
+               if (avgspeed < 2)
+               {
+                  avgspeed = 5.55d / 2;
+               }
             }
-         };
-      mServiceConnected = new Runnable()
-         {
-            @Override
-            public void run()
+            finally
             {
-               updateBlankingBehavior();
+               if (waypointsCursor != null)
+               {
+                  waypointsCursor.close();
+               }
             }
-         };
+            mAverageSpeed = avgspeed;
+            runOnUiThread(new Runnable()
+            {
+               @Override
+               public void run()
+               {
+                  updateSpeedColoring();
+               }
+            });
+         }
+      };
+      mServiceConnected = new Runnable()
+      {
+         @Override
+         public void run()
+         {
+            updateBlankingBehavior();
+         }
+      };
       /*******************************************************
        * 8 Various dialog listeners
        */
       mNoteSelectDialogListener = new DialogInterface.OnClickListener()
-         {
+      {
 
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-               Uri selected = (Uri) mGallery.getSelectedItem();
-               SegmentOverlay.handleMedia(LoggerMap.this, selected);
-            }
-         };
+         @Override
+         public void onClick(DialogInterface dialog, int which)
+         {
+            Uri selected = (Uri) mGallery.getSelectedItem();
+            SegmentOverlay.handleMedia(LoggerMap.this, selected);
+         }
+      };
       mGroupCheckedChangeListener = new android.widget.RadioGroup.OnCheckedChangeListener()
+      {
+         @Override
+         public void onCheckedChanged(RadioGroup group, int checkedId)
          {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId)
+            switch (checkedId)
             {
-               switch (checkedId)
-               {
-                  case R.id.layer_google_satellite:
-                     setSatelliteOverlay(true);
-                     break;
-                  case R.id.layer_google_regular:
-                     setSatelliteOverlay(false);
-                     break;
-                  default:
-                     break;
-               }
+               case R.id.layer_google_satellite:
+                  setSatelliteOverlay(true);
+                  break;
+               case R.id.layer_google_regular:
+                  setSatelliteOverlay(false);
+                  break;
+               case R.id.layer_osm_cloudmade:
+                  setOsmBaseOverlay(Constants.OSM_CLOUDMADE);
+                  break;
+               case R.id.layer_osm_maknik:
+                  setOsmBaseOverlay(Constants.OSM_MAKNIK);
+                  break;
+               case R.id.layer_osm_bicycle:
+                  setOsmBaseOverlay(Constants.OSM_CYCLE);
+                  break;
+               default:
+                  break;
             }
-         };
+         }
+      };
       mCheckedChangeListener = new OnCheckedChangeListener()
+      {
+         @Override
+         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
          {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            int checkedId;
+            checkedId = buttonView.getId();
+            switch (checkedId)
             {
-               int checkedId;
-               checkedId = buttonView.getId();
-               switch (checkedId)
-               {
-                  case R.id.layer_traffic:
-                     setTrafficOverlay(isChecked);
-                     break;
-                  case R.id.layer_speed:
-                     setSpeedOverlay(isChecked);
-                     break;
-                  case R.id.layer_altitude:
-                     setAltitudeOverlay(isChecked);
-                     break;
-                  case R.id.layer_distance:
-                     setDistanceOverlay(isChecked);
-                     break;
-                  case R.id.layer_location:
-                     setLocationOverlay(isChecked);
-                     break;
-                  default:
-                     break;
-               }
+               case R.id.layer_traffic:
+                  setTrafficOverlay(isChecked);
+                  break;
+               case R.id.layer_speed:
+                  setSpeedOverlay(isChecked);
+                  break;
+               case R.id.layer_altitude:
+                  setAltitudeOverlay(isChecked);
+                  break;
+               case R.id.layer_distance:
+                  setDistanceOverlay(isChecked);
+                  break;
+               case R.id.layer_compass:
+                  setCompassOverlay(isChecked);
+                  break;
+               case R.id.layer_location:
+                  setLocationOverlay(isChecked);
+                  break;
+               default:
+                  break;
             }
-         };
+         }
+      };
       mNoTrackDialogListener = new DialogInterface.OnClickListener()
+      {
+         @Override
+         public void onClick(DialogInterface dialog, int which)
          {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-               //            Log.d( TAG, "mNoTrackDialogListener" + which);
-               Intent tracklistIntent = new Intent(LoggerMap.this, TrackList.class);
-               tracklistIntent.putExtra(Tracks._ID, LoggerMap.this.mTrackId);
-               startActivityForResult(tracklistIntent, MENU_LOGGERMAP_TRACKLIST);
-            }
-         };
+            //            Log.d( TAG, "mNoTrackDialogListener" + which);
+            Intent tracklistIntent = new Intent(LoggerMap.this, TrackList.class);
+            tracklistIntent.putExtra(Tracks._ID, LoggerMap.this.mTrackId);
+            startActivityForResult(tracklistIntent, MENU_TRACKLIST);
+         }
+      };
       mOiAboutDialogListener = new DialogInterface.OnClickListener()
+      {
+         @Override
+         public void onClick(DialogInterface dialog, int which)
          {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
+            Uri oiDownload = Uri.parse("market://details?id=org.openintents.about");
+            Intent oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
+            try
             {
-               Uri oiDownload = Uri.parse("market://details?id=org.openintents.about");
-               Intent oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-               try
-               {
-                  startActivity(oiAboutIntent);
-               }
-               catch (ActivityNotFoundException e)
-               {
-                  oiDownload = Uri.parse("http://openintents.googlecode.com/files/AboutApp-1.0.0.apk");
-                  oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-                  startActivity(oiAboutIntent);
-               }
+               startActivity(oiAboutIntent);
             }
-         };
+            catch (ActivityNotFoundException e)
+            {
+               oiDownload = Uri.parse("http://openintents.googlecode.com/files/AboutApp-1.0.0.apk");
+               oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
+               startActivity(oiAboutIntent);
+            }
+         }
+      };
       /**
        * Listeners to events outside this mapview
        */
       mSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener()
+      {
+         @Override
+         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
          {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
-            {
-               if (key.equals(Constants.TRACKCOLORING))
-               {
-                  mAverageSpeed = 0.0;
-                  updateSpeedColoring();
-               }
-               else if (key.equals(Constants.DISABLEBLANKING) || key.equals(Constants.DISABLEDIMMING))
-               {
-                  updateBlankingBehavior();
-               }
-               else if (key.equals(Constants.SPEED))
-               {
-                  updateSpeedDisplayVisibility();
-               }
-               else if (key.equals(Constants.ALTITUDE))
-               {
-                  updateAltitudeDisplayVisibility();
-               }
-               else if (key.equals(Constants.DISTANCE))
-               {
-                  updateDistanceDisplayVisibility();
-               }
-               else if (key.equals(Constants.TRAFFIC))
-               {
-                  updateGoogleOverlays();
-               }
-               else if (key.equals(Constants.SATELLITE))
-               {
-                  updateGoogleOverlays();
-               }
-               else if (key.equals(Constants.LOCATION))
-               {
-                  updateLocationDisplayVisibility();
-               }
-            }
-         };
-      mTrackMediasObserver = new ContentObserver(new Handler())
-         {
-            @Override
-            public void onChange(boolean selfUpdate)
-            {
-               if (!selfUpdate)
-               {
-                  if (mLastSegmentOverlay != null)
-                  {
-                     mLastSegmentOverlay.calculateMedia();
-                  }
-               }
-               else
-               {
-                  Log.w(TAG, "mTrackMediasObserver skipping change on " + mLastSegment);
-               }
-            }
-         };
-      mTrackSegmentsObserver = new ContentObserver(new Handler())
-         {
-            @Override
-            public void onChange(boolean selfUpdate)
-            {
-               if (!selfUpdate)
-               {
-                  LoggerMap.this.updateDataOverlays();
-               }
-               else
-               {
-                  Log.w(TAG, "mTrackSegmentsObserver skipping change on " + mLastSegment);
-               }
-            }
-         };
-      mSegmentWaypointsObserver = new ContentObserver(new Handler())
-         {
-            @Override
-            public void onChange(boolean selfUpdate)
-            {
-               if (!selfUpdate)
-               {
-                  LoggerMap.this.updateTrackNumbers();
-                  if (mLastSegmentOverlay != null)
-                  {
-                     moveActiveViewWindow();
-                     LoggerMap.this.updateMapProviderAdministration();
-                  }
-                  else
-                  {
-                     Log.e(TAG, "Error the last segment changed but it is not on screen! " + mLastSegment);
-                  }
-               }
-               else
-               {
-                  Log.w(TAG, "mSegmentWaypointsObserver skipping change on " + mLastSegment);
-               }
-            }
-         };
-      mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
-         {
-            @Override
-            public void onUnitsChange()
+            if (key.equals(Constants.TRACKCOLORING))
             {
                mAverageSpeed = 0.0;
-               updateTrackNumbers();
                updateSpeedColoring();
             }
-         };
+            else if (key.equals(Constants.DISABLEBLANKING) || key.equals(Constants.DISABLEDIMMING))
+            {
+               updateBlankingBehavior();
+            }
+            else if (key.equals(Constants.SPEED))
+            {
+               updateSpeedDisplayVisibility();
+            }
+            else if (key.equals(Constants.ALTITUDE))
+            {
+               updateAltitudeDisplayVisibility();
+            }
+            else if (key.equals(Constants.DISTANCE))
+            {
+               updateDistanceDisplayVisibility();
+            }
+            else if (key.equals(Constants.COMPASS))
+            {
+               updateCompassDisplayVisibility();
+            }
+            else if (key.equals(Constants.TRAFFIC))
+            {
+               updateGoogleOverlays();
+            }
+            else if (key.equals(Constants.SATELLITE))
+            {
+               updateGoogleOverlays();
+            }
+            else if (key.equals(Constants.LOCATION))
+            {
+               updateLocationDisplayVisibility();
+            }
+            else if (key.equals(Constants.MAPPROVIDER))
+            {
+               updateMapProvider();
+            }
+            else if (key.equals(Constants.OSMBASEOVERLAY))
+            {
+               updateOsmBaseOverlay();
+            }
+         }
+      };
+      mTrackMediasObserver = new ContentObserver(new Handler())
+      {
+         @Override
+         public void onChange(boolean selfUpdate)
+         {
+            if (!selfUpdate)
+            {
+               if (mLastSegmentOverlay != null)
+               {
+                  mLastSegmentOverlay.calculateMedia();
+                  mMapView.postInvalidate();
+               }
+            }
+            else
+            {
+               Log.w(TAG, "mTrackMediasObserver skipping change on " + mLastSegment);
+            }
+         }
+      };
+      mTrackSegmentsObserver = new ContentObserver(new Handler())
+      {
+         @Override
+         public void onChange(boolean selfUpdate)
+         {
+            if (!selfUpdate)
+            {
+               LoggerMap.this.updateDataOverlays();
+            }
+            else
+            {
+               Log.w(TAG, "mTrackSegmentsObserver skipping change on " + mLastSegment);
+            }
+         }
+      };
+      mSegmentWaypointsObserver = new ContentObserver(new Handler())
+      {
+         @Override
+         public void onChange(boolean selfUpdate)
+         {
+            if (!selfUpdate)
+            {
+               LoggerMap.this.updateTrackNumbers();
+               if (mLastSegmentOverlay != null)
+               {
+                  moveActiveViewWindow();
+                  LoggerMap.this.updateMapProviderAdministration();
+               }
+               else
+               {
+                  Log.e(TAG, "Error the last segment changed but it is not on screen! " + mLastSegment);
+               }
+            }
+            else
+            {
+               Log.w(TAG, "mSegmentWaypointsObserver skipping change on " + mLastSegment);
+            }
+         }
+      };
+      mUnitsChangeListener = new UnitsI18n.UnitsChangeListener()
+      {
+         @Override
+         public void onUnitsChange()
+         {
+            mAverageSpeed = 0.0;
+            updateTrackNumbers();
+            updateSpeedColoring();
+         }
+      };
    }
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu)
    {
-      super.onCreateOptionsMenu(menu);
-      getMenuInflater().inflate(R.menu.loggermap, menu);
-      return true;
+      boolean result = super.onCreateOptionsMenu(menu);
+
+      menu.add(ContextMenu.NONE, MENU_TRACKING, ContextMenu.NONE, R.string.menu_tracking).setIcon(R.drawable.ic_menu_movie).setAlphabeticShortcut('T');
+      menu.add(ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers).setIcon(R.drawable.ic_menu_mapmode).setAlphabeticShortcut('L');
+      menu.add(ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote).setIcon(R.drawable.ic_menu_myplaces);
+
+      menu.add(ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_statistics).setIcon(R.drawable.ic_menu_picture).setAlphabeticShortcut('S');
+      menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack).setIcon(R.drawable.ic_menu_share).setAlphabeticShortcut('I');
+      // More
+
+      menu.add(ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist).setIcon(R.drawable.ic_menu_show_list).setAlphabeticShortcut('P');
+      menu.add(ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings).setIcon(R.drawable.ic_menu_preferences).setAlphabeticShortcut('C');
+      menu.add(ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about).setIcon(R.drawable.ic_menu_info_details).setAlphabeticShortcut('A');
+      menu.add(ContextMenu.NONE, MENU_CONTRIB, ContextMenu.NONE, R.string.menu_contrib).setIcon(R.drawable.ic_menu_allfriends);
+
+      return result;
    }
 
    /*
@@ -741,10 +796,10 @@ public class LoggerMap extends FragmentActivity
    @Override
    public boolean onPrepareOptionsMenu(Menu menu)
    {
-      MenuItem noteMenu = menu.findItem(R.id.menu_loggermap_note);
+      MenuItem noteMenu = menu.findItem(MENU_NOTE);
       noteMenu.setEnabled(mLoggerServiceManager.isMediaPrepared());
 
-      MenuItem shareMenu = menu.findItem(R.id.menu_loggermap_share);
+      MenuItem shareMenu = menu.findItem(MENU_SHARE);
       shareMenu.setEnabled(mTrackId >= 0);
 
       return super.onPrepareOptionsMenu(menu);
@@ -759,31 +814,31 @@ public class LoggerMap extends FragmentActivity
       Intent intent;
       switch (item.getItemId())
       {
-         case R.id.menu_loggermap_tracking:
+         case MENU_TRACKING:
             intent = new Intent(this, ControlTracking.class);
-            startActivityForResult(intent, MENU_LOGGERMAP_TRACKING);
+            startActivityForResult(intent, MENU_TRACKING);
             handled = true;
             break;
-         case R.id.menu_loggermap_layers:
+         case MENU_LAYERS:
             showDialog(DIALOG_LAYERS);
             handled = true;
             break;
-         case R.id.menu_loggermap_note:
+         case MENU_NOTE:
             intent = new Intent(this, InsertNote.class);
-            startActivityForResult(intent, MENU_LOGGERMAP_NOTE);
+            startActivityForResult(intent, MENU_NOTE);
             handled = true;
             break;
-         case R.id.menu_loggermap_settings:
+         case MENU_SETTINGS:
             intent = new Intent(this, ApplicationPreferenceActivity.class);
             startActivity(intent);
             handled = true;
             break;
-         case R.id.menu_loggermap_tracklist:
+         case MENU_TRACKLIST:
             intent = new Intent(this, TrackList.class);
             intent.putExtra(Tracks._ID, this.mTrackId);
-            startActivityForResult(intent, MENU_LOGGERMAP_TRACKLIST);
+            startActivityForResult(intent, MENU_TRACKLIST);
             break;
-         case R.id.menu_loggermap_stats:
+         case MENU_STATS:
             if (this.mTrackId >= 0)
             {
                intent = new Intent(this, Statistics.class);
@@ -799,18 +854,18 @@ public class LoggerMap extends FragmentActivity
             }
             handled = true;
             break;
-         case R.id.menu_loggermap_about:
+         case MENU_ABOUT:
             intent = new Intent("org.openintents.action.SHOW_ABOUT_DIALOG");
             try
             {
-               startActivityForResult(intent, MENU_LOGGERMAP_ABOUT);
+               startActivityForResult(intent, MENU_ABOUT);
             }
             catch (ActivityNotFoundException e)
             {
                showDialog(DIALOG_INSTALL_ABOUT);
             }
             break;
-         case R.id.menu_loggermap_share:
+         case MENU_SHARE:
             intent = new Intent(Intent.ACTION_RUN);
             trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId);
             intent.setDataAndType(trackUri, Tracks.CONTENT_ITEM_TYPE);
@@ -818,10 +873,10 @@ public class LoggerMap extends FragmentActivity
             Bitmap bm = findViewById(R.id.mapScreen).getDrawingCache();
             Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
             intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
-            startActivityForResult(Intent.createChooser(intent, getString(R.string.share_track)), MENU_LOGGERMAP_SHARE);
+            startActivityForResult(Intent.createChooser( intent, getString( R.string.share_track ) ), MENU_SHARE);
             handled = true;
             break;
-         case R.id.menu_loggermap_contrib:
+         case MENU_CONTRIB:
             showDialog(DIALOG_CONTRIB);
          default:
             handled = super.onOptionsItemSelected(item);
@@ -856,6 +911,7 @@ public class LoggerMap extends FragmentActivity
             mLocation = (CheckBox) view.findViewById(R.id.layer_location);
 
             ((RadioGroup) view.findViewById(R.id.google_backgrounds)).setOnCheckedChangeListener(mGroupCheckedChangeListener);
+            ((RadioGroup) view.findViewById(R.id.osm_backgrounds)).setOnCheckedChangeListener(mGroupCheckedChangeListener);
 
             mTraffic.setOnCheckedChangeListener(mCheckedChangeListener);
             mSpeed.setOnCheckedChangeListener(mCheckedChangeListener);
@@ -894,12 +950,9 @@ public class LoggerMap extends FragmentActivity
             view = factory.inflate(R.layout.contrib, null);
             TextView contribView = (TextView) view.findViewById(R.id.contrib_view);
             contribView.setText(R.string.dialog_contrib_message);
-            builder.setTitle(R.string.dialog_contrib_title).setView(view).setIcon(android.R.drawable.ic_dialog_email).setPositiveButton(R.string.btn_okay, null);
+            builder.setTitle(R.string.dialog_contrib_title).setView(view).setIcon(android.R.drawable.ic_dialog_email)
+                  .setPositiveButton(R.string.btn_okay, null);
             dialog = builder.create();
-            return dialog;
-         case MENU_PLAYERROR:
-            int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-            dialog = GooglePlayServicesUtil.getErrorDialog(result, this, MENU_PLAYERROR);
             return dialog;
          default:
             return super.onCreateDialog(id);
@@ -926,15 +979,42 @@ public class LoggerMap extends FragmentActivity
             satellite.setChecked(mSharedPreferences.getBoolean(Constants.SATELLITE, false));
             regular.setChecked(!mSharedPreferences.getBoolean(Constants.SATELLITE, false));
 
+            int osmbase = mSharedPreferences.getInt(Constants.OSMBASEOVERLAY, 0);
+            cloudmade = (RadioButton) dialog.findViewById(R.id.layer_osm_cloudmade);
+            mapnik = (RadioButton) dialog.findViewById(R.id.layer_osm_maknik);
+            cycle = (RadioButton) dialog.findViewById(R.id.layer_osm_bicycle);
+            cloudmade.setChecked(osmbase == Constants.OSM_CLOUDMADE);
+            mapnik.setChecked(osmbase == Constants.OSM_MAKNIK);
+            cycle.setChecked(osmbase == Constants.OSM_CYCLE);
+
             mTraffic.setChecked(mSharedPreferences.getBoolean(Constants.TRAFFIC, false));
             mSpeed.setChecked(mSharedPreferences.getBoolean(Constants.SPEED, false));
             mAltitude.setChecked(mSharedPreferences.getBoolean(Constants.ALTITUDE, false));
             mDistance.setChecked(mSharedPreferences.getBoolean(Constants.DISTANCE, false));
+            mCompass.setChecked(mSharedPreferences.getBoolean(Constants.COMPASS, false));
             mLocation.setChecked(mSharedPreferences.getBoolean(Constants.LOCATION, false));
+            int provider = Integer.valueOf(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
+            switch (provider)
+            {
+               case Constants.GOOGLE:
+                  dialog.findViewById(R.id.google_backgrounds).setVisibility(View.VISIBLE);
+                  dialog.findViewById(R.id.osm_backgrounds).setVisibility(View.GONE);
+                  dialog.findViewById(R.id.shared_layers).setVisibility(View.VISIBLE);
+                  dialog.findViewById(R.id.google_overlays).setVisibility(View.VISIBLE);
+                  break;
+               case Constants.OSM:
+                  dialog.findViewById(R.id.osm_backgrounds).setVisibility(View.VISIBLE);
+                  dialog.findViewById(R.id.google_backgrounds).setVisibility(View.GONE);
+                  dialog.findViewById(R.id.shared_layers).setVisibility(View.VISIBLE);
+                  dialog.findViewById(R.id.google_overlays).setVisibility(View.GONE);
+                  break;
+               default:
+                  Log.e(TAG, "Fault in value " + provider + " as MapProvider.");
+                  break;
+            }
             break;
          case DIALOG_URIS:
             mGallery.setAdapter(mMediaAdapter);
-            break;
          default:
             break;
       }
@@ -943,7 +1023,8 @@ public class LoggerMap extends FragmentActivity
 
    /*
     * (non-Javadoc)
-    * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+    * @see android.app.Activity#onActivityResult(int, int,
+    * android.content.Intent)
     */
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent intent)
@@ -953,7 +1034,7 @@ public class LoggerMap extends FragmentActivity
       long trackId;
       switch (requestCode)
       {
-         case MENU_LOGGERMAP_TRACKLIST:
+         case MENU_TRACKLIST:
             if (resultCode == RESULT_OK)
             {
                trackUri = intent.getData();
@@ -962,9 +1043,9 @@ public class LoggerMap extends FragmentActivity
                moveToTrack(trackId, true);
             }
             break;
-         case MENU_LOGGERMAP_ABOUT:
+         case MENU_ABOUT:
             break;
-         case MENU_LOGGERMAP_TRACKING:
+         case MENU_TRACKING:
             if (resultCode == RESULT_OK)
             {
                trackUri = intent.getData();
@@ -976,16 +1057,35 @@ public class LoggerMap extends FragmentActivity
                }
             }
             break;
-         case MENU_LOGGERMAP_SHARE:
+         case MENU_SHARE:
             ShareTrack.clearScreenBitmap();
-            break;
-         case MENU_PLAYERROR:
-            Log.i(TAG, "Play services error dialog finished");
             break;
          default:
             Log.e(TAG, "Returned form unknow activity: " + requestCode);
             break;
       }
+   }
+
+   /**
+    * (non-Javadoc)
+    * 
+    * @see com.google.android.maps.MapActivity#isRouteDisplayed()
+    */
+   @Override
+   protected boolean isRouteDisplayed()
+   {
+      return true;
+   }
+
+   /**
+    * (non-Javadoc)
+    * 
+    * @see com.google.android.maps.MapActivity#isLocationDisplayed()
+    */
+   @Override
+   protected boolean isLocationDisplayed()
+   {
+      return mSharedPreferences.getBoolean(Constants.LOCATION, false) || mLoggerServiceManager.getLoggingState() == Constants.LOGGING;
    }
 
    private void updateTitleBar()
@@ -1010,19 +1110,40 @@ public class LoggerMap extends FragmentActivity
       }
    }
 
+   private void updateMapProvider()
+   {
+      int provider = Integer.valueOf(mSharedPreferences.getString(Constants.MAPPROVIDER, "" + Constants.GOOGLE)).intValue();
+      switch (provider)
+      {
+         case Constants.GOOGLE:
+            findViewById(R.id.myOsmMapView).setVisibility(View.GONE);
+            findViewById(R.id.myMapView).setVisibility(View.VISIBLE);
+            mMapView.setMap(findViewById(R.id.myMapView));
+            updateGoogleOverlays();
+            break;
+         case Constants.OSM:
+            CloudmadeUtil.retrieveCloudmadeKey(this);
+            findViewById(R.id.myMapView).setVisibility(View.GONE);
+            findViewById(R.id.myOsmMapView).setVisibility(View.VISIBLE);
+            mMapView.setMap(findViewById(R.id.myOsmMapView));
+            updateOsmBaseOverlay();
+            break;
+         default:
+            Log.e(TAG, "Fault in value " + provider + " as MapProvider.");
+            break;
+      }
+   }
+
    private void updateGoogleOverlays()
    {
-      boolean sat = mSharedPreferences.getBoolean(Constants.SATELLITE, false);
-      if (sat)
-      {
-         LoggerMap.this.mMapView.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-      }
-      else
-      {
-         LoggerMap.this.mMapView.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-      }
-      boolean traffic = mSharedPreferences.getBoolean(Constants.TRAFFIC, false);
-      LoggerMap.this.mMapView.setTrafficEnabled(traffic);
+      LoggerMap.this.mMapView.setSatellite(mSharedPreferences.getBoolean(Constants.SATELLITE, false));
+      LoggerMap.this.mMapView.setTraffic(mSharedPreferences.getBoolean(Constants.TRAFFIC, false));
+   }
+
+   private void updateOsmBaseOverlay()
+   {
+      int baselayer = mSharedPreferences.getInt(Constants.OSMBASEOVERLAY, 0);
+      mMapView.setOSMType(baselayer);
    }
 
    protected void updateMapProviderAdministration()
@@ -1030,6 +1151,11 @@ public class LoggerMap extends FragmentActivity
       if (findViewById(R.id.myMapView).getVisibility() == View.VISIBLE)
       {
          mLoggerServiceManager.storeDerivedDataSource(GOOGLE_PROVIDER);
+      }
+      if (findViewById(R.id.myOsmMapView).getVisibility() == View.VISIBLE)
+      {
+         mLoggerServiceManager.storeDerivedDataSource(OSM_PROVIDER);
+
       }
    }
 
@@ -1042,7 +1168,7 @@ public class LoggerMap extends FragmentActivity
          if (mWakeLock == null)
          {
             PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-            if (disabledimming)
+            if( disabledimming )
             {
                mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, TAG);
             }
@@ -1091,7 +1217,7 @@ public class LoggerMap extends FragmentActivity
             mSpeedtexts[i].setVisibility(View.INVISIBLE);
          }
       }
-      
+      List< ? > overlays = mMapView.getOverlays();
       for (Object overlay : overlays)
       {
          if (overlay instanceof SegmentOverlay)
@@ -1126,7 +1252,7 @@ public class LoggerMap extends FragmentActivity
          mLastGPSAltitudeView.setVisibility(View.GONE);
       }
    }
-
+   
    private void updateDistanceDisplayVisibility()
    {
       boolean showdistance = mSharedPreferences.getBoolean(Constants.DISTANCE, false);
@@ -1139,15 +1265,37 @@ public class LoggerMap extends FragmentActivity
          mDistanceView.setVisibility(View.GONE);
       }
    }
+   
+   private void updateCompassDisplayVisibility()
+   {
+      boolean compass = mSharedPreferences.getBoolean(Constants.COMPASS, false);
+      if (compass)
+      {
+         mMylocation.enableCompass();
+      }
+      else
+      {
+         mMylocation.disableCompass();
+      }
+   }
 
    private void updateLocationDisplayVisibility()
    {
       boolean location = mSharedPreferences.getBoolean(Constants.LOCATION, false);
-      mMapView.setMyLocationEnabled(location);
+      if (location)
+      {
+         mMylocation.enableMyLocation();
+      }
+      else
+      {
+         mMylocation.disableMyLocation();
+      }
    }
 
    /**
-    * Retrieves the numbers of the measured speed and altitude from the most recent waypoint and updates UI components with this latest bit of information.
+    * Retrieves the numbers of the measured speed and altitude from the most
+    * recent waypoint and updates UI components with this latest bit of
+    * information.
     */
    private void updateTrackNumbers()
    {
@@ -1166,6 +1314,7 @@ public class LoggerMap extends FragmentActivity
          {
             mAverageSpeed = 0.0;
             updateSpeedColoring();
+            mMapView.postInvalidate();
          }
 
          //Altitude number
@@ -1173,16 +1322,17 @@ public class LoggerMap extends FragmentActivity
          altitude = units.conversionFromMeterToHeight(altitude);
          String altitudeText = String.format("%.0f %s", altitude, units.getHeightUnit());
          mLastGPSAltitudeView.setText(altitudeText);
-
+         
          //Distance number
-         double distance = units.conversionFromMeter(mLoggerServiceManager.getTrackedDistance());
+         double distance = units.conversionFromMeter( mLoggerServiceManager.getTrackedDistance() );
          String distanceText = String.format("%.2f %s", distance, units.getDistanceUnit());
          mDistanceView.setText(distanceText);
       }
    }
 
    /**
-    * For the current track identifier the route of that track is drawn by adding a OverLay for each segments in the track
+    * For the current track identifier the route of that track is drawn by
+    * adding a OverLay for each segments in the track
     * 
     * @param trackId
     * @see SegmentOverlay
@@ -1190,8 +1340,8 @@ public class LoggerMap extends FragmentActivity
    private void createDataOverlays()
    {
       mLastSegmentOverlay = null;
-      mMapView.clear();
-      overlays.clear();
+      mMapView.clearOverlays();
+      mMapView.addOverlay(mMylocation);
 
       ContentResolver resolver = this.getContentResolver();
       Cursor segments = null;
@@ -1208,7 +1358,7 @@ public class LoggerMap extends FragmentActivity
                long segmentsId = segments.getLong(0);
                Uri segmentUri = ContentUris.withAppendedId(segmentsUri, segmentsId);
                SegmentOverlay segmentOverlay = new SegmentOverlay(this, segmentUri, trackColoringMethod, mAverageSpeed, this.mMapView, mHandler);
-               overlays.add(segmentOverlay);
+               mMapView.addOverlay(segmentOverlay);
                mLastSegmentOverlay = segmentOverlay;
                if (segments.isFirst())
                {
@@ -1241,6 +1391,7 @@ public class LoggerMap extends FragmentActivity
       ContentResolver resolver = this.getContentResolver();
       Uri segmentsUri = Uri.withAppendedPath(Tracks.CONTENT_URI, this.mTrackId + "/segments");
       Cursor segmentsCursor = null;
+      List< ? > overlays = this.mMapView.getOverlays();
       int segmentOverlaysCount = 0;
 
       for (Object overlay : overlays)
@@ -1276,27 +1427,30 @@ public class LoggerMap extends FragmentActivity
     */
    public void onDateOverlayChanged()
    {
-//      this.mMapView.postInvalidate();
+      this.mMapView.postInvalidate();
    }
 
    private void moveActiveViewWindow()
    {
-      LatLng lastPoint = getLastTrackPoint();
+      GeoPoint lastPoint = getLastTrackPoint();
       if (lastPoint != null && mLoggerServiceManager.getLoggingState() == Constants.LOGGING)
       {
-         Point out = this.mMapView.getProjection().toScreenLocation(lastPoint);
-         int height = mMapscreen.getHeight();
-         int width = mMapscreen.getWidth();
+         Point out = new Point();
+         this.mMapView.getProjection().toPixels(lastPoint, out);
+         int height = this.mMapView.getHeight();
+         int width = this.mMapView.getWidth();
          if (out.x < 0 || out.y < 0 || out.y > height || out.x > width)
          {
 
-            this.mMapView.stopAnimation();
-            mMapView.animateCamera(CameraUpdateFactory.newLatLng(lastPoint));
+            this.mMapView.clearAnimation();
+            this.mMapView.getController().setCenter(lastPoint);
+            //            Log.d( TAG, "mMapView.setCenter()" );
          }
          else if (out.x < width / 4 || out.y < height / 4 || out.x > (width / 4) * 3 || out.y > (height / 4) * 3)
          {
-            this.mMapView.stopAnimation();
-            mMapView.animateCamera(CameraUpdateFactory.newLatLng(lastPoint));
+            this.mMapView.clearAnimation();
+            this.mMapView.getController().animateTo(lastPoint);
+            //            Log.d( TAG, "mMapView.animateTo()" );
          }
       }
    }
@@ -1314,9 +1468,9 @@ public class LoggerMap extends FragmentActivity
          {
             mSpeedtexts[i].setVisibility(View.VISIBLE);
             double speed;
-            if (mUnits.isUnitFlipped())
+            if( mUnits.isUnitFlipped() )
             {
-               speed = ((avgSpeed * 2d) / 5d) * (mSpeedtexts.length - i - 1);
+               speed = ((avgSpeed * 2d) / 5d) * (mSpeedtexts.length - i - 1) ;
             }
             else
             {
@@ -1353,16 +1507,15 @@ public class LoggerMap extends FragmentActivity
             resolver.registerContentObserver(tracksegmentsUri, false, this.mTrackSegmentsObserver);
             resolver.registerContentObserver(Media.CONTENT_URI, true, this.mTrackMediasObserver);
 
-            this.mMapView.clear();
-            overlays.clear();
-            
+            this.mMapView.clearOverlays();
+
             updateTitleBar();
             updateDataOverlays();
             updateSpeedColoring();
             if (center)
             {
-               LatLng lastPoint = getLastTrackPoint();
-               mMapView.animateCamera(CameraUpdateFactory.newLatLng(lastPoint));
+               GeoPoint lastPoint = getLastTrackPoint();
+               this.mMapView.getController().animateTo(lastPoint);
             }
          }
       }
@@ -1376,37 +1529,38 @@ public class LoggerMap extends FragmentActivity
    }
 
    /**
-    * Get the last know position from the GPS provider and return that information wrapped in a GeoPoint to which the Map can navigate.
+    * Get the last know position from the GPS provider and return that
+    * information wrapped in a GeoPoint to which the Map can navigate.
     * 
     * @see GeoPoint
     * @return
     */
-   private LatLng getLastKnowGeopointLocation()
+   private GeoPoint getLastKnowGeopointLocation()
    {
-      double latitude = 0;
-      double longitude = 0;
+      int microLatitude = 0;
+      int microLongitude = 0;
       LocationManager locationManager = (LocationManager) this.getApplication().getSystemService(Context.LOCATION_SERVICE);
       Location locationFine = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
       if (locationFine != null)
       {
-         latitude = locationFine.getLatitude();
-         longitude = locationFine.getLongitude();
+         microLatitude = (int) (locationFine.getLatitude() * 1E6d);
+         microLongitude = (int) (locationFine.getLongitude() * 1E6d);
       }
-      if (locationFine == null || latitude == 0 || longitude == 0)
+      if (locationFine == null || microLatitude == 0 || microLongitude == 0)
       {
          Location locationCoarse = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
          if (locationCoarse != null)
          {
-            latitude = locationCoarse.getLatitude();
-            longitude = locationCoarse.getLongitude();
+            microLatitude = (int) (locationCoarse.getLatitude() * 1E6d);
+            microLongitude = (int) (locationCoarse.getLongitude() * 1E6d);
          }
-         if (locationCoarse == null || latitude == 0 || longitude == 0)
+         if (locationCoarse == null || microLatitude == 0 || microLongitude == 0)
          {
-            latitude = 51.985105;
-            longitude = 5.106132;
+            microLatitude = 51985105;
+            microLongitude = 5106132;
          }
       }
-      LatLng geoPoint = new LatLng(latitude, longitude);
+      GeoPoint geoPoint = new GeoPoint(microLatitude, microLongitude);
       return geoPoint;
    }
 
@@ -1415,32 +1569,32 @@ public class LoggerMap extends FragmentActivity
     * 
     * @param context
     */
-   private LatLng getLastTrackPoint()
+   private GeoPoint getLastTrackPoint()
    {
       Cursor waypoint = null;
-      LatLng lastPoint = null;
+      GeoPoint lastPoint = null;
       // First try the service which might have a cached version
       Location lastLoc = mLoggerServiceManager.getLastWaypoint();
       if (lastLoc != null)
       {
-         double latitude = lastLoc.getLatitude();
-         double longitude = lastLoc.getLongitude();
-         lastPoint = new LatLng(latitude, longitude);
+         int microLatitude = (int) (lastLoc.getLatitude() * 1E6d);
+         int microLongitude = (int) (lastLoc.getLongitude() * 1E6d);
+         lastPoint = new GeoPoint(microLatitude, microLongitude);
       }
 
       // If nothing yet, try the content resolver and query the track
-      if (lastPoint == null || lastPoint.latitude == 0 || lastPoint.longitude == 0)
+      if (lastPoint == null || lastPoint.getLatitudeE6() == 0 || lastPoint.getLongitudeE6() == 0)
       {
          try
          {
             ContentResolver resolver = this.getContentResolver();
-            waypoint = resolver.query(Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/waypoints"), new String[] { Waypoints.LATITUDE, Waypoints.LONGITUDE,
-                  "max(" + Waypoints.TABLE + "." + Waypoints._ID + ")" }, null, null, null);
+            waypoint = resolver.query(Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/waypoints"), new String[] { Waypoints.LATITUDE,
+                  Waypoints.LONGITUDE, "max(" + Waypoints.TABLE + "." + Waypoints._ID + ")" }, null, null, null);
             if (waypoint != null && waypoint.moveToLast())
             {
-               double latitude = waypoint.getDouble(0);
-               double longitude = waypoint.getDouble(1);
-               lastPoint = new LatLng(latitude, longitude);
+               int microLatitude = (int) (waypoint.getDouble(0) * 1E6d);
+               int microLongitude = (int) (waypoint.getDouble(1) * 1E6d);
+               lastPoint = new GeoPoint(microLatitude, microLongitude);
             }
          }
          finally
@@ -1453,7 +1607,7 @@ public class LoggerMap extends FragmentActivity
       }
 
       // If nothing yet, try the last generally known location
-      if (lastPoint == null || lastPoint.latitude == 0 || lastPoint.longitude == 0)
+      if (lastPoint == null || lastPoint.getLatitudeE6() == 0 || lastPoint.getLongitudeE6() == 0)
       {
          lastPoint = getLastKnowGeopointLocation();
       }
@@ -1485,7 +1639,8 @@ public class LoggerMap extends FragmentActivity
    }
 
    /**
-    * Enables a SegmentOverlay to call back to the MapActivity to show a dialog with choices of media
+    * Enables a SegmentOverlay to call back to the MapActivity to show a dialog
+    * with choices of media
     * 
     * @param mediaAdapter
     */
