@@ -334,14 +334,19 @@ public class DescribeTrack extends Activity
             {
                case DialogInterface.BUTTON_POSITIVE:
                   Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
-                  Integer activityId = ((Pair<Integer, Integer>)mActivitySpinner.getSelectedItem()).second;
-                  Integer bundleId = ((Pair<Integer, Integer>)mBundleSpinner.getSelectedItem()).second;
-                  saveBreadcrumbsPreference(mActivitySpinner.getSelectedItemPosition(), mBundleSpinner.getSelectedItemPosition());
-                  String description = mDescriptionText.getText().toString();
-                  String isPublic = Boolean.toString(mPublicCheck.isChecked());
-                  ContentValues[] metaValues = { buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, activityId.toString()), buildContentValues(BreadcrumbsTracks.BUNDLE_ID, bundleId.toString()),
-                        buildContentValues(BreadcrumbsTracks.DESCRIPTION, description), buildContentValues(BreadcrumbsTracks.ISPUBLIC, isPublic), };
-                  getContentResolver().bulkInsert(metadataUri, metaValues);
+                  Pair<Integer, Integer> selectedActivity = (Pair<Integer, Integer>)mActivitySpinner.getSelectedItem();
+                  Pair<Integer, Integer> selectedBundle = (Pair<Integer, Integer>) mBundleSpinner.getSelectedItem();
+                  if (selectedActivity != null && selectedBundle != null)
+                  {
+                     Integer activityId = selectedActivity.second;
+                     Integer bundleId = selectedBundle.second;
+                     saveBreadcrumbsPreference(mActivitySpinner.getSelectedItemPosition(), mBundleSpinner.getSelectedItemPosition());
+                     String description = mDescriptionText.getText().toString();
+                     String isPublic = Boolean.toString(mPublicCheck.isChecked());
+                     ContentValues[] metaValues = { buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, activityId.toString()), buildContentValues(BreadcrumbsTracks.BUNDLE_ID, bundleId.toString()),
+                           buildContentValues(BreadcrumbsTracks.DESCRIPTION, description), buildContentValues(BreadcrumbsTracks.ISPUBLIC, isPublic), };
+                     getContentResolver().bulkInsert(metadataUri, metaValues);
+                  }
                   Intent data = new Intent();
                   data.setData(mTrackUri);
                   if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(Constants.NAME))

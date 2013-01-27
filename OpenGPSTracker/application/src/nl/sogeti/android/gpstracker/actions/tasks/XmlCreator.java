@@ -437,6 +437,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       mException = e;
       mErrorText = text;
       cancel(false);
+      mProgressListener.finished(null);
       throw new CancellationException(text);
    }
    
