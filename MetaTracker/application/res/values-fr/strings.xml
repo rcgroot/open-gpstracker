@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2010  Just Objects B.V.
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="app_name">MetaTracker</string>
+    
+    <string name="service_gpsstatus">Enregistrement: %s (%s avec %d satellites)</string>
+    <string name="service_networkstatus">Enregistrement: %s (%s avec antennes relais et wifi)</string>
+    <string name="service_gpsdisabled">Le GPS est désactivé, l'enregistrement est sans effet</string>
+    <string name="service_gpsenabled">Le GPS est activé, début de l'enregistrement</string>
+    <string name="service_connectiondisabled">Le réseau est désactivé, l'exploitation d'emplacement réseau est sans effet</string>
+    <string name="service_datadisabled">Le positionnement réseau est désactivé, l'enregistrement est sans effet</string>
+    <string name="service_dataenabled">Le positionnement réseau est activé, l'enregistre démarre</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_routename_title">Nom du parcours</string>
+    <string name="dialog_routename_message">Entrer le nom du parcours</string>
+    <string name="dialog_nofilemanager">Gestionnaire de fichiers non trouvé</string>
+    <string name="dialog_noopengpstracker">Open GPS Tracker application non trouvé</string>
+    <string name="dialog_noopengpstracker_message">L'application \"Open GPS Tracker\" est nécessaire pour enregistrer et exporter les parcours
+    </string>
+    <string name="dialog_failinstallopengpstracker_message">The application \"Open GPS Tracker\" cannot be installed.
+    </string>
+    <string name="dialog_notrack_title">Aucun parcours sélectionné</string>
+    <string name="dialog_notrack_message">Choissisez d'abord un parcours, avant d'exporter</string>
+    <string name="dialog_delete_title">Supprimer le parcours</string>
+    <string name="dialog_delete_message">Confirmer la suppression du parcours %s</string>
+    <string name="dialog_notename_title">Noter</string>
+    <string name="dialog_notename_message">Entrer le nom de l'endroit</string>
+
+    <string name="logcontrol_start">Commencer la localisation</string>
+    <string name="logcontrol_pause">Mettre en pause la localisation</string>
+    <string name="logcontrol_resume">Reprendre la localisation</string>
+    <string name="logcontrol_stop">Arrêter la localisation</string>
+    <string name="layer_satellite">Satellite</string>
+    <string name="layer_traffic">Traffic</string>
+    <string name="layer_speed">Vitesse</string>
+    <string name="layer_altitude">Altitude</string>
+    <string name="layer_compass">Boussole</string>
+    <string name="layer_location">Ma position</string>
+</resources>
