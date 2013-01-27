@@ -1164,8 +1164,20 @@ public class GPSLoggerService extends Service implements LocationListener
             }
             break;
          case REQUEST_CUSTOMGPS_LOCATIONUPDATES:
-            intervaltime = 60 * 1000 * Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_INTERVAL, "15000"));
-            distance = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.LOGGING_DISTANCE, "10"));
+            SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            String intervalPreference = defaultSharedPreferences.getString(Constants.LOGGING_INTERVAL, "15000");
+            try
+            {
+               intervaltime = 60 * 1000 * Long.valueOf(intervalPreference);
+            }
+            catch (NumberFormatException e)
+            {
+               intervaltime = NORMAL_INTERVAL;
+               Editor edit = defaultSharedPreferences.edit();
+               edit.putString(Constants.LOGGING_INTERVAL, "" + intervaltime / 60000);
+               edit.commit();
+            }
+            distance = Float.valueOf(defaultSharedPreferences.getString(Constants.LOGGING_DISTANCE, "10"));
             mMaxAcceptableAccuracy = Math.max(10f, Math.min(distance, 50f));
             startListening(LocationManager.GPS_PROVIDER, intervaltime, distance);
             break;
