@@ -117,13 +117,19 @@ public class CustomUpload extends BroadcastReceiver
       try
       {
          uploadUri = new URI(buildUrl);
-         HttpGet currentRequest = new HttpGet(uploadUri );
-         sRequestBacklog.add(currentRequest);
+         if (uploadUri.getHost() != null && ("http".equals(uploadUri.getScheme()) || "https".equals(uploadUri.getScheme())))
+         {
+            HttpGet currentRequest = new HttpGet(uploadUri );
+            sRequestBacklog.add(currentRequest);
+         }
+         else
+         {
+            Log.e(TAG, "URL does not have correct scheme or host " + uploadUri);
+         }
          if( sRequestBacklog.size() > prefBacklog )
          {
             sRequestBacklog.poll();
          }
-         
          while( !sRequestBacklog.isEmpty() )
          {
             HttpGet request = sRequestBacklog.peek();
