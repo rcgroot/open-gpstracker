@@ -75,7 +75,7 @@
     <string name="taskerror_breadcrumbs">Загружаю данные с GoBreadcrumbs</string>
     <string name="taskerror_breadcrumbs_upload">Выгружаю трек на GoBreadcrumbs</string>
     <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
-    <string name="dialog_breadcrumbsconnect_message">Подключиться Open GPS Tracker-ом к Breadcrumbs?</string>
+    <string name="dialog_breadcrumbsconnect_message">Авторизовать Open GPS Tracker на Breadcrumbs?</string>
     <string name="dialog_contrib_message"><b>Исходный код</b>
 \n
 Это приложение и его исходный код являются открытыми. Мы с благодарностью принимаем все 
@@ -106,7 +106,7 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="ticker_stored">Сохранено: </string>
     <string name="ticker_failed">Невозможно сохранить маршрут: </string>
     <string name="error_filenotfound"> причина: Не найден файл или каталог на SD карте</string>
-    <string name="error_filename"> причина: Невверное имя файла</string>
+    <string name="error_filename"> причина: Неверное имя файла</string>
     <string name="error_buildxml"> причина: Ошибка создания XML</string>
     <string name="error_writesdcard"> причина: Ошибка записи на SD карту</string>
     <string name="error_response"> причина: Ответ сервера указывает на ошибку</string>
@@ -126,26 +126,26 @@ http://code.google.com/p/open-gpstracker/issues/entry
 	
     <!-- Menu's -->
 	<string name="menu_settings">Настройки</string>
-    <string name="menu_tracking">Трек</string>
+    <string name="menu_tracking">Запись трека</string>
 	<string name="menu_tracklist">Список треков</string>
-	<string name="menu_shareTrack">Поделиться треком</string>
+	<string name="menu_shareTrack">Опубликовать трек</string>
 	<string name="menu_deleteTrack">Удалить трек</string>
     <string name="menu_renameTrack">Переименовать трек</string>
     <string name="menu_statistics">Статистика</string>
     <string name="menu_about">О Программе</string>
     <string name="menu_showLayers">Слои</string>
     <string name="menu_graphtype">Вид графика</string>
-    <string name="menu_insertnote">Добавить заметку</string>
+    <string name="menu_insertnote">Сделать заметку</string>
     <string name="menu_notename">Задать название</string>
     <string name="menu_notepicture">Сделать снимок</string>
     <string name="menu_notetext">Подписать</string>
-    <string name="menu_notespeech">Записать аудио</string>
+    <string name="menu_notespeech">Записать речь</string>
     <string name="menu_notevideo">Записать видео</string>
     <string name="graphtype_timespeed">Скорость по времени</string>
     <string name="graphtype_timealtitude">Высота по времени</string>
     <string name="graphtype_distancespeed">Скорость по дистанции</string>
     <string name="graphtype_distancealtitude">Высота по дистанции</string>
-    <string name="menu_vacuum">Сжать данные</string>
+    <string name="menu_vacuum">Обрезать данные</string>
     <string name="menu_contrib">Сотрудничество</string>
     
     <!-- Communicated -->
@@ -161,11 +161,11 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="share_type">Выберите формат экспортируемого трека:</string>
     <string name="share_name">Наименование:</string>
     <string name="share_target">Способ публикации:</string>
-    <string name="sender_chooser">риложение для отправки</string>
+    <string name="sender_chooser">Выберите приложение для отправки</string>
     <string name="opengpstracker_title">Open GPS Tracker</string>
     <string name="opengpstracker_settings">Настройки</string>
-    <string name="preference_display">Дисплей</string>
-    <string name="preference_behavior">Поведение</string>
+    <string name="preference_display">Настройки экрана</string>
+    <string name="preference_behavior">Настройки запуска</string>
     <string name="logatstartup">Запись при старте сервиса</string>
     <string name="logatstartup_summary">После старта сервиса сразу начинается запись трека.</string>
     <string name="logatdock">Запись при установке в док</string>

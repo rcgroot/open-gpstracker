@@ -150,7 +150,7 @@ Ich hoffe, sie haben Spaß an dieser Anwendung und würde mich freuen davon zu h
     <string name="kmlAudioUnsupported">Audioeinbettung nicht unterstüzt, nutze ein Zip-Tool um die Audiodatei %s aus der KMZ-Datei zu entpacken.</string>
     
     <!-- Screens -->
-    <string name="share_track">Tracksharing</string>
+    <string name="share_track">Diesen Track teilen</string>
     <string name="share_explained">Beim Tracksharing werden so viel Aufzeichungsdaten, wie möglich exportiert.</string>
     <string name="share_type">Formatwahl für Tracksharing:</string>
     <string name="share_name">Exportname:</string>

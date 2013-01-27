@@ -8,7 +8,7 @@
     <string name="service_gpsdisabled">GPS désactivé, logging sans effet.</string>
     <string name="service_gpsenabled">GPS activé, début logging.</string>
     <string name="service_connectiondisabled">Réseau désactivé, logging sans effet.</string>
-    <string name="service_datadisabled">Location réseau désactivé, logging sans effet.</string>
+    <string name="service_datadisabled">Localisation réseau désactivé, logging sans effet.</string>
     <string name="service_dataenabled">Location réseau activé, début logging.</string>
     <string name="service_gpsproblem">Receiving no location information</string>
     

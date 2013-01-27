@@ -38,7 +38,7 @@
     <string name="layer_regular">Normal map</string>
     <string name="layer_satellite">Satelit</string>
     <string name="layer_traffic">Trafik</string>
-    <string name="layer_speed">Hastighed</string>
+    <string name="layer_speed">Fart</string>
     <string name="layer_altitude">Højde</string>
     <string name="layer_distance">Afstand</string>
     <string name="layer_compass">Kompas</string>

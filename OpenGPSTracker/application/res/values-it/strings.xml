@@ -13,18 +13,18 @@
     <string name="service_gpsproblem">Non ricevo informazioni sulla posizione</string>
     
     <!-- Dialogs -->
-    <string name="dialog_select_media_title">Selezionare nota</string>
-    <string name="dialog_select_media_message">Note multiple trovate per questa localizzazione, selezionarne una per aprire</string>
+    <string name="dialog_select_media_title">Seleziona nota</string>
+    <string name="dialog_select_media_message">Note multiple trovate per questa posizione, selezionarne una per aprire</string>
     <string name="dialog_tracking_title">Controllo tracce</string>
 	<string name="dialog_routename_title">Nome traccia</string>
-    <string name="dialog_routename_message">Entrare nome traccia</string>
+    <string name="dialog_routename_message">Inserisci il nome della traccia</string>
     <string name="dialog_routename_default">Traccia %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">Nessuna traccia selezionata</string>
-    <string name="dialog_notrack_message">Selezionare traccia prima di esportare</string>
-    <string name="dialog_delete_title">Cancellare traccia</string>
-    <string name="dialog_delete_message">Confermare cancellazione traccia %s</string>
-    <string name="dialog_nooiabout">OI A proposito</string>
-    <string name="dialog_nooiabout_message">Applicazione \"OI A proposito\" dal progetto OpenIntents richiesta per visualizzare informazione A proposito.</string>
+    <string name="dialog_notrack_message">Seleziona una traccia prima di esportare</string>
+    <string name="dialog_delete_title">Cancella traccia</string>
+    <string name="dialog_delete_message">Confermi cancellazione traccia %s</string>
+    <string name="dialog_nooiabout">\"OI About\" non installato</string>
+    <string name="dialog_nooiabout_message">Applicazione \"OI About\" dal progetto OpenIntents è richiesta per visualizzare le informazioni.</string>
     <string name="dialog_layer_title">Attivare coperture</string>
     <string name="dialog_graphtype_title">Tipo grafico</string>
     <string name="dialog_notetext_title">Nota testo</string>
