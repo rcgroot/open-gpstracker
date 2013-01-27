@@ -80,6 +80,7 @@ public class MapViewProxy
       else if( newView instanceof org.osmdroid.views.MapView )
       {
          mOpenStreetMapView = (org.osmdroid.views.MapView) newView;
+         mOpenStreetMapView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
          mMapControllerProxy.setController( mOpenStreetMapView );
          mProjectionProxy.setProjection( mOpenStreetMapView );
          
