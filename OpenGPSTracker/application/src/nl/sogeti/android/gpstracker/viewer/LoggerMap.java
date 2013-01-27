@@ -871,8 +871,11 @@ public class LoggerMap extends MapActivity
             intent.setDataAndType(trackUri, Tracks.CONTENT_ITEM_TYPE);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             Bitmap bm = findViewById(R.id.mapScreen).getDrawingCache();
-            Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
-            intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
+            if (bm != null)
+            {
+               Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
+               intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
+            }
             startActivityForResult(Intent.createChooser( intent, getString( R.string.share_track ) ), MENU_SHARE);
             handled = true;
             break;
