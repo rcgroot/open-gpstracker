@@ -564,7 +564,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       String distString = calculated.getDistanceText();
       String avgSpeed = calculated.getAvgSpeedText();
       String duration = calculated.getDurationText();
-      String tweetText = String.format(getString(R.string.tweettext, name, distString, avgSpeed, duration));
+      String tweetText = getString(R.string.tweettext, name, distString, avgSpeed, duration);
       if (mTweetView.getText().toString().equals(""))
       {
          mTweetView.setText(tweetText);

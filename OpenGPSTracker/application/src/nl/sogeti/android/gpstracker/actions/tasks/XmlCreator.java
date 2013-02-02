@@ -54,6 +54,7 @@ import nl.sogeti.android.gpstracker.util.Constants;
 
 import org.xmlpull.v1.XmlSerializer;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -98,7 +99,8 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       String trackName = extractCleanTrackName();
       mFileName = cleanFilename(mChosenName, trackName);
    }
-   
+
+   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
    public void executeOn(Executor executor)
    {
       if (Build.VERSION.SDK_INT >= 11)

@@ -119,7 +119,7 @@ public class CustomUpload extends BroadcastReceiver
          uploadUri = new URI(buildUrl);
          if (uploadUri.getHost() != null && ("http".equals(uploadUri.getScheme()) || "https".equals(uploadUri.getScheme())))
          {
-            HttpGet currentRequest = new HttpGet(uploadUri );
+            HttpGet currentRequest = new HttpGet(uploadUri);
             sRequestBacklog.add(currentRequest);
          }
          else

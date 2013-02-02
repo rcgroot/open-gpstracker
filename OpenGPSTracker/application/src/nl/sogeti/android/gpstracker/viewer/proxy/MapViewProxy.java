@@ -36,6 +36,7 @@ import nl.sogeti.android.gpstracker.util.Constants;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 
@@ -80,7 +81,10 @@ public class MapViewProxy
       else if( newView instanceof org.osmdroid.views.MapView )
       {
          mOpenStreetMapView = (org.osmdroid.views.MapView) newView;
-         mOpenStreetMapView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+         if (Build.VERSION.SDK_INT > 11)
+         {
+            mOpenStreetMapView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+         }
          mMapControllerProxy.setController( mOpenStreetMapView );
          mProjectionProxy.setProjection( mOpenStreetMapView );
          

@@ -33,6 +33,7 @@ import org.apache.ogt.http.conn.scheme.SchemeRegistry;
 import org.apache.ogt.http.impl.client.DefaultHttpClient;
 import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -107,6 +108,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
       mFinishing = true;
       new AsyncTask<Void, Void, Void>()
          {
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             public void executeOn(Executor executor)
             {
                if (Build.VERSION.SDK_INT >= 11)

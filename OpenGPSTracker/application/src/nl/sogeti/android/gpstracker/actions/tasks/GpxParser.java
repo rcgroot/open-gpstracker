@@ -51,6 +51,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -98,7 +99,8 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       mProgressListener = progressListener;
       mContentResolver = mContext.getContentResolver();
    }
-   
+
+   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
    public void executeOn(Executor executor)
    {
       if (Build.VERSION.SDK_INT >= 11)
