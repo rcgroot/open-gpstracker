@@ -154,6 +154,10 @@
     <string name="stopatundock_summary">After exiting a dock, the logging immediately stops.</string>
     <string name="startupatboot">Start up at boot</string>
     <string name="startupatboot_summary">After starting the device, the logging service starts.</string>
+    <string name="logatpowerconnected">Log when power is connected</string>
+    <string name="logatpowerconnected_summary">After connecting to a power supply, the logging immediately starts.</string>
+    <string name="stopatpowerdisconnected">Stop logging when power is disconnected</string>
+    <string name="stopatpowerdisconnected_summary">After disconnecting from a power supply, the logging immediately stops.</string>
     <string name="disableblanking_title">Disable screen blanking</string>
     <string name="disableblanking_summary">Keeps the screen on during tracking.</string>
     <string name="disabledimming_title">Disable screen dimming</string>
