@@ -70,7 +70,7 @@
         <item>Privato</item>
     </string-array>
     
-    <string-array name="about_translators" translatable="false"><!-- Add your name here if you translated -->
+    <string-array name="about_translators"><!-- Add your name here if you translated -->
         <item>Paul Meier</item>
     </string-array>
 </resources>
