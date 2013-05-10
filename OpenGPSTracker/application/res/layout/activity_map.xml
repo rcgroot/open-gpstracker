@@ -8,7 +8,8 @@
         android:id="@+id/myMapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class="com.google.android.gms.maps.MapFragment" />
+        android:name="com.google.android.gms.maps.MapFragment"
+         />
 
     <TextView
         android:id="@+id/currentSpeed"

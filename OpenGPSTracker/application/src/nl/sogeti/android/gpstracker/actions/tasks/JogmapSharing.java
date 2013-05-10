@@ -28,26 +28,19 @@
  */
 package nl.sogeti.android.gpstracker.actions.tasks;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.MultipartStreamer;
 
-import org.apache.ogt.http.HttpEntity;
-import org.apache.ogt.http.HttpException;
-import org.apache.ogt.http.HttpResponse;
-import org.apache.ogt.http.client.HttpClient;
-import org.apache.ogt.http.client.methods.HttpPost;
-import org.apache.ogt.http.entity.mime.MultipartEntity;
-import org.apache.ogt.http.entity.mime.content.FileBody;
-import org.apache.ogt.http.entity.mime.content.StringBody;
-import org.apache.ogt.http.impl.client.DefaultHttpClient;
-import org.apache.ogt.http.util.EntityUtils;
+import org.apache.http.HttpException;
 
 import android.content.Context;
 import android.net.Uri;
@@ -57,18 +50,18 @@ import android.widget.Toast;
 
 /**
  * ????
- *
+ * 
  * @version $Id:$
  * @author rene (c) Jul 9, 2011, Sogeti B.V.
  */
 public class JogmapSharing extends GpxCreator
 {
 
-
    private static final String TAG = "OGT.JogmapSharing";
    private String jogmapResponseText;
 
-   public JogmapSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener listener)
+   public JogmapSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments,
+         ProgressListener listener)
    {
       super(context, trackUri, chosenBaseFileName, attachments, listener);
    }
@@ -80,39 +73,36 @@ public class JogmapSharing extends GpxCreator
       sendToJogmap(result);
       return result;
    }
-   
+
    @Override
    protected void onPostExecute(Uri resultFilename)
    {
       super.onPostExecute(resultFilename);
-      
+
       CharSequence text = mContext.getString(R.string.osm_success) + jogmapResponseText;
       Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
-      toast.show();   
+      toast.show();
    }
-   
+
    private void sendToJogmap(Uri fileUri)
    {
       String authCode = PreferenceManager.getDefaultSharedPreferences(mContext).getString(Constants.JOGRUNNER_AUTH, "");
       File gpxFile = new File(fileUri.getEncodedPath());
-      HttpClient httpclient = new DefaultHttpClient();
-      URI jogmap = null;
+      URL jogmap = null;
       int statusCode = 0;
-      HttpEntity responseEntity = null;
+      HttpURLConnection connection = null;
+      MultipartStreamer multipart = null;
       try
       {
-         jogmap = new URI(mContext.getString(R.string.jogmap_post_url));
-         HttpPost method = new HttpPost(jogmap);
+         jogmap = new URL(mContext.getString(R.string.jogmap_post_url));
+         connection = (HttpURLConnection) jogmap.openConnection();
+         multipart = new MultipartStreamer(connection);
+         multipart.addFormField("id", authCode);
+         multipart.addFilePart("mFile", gpxFile);
+         multipart.flush();
 
-         MultipartEntity entity = new MultipartEntity();
-         entity.addPart("id", new StringBody(authCode));
-         entity.addPart("mFile", new FileBody(gpxFile));
-         method.setEntity(entity);
-         HttpResponse response = httpclient.execute(method);
-
-         statusCode = response.getStatusLine().getStatusCode();
-         responseEntity = response.getEntity();
-         InputStream stream = responseEntity.getContent();
+         statusCode = connection.getResponseCode();
+         InputStream stream = connection.getInputStream();
          jogmapResponseText = XmlCreator.convertStreamToString(stream);
       }
       catch (IOException e)
@@ -120,32 +110,33 @@ public class JogmapSharing extends GpxCreator
          String text = mContext.getString(R.string.jogmap_failed) + e.getLocalizedMessage();
          handleError(mContext.getString(R.string.jogmap_task), e, text);
       }
-      catch (URISyntaxException e)
-      {
-         String text = mContext.getString(R.string.jogmap_failed) + e.getLocalizedMessage();
-         handleError(mContext.getString(R.string.jogmap_task), e, text);
-      }
       finally
       {
-         if (responseEntity != null)
-         {
-            try
-            {
-               EntityUtils.consume(responseEntity);
-            }
-            catch (IOException e)
-            {
-               Log.e(TAG, "Failed to close the content stream", e);
-            }
-         }
+         close(multipart);
+         if (connection != null)
+            connection.disconnect();
       }
       if (statusCode != 200)
       {
          Log.e(TAG, "Wrong status code " + statusCode);
          jogmapResponseText = mContext.getString(R.string.jogmap_failed) + jogmapResponseText;
-         handleError(mContext.getString(R.string.jogmap_task), new HttpException("Unexpected status reported by Jogmap"), jogmapResponseText);
+         handleError(mContext.getString(R.string.jogmap_task),
+               new HttpException("Unexpected status reported by Jogmap"), jogmapResponseText);
       }
    }
 
-   
+   private void close(Closeable connection)
+   {
+      try
+      {
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+      catch (IOException e)
+      {
+         Log.w(TAG, "Failed to close ", e);
+      }
+   }
 }

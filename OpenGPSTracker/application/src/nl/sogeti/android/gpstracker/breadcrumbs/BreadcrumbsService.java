@@ -24,15 +24,7 @@ import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
-import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
-
-import org.apache.ogt.http.conn.ClientConnectionManager;
-import org.apache.ogt.http.conn.scheme.PlainSocketFactory;
-import org.apache.ogt.http.conn.scheme.Scheme;
-import org.apache.ogt.http.conn.scheme.SchemeRegistry;
-import org.apache.ogt.http.impl.client.DefaultHttpClient;
-import org.apache.ogt.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-
+import oauth.signpost.basic.DefaultOAuthConsumer;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -74,7 +66,6 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    private final IBinder mBinder = new LocalBinder();
 
    private BreadcrumbsTracks mTracks;
-   private DefaultHttpClient mHttpClient;
    private OnSharedPreferenceChangeListener tokenChangedListener;
    private boolean mFinishing;
    boolean mAuthorized;
@@ -85,11 +76,6 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    {
       super.onCreate();
       mExecutor = Executors.newFixedThreadPool(1);
-      SchemeRegistry schemeRegistry = new SchemeRegistry();
-      schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-      ClientConnectionManager cm = new ThreadSafeClientConnManager(schemeRegistry);
-      mHttpClient = new DefaultHttpClient(cm);
-
       mTracks = new BreadcrumbsTracks(this.getContentResolver());
       mTracks.addObserver(this);
 
@@ -101,7 +87,8 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    {
       if (tokenChangedListener != null)
       {
-         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
+         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(
+               tokenChangedListener);
       }
       mAuthorized = false;
       mFinishing = true;
@@ -122,9 +109,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
             @Override
             protected Void doInBackground(Void... params)
             {
-               mHttpClient.getConnectionManager().shutdown();
                mExecutor.shutdown();
-               mHttpClient = null;
                return null;
             }
          }.executeOn(mExecutor);
@@ -134,7 +119,8 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    }
 
    /**
-    * Class used for the client Binder. Because we know this service always runs in the same process as its clients, we don't need to deal with IPC.
+    * Class used for the client Binder. Because we know this service always runs in the same process as its clients, we
+    * don't need to deal with IPC.
     */
    public class LocalBinder extends Binder
    {
@@ -161,22 +147,23 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
       mAuthorized = !"".equals(token) && !"".equals(secret);
       if (mAuthorized)
       {
-         CommonsHttpOAuthConsumer consumer = getOAuthConsumer();
+         DefaultOAuthConsumer consumer = getOAuthConsumer();
          if (mTracks.readCache(this))
          {
-            new GetBreadcrumbsActivitiesTask(this, this, this, mHttpClient, consumer).executeOn(mExecutor);
-            new GetBreadcrumbsBundlesTask(this, this, this, mHttpClient, consumer).executeOn(mExecutor);
+            new GetBreadcrumbsActivitiesTask(this, this, this, consumer).executeOn(mExecutor);
+            new GetBreadcrumbsBundlesTask(this, this, this, consumer).executeOn(mExecutor);
          }
       }
       return mAuthorized;
    }
 
-   public CommonsHttpOAuthConsumer getOAuthConsumer()
+   public DefaultOAuthConsumer getOAuthConsumer()
    {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
       String token = prefs.getString(OAUTH_TOKEN, "");
       String secret = prefs.getString(OAUTH_TOKEN_SECRET, "");
-      CommonsHttpOAuthConsumer consumer = new CommonsHttpOAuthConsumer(this.getString(R.string.CONSUMER_KEY), this.getString(R.string.CONSUMER_SECRET));
+      DefaultOAuthConsumer consumer = new DefaultOAuthConsumer(this.getString(R.string.CONSUMER_KEY),
+            this.getString(R.string.CONSUMER_SECRET));
       consumer.setTokenWithSecret(token, secret);
       return consumer;
    }
@@ -204,12 +191,14 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
                {
                   if (OAUTH_TOKEN.equals(key))
                   {
-                     PreferenceManager.getDefaultSharedPreferences(BreadcrumbsService.this).unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
+                     PreferenceManager.getDefaultSharedPreferences(BreadcrumbsService.this)
+                           .unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
                      connectionSetup();
                   }
                }
             };
-         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(tokenChangedListener);
+         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(
+               tokenChangedListener);
 
          Intent i = new Intent(this.getApplicationContext(), PrepareRequestTokenActivity.class);
          i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -228,12 +217,12 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
 
    public void startDownloadTask(Context context, ProgressListener listener, Pair<Integer, Integer> track)
    {
-      new DownloadBreadcrumbsTrackTask(context, listener, this, mHttpClient, getOAuthConsumer(), track).executeOn(mExecutor);
+      new DownloadBreadcrumbsTrackTask(context, listener, this, getOAuthConsumer(), track).executeOn(mExecutor);
    }
 
    public void startUploadTask(Context context, ProgressListener listener, Uri trackUri, String name)
    {
-      new UploadBreadcrumbsTrackTask(context, this, listener, mHttpClient, getOAuthConsumer(), trackUri, name).executeOn(mExecutor);
+      new UploadBreadcrumbsTrackTask(context, this, listener, getOAuthConsumer(), trackUri, name).executeOn(mExecutor);
    }
 
    public boolean isAuthorized()
@@ -247,7 +236,7 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
       {
          if (!mFinishing && !mTracks.areTracksLoaded(item) && !mTracks.areTracksLoadingScheduled(item))
          {
-            new GetBreadcrumbsTracksTask(this, this, this, mHttpClient, getOAuthConsumer(), item.second).executeOn(mExecutor);
+            new GetBreadcrumbsTracksTask(this, this, this, getOAuthConsumer(), item.second).executeOn(mExecutor);
             mTracks.addTracksLoadingScheduled(item);
          }
       }
