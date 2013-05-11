@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.breadcrumbs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -52,9 +53,8 @@ import android.content.Context;
 import android.util.Log;
 
 /**
- * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After
- * receiving the request token from Twitter, pop a browser to the user to authorize the Request Token.
- * (OAuthAuthorizeToken)
+ * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After receiving the request token from Twitter, pop a browser to the user to authorize the
+ * Request Token. (OAuthAuthorizeToken)
  */
 public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
 {
@@ -74,8 +74,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsBundlesTask(Context context, BreadcrumbsService adapter, ProgressListener listener,
-         OAuthConsumer consumer)
+   public GetBreadcrumbsBundlesTask(Context context, BreadcrumbsService adapter, ProgressListener listener, OAuthConsumer consumer)
    {
       super(context, adapter, listener);
       mConsumer = consumer;
@@ -90,6 +89,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
    {
       mBundleIds = new HashSet<Integer>();
       mBundles = new LinkedList<Object[]>();
+      HttpURLConnection connection = null;
       try
       {
          URL request = new URL("http://api.gobreadcrumbs.com/v1/bundles.xml");
@@ -97,12 +97,15 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
          {
             throw new IOException("Fail to execute request due to canceling");
          }
-         mConsumer.sign(request);
+         connection = (HttpURLConnection) request.openConnection();
+         connection.setDoOutput(false);
+         connection.setDoInput(true);
+         mConsumer.sign(connection);
          if (BreadcrumbsAdapter.DEBUG)
          {
             Log.d(TAG, "Execute request: " + request);
          }
-         InputStream stream = request.openStream();
+         InputStream stream = connection.getInputStream();
          if (BreadcrumbsAdapter.DEBUG)
          {
             stream = XmlCreator.convertStreamToLoggedStream(TAG, stream);
@@ -154,8 +157,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       catch (OAuthMessageSignerException e)
       {
          mService.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e,
-               "Failed to sign the request with authentication signature");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "Failed to sign the request with authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
@@ -165,8 +167,7 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       catch (OAuthCommunicationException e)
       {
          mService.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e,
-               "The authentication communication failed");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "The authentication communication failed");
       }
       catch (IOException e)
       {
@@ -174,12 +175,16 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       }
       catch (XmlPullParserException e)
       {
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e,
-               "A problem while reading the XML data");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "A problem while reading the XML data");
       }
       catch (IllegalStateException e)
       {
          handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "A problem during communication");
+      }
+      finally
+      {
+         if (connection != null)
+            connection.disconnect();
       }
       return null;
    }

@@ -107,7 +107,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
          {
             Log.d(TAG, "Execute request: " + request);
          }
-         InputStream stream = request.openStream();
+         InputStream stream = connection.getInputStream();
          if (BreadcrumbsAdapter.DEBUG)
          {
             stream = XmlCreator.convertStreamToLoggedStream(TAG, stream);

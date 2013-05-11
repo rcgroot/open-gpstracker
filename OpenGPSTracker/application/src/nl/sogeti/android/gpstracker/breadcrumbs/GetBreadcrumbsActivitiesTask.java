@@ -92,13 +92,15 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
             throw new IOException("Fail to execute request due to canceling");
          }
          connection = (HttpURLConnection) request.openConnection();
+         connection.setDoOutput(false);
+         connection.setDoInput(true);
          mConsumer.sign(connection);
-         connection.connect();
+         Log.d(TAG, connection.getRequestProperties().toString());
          if (BreadcrumbsAdapter.DEBUG)
          {
             Log.d(TAG, "Execute request: " + request);
          }
-         InputStream stream = request.openStream();
+         InputStream stream = connection.getInputStream();
          if (BreadcrumbsAdapter.DEBUG)
          {
             stream = XmlCreator.convertStreamToLoggedStream(TAG, stream);
