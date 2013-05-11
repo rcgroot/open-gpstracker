@@ -32,8 +32,8 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
-import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
-import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
+import oauth.signpost.basic.DefaultOAuthConsumer;
+import oauth.signpost.basic.DefaultOAuthProvider;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,17 +45,11 @@ import android.util.Log;
 import android.widget.TextView;
 
 /**
- * Prepares a OAuthConsumer and OAuthProvider OAuthConsumer is configured with
- * the consumer key & consumer secret. Both key and secret are retrieved from 
- * the extras in the Intent 
- * 
- * OAuthProvider is configured with the 3
- * OAuth endpoints. These are retrieved from the extras in the Intent.
- * 
- * Execute the OAuthRequestTokenTask to retrieve the request,
- * and authorize the request. After the request is authorized, a callback is
- * made here and this activity finishes to return to the last Activity on the 
- * stack.
+ * Prepares a OAuthConsumer and OAuthProvider OAuthConsumer is configured with the consumer key & consumer secret. Both
+ * key and secret are retrieved from the extras in the Intent OAuthProvider is configured with the 3 OAuth endpoints.
+ * These are retrieved from the extras in the Intent. Execute the OAuthRequestTokenTask to retrieve the request, and
+ * authorize the request. After the request is authorized, a callback is made here and this activity finishes to return
+ * to the last Activity on the stack.
  */
 public class PrepareRequestTokenActivity extends Activity
 {
@@ -80,16 +74,13 @@ public class PrepareRequestTokenActivity extends Activity
     */
    public static final String REQUEST_URL = "REQUEST_URL";
    /**
-    * String value of the key in the DefaultSharedPreferences 
-    * in which to store the permission token 
+    * String value of the key in the DefaultSharedPreferences in which to store the permission token
     */
    public static final String OAUTH_TOKEN_PREF = "OAUTH_TOKEN";
    /**
-    * String value of the key in the DefaultSharedPreferences 
-    * in which to store the permission secret 
+    * String value of the key in the DefaultSharedPreferences in which to store the permission secret
     */
    public static final String OAUTH_TOKEN_SECRET_PREF = "OAUTH_TOKEN_SECRET";
-
 
    final String TAG = "OGT.PrepareRequestTokenActivity";
 
@@ -106,44 +97,43 @@ public class PrepareRequestTokenActivity extends Activity
    {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.oauthentication);
-      
-      String key        = getIntent().getStringExtra(CONSUMER_KEY);
-      String secret     = getIntent().getStringExtra(CONSUMER_SECRET);
-      
+
+      String key = getIntent().getStringExtra(CONSUMER_KEY);
+      String secret = getIntent().getStringExtra(CONSUMER_SECRET);
+
       String requestUrl = getIntent().getStringExtra(REQUEST_URL);
-      String accessUrl  = getIntent().getStringExtra(ACCESS_URL);
-      String authUrl    = getIntent().getStringExtra(AUTHORIZE_URL);
-      
+      String accessUrl = getIntent().getStringExtra(ACCESS_URL);
+      String authUrl = getIntent().getStringExtra(AUTHORIZE_URL);
+
       TextView tv = (TextView) findViewById(R.id.detail);
       tv.setText(requestUrl);
-      
-      
-      mTokenKey  = getIntent().getStringExtra(OAUTH_TOKEN_PREF); 
-      mSecretKey = getIntent().getStringExtra(OAUTH_TOKEN_SECRET_PREF); 
-      
-      this.consumer = new CommonsHttpOAuthConsumer(key, secret);
-      this.provider = new CommonsHttpOAuthProvider(requestUrl, accessUrl, authUrl);
+
+      mTokenKey = getIntent().getStringExtra(OAUTH_TOKEN_PREF);
+      mSecretKey = getIntent().getStringExtra(OAUTH_TOKEN_SECRET_PREF);
+
+      this.consumer = new DefaultOAuthConsumer(key, secret);
+      this.provider = new DefaultOAuthProvider(requestUrl, accessUrl, authUrl);
 
       mTask = new OAuthRequestTokenTask(this, consumer, provider);
       mTask.execute();
    }
-   
+
    @Override
    protected void onResume()
    {
       super.onResume();
-      
+
       // Will not be called if onNewIntent() was called with callback scheme
       Status status = mTask.getStatus();
-      if( status != Status.RUNNING )
+      if (status != Status.RUNNING)
       {
          finish();
       }
    }
 
    /**
-    * Called when the OAuthRequestTokenTask finishes (user has authorized the
-    * request token). The callback URL will be intercepted here.
+    * Called when the OAuthRequestTokenTask finishes (user has authorized the request token). The callback URL will be
+    * intercepted here.
     */
    @Override
    public void onNewIntent(Intent intent)

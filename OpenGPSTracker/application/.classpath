@@ -11,11 +11,7 @@
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK">
-		<accessrules>
-			<accessrule kind="nonaccessible" pattern="org/apache/http/**"/>
-		</accessrules>
-	</classpathentry>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -57,8 +57,7 @@ public class RetrieveAccessTokenTask extends AsyncTask<Uri, Void, Void>
    }
 
    /**
-    * Retrieve the oauth_verifier, and store the oauth and oauth_token_secret
-    * for future API calls.
+    * Retrieve the oauth_verifier, and store the oauth and oauth_token_secret for future API calls.
     */
    @Override
    protected Void doInBackground(Uri... params)
@@ -75,7 +74,9 @@ public class RetrieveAccessTokenTask extends AsyncTask<Uri, Void, Void>
          edit.putString(mSecretKey, consumer.getTokenSecret());
          edit.commit();
 
-         Log.i(TAG, "OAuth - Access Token Retrieved and stored to "+mTokenKey+" and "+mSecretKey);
+         Log.i(TAG, "OAuth - Access Token Retrieved and stored to " + mTokenKey + " and " + mSecretKey);
+         Log.i(TAG, "OAuth - Consumer token '" + consumer.getToken() + "'");
+         Log.i(TAG, "OAuth - Consumer secret '" + consumer.getTokenSecret() + "'");
       }
       catch (Exception e)
       {

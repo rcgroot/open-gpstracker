@@ -28,9 +28,10 @@
  */
 package nl.sogeti.android.gpstracker.breadcrumbs;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.LinkedList;
 
 import nl.sogeti.android.gpstracker.R;
@@ -43,13 +44,6 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.apache.ogt.http.Header;
-import org.apache.ogt.http.HttpEntity;
-import org.apache.ogt.http.HttpResponse;
-import org.apache.ogt.http.client.methods.HttpGet;
-import org.apache.ogt.http.client.methods.HttpUriRequest;
-import org.apache.ogt.http.impl.client.DefaultHttpClient;
-import org.apache.ogt.http.util.EntityUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -58,10 +52,8 @@ import android.content.Context;
 import android.util.Log;
 
 /**
- * An asynchronous task that communicates with Twitter to retrieve a request
- * token. (OAuthGetRequestToken) After receiving the request token from Twitter,
- * pop a browser to the user to authorize the Request Token.
- * (OAuthAuthorizeToken)
+ * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After receiving the request token from Twitter, pop a browser to the user to authorize the
+ * Request Token. (OAuthAuthorizeToken)
  */
 public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
 {
@@ -69,58 +61,49 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
    private LinkedList<Pair<Integer, String>> mActivities;
    final String TAG = "OGT.GetBreadcrumbsActivitiesTask";
    private OAuthConsumer mConsumer;
-   private DefaultHttpClient mHttpClient;
 
    /**
     * We pass the OAuth consumer and provider.
     * 
-    * @param mContext Required to be able to start the intent to launch the
-    *           browser.
+    * @param mContext Required to be able to start the intent to launch the browser.
     * @param httpclient
     * @param provider The OAuthProvider object
     * @param mConsumer The OAuthConsumer object
     */
-   public GetBreadcrumbsActivitiesTask(Context context, BreadcrumbsService adapter, ProgressListener listener, DefaultHttpClient httpclient, OAuthConsumer consumer)
+   public GetBreadcrumbsActivitiesTask(Context context, BreadcrumbsService adapter, ProgressListener listener, OAuthConsumer consumer)
    {
       super(context, adapter, listener);
-      mHttpClient = httpclient;
       mConsumer = consumer;
    }
 
    /**
-    * Retrieve the OAuth Request Token and present a browser to the user to
-    * authorize the token.
+    * Retrieve the OAuth Request Token and present a browser to the user to authorize the token.
     */
    @Override
    protected Void doInBackground(Void... params)
    {
-      mActivities = new LinkedList<Pair<Integer,String>>(); 
-      HttpEntity responseEntity = null;
+      mActivities = new LinkedList<Pair<Integer, String>>();
+      HttpURLConnection connection = null;
       try
       {
-         HttpUriRequest request = new HttpGet("http://api.gobreadcrumbs.com/v1/activities.xml");
+         URL request = new URL("http://api.gobreadcrumbs.com/v1/activities.xml");
          if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
-         mConsumer.sign(request);
-         if( BreadcrumbsAdapter.DEBUG )
+         connection = (HttpURLConnection) request.openConnection();
+         mConsumer.sign(connection);
+         connection.connect();
+         if (BreadcrumbsAdapter.DEBUG)
          {
-            Log.d( TAG, "Execute request: "+request.getURI() );
-            for( Header header : request.getAllHeaders() )
-            {
-               Log.d( TAG, "   with header: "+header.toString());
-            }
+            Log.d(TAG, "Execute request: " + request);
          }
-         HttpResponse response = mHttpClient.execute(request);
-         responseEntity = response.getEntity();
-         InputStream is = responseEntity.getContent();
-         InputStream stream = new BufferedInputStream(is, 8192);
-         if( BreadcrumbsAdapter.DEBUG )
+         InputStream stream = request.openStream();
+         if (BreadcrumbsAdapter.DEBUG)
          {
             stream = XmlCreator.convertStreamToLoggedStream(TAG, stream);
          }
-         
+
          XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
          factory.setNamespaceAware(true);
          XmlPullParser xpp = factory.newPullParser();
@@ -184,27 +167,18 @@ public class GetBreadcrumbsActivitiesTask extends BreadcrumbsTask
       }
       finally
       {
-         if (responseEntity != null)
-         {
-            try
-            {
-               EntityUtils.consume(responseEntity);
-            }
-            catch (IOException e)
-            {
-               Log.e(TAG, "Failed to close the content stream", e);
-            }
-         }
+         if (connection != null)
+            connection.disconnect();
       }
       return null;
    }
-   
+
    @Override
-   protected void updateTracksData( BreadcrumbsTracks tracks )
+   protected void updateTracksData(BreadcrumbsTracks tracks)
    {
-      for( Pair<Integer, String> activity : mActivities )
+      for (Pair<Integer, String> activity : mActivities)
       {
-        tracks.addActivity(activity.first, activity.second);
+         tracks.addActivity(activity.first, activity.second);
       }
    }
 }
