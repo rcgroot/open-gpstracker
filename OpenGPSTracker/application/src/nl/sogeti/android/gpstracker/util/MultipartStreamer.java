@@ -12,6 +12,10 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
 
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 import android.util.Log;
 
 /**
@@ -27,6 +31,8 @@ public class MultipartStreamer implements Closeable
    private String charset;
    private OutputStream outputStream;
    private PrintWriter writer;
+   private HttpMultipartMode mode;
+   private boolean flushed = false;
 
    /**
     * This constructor initializes a new HTTP POST request with content type is set to multipart/form-data
@@ -34,18 +40,40 @@ public class MultipartStreamer implements Closeable
     * @param requestURL
     * @param charset
     * @throws IOException
+    * @throws OAuthCommunicationException
+    * @throws OAuthExpectationFailedException
+    * @throws OAuthMessageSignerException
     */
-   public MultipartStreamer(HttpURLConnection httpConn) throws IOException
+   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode mode, OAuthConsumer mConsumer) throws IOException, OAuthMessageSignerException, OAuthExpectationFailedException,
+         OAuthCommunicationException
    {
+      this.mode = mode;
       this.charset = "UTF-8";
-      httpConn.setDoOutput(true);
-      httpConn.setChunkedStreamingMode(0);
+      httpConnection.setDoOutput(true);
+      httpConnection.setRequestMethod("POST");
 
       // creates a unique boundary based on time stamp
       boundary = "===" + System.currentTimeMillis() + "===";
-      httpConn.setDoOutput(true); // indicates POST method
-      httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-      outputStream = httpConn.getOutputStream();
+      httpConnection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+      if (mConsumer != null)
+      {
+         mConsumer.sign(httpConnection);
+      }
+      outputStream = httpConnection.getOutputStream();
+      writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
+   }
+
+   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode mode) throws IOException
+   {
+      this.mode = mode;
+      this.charset = "UTF-8";
+      httpConnection.setDoOutput(true);
+
+      // creates a unique boundary based on time stamp
+      boundary = "===" + System.currentTimeMillis() + "===";
+      httpConnection.setDoOutput(true); // indicates POST method
+      httpConnection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+      outputStream = httpConnection.getOutputStream();
       writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
    }
 
@@ -59,7 +87,10 @@ public class MultipartStreamer implements Closeable
    {
       writer.append("--" + boundary).append(LINE_FEED);
       writer.append("Content-Disposition: form-data; name=\"" + name + "\"").append(LINE_FEED);
-      writer.append("Content-Type: text/plain; charset=" + charset).append(LINE_FEED);
+      if (mode == HttpMultipartMode.STRICT)
+      {
+         writer.append("Content-Type: text/plain; charset=" + charset).append(LINE_FEED);
+      }
       writer.append(LINE_FEED);
       writer.append(value).append(LINE_FEED);
       writer.flush();
@@ -97,10 +128,12 @@ public class MultipartStreamer implements Closeable
    public void addFilePart(String fieldName, String fileName, InputStream inputStream) throws IOException
    {
       writer.append("--" + boundary).append(LINE_FEED);
-      writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"")
-            .append(LINE_FEED);
-      writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);
-      writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
+      writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"").append(LINE_FEED);
+      if (mode == HttpMultipartMode.STRICT)
+      {
+         writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);
+         writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
+      }
       writer.append(LINE_FEED);
       writer.flush();
 
@@ -120,14 +153,19 @@ public class MultipartStreamer implements Closeable
 
    public void flush()
    {
-      writer.append(LINE_FEED).flush();
-      writer.append("--" + boundary + "--").append(LINE_FEED);
+      writer.append("--" + boundary + "--").append(LINE_FEED).flush();
+      writer.close();
+      flushed = true;
    }
 
    @Override
    public void close() throws IOException
    {
-      writer.close();
+      if (!flushed)
+      {
+         flush();
+         writer.close();
+      }
    }
 
    private void close(Closeable connection)
@@ -142,6 +180,21 @@ public class MultipartStreamer implements Closeable
       catch (IOException e)
       {
          Log.w(TAG, "Failed to close ", e);
+      }
+   }
+
+   public static enum HttpMultipartMode
+   {
+      BROWSER_COMPATIBLE, STRICT
+   }
+
+   @Override
+   protected void finalize() throws Throwable
+   {
+      super.finalize();
+      if (!flushed)
+      {
+         Log.e(TAG, "Unflushed mime body garbage collected");
       }
    }
 }

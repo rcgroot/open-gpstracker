@@ -181,16 +181,14 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 
          String gpxString = XmlCreator.convertStreamToString(mContext.getContentResolver().openInputStream(gpxFile));
 
-         URL method = new URL("http://api.gobreadcrumbs.com:80/v1/tracks");
+         URL method = new URL("http://api.gobreadcrumbs.com/v1/tracks");
          if (isCancelled())
          {
             throw new IOException("Fail to execute request due to canceling");
          }
          // Build the multipart body with the upload data
          connection = (HttpURLConnection) method.openConnection();
-         multipart = new MultipartStreamer(connection);
-         mConsumer.sign(connection);
-
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, mConsumer);
          multipart.addFormField("import_type", "GPX");
          //entity.addPart("gpx",         new FileBody(gpxFile));
          multipart.addFormField("gpx", gpxString);
@@ -200,8 +198,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          //         entity.addPart("difficulty",  new StringBody("3"));
          //         entity.addPart("rating",      new StringBody("4"));
          multipart.addFormField("public", mIsPublic);
-
-         // Execute the POST to OpenStreetMap
          multipart.flush();
          mProgressAdmin.addUploadProgress();
 
@@ -282,8 +278,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       try
       {
          connection = (HttpURLConnection) method.openConnection();
-         multipart = new MultipartStreamer(connection);
-         mConsumer.sign(connection);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, mConsumer);
          multipart.addFormField("name", mBundleName);
          multipart.addFormField("activity_id", mActivityId);
          multipart.addFormField("description", mBundleDescription);
@@ -353,12 +348,12 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       try
       {
          connection = (HttpURLConnection) request.openConnection();
-         multipart = new MultipartStreamer(connection);
-         mConsumer.sign(connection);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, mConsumer);
          multipart.addFormField("name", photo.getName());
          multipart.addFormField("track_id", Integer.toString(trackId));
          //entity.addPart("description", new StringBody(""));
          multipart.addFilePart("file", photo);
+         multipart.flush();
 
          InputStream stream = connection.getInputStream();
          responseText = XmlCreator.convertStreamToString(stream);

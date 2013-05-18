@@ -151,8 +151,7 @@ public class OsmSharing extends GpxCreator
          // The POST to the create node
          URL url = new URL(mContext.getString(R.string.osm_post_url));
          connection = (HttpURLConnection) url.openConnection();
-         multipart = new MultipartStreamer(connection);
-         consumer.sign(connection);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.STRICT, consumer);
 
          // Build the multipart body with the upload data
          multipart.addFilePart("file", gpxFile);
@@ -160,6 +159,7 @@ public class OsmSharing extends GpxCreator
          String tags = mContext.getString(R.string.osm_tag) + " " + queryForNotes();
          multipart.addFormField("tags", tags);
          multipart.addFormField("visibility", visibility);
+         multipart.flush();
 
          // Execute the POST to OpenStreetMap
          statusCode = connection.getResponseCode();

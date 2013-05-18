@@ -60,8 +60,7 @@ public class JogmapSharing extends GpxCreator
    private static final String TAG = "OGT.JogmapSharing";
    private String jogmapResponseText;
 
-   public JogmapSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments,
-         ProgressListener listener)
+   public JogmapSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener listener)
    {
       super(context, trackUri, chosenBaseFileName, attachments, listener);
    }
@@ -96,7 +95,7 @@ public class JogmapSharing extends GpxCreator
       {
          jogmap = new URL(mContext.getString(R.string.jogmap_post_url));
          connection = (HttpURLConnection) jogmap.openConnection();
-         multipart = new MultipartStreamer(connection);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.STRICT);
          multipart.addFormField("id", authCode);
          multipart.addFilePart("mFile", gpxFile);
          multipart.flush();
@@ -120,8 +119,7 @@ public class JogmapSharing extends GpxCreator
       {
          Log.e(TAG, "Wrong status code " + statusCode);
          jogmapResponseText = mContext.getString(R.string.jogmap_failed) + jogmapResponseText;
-         handleError(mContext.getString(R.string.jogmap_task),
-               new HttpException("Unexpected status reported by Jogmap"), jogmapResponseText);
+         handleError(mContext.getString(R.string.jogmap_task), new HttpException("Unexpected status reported by Jogmap"), jogmapResponseText);
       }
    }
 
