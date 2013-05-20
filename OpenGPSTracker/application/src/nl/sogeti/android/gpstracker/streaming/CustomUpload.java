@@ -29,21 +29,17 @@
 package nl.sogeti.android.gpstracker.streaming;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import nl.sogeti.android.gpstracker.BuildConfig;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -60,20 +56,23 @@ import android.util.Log;
 
 public class CustomUpload extends BroadcastReceiver
 {
+   private static final boolean DEBUG = BuildConfig.DEBUG && false;
    private static final String CUSTOMUPLOAD_BACKLOG_DEFAULT = "20";
    private static CustomUpload sCustomUpload = null;
    private static final String TAG = "OGT.CustomUpload";
    private static final int NOTIFICATION_ID = R.string.customupload_failed;
-   private static Queue<HttpGet> sRequestBacklog = new LinkedList<HttpGet>();
+   private static Queue<URL> sRequestBacklog = new LinkedList<URL>();
 
    public static synchronized void initStreaming(Context ctx)
    {
+      if (DEBUG)
+         Log.d(TAG, "initStreaming(Context)");
       if (sCustomUpload != null)
       {
          shutdownStreaming(ctx);
       }
       sCustomUpload = new CustomUpload();
-      sRequestBacklog = new LinkedList<HttpGet>();
+      sRequestBacklog = new LinkedList<URL>();
 
       IntentFilter filter = new IntentFilter(Constants.STREAMBROADCAST);
       ctx.registerReceiver(sCustomUpload, filter);
@@ -81,6 +80,8 @@ public class CustomUpload extends BroadcastReceiver
 
    public static synchronized void shutdownStreaming(Context ctx)
    {
+      if (DEBUG)
+         Log.d(TAG, "shutdownStreaming(Context)");
       if (sCustomUpload != null)
       {
          ctx.unregisterReceiver(sCustomUpload);
@@ -91,11 +92,15 @@ public class CustomUpload extends BroadcastReceiver
 
    private void onShutdown()
    {
+      if (DEBUG)
+         Log.d(TAG, "onShutdown()");
    }
 
    @Override
    public void onReceive(Context context, Intent intent)
    {
+      if (DEBUG)
+         Log.d(TAG, "onReceive(Context, Intent)");
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
       String prefUrl = preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_URL, "http://www.example.com");
       Integer prefBacklog = Integer.valueOf(preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_BACKLOG, CUSTOMUPLOAD_BACKLOG_DEFAULT));
@@ -111,15 +116,13 @@ public class CustomUpload extends BroadcastReceiver
       buildUrl = buildUrl.replace("@ALT@", Double.toString(loc.getAltitude()));
       buildUrl = buildUrl.replace("@BEAR@", Float.toString(loc.getBearing()));
 
-      HttpClient client = new DefaultHttpClient();
-      URI uploadUri;
+      URL uploadUri;
       try
       {
-         uploadUri = new URI(buildUrl);
-         if (uploadUri.getHost() != null && ("http".equals(uploadUri.getScheme()) || "https".equals(uploadUri.getScheme())))
+         uploadUri = new URL(buildUrl);
+         if (uploadUri.getHost() != null && ("http".equals(uploadUri.getProtocol()) || "https".equals(uploadUri.getProtocol())))
          {
-            HttpGet currentRequest = new HttpGet(uploadUri);
-            sRequestBacklog.add(currentRequest);
+            sRequestBacklog.add(uploadUri);
          }
          else
          {
@@ -131,20 +134,17 @@ public class CustomUpload extends BroadcastReceiver
          }
          while (!sRequestBacklog.isEmpty())
          {
-            HttpGet request = sRequestBacklog.peek();
-            HttpResponse response = client.execute(request);
+            URL request = sRequestBacklog.peek();
+            HttpURLConnection connection = (HttpURLConnection) request.openConnection();
             sRequestBacklog.poll();
-            StatusLine status = response.getStatusLine();
-            if (status.getStatusCode() != 200)
+            connection.connect();
+            int status = connection.getResponseCode();
+            if (status != 200)
             {
-               throw new IOException("Invalid response from server: " + status.toString());
+               throw new IOException("Invalid response from server: " + status);
             }
             clearNotification(context);
          }
-      }
-      catch (URISyntaxException e)
-      {
-         notifyError(context, e);
       }
       catch (ClientProtocolException e)
       {

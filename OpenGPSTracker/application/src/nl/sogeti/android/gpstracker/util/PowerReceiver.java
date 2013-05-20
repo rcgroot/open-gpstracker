@@ -32,6 +32,7 @@ import android.util.Log;
 public class PowerReceiver extends BroadcastReceiver
 {
    private final static String TAG = "OGT.PowerReceiver";
+   private static final boolean DEBUG = BuildConfig.DEBUG && false;
 
    @Override
    public void onReceive(Context context, Intent intent)
@@ -39,7 +40,7 @@ public class PowerReceiver extends BroadcastReceiver
       boolean start = false;
       boolean stop = false;
       String action = intent.getAction();
-      if (BuildConfig.DEBUG)
+      if (DEBUG)
       {
          Log.d(TAG, "OpenGPSTracker's PowerReceiver received: " + action);
       }
