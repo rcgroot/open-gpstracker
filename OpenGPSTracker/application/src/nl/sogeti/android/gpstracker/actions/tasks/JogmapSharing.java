@@ -95,7 +95,7 @@ public class JogmapSharing extends GpxCreator
       {
          jogmap = new URL(mContext.getString(R.string.jogmap_post_url));
          connection = (HttpURLConnection) jogmap.openConnection();
-         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.STRICT);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.STRICT, MultipartStreamer.StreamingMode.DEFAULT);
          multipart.addFormField("id", authCode);
          multipart.addFilePart("mFile", gpxFile);
          multipart.flush();
@@ -106,6 +106,7 @@ public class JogmapSharing extends GpxCreator
       }
       catch (IOException e)
       {
+         Log.e(TAG, "Upload failed", e);
          String text = mContext.getString(R.string.jogmap_failed) + e.getLocalizedMessage();
          handleError(mContext.getString(R.string.jogmap_task), e, text);
       }

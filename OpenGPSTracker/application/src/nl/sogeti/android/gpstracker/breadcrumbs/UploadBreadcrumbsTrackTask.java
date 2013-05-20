@@ -188,7 +188,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          }
          // Build the multipart body with the upload data
          connection = (HttpURLConnection) method.openConnection();
-         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, mConsumer);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, MultipartStreamer.StreamingMode.DEFAULT, mConsumer);
          multipart.addFormField("import_type", "GPX");
          //entity.addPart("gpx",         new FileBody(gpxFile));
          multipart.addFormField("gpx", gpxString);
@@ -278,7 +278,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       try
       {
          connection = (HttpURLConnection) method.openConnection();
-         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, mConsumer);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, MultipartStreamer.StreamingMode.DEFAULT, mConsumer);
          multipart.addFormField("name", mBundleName);
          multipart.addFormField("activity_id", mActivityId);
          multipart.addFormField("description", mBundleDescription);
@@ -348,7 +348,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       try
       {
          connection = (HttpURLConnection) request.openConnection();
-         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, mConsumer);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, MultipartStreamer.StreamingMode.DEFAULT, mConsumer);
          multipart.addFormField("name", photo.getName());
          multipart.addFormField("track_id", Integer.toString(trackId));
          //entity.addPart("description", new StringBody(""));

@@ -25,13 +25,13 @@ import android.util.Log;
  */
 public class MultipartStreamer implements Closeable
 {
-   private final String boundary;
+   private String boundary;
    private static final String LINE_FEED = "\r\n";
    private static final String TAG = "MultipartStreamer";
    private String charset;
    private OutputStream outputStream;
    private PrintWriter writer;
-   private HttpMultipartMode mode;
+   private HttpMultipartMode mode = HttpMultipartMode.STRICT;
    private boolean flushed = false;
 
    /**
@@ -44,17 +44,11 @@ public class MultipartStreamer implements Closeable
     * @throws OAuthExpectationFailedException
     * @throws OAuthMessageSignerException
     */
-   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode mode, OAuthConsumer mConsumer) throws IOException, OAuthMessageSignerException, OAuthExpectationFailedException,
-         OAuthCommunicationException
+   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming, OAuthConsumer mConsumer) throws IOException, OAuthMessageSignerException,
+         OAuthExpectationFailedException, OAuthCommunicationException
    {
-      this.mode = mode;
-      this.charset = "UTF-8";
-      httpConnection.setDoOutput(true);
-      httpConnection.setRequestMethod("POST");
+      initHttpUrlConnection(httpConnection, multipart, streaming);
 
-      // creates a unique boundary based on time stamp
-      boundary = "===" + System.currentTimeMillis() + "===";
-      httpConnection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
       if (mConsumer != null)
       {
          mConsumer.sign(httpConnection);
@@ -63,18 +57,35 @@ public class MultipartStreamer implements Closeable
       writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
    }
 
-   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode mode) throws IOException
+   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming) throws IOException
    {
-      this.mode = mode;
-      this.charset = "UTF-8";
-      httpConnection.setDoOutput(true);
+      initHttpUrlConnection(httpConnection, multipart, streaming);
 
-      // creates a unique boundary based on time stamp
-      boundary = "===" + System.currentTimeMillis() + "===";
-      httpConnection.setDoOutput(true); // indicates POST method
-      httpConnection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
       outputStream = httpConnection.getOutputStream();
       writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
+   }
+
+   private void initHttpUrlConnection(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming) throws IOException
+   {
+      this.mode = multipart;
+      this.charset = "UTF-8";
+      httpConnection.setDoOutput(true);
+      httpConnection.setRequestMethod("POST");
+      switch (streaming)
+      {
+         case FIXED:
+            httpConnection.setFixedLengthStreamingMode(streaming.getSize());
+            break;
+         case CHUNKED:
+            httpConnection.setChunkedStreamingMode(streaming.getSize());
+            break;
+         case DEFAULT:
+         default:
+            break;
+      }
+      // creates a unique boundary based on time stamp
+      boundary = "===" + System.currentTimeMillis() + "===";
+      httpConnection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
    }
 
    /**
@@ -180,6 +191,23 @@ public class MultipartStreamer implements Closeable
       catch (IOException e)
       {
          Log.w(TAG, "Failed to close ", e);
+      }
+   }
+
+   public static enum StreamingMode
+   {
+      FIXED, CHUNKED, DEFAULT;
+
+      private int size;
+
+      void setSize(int size)
+      {
+         this.size = size;
+      }
+
+      int getSize()
+      {
+         return size;
       }
    }
 
