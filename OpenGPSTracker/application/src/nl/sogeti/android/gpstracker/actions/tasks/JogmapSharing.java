@@ -78,7 +78,7 @@ public class JogmapSharing extends GpxCreator
    {
       super.onPostExecute(resultFilename);
 
-      CharSequence text = mContext.getString(R.string.osm_success) + jogmapResponseText;
+      CharSequence text = mContext.getString(R.string.jogmap_success) + jogmapResponseText;
       Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
       toast.show();
    }
@@ -106,7 +106,6 @@ public class JogmapSharing extends GpxCreator
       }
       catch (IOException e)
       {
-         Log.e(TAG, "Upload failed", e);
          String text = mContext.getString(R.string.jogmap_failed) + e.getLocalizedMessage();
          handleError(mContext.getString(R.string.jogmap_task), e, text);
       }

@@ -235,7 +235,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="jogmap_summary">The authentication code to upload to a jogmap.de account</string>
     <string name="jogmap_task">Uploading the track to jogmap.de</string>
     <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
-    <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
+    <string name="jogmap_success">Response from jogmap.de: </string>
     <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo.\n </string>
     <string name="import_track">Import a track into Open GPS Tracker</string>
     <string name="preference_logging">Logging and GPS</string>
