@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="CONSUMER_KEY">place_key_here</string>
+    <string name="CONSUMER_SECRET">place_secret_here</string>
+    
+    <string name="OSM_CONSUMER_KEY">place_key_here</string>
+    <string name="OSM_CONSUMER_SECRET">place_secret_here</string>
+</resources>
