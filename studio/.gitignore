@@ -42,4 +42,4 @@ Thumbs.db
 .gradle
 build/
 
-
+keystore.properties

@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+def keystorePropertiesFile = rootProject.file("keystore.properties");
+def signingProperties = new Properties()
+signingProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdkVersion "Google Inc.:Google APIs:17"
     buildToolsVersion "23.0.1"
@@ -11,6 +15,15 @@ android {
         targetSdkVersion 15
         versionCode 1
         versionName "1.0"
+    }
+
+    signingConfigs {
+        all {
+            storeFile file(signingProperties["storeFile"])
+            storePassword signingProperties["storePassword"]
+            keyAlias signingProperties["keyAlias"]
+            keyPassword signingProperties["keyPassword"]
+        }
     }
 
     buildTypes {
