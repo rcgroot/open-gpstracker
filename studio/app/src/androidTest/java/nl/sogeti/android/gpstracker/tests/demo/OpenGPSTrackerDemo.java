@@ -49,7 +49,6 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
    private static final Class<LoggerMap> CLASS = LoggerMap.class;
    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
    private LoggerMap mLoggermap;
-   private GPSLoggerServiceManager mLoggerServiceManager;
    private MapView mMapView;
    private MockGPSLoggerDriver mSender;
 
@@ -69,12 +68,9 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
 
    protected void tearDown() throws Exception
    {
-      this.mLoggerServiceManager.shutdown( getActivity() );
       super.tearDown();
    }
 
-   
-   
    /**
     * Start tracking and allow it to go on for 30 seconds
     * 

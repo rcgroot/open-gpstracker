@@ -6,6 +6,7 @@ android {
 
     defaultConfig {
         applicationId "nl.sogeti.android.gpstracker"
+        testApplicationId "nl.sogeti.android.gpstracker.tests"
         minSdkVersion 4
         targetSdkVersion 15
         versionCode 1
