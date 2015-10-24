@@ -476,8 +476,8 @@ public class GPSLoggerService extends Service implements LocationListener
    public Location locationFilter(Location proposedLocation)
    {
       // Do no include log wrong 0.0 lat 0.0 long, skip to next value in while-loop
-      if (proposedLocation != null && (proposedLocation.getLatitude() == 0.0d || proposedLocation.getLongitude() == 0
-      .0d))
+      if (proposedLocation != null && (proposedLocation.getLatitude() == 0.0d
+            || proposedLocation.getLongitude() == 0.0d))
       {
          Log.w(TAG, "A wrong location was received, 0.0 latitude and 0.0 longitude... ");
          proposedLocation = null;
