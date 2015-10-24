@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-   <string name="about_copyright">Copyright©2010 Sogeti Nederland B.V.</string> 
-   <string name="about_website_url">http://code.google.com/p/open-gpstracker/</string>
-   <string name="about_email">rcgroot@gmail.com</string>
-   <string name="about_website_label">Open GPS Tracker</string>
-   <string name="jogmap_post_url">http://www.laufstrecken.net/civic4/?q=gpxmark</string>
-   <string name="osm_post_url">http://api.openstreetmap.org/api/0.6/gpx/create</string>
-   <string name="osm_tag">OpenGPSTracker</string>
-   <!-- <string name="osm_post_url">http://api06.dev.openstreetmap.org/api/0.6/gpx/create</string> -->
+    <string name="about_copyright">Copyright©2010 Sogeti Nederland B.V.</string>
+    <string name="about_website_url">http://code.google.com/p/open-gpstracker/</string>
+    <string name="about_email">rcgroot@gmail.com</string>
+    <string name="about_website_label">Open GPS Tracker</string>
+    <string name="jogmap_post_url">http://www.laufstrecken.net/civic4/?q=gpxmark</string>
+    <string name="osm_post_url">http://api.openstreetmap.org/api/0.6/gpx/create</string>
+    <string name="osm_tag">OpenGPSTracker</string>
+    <!-- <string name="osm_post_url">http://api06.dev.openstreetmap.org/api/0.6/gpx/create</string> -->
     <string name="units_implement_width">8</string>
-    
+
 </resources>

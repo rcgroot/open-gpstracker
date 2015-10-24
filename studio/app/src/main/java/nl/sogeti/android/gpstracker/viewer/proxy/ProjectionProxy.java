@@ -38,88 +38,88 @@ public class ProjectionProxy
 {
 
    private static final String TAG = "OGT.ProjectionProxy";
-   
+
    private Projection mProjection;
    private org.osmdroid.views.MapView mOpenStreetMapViewProjectionSource;
 
    public ProjectionProxy()
    {
    }
-   
-   public void setProjection( Object projection )
+
+   public void setProjection(Object projection)
    {
-      if( projection instanceof Projection )
+      if (projection instanceof Projection)
       {
          mProjection = (Projection) projection;
          mOpenStreetMapViewProjectionSource = null;
-      } 
-      else if( projection instanceof org.osmdroid.views.MapView )
+      }
+      else if (projection instanceof org.osmdroid.views.MapView)
       {
          mOpenStreetMapViewProjectionSource = (org.osmdroid.views.MapView) projection;
          mProjection = null;
       }
    }
 
-   public void toPixels( GeoPoint geoPoint, Point out )
+   public void toPixels(GeoPoint geoPoint, Point out)
    {
-      if( mProjection != null )
+      if (mProjection != null)
       {
          try
          {
-            mProjection.toPixels( geoPoint, out );
+            mProjection.toPixels(geoPoint, out);
          }
-         catch (NullPointerException e) 
+         catch (NullPointerException e)
          {
-            Log.w( TAG, "Problem using the Google map projection" );
+            Log.w(TAG, "Problem using the Google map projection");
          }
-      } 
-      else if( mOpenStreetMapViewProjectionSource != null )
+      }
+      else if (mOpenStreetMapViewProjectionSource != null)
       {
          org.osmdroid.views.MapView.Projection projection = mOpenStreetMapViewProjectionSource.getProjection();
-         if( projection != null )
+         if (projection != null)
          {
             org.osmdroid.util.GeoPoint osmGeopoint = MapViewProxy.convertMapGeoPoint(geoPoint);
-            projection.toMapPixels(osmGeopoint, out );
+            projection.toMapPixels(osmGeopoint, out);
          }
-      }
-      else 
-      {
-         throw new IllegalStateException( "No working projection available" );
-      }
-   }
-
-   public GeoPoint fromPixels( int i, int j )
-   {
-      GeoPoint point = null;
-      if( mProjection != null )
-      {
-         point  = mProjection.fromPixels( i, j );
-      } 
-      else if( mOpenStreetMapViewProjectionSource != null )
-      {
-         point = MapViewProxy.convertOSMGeoPoint( mOpenStreetMapViewProjectionSource.getProjection().fromPixels( i, j ) );
       }
       else
       {
-         throw new IllegalStateException( "No working projection available" );
+         throw new IllegalStateException("No working projection available");
+      }
+   }
+
+   public GeoPoint fromPixels(int i, int j)
+   {
+      GeoPoint point = null;
+      if (mProjection != null)
+      {
+         point = mProjection.fromPixels(i, j);
+      }
+      else if (mOpenStreetMapViewProjectionSource != null)
+      {
+         point = MapViewProxy.convertOSMGeoPoint(mOpenStreetMapViewProjectionSource.getProjection().fromPixels(i, j));
+      }
+      else
+      {
+         throw new IllegalStateException("No working projection available");
       }
       return point;
    }
 
-   public float metersToEquatorPixels( float i )
+   public float metersToEquatorPixels(float i)
    {
       float pixels = 0f;
-      if( mProjection != null )
+      if (mProjection != null)
       {
-         pixels  = mProjection.metersToEquatorPixels( i );
-      } 
-      else if( mOpenStreetMapViewProjectionSource != null )
+         pixels = mProjection.metersToEquatorPixels(i);
+      }
+      else if (mOpenStreetMapViewProjectionSource != null)
       {
-         pixels = mOpenStreetMapViewProjectionSource.getProjection().metersToEquatorPixels( i ) ;
+         pixels = mOpenStreetMapViewProjectionSource.getProjection().metersToEquatorPixels(i);
       }
       else
       {
-         throw new IllegalStateException( "No working projection available" );
+         throw new IllegalStateException("No working projection available");
       }
       return pixels;
    }

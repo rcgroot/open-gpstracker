@@ -1,5 +1,7 @@
 package nl.sogeti.android.gpstracker.util;
 
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -16,18 +18,17 @@ import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
-import android.util.Log;
 
 /**
  * This utility class provides an abstraction layer for sending multipart HTTP POST requests to a web server.
- * 
+ *
  * @author www.codejava.net
  */
 public class MultipartStreamer implements Closeable
 {
-   private String boundary;
    private static final String LINE_FEED = "\r\n";
    private static final String TAG = "MultipartStreamer";
+   private String boundary;
    private String charset;
    private OutputStream outputStream;
    private PrintWriter writer;
@@ -36,7 +37,7 @@ public class MultipartStreamer implements Closeable
 
    /**
     * This constructor initializes a new HTTP POST request with content type is set to multipart/form-data
-    * 
+    *
     * @param requestURL
     * @param charset
     * @throws IOException
@@ -44,7 +45,8 @@ public class MultipartStreamer implements Closeable
     * @throws OAuthExpectationFailedException
     * @throws OAuthMessageSignerException
     */
-   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming, OAuthConsumer mConsumer) throws IOException, OAuthMessageSignerException,
+   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming,
+                            OAuthConsumer mConsumer) throws IOException, OAuthMessageSignerException,
          OAuthExpectationFailedException, OAuthCommunicationException
    {
       initHttpUrlConnection(httpConnection, multipart, streaming);
@@ -57,15 +59,8 @@ public class MultipartStreamer implements Closeable
       writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
    }
 
-   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming) throws IOException
-   {
-      initHttpUrlConnection(httpConnection, multipart, streaming);
-
-      outputStream = httpConnection.getOutputStream();
-      writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
-   }
-
-   private void initHttpUrlConnection(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming) throws IOException
+   private void initHttpUrlConnection(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode
+         streaming) throws IOException
    {
       this.mode = multipart;
       this.charset = "UTF-8";
@@ -88,10 +83,19 @@ public class MultipartStreamer implements Closeable
       httpConnection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
    }
 
+   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming)
+         throws IOException
+   {
+      initHttpUrlConnection(httpConnection, multipart, streaming);
+
+      outputStream = httpConnection.getOutputStream();
+      writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
+   }
+
    /**
     * Adds a form field to the request
-    * 
-    * @param name field name
+    *
+    * @param name  field name
     * @param value field value
     */
    public void addFormField(String name, String value)
@@ -109,7 +113,7 @@ public class MultipartStreamer implements Closeable
 
    /**
     * Adds a upload file section to the request
-    * 
+    *
     * @param fieldName
     * @param file
     * @throws IOException
@@ -130,16 +134,17 @@ public class MultipartStreamer implements Closeable
 
    /**
     * Adds a upload file section to the request
-    * 
-    * @param fieldName name attribute in <input type="file" name="..." />
-    * @paran fileName name to be given as filename to the stream
+    *
+    * @param fieldName   name attribute in <input type="file" name="..." />
     * @param inputStream stream of data to upload
     * @throws IOException
+    * @paran fileName name to be given as filename to the stream
     */
    public void addFilePart(String fieldName, String fileName, InputStream inputStream) throws IOException
    {
       writer.append("--" + boundary).append(LINE_FEED);
-      writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"").append(LINE_FEED);
+      writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"")
+            .append(LINE_FEED);
       if (mode == HttpMultipartMode.STRICT)
       {
          writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);
@@ -162,23 +167,6 @@ public class MultipartStreamer implements Closeable
       writer.flush();
    }
 
-   public void flush()
-   {
-      writer.append("--" + boundary + "--").append(LINE_FEED).flush();
-      writer.close();
-      flushed = true;
-   }
-
-   @Override
-   public void close() throws IOException
-   {
-      if (!flushed)
-      {
-         flush();
-         writer.close();
-      }
-   }
-
    private void close(Closeable connection)
    {
       try
@@ -194,26 +182,21 @@ public class MultipartStreamer implements Closeable
       }
    }
 
-   public static enum StreamingMode
+   @Override
+   public void close() throws IOException
    {
-      FIXED, CHUNKED, DEFAULT;
-
-      private int size;
-
-      void setSize(int size)
+      if (!flushed)
       {
-         this.size = size;
-      }
-
-      int getSize()
-      {
-         return size;
+         flush();
+         writer.close();
       }
    }
 
-   public static enum HttpMultipartMode
+   public void flush()
    {
-      BROWSER_COMPATIBLE, STRICT
+      writer.append("--" + boundary + "--").append(LINE_FEED).flush();
+      writer.close();
+      flushed = true;
    }
 
    @Override
@@ -224,5 +207,27 @@ public class MultipartStreamer implements Closeable
       {
          Log.e(TAG, "Unflushed mime body garbage collected");
       }
+   }
+
+   public static enum StreamingMode
+   {
+      FIXED, CHUNKED, DEFAULT;
+
+      private int size;
+
+      int getSize()
+      {
+         return size;
+      }
+
+      void setSize(int size)
+      {
+         this.size = size;
+      }
+   }
+
+   public static enum HttpMultipartMode
+   {
+      BROWSER_COMPATIBLE, STRICT
    }
 }

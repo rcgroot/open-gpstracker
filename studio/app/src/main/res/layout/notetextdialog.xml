@@ -1,20 +1,20 @@
 <LinearLayout
-   android:id="@+id/LinearLayout01"
-   xmlns:android="http://schemas.android.com/apk/res/android"
-   android:orientation="vertical"
-   android:layout_width="fill_parent"
-   android:layout_height="wrap_content"
->
+    android:id="@+id/LinearLayout01"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
 
-   <EditText
-      android:clickable="true"
-      android:id="@+id/notetext"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:minLines="3"
-      android:maxLines="6"
-      android:singleLine="false"
-      android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
-   ></EditText>
+    <EditText
+        android:id="@+id/notetext"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
+        android:maxLines="6"
+        android:minLines="3"
+        android:singleLine="false"
+        ></EditText>
 
 </LinearLayout>

@@ -12,19 +12,6 @@
  */
 package nl.sogeti.android.gpstracker.breadcrumbs;
 
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Pair;
-import oauth.signpost.basic.DefaultOAuthConsumer;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -39,20 +26,34 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import nl.sogeti.android.gpstracker.oauth.PrepareRequestTokenActivity;
+import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Pair;
+import oauth.signpost.basic.DefaultOAuthConsumer;
+
 /**
  * ????
- * 
- * @version $Id:$
+ *
  * @author rene (c) Oct 20, 2012, Sogeti B.V.
+ * @version $Id:$
  */
 public class BreadcrumbsService extends Service implements Observer, ProgressListener
 {
    public static final String OAUTH_TOKEN = "breadcrumbs_oauth_token";
    public static final String OAUTH_TOKEN_SECRET = "breadcrumbs_oauth_secret";
-
-   private static final String TAG = "OGT.BreadcrumbsService";
-   public static final String NOTIFY_DATA_SET_CHANGED = "nl.sogeti.android.gpstracker.intent.action.NOTIFY_DATA_SET_CHANGED";
-   public static final String NOTIFY_PROGRESS_CHANGED = "nl.sogeti.android.gpstracker.intent.action.NOTIFY_PROGRESS_CHANGED";
+   public static final String NOTIFY_DATA_SET_CHANGED = "nl.sogeti.android.gpstracker.intent.action" +
+         ".NOTIFY_DATA_SET_CHANGED";
+   public static final String NOTIFY_PROGRESS_CHANGED = "nl.sogeti.android.gpstracker.intent.action" +
+         ".NOTIFY_PROGRESS_CHANGED";
    public static final String PROGRESS_INDETERMINATE = null;
    public static final String PROGRESS = null;
    public static final String PROGRESS_STATE = null;
@@ -62,14 +63,13 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
    public static final int PROGRESS_STARTED = 1;
    public static final int PROGRESS_FINISHED = 2;
    public static final int PROGRESS_ERROR = 3;
-
+   private static final String TAG = "OGT.BreadcrumbsService";
    private final IBinder mBinder = new LocalBinder();
-
+   boolean mAuthorized;
+   ExecutorService mExecutor;
    private BreadcrumbsTracks mTracks;
    private OnSharedPreferenceChangeListener tokenChangedListener;
    private boolean mFinishing;
-   boolean mAuthorized;
-   ExecutorService mExecutor;
 
    @Override
    public void onCreate()
@@ -93,41 +93,29 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
       mAuthorized = false;
       mFinishing = true;
       new AsyncTask<Void, Void, Void>()
+      {
+         public void executeOn(Executor executor)
          {
-            public void executeOn(Executor executor)
+            if (Build.VERSION.SDK_INT >= 11)
             {
-               if (Build.VERSION.SDK_INT >= 11)
-               {
-                  executeOnExecutor(executor);
-               }
-               else
-               {
-                  execute();
-               }
+               executeOnExecutor(executor);
             }
+            else
+            {
+               execute();
+            }
+         }
 
-            @Override
-            protected Void doInBackground(Void... params)
-            {
-               mExecutor.shutdown();
-               return null;
-            }
-         }.executeOn(mExecutor);
+         @Override
+         protected Void doInBackground(Void... params)
+         {
+            mExecutor.shutdown();
+            return null;
+         }
+      }.executeOn(mExecutor);
       mTracks.persistCache(this);
 
       super.onDestroy();
-   }
-
-   /**
-    * Class used for the client Binder. Because we know this service always runs in the same process as its clients, we
-    * don't need to deal with IPC.
-    */
-   public class LocalBinder extends Binder
-   {
-      public BreadcrumbsService getService()
-      {
-         return BreadcrumbsService.this;
-      }
    }
 
    /**
@@ -185,18 +173,18 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
       if (!connectionSetup())
       {
          tokenChangedListener = new OnSharedPreferenceChangeListener()
+         {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
             {
-               @Override
-               public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
+               if (OAUTH_TOKEN.equals(key))
                {
-                  if (OAUTH_TOKEN.equals(key))
-                  {
-                     PreferenceManager.getDefaultSharedPreferences(BreadcrumbsService.this)
-                           .unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
-                     connectionSetup();
-                  }
+                  PreferenceManager.getDefaultSharedPreferences(BreadcrumbsService.this)
+                                   .unregisterOnSharedPreferenceChangeListener(tokenChangedListener);
+                  connectionSetup();
                }
-            };
+            }
+         };
          PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(
                tokenChangedListener);
 
@@ -345,5 +333,17 @@ public class BreadcrumbsService extends Service implements Observer, ProgressLis
       broadcast.putExtra(BreadcrumbsService.PROGRESS_RESULT, exception);
       broadcast.setAction(BreadcrumbsService.NOTIFY_PROGRESS_CHANGED);
       getApplicationContext().sendBroadcast(broadcast);
+   }
+
+   /**
+    * Class used for the client Binder. Because we know this service always runs in the same process as its clients, we
+    * don't need to deal with IPC.
+    */
+   public class LocalBinder extends Binder
+   {
+      public BreadcrumbsService getService()
+      {
+         return BreadcrumbsService.this;
+      }
    }
 }

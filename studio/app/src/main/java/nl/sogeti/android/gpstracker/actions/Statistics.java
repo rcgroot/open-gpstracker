@@ -28,13 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
-import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
-import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.gpstracker.viewer.TrackList;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -62,11 +55,19 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
+import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
+import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import nl.sogeti.android.gpstracker.viewer.TrackList;
+
 /**
  * Display some calulations based on a track
- * 
- * @version $Id$
+ *
  * @author rene (c) Oct 19, 2009, Sogeti B.V.
+ * @version $Id$
  */
 public class Statistics extends Activity implements StatisticsDelegate
 {
@@ -95,8 +96,19 @@ public class Statistics extends Activity implements StatisticsDelegate
    private TextView mElapsedTimeView;
 
    private UnitsI18n mUnits;
-   private GraphCanvas mGraphTimeSpeed;
+   private final ContentObserver mTrackObserver = new ContentObserver(new Handler())
+   {
 
+      @Override
+      public void onChange(boolean selfUpdate)
+      {
+         if (!calculating)
+         {
+            Statistics.this.drawTrackingStatistics();
+         }
+      }
+   };
+   private GraphCanvas mGraphTimeSpeed;
    private ViewFlipper mViewFlipper;
    private Animation mSlideLeftIn;
    private Animation mSlideLeftOut;
@@ -106,119 +118,82 @@ public class Statistics extends Activity implements StatisticsDelegate
    private GraphCanvas mGraphDistanceSpeed;
    private GraphCanvas mGraphTimeAltitude;
    private GraphCanvas mGraphDistanceAltitude;
-
-   private final ContentObserver mTrackObserver = new ContentObserver( new Handler() )
-   {
-   
-      @Override
-      public void onChange( boolean selfUpdate )
-      {
-         if( !calculating )
-         {
-            Statistics.this.drawTrackingStatistics();
-         }
-      }
-   };
    private OnClickListener mGraphControlListener = new View.OnClickListener()
    {
       @Override
-      public void onClick( View v )
+      public void onClick(View v)
       {
          int id = v.getId();
-         switch( id )
+         switch (id)
          {
             case R.id.graphtype_timespeed:
-               mViewFlipper.setDisplayedChild( 0 );
+               mViewFlipper.setDisplayedChild(0);
                break;
             case R.id.graphtype_distancespeed:
-               mViewFlipper.setDisplayedChild( 1 );
+               mViewFlipper.setDisplayedChild(1);
                break;
             case R.id.graphtype_timealtitude:
-               mViewFlipper.setDisplayedChild( 2 );
+               mViewFlipper.setDisplayedChild(2);
                break;
             case R.id.graphtype_distancealtitude:
-               mViewFlipper.setDisplayedChild( 3 );
+               mViewFlipper.setDisplayedChild(3);
                break;
             default:
                break;
          }
-         dismissDialog( DIALOG_GRAPHTYPE );
+         dismissDialog(DIALOG_GRAPHTYPE);
       }
    };
-
-   class MyGestureDetector extends SimpleOnGestureListener
-   {
-      @Override
-      public boolean onFling( MotionEvent e1, MotionEvent e2, float velocityX, float velocityY )
-      {
-         if( Math.abs( e1.getY() - e2.getY() ) > SWIPE_MAX_OFF_PATH )
-            return false;
-         // right to left swipe
-         if( e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs( velocityX ) > SWIPE_THRESHOLD_VELOCITY )
-         {
-            mViewFlipper.setInAnimation( mSlideLeftIn );
-            mViewFlipper.setOutAnimation( mSlideLeftOut );
-            mViewFlipper.showNext();
-         }
-         else if( e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs( velocityX ) > SWIPE_THRESHOLD_VELOCITY )
-         {
-            mViewFlipper.setInAnimation( mSlideRightIn );
-            mViewFlipper.setOutAnimation( mSlideRightOut );
-            mViewFlipper.showPrevious();
-         }
-         return false;
-      }
-   }
 
    /**
     * Called when the activity is first created.
     */
    @Override
-   protected void onCreate( Bundle load )
+   protected void onCreate(Bundle load)
    {
-      super.onCreate( load );
-      mUnits = new UnitsI18n( this, new UnitsI18n.UnitsChangeListener()
-         {
-            @Override
-            public void onUnitsChange()
-            {
-               drawTrackingStatistics();
-            }
-         } );
-      setContentView( R.layout.statistics );
-      
-      mViewFlipper = (ViewFlipper) findViewById( R.id.flipper );
-      mViewFlipper.setDrawingCacheEnabled(true);
-      mSlideLeftIn = AnimationUtils.loadAnimation( this, R.anim.slide_left_in );
-      mSlideLeftOut = AnimationUtils.loadAnimation( this, R.anim.slide_left_out );
-      mSlideRightIn = AnimationUtils.loadAnimation( this, R.anim.slide_right_in );
-      mSlideRightOut = AnimationUtils.loadAnimation( this, R.anim.slide_right_out );
-
-      mGraphTimeSpeed        = (GraphCanvas) mViewFlipper.getChildAt( 0 );
-      mGraphDistanceSpeed    = (GraphCanvas) mViewFlipper.getChildAt( 1 );
-      mGraphTimeAltitude     = (GraphCanvas) mViewFlipper.getChildAt( 2 );
-      mGraphDistanceAltitude = (GraphCanvas) mViewFlipper.getChildAt( 3 );
-      
-      mGraphTimeSpeed.setType( GraphCanvas.TIMESPEEDGRAPH );
-      mGraphDistanceSpeed.setType( GraphCanvas.DISTANCESPEEDGRAPH );
-      mGraphTimeAltitude.setType( GraphCanvas.TIMEALTITUDEGRAPH );
-      mGraphDistanceAltitude.setType( GraphCanvas.DISTANCEALTITUDEGRAPH );
-
-      mGestureDetector = new GestureDetector( new MyGestureDetector() );
-
-      maxSpeedView = (TextView) findViewById( R.id.stat_maximumspeed );
-      mAscensionView   = (TextView) findViewById( R.id.stat_ascension );
-      mElapsedTimeView = (TextView) findViewById( R.id.stat_elapsedtime );
-      overallavgSpeedView = (TextView) findViewById( R.id.stat_overallaveragespeed );
-      avgSpeedView = (TextView) findViewById( R.id.stat_averagespeed );
-      distanceView = (TextView) findViewById( R.id.stat_distance );
-      starttimeView = (TextView) findViewById( R.id.stat_starttime );
-      endtimeView = (TextView) findViewById( R.id.stat_endtime );
-      waypointsView = (TextView) findViewById( R.id.stat_waypoints );
-
-      if( load != null && load.containsKey( TRACKURI ) )
+      super.onCreate(load);
+      mUnits = new UnitsI18n(this, new UnitsI18n.UnitsChangeListener()
       {
-         mTrackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, load.getString( TRACKURI ) );
+         @Override
+         public void onUnitsChange()
+         {
+            drawTrackingStatistics();
+         }
+      });
+      setContentView(R.layout.statistics);
+
+      mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
+      mViewFlipper.setDrawingCacheEnabled(true);
+      mSlideLeftIn = AnimationUtils.loadAnimation(this, R.anim.slide_left_in);
+      mSlideLeftOut = AnimationUtils.loadAnimation(this, R.anim.slide_left_out);
+      mSlideRightIn = AnimationUtils.loadAnimation(this, R.anim.slide_right_in);
+      mSlideRightOut = AnimationUtils.loadAnimation(this, R.anim.slide_right_out);
+
+      mGraphTimeSpeed = (GraphCanvas) mViewFlipper.getChildAt(0);
+      mGraphDistanceSpeed = (GraphCanvas) mViewFlipper.getChildAt(1);
+      mGraphTimeAltitude = (GraphCanvas) mViewFlipper.getChildAt(2);
+      mGraphDistanceAltitude = (GraphCanvas) mViewFlipper.getChildAt(3);
+
+      mGraphTimeSpeed.setType(GraphCanvas.TIMESPEEDGRAPH);
+      mGraphDistanceSpeed.setType(GraphCanvas.DISTANCESPEEDGRAPH);
+      mGraphTimeAltitude.setType(GraphCanvas.TIMEALTITUDEGRAPH);
+      mGraphDistanceAltitude.setType(GraphCanvas.DISTANCEALTITUDEGRAPH);
+
+      mGestureDetector = new GestureDetector(new MyGestureDetector());
+
+      maxSpeedView = (TextView) findViewById(R.id.stat_maximumspeed);
+      mAscensionView = (TextView) findViewById(R.id.stat_ascension);
+      mElapsedTimeView = (TextView) findViewById(R.id.stat_elapsedtime);
+      overallavgSpeedView = (TextView) findViewById(R.id.stat_overallaveragespeed);
+      avgSpeedView = (TextView) findViewById(R.id.stat_averagespeed);
+      distanceView = (TextView) findViewById(R.id.stat_distance);
+      starttimeView = (TextView) findViewById(R.id.stat_starttime);
+      endtimeView = (TextView) findViewById(R.id.stat_endtime);
+      waypointsView = (TextView) findViewById(R.id.stat_waypoints);
+
+      if (load != null && load.containsKey(TRACKURI))
+      {
+         mTrackUri = Uri.withAppendedPath(Tracks.CONTENT_URI, load.getString(TRACKURI));
       }
       else
       {
@@ -227,28 +202,42 @@ public class Statistics extends Activity implements StatisticsDelegate
    }
 
    @Override
-   protected void onRestoreInstanceState( Bundle load )
+   protected void onRestoreInstanceState(Bundle load)
    {
-      if( load != null )
+      if (load != null)
       {
-         super.onRestoreInstanceState( load );
+         super.onRestoreInstanceState(load);
       }
-      if( load != null && load.containsKey( TRACKURI ) )
+      if (load != null && load.containsKey(TRACKURI))
       {
-         mTrackUri = Uri.withAppendedPath( Tracks.CONTENT_URI, load.getString( TRACKURI ) );
+         mTrackUri = Uri.withAppendedPath(Tracks.CONTENT_URI, load.getString(TRACKURI));
       }
-      if(  load != null && load.containsKey( "FLIP" )  )
+      if (load != null && load.containsKey("FLIP"))
       {
-         mViewFlipper.setDisplayedChild( load.getInt( "FLIP" ) );
+         mViewFlipper.setDisplayedChild(load.getInt("FLIP"));
       }
    }
 
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onResume()
+    */
    @Override
-   protected void onSaveInstanceState( Bundle save )
+   protected void onResume()
    {
-      super.onSaveInstanceState( save );
-      save.putString( TRACKURI, mTrackUri.getLastPathSegment() );
-      save.putInt( "FLIP" , mViewFlipper.getDisplayedChild() );
+      super.onResume();
+      drawTrackingStatistics();
+
+      ContentResolver resolver = this.getContentResolver();
+      resolver.registerContentObserver(mTrackUri, true, this.mTrackObserver);
+   }
+
+   @Override
+   protected void onSaveInstanceState(Bundle save)
+   {
+      super.onSaveInstanceState(save);
+      save.putString(TRACKURI, mTrackUri.getLastPathSegment());
+      save.putInt("FLIP", mViewFlipper.getDisplayedChild());
    }
 
    /*
@@ -265,72 +254,115 @@ public class Statistics extends Activity implements StatisticsDelegate
       mGraphTimeAltitude.clearData();
       mGraphDistanceAltitude.clearData();
       ContentResolver resolver = this.getContentResolver();
-      resolver.unregisterContentObserver( this.mTrackObserver );
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onResume()
-    */
-   @Override
-   protected void onResume()
-   {
-      super.onResume();
-      drawTrackingStatistics();
-      
-      ContentResolver resolver = this.getContentResolver();
-      resolver.registerContentObserver( mTrackUri, true, this.mTrackObserver );
+      resolver.unregisterContentObserver(this.mTrackObserver);
    }
 
    @Override
-   public boolean onCreateOptionsMenu( Menu menu )
+   public boolean onTouchEvent(MotionEvent event)
    {
-      boolean result = super.onCreateOptionsMenu( menu );
-      menu.add( ContextMenu.NONE, MENU_GRAPHTYPE, ContextMenu.NONE, R.string.menu_graphtype ).setIcon( R.drawable.ic_menu_picture ).setAlphabeticShortcut( 't' );
-      menu.add( ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist ).setIcon( R.drawable.ic_menu_show_list ).setAlphabeticShortcut( 'l' );
-      menu.add( ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack ).setIcon( R.drawable.ic_menu_share ).setAlphabeticShortcut( 's' );
+      if (mGestureDetector.onTouchEvent(event))
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
+   }
+
+   @Override
+   public boolean onCreateOptionsMenu(Menu menu)
+   {
+      boolean result = super.onCreateOptionsMenu(menu);
+      menu.add(ContextMenu.NONE, MENU_GRAPHTYPE, ContextMenu.NONE, R.string.menu_graphtype).setIcon(R.drawable
+            .ic_menu_picture).setAlphabeticShortcut('t');
+      menu.add(ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist).setIcon(R.drawable
+            .ic_menu_show_list).setAlphabeticShortcut('l');
+      menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack).setIcon(R.drawable
+            .ic_menu_share).setAlphabeticShortcut('s');
       return result;
    }
 
    @Override
-   public boolean onOptionsItemSelected( MenuItem item )
+   public boolean onOptionsItemSelected(MenuItem item)
    {
       boolean handled = false;
       Intent intent;
-      switch( item.getItemId() )
+      switch (item.getItemId())
       {
          case MENU_GRAPHTYPE:
-            showDialog( DIALOG_GRAPHTYPE );
+            showDialog(DIALOG_GRAPHTYPE);
             handled = true;
             break;
          case MENU_TRACKLIST:
-            intent = new Intent( this, TrackList.class );
-            intent.putExtra( Tracks._ID, mTrackUri.getLastPathSegment() );
-            startActivityForResult( intent, MENU_TRACKLIST );
+            intent = new Intent(this, TrackList.class);
+            intent.putExtra(Tracks._ID, mTrackUri.getLastPathSegment());
+            startActivityForResult(intent, MENU_TRACKLIST);
             break;
          case MENU_SHARE:
-            intent = new Intent( Intent.ACTION_RUN );
-            intent.setDataAndType( mTrackUri, Tracks.CONTENT_ITEM_TYPE );
-            intent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION );
+            intent = new Intent(Intent.ACTION_RUN);
+            intent.setDataAndType(mTrackUri, Tracks.CONTENT_ITEM_TYPE);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             Bitmap bm = mViewFlipper.getDrawingCache();
             Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
             intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
-            startActivityForResult(Intent.createChooser( intent, getString( R.string.share_track ) ), MENU_SHARE);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.share_track)), MENU_SHARE);
             handled = true;
             break;
          default:
-            handled = super.onOptionsItemSelected( item );
+            handled = super.onOptionsItemSelected(item);
       }
       return handled;
    }
 
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onCreateDialog(int)
+    */
    @Override
-   public boolean onTouchEvent( MotionEvent event )
+   protected Dialog onCreateDialog(int id)
    {
-      if( mGestureDetector.onTouchEvent( event ) )
-         return true;
-      else
-         return false;
+      Dialog dialog = null;
+      LayoutInflater factory = null;
+      View view = null;
+      Builder builder = null;
+      switch (id)
+      {
+         case DIALOG_GRAPHTYPE:
+            builder = new AlertDialog.Builder(this);
+            factory = LayoutInflater.from(this);
+            view = factory.inflate(R.layout.graphtype, null);
+            builder.setTitle(R.string.dialog_graphtype_title).setIcon(android.R.drawable.ic_dialog_alert)
+                   .setNegativeButton(R.string.btn_cancel, null).setView(view);
+            dialog = builder.create();
+            return dialog;
+         default:
+            return super.onCreateDialog(id);
+      }
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
+    */
+   @Override
+   protected void onPrepareDialog(int id, Dialog dialog)
+   {
+      switch (id)
+      {
+         case DIALOG_GRAPHTYPE:
+            Button speedtime = (Button) dialog.findViewById(R.id.graphtype_timespeed);
+            Button speeddistance = (Button) dialog.findViewById(R.id.graphtype_distancespeed);
+            Button altitudetime = (Button) dialog.findViewById(R.id.graphtype_timealtitude);
+            Button altitudedistance = (Button) dialog.findViewById(R.id.graphtype_distancealtitude);
+            speedtime.setOnClickListener(mGraphControlListener);
+            speeddistance.setOnClickListener(mGraphControlListener);
+            altitudetime.setOnClickListener(mGraphControlListener);
+            altitudedistance.setOnClickListener(mGraphControlListener);
+         default:
+            break;
+      }
+      super.onPrepareDialog(id, dialog);
    }
 
    /*
@@ -338,13 +370,13 @@ public class Statistics extends Activity implements StatisticsDelegate
     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
     */
    @Override
-   protected void onActivityResult( int requestCode, int resultCode, Intent intent )
+   protected void onActivityResult(int requestCode, int resultCode, Intent intent)
    {
-      super.onActivityResult( requestCode, resultCode, intent );
-      switch( requestCode )
+      super.onActivityResult(requestCode, resultCode, intent);
+      switch (requestCode)
       {
          case MENU_TRACKLIST:
-            if( resultCode == RESULT_OK )
+            if (resultCode == RESULT_OK)
             {
                mTrackUri = intent.getData();
                drawTrackingStatistics();
@@ -354,88 +386,65 @@ public class Statistics extends Activity implements StatisticsDelegate
             ShareTrack.clearScreenBitmap();
             break;
          default:
-            Log.w( TAG, "Unknown activity result request code" );
+            Log.w(TAG, "Unknown activity result request code");
       }
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onCreateDialog(int)
-    */
-   @Override
-   protected Dialog onCreateDialog( int id )
-   {
-      Dialog dialog = null;
-      LayoutInflater factory = null;
-      View view = null;
-      Builder builder = null;
-      switch( id )
-      {
-         case DIALOG_GRAPHTYPE:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.graphtype, null );
-            builder.setTitle( R.string.dialog_graphtype_title ).setIcon( android.R.drawable.ic_dialog_alert ).setNegativeButton( R.string.btn_cancel, null ).setView( view );
-            dialog = builder.create();
-            return dialog;
-         default:
-            return super.onCreateDialog( id );
-      }
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
-    */
-   @Override
-   protected void onPrepareDialog( int id, Dialog dialog )
-   {
-      switch( id )
-      {
-         case DIALOG_GRAPHTYPE:
-            Button speedtime = (Button) dialog.findViewById( R.id.graphtype_timespeed );
-            Button speeddistance = (Button) dialog.findViewById( R.id.graphtype_distancespeed );
-            Button altitudetime = (Button) dialog.findViewById( R.id.graphtype_timealtitude );
-            Button altitudedistance = (Button) dialog.findViewById( R.id.graphtype_distancealtitude );
-            speedtime.setOnClickListener( mGraphControlListener );
-            speeddistance.setOnClickListener( mGraphControlListener );
-            altitudetime.setOnClickListener( mGraphControlListener );
-            altitudedistance.setOnClickListener( mGraphControlListener );
-         default:
-            break;
-      }
-      super.onPrepareDialog( id, dialog );
    }
 
    private void drawTrackingStatistics()
    {
       calculating = true;
-      StatisticsCalulator calculator = new StatisticsCalulator( this, mUnits, this );
+      StatisticsCalulator calculator = new StatisticsCalulator(this, mUnits, this);
       calculator.execute(mTrackUri);
    }
 
    @Override
    public void finishedCalculations(StatisticsCalulator calculated)
    {
-      mGraphTimeSpeed.setData       ( mTrackUri, calculated );
-      mGraphDistanceSpeed.setData   ( mTrackUri, calculated );
-      mGraphTimeAltitude.setData    ( mTrackUri, calculated );
-      mGraphDistanceAltitude.setData( mTrackUri, calculated );
-      
+      mGraphTimeSpeed.setData(mTrackUri, calculated);
+      mGraphDistanceSpeed.setData(mTrackUri, calculated);
+      mGraphTimeAltitude.setData(mTrackUri, calculated);
+      mGraphDistanceAltitude.setData(mTrackUri, calculated);
+
       mViewFlipper.postInvalidate();
 
-      maxSpeedView.setText( calculated.getMaxSpeedText() );
-      mElapsedTimeView.setText( calculated.getDurationText() );
-      mAscensionView.setText( calculated.getAscensionText() );
-      overallavgSpeedView.setText( calculated.getOverallavgSpeedText() );
-      avgSpeedView.setText( calculated.getAvgSpeedText() );
-      distanceView.setText( calculated.getDistanceText() );
-      starttimeView.setText( Long.toString( calculated.getStarttime() ) );
-      endtimeView.setText( Long.toString( calculated.getEndtime() ) );
-      String titleFormat = getString( R.string.stat_title );
-      setTitle( String.format( titleFormat, calculated.getTracknameText() ) );
-      waypointsView.setText( calculated.getWaypointsText() );
+      maxSpeedView.setText(calculated.getMaxSpeedText());
+      mElapsedTimeView.setText(calculated.getDurationText());
+      mAscensionView.setText(calculated.getAscensionText());
+      overallavgSpeedView.setText(calculated.getOverallavgSpeedText());
+      avgSpeedView.setText(calculated.getAvgSpeedText());
+      distanceView.setText(calculated.getDistanceText());
+      starttimeView.setText(Long.toString(calculated.getStarttime()));
+      endtimeView.setText(Long.toString(calculated.getEndtime()));
+      String titleFormat = getString(R.string.stat_title);
+      setTitle(String.format(titleFormat, calculated.getTracknameText()));
+      waypointsView.setText(calculated.getWaypointsText());
 
       calculating = false;
+   }
+
+   class MyGestureDetector extends SimpleOnGestureListener
+   {
+      @Override
+      public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+      {
+         if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+         {
+            return false;
+         }
+         // right to left swipe
+         if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY)
+         {
+            mViewFlipper.setInAnimation(mSlideLeftIn);
+            mViewFlipper.setOutAnimation(mSlideLeftOut);
+            mViewFlipper.showNext();
+         }
+         else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY)
+         {
+            mViewFlipper.setInAnimation(mSlideRightIn);
+            mViewFlipper.setOutAnimation(mSlideRightOut);
+            mViewFlipper.showPrevious();
+         }
+         return false;
+      }
    }
 }

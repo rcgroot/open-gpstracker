@@ -38,8 +38,8 @@ import nl.sogeti.android.gpstracker.actions.tasks.GpxParser.ProgressAdmin;
 /**
  * ????
  *
- * @version $Id$
  * @author rene (c) Dec 11, 2010, Sogeti B.V.
+ * @version $Id$
  */
 public class ProgressFilterInputStream extends FilterInputStream
 {
@@ -49,7 +49,7 @@ public class ProgressFilterInputStream extends FilterInputStream
 
    public ProgressFilterInputStream(InputStream is, ProgressAdmin progressAdmin)
    {
-      super( is );
+      super(is);
       mProgressAdmin = progressAdmin;
    }
 
@@ -57,24 +57,24 @@ public class ProgressFilterInputStream extends FilterInputStream
    public int read() throws IOException
    {
       int read = super.read();
-      incrementProgressBy( 1 );
+      incrementProgressBy(1);
       return read;
    }
 
    @Override
-   public int read( byte[] buffer, int offset, int count ) throws IOException
+   public int read(byte[] buffer, int offset, int count) throws IOException
    {
-      int read = super.read( buffer, offset, count );
-      incrementProgressBy( read );
+      int read = super.read(buffer, offset, count);
+      incrementProgressBy(read);
       return read;
-   }   
-   
-   private void incrementProgressBy( int bytes )
+   }
+
+   private void incrementProgressBy(int bytes)
    {
-      if( bytes > 0 )
+      if (bytes > 0)
       {
          mProgressAdmin.addBytesProgress(bytes);
       }
    }
-   
+
 }

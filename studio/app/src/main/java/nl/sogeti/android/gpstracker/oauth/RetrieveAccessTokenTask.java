@@ -28,15 +28,16 @@
  */
 package nl.sogeti.android.gpstracker.oauth;
 
-import oauth.signpost.OAuth;
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.OAuthProvider;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import oauth.signpost.OAuth;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.OAuthProvider;
 
 public class RetrieveAccessTokenTask extends AsyncTask<Uri, Void, Void>
 {
@@ -47,7 +48,8 @@ public class RetrieveAccessTokenTask extends AsyncTask<Uri, Void, Void>
    private String mTokenKey;
    private String mSecretKey;
 
-   public RetrieveAccessTokenTask(Context context, OAuthConsumer consumer, OAuthProvider provider, SharedPreferences prefs, String tokenKey, String secretKey)
+   public RetrieveAccessTokenTask(Context context, OAuthConsumer consumer, OAuthProvider provider, SharedPreferences
+         prefs, String tokenKey, String secretKey)
    {
       this.consumer = consumer;
       this.provider = provider;

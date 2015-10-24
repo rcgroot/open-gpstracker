@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">Open GPS Tracker</string>
+    <string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Запуск сервиса записи трека</string>
-	<string name="service_gpsstatus">Трек: %1$s (%2$s по %3$d спутникам)</string>
-	<string name="service_gpsnostatus">Трек: %1$s (точность %2$s)</string>
+    <string name="service_gpsstatus">Трек: %1$s (%2$s по %3$d спутникам)</string>
+    <string name="service_gpsnostatus">Трек: %1$s (точность %2$s)</string>
     <string name="service_networkstatus">Трек: %1$s (%2$s по базовым станциям и wifi)</string>
     <string name="service_gpsdisabled">GPS отключен, запись трека невозможна.</string>
     <string name="service_gpsenabled">GPS включен, начинаю запись трека.</string>
@@ -11,12 +11,12 @@
     <string name="service_datadisabled">Позиционирование по сетям отключено, запись трека невозможна.</string>
     <string name="service_dataenabled">Позиционирование по сетям включено, начинаю запись трека.</string>
     <string name="service_gpsproblem">Не поступает информация о положении</string>
-    
+
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Выберите заметку</string>
     <string name="dialog_select_media_message">Для этого положения найдены несколько заметок, выберите для открытия</string>
     <string name="dialog_tracking_title">Управление треком</string>
-	<string name="dialog_routename_title">Название</string>
+    <string name="dialog_routename_title">Название</string>
     <string name="dialog_routename_message">Введите название трека</string>
     <string name="dialog_routename_default">Трек %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">Не выбран трек</string>
@@ -97,8 +97,8 @@ http://code.google.com/p/open-gpstracker/issues/entry
 \n
 Надеемся, Вам понравилось наше приложение. Что ж, мы очень рады. Поблагодарите нас
 письмом или с помощью PayPal на адрес rcgroot@gmail.com
-\n\n</string>    
-    
+\n\n</string>
+
     <!-- Messages -->
     <string name="from">Записано: </string>
     <string name="no_tracks">Нет сохраненных треков</string>
@@ -115,21 +115,21 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="error_importgpx_io">Ошибка чтения файла при импорте.</string>
     <string name="error_importgpx_parse">Ошибка чтения числа при импорте.</string>
     <string name="time_and_speed">В %1$s при %2$s</string>
-    
+
     <!-- Buttons -->
-	<string name="btn_okay">OK</string>
-	<string name="btn_cancel">Отмена</string>
-	<string name="btn_save">Сохранить</string>
-	<string name="btn_selecttrack">Выберите трек</string>
+    <string name="btn_okay">OK</string>
+    <string name="btn_cancel">Отмена</string>
+    <string name="btn_save">Сохранить</string>
+    <string name="btn_selecttrack">Выберите трек</string>
     <string name="btn_install">Установить</string>
     <string name="btn_skip">Пропустить</string>
-	
+
     <!-- Menu's -->
-	<string name="menu_settings">Настройки</string>
+    <string name="menu_settings">Настройки</string>
     <string name="menu_tracking">Запись трека</string>
-	<string name="menu_tracklist">Список треков</string>
-	<string name="menu_shareTrack">Опубликовать трек</string>
-	<string name="menu_deleteTrack">Удалить трек</string>
+    <string name="menu_tracklist">Список треков</string>
+    <string name="menu_shareTrack">Опубликовать трек</string>
+    <string name="menu_deleteTrack">Удалить трек</string>
     <string name="menu_renameTrack">Переименовать трек</string>
     <string name="menu_statistics">Статистика</string>
     <string name="menu_about">О Программе</string>
@@ -147,14 +147,14 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="graphtype_distancealtitude">Высота по дистанции</string>
     <string name="menu_vacuum">Обрезать данные</string>
     <string name="menu_contrib">Сотрудничество</string>
-    
+
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Данные трека</string>
     <string name="email_gpxbody">Трек присоединен в формате GPS Exchange Format (GPX) описание здесь http://www.topografix.com/gpx.asp</string>
     <string name="email_kmzbody">Трек присоединен в формате KMZ, описание здесь http://code.google.com/apis/kml/documentation/kml_tut.html</string>
     <string name="kmlVideoUnsupported">Встроенное видео не поддерживается, используйте zip утилиты для получения %s видео-файла из файла KMZ.</string>
     <string name="kmlAudioUnsupported">Встроенное аудио не поддерживается, используйте zip утилиты для получения %s аудио-файла из файла KMZ.</string>
-    
+
     <!-- Screens -->
     <string name="share_track">Опубликовать этот трек</string>
     <string name="share_explained">Публикация создает трек экспорта, содержащий столько записанных данных, сколько возможно.</string>
@@ -173,15 +173,15 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="stopatundock">Стоп при отключении дока</string>
     <string name="stopatundock_summary">При отключении от док-станции запись трека останавливается.</string>
     <string name="startupatboot">Старт при загрузке</string>
-    <string name="startupatboot_summary">Запускать сервис записи трека при загрузке (включении) устройства.</string>   
+    <string name="startupatboot_summary">Запускать сервис записи трека при загрузке (включении) устройства.</string>
     <string name="disableblanking_title">Не отключать экран</string>
     <string name="disableblanking_summary">Экран не будет отключаться во время работы программы.</string>
     <string name="disabledimming_title">Не уменьшать яркость</string>
-    <string name="disabledimming_summary">Экран будет на полной яркости во время работы программы.</string>       
+    <string name="disabledimming_summary">Экран будет на полной яркости во время работы программы.</string>
     <string name="precision_title">Точность трека</string>
     <string name="precision_summary">Интервал для корректировки GPS.</string>
     <string name="mapprovider_title">Источник карты</string>
-    <string name="mapprovider_summary">Источник картографического материала.</string>      
+    <string name="mapprovider_summary">Источник картографического материала.</string>
     <string name="trackcoloring_title">Цвет трека</string>
     <string name="trackcoloring_summary">Цвет для отрисовки трека.</string>
     <string name="showsatellite_title">Спутниковые снимки</string>
@@ -212,10 +212,10 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="stat_maximumaltitude">Максимальная высота</string>
     <string name="stat_minimalaltitide">Минимальная высота</string>
     <string name="stat_overallaveragespeed">Скорость перемещения</string>
-    <string name="stat_averagespeed">Средняя скорость</string>    
-    <string name="stat_distance">Пройденное расстояние</string>    
-    <string name="stat_endtime">Время окончания</string>    
-    <string name="stat_starttime">Время старта</string>    
+    <string name="stat_averagespeed">Средняя скорость</string>
+    <string name="stat_distance">Пройденное расстояние</string>
+    <string name="stat_endtime">Время окончания</string>
+    <string name="stat_starttime">Время старта</string>
     <string name="stat_trackname">Название трека</string>
     <string name="stat_waypoints">Путевые точки</string>
     <string name="stat_elapsedtime">Время в пути</string>
@@ -239,14 +239,14 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="customprecisiondistance_summary">Расстояние между точками трека.</string>
     <string name="gpsstatusmonitor_title">Отслеживать состояние GPS</string>
     <string name="gpsstatusmonitor_summary">Показывать количество спутников и уведомлять о плохом сигнале.</string>
-	<string name="osmusername_title">Пользователь OpenStreetMap</string>
-	<string name="osmusername_summary">Имя пользователя, зарегистрованного через http://www.openstreetmap.org/user/new</string>
-	<string name="osmusername_message">Учетная запись OpenStreetMap позволяет Вам начать редактировать карту. Open GPS Tracker использует эту учетную запись для выгрузки новых данных GPS.</string>
-	<string name="osmpassword_title">Пароль OpenStreetMap</string>
-	<string name="osmpassword_summary">Пароль пользователя, заданный на http://www.openstreetmap.org/user/new</string>
-	<string name="osmpassword_message">Этот пароль будет использован для доступа по HTTP к серверу openstreetmap.org.</string>
-	<string name="osmvisibility_title">Общедоступная видимость треков GPS на openstreetmap.org</string>
-	<string name="osmvisibility_summary">Больше узнать об уровнях видимости можно в openstreetmap.org wiki.</string>
+    <string name="osmusername_title">Пользователь OpenStreetMap</string>
+    <string name="osmusername_summary">Имя пользователя, зарегистрованного через http://www.openstreetmap.org/user/new</string>
+    <string name="osmusername_message">Учетная запись OpenStreetMap позволяет Вам начать редактировать карту. Open GPS Tracker использует эту учетную запись для выгрузки новых данных GPS.</string>
+    <string name="osmpassword_title">Пароль OpenStreetMap</string>
+    <string name="osmpassword_summary">Пароль пользователя, заданный на http://www.openstreetmap.org/user/new</string>
+    <string name="osmpassword_message">Этот пароль будет использован для доступа по HTTP к серверу openstreetmap.org.</string>
+    <string name="osmvisibility_title">Общедоступная видимость треков GPS на openstreetmap.org</string>
+    <string name="osmvisibility_summary">Больше узнать об уровнях видимости можно в openstreetmap.org wiki.</string>
     <string name="osm_success">Выгружаю трек на www.openstreetmap.org: </string>
     <string name="osm_failed">Ошибка выгрузки трека на www.openstreetmap.org: </string>
     <string name="osmauth_message">Разрешить Open GPS Tracker-у выгружать треки на OpenStreetMap</string>
@@ -255,7 +255,7 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="sddirectory_summary">Созданные треки и медиа файлы сохраняются в этом каталоге.</string>
     <string name="sddirectory_message">Введите путь на SD-карте для хранения файлов. Например, по умолчанию /OpenGPSTracker/ добавит один каталог на SD-карте, а /Apps/OpenGPSTracker/ - два вложенных.\n </string>
     <string name="breadcrumbs_connect">Подключиться к GoBreadcrumbs</string>
-    
+
     <string name="preference_stream">Настройки онлайн-публикации</string>
     <string name="streamenabled_title">Включить публикацию</string>
     <string name="streamenabled_summary">Включить онлайн-публикацию положения</string>
@@ -276,10 +276,10 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="customupload_backlog_title">При сбое сохранить в очереди</string>
     <string name="customupload_backlog_summary">Размер очереди запросов</string>
     <string name="customupload_backlog_message">Количество запросов, которые будут храниться в очереди, в случае, когда они не смогли быть отправлены на веб-сервер</string>
-            
-<!-- ***************************
-   About information
-   ***************************-->
-   <string name="about_comments">Приложение для записи GPS треков перемещения вашего устройства.</string>
-   <string name="about_activity_name_extended">О %s</string>
+
+    <!-- ***************************
+       About information
+       ***************************-->
+    <string name="about_comments">Приложение для записи GPS треков перемещения вашего устройства.</string>
+    <string name="about_activity_name_extended">О %s</string>
 </resources>

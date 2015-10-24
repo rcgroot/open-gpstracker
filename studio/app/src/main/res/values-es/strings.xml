@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">Open GPS Tracker</string>
+    <string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Activando servicio de registro</string>
-	<string name="service_gpsstatus">Registrando: %1$s (%2$s con %3$d satélites)</string>
-	<string name="service_gpsnostatus">Registrando: %1$s (Precisión %2$s)</string>
+    <string name="service_gpsstatus">Registrando: %1$s (%2$s con %3$d satélites)</string>
+    <string name="service_gpsnostatus">Registrando: %1$s (Precisión %2$s)</string>
     <string name="service_networkstatus">Registrando: %1$s (%2$s con wifi y antenas de telefonía)</string>
     <string name="service_gpsdisabled">GPS desactivado, registro sin efecto.</string>
     <string name="service_gpsenabled">GPS activado, empezando registro.</string>
@@ -11,12 +11,12 @@
     <string name="service_datadisabled">Network positioning is disabled, logging is without effect.</string>
     <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
     <string name="service_gpsproblem">Receiving no location information</string>
-    
+
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Seleccionar nota</string>
     <string name="dialog_select_media_message">Multiple notes were found at this location, please select one to open</string>
     <string name="dialog_tracking_title">Tracking control</string>
-	<string name="dialog_routename_title">Nombrar track</string>
+    <string name="dialog_routename_title">Nombrar track</string>
     <string name="dialog_routename_message">Please enter the name of the track</string>
     <string name="dialog_routename_default">Track %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">No track is selected</string>
@@ -99,8 +99,8 @@
     Hopefully you enjoyed the application, I love to hear if you did. A thank you 
     or PayPal donation are appreciated at rcgroot@gmail.com
     \n\n
-    </string>    
-    
+    </string>
+
     <!-- Messages -->
     <string name="from">Tracked on: </string>
     <string name="no_tracks">No hay tracks guardados</string>
@@ -117,21 +117,21 @@
     <string name="error_importgpx_io">Failed reading the file during import.</string>
     <string name="error_importgpx_parse">Failed reading a number during import.</string>
     <string name="time_and_speed">En %1$s con velocidad de %2$s</string>
-    
+
     <!-- Buttons -->
-	<string name="btn_okay">OK</string>
-	<string name="btn_cancel">Cancelar</string>
-	<string name="btn_save">Guardar</string>
-	<string name="btn_selecttrack">Seleccionar track</string>
+    <string name="btn_okay">OK</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_save">Guardar</string>
+    <string name="btn_selecttrack">Seleccionar track</string>
     <string name="btn_install">Instalar</string>
     <string name="btn_skip">Saltar</string>
-	
+
     <!-- Menu's -->
-	<string name="menu_settings">Ajustes</string>
+    <string name="menu_settings">Ajustes</string>
     <string name="menu_tracking">Tracking</string>
-	<string name="menu_tracklist">Listar tracks</string>
-	<string name="menu_shareTrack">Compartir track</string>
-	<string name="menu_deleteTrack">Borrar track</string>
+    <string name="menu_tracklist">Listar tracks</string>
+    <string name="menu_shareTrack">Compartir track</string>
+    <string name="menu_deleteTrack">Borrar track</string>
     <string name="menu_renameTrack">Renombrar track</string>
     <string name="menu_statistics">Estadísticas</string>
     <string name="menu_about">Acerca</string>
@@ -149,14 +149,14 @@
     <string name="graphtype_distancealtitude">Altitude over distance</string>
     <string name="menu_vacuum">Crop data</string>
     <string name="menu_contrib">Contribute</string>
-    
+
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Track data</string>
     <string name="email_gpxbody">Attached is a track in GPS Exchange Format (GPX) format as described on http://www.topografix.com/gpx.asp</string>
     <string name="email_kmzbody">Attached is a track in KMZ format as described on http://code.google.com/apis/kml/documentation/kml_tut.html</string>
     <string name="kmlVideoUnsupported">Embedded video is not supported, please use a zip tools to retrieve the %s video file from the KMZ file.</string>
     <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retrieve the %s audio file from the KMZ file.</string>
-    
+
     <!-- Screens -->
     <string name="share_track">Compartir este track</string>
     <string name="share_explained">Sharing creates a track export with as much of the recorded data as possible.</string>
@@ -175,15 +175,15 @@
     <string name="stopatundock">Parar de registrar informacion en desacoplamiento</string>
     <string name="stopatundock_summary">Despues de sacarlo de un acoplador, la registracion de informacion para inmediatamente.</string>
     <string name="startupatboot">Start up at boot</string>
-    <string name="startupatboot_summary">After starting the device, the logging service starts.</string>   
+    <string name="startupatboot_summary">After starting the device, the logging service starts.</string>
     <string name="disableblanking_title">Disable screen blanking</string>
     <string name="disableblanking_summary">Keeps the screen on during tracking.</string>
     <string name="disabledimming_title">Desactivar el oscurecimiento de pantalla</string>
-    <string name="disabledimming_summary">Mantiene la pantalla con iluminacion completa durante el rastreo.</string>       
+    <string name="disabledimming_summary">Mantiene la pantalla con iluminacion completa durante el rastreo.</string>
     <string name="precision_title">Precisión de registro</string>
     <string name="precision_summary">The size of interval between GPS fixes.</string>
     <string name="mapprovider_title">Map provider</string>
-    <string name="mapprovider_summary">The source from which to retrieve mapdata.</string>      
+    <string name="mapprovider_summary">The source from which to retrieve mapdata.</string>
     <string name="trackcoloring_title">Color del track</string>
     <string name="trackcoloring_summary">The coloring used to draw the track.</string>
     <string name="showsatellite_title">Imágenes de satélite</string>
@@ -214,10 +214,10 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="stat_maximumaltitude">Altitud máxima</string>
     <string name="stat_minimalaltitide">Altitud mínima</string>
     <string name="stat_overallaveragespeed">Travel speed</string>
-    <string name="stat_averagespeed">Velocidad media</string>    
-    <string name="stat_distance">Tracked distance</string>    
-    <string name="stat_endtime">Last time</string>    
-    <string name="stat_starttime">Hora de inicio</string>    
+    <string name="stat_averagespeed">Velocidad media</string>
+    <string name="stat_distance">Tracked distance</string>
+    <string name="stat_endtime">Last time</string>
+    <string name="stat_starttime">Hora de inicio</string>
     <string name="stat_trackname">Nombre del track</string>
     <string name="stat_waypoints">Waypoints</string>
     <string name="stat_elapsedtime">Elapsed</string>
@@ -241,14 +241,14 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
     <string name="gpsstatusmonitor_summary">Muestra el número de satélites usados.</string>
-	<string name="osmusername_title">Usuario en OpenStreetMap</string>
-	<string name="osmusername_summary">El usuario creado en http://www.openstreetmap.org/user/new</string>
-	<string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
-	<string name="osmpassword_title">Contraseña en OpenStreetMap</string>
-	<string name="osmpassword_summary">La contraseña usada en http://www.openstreetmap.org/user/new</string>
-	<string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
-	<string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
-	<string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
+    <string name="osmusername_title">Usuario en OpenStreetMap</string>
+    <string name="osmusername_summary">El usuario creado en http://www.openstreetmap.org/user/new</string>
+    <string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
+    <string name="osmpassword_title">Contraseña en OpenStreetMap</string>
+    <string name="osmpassword_summary">La contraseña usada en http://www.openstreetmap.org/user/new</string>
+    <string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
+    <string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
+    <string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
     <string name="osm_success">Track subido con éxito a www.openstreetmap.org: </string>
     <string name="osm_failed">Falló la subida del track a www.openstreetmap.org: </string>
     <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
@@ -257,7 +257,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.</string>
     <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
-    
+
     <string name="preference_stream">Location broadcasting settings</string>
     <string name="streamenabled_title">Streaming enabled</string>
     <string name="streamenabled_summary">Enable direct broadcasting of location</string>
@@ -278,10 +278,10 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customupload_backlog_title">On failure keep a backlog</string>
     <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
     <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>
-            
-<!-- ***************************
-   About information
-   ***************************-->
-   <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
-   <string name="about_activity_name_extended">Acerca de %s</string>
+
+    <!-- ***************************
+       About information
+       ***************************-->
+    <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
+    <string name="about_activity_name_extended">Acerca de %s</string>
 </resources>

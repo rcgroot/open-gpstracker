@@ -1,41 +1,42 @@
 <RelativeLayout
-   xmlns:android="http://schemas.android.com/apk/res/android"
-   android:layout_width="fill_parent"
-   android:layout_height="?android:attr/listPreferredItemHeight">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight">
 
-   <TextView
-      android:text="Name of something"
-      android:id="@+id/listitem_name"
-      android:textAppearance="?android:attr/textAppearanceLarge"
-      android:layout_height="wrap_content"
-      android:layout_width="fill_parent"
-      android:layout_alignParentTop="true"
-      android:paddingLeft="6dip"
-      android:paddingRight="6dip"
-      android:layout_marginLeft="20dip"
-      android:layout_marginRight="40dip"
-      android:background="#554d4d" />
+    <TextView
+        android:id="@+id/listitem_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="40dip"
+        android:background="#554d4d"
+        android:paddingLeft="6dip"
+        android:paddingRight="6dip"
+        android:text="Name of something"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-   <TextView
-      android:id="@+id/from_textview"
-      android:layout_height="wrap_content"
-      android:layout_width="wrap_content"
-      android:text="@string/from"
-      android:layout_below="@+id/listitem_name"
-      android:paddingTop="3dip" 
-      android:paddingLeft="6dip"
-      android:paddingRight="6dip"
-      android:layout_marginLeft="20dip"
-      android:background="#554d4d"/>
+    <TextView
+        android:id="@+id/from_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/listitem_name"
+        android:layout_marginLeft="20dip"
+        android:background="#554d4d"
+        android:paddingLeft="6dip"
+        android:paddingRight="6dip"
+        android:paddingTop="3dip"
+        android:text="@string/from"/>
 
-   <nl.sogeti.android.gpstracker.util.DateView
-      android:layout_height="wrap_content"
-      android:layout_width="wrap_content"
-      android:id="@+id/listitem_from"
-      android:layout_below="@+id/listitem_name"
-      android:layout_toRightOf="@+id/from_textview"
-      android:paddingLeft="3dip"
-      android:paddingTop="3dip"
-      android:background="#554d4d" android:layout_alignRight="@+id/listitem_name"/>
+    <nl.sogeti.android.gpstracker.util.DateView
+        android:id="@+id/listitem_from"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/listitem_name"
+        android:layout_below="@+id/listitem_name"
+        android:layout_toRightOf="@+id/from_textview"
+        android:background="#554d4d"
+        android:paddingLeft="3dip"
+        android:paddingTop="3dip"/>
 
 </RelativeLayout>

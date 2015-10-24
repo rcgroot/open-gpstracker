@@ -28,6 +28,16 @@
  */
 package nl.sogeti.android.gpstracker.actions.tasks;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore.MediaColumns;
+import android.util.Log;
+import android.util.Xml;
+
+import org.xmlpull.v1.XmlSerializer;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,27 +57,18 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
 
-import org.xmlpull.v1.XmlSerializer;
-
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore.MediaColumns;
-import android.util.Log;
-import android.util.Xml;
-
 /**
  * Create a KMZ version of a stored track
- * 
- * @version $Id$
+ *
  * @author rene (c) Mar 22, 2009, Sogeti B.V.
+ * @version $Id$
  */
 public class KmzCreator extends XmlCreator
 {
    public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
    public static final String NS_KML_22 = "http://www.opengis.net/kml/2.2";
    public static final SimpleDateFormat ZULU_DATE_FORMATER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
    static
    {
       TimeZone utc = TimeZone.getTimeZone("UTC");
@@ -94,7 +95,8 @@ public class KmzCreator extends XmlCreator
    {
       if (mFileName.endsWith(".kmz") || mFileName.endsWith(".zip"))
       {
-         setExportDirectoryPath(Constants.getSdCardDirectory(mContext) + mFileName.substring(0, mFileName.length() - 4));
+         setExportDirectoryPath(Constants.getSdCardDirectory(mContext) + mFileName.substring(0, mFileName.length() -
+               4));
       }
       else
       {
@@ -128,17 +130,20 @@ public class KmzCreator extends XmlCreator
       }
       catch (IllegalArgumentException e)
       {
-         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_filename);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString
+               (R.string.error_filename);
          handleError(mContext.getString(R.string.taskerror_kmz_write), e, text);
       }
       catch (IllegalStateException e)
       {
-         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_buildxml);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString
+               (R.string.error_buildxml);
          handleError(mContext.getString(R.string.taskerror_kmz_write), e, text);
       }
       catch (IOException e)
       {
-         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString(R.string.error_writesdcard);
+         String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString
+               (R.string.error_writesdcard);
          handleError(mContext.getString(R.string.taskerror_kmz_write), e, text);
       }
       finally
@@ -175,7 +180,8 @@ public class KmzCreator extends XmlCreator
       serializer.setPrefix("xsi", NS_SCHEMA);
       serializer.setPrefix("kml", NS_KML_22);
       serializer.startTag("", "kml");
-      serializer.attribute(NS_SCHEMA, "schemaLocation", NS_KML_22 + " http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd");
+      serializer.attribute(NS_SCHEMA, "schemaLocation", NS_KML_22 + " http://schemas.opengis.net/kml/2.2.0/ogckml22" +
+            ".xsd");
       serializer.attribute(null, "xmlns", NS_KML_22);
 
       serializer.text("\n");
@@ -260,7 +266,7 @@ public class KmzCreator extends XmlCreator
     *    &lt;Placemark/>
     * &lt;/Folder>
     * </pre>
-    * 
+    *
     * @param serializer
     * @param segments
     * @throws IOException
@@ -320,7 +326,8 @@ public class KmzCreator extends XmlCreator
                serializer.text("\n");
                serializer.endTag("", "Placemark");
 
-               serializeWaypointDescription(serializer, Uri.withAppendedPath(segments, "/" + segmentCursor.getLong(0) + "/media"));
+               serializeWaypointDescription(serializer, Uri.withAppendedPath(segments, "/" + segmentCursor.getLong(0)
+                     + "/media"));
 
                serializer.text("\n");
                serializer.endTag("", "Folder");
@@ -341,7 +348,7 @@ public class KmzCreator extends XmlCreator
 
    /**
     * &lt;TimeSpan>&lt;begin>...&lt;/begin>&lt;end>...&lt;/end>&lt;/TimeSpan>
-    * 
+    *
     * @param serializer
     * @param waypoints
     * @throws IOException
@@ -392,7 +399,7 @@ public class KmzCreator extends XmlCreator
 
    /**
     * &lt;coordinates>...&lt;/coordinates>
-    * 
+    *
     * @param serializer
     * @param waypoints
     * @throws IOException
@@ -403,7 +410,8 @@ public class KmzCreator extends XmlCreator
       ContentResolver resolver = mContext.getContentResolver();
       try
       {
-         waypointsCursor = resolver.query(waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null);
+         waypointsCursor = resolver.query(waypoints, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE,
+               Waypoints.ALTITUDE }, null, null, null);
          if (waypointsCursor.moveToFirst())
          {
             serializer.text("\n");
@@ -430,22 +438,6 @@ public class KmzCreator extends XmlCreator
 
    }
 
-   /**
-    * lon,lat,alt tuple without trailing spaces
-    * 
-    * @param serializer
-    * @param waypointsCursor
-    * @throws IOException
-    */
-   private void serializeCoordinates(XmlSerializer serializer, Cursor waypointsCursor) throws IOException
-   {
-      serializer.text(Double.toString(waypointsCursor.getDouble(0)));
-      serializer.text(",");
-      serializer.text(Double.toString(waypointsCursor.getDouble(1)));
-      serializer.text(",");
-      serializer.text(Double.toString(waypointsCursor.getDouble(2)));
-   }
-
    private void serializeWaypointDescription(XmlSerializer serializer, Uri media) throws IOException
    {
       String mediaPathPrefix = Constants.getSdCardDirectory(mContext);
@@ -454,13 +446,15 @@ public class KmzCreator extends XmlCreator
       BufferedReader buf = null;
       try
       {
-         mediaCursor = resolver.query(media, new String[] { Media.URI, Media.TRACK, Media.SEGMENT, Media.WAYPOINT }, null, null, null);
+         mediaCursor = resolver.query(media, new String[] { Media.URI, Media.TRACK, Media.SEGMENT, Media.WAYPOINT },
+               null, null, null);
          if (mediaCursor.moveToFirst())
          {
             do
             {
                Uri mediaUri = Uri.parse(mediaCursor.getString(0));
-               Uri singleWaypointUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mediaCursor.getLong(1) + "/segments/" + mediaCursor.getLong(2) + "/waypoints/"
+               Uri singleWaypointUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mediaCursor.getLong(1) + "/segments/"
+                     + mediaCursor.getLong(2) + "/waypoints/"
                      + mediaCursor.getLong(3));
                String lastPathSegment = mediaUri.getLastPathSegment();
                if (mediaUri.getScheme().equals("file"))
@@ -489,7 +483,8 @@ public class KmzCreator extends XmlCreator
                      serializer.text("\n");
                      quickTag(serializer, "", "name", lastPathSegment);
                      serializer.text("\n");
-                     quickTag(serializer, "", "description", "<img src=\"" + includedMediaFile + "\" width=\"500px\"/><br/>" + lastPathSegment);
+                     quickTag(serializer, "", "description", "<img src=\"" + includedMediaFile + "\" " +
+                           "width=\"500px\"/><br/>" + lastPathSegment);
                      serializer.text("\n");
                      serializeMediaPoint(serializer, singleWaypointUri);
                      serializer.text("\n");
@@ -503,7 +498,10 @@ public class KmzCreator extends XmlCreator
                      quickTag(serializer, "", "name", lastPathSegment);
                      serializer.text("\n");
                      serializer.startTag("", "description");
-                     if(buf  != null ) buf.close();
+                     if (buf != null)
+                     {
+                        buf.close();
+                     }
                      buf = new BufferedReader(new FileReader(mediaUri.getEncodedPath()));
                      String line;
                      while ((line = buf.readLine()) != null)
@@ -534,7 +532,8 @@ public class KmzCreator extends XmlCreator
                      Cursor mediaItemCursor = null;
                      try
                      {
-                        mediaItemCursor = resolver.query(mediaUri, new String[] { MediaColumns.DATA, MediaColumns.DISPLAY_NAME }, null, null, null);
+                        mediaItemCursor = resolver.query(mediaUri, new String[] { MediaColumns.DATA, MediaColumns
+                              .DISPLAY_NAME }, null, null, null);
                         if (mediaItemCursor.moveToFirst())
                         {
                            String includedMediaFile = includeMediaFile(mediaItemCursor.getString(0));
@@ -571,26 +570,47 @@ public class KmzCreator extends XmlCreator
          {
             mediaCursor.close();
          }
-         if(buf != null ) buf.close();
+         if (buf != null)
+         {
+            buf.close();
+         }
       }
    }
 
    /**
+    * lon,lat,alt tuple without trailing spaces
+    *
+    * @param serializer
+    * @param waypointsCursor
+    * @throws IOException
+    */
+   private void serializeCoordinates(XmlSerializer serializer, Cursor waypointsCursor) throws IOException
+   {
+      serializer.text(Double.toString(waypointsCursor.getDouble(0)));
+      serializer.text(",");
+      serializer.text(Double.toString(waypointsCursor.getDouble(1)));
+      serializer.text(",");
+      serializer.text(Double.toString(waypointsCursor.getDouble(2)));
+   }
+
+   /**
     * &lt;Point>...&lt;/Point> &lt;shape>rectangle&lt;/shape>
-    * 
+    *
     * @param serializer
     * @param singleWaypointUri
     * @throws IllegalArgumentException
     * @throws IllegalStateException
     * @throws IOException
     */
-   private void serializeMediaPoint(XmlSerializer serializer, Uri singleWaypointUri) throws IllegalArgumentException, IllegalStateException, IOException
+   private void serializeMediaPoint(XmlSerializer serializer, Uri singleWaypointUri) throws IllegalArgumentException,
+         IllegalStateException, IOException
    {
       Cursor waypointsCursor = null;
       ContentResolver resolver = mContext.getContentResolver();
       try
       {
-         waypointsCursor = resolver.query(singleWaypointUri, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE, Waypoints.ALTITUDE }, null, null, null);
+         waypointsCursor = resolver.query(singleWaypointUri, new String[] { Waypoints.LONGITUDE, Waypoints.LATITUDE,
+               Waypoints.ALTITUDE }, null, null, null);
          if (waypointsCursor.moveToFirst())
          {
             serializer.text("\n");
@@ -614,15 +634,15 @@ public class KmzCreator extends XmlCreator
    }
 
    @Override
-   protected String getContentType()
-   {
-      return "application/vnd.google-earth.kmz";
-   }
-
-   @Override
    public boolean needsBundling()
    {
       return true;
+   }
+
+   @Override
+   protected String getContentType()
+   {
+      return "application/vnd.google-earth.kmz";
    }
 
 }

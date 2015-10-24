@@ -28,6 +28,14 @@
  */
 package nl.sogeti.android.gpstracker.actions.tasks;
 
+import android.content.Context;
+import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.Toast;
+
+import org.apache.http.HttpException;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -40,19 +48,11 @@ import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.MultipartStreamer;
 
-import org.apache.http.HttpException;
-
-import android.content.Context;
-import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.widget.Toast;
-
 /**
  * ????
- * 
- * @version $Id:$
+ *
  * @author rene (c) Jul 9, 2011, Sogeti B.V.
+ * @version $Id:$
  */
 public class JogmapSharing extends GpxCreator
 {
@@ -60,7 +60,8 @@ public class JogmapSharing extends GpxCreator
    private static final String TAG = "OGT.JogmapSharing";
    private String jogmapResponseText;
 
-   public JogmapSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener listener)
+   public JogmapSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments,
+                        ProgressListener listener)
    {
       super(context, trackUri, chosenBaseFileName, attachments, listener);
    }
@@ -71,16 +72,6 @@ public class JogmapSharing extends GpxCreator
       Uri result = super.doInBackground(params);
       sendToJogmap(result);
       return result;
-   }
-
-   @Override
-   protected void onPostExecute(Uri resultFilename)
-   {
-      super.onPostExecute(resultFilename);
-
-      CharSequence text = mContext.getString(R.string.jogmap_success) + jogmapResponseText;
-      Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
-      toast.show();
    }
 
    private void sendToJogmap(Uri fileUri)
@@ -95,7 +86,8 @@ public class JogmapSharing extends GpxCreator
       {
          jogmap = new URL(mContext.getString(R.string.jogmap_post_url));
          connection = (HttpURLConnection) jogmap.openConnection();
-         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.STRICT, MultipartStreamer.StreamingMode.DEFAULT);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.STRICT, MultipartStreamer
+               .StreamingMode.DEFAULT);
          multipart.addFormField("id", authCode);
          multipart.addFilePart("mFile", gpxFile);
          multipart.flush();
@@ -113,13 +105,16 @@ public class JogmapSharing extends GpxCreator
       {
          close(multipart);
          if (connection != null)
+         {
             connection.disconnect();
+         }
       }
       if (statusCode != 200)
       {
          Log.e(TAG, "Wrong status code " + statusCode);
          jogmapResponseText = mContext.getString(R.string.jogmap_failed) + jogmapResponseText;
-         handleError(mContext.getString(R.string.jogmap_task), new HttpException("Unexpected status reported by Jogmap"), jogmapResponseText);
+         handleError(mContext.getString(R.string.jogmap_task), new HttpException("Unexpected status reported by " +
+               "Jogmap"), jogmapResponseText);
       }
    }
 
@@ -136,5 +131,15 @@ public class JogmapSharing extends GpxCreator
       {
          Log.w(TAG, "Failed to close ", e);
       }
+   }
+
+   @Override
+   protected void onPostExecute(Uri resultFilename)
+   {
+      super.onPostExecute(resultFilename);
+
+      CharSequence text = mContext.getString(R.string.jogmap_success) + jogmapResponseText;
+      Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
+      toast.show();
    }
 }

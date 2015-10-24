@@ -28,15 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import java.util.List;
-
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
-import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService.LocalBinder;
-import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsTracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Pair;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -65,22 +56,30 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
+import java.util.List;
+
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
+import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService.LocalBinder;
+import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsTracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
+import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Pair;
+
 /**
  * Empty Activity that pops up the dialog to describe the track
- * 
- * @version $Id: NameTrack.java 888 2011-03-14 19:44:44Z rcgroot@gmail.com $
+ *
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
+ * @version $Id: NameTrack.java 888 2011-03-14 19:44:44Z rcgroot@gmail.com $
  */
 public class DescribeTrack extends Activity
 {
-   private static final int DIALOG_TRACKDESCRIPTION = 42;
-
    protected static final String TAG = "OGT.DescribeTrack";
-
+   private static final int DIALOG_TRACKDESCRIPTION = 42;
    private static final String ACTIVITY_ID = "ACTIVITY_ID";
 
    private static final String BUNDLE_ID = "BUNDLE_ID";
-
+   boolean mBound = false;
    private Spinner mActivitySpinner;
    private Spinner mBundleSpinner;
    private EditText mDescriptionText;
@@ -88,11 +87,70 @@ public class DescribeTrack extends Activity
    private Button mOkayButton;
    private boolean paused;
    private Uri mTrackUri;
+   private final DialogInterface.OnClickListener mTrackDescriptionDialogListener = new DialogInterface.OnClickListener()
+   {
+      @Override
+      public void onClick(DialogInterface dialog, int which)
+      {
+         switch (which)
+         {
+            case DialogInterface.BUTTON_POSITIVE:
+               Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
+               Pair<Integer, Integer> selectedActivity = (Pair<Integer, Integer>) mActivitySpinner.getSelectedItem();
+               Pair<Integer, Integer> selectedBundle = (Pair<Integer, Integer>) mBundleSpinner.getSelectedItem();
+               if (selectedActivity != null && selectedBundle != null)
+               {
+                  Integer activityId = selectedActivity.second;
+                  Integer bundleId = selectedBundle.second;
+                  saveBreadcrumbsPreference(mActivitySpinner.getSelectedItemPosition(), mBundleSpinner
+                        .getSelectedItemPosition());
+                  String description = mDescriptionText.getText().toString();
+                  String isPublic = Boolean.toString(mPublicCheck.isChecked());
+                  ContentValues[] metaValues = { buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, activityId
+                        .toString()), buildContentValues(BreadcrumbsTracks.BUNDLE_ID, bundleId.toString()),
+                        buildContentValues(BreadcrumbsTracks.DESCRIPTION, description), buildContentValues
+                        (BreadcrumbsTracks.ISPUBLIC, isPublic), };
+                  getContentResolver().bulkInsert(metadataUri, metaValues);
+               }
+               Intent data = new Intent();
+               data.setData(mTrackUri);
+               if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(Constants.NAME))
+               {
+                  data.putExtra(Constants.NAME, getIntent().getExtras().getString(Constants.NAME));
+               }
+               setResult(RESULT_OK, data);
+               break;
+            case DialogInterface.BUTTON_NEGATIVE:
+               break;
+            default:
+               Log.e(TAG, "Unknown option ending dialog:" + which);
+               break;
+         }
+         finish();
+      }
+   };
    private ProgressBar mProgressSpinner;
-
    private AlertDialog mDialog;
    private BreadcrumbsService mService;
-   boolean mBound = false;
+   private ServiceConnection mConnection = new ServiceConnection()
+   {
+      @Override
+      public void onServiceConnected(ComponentName className, IBinder service)
+      {
+         // We've bound to LocalService, cast the IBinder and get LocalService instance
+         LocalBinder binder = (LocalBinder) service;
+         mService = binder.getService();
+         mBound = true;
+         setUiEnabled();
+      }
+
+      @Override
+      public void onServiceDisconnected(ComponentName arg0)
+      {
+         mService = null;
+         mBound = false;
+      }
+   };
 
    @Override
    protected void onCreate(Bundle savedInstanceState)
@@ -181,22 +239,24 @@ public class DescribeTrack extends Activity
             mDescriptionText = (EditText) view.findViewById(R.id.description);
             mPublicCheck = (CheckBox) view.findViewById(R.id.public_checkbox);
             mProgressSpinner = (ProgressBar) view.findViewById(R.id.progressSpinner);
-            builder.setTitle(R.string.dialog_description_title).setMessage(R.string.dialog_description_message).setIcon(android.R.drawable.ic_dialog_alert)
-                  .setPositiveButton(R.string.btn_okay, mTrackDescriptionDialogListener).setNegativeButton(R.string.btn_cancel, mTrackDescriptionDialogListener).setView(view);
+            builder.setTitle(R.string.dialog_description_title).setMessage(R.string.dialog_description_message)
+                   .setIcon(android.R.drawable.ic_dialog_alert)
+                   .setPositiveButton(R.string.btn_okay, mTrackDescriptionDialogListener).setNegativeButton(R.string
+                  .btn_cancel, mTrackDescriptionDialogListener).setView(view);
             mDialog = builder.create();
             setUiEnabled();
 
             mDialog.setOnDismissListener(new OnDismissListener()
+            {
+               @Override
+               public void onDismiss(DialogInterface dialog)
                {
-                  @Override
-                  public void onDismiss(DialogInterface dialog)
+                  if (!paused)
                   {
-                     if (!paused)
-                     {
-                        finish();
-                     }
+                     finish();
                   }
-               });
+               }
+            });
             return mDialog;
          default:
             return super.onCreateDialog(id);
@@ -224,35 +284,6 @@ public class DescribeTrack extends Activity
       {
          mService.collectBreadcrumbsOauthToken();
       }
-   }
-
-   private void saveBreadcrumbsPreference(int activityPosition, int bundlePosition)
-   {
-      Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-      editor.putInt(ACTIVITY_ID, activityPosition);
-      editor.putInt(BUNDLE_ID, bundlePosition);
-      editor.commit();
-   }
-
-   private void loadBreadcrumbsPreference()
-   {
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-      int activityPos = prefs.getInt(ACTIVITY_ID, 0);
-      activityPos = activityPos < mActivitySpinner.getCount() ? activityPos : 0;
-      mActivitySpinner.setSelection(activityPos);
-
-      int bundlePos = prefs.getInt(BUNDLE_ID, 0);
-      bundlePos = bundlePos < mBundleSpinner.getCount() ? bundlePos : 0;
-      mBundleSpinner.setSelection(bundlePos);
-   }
-
-   private ContentValues buildContentValues(String key, String value)
-   {
-      ContentValues contentValues = new ContentValues();
-      contentValues.put(MetaData.KEY, key);
-      contentValues.put(MetaData.VALUE, value);
-      return contentValues;
    }
 
    private void setUiEnabled()
@@ -292,7 +323,8 @@ public class DescribeTrack extends Activity
    public SpinnerAdapter getActivityAdapter()
    {
       List<Pair<Integer, Integer>> activities = mService.getActivityList();
-      ArrayAdapter<Pair<Integer, Integer>> adapter = new ArrayAdapter<Pair<Integer, Integer>>(this, android.R.layout.simple_spinner_item, activities);
+      ArrayAdapter<Pair<Integer, Integer>> adapter = new ArrayAdapter<Pair<Integer, Integer>>(this, android.R.layout
+            .simple_spinner_item, activities);
       adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       return adapter;
    }
@@ -300,68 +332,38 @@ public class DescribeTrack extends Activity
    public SpinnerAdapter getBundleAdapter()
    {
       List<Pair<Integer, Integer>> bundles = mService.getBundleList();
-      ArrayAdapter<Pair<Integer, Integer>> adapter = new ArrayAdapter<Pair<Integer, Integer>>(this, android.R.layout.simple_spinner_item, bundles);
+      ArrayAdapter<Pair<Integer, Integer>> adapter = new ArrayAdapter<Pair<Integer, Integer>>(this, android.R.layout
+            .simple_spinner_item, bundles);
       adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       return adapter;
    }
 
-   private ServiceConnection mConnection = new ServiceConnection()
-      {
-         @Override
-         public void onServiceConnected(ComponentName className, IBinder service)
-         {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            LocalBinder binder = (LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            setUiEnabled();
-         }
+   private void loadBreadcrumbsPreference()
+   {
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-         @Override
-         public void onServiceDisconnected(ComponentName arg0)
-         {
-            mService = null;
-            mBound = false;
-         }
-      };
+      int activityPos = prefs.getInt(ACTIVITY_ID, 0);
+      activityPos = activityPos < mActivitySpinner.getCount() ? activityPos : 0;
+      mActivitySpinner.setSelection(activityPos);
 
-   private final DialogInterface.OnClickListener mTrackDescriptionDialogListener = new DialogInterface.OnClickListener()
-      {
-         @Override
-         public void onClick(DialogInterface dialog, int which)
-         {
-            switch (which)
-            {
-               case DialogInterface.BUTTON_POSITIVE:
-                  Uri metadataUri = Uri.withAppendedPath(mTrackUri, "metadata");
-                  Pair<Integer, Integer> selectedActivity = (Pair<Integer, Integer>)mActivitySpinner.getSelectedItem();
-                  Pair<Integer, Integer> selectedBundle = (Pair<Integer, Integer>) mBundleSpinner.getSelectedItem();
-                  if (selectedActivity != null && selectedBundle != null)
-                  {
-                     Integer activityId = selectedActivity.second;
-                     Integer bundleId = selectedBundle.second;
-                     saveBreadcrumbsPreference(mActivitySpinner.getSelectedItemPosition(), mBundleSpinner.getSelectedItemPosition());
-                     String description = mDescriptionText.getText().toString();
-                     String isPublic = Boolean.toString(mPublicCheck.isChecked());
-                     ContentValues[] metaValues = { buildContentValues(BreadcrumbsTracks.ACTIVITY_ID, activityId.toString()), buildContentValues(BreadcrumbsTracks.BUNDLE_ID, bundleId.toString()),
-                           buildContentValues(BreadcrumbsTracks.DESCRIPTION, description), buildContentValues(BreadcrumbsTracks.ISPUBLIC, isPublic), };
-                     getContentResolver().bulkInsert(metadataUri, metaValues);
-                  }
-                  Intent data = new Intent();
-                  data.setData(mTrackUri);
-                  if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(Constants.NAME))
-                  {
-                     data.putExtra(Constants.NAME, getIntent().getExtras().getString(Constants.NAME));
-                  }
-                  setResult(RESULT_OK, data);
-                  break;
-               case DialogInterface.BUTTON_NEGATIVE:
-                  break;
-               default:
-                  Log.e(TAG, "Unknown option ending dialog:" + which);
-                  break;
-            }
-            finish();
-         }
-      };
+      int bundlePos = prefs.getInt(BUNDLE_ID, 0);
+      bundlePos = bundlePos < mBundleSpinner.getCount() ? bundlePos : 0;
+      mBundleSpinner.setSelection(bundlePos);
+   }
+
+   private void saveBreadcrumbsPreference(int activityPosition, int bundlePosition)
+   {
+      Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+      editor.putInt(ACTIVITY_ID, activityPosition);
+      editor.putInt(BUNDLE_ID, bundlePosition);
+      editor.commit();
+   }
+
+   private ContentValues buildContentValues(String key, String value)
+   {
+      ContentValues contentValues = new ContentValues();
+      contentValues.put(MetaData.KEY, key);
+      contentValues.put(MetaData.VALUE, value);
+      return contentValues;
+   }
 }

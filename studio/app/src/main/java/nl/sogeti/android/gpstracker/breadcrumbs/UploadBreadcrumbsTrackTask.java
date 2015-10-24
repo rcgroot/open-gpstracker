@@ -28,6 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.breadcrumbs;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -51,15 +58,10 @@ import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
 
 /**
- * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After receiving the request token from Twitter, pop a browser to the user to authorize the
+ * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After
+ * receiving the request token from Twitter, pop a browser to the user to authorize the
  * Request Token. (OAuthAuthorizeToken)
  */
 public class UploadBreadcrumbsTrackTask extends GpxCreator
@@ -79,7 +81,7 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 
    /**
     * Constructor: create a new UploadBreadcrumbsTrackTask.
-    * 
+    *
     * @param context
     * @param adapter
     * @param listener
@@ -88,7 +90,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
     * @param trackUri
     * @param name
     */
-   public UploadBreadcrumbsTrackTask(Context context, BreadcrumbsService adapter, ProgressListener listener, OAuthConsumer consumer, Uri trackUri, String name)
+   public UploadBreadcrumbsTrackTask(Context context, BreadcrumbsService adapter, ProgressListener listener,
+                                     OAuthConsumer consumer, Uri trackUri, String name)
    {
       super(context, trackUri, name, true, listener);
       mService = adapter;
@@ -111,8 +114,10 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
 
       if (isCancelled())
       {
-         String text = mContext.getString(R.string.ticker_failed) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " + mContext.getString(R.string.error_buildxml);
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Fail to execute request due to canceling"), text);
+         String text = mContext.getString(R.string.ticker_failed) + " \"http://api.gobreadcrumbs.com/v1/tracks\" " +
+               mContext.getString(R.string.error_buildxml);
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Fail to execute " +
+               "request due to canceling"), text);
       }
 
       // Collect GPX Import option params
@@ -125,7 +130,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       Cursor cursor = null;
       try
       {
-         cursor = mContext.getContentResolver().query(metadataUri, new String[] { MetaData.KEY, MetaData.VALUE }, null, null, null);
+         cursor = mContext.getContentResolver().query(metadataUri, new String[] { MetaData.KEY, MetaData.VALUE },
+               null, null, null);
          if (cursor.moveToFirst())
          {
             do
@@ -188,7 +194,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          }
          // Build the multipart body with the upload data
          connection = (HttpURLConnection) method.openConnection();
-         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, MultipartStreamer.StreamingMode.DEFAULT, mConsumer);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE,
+               MultipartStreamer.StreamingMode.DEFAULT, mConsumer);
          multipart.addFormField("import_type", "GPX");
          //entity.addPart("gpx",         new FileBody(gpxFile));
          multipart.addFormField("gpx", gpxString);
@@ -226,7 +233,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       catch (OAuthMessageSignerException e)
       {
          mService.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "Failed to sign the request with authentication signature");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "Failed to sign the request with " +
+               "authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
@@ -236,7 +244,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       catch (OAuthCommunicationException e)
       {
          mService.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "The authentication communication failed");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), e, "The authentication communication " +
+               "failed");
       }
       catch (IOException e)
       {
@@ -246,26 +255,31 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          close(multipart);
          if (connection != null)
+         {
             connection.disconnect();
+         }
       }
 
       if (statusCode == 200 || statusCode == 201)
       {
          if (trackUri == null)
          {
-            handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Unable to retrieve URI from response"), responseText);
+            handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Unable to " +
+                  "retrieve URI from response"), responseText);
          }
       }
       else
       {
          //mAdapter.removeAuthentication();
 
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Status code: " + statusCode), responseText);
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_upload), new IOException("Status code: " +
+               statusCode), responseText);
       }
       return trackUri;
    }
 
-   private String createOpenGpsTrackerBundle() throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException, IOException
+   private String createOpenGpsTrackerBundle() throws OAuthMessageSignerException, OAuthExpectationFailedException,
+         OAuthCommunicationException, IOException
    {
       URL method = new URL("http://api.gobreadcrumbs.com/v1/bundles.xml");
       if (isCancelled())
@@ -278,7 +292,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       try
       {
          connection = (HttpURLConnection) method.openConnection();
-         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, MultipartStreamer.StreamingMode.DEFAULT, mConsumer);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE,
+               MultipartStreamer.StreamingMode.DEFAULT, mConsumer);
          multipart.addFormField("name", mBundleName);
          multipart.addFormField("activity_id", mActivityId);
          multipart.addFormField("description", mBundleDescription);
@@ -311,14 +326,69 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       {
          close(multipart);
          if (connection != null)
+         {
             connection.disconnect();
+         }
       }
       return bundleId;
    }
 
+   private void uploadPhoto(File photo, Integer trackId) throws IOException, OAuthMessageSignerException,
+         OAuthExpectationFailedException, OAuthCommunicationException
+   {
+      URL request = new URL("http://api.gobreadcrumbs.com/v1/photos.xml");
+      if (isCancelled())
+      {
+         throw new IOException("Fail to execute request due to canceling");
+      }
+      HttpURLConnection connection = null;
+      MultipartStreamer multipart = null;
+      String responseText = "";
+      try
+      {
+         connection = (HttpURLConnection) request.openConnection();
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE,
+               MultipartStreamer.StreamingMode.DEFAULT, mConsumer);
+         multipart.addFormField("name", photo.getName());
+         multipart.addFormField("track_id", Integer.toString(trackId));
+         //entity.addPart("description", new StringBody(""));
+         multipart.addFilePart("file", photo);
+         multipart.flush();
+
+         InputStream stream = connection.getInputStream();
+         responseText = XmlCreator.convertStreamToString(stream);
+      }
+      finally
+      {
+         close(multipart);
+         if (connection != null)
+         {
+            connection.disconnect();
+         }
+      }
+      mProgressAdmin.addPhotoUploadProgress(photo.length());
+
+      Log.i(TAG, "Uploaded photo " + responseText);
+   }
+
+   private void close(Closeable connection)
+   {
+      try
+      {
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+      catch (IOException e)
+      {
+         Log.w(TAG, "Failed to close ", e);
+      }
+   }
+
    /**
     * Queue's media
-    * 
+    *
     * @param inputFilePath
     * @return file path relative to the export dir
     * @throws IOException
@@ -333,40 +403,6 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          mPhotoUploadQueue.add(source);
       }
       return source.getName();
-   }
-
-   private void uploadPhoto(File photo, Integer trackId) throws IOException, OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException
-   {
-      URL request = new URL("http://api.gobreadcrumbs.com/v1/photos.xml");
-      if (isCancelled())
-      {
-         throw new IOException("Fail to execute request due to canceling");
-      }
-      HttpURLConnection connection = null;
-      MultipartStreamer multipart = null;
-      String responseText = "";
-      try
-      {
-         connection = (HttpURLConnection) request.openConnection();
-         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.BROWSER_COMPATIBLE, MultipartStreamer.StreamingMode.DEFAULT, mConsumer);
-         multipart.addFormField("name", photo.getName());
-         multipart.addFormField("track_id", Integer.toString(trackId));
-         //entity.addPart("description", new StringBody(""));
-         multipart.addFilePart("file", photo);
-         multipart.flush();
-
-         InputStream stream = connection.getInputStream();
-         responseText = XmlCreator.convertStreamToString(stream);
-      }
-      finally
-      {
-         close(multipart);
-         if (connection != null)
-            connection.disconnect();
-      }
-      mProgressAdmin.addPhotoUploadProgress(photo.length());
-
-      Log.i(TAG, "Uploaded photo " + responseText);
    }
 
    @Override
@@ -402,7 +438,8 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
          mService.getBreadcrumbsTracks().addBundle(Integer.parseInt(mBundleId), mBundleName, mBundleDescription);
       }
       //"http://api.gobreadcrumbs.com/v1/tracks/" + trackId + "/placemarks.gpx"
-      mService.getBreadcrumbsTracks().addTrack(bcTrackId, mName, Integer.valueOf(mBundleId), mDescription, null, null, null, mIsPublic, null, null, null, null, null);
+      mService.getBreadcrumbsTracks().addTrack(bcTrackId, mName, Integer.valueOf(mBundleId), mDescription, null,
+            null, null, mIsPublic, null, null, null, null, null);
 
       super.onPostExecute(result);
    }
@@ -413,20 +450,5 @@ public class UploadBreadcrumbsTrackTask extends GpxCreator
       contentValues.put(MetaData.KEY, key);
       contentValues.put(MetaData.VALUE, value);
       return contentValues;
-   }
-
-   private void close(Closeable connection)
-   {
-      try
-      {
-         if (connection != null)
-         {
-            connection.close();
-         }
-      }
-      catch (IOException e)
-      {
-         Log.w(TAG, "Failed to close ", e);
-      }
    }
 }

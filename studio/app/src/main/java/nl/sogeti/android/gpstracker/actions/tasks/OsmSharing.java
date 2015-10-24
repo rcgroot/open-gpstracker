@@ -28,6 +28,19 @@
  */
 package nl.sogeti.android.gpstracker.actions.tasks;
 
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.Toast;
+
+import org.apache.http.HttpException;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -50,32 +63,19 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.apache.http.HttpException;
-
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.widget.Toast;
-
 /**
  * ????
- * 
- * @version $Id:$
+ *
  * @author rene (c) Jul 9, 2011, Sogeti B.V.
+ * @version $Id:$
  */
 public class OsmSharing extends GpxCreator
 {
 
    public static final String OAUTH_TOKEN = "openstreetmap_oauth_token";
    public static final String OAUTH_TOKEN_SECRET = "openstreetmap_oauth_secret";
-   private static final String TAG = "OGT.OsmSharing";
    public static final String OSM_FILENAME = "OSM_Trace";
+   private static final String TAG = "OGT.OsmSharing";
    private String responseText;
    private Uri mFileUri;
 
@@ -102,19 +102,9 @@ public class OsmSharing extends GpxCreator
       return mFileUri;
    }
 
-   @Override
-   protected void onPostExecute(Uri resultFilename)
-   {
-      super.onPostExecute(resultFilename);
-
-      CharSequence text = mContext.getString(R.string.osm_success) + responseText;
-      Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
-      toast.show();
-   }
-
    /**
     * POST a (GPX) file to the 0.6 API of the OpenStreetMap.org website publishing this track to the public.
-    * 
+    *
     * @param fileUri
     * @param contentType
     */
@@ -127,7 +117,8 @@ public class OsmSharing extends GpxCreator
          handleError(mContext.getString(R.string.osm_task), null, mContext.getString(R.string.osmauth_message));
       }
 
-      String visibility = PreferenceManager.getDefaultSharedPreferences(mContext).getString(Constants.OSM_VISIBILITY, "trackable");
+      String visibility = PreferenceManager.getDefaultSharedPreferences(mContext).getString(Constants.OSM_VISIBILITY,
+            "trackable");
       File gpxFile = new File(fileUri.getEncodedPath());
 
       int statusCode = 0;
@@ -137,7 +128,8 @@ public class OsmSharing extends GpxCreator
       MultipartStreamer multipart = null;
       try
       {
-         metaData = mContext.getContentResolver().query(Uri.withAppendedPath(trackUri, "metadata"), new String[] { MetaData.VALUE }, MetaData.KEY + " = ? ",
+         metaData = mContext.getContentResolver().query(Uri.withAppendedPath(trackUri, "metadata"), new String[] {
+                     MetaData.VALUE }, MetaData.KEY + " = ? ",
                new String[] { Constants.DATASOURCES_KEY }, null);
          if (metaData.moveToFirst())
          {
@@ -151,7 +143,8 @@ public class OsmSharing extends GpxCreator
          // The POST to the create node
          URL url = new URL(mContext.getString(R.string.osm_post_url));
          connection = (HttpURLConnection) url.openConnection();
-         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.STRICT, MultipartStreamer.StreamingMode.CHUNKED, consumer);
+         multipart = new MultipartStreamer(connection, MultipartStreamer.HttpMultipartMode.STRICT, MultipartStreamer
+               .StreamingMode.CHUNKED, consumer);
 
          // Build the multipart body with the upload data
          multipart.addFilePart("file", gpxFile);
@@ -205,7 +198,9 @@ public class OsmSharing extends GpxCreator
       {
          close(multipart);
          if (connection != null)
+         {
             connection.disconnect();
+         }
          if (metaData != null)
          {
             metaData.close();
@@ -224,7 +219,8 @@ public class OsmSharing extends GpxCreator
             editor.commit();
          }
 
-         handleError(mContext.getString(R.string.osm_task), new HttpException("Unexpected status reported by OSM"), text);
+         handleError(mContext.getString(R.string.osm_task), new HttpException("Unexpected status reported by OSM"),
+               text);
       }
    }
 
@@ -237,10 +233,26 @@ public class OsmSharing extends GpxCreator
       DefaultOAuthConsumer consumer = null;
       if (mAuthorized)
       {
-         consumer = new DefaultOAuthConsumer(mContext.getString(R.string.OSM_CONSUMER_KEY), mContext.getString(R.string.OSM_CONSUMER_SECRET));
+         consumer = new DefaultOAuthConsumer(mContext.getString(R.string.OSM_CONSUMER_KEY), mContext.getString(R
+               .string.OSM_CONSUMER_SECRET));
          consumer.setTokenWithSecret(token, secret);
       }
       return consumer;
+   }
+
+   public void requestOpenstreetmapOauthToken()
+   {
+      Intent intent = new Intent(mContext.getApplicationContext(), PrepareRequestTokenActivity.class);
+      intent.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
+      intent.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
+
+      intent.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, mContext.getString(R.string.OSM_CONSUMER_KEY));
+      intent.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, mContext.getString(R.string.OSM_CONSUMER_SECRET));
+      intent.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.OSM_REQUEST_URL);
+      intent.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.OSM_ACCESS_URL);
+      intent.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.OSM_AUTHORIZE_URL);
+
+      mContext.startActivity(intent);
    }
 
    private String queryForNotes()
@@ -257,7 +269,8 @@ public class OsmSharing extends GpxCreator
             do
             {
                Uri noteUri = Uri.parse(mediaCursor.getString(0));
-               if (noteUri.getScheme().equals("content") && noteUri.getAuthority().equals(GPStracking.AUTHORITY + ".string"))
+               if (noteUri.getScheme().equals("content") && noteUri.getAuthority().equals(GPStracking.AUTHORITY + "" +
+                     ".string"))
                {
                   String tag = noteUri.getLastPathSegment().trim();
                   if (!tag.contains(" "))
@@ -283,21 +296,6 @@ public class OsmSharing extends GpxCreator
       return tags.toString();
    }
 
-   public void requestOpenstreetmapOauthToken()
-   {
-      Intent intent = new Intent(mContext.getApplicationContext(), PrepareRequestTokenActivity.class);
-      intent.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_PREF, OAUTH_TOKEN);
-      intent.putExtra(PrepareRequestTokenActivity.OAUTH_TOKEN_SECRET_PREF, OAUTH_TOKEN_SECRET);
-
-      intent.putExtra(PrepareRequestTokenActivity.CONSUMER_KEY, mContext.getString(R.string.OSM_CONSUMER_KEY));
-      intent.putExtra(PrepareRequestTokenActivity.CONSUMER_SECRET, mContext.getString(R.string.OSM_CONSUMER_SECRET));
-      intent.putExtra(PrepareRequestTokenActivity.REQUEST_URL, Constants.OSM_REQUEST_URL);
-      intent.putExtra(PrepareRequestTokenActivity.ACCESS_URL, Constants.OSM_ACCESS_URL);
-      intent.putExtra(PrepareRequestTokenActivity.AUTHORIZE_URL, Constants.OSM_AUTHORIZE_URL);
-
-      mContext.startActivity(intent);
-   }
-
    private void close(Closeable connection)
    {
       try
@@ -311,5 +309,15 @@ public class OsmSharing extends GpxCreator
       {
          Log.w(TAG, "Failed to close ", e);
       }
+   }
+
+   @Override
+   protected void onPostExecute(Uri resultFilename)
+   {
+      super.onPostExecute(resultFilename);
+
+      CharSequence text = mContext.getString(R.string.osm_success) + responseText;
+      Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
+      toast.show();
    }
 }

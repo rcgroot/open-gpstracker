@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-	<TextView 
-        xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:id="@+id/listitem_name"
-        android:layout_height="?android:attr/listPreferredItemHeight"
-		android:layout_width="fill_parent" 
-        android:gravity="center"
-        android:paddingLeft="6dip"
-        android:paddingRight="6dip"
-        android:text="Section name here"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        style="?android:attr/listSeparatorTextViewStyle"
-        />
+<TextView
+    android:id="@+id/listitem_name"
+    style="?android:attr/listSeparatorTextViewStyle"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:gravity="center"
+    android:paddingLeft="6dip"
+    android:paddingRight="6dip"
+    android:text="Section name here"
+    android:textAppearance="?android:attr/textAppearanceMedium"
+    />

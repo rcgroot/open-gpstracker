@@ -28,17 +28,18 @@
  */
 package nl.sogeti.android.gpstracker.actions.tasks;
 
+import android.content.Context;
+import android.net.Uri;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import android.content.Context;
-import android.net.Uri;
 
 /**
  * ????
  *
- * @version $Id:$
  * @author rene (c) Jul 9, 2011, Sogeti B.V.
+ * @version $Id:$
  */
 public class KmzSharing extends KmzCreator
 {
@@ -54,5 +55,5 @@ public class KmzSharing extends KmzCreator
       super.onPostExecute(resultFilename);
       ShareTrack.sendFile(mContext, resultFilename, mContext.getString(R.string.email_kmzbody), getContentType());
    }
-   
+
 }

@@ -28,6 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.breadcrumbs;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -46,15 +53,10 @@ import oauth.signpost.OAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
 
 /**
- * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After receiving the request token from Twitter, pop a browser to the user to authorize the
+ * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After
+ * receiving the request token from Twitter, pop a browser to the user to authorize the
  * Request Token. (OAuthAuthorizeToken)
  */
 public class DownloadBreadcrumbsTrackTask extends GpxParser
@@ -67,7 +69,7 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
 
    /**
     * Constructor: create a new DownloadBreadcrumbsTrackTask.
-    * 
+    *
     * @param context
     * @param progressListener
     * @param adapter
@@ -75,7 +77,8 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
     * @param consumer
     * @param track
     */
-   public DownloadBreadcrumbsTrackTask(Context context, ProgressListener progressListener, BreadcrumbsService adapter, OAuthConsumer consumer, Pair<Integer, Integer> track)
+   public DownloadBreadcrumbsTrackTask(Context context, ProgressListener progressListener, BreadcrumbsService
+         adapter, OAuthConsumer consumer, Pair<Integer, Integer> track)
    {
       super(context, progressListener);
       mAdapter = adapter;
@@ -133,7 +136,9 @@ public class DownloadBreadcrumbsTrackTask extends GpxParser
       finally
       {
          if (connection != null)
+         {
             connection.disconnect();
+         }
       }
       return trackUri;
    }

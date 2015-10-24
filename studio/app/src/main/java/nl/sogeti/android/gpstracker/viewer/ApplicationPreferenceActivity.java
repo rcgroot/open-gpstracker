@@ -28,11 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import java.util.regex.Pattern;
-
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -40,12 +35,18 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 
+import java.util.regex.Pattern;
+
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.UnitsI18n;
+
 /**
  * Controller for the settings dialog
- * 
+ *
+ * @author rene (c) Jan 18, 2009, Sogeti B.V.
  * @version $Id: ApplicationPreferenceActivity.java 1146 2011-11-05 11:36:51Z
  *          rcgroot $
- * @author rene (c) Jan 18, 2009, Sogeti B.V.
  */
 public class ApplicationPreferenceActivity extends PreferenceActivity
 {
@@ -57,7 +58,7 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
    public static final String PRECISION_PREFERENCE = "precision";
    public static final String CUSTOMUPLOAD_BACKLOG = "CUSTOMUPLOAD_BACKLOG";
    public static final String CUSTOMUPLOAD_URL = "CUSTOMUPLOAD_URL";
-   
+
    private EditTextPreference time;
    private EditTextPreference distance;
    private EditTextPreference implentWidth;
@@ -108,7 +109,8 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
             if (matches)
             {
                Editor editor = getPreferenceManager().getSharedPreferences().edit();
-               double value = new UnitsI18n(ApplicationPreferenceActivity.this).conversionFromLocalToMeters(Integer.parseInt(newValue.toString()));
+               double value = new UnitsI18n(ApplicationPreferenceActivity.this).conversionFromLocalToMeters(Integer
+                     .parseInt(newValue.toString()));
                editor.putFloat("streambroadcast_distance_meter", (float) value);
                editor.commit();
             }

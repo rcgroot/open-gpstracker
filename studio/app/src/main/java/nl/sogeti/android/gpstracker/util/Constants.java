@@ -28,19 +28,20 @@
  */
 package nl.sogeti.android.gpstracker.util;
 
-import java.io.File;
-
-import nl.sogeti.android.gpstracker.db.GPStracking;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
+import java.io.File;
+
+import nl.sogeti.android.gpstracker.db.GPStracking;
+
 /**
  * Various application wide constants
- * 
- * @version $Id$
+ *
  * @author rene (c) Mar 22, 2009, Sogeti B.V.
+ * @version $Id$
  */
 public class Constants
 {
@@ -101,8 +102,9 @@ public class Constants
    public static final String DATASOURCES_KEY = "DATASOURCES";
 
    /**
-    * Broadcast intent action indicating that the logger service state has changed. Includes the logging state and its precision.
-    * 
+    * Broadcast intent action indicating that the logger service state has changed. Includes the logging state and
+    * its precision.
+    *
     * @see #EXTRA_LOGGING_PRECISION
     * @see #EXTRA_LOGGING_STATE
     */
@@ -111,7 +113,7 @@ public class Constants
 
    /**
     * The precision the service is logging on.
-    * 
+    *
     * @see #LOGGING_FINE
     * @see #LOGGING_NORMAL
     * @see #LOGGING_COARSE
@@ -122,7 +124,7 @@ public class Constants
 
    /**
     * The state the service is.
-    * 
+    *
     * @see #UNKNOWN
     * @see #LOGGING
     * @see #PAUSED
@@ -141,7 +143,8 @@ public class Constants
    public static final int LOGGING = 1;
 
    /**
-    * The service is not active, but can be resumed to become active and store location changes as part of a new segment of the current track.
+    * The service is not active, but can be resumed to become active and store location changes as part of a new
+    * segment of the current track.
     */
    public static final int PAUSED = 2;
 
@@ -187,10 +190,39 @@ public class Constants
    public static final String OAUTH_CALLBACK_HOST = "callback";
    public static final String OAUTH_CALLBACK_URL = OAUTH_CALLBACK_SCHEME + "://" + OAUTH_CALLBACK_HOST;
    public static final String NAME = "NAME";
+   public static final String BREADCRUMBS_CONNECT = "breadcrumbs_connect";
+   public static final int BREADCRUMBS_CONNECT_ITEM_VIEW_TYPE = 0;
+   public static final int BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE = 2;
+   public static final int BREADCRUMBS_TRACK_ITEM_VIEW_TYPE = 3;
+   public static final int BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE = 4;
+   public static final int SECTIONED_HEADER_ITEM_VIEW_TYPE = 0;
+   public static final String BROADCAST_STREAM = "STREAM_ENABLED";
+   /**
+    * A distance in meters
+    */
+   public static final String EXTRA_DISTANCE = "nl.sogeti.android.gpstracker.EXTRA_DISTANCE";
+   /**
+    * A time period in minutes
+    */
+   public static final String EXTRA_TIME = "nl.sogeti.android.gpstracker.EXTRA_TIME";
+   /**
+    * The location that pushed beyond the set minimum time or distance
+    */
+   public static final String EXTRA_LOCATION = "nl.sogeti.android.gpstracker.EXTRA_LOCATION";
+   /**
+    * The track that is being logged
+    */
+   public static final String EXTRA_TRACK = "nl.sogeti.android.gpstracker.EXTRA_TRACK";
+
+   public static String getSdCardTmpFile(Context ctx)
+   {
+      String dir = getSdCardDirectory(ctx) + TMPICTUREFILE_SUBPATH;
+      return dir;
+   }
 
    /**
     * Based on preference return the SD-Card directory in which Open GPS Tracker creates and stores files shared tracks,
-    * 
+    *
     * @param ctx
     * @return
     */
@@ -216,37 +248,5 @@ public class Constants
       }
       return dir;
    }
-
-   public static String getSdCardTmpFile(Context ctx)
-   {
-      String dir = getSdCardDirectory(ctx) + TMPICTUREFILE_SUBPATH;
-      return dir;
-   }
-
-   public static final String BREADCRUMBS_CONNECT = "breadcrumbs_connect";
-
-   public static final int BREADCRUMBS_CONNECT_ITEM_VIEW_TYPE = 0;
-   public static final int BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE = 2;
-   public static final int BREADCRUMBS_TRACK_ITEM_VIEW_TYPE = 3;
-   public static final int BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE = 4;
-   public static final int SECTIONED_HEADER_ITEM_VIEW_TYPE = 0;
-   public static final String BROADCAST_STREAM = "STREAM_ENABLED";
-
-   /**
-    * A distance in meters
-    */
-   public static final String EXTRA_DISTANCE = "nl.sogeti.android.gpstracker.EXTRA_DISTANCE";
-   /**
-    * A time period in minutes
-    */
-   public static final String EXTRA_TIME = "nl.sogeti.android.gpstracker.EXTRA_TIME";
-   /**
-    * The location that pushed beyond the set minimum time or distance
-    */
-   public static final String EXTRA_LOCATION = "nl.sogeti.android.gpstracker.EXTRA_LOCATION";
-   /**
-    * The track that is being logged
-    */
-   public static final String EXTRA_TRACK = "nl.sogeti.android.gpstracker.EXTRA_TRACK";
 
 }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="speed_unitname">公里/時</string>
-<string name="distance_unitname">公里</string>
-<string name="distance_smallunitname">米</string>
+    <string name="speed_unitname">公里/時</string>
+    <string name="distance_unitname">公里</string>
+    <string name="distance_smallunitname">米</string>
 
-<string name="knot_unitname">節</string>
-<string name="nautic_unitname">海裡</string>
+    <string name="knot_unitname">節</string>
+    <string name="nautic_unitname">海裡</string>
 
-<string name="pace_unitname">分鐘/千米</string>
-<string name="pace_unitname_imperial">分鐘/英里</string>
+    <string name="pace_unitname">分鐘/千米</string>
+    <string name="pace_unitname_imperial">分鐘/英里</string>
 </resources>

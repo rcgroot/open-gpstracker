@@ -1,138 +1,149 @@
 <LinearLayout
-   android:layout_height="fill_parent"
-   xmlns:android="http://schemas.android.com/apk/res/android"
-   android:orientation="vertical"
-   android:layout_width="fill_parent">
-   <ScrollView
-      android:layout_width="fill_parent"
-      android:layout_height="0dip"
-      android:layout_weight="1">
-      <RelativeLayout
-         android:id="@+id/LinearLayout1"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
-         android:orientation="vertical"
-         android:padding="5dip">
-         <TextView
-            android:id="@+id/TextView1"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:text="@string/share_explained"
-            style="?android:attr/textAppearanceMedium"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1">
+
+        <RelativeLayout
+            android:id="@+id/LinearLayout1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="5dip" />
-         <TextView
-            android:id="@+id/TextView2"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/TextView1"
-            android:text="@string/share_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-         <Spinner
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/TextView2"
-            android:id="@+id/shareTypeSpinner"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent" />
+            android:orientation="vertical"
+            android:padding="5dip">
 
-         <TextView
-            android:id="@+id/TextView3"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/shareTypeSpinner"
-            android:text="@string/share_target"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-         <Spinner
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/TextView3"
-            android:id="@+id/shareTargetSpinner"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent" />
+            <TextView
+                android:id="@+id/TextView1"
+                style="?android:attr/textAppearanceMedium"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:padding="5dip"
+                android:text="@string/share_explained"/>
 
-         <TextView
-            android:id="@+id/TextView4"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/shareTargetSpinner"
-            android:text="@string/share_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-         <EditText
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/TextView4"
-            android:id="@+id/fileNameField"
+            <TextView
+                android:id="@+id/TextView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/TextView1"
+                android:text="@string/share_type"/>
+
+            <Spinner
+                android:id="@+id/shareTypeSpinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/TextView2"/>
+
+            <TextView
+                android:id="@+id/TextView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/shareTypeSpinner"
+                android:text="@string/share_target"/>
+
+            <Spinner
+                android:id="@+id/shareTargetSpinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/TextView3"/>
+
+            <TextView
+                android:id="@+id/TextView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/shareTargetSpinner"
+                android:text="@string/share_name"/>
+
+            <EditText
+                android:id="@+id/fileNameField"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/TextView4"
+                android:clickable="true"
+                android:singleLine="true"/>
+
+            <ProgressBar
+                android:id="@+id/tweet_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/fileNameField"
+                android:visibility="gone"/>
+
+            <EditText
+                android:id="@+id/tweetField"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/fileNameField"
+                android:layout_toRightOf="@+id/tweet_progress"
+                android:clickable="true"
+                android:maxLength="140"
+                android:maxLines="3"
+                android:text=""/>
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tweetField"
+                android:layout_centerHorizontal="true"></ImageView>
+
+            <ImageButton
+                android:id="@+id/closeImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@+id/imageView"
+                android:layout_alignTop="@+id/imageView"
+                android:layout_gravity="center"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:src="@drawable/btn_close"/>
+        </RelativeLayout>
+    </ScrollView>
+
+
+    <LinearLayout
+        style="@android:style/ButtonBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/cancelshare_button"
+            android:layout_width="140dip"
             android:layout_height="wrap_content"
-            android:clickable="true"
+            android:ellipsize="marquee"
             android:singleLine="true"
-            android:layout_width="fill_parent" />
+            android:text="@string/btn_cancel"/>
+        <!-- Placeholder to get blank space between the two buttons -->
+        <View
+            android:layout_width="1dip"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:visibility="invisible"/>
 
-         <ProgressBar
-            android:layout_width="wrap_content"
-            android:id="@+id/tweet_progress"
+        <Button
+            android:id="@+id/okayshare_button"
+            android:layout_width="140dip"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/fileNameField"
-            android:layout_alignParentLeft="true"
-            android:visibility="gone" />
-         <EditText
-            android:layout_below="@+id/fileNameField"
-            android:layout_toRightOf="@+id/tweet_progress"
-            android:id="@+id/tweetField"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:layout_width="fill_parent"
-            android:maxLines="3"
-            android:maxLength="140"
-            android:text="" />
-         <ImageView
-            android:id="@+id/imageView"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:layout_below="@+id/tweetField"
-            android:layout_centerHorizontal="true"></ImageView>
-         <ImageButton
-            android:id="@+id/closeImageView"
-            android:src="@drawable/btn_close"
-            android:background="@android:color/transparent"
-            android:layout_gravity="center"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
-            android:clickable="true"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_alignTop="@+id/imageView"
-            android:layout_alignRight="@+id/imageView" />
-      </RelativeLayout>
-   </ScrollView>
-
-
-   <LinearLayout
-      style="@android:style/ButtonBar"
-      android:layout_gravity="bottom"
-      android:orientation="horizontal"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content">
-
-      <Button
-         android:id="@+id/cancelshare_button"
-         android:layout_height="wrap_content"
-         android:layout_width="140dip"
-         android:ellipsize="marquee"
-         android:singleLine="true"
-         android:text="@string/btn_cancel" />
-      <!-- Placeholder to get blank space between the two buttons -->
-      <View
-         android:visibility="invisible"
-         android:layout_height="0dip"
-         android:layout_width="1dip"
-         android:layout_weight="1" />
-      <Button
-         android:id="@+id/okayshare_button"
-         android:layout_height="wrap_content"
-         android:layout_width="140dip"
-         android:drawablePadding="3dip"
-         android:ellipsize="marquee"
-         android:singleLine="true"
-         android:text="@string/btn_okay" />
-   </LinearLayout>
+            android:drawablePadding="3dip"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:text="@string/btn_okay"/>
+    </LinearLayout>
 
 </LinearLayout>

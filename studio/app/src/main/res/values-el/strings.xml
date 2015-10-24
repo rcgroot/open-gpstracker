@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">Open GPS Tracker</string>
+    <string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Ενεργοποίηση υπηρεσίας καταγραφής</string>
-	<string name="service_gpsstatus">Καταγραφή: %1$s (%2$s με %3$d δορυφόρους)</string>
-	<string name="service_gpsnostatus">Καταγραφή: %1$s (Ακρίβεια %2$s) </string>
+    <string name="service_gpsstatus">Καταγραφή: %1$s (%2$s με %3$d δορυφόρους)</string>
+    <string name="service_gpsnostatus">Καταγραφή: %1$s (Ακρίβεια %2$s) </string>
     <string name="service_networkstatus">Καταγραφή: %1$s (%2$s με κυψέλη κινητής και ασύρματο δίκτυο)</string>
     <string name="service_gpsdisabled">GPS απενεργοποιημένο, η καταγραφή γίνεται χωρίς αποτέλεσμα.</string>
     <string name="service_gpsenabled">GPS ενεργοποιημενο, εκκινιση εγγραφης.</string>
@@ -11,12 +11,12 @@
     <string name="service_datadisabled">Η τοποθεσία μέσω δικτύου είναι απενεργοποιημένη, η καταγραφή δεν λειτουργεί.</string>
     <string name="service_dataenabled">Η τοποθεσία μέσω δικτύου είναι ενεργοποιημένη.  Ξεκινά η καταγραφή.</string>
     <string name="service_gpsproblem">Δεν λαμβάνεται πληροφορία τοποθεσίας</string>
-    
+
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Επιλέξτε σημείωση</string>
     <string name="dialog_select_media_message">Βρέθηκαν πολλαπλές σημειώσεις για αυτή την τοποθεσία.  Επιλέξτε μια για άνοιγμα</string>
     <string name="dialog_tracking_title">Ρυθμίσεις καταγραφής</string>
-	<string name="dialog_routename_title">Name track</string>
+    <string name="dialog_routename_title">Name track</string>
     <string name="dialog_routename_message">Παρακαλώ εισάγετε το όνομα της διαδρομής</string>
     <string name="dialog_routename_default">Track %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">Δεν έχει επιλεγεί διαδρομή</string>
@@ -95,8 +95,8 @@ http://code.google.com/p/open-gpstracker/issues/entry
 <b>Δωρεές</b>
 \n
 Ελπίζω να σας αρέσει η εφαρμογή.  Θα χαιρόμουν να το μάθω αν σας άρεσε.  Θα εκτιμούσα ένα ευχαριστώ ή μια δωρεά με PayPal στο  rcgroot@gmail.com
-\n\n</string>    
-    
+\n\n</string>
+
     <!-- Messages -->
     <string name="from">Καταγράφηκε στις:</string>
     <string name="no_tracks">Δεν υπάρχουν αποθηκευμένες διαδρομές</string>
@@ -113,21 +113,21 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="error_importgpx_io">Σφάλμα ανάγνωσης του αρχείου στην εισαγωγή.</string>
     <string name="error_importgpx_parse">Σφάλμα ανάγνωσης αριθμού στην εισαγωγή.</string>
     <string name="time_and_speed">Στο %1$s πηγαίνοντας %2$s</string>
-    
+
     <!-- Buttons -->
-	<string name="btn_okay">OK</string>
-	<string name="btn_cancel">Ακύρωση</string>
-	<string name="btn_save">Αποθήκευση</string>
-	<string name="btn_selecttrack">Επιλογή διαδρομής</string>
+    <string name="btn_okay">OK</string>
+    <string name="btn_cancel">Ακύρωση</string>
+    <string name="btn_save">Αποθήκευση</string>
+    <string name="btn_selecttrack">Επιλογή διαδρομής</string>
     <string name="btn_install">Εγκατάσταση</string>
     <string name="btn_skip">Παράλειψη</string>
-	
+
     <!-- Menu's -->
-	<string name="menu_settings">Ρυθμίσεις</string>
+    <string name="menu_settings">Ρυθμίσεις</string>
     <string name="menu_tracking">Καταγραφή</string>
-	<string name="menu_tracklist">Λίστα διαδρομών</string>
-	<string name="menu_shareTrack">Δημοσίευση διαδρομής</string>
-	<string name="menu_deleteTrack">Διαγραφή διαδρομής</string>
+    <string name="menu_tracklist">Λίστα διαδρομών</string>
+    <string name="menu_shareTrack">Δημοσίευση διαδρομής</string>
+    <string name="menu_deleteTrack">Διαγραφή διαδρομής</string>
     <string name="menu_renameTrack">Μετονομασία διαδρομής</string>
     <string name="menu_statistics">Στατιστικά</string>
     <string name="menu_about">Σχετικά</string>
@@ -145,14 +145,14 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="graphtype_distancealtitude">Υψόμετρο / Απόσταση</string>
     <string name="menu_vacuum">Κλάδεμα δεδομένων</string>
     <string name="menu_contrib">Συνεισφορά</string>
-    
+
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Track data</string>
     <string name="email_gpxbody">Προσαρτημένη μια διαδρομή σε μορφή GPS Exchange Format (GPX) όπως περιγράφεται στο http://www.topografix.com/gpx.asp</string>
     <string name="email_kmzbody">Προσαρτημένη μια διαδρομή σε μορφή KMZ όπως περιγράφεται στο http://code.google.com/apis/kml/documentation/kml_tut.html</string>
     <string name="kmlVideoUnsupported">Δεν υποστηρίζεται ενσωματωμένο βίντεο.  Χρησιμοποιήστε zip εργαλεία για να ανακτήσετε το αρχείο βίντεο %s από το αρχείο KMZ.</string>
     <string name="kmlAudioUnsupported">Δεν υποστηρίζεται ενσωματωμένος ήχος.  Χρησιμοποιήστε zip εργαλεία για να ανακτήσετε το αρχείο ήχου %s από το αρχείο KMZ.</string>
-    
+
     <!-- Screens -->
     <string name="share_track">Δημοσίευση της διαδρομής</string>
     <string name="share_explained">Η δημοσίευση εξάγει τη διαδρομή με όσο το δυνατό περισσότερη από την καταγεγραμμένη πληροφορία.</string>
@@ -171,15 +171,15 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="stopatundock">Τερματισμός καταγραφής στο αποσύνδεση</string>
     <string name="stopatundock_summary">Η καταγραφή σταματά αμέσως μετά την αποσύνδεση από τη βάση.</string>
     <string name="startupatboot">Εκκίνηση στην εκκίνηση</string>
-    <string name="startupatboot_summary">Η καταγραφή ξεκινά μετά το ξεκίνημα της συσκευής.</string>   
+    <string name="startupatboot_summary">Η καταγραφή ξεκινά μετά το ξεκίνημα της συσκευής.</string>
     <string name="disableblanking_title">Απενεργοποίηση κλεισίματος της οθόνης</string>
     <string name="disableblanking_summary">Κρατά την οθόνη ανοιχτή στη διάρκεια της καταγραφής.</string>
     <string name="disabledimming_title">Απενεργοποίηση αμυδροποίησης οθόνης</string>
-    <string name="disabledimming_summary">Κρατά την οθόνη σε πλήρη φωτεινότητα στη διάρκεια της καταγραφής.</string>       
+    <string name="disabledimming_summary">Κρατά την οθόνη σε πλήρη φωτεινότητα στη διάρκεια της καταγραφής.</string>
     <string name="precision_title">Ακρίβεια καταγραφής</string>
     <string name="precision_summary">Το μέγεθος του διαστήματος μεταξύ GPS μετρήσεων.</string>
     <string name="mapprovider_title">Προμηθευτής χάρτη</string>
-    <string name="mapprovider_summary">Η πηγή προέλευσης δεδομένων για το χάρτη.</string>      
+    <string name="mapprovider_summary">Η πηγή προέλευσης δεδομένων για το χάρτη.</string>
     <string name="trackcoloring_title">Χρώμα διαδρομής</string>
     <string name="trackcoloring_summary">Το χρώμα για την απεικόνιση της διαδρομής.</string>
     <string name="showsatellite_title">Δορυφορικές εικόνες</string>
@@ -210,10 +210,10 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="stat_maximumaltitude">Μέγιστο υψόμετρο</string>
     <string name="stat_minimalaltitide">Ελάχιστο υψόμετρο</string>
     <string name="stat_overallaveragespeed">Ταχύτητα ταξιδιού</string>
-    <string name="stat_averagespeed">Μέση ταχύτητα</string>    
-    <string name="stat_distance">Καταγραμμένη απόσταση</string>    
-    <string name="stat_endtime">Τελευταίος χρόνος</string>    
-    <string name="stat_starttime">Ώρα εκκίνησης</string>    
+    <string name="stat_averagespeed">Μέση ταχύτητα</string>
+    <string name="stat_distance">Καταγραμμένη απόσταση</string>
+    <string name="stat_endtime">Τελευταίος χρόνος</string>
+    <string name="stat_starttime">Ώρα εκκίνησης</string>
     <string name="stat_trackname">Όνομα διαδρομής</string>
     <string name="stat_waypoints">Σημεία</string>
     <string name="stat_elapsedtime">Elapsed</string>
@@ -237,14 +237,14 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customprecisiondistance_summary">Η επιθυμητή διανυθείσα απόσταση μεταξύ μετρήσεων.</string>
     <string name="gpsstatusmonitor_title">Παρακολούθηση  κατάστασης GPS</string>
     <string name="gpsstatusmonitor_summary">Εμφανίζει τον αριθμό των εν χρήσει δορυφόρων και ηχεί συναγερμός σε ασθενές σήμα.  </string>
-	<string name="osmusername_title">OpenStreetMap username</string>
-	<string name="osmusername_summary">The username created at http://www.openstreetmap.org/user/new</string>
-	<string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
-	<string name="osmpassword_title">OpenStreetMap password</string>
-	<string name="osmpassword_summary">The password used at http://www.openstreetmap.org/user/new</string>
-	<string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
-	<string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
-	<string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
+    <string name="osmusername_title">OpenStreetMap username</string>
+    <string name="osmusername_summary">The username created at http://www.openstreetmap.org/user/new</string>
+    <string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
+    <string name="osmpassword_title">OpenStreetMap password</string>
+    <string name="osmpassword_summary">The password used at http://www.openstreetmap.org/user/new</string>
+    <string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
+    <string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
+    <string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
     <string name="osm_success">Successfully uploading the track to www.openstreetmap.org: </string>
     <string name="osm_failed">Failed uploading the track to www.openstreetmap.org: </string>
     <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
@@ -253,7 +253,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="sddirectory_summary">Τα αρχεία διαδρομών και media που εξάγονται, αποθηκεύονται σ\' αυτό το φάκελο στην κάρτα SD.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.\n </string>
     <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
-    
+
     <string name="preference_stream">Location broadcasting settings</string>
     <string name="streamenabled_title">Streaming enabled</string>
     <string name="streamenabled_summary">Enable direct broadcasting of location</string>
@@ -274,10 +274,10 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customupload_backlog_title">On failure keep a backlog</string>
     <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
     <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>
-            
-<!-- ***************************
-   About information
-   ***************************-->
-   <string name="about_comments">Μια εφαρμογή που μπορεί να καταγράψει, με GPS, τα ταξίδια της συσκευής σας.</string>
-   <string name="about_activity_name_extended">Σχετικά με %s</string>
+
+    <!-- ***************************
+       About information
+       ***************************-->
+    <string name="about_comments">Μια εφαρμογή που μπορεί να καταγράψει, με GPS, τα ταξίδια της συσκευής σας.</string>
+    <string name="about_activity_name_extended">Σχετικά με %s</string>
 </resources>

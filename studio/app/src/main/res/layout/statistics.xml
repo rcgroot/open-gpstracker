@@ -1,156 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout
-   xmlns:android="http://schemas.android.com/apk/res/android"
-   android:layout_width="fill_parent"
-   android:layout_height="wrap_content"
-   android:gravity="top"
->
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="top"
+    >
 
-   <TableRow
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
-      <TextView
-         android:text="@string/stat_distance"
-         android:paddingRight="15dp" />
-      <TextView
-         android:id="@+id/stat_distance" />
-   </TableRow>
-   
-   <TableRow
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
-      <TextView
-         android:text="@string/stat_overallaveragespeed"
-         android:paddingRight="15dp" />
-      <TextView
-         android:id="@+id/stat_overallaveragespeed" />
-   </TableRow>
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
 
-   <TableRow
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
-      <TextView
-         android:text="@string/stat_averagespeed"
-         android:paddingRight="15dp" />
-      <TextView
-         android:id="@+id/stat_averagespeed" />
-   </TableRow>
-   
-   <TableRow
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
-      <TextView
-         android:text="@string/stat_maximumspeed"
-         android:paddingRight="15dp" />
-      <TextView
-         android:id="@+id/stat_maximumspeed" />
-   </TableRow>
-   
-   <TableRow
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
-      <TextView
-         android:text="@string/stat_waypoints"
-         android:paddingRight="15dp" />
-      <TextView
-         android:id="@+id/stat_waypoints" />
-   </TableRow>
-   
-   <TableRow
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
-      <TextView
-         android:text="@string/stat_starttime"
-         android:paddingRight="15dp" />
-      <nl.sogeti.android.gpstracker.util.DateView
-         android:id="@+id/stat_starttime" />
-   </TableRow>
+        <TextView
+            android:paddingRight="15dp"
+            android:text="@string/stat_distance"/>
 
-   <TableRow
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
-      <TextView
-         android:text="@string/stat_endtime"
-         android:paddingRight="15dp" />
-      <nl.sogeti.android.gpstracker.util.DateView
-         android:id="@+id/stat_endtime" />
-   </TableRow>
+        <TextView
+            android:id="@+id/stat_distance"/>
+    </TableRow>
 
-<!--    <TableRow -->
-<!--       android:layout_width="fill_parent" -->
-<!--       android:layout_height="wrap_content" -->
-<!--    > -->
-<!--       <TextView -->
-<!--          android:text="@string/stat_minimalaltitide" -->
-<!--          android:paddingRight="15dp" /> -->
-<!--       <TextView -->
-<!--          android:id="@+id/stat_minimalaltitide" /> -->
-<!--    </TableRow> -->
-   
-<!--    <TableRow -->
-<!--       android:layout_width="fill_parent" -->
-<!--       android:layout_height="wrap_content" -->
-<!--    > -->
-<!--       <TextView -->
-<!--          android:text="@string/stat_maximumaltitude" -->
-<!--          android:paddingRight="15dp" /> -->
-<!--       <TextView -->
-<!--          android:id="@+id/stat_maximumaltitude" /> -->
-<!--    </TableRow> -->
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
 
-   <TableRow
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
-      <TextView
-         android:text="@string/stat_elapsedtime"
-         android:paddingRight="15dp" />
-      <TextView
-         android:id="@+id/stat_elapsedtime" />
-   </TableRow>
-   
-   <TableRow
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   >
-      <TextView
-         android:text="@string/stat_ascension"
-         android:paddingRight="15dp" />
-      <TextView
-         android:id="@+id/stat_ascension" />
-   </TableRow>
+        <TextView
+            android:paddingRight="15dp"
+            android:text="@string/stat_overallaveragespeed"/>
 
-   <nl.sogeti.android.gpstracker.actions.utils.ViewFlipper 
+        <TextView
+            android:id="@+id/stat_overallaveragespeed"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:paddingRight="15dp"
+            android:text="@string/stat_averagespeed"/>
+
+        <TextView
+            android:id="@+id/stat_averagespeed"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:paddingRight="15dp"
+            android:text="@string/stat_maximumspeed"/>
+
+        <TextView
+            android:id="@+id/stat_maximumspeed"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:paddingRight="15dp"
+            android:text="@string/stat_waypoints"/>
+
+        <TextView
+            android:id="@+id/stat_waypoints"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:paddingRight="15dp"
+            android:text="@string/stat_starttime"/>
+
+        <nl.sogeti.android.gpstracker.util.DateView
+            android:id="@+id/stat_starttime"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:paddingRight="15dp"
+            android:text="@string/stat_endtime"/>
+
+        <nl.sogeti.android.gpstracker.util.DateView
+            android:id="@+id/stat_endtime"/>
+    </TableRow>
+
+    <!--    <TableRow -->
+    <!--       android:layout_width="fill_parent" -->
+    <!--       android:layout_height="wrap_content" -->
+    <!--    > -->
+    <!--       <TextView -->
+    <!--          android:text="@string/stat_minimalaltitide" -->
+    <!--          android:paddingRight="15dp" /> -->
+    <!--       <TextView -->
+    <!--          android:id="@+id/stat_minimalaltitide" /> -->
+    <!--    </TableRow> -->
+
+    <!--    <TableRow -->
+    <!--       android:layout_width="fill_parent" -->
+    <!--       android:layout_height="wrap_content" -->
+    <!--    > -->
+    <!--       <TextView -->
+    <!--          android:text="@string/stat_maximumaltitude" -->
+    <!--          android:paddingRight="15dp" /> -->
+    <!--       <TextView -->
+    <!--          android:id="@+id/stat_maximumaltitude" /> -->
+    <!--    </TableRow> -->
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:paddingRight="15dp"
+            android:text="@string/stat_elapsedtime"/>
+
+        <TextView
+            android:id="@+id/stat_elapsedtime"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:paddingRight="15dp"
+            android:text="@string/stat_ascension"/>
+
+        <TextView
+            android:id="@+id/stat_ascension"/>
+    </TableRow>
+
+    <nl.sogeti.android.gpstracker.actions.utils.ViewFlipper
         android:id="@+id/flipper"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
-        
-      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
-         android:id="@+id/graph_timespeed"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content" />
-         
-      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
-         android:id="@+id/graph_distancespeed"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content" />
-         
-      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
-         android:id="@+id/graph_timealtitude"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content" />
-         
-      <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
-         android:id="@+id/graph_distancealtitude"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content" />
-         
-   </nl.sogeti.android.gpstracker.actions.utils.ViewFlipper>
+
+        <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+            android:id="@+id/graph_timespeed"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+        <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+            android:id="@+id/graph_distancespeed"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+        <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+            android:id="@+id/graph_timealtitude"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+        <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
+            android:id="@+id/graph_distancealtitude"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+    </nl.sogeti.android.gpstracker.actions.utils.ViewFlipper>
 </TableLayout>

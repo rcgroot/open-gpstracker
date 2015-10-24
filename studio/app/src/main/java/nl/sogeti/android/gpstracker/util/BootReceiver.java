@@ -30,33 +30,35 @@ public class BootReceiver extends BroadcastReceiver
    private final static String TAG = "OGT.BootReceiver";
 
    @Override
-   public void onReceive( Context context, Intent intent )
+   public void onReceive(Context context, Intent intent)
    {
 //      Log.d( TAG, "BootReceiver.onReceive(), probably ACTION_BOOT_COMPLETED" );
       String action = intent.getAction();
 
       // start on BOOT_COMPLETED
-      if( action.equals( Intent.ACTION_BOOT_COMPLETED ) )
+      if (action.equals(Intent.ACTION_BOOT_COMPLETED))
       {
 //         Log.d( TAG, "BootReceiver received ACTION_BOOT_COMPLETED" );
 
          // check in the settings if we need to auto start
-         boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences( context ).getBoolean( Constants.STARTUPATBOOT, false );
+         boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants
+               .STARTUPATBOOT, false);
 
-         if( startImmidiatly )
+         if (startImmidiatly)
          {
 //            Log.d( TAG, "Starting LoggerMap activity..." );
-            context.startService( new Intent( Constants.SERVICENAME ) );
+            context.startService(new Intent(Constants.SERVICENAME));
          }
          else
          {
-            Log.i( TAG, "Not starting Logger Service. Adjust the settings if you wanted this !" );
+            Log.i(TAG, "Not starting Logger Service. Adjust the settings if you wanted this !");
          }
       }
       else
       {
          // this shouldn't happen !
-         Log.w( TAG, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " + Intent.ACTION_BOOT_COMPLETED + ". This shouldn't happen !" );
+         Log.w(TAG, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
+               Intent.ACTION_BOOT_COMPLETED + ". This shouldn't happen !");
       }
    }
 }

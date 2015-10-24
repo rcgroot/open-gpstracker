@@ -35,10 +35,11 @@ import android.util.Log;
 
 /**
  * Work around based on input from the comment section of
- * <a href="http://code.google.com/p/android/issues/detail?can=2&q=6191&colspec=ID%20Type%20Status%20Owner%20Summary%20Stars&id=6191">Issue 6191</a>
- * 
- * @version $Id$
+ * <a href="http://code.google.com/p/android/issues/detail?can=2&q=6191&colspec=ID%20Type%20Status%20Owner%20Summary
+ * %20Stars&id=6191">Issue 6191</a>
+ *
  * @author rene (c) May 8, 2010, Sogeti B.V.
+ * @version $Id$
  */
 public class ViewFlipper extends android.widget.ViewFlipper
 {
@@ -46,12 +47,12 @@ public class ViewFlipper extends android.widget.ViewFlipper
 
    public ViewFlipper(Context context)
    {
-      super( context );
+      super(context);
    }
 
    public ViewFlipper(Context context, AttributeSet attrs)
    {
-      super( context, attrs );
+      super(context, attrs);
    }
 
    /**
@@ -62,15 +63,15 @@ public class ViewFlipper extends android.widget.ViewFlipper
    @Override
    protected void onDetachedFromWindow()
    {
-      if( Build.VERSION.SDK_INT > 7 )
+      if (Build.VERSION.SDK_INT > 7)
       {
          try
          {
             super.onDetachedFromWindow();
          }
-         catch( IllegalArgumentException e )
+         catch (IllegalArgumentException e)
          {
-            Log.w( TAG, "Android project issue 6191 workaround." );
+            Log.w(TAG, "Android project issue 6191 workaround.");
             /* Quick catch and continue on api level 7+, the Eclair 2.1 / 2.2 */
          }
          finally

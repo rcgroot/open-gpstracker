@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">开放式 GPS 追踪器</string>
+    <string name="app_name">开放式 GPS 追踪器</string>
     <string name="service_start">启动日志服务中</string>
-	<string name="service_gpsstatus">日志： %1$s (%2$s 使用 %3$d 个卫星)</string>
-	<string name="service_gpsnostatus">日志： %1$s (精确度 %2$s)</string>
+    <string name="service_gpsstatus">日志： %1$s (%2$s 使用 %3$d 个卫星)</string>
+    <string name="service_gpsnostatus">日志： %1$s (精确度 %2$s)</string>
     <string name="service_networkstatus">日志： %1$s (%2$s 使用基站和WiFi)</string>
     <string name="service_gpsdisabled">GPS 已禁用，日志将是无效的。</string>
     <string name="service_gpsenabled">GPS 已启用， 开始记录。</string>
@@ -11,12 +11,12 @@
     <string name="service_datadisabled">网络位置被禁用，日志将是无效的。</string>
     <string name="service_dataenabled">网络位置已启用，开始记录。</string>
     <string name="service_gpsproblem">Receiving no location information</string>
-    
+
     <!-- Dialogs -->
     <string name="dialog_select_media_title">选择注释</string>
     <string name="dialog_select_media_message">对于这个位置发现了多个注释，请从中选择个来打开。</string>
     <string name="dialog_tracking_title">追踪控制</string>
-	<string name="dialog_routename_title">命名路线</string>
+    <string name="dialog_routename_title">命名路线</string>
     <string name="dialog_routename_message">请输入此路线的名称</string>
     <string name="dialog_routename_default">路线 %1$tY-%2$tm-%3$td %4$tH：%5$tM</string>
     <string name="dialog_notrack_title">没有选择路线</string>
@@ -91,8 +91,8 @@
     <b>捐赠</b>
     \n
     希望你能喜欢本程序，假如你喜欢，我将非常的开心。如有意捐赠，请使用 PayPal 捐赠至账户 rcgroot@gmail.com    \n\n
-    </string>    
-    
+    </string>
+
     <!-- Messages -->
     <string name="from">记录：</string>
     <string name="no_tracks">无已保存路线</string>
@@ -109,21 +109,21 @@
     <string name="error_importgpx_io">无法在导入时读取文件。</string>
     <string name="error_importgpx_parse">无法在导入时读取号码。</string>
     <string name="time_and_speed">At %1$s going %2$s</string>
-    
+
     <!-- Buttons -->
-	<string name="btn_okay">确认</string>
-	<string name="btn_cancel">取消</string>
-	<string name="btn_save">保存</string>
-	<string name="btn_selecttrack">选择路线</string>
+    <string name="btn_okay">确认</string>
+    <string name="btn_cancel">取消</string>
+    <string name="btn_save">保存</string>
+    <string name="btn_selecttrack">选择路线</string>
     <string name="btn_install">安装</string>
     <string name="btn_skip">跳过</string>
-	
+
     <!-- Menu's -->
-	<string name="menu_settings">设置</string>
+    <string name="menu_settings">设置</string>
     <string name="menu_tracking">追踪中</string>
-	<string name="menu_tracklist">列出路线</string>
-	<string name="menu_shareTrack">分享路线</string>
-	<string name="menu_deleteTrack">删除路线</string>
+    <string name="menu_tracklist">列出路线</string>
+    <string name="menu_shareTrack">分享路线</string>
+    <string name="menu_deleteTrack">删除路线</string>
     <string name="menu_renameTrack">重命名路线</string>
     <string name="menu_statistics">统计</string>
     <string name="menu_about">关于</string>
@@ -141,14 +141,14 @@
     <string name="graphtype_distancealtitude">海拔/距离</string>
     <string name="menu_vacuum">修剪数据</string>
     <string name="menu_contrib">捐献</string>
-    
+
     <!-- Communicated -->
     <string name="email_subject">开放式 GPS 追踪器 - 追踪数据</string>
     <string name="email_gpxbody">附加的是一个在 GPS 交换格式(GPX)文件中的路线，该格式的描述见：http：//www。topografix。com/gpx。asp</string>
     <string name="email_kmzbody">附加的是一个在 KMZ 格式文件中的路线，该格式的描述见：http：//code。google。com/apis/kml/documentation/kml_tut。html</string>
     <string name="kmlVideoUnsupported">不支持视频嵌入，请使用一个zip工具来从这个KMZ文件中获取视频文件 %s。</string>
     <string name="kmlAudioUnsupported">不支持音频嵌入，请使用一个zip工具来从这个KMZ文件中获取音频文件 %s。</string>
-    
+
     <!-- Screens -->
     <string name="share_track">分这个路线</string>
     <string name="share_explained">分享创建一个导出了包含尽可能多的路线记录数据。</string>
@@ -167,15 +167,15 @@
     <string name="stopatundock">Stop logging at undocking</string>
     <string name="stopatundock_summary">After exiting a dock, the logging immediately stops.</string>
     <string name="startupatboot">开机启动</string>
-    <string name="startupatboot_summary">在设备启动后，开启日志服务。</string>   
+    <string name="startupatboot_summary">在设备启动后，开启日志服务。</string>
     <string name="disableblanking_title">禁止关屏</string>
     <string name="disableblanking_summary">追踪时保持屏幕打开。</string>
     <string name="disabledimming_title">Disable screen dimming</string>
-    <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>       
+    <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>
     <string name="precision_title">记录精度</string>
     <string name="precision_summary">GPS 记录点之间的间隔大小。</string>
     <string name="mapprovider_title">地图提供器</string>
-    <string name="mapprovider_summary">要检索地图数据的源。</string>      
+    <string name="mapprovider_summary">要检索地图数据的源。</string>
     <string name="trackcoloring_title">路线颜色</string>
     <string name="trackcoloring_summary">绘制路线使用的颜色。</string>
     <string name="showsatellite_title">卫星图像</string>
@@ -206,10 +206,10 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="stat_maximumaltitude">最高海拔</string>
     <string name="stat_minimalaltitide">最低海拔</string>
     <string name="stat_overallaveragespeed">总平均速度</string>
-    <string name="stat_averagespeed">平均速度</string>    
-    <string name="stat_distance">路线距离</string>    
-    <string name="stat_endtime">上次时间</string>    
-    <string name="stat_starttime">开始时间</string>    
+    <string name="stat_averagespeed">平均速度</string>
+    <string name="stat_distance">路线距离</string>
+    <string name="stat_endtime">上次时间</string>
+    <string name="stat_starttime">开始时间</string>
     <string name="stat_trackname">路线名称</string>
     <string name="stat_waypoints">路点数量</string>
     <string name="stat_elapsedtime">Elapsed</string>
@@ -233,14 +233,14 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customprecisiondistance_summary">路点之间应该覆盖的距离。</string>
     <string name="gpsstatusmonitor_title">监视 GPS 状态</string>
     <string name="gpsstatusmonitor_summary">显示正在使用的卫星的个数。</string>
-	<string name="osmusername_title">OpenStreetMap 用户名</string>
-	<string name="osmusername_summary">用户名创建于 http://www.openstreetmap.org/user/new</string>
-	<string name="osmusername_message">OpenStreetMap账户允许你开始编辑地图的数据来为地图做出贡献。开放式 GPS 追踪器将使用它来更新 GPS 数据。</string>
-	<string name="osmpassword_title">OpenStreetMap 密码</string>
-	<string name="osmpassword_summary">适用于 http://www.openstreetmap.org/user/new 的密码</string>
-	<string name="osmpassword_message">此密码将用于 openstreetmap.org  服务器的 HTTP 和基本验证。</string>
-	<string name="osmvisibility_title">openstreetmap.org 上的 GPS 路线公共可见度</string>
-	<string name="osmvisibility_summary">请查阅 openstreetmap.org 的维基以了解更多关于可见度等级的信息。</string>
+    <string name="osmusername_title">OpenStreetMap 用户名</string>
+    <string name="osmusername_summary">用户名创建于 http://www.openstreetmap.org/user/new</string>
+    <string name="osmusername_message">OpenStreetMap账户允许你开始编辑地图的数据来为地图做出贡献。开放式 GPS 追踪器将使用它来更新 GPS 数据。</string>
+    <string name="osmpassword_title">OpenStreetMap 密码</string>
+    <string name="osmpassword_summary">适用于 http://www.openstreetmap.org/user/new 的密码</string>
+    <string name="osmpassword_message">此密码将用于 openstreetmap.org  服务器的 HTTP 和基本验证。</string>
+    <string name="osmvisibility_title">openstreetmap.org 上的 GPS 路线公共可见度</string>
+    <string name="osmvisibility_summary">请查阅 openstreetmap.org 的维基以了解更多关于可见度等级的信息。</string>
     <string name="osm_success">已成功上传路线到 www.openstreetmap.org：</string>
     <string name="osm_failed">上传路线到 www.openstreetmap.org 失败：</string>
     <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
@@ -249,7 +249,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="sddirectory_summary">创建的路线和媒体文件将储存在 SD 卡文件夹中。</string>
     <string name="sddirectory_message">输入文件要使用的 SD 路径。默认的实例 /OpenGPSTracker/ 将会添加一个单独的文件夹到 SD 卡中，同时创建/Apps/OpenGPSTracker/。</string>
     <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
-    
+
     <string name="preference_stream">Location broadcasting settings</string>
     <string name="streamenabled_title">Streaming enabled</string>
     <string name="streamenabled_summary">Enable direct broadcasting of location</string>
@@ -270,10 +270,10 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customupload_backlog_title">On failure keep a backlog</string>
     <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
     <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>
-            
-<!-- ***************************
-   About information
-   ***************************-->
-   <string name="about_comments">通过 GPS， 程序可以记录你设备的移动。</string>
-   <string name="about_activity_name_extended">关于 %s</string>
+
+    <!-- ***************************
+       About information
+       ***************************-->
+    <string name="about_comments">通过 GPS， 程序可以记录你设备的移动。</string>
+    <string name="about_activity_name_extended">关于 %s</string>
 </resources>

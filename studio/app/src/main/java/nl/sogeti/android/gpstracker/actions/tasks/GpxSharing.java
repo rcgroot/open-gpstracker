@@ -28,23 +28,25 @@
  */
 package nl.sogeti.android.gpstracker.actions.tasks;
 
+import android.content.Context;
+import android.net.Uri;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import android.content.Context;
-import android.net.Uri;
 
 /**
  * ????
  *
- * @version $Id:$
  * @author rene (c) Jul 9, 2011, Sogeti B.V.
+ * @version $Id:$
  */
 public class GpxSharing extends GpxCreator
 {
 
 
-   public GpxSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener listener)
+   public GpxSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener
+         listener)
    {
       super(context, trackUri, chosenBaseFileName, attachments, listener);
    }
@@ -55,5 +57,5 @@ public class GpxSharing extends GpxCreator
       super.onPostExecute(resultFilename);
       ShareTrack.sendFile(mContext, resultFilename, mContext.getString(R.string.email_gpxbody), getContentType());
    }
-   
+
 }

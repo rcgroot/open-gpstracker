@@ -28,19 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.streaming;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.LinkedList;
-import java.util.Queue;
-
-import nl.sogeti.android.gpstracker.BuildConfig;
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
-
-import org.apache.http.client.ClientProtocolException;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -54,19 +41,34 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.apache.http.client.ClientProtocolException;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import nl.sogeti.android.gpstracker.BuildConfig;
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
+
 public class CustomUpload extends BroadcastReceiver
 {
    private static final boolean DEBUG = BuildConfig.DEBUG && false;
    private static final String CUSTOMUPLOAD_BACKLOG_DEFAULT = "20";
-   private static CustomUpload sCustomUpload = null;
    private static final String TAG = "OGT.CustomUpload";
    private static final int NOTIFICATION_ID = R.string.customupload_failed;
+   private static CustomUpload sCustomUpload = null;
    private static Queue<URL> sRequestBacklog = new LinkedList<URL>();
 
    public static synchronized void initStreaming(Context ctx)
    {
       if (DEBUG)
+      {
          Log.d(TAG, "initStreaming(Context)");
+      }
       if (sCustomUpload != null)
       {
          shutdownStreaming(ctx);
@@ -81,7 +83,9 @@ public class CustomUpload extends BroadcastReceiver
    public static synchronized void shutdownStreaming(Context ctx)
    {
       if (DEBUG)
+      {
          Log.d(TAG, "shutdownStreaming(Context)");
+      }
       if (sCustomUpload != null)
       {
          ctx.unregisterReceiver(sCustomUpload);
@@ -93,17 +97,22 @@ public class CustomUpload extends BroadcastReceiver
    private void onShutdown()
    {
       if (DEBUG)
+      {
          Log.d(TAG, "onShutdown()");
+      }
    }
 
    @Override
    public void onReceive(Context context, Intent intent)
    {
       if (DEBUG)
+      {
          Log.d(TAG, "onReceive(Context, Intent)");
+      }
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
       String prefUrl = preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_URL, "http://www.example.com");
-      Integer prefBacklog = Integer.valueOf(preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_BACKLOG, CUSTOMUPLOAD_BACKLOG_DEFAULT));
+      Integer prefBacklog = Integer.valueOf(preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_BACKLOG,
+            CUSTOMUPLOAD_BACKLOG_DEFAULT));
       Location loc = intent.getParcelableExtra(Constants.EXTRA_LOCATION);
       Uri trackUri = intent.getParcelableExtra(Constants.EXTRA_TRACK);
       String buildUrl = prefUrl;
@@ -120,7 +129,8 @@ public class CustomUpload extends BroadcastReceiver
       try
       {
          uploadUri = new URL(buildUrl);
-         if (uploadUri.getHost() != null && ("http".equals(uploadUri.getProtocol()) || "https".equals(uploadUri.getProtocol())))
+         if (uploadUri.getHost() != null && ("http".equals(uploadUri.getProtocol()) || "https".equals(uploadUri
+               .getProtocol())))
          {
             sRequestBacklog.add(uploadUri);
          }
@@ -156,6 +166,13 @@ public class CustomUpload extends BroadcastReceiver
       }
    }
 
+   private void clearNotification(Context context)
+   {
+      String ns = Context.NOTIFICATION_SERVICE;
+      NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(ns);
+      mNotificationManager.cancel(NOTIFICATION_ID);
+   }
+
    private void notifyError(Context context, Exception e)
    {
       Log.e(TAG, "Custom upload failed", e);
@@ -176,13 +193,6 @@ public class CustomUpload extends BroadcastReceiver
       notification.flags = Notification.FLAG_AUTO_CANCEL;
 
       mNotificationManager.notify(NOTIFICATION_ID, notification);
-   }
-
-   private void clearNotification(Context context)
-   {
-      String ns = Context.NOTIFICATION_SERVICE;
-      NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(ns);
-      mNotificationManager.cancel(NOTIFICATION_ID);
    }
 
 }

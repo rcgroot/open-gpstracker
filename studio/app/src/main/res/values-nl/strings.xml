@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">Open GPS Tracker</string>
+    <string name="app_name">Open GPS Tracker</string>
     <string name="service_start">Opstarten opname service</string>
-	<string name="service_gpsstatus">Loggen: %1$s (%2$s met %3$d satellieten)</string>
-	<string name="service_gpsnostatus">Logging: %1$s (Nauwkeurigheid %2$s)</string>
+    <string name="service_gpsstatus">Loggen: %1$s (%2$s met %3$d satellieten)</string>
+    <string name="service_gpsnostatus">Logging: %1$s (Nauwkeurigheid %2$s)</string>
     <string name="service_networkstatus">Loggen: %1$s (%2$s met gsm and wifi )</string>
     <string name="service_gpsdisabled">GPS is uitgeschakeld, opnemen heeft geen effect.</string>
     <string name="service_gpsenabled">GPS is ingeschakeld, opnemen gaat van start.</string>
@@ -11,12 +11,12 @@
     <string name="service_datadisabled">Netwerk positionering is uitgeschakeld, opnemen heeft geen effect.</string>
     <string name="service_dataenabled">Netwerk positionering is ingeschakeld, opnemen gaat van start.</string>
     <string name="service_gpsproblem">Receiving no location information</string>
-    
+
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Selecteer notitie</string>
     <string name="dialog_select_media_message">Er zijn op deze locatie meerdere notities gevonden, selecteer er een van</string>
     <string name="dialog_tracking_title">Opnemen</string>
-	<string name="dialog_routename_title">Naam</string>
+    <string name="dialog_routename_title">Naam</string>
     <string name="dialog_routename_message">Geeft u alstublieft een naam voor de route</string>
     <string name="dialog_routename_default">Route %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
     <string name="dialog_notrack_title">Geen route gekozen</string>
@@ -99,8 +99,8 @@ http://code.google.com/p/open-gpstracker/issues/entry
 Hopefully you enjoyed the application, I love to hear if you did. A thank you
 or PayPal donation are appreciated at rcgroot@gmail.com
 \n\n
-</string>    
-    
+</string>
+
     <!-- Messages -->
     <string name="from">Opgenomen op: </string>
     <string name="no_tracks">Geen routes opgeslagen</string>
@@ -117,21 +117,21 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="error_importgpx_io">Er was een probleem bij het lezen van het bestand.</string>
     <string name="error_importgpx_parse">Er was een probleem met het lezen van een getal.</string>
     <string name="time_and_speed">Om %1$s met %2$s</string>
-    
+
     <!-- Buttons -->
-	<string name="btn_okay">OK</string>
-	<string name="btn_cancel">Annuleren</string>
-	<string name="btn_save">Opslaan</string>
-	<string name="btn_selecttrack">Route selecteren</string>
+    <string name="btn_okay">OK</string>
+    <string name="btn_cancel">Annuleren</string>
+    <string name="btn_save">Opslaan</string>
+    <string name="btn_selecttrack">Route selecteren</string>
     <string name="btn_install">Installeren</string>
     <string name="btn_skip">Overslaan</string>
-	
+
     <!-- Menu's -->
-	<string name="menu_settings">Instellingen</string>
+    <string name="menu_settings">Instellingen</string>
     <string name="menu_tracking">Opnemen</string>
-	<string name="menu_tracklist">Toon routes</string>
-	<string name="menu_shareTrack">Deel route</string>
-	<string name="menu_deleteTrack">Verwijder route</string>
+    <string name="menu_tracklist">Toon routes</string>
+    <string name="menu_shareTrack">Deel route</string>
+    <string name="menu_deleteTrack">Verwijder route</string>
     <string name="menu_renameTrack">Hernoem route</string>
     <string name="menu_statistics">Statistieken</string>
     <string name="menu_about">Info</string>
@@ -149,14 +149,14 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
     <string name="menu_vacuum">Snoei data</string>
     <string name="menu_contrib">Bijdragen</string>
-    
+
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
     <string name="email_gpxbody">Bijgevoegd is een route als GPS Exchange Format (GPX) bestand zoals beschreven op http://www.topografix.com/gpx.asp</string>
     <string name="email_kmzbody">Bijgevoegd is een route als KMZ bestand zoals beschreven op http://code.google.com/apis/kml/documentation/kml_tut.html</string>
     <string name="kmlVideoUnsupported">Embedded video is niet ondersteund, gebruikt u alstublief een zip programma om de %s video uit het KMZ bestand te lezen.</string>
     <string name="kmlAudioUnsupported">Embedded audio is niet ondersteund, gebruikt u alstublief een zip programma om de %s audio uit het KMZ bestand te lezen.</string>
-    
+
     <!-- Screens -->
     <string name="share_track">Deel deze track</string>
     <string name="share_explained">Delen genereerd een route export met zo veel mogelijk opgenomen data als kan.</string>
@@ -175,15 +175,15 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="stopatundock">Stop loggen uit de carkit</string>
     <string name="stopatundock_summary">Bij het verwijderen uit de carkit het loggen onmiddelijk stoppen</string>
     <string name="startupatboot">Opstarten na systeemstart</string>
-    <string name="startupatboot_summary">De log service wordt gestart nadat het apparaat opgestart is.</string>   
+    <string name="startupatboot_summary">De log service wordt gestart nadat het apparaat opgestart is.</string>
     <string name="disableblanking_title">Voorkom scherm uitzetten</string>
     <string name="disableblanking_summary">Houd het scherm aan tijdens het opnemen.</string>
     <string name="disabledimming_title">Voorkom scherm dimmen</string>
-    <string name="disabledimming_summary">Houd het scherm op normale helderheid aan tijdens het opnemen.</string>       
+    <string name="disabledimming_summary">Houd het scherm op normale helderheid aan tijdens het opnemen.</string>
     <string name="precision_title">Meetprecisie</string>
     <string name="precision_summary">De interval en frequentie van meten.</string>
     <string name="mapprovider_title">Kaarten aanbieder</string>
-    <string name="mapprovider_summary">De bron vanwaar het kaartmateriaal te downloaden.</string>      
+    <string name="mapprovider_summary">De bron vanwaar het kaartmateriaal te downloaden.</string>
     <string name="trackcoloring_title">Route kleur</string>
     <string name="trackcoloring_summary">De kleur en tekenmethode van de route</string>
     <string name="showsatellite_title">Satellietbeelden</string>
@@ -214,10 +214,10 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="stat_maximumaltitude">Maximale hoogte</string>
     <string name="stat_minimalaltitide">Minimale hoogte</string>
     <string name="stat_overallaveragespeed">Reis snelheid</string>
-    <string name="stat_averagespeed">Gemiddelde snelheid</string>    
-    <string name="stat_distance">Gemeten afstand</string>    
-    <string name="stat_endtime">Laatste tijd</string>    
-    <string name="stat_starttime">Start tijd</string>    
+    <string name="stat_averagespeed">Gemiddelde snelheid</string>
+    <string name="stat_distance">Gemeten afstand</string>
+    <string name="stat_endtime">Laatste tijd</string>
+    <string name="stat_starttime">Start tijd</string>
     <string name="stat_trackname">Route naam</string>
     <string name="stat_waypoints">Metingen</string>
     <string name="stat_elapsedtime">Verstreken</string>
@@ -241,14 +241,14 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customprecisiondistance_summary">De afstand die tussen opname punten past.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
     <string name="gpsstatusmonitor_summary">Toont het aantal satelieten waar signaal van komt en slaat alarm op een slecht signaal.</string>
-	<string name="osmusername_title">OpenStreetMap gebruikersnaam</string>
-	<string name="osmusername_summary">De gebruikersnaam zoals aangemaakt op http://www.openstreetmap.org/user/new</string>
-	<string name="osmusername_message">Een OpenStreetMap account maakt het mogelijk om map data contributies te maken. Open GPS Tracker kan alleen routes oploaden die zonder Google kaartmateriaal zijn opgenomen.</string>
-	<string name="osmpassword_title">OpenStreetMap wachtwoord</string>
-	<string name="osmpassword_summary">Het wachtwoord zoals aangemaakt op http://www.openstreetmap.org/user/new</string>
-	<string name="osmpassword_message">Dit wachtwoord zal met HTTP en Basic Authorization op de openstreetmap.org server gebruikt worden.</string>
-	<string name="osmvisibility_title">De publieke zichtbaarheid van de GPS route on openstreetmap.org</string>
-	<string name="osmvisibility_summary">Raadpleeg de openstreetmap.org wiki voor informatie over de zichtbaarheid niveau\'s.</string>
+    <string name="osmusername_title">OpenStreetMap gebruikersnaam</string>
+    <string name="osmusername_summary">De gebruikersnaam zoals aangemaakt op http://www.openstreetmap.org/user/new</string>
+    <string name="osmusername_message">Een OpenStreetMap account maakt het mogelijk om map data contributies te maken. Open GPS Tracker kan alleen routes oploaden die zonder Google kaartmateriaal zijn opgenomen.</string>
+    <string name="osmpassword_title">OpenStreetMap wachtwoord</string>
+    <string name="osmpassword_summary">Het wachtwoord zoals aangemaakt op http://www.openstreetmap.org/user/new</string>
+    <string name="osmpassword_message">Dit wachtwoord zal met HTTP en Basic Authorization op de openstreetmap.org server gebruikt worden.</string>
+    <string name="osmvisibility_title">De publieke zichtbaarheid van de GPS route on openstreetmap.org</string>
+    <string name="osmvisibility_summary">Raadpleeg de openstreetmap.org wiki voor informatie over de zichtbaarheid niveau\'s.</string>
     <string name="osm_success">Uploaden naar www.openstreetmap.org is gelukt: </string>
     <string name="osm_failed">Uploaden naar www.openstreetmap.org is mislukt: </string>
     <string name="osmauth_message">Authenticeer Open GPS Tracker om traces te uploaden naar OpenStreetMap</string>
@@ -257,7 +257,7 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="sddirectory_summary">Route bestanden en media bestanden worden in deze SD kaart folder opgeslagen.</string>
     <string name="sddirectory_message">Vul de verlenging van het SD kaart pad. Het pad /OpenGPSTracker/ zal een enkele directory aanmaken op SD kaart en /Apps/OpenGPSTracker/ zal er eentje twee diep aanmaken.</string>
     <string name="breadcrumbs_connect">Verbind met GoBreadcrumbs</string>
-    
+
     <string name="preference_stream">Locatie publicatie</string>
     <string name="streamenabled_title">Uitzenden geactiveerd</string>
     <string name="streamenabled_summary">Verzend locatie wijzigen direct</string>
@@ -278,10 +278,10 @@ In this URL the placeholders @LAT@ @LON@ and @ID@ are replaced with actual infor
     <string name="customupload_backlog_title">Bij problemen een de achterstand inhalen</string>
     <string name="customupload_backlog_summary">Het aantal in te halen verzoeken</string>
     <string name="customupload_backlog_message">Voer het aantal verzoeken in dat moet worden onthouden als achterstand wanneer de server niet bereikt kan worden.</string>
-            
-<!-- ***************************
-   About information
-   ***************************-->
-   <string name="about_comments">Een applicatie die per GPS de tochten van je aparaat kan opnemen.</string>
-   <string name="about_activity_name_extended">Over %s</string>
+
+    <!-- ***************************
+       About information
+       ***************************-->
+    <string name="about_comments">Een applicatie die per GPS de tochten van je aparaat kan opnemen.</string>
+    <string name="about_activity_name_extended">Over %s</string>
 </resources>

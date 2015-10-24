@@ -28,6 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.breadcrumbs;
 
+import android.content.Context;
+import android.util.Log;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -45,15 +52,9 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
-import android.content.Context;
-import android.util.Log;
-
 /**
- * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After receiving the request token from Twitter, pop a browser to the user to authorize the
+ * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After
+ * receiving the request token from Twitter, pop a browser to the user to authorize the
  * Request Token. (OAuthAuthorizeToken)
  */
 public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
@@ -66,13 +67,14 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
 
    /**
     * We pass the OAuth consumer and provider.
-    * 
-    * @param mContext Required to be able to start the intent to launch the browser.
+    *
+    * @param mContext   Required to be able to start the intent to launch the browser.
     * @param httpclient
-    * @param provider The OAuthProvider object
-    * @param mConsumer The OAuthConsumer object
+    * @param provider   The OAuthProvider object
+    * @param mConsumer  The OAuthConsumer object
     */
-   public GetBreadcrumbsTracksTask(Context context, BreadcrumbsService adapter, ProgressListener listener, OAuthConsumer consumer, Integer bundleId)
+   public GetBreadcrumbsTracksTask(Context context, BreadcrumbsService adapter, ProgressListener listener,
+                                   OAuthConsumer consumer, Integer bundleId)
    {
       super(context, adapter, listener);
       mConsumer = consumer;
@@ -115,7 +117,8 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
          String tagName = null;
          int eventType = xpp.getEventType();
 
-         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null, trackRating = null, isPublic = null;
+         String trackName = null, description = null, difficulty = null, startTime = null, endTime = null,
+               trackRating = null, isPublic = null;
          Integer trackId = null, bundleId = null, totalTime = null;
          Float lat = null, lng = null, totalDistance = null;
          while (eventType != XmlPullParser.END_DOCUMENT)
@@ -128,7 +131,8 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
             {
                if ("track".equals(xpp.getName()) && trackId != null && bundleId != null)
                {
-                  mTracks.add(new Object[] { trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance, totalTime, trackRating });
+                  mTracks.add(new Object[] { trackId, trackName, bundleId, description, difficulty, startTime,
+                        endTime, isPublic, lat, lng, totalDistance, totalTime, trackRating });
                }
                tagName = null;
             }
@@ -185,7 +189,8 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
       catch (OAuthMessageSignerException e)
       {
          mService.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "Failed to sign the request with authentication signature");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "Failed to sign the request with " +
+               "authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
@@ -195,7 +200,8 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
       catch (OAuthCommunicationException e)
       {
          mService.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "The authentication communication failed");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "The authentication communication " +
+               "failed");
       }
       catch (IOException e)
       {
@@ -203,12 +209,15 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
       }
       catch (XmlPullParserException e)
       {
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "A problem while reading the XML data");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_track), e, "A problem while reading the XML " +
+               "data");
       }
       finally
       {
          if (connection != null)
+         {
             connection.disconnect();
+         }
       }
       return null;
    }
@@ -240,7 +249,8 @@ public class GetBreadcrumbsTracksTask extends BreadcrumbsTask
          Integer totalTime = (Integer) track[11];
          String trackRating = (String) track[12];
 
-         tracks.addTrack(trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat, lng, totalDistance, totalTime, trackRating);
+         tracks.addTrack(trackId, trackName, bundleId, description, difficulty, startTime, endTime, isPublic, lat,
+               lng, totalDistance, totalTime, trackRating);
       }
 
    }

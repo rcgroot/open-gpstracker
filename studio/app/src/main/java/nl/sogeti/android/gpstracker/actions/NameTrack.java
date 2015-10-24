@@ -28,10 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import java.util.Calendar;
-
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -51,35 +47,36 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
+import java.util.Calendar;
+
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+
 /**
  * Empty Activity that pops up the dialog to name the track
  *
- * @version $Id$
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
+ * @version $Id$
  */
 public class NameTrack extends Activity
 {
-   private static final int DIALOG_TRACKNAME = 23;
-
    protected static final String TAG = "OGT.NameTrack";
-
-   private EditText mTrackNameView;
-   private boolean paused;
+   private static final int DIALOG_TRACKNAME = 23;
    Uri mTrackUri;
-
+   private EditText mTrackNameView;
    private final DialogInterface.OnClickListener mTrackNameDialogListener = new DialogInterface.OnClickListener()
    {
       @Override
-      public void onClick( DialogInterface dialog, int which )
+      public void onClick(DialogInterface dialog, int which)
       {
          String trackName = null;
-         switch( which )
+         switch (which)
          {
             case DialogInterface.BUTTON_POSITIVE:
-               trackName = mTrackNameView.getText().toString();        
+               trackName = mTrackNameView.getText().toString();
                ContentValues values = new ContentValues();
-               values.put( Tracks.NAME, trackName );
-               getContentResolver().update( mTrackUri, values, null, null );
+               values.put(Tracks.NAME, trackName);
+               getContentResolver().update(mTrackUri, values, null, null);
                clearNotification();
                break;
             case DialogInterface.BUTTON_NEUTRAL:
@@ -89,7 +86,7 @@ public class NameTrack extends Activity
                clearNotification();
                break;
             default:
-               Log.e( TAG, "Unknown option ending dialog:"+which );
+               Log.e(TAG, "Unknown option ending dialog:" + which);
                break;
          }
          finish();
@@ -97,54 +94,49 @@ public class NameTrack extends Activity
 
 
    };
-   
-   
+   private boolean paused;
+
    private void clearNotification()
    {
 
-      NotificationManager noticationManager = (NotificationManager) this.getSystemService( Context.NOTIFICATION_SERVICE );;
-      noticationManager.cancel( R.layout.namedialog );
+      NotificationManager noticationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+      ;
+      noticationManager.cancel(R.layout.namedialog);
    }
-   
+
    private void startDelayNotification()
    {
       int resId = R.string.dialog_routename_title;
       int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = getResources().getString( resId );
+      CharSequence tickerText = getResources().getString(resId);
       long when = System.currentTimeMillis();
-      
-      Notification nameNotification = new Notification( icon, tickerText, when );
+
+      Notification nameNotification = new Notification(icon, tickerText, when);
       nameNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-      
-      CharSequence contentTitle = getResources().getString( R.string.app_name );
-      CharSequence contentText = getResources().getString( resId );
-      
-      Intent notificationIntent = new Intent( this, NameTrack.class );
-      notificationIntent.setData( mTrackUri );
-      
-      PendingIntent contentIntent = PendingIntent.getActivity( this, 0, notificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK );
-      nameNotification.setLatestEventInfo( this, contentTitle, contentText, contentIntent );
-      
-      NotificationManager noticationManager = (NotificationManager) this.getSystemService( Context.NOTIFICATION_SERVICE );
-      noticationManager.notify( R.layout.namedialog, nameNotification );
+
+      CharSequence contentTitle = getResources().getString(R.string.app_name);
+      CharSequence contentText = getResources().getString(resId);
+
+      Intent notificationIntent = new Intent(this, NameTrack.class);
+      notificationIntent.setData(mTrackUri);
+
+      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent
+            .FLAG_ACTIVITY_NEW_TASK);
+      nameNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
+
+      NotificationManager noticationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+      noticationManager.notify(R.layout.namedialog, nameNotification);
    }
-   
+
    @Override
-   protected void onCreate( Bundle savedInstanceState )
+   protected void onCreate(Bundle savedInstanceState)
    {
-      super.onCreate( savedInstanceState );
-      this.setVisible( false );
+      super.onCreate(savedInstanceState);
+      this.setVisible(false);
       paused = false;
       mTrackUri = this.getIntent().getData();
    }
-   
-   @Override
-   protected void onPause()
-   {
-      super.onPause();
-      paused = true;
-   }
-   
+
    /*
     * (non-Javadoc)
     * @see com.google.android.maps.MapActivity#onPause()
@@ -153,19 +145,26 @@ public class NameTrack extends Activity
    protected void onResume()
    {
       super.onResume();
-      if(  mTrackUri != null )
+      if (mTrackUri != null)
       {
-         showDialog( DIALOG_TRACKNAME );
+         showDialog(DIALOG_TRACKNAME);
       }
       else
       {
-         Log.e(TAG, "Naming track without a track URI supplied." );
+         Log.e(TAG, "Naming track without a track URI supplied.");
          finish();
       }
    }
-   
+
    @Override
-   protected Dialog onCreateDialog( int id )
+   protected void onPause()
+   {
+      super.onPause();
+      paused = true;
+   }
+
+   @Override
+   protected Dialog onCreateDialog(int id)
    {
       Dialog dialog = null;
       LayoutInflater factory = null;
@@ -174,25 +173,25 @@ public class NameTrack extends Activity
       switch (id)
       {
          case DIALOG_TRACKNAME:
-            builder = new AlertDialog.Builder( this );
-            factory = LayoutInflater.from( this );
-            view = factory.inflate( R.layout.namedialog, null );
-            mTrackNameView = (EditText) view.findViewById( R.id.nameField );
+            builder = new AlertDialog.Builder(this);
+            factory = LayoutInflater.from(this);
+            view = factory.inflate(R.layout.namedialog, null);
+            mTrackNameView = (EditText) view.findViewById(R.id.nameField);
             builder
-               .setTitle( R.string.dialog_routename_title )
-               .setMessage( R.string.dialog_routename_message )
-               .setIcon( android.R.drawable.ic_dialog_alert )
-               .setPositiveButton( R.string.btn_okay, mTrackNameDialogListener )
-               .setNeutralButton( R.string.btn_skip, mTrackNameDialogListener )
-               .setNegativeButton( R.string.btn_cancel, mTrackNameDialogListener )
-               .setView( view );
+                  .setTitle(R.string.dialog_routename_title)
+                  .setMessage(R.string.dialog_routename_message)
+                  .setIcon(android.R.drawable.ic_dialog_alert)
+                  .setPositiveButton(R.string.btn_okay, mTrackNameDialogListener)
+                  .setNeutralButton(R.string.btn_skip, mTrackNameDialogListener)
+                  .setNegativeButton(R.string.btn_cancel, mTrackNameDialogListener)
+                  .setView(view);
             dialog = builder.create();
-            dialog.setOnDismissListener( new OnDismissListener()
+            dialog.setOnDismissListener(new OnDismissListener()
             {
                @Override
-               public void onDismiss( DialogInterface dialog )
+               public void onDismiss(DialogInterface dialog)
                {
-                  if( !paused )
+                  if (!paused)
                   {
                      finish();
                   }
@@ -200,26 +199,26 @@ public class NameTrack extends Activity
             });
             return dialog;
          default:
-            return super.onCreateDialog( id );
+            return super.onCreateDialog(id);
       }
    }
-   
+
    @Override
-   protected void onPrepareDialog( int id, Dialog dialog )
+   protected void onPrepareDialog(int id, Dialog dialog)
    {
       switch (id)
       {
          case DIALOG_TRACKNAME:
             String trackName;
             Calendar c = Calendar.getInstance();
-            trackName = String.format( getString( R.string.dialog_routename_default ), c, c, c, c, c );
-            mTrackNameView.setText( trackName );
-            mTrackNameView.setSelection( 0, trackName.length() );
+            trackName = String.format(getString(R.string.dialog_routename_default), c, c, c, c, c);
+            mTrackNameView.setText(trackName);
+            mTrackNameView.setSelection(0, trackName.length());
             break;
          default:
-            super.onPrepareDialog( id, dialog );
+            super.onPrepareDialog(id, dialog);
             break;
       }
-   }   
+   }
 }
    

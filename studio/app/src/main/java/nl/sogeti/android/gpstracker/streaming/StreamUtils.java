@@ -28,12 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.streaming;
 
-import nl.sogeti.android.gpstracker.BuildConfig;
-import nl.sogeti.android.gpstracker.util.Constants;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import nl.sogeti.android.gpstracker.BuildConfig;
+import nl.sogeti.android.gpstracker.util.Constants;
 
 public class StreamUtils
 {
@@ -42,7 +43,7 @@ public class StreamUtils
 
    /**
     * Initialize all appropriate stream listeners
-    * 
+    *
     * @param ctx
     */
    public static void initStreams(final Context ctx)
@@ -65,7 +66,7 @@ public class StreamUtils
 
    /**
     * Shutdown all stream listeners
-    * 
+    *
     * @param ctx
     */
    public static void shutdownStreams(Context ctx)

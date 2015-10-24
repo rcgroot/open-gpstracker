@@ -1,47 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:orientation="horizontal"
-	android:gravity="center_horizontal">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="horizontal">
 
-	<LinearLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:orientation="vertical">
-		<Button
-			android:text="@string/logcontrol_start"
-			android:id="@+id/logcontrol_start"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:enabled="false" />
-		<Button
-			android:text="@string/logcontrol_pause"
-			android:id="@+id/logcontrol_pause"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:enabled="false" />
-	</LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-	<LinearLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:orientation="vertical">
-		<Button
-			android:text="@string/logcontrol_stop"
-			android:id="@+id/logcontrol_stop"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:enabled="false" />
-		<Button
-			android:text="@string/logcontrol_resume"
-			android:id="@+id/logcontrol_resume"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:enabled="false" />
-	</LinearLayout>
+        <Button
+            android:id="@+id/logcontrol_start"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/logcontrol_start"/>
 
+        <Button
+            android:id="@+id/logcontrol_pause"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/logcontrol_pause"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/logcontrol_stop"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/logcontrol_stop"/>
+
+        <Button
+            android:id="@+id/logcontrol_resume"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/logcontrol_resume"/>
+    </LinearLayout>
 
 
 </LinearLayout>

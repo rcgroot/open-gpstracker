@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-   xmlns:android="http://schemas.android.com/apk/res/android"
-   android:id="@+id/top"
-   android:layout_width="fill_parent"
-   android:layout_height="?android:attr/listPreferredItemHeight">
-   <TextView
-      android:text="Bundlename here"
-      android:id="@+id/listitem_name"
-      style="?android:attr/listSeparatorTextViewStyle"
-      android:layout_height="wrap_content"
-      android:layout_width="fill_parent"
-      android:paddingLeft="6dip"
-      android:paddingRight="6dip"
-      android:layout_marginTop="20dp"
-      android:layout_marginLeft="20dip"
-      android:layout_marginRight="40dip"
-      android:background="#554d4d"
-      android:textColor="#e52828" />
+    android:id="@+id/top"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight">
+
+    <TextView
+        android:id="@+id/listitem_name"
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="40dip"
+        android:layout_marginTop="20dp"
+        android:background="#554d4d"
+        android:paddingLeft="6dip"
+        android:paddingRight="6dip"
+        android:text="Bundlename here"
+        android:textColor="#e52828"/>
 </RelativeLayout>

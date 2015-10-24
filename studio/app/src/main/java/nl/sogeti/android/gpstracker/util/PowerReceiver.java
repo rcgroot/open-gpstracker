@@ -21,13 +21,14 @@
  */
 package nl.sogeti.android.gpstracker.util;
 
-import nl.sogeti.android.gpstracker.BuildConfig;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import nl.sogeti.android.gpstracker.BuildConfig;
+import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 
 public class PowerReceiver extends BroadcastReceiver
 {
@@ -46,15 +47,18 @@ public class PowerReceiver extends BroadcastReceiver
       }
       if (action.equals(Intent.ACTION_POWER_CONNECTED))
       {
-         start = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.LOGATPOWERCONNECTED, false);
+         start = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.LOGATPOWERCONNECTED,
+               false);
       }
       else if (action.equals(Intent.ACTION_POWER_DISCONNECTED))
       {
-         stop = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.STOPATPOWERDISCONNECTED, false);
+         stop = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.STOPATPOWERDISCONNECTED,
+               false);
       }
       else
       {
-         Log.w(TAG, "OpenGPSTracker's PowerReceiver received " + action + ", but it's only able to respond to " + Intent.ACTION_POWER_CONNECTED + " and " + Intent.ACTION_POWER_DISCONNECTED
+         Log.w(TAG, "OpenGPSTracker's PowerReceiver received " + action + ", but it's only able to respond to " +
+               Intent.ACTION_POWER_CONNECTED + " and " + Intent.ACTION_POWER_DISCONNECTED
                + ". This shouldn't happen!");
       }
 

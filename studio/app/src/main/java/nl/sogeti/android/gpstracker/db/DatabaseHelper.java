@@ -28,16 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.db;
 
-import java.util.Date;
-
-import nl.sogeti.android.gpstracker.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.db.GPStracking.MediaColumns;
-import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;
-import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -49,18 +39,29 @@ import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
 
+import java.util.Date;
+
+import nl.sogeti.android.gpstracker.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.db.GPStracking.MediaColumns;
+import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
+import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
+import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.db.GPStracking.TracksColumns;
+import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
+
 /**
  * Class to hold bare-metal database operations exposed as functionality blocks
  * To be used by database adapters, like a content provider, that implement a
  * required functionality set
- * 
- * @version $Id$
+ *
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
+ * @version $Id$
  */
 public class DatabaseHelper extends SQLiteOpenHelper
 {
-   private Context mContext;
    private final static String TAG = "OGT.DatabaseHelper";
+   private Context mContext;
 
    public DatabaseHelper(Context context)
    {
@@ -86,9 +87,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
    /**
     * Will update version 1 through 5 to version 8
-    * 
+    *
     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase,
-    *      int, int)
+    * int, int)
     * @see GPStracking.DATABASE_VERSION
     */
    @Override
@@ -176,13 +177,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
    /**
     * Creates a waypoint under the current track segment with the current time
     * on which the waypoint is reached
-    * 
-    * @param track track
-    * @param segment segment
-    * @param latitude latitude
+    *
+    * @param track     track
+    * @param segment   segment
+    * @param latitude  latitude
     * @param longitude longitude
-    * @param time time
-    * @param speed the measured speed
+    * @param time      time
+    * @param speed     the measured speed
     * @return
     */
    long insertWaypoint(long trackId, long segmentId, Location location)
@@ -216,7 +217,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
    /**
     * Insert a URI for a given waypoint/segment/track in the media table
-    * 
+    *
     * @param trackId
     * @param segmentId
     * @param waypointId
@@ -242,7 +243,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
       long mediaId = sqldb.insert(Media.TABLE, null, args);
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" + waypointId + "/media");
+      Uri notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" +
+            waypointId + "/media");
       resolver.notifyChange(notifyUri, null);
       //      Log.d( TAG, "Notify: "+notifyUri );
       resolver.notifyChange(Media.CONTENT_URI, null);
@@ -254,7 +256,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
    /**
     * Insert a key/value pair as meta-data for a track and optionally narrow the
     * scope by segment or segment/waypoint
-    * 
+    *
     * @param trackId
     * @param segmentId
     * @param waypointId
@@ -280,8 +282,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
       args.put(MetaData.WAYPOINT, waypointId);
       args.put(MetaData.KEY, key);
       args.put(MetaData.VALUE, value);
-      String whereClause = MetaData.TRACK + " = ? AND " + MetaData.SEGMENT + " = ? AND " + MetaData.WAYPOINT + " = ? AND " + MetaData.KEY + " = ?";
-      String[] whereArgs = new String[] { Long.toString(trackId), Long.toString(segmentId), Long.toString(waypointId), key };
+      String whereClause = MetaData.TRACK + " = ? AND " + MetaData.SEGMENT + " = ? AND " + MetaData.WAYPOINT + " = ? " +
+            "AND " + MetaData.KEY + " = ?";
+      String[] whereArgs = new String[] { Long.toString(trackId), Long.toString(segmentId), Long.toString(waypointId)
+            , key };
 
       SQLiteDatabase sqldb = getWritableDatabase();
       int updated = sqldb.update(MetaData.TABLE, args, whereClause, whereArgs);
@@ -295,7 +299,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
          try
          {
             c = sqldb.query(MetaData.TABLE, new String[] { MetaData._ID }, whereClause, whereArgs, null, null, null);
-            if( c.moveToFirst() )
+            if (c.moveToFirst())
             {
                metaDataId = c.getLong(0);
             }
@@ -313,7 +317,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
       Uri notifyUri;
       if (segmentId >= 0 && waypointId >= 0)
       {
-         notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" + waypointId + "/metadata");
+         notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" +
+               waypointId + "/metadata");
       }
       else if (segmentId >= 0)
       {
@@ -332,7 +337,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
    /**
     * Deletes a single track and all underlying segments, waypoints, media and
     * metadata
-    * 
+    *
     * @param trackId
     * @return
     */
@@ -348,7 +353,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
       {
          sqldb.beginTransaction();
          // Iterate on each segement to delete each
-         cursor = sqldb.query(Segments.TABLE, new String[] { Segments._ID }, Segments.TRACK + "= ?", new String[] { String.valueOf(trackId) }, null, null,
+         cursor = sqldb.query(Segments.TABLE, new String[] { Segments._ID }, Segments.TRACK + "= ?", new String[] {
+                     String.valueOf(trackId) }, null, null,
                null, null);
          if (cursor.moveToFirst())
          {
@@ -368,7 +374,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
          // Delete remaining meta-data
          affected += sqldb.delete(MetaData.TABLE, MetaData.TRACK + "= ?", new String[] { String.valueOf(trackId) });
 
-         cursor = sqldb.query(MetaData.TABLE, new String[] { MetaData._ID }, MetaData.TRACK + "= ?", new String[] { String.valueOf(trackId) }, null, null,
+         cursor = sqldb.query(MetaData.TABLE, new String[] { MetaData._ID }, MetaData.TRACK + "= ?", new String[] {
+                     String.valueOf(trackId) }, null, null,
                null, null);
          if (cursor.moveToFirst())
          {
@@ -402,50 +409,29 @@ public class DatabaseHelper extends SQLiteOpenHelper
    }
 
    /**
-    * @param mediaId
+    * Delete a segment and all member waypoints
+    *
+    * @param sqldb     The SQLiteDatabase in question
+    * @param trackId   The track id of this delete
+    * @param segmentId The segment that needs deleting
     * @return
     */
-   int deleteMedia(long mediaId)
+   int deleteSegment(SQLiteDatabase sqldb, long trackId, long segmentId)
    {
-      SQLiteDatabase sqldb = getWritableDatabase();
+      int affected = sqldb.delete(Segments.TABLE, Segments._ID + "= ?", new String[] { String.valueOf(segmentId) });
 
-      Cursor cursor = null;
-      long trackId = -1;
-      long segmentId = -1;
-      long waypointId = -1;
-      try
-      {
-         cursor = sqldb.query(Media.TABLE, new String[] { Media.TRACK, Media.SEGMENT, Media.WAYPOINT }, Media._ID + "= ?",
-               new String[] { String.valueOf(mediaId) }, null, null, null, null);
-         if (cursor.moveToFirst())
-         {
-            trackId = cursor.getLong(0);
-            segmentId = cursor.getLong(0);
-            waypointId = cursor.getLong(0);
-         }
-         else
-         {
-            Log.e(TAG, "Did not find the media element to delete");
-         }
-      }
-      finally
-      {
-         if (cursor != null)
-         {
-            cursor.close();
-         }
-      }
-
-      int affected = sqldb.delete(Media.TABLE, Media._ID + "= ?", new String[] { String.valueOf(mediaId) });
+      // Delete all waypoints from segments
+      affected += sqldb.delete(Waypoints.TABLE, Waypoints.SEGMENT + "= ?", new String[] { String.valueOf(segmentId) });
+      // Delete all media from segment
+      affected += sqldb.delete(Media.TABLE, Media.TRACK + "= ? AND " + Media.SEGMENT + "= ?",
+            new String[] { String.valueOf(trackId), String.valueOf(segmentId) });
+      // Delete meta-data
+      affected += sqldb.delete(MetaData.TABLE, MetaData.TRACK + "= ? AND " + MetaData.SEGMENT + "= ?",
+            new String[] { String.valueOf(trackId), String.valueOf(segmentId) });
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      Uri notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" + waypointId + "/media");
-      resolver.notifyChange(notifyUri, null);
-      notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/media");
-      resolver.notifyChange(notifyUri, null);
-      notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/media");
-      resolver.notifyChange(notifyUri, null);
-      resolver.notifyChange(ContentUris.withAppendedId(Media.CONTENT_URI, mediaId), null);
+      resolver.notifyChange(Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId), null);
+      resolver.notifyChange(Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments"), null);
 
       return affected;
    }
@@ -460,7 +446,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
       long waypointId = -1;
       try
       {
-         cursor = sqldb.query(MetaData.TABLE, new String[] { MetaData.TRACK, MetaData.SEGMENT, MetaData.WAYPOINT }, MetaData._ID + "= ?",
+         cursor = sqldb.query(MetaData.TABLE, new String[] { MetaData.TRACK, MetaData.SEGMENT, MetaData.WAYPOINT },
+               MetaData._ID + "= ?",
                new String[] { String.valueOf(metadataId) }, null, null, null, null);
          if (cursor.moveToFirst())
          {
@@ -487,7 +474,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
       Uri notifyUri;
       if (trackId >= 0 && segmentId >= 0 && waypointId >= 0)
       {
-         notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" + waypointId + "/media");
+         notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" +
+               waypointId + "/media");
          resolver.notifyChange(notifyUri, null);
       }
       if (trackId >= 0 && segmentId >= 0)
@@ -503,29 +491,52 @@ public class DatabaseHelper extends SQLiteOpenHelper
    }
 
    /**
-    * Delete a segment and all member waypoints
-    * 
-    * @param sqldb The SQLiteDatabase in question
-    * @param trackId The track id of this delete
-    * @param segmentId The segment that needs deleting
+    * @param mediaId
     * @return
     */
-   int deleteSegment(SQLiteDatabase sqldb, long trackId, long segmentId)
+   int deleteMedia(long mediaId)
    {
-      int affected = sqldb.delete(Segments.TABLE, Segments._ID + "= ?", new String[] { String.valueOf(segmentId) });
+      SQLiteDatabase sqldb = getWritableDatabase();
 
-      // Delete all waypoints from segments
-      affected += sqldb.delete(Waypoints.TABLE, Waypoints.SEGMENT + "= ?", new String[] { String.valueOf(segmentId) });
-      // Delete all media from segment
-      affected += sqldb.delete(Media.TABLE, Media.TRACK + "= ? AND " + Media.SEGMENT + "= ?",
-            new String[] { String.valueOf(trackId), String.valueOf(segmentId) });
-      // Delete meta-data
-      affected += sqldb.delete(MetaData.TABLE, MetaData.TRACK + "= ? AND " + MetaData.SEGMENT + "= ?",
-            new String[] { String.valueOf(trackId), String.valueOf(segmentId) });
+      Cursor cursor = null;
+      long trackId = -1;
+      long segmentId = -1;
+      long waypointId = -1;
+      try
+      {
+         cursor = sqldb.query(Media.TABLE, new String[] { Media.TRACK, Media.SEGMENT, Media.WAYPOINT }, Media._ID +
+                     "= ?",
+               new String[] { String.valueOf(mediaId) }, null, null, null, null);
+         if (cursor.moveToFirst())
+         {
+            trackId = cursor.getLong(0);
+            segmentId = cursor.getLong(0);
+            waypointId = cursor.getLong(0);
+         }
+         else
+         {
+            Log.e(TAG, "Did not find the media element to delete");
+         }
+      }
+      finally
+      {
+         if (cursor != null)
+         {
+            cursor.close();
+         }
+      }
+
+      int affected = sqldb.delete(Media.TABLE, Media._ID + "= ?", new String[] { String.valueOf(mediaId) });
 
       ContentResolver resolver = this.mContext.getContentResolver();
-      resolver.notifyChange(Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId), null);
-      resolver.notifyChange(Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments"), null);
+      Uri notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" +
+            waypointId + "/media");
+      resolver.notifyChange(notifyUri, null);
+      notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/media");
+      resolver.notifyChange(notifyUri, null);
+      notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/media");
+      resolver.notifyChange(notifyUri, null);
+      resolver.notifyChange(ContentUris.withAppendedId(Media.CONTENT_URI, mediaId), null);
 
       return affected;
    }
@@ -551,7 +562,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
    /**
     * Insert a key/value pair as meta-data for a track and optionally narrow the
     * scope by segment or segment/waypoint
-    * 
+    *
     * @param trackId
     * @param segmentId
     * @param waypointId
@@ -559,7 +570,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
     * @param value
     * @return
     */
-   int updateMetaData(long trackId, long segmentId, long waypointId, long metadataId, String selection, String[] selectionArgs, String value)
+   int updateMetaData(long trackId, long segmentId, long waypointId, long metadataId, String selection, String[]
+         selectionArgs, String value)
    {
       {
          if ((metadataId < 0 && trackId < 0))
@@ -586,8 +598,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
          }
          else
          {
-            whereclause = MetaData.TRACK + " = ? AND " + MetaData.SEGMENT + " = ? AND " + MetaData.WAYPOINT + " = ? AND " + MetaData.KEY + " = ? ";
-            whereParams = new String[] { Long.toString(trackId), Long.toString(segmentId), Long.toString(waypointId), selectionArgs[0] };
+            whereclause = MetaData.TRACK + " = ? AND " + MetaData.SEGMENT + " = ? AND " + MetaData.WAYPOINT + " = ? " +
+                  "AND " + MetaData.KEY + " = ? ";
+            whereParams = new String[] { Long.toString(trackId), Long.toString(segmentId), Long.toString(waypointId),
+                  selectionArgs[0] };
          }
          ContentValues args = new ContentValues();
          args.put(MetaData.VALUE, value);
@@ -598,7 +612,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
          Uri notifyUri;
          if (trackId >= 0 && segmentId >= 0 && waypointId >= 0)
          {
-            notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" + waypointId + "/metadata");
+            notifyUri = Uri.withAppendedPath(Tracks.CONTENT_URI, trackId + "/segments/" + segmentId + "/waypoints/" +
+                  waypointId + "/metadata");
          }
          else if (trackId >= 0 && segmentId >= 0)
          {
@@ -622,7 +637,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
    /**
     * Move to a fresh track with a new first segment for this track
-    * 
+    *
     * @return
     */
    long toNextTrack(String name)
@@ -643,7 +658,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
    /**
     * Moves to a fresh segment to which waypoints can be connected
-    * 
+    *
     * @return
     */
    long toNextSegment(long trackId)

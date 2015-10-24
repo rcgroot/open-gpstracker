@@ -28,34 +28,31 @@
  */
 package nl.sogeti.android.gpstracker.breadcrumbs;
 
-import java.util.concurrent.Executor;
-
-import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
+import java.util.concurrent.Executor;
+
+import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+
 /**
  * ????
- * 
- * @version $Id:$
+ *
  * @author rene (c) May 29, 2011, Sogeti B.V.
+ * @version $Id:$
  */
 public abstract class BreadcrumbsTask extends AsyncTask<Void, Void, Void>
 {
    private static final String TAG = "OGT.BreadcrumbsTask";
-
+   protected BreadcrumbsService mService;
+   protected Context mContext;
    private ProgressListener mListener;
    private String mErrorText;
    private Exception mException;
-
-   protected BreadcrumbsService mService;
-
    private String mTask;
-
-   protected Context mContext;
 
    public BreadcrumbsTask(Context context, BreadcrumbsService adapter, ProgressListener listener)
    {

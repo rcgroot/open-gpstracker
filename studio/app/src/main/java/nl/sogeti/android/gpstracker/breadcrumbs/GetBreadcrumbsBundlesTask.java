@@ -28,6 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.breadcrumbs;
 
+import android.content.Context;
+import android.util.Log;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -45,15 +52,9 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
-import android.content.Context;
-import android.util.Log;
-
 /**
- * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After receiving the request token from Twitter, pop a browser to the user to authorize the
+ * An asynchronous task that communicates with Twitter to retrieve a request token. (OAuthGetRequestToken) After
+ * receiving the request token from Twitter, pop a browser to the user to authorize the
  * Request Token. (OAuthAuthorizeToken)
  */
 public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
@@ -67,14 +68,15 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
 
    /**
     * We pass the OAuth consumer and provider.
-    * 
-    * @param mContext Required to be able to start the intent to launch the browser.
+    *
+    * @param mContext   Required to be able to start the intent to launch the browser.
     * @param httpclient
     * @param listener
-    * @param provider The OAuthProvider object
-    * @param mConsumer The OAuthConsumer object
+    * @param provider   The OAuthProvider object
+    * @param mConsumer  The OAuthConsumer object
     */
-   public GetBreadcrumbsBundlesTask(Context context, BreadcrumbsService adapter, ProgressListener listener, OAuthConsumer consumer)
+   public GetBreadcrumbsBundlesTask(Context context, BreadcrumbsService adapter, ProgressListener listener,
+                                    OAuthConsumer consumer)
    {
       super(context, adapter, listener);
       mConsumer = consumer;
@@ -157,7 +159,8 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       catch (OAuthMessageSignerException e)
       {
          mService.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "Failed to sign the request with authentication signature");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "Failed to sign the request with " +
+               "authentication signature");
       }
       catch (OAuthExpectationFailedException e)
       {
@@ -167,7 +170,8 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       catch (OAuthCommunicationException e)
       {
          mService.removeAuthentication();
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "The authentication communication failed");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "The authentication communication " +
+               "failed");
       }
       catch (IOException e)
       {
@@ -175,7 +179,8 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       }
       catch (XmlPullParserException e)
       {
-         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "A problem while reading the XML data");
+         handleError(mContext.getString(R.string.taskerror_breadcrumbs_bundle), e, "A problem while reading the XML " +
+               "data");
       }
       catch (IllegalStateException e)
       {
@@ -184,7 +189,9 @@ public class GetBreadcrumbsBundlesTask extends BreadcrumbsTask
       finally
       {
          if (connection != null)
+         {
             connection.disconnect();
+         }
       }
       return null;
    }

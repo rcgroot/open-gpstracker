@@ -28,6 +28,20 @@
  */
 package nl.sogeti.android.gpstracker.actions.tasks;
 
+import android.annotation.TargetApi;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.util.Log;
+import android.view.Window;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -47,22 +61,12 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
 import nl.sogeti.android.gpstracker.util.UnicodeReader;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
-import android.annotation.TargetApi;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.util.Log;
-import android.view.Window;
-
 public class GpxParser extends AsyncTask<Uri, Void, Uri>
 {
+   public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+   public static final SimpleDateFormat ZULU_DATE_FORMAT_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+   public static final SimpleDateFormat ZULU_DATE_FORMAT_BC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'");
+   protected static final int DEFAULT_UNKNOWN_FILESIZE = 1024 * 1024 * 10;
    private static final String LATITUDE_ATRIBUTE = "lat";
    private static final String LONGITUDE_ATTRIBUTE = "lon";
    private static final String TRACK_ELEMENT = "trkpt";
@@ -73,11 +77,8 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
    private static final String COURSE_ELEMENT = "course";
    private static final String ACCURACY_ELEMENT = "accuracy";
    private static final String SPEED_ELEMENT = "speed";
-   public static final SimpleDateFormat ZULU_DATE_FORMAT    = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-   public static final SimpleDateFormat ZULU_DATE_FORMAT_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-   public static final SimpleDateFormat ZULU_DATE_FORMAT_BC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'");
-   protected static final int DEFAULT_UNKNOWN_FILESIZE = 1024 * 1024 * 10;
    private static final String TAG = "OGT.GpxParser";
+
    static
    {
       TimeZone utc = TimeZone.getTimeZone("UTC");
@@ -85,14 +86,14 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       ZULU_DATE_FORMAT_MS.setTimeZone(utc);
 
    }
-   
-   private ContentResolver mContentResolver;
+
    protected String mErrorDialogMessage;
    protected Exception mErrorDialogException;
    protected Context mContext;
-   private ProgressListener mProgressListener;
    protected ProgressAdmin mProgressAdmin;
-   
+   private ContentResolver mContentResolver;
+   private ProgressListener mProgressListener;
+
    public GpxParser(Context context, ProgressListener progressListener)
    {
       mContext = context;
@@ -112,7 +113,16 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
          execute();
       }
    }
-   
+
+   @Override
+   protected Uri doInBackground(Uri... params)
+   {
+      Uri importUri = params[0];
+      determineProgressGoal(importUri);
+      Uri result = importUri(importUri);
+      return result;
+   }
+
    public void determineProgressGoal(Uri importFileUri)
    {
       mProgressAdmin = new ProgressAdmin();
@@ -124,7 +134,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       }
    }
 
-   public Uri importUri(Uri importFileUri) 
+   public Uri importUri(Uri importFileUri)
    {
       Uri result = null;
       String trackName = null;
@@ -141,20 +151,33 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       {
          handleError(e, mContext.getString(R.string.error_importgpx_io));
       }
-      
-      result = importTrack( fis, trackName);
-      
+
+      result = importTrack(fis, trackName);
+
       return result;
    }
 
    /**
-    * Read a stream containing GPX XML into the OGT content provider 
-    * 
-    * @param fis opened stream the read from, will be closed after this call
+    * @param e
+    * @param text
+    */
+   protected void handleError(Exception dialogException, String dialogErrorMessage)
+   {
+      Log.e(TAG, "Unable to save ", dialogException);
+      mErrorDialogException = dialogException;
+      mErrorDialogMessage = dialogErrorMessage;
+      cancel(false);
+      throw new CancellationException(dialogErrorMessage);
+   }
+
+   /**
+    * Read a stream containing GPX XML into the OGT content provider
+    *
+    * @param fis       opened stream the read from, will be closed after this call
     * @param trackName
     * @return
     */
-   public Uri importTrack( InputStream fis, String trackName )
+   public Uri importTrack(InputStream fis, String trackName)
    {
       Uri trackUri = null;
       int eventType;
@@ -273,9 +296,10 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
                {
                   if (segmentUri == null)
                   {
-                     segmentUri = startSegment( trackUri );
+                     segmentUri = startSegment(trackUri);
                   }
-                  mContentResolver.bulkInsert(Uri.withAppendedPath(segmentUri, "waypoints"), bulk.toArray(new ContentValues[bulk.size()]));
+                  mContentResolver.bulkInsert(Uri.withAppendedPath(segmentUri, "waypoints"), bulk.toArray(new
+                        ContentValues[bulk.size()]));
                   bulk.clear();
                }
                else if (xmlParser.getName().equals(TRACK_ELEMENT))
@@ -345,10 +369,15 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
          }
          catch (IOException e)
          {
-            Log.w( TAG, "Failed closing inputstream");
+            Log.w(TAG, "Failed closing inputstream");
          }
       }
       return trackUri;
+   }
+
+   private Uri startTrack(ContentValues trackContent)
+   {
+      return mContentResolver.insert(Tracks.CONTENT_URI, trackContent);
    }
 
    private Uri startSegment(Uri trackUri)
@@ -360,19 +389,14 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       return mContentResolver.insert(Uri.withAppendedPath(trackUri, "segments"), new ContentValues());
    }
 
-   private Uri startTrack(ContentValues trackContent)
-   {
-      return mContentResolver.insert(Tracks.CONTENT_URI, trackContent);
-   }
-
    public static Long parseXmlDateTime(String text)
    {
       Long dateTime = 0L;
       try
       {
-         if(text==null)
+         if (text == null)
          {
-            throw new ParseException("Unable to parse dateTime "+text+" of length ", 0);
+            throw new ParseException("Unable to parse dateTime " + text + " of length ", 0);
          }
          int length = text.length();
          switch (length)
@@ -396,50 +420,22 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
                }
                break;
             default:
-               throw new ParseException("Unable to parse dateTime "+text+" of length "+length, 0);
+               throw new ParseException("Unable to parse dateTime " + text + " of length " + length, 0);
          }
       }
-      catch (ParseException e) {
+      catch (ParseException e)
+      {
          Log.w(TAG, "Failed to parse a time-date", e);
       }
       return dateTime;
    }
 
-   /**
-    * 
-    * @param e
-    * @param text
-    */
-   protected void handleError(Exception dialogException, String dialogErrorMessage)
-   {
-      Log.e(TAG, "Unable to save ", dialogException);
-      mErrorDialogException = dialogException;
-      mErrorDialogMessage = dialogErrorMessage;
-      cancel(false);
-      throw new CancellationException(dialogErrorMessage);
-   }
-   
    @Override
    protected void onPreExecute()
    {
       mProgressListener.started();
    }
-   
-   @Override
-   protected Uri doInBackground(Uri... params)
-   {
-      Uri importUri = params[0];
-      determineProgressGoal( importUri);
-      Uri result = importUri( importUri );
-      return result;
-   }
-   
-   @Override
-   protected void onProgressUpdate(Void... values)
-   {
-      mProgressListener.setProgress(mProgressAdmin.getProgress());
-   }
-   
+
    @Override
    protected void onPostExecute(Uri result)
    {
@@ -447,17 +443,25 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
    }
 
    @Override
+   protected void onProgressUpdate(Void... values)
+   {
+      mProgressListener.setProgress(mProgressAdmin.getProgress());
+   }
+
+   @Override
    protected void onCancelled()
    {
-      mProgressListener.showError(mContext.getString(R.string.taskerror_gpx_import), mErrorDialogMessage, mErrorDialogException);
+      mProgressListener.showError(mContext.getString(R.string.taskerror_gpx_import), mErrorDialogMessage,
+            mErrorDialogException);
    }
-   
+
    public class ProgressAdmin
    {
       private long progressedBytes;
       private long contentLength;
       private int progress;
       private long lastUpdate;
+
       /**
        * Get the progress.
        *
@@ -467,24 +471,27 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       {
          return progress;
       }
+
       public void addBytesProgress(int addedBytes)
       {
          progressedBytes += addedBytes;
          progress = (int) (Window.PROGRESS_END * progressedBytes / contentLength);
          considerPublishProgress();
       }
-      public void setContentLength(long contentLength)
-      {
-         this.contentLength = contentLength;
-      }
+
       public void considerPublishProgress()
       {
          long now = new Date().getTime();
-         if( now - lastUpdate > 1000 )
+         if (now - lastUpdate > 1000)
          {
             lastUpdate = now;
             publishProgress();
-         }         
+         }
+      }
+
+      public void setContentLength(long contentLength)
+      {
+         this.contentLength = contentLength;
       }
    }
 };

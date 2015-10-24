@@ -28,12 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.oauth;
 
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.util.Constants;
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.OAuthProvider;
-import oauth.signpost.basic.DefaultOAuthConsumer;
-import oauth.signpost.basic.DefaultOAuthProvider;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,6 +37,13 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.TextView;
+
+import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.util.Constants;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.OAuthProvider;
+import oauth.signpost.basic.DefaultOAuthConsumer;
+import oauth.signpost.basic.DefaultOAuthProvider;
 
 /**
  * Prepares a OAuthConsumer and OAuthProvider OAuthConsumer is configured with the consumer key & consumer secret. Both

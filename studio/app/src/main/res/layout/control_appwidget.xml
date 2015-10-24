@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" 
-	android:layout_height="fill_parent"
-	android:background="@drawable/appwidget_bg">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/appwidget_bg">
 
-	<ImageButton 
-		android:id="@+id/widget_trackingcontrol" 
-		android:src="@drawable/ic_menu_movie"
-		android:layout_marginTop="12dp" 
-		android:layout_marginBottom="5dp"
-		android:layout_marginLeft="10dp" 
-		android:layout_marginRight="5dp"
-		android:layout_height="fill_parent" 
-		android:layout_width="1dip"
-		android:gravity="center_vertical|center_horizontal"
-		android:layout_weight="2.0" />
+    <ImageButton
+        android:id="@+id/widget_trackingcontrol"
+        android:layout_width="1dip"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="2.0"
+        android:gravity="center_vertical|center_horizontal"
+        android:src="@drawable/ic_menu_movie"/>
 
-	<ImageButton 
-		android:id="@+id/widget_insertnote_enabled" 
-		android:src="@drawable/ic_menu_myplaces"
-		android:layout_marginTop="12dp"
-		android:layout_marginBottom="5dp" 
-		android:layout_marginLeft="5dp"
-		android:layout_marginRight="10dp" 
-		android:layout_height="fill_parent"
-		android:layout_width="1dip" 
-		android:gravity="center_vertical|center_horizontal|"
-		android:layout_weight="2.0"
-		android:enabled="true" 
+    <ImageButton
+        android:id="@+id/widget_insertnote_enabled"
+        android:layout_width="1dip"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="2.0"
         android:clickable="true"
-		android:visibility="gone" 
-		/>
-		
-	<ImageButton 
-		android:id="@+id/widget_insertnote_disabled" 
-		android:src="@drawable/ic_menu_myplaces"
-		android:layout_marginTop="12dp"
-		android:layout_marginBottom="5dp" 
-		android:layout_marginLeft="5dp"
-		android:layout_marginRight="10dp" 
-		android:layout_height="fill_parent"
-		android:layout_width="1dip" 
-		android:gravity="center_vertical|center_horizontal|"
-		android:layout_weight="2.0"
-		android:enabled="false"
-		android:clickable="false"
-		android:visibility="visible" 
-		/>
+        android:enabled="true"
+        android:gravity="center_vertical|center_horizontal|"
+        android:src="@drawable/ic_menu_myplaces"
+        android:visibility="gone"
+        />
+
+    <ImageButton
+        android:id="@+id/widget_insertnote_disabled"
+        android:layout_width="1dip"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="2.0"
+        android:clickable="false"
+        android:enabled="false"
+        android:gravity="center_vertical|center_horizontal|"
+        android:src="@drawable/ic_menu_myplaces"
+        android:visibility="visible"
+        />
 
 </LinearLayout>

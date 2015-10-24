@@ -1,33 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-   xmlns:android="http://schemas.android.com/apk/res/android"
-   android:layout_width="fill_parent"
-   android:layout_height="wrap_content"
-   android:orientation="vertical"
->
-   <Button
-      android:text="@string/graphtype_timespeed"
-      android:id="@+id/graphtype_timespeed"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   ></Button>
-   <Button
-      android:text="@string/graphtype_distancespeed"
-      android:id="@+id/graphtype_distancespeed"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   ></Button>
-   <Button
-      android:text="@string/graphtype_timealtitude"
-      android:id="@+id/graphtype_timealtitude"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   ></Button>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
 
-   <Button
-      android:text="@string/graphtype_distancealtitude"
-      android:id="@+id/graphtype_distancealtitude"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-   ></Button>
+    <Button
+        android:id="@+id/graphtype_timespeed"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/graphtype_timespeed"
+        ></Button>
+
+    <Button
+        android:id="@+id/graphtype_distancespeed"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/graphtype_distancespeed"
+        ></Button>
+
+    <Button
+        android:id="@+id/graphtype_timealtitude"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/graphtype_timealtitude"
+        ></Button>
+
+    <Button
+        android:id="@+id/graphtype_distancealtitude"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/graphtype_distancealtitude"
+        ></Button>
 </LinearLayout>

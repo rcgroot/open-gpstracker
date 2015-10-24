@@ -19,7 +19,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import nl.sogeti.android.gpstracker.R;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -33,12 +32,16 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Projection;
 
+import nl.sogeti.android.gpstracker.R;
+
 /**
  * Fix for a ClassCastException found on some Google Maps API's implementations.
- * @see <a href="http://www.spectrekking.com/download/FixedMyLocationOverlay.java">www.spectrekking.com</a> 
+ *
  * @version $Id$
+ * @see <a href="http://www.spectrekking.com/download/FixedMyLocationOverlay.java">www.spectrekking.com</a>
  */
-public class FixedMyLocationOverlay extends MyLocationOverlay {
+public class FixedMyLocationOverlay extends MyLocationOverlay
+{
    private boolean bugged = false;
 
    private Paint accuracyPaint;
@@ -48,23 +51,31 @@ public class FixedMyLocationOverlay extends MyLocationOverlay {
    private int width;
    private int height;
 
-   public FixedMyLocationOverlay(Context context, MapView mapView) {
+   public FixedMyLocationOverlay(Context context, MapView mapView)
+   {
       super(context, mapView);
    }
 
    @Override
-   protected void drawMyLocation(Canvas canvas, MapView mapView, Location lastFix, GeoPoint myLoc, long when) {
-      if (!bugged) {
-         try {
+   protected void drawMyLocation(Canvas canvas, MapView mapView, Location lastFix, GeoPoint myLoc, long when)
+   {
+      if (!bugged)
+      {
+         try
+         {
             super.drawMyLocation(canvas, mapView, lastFix, myLoc, when);
-         } catch (Exception e) {
+         }
+         catch (Exception e)
+         {
             bugged = true;
          }
       }
 
-      if (bugged) {
-         if (drawable == null) {
-            if( accuracyPaint == null )
+      if (bugged)
+      {
+         if (drawable == null)
+         {
+            if (accuracyPaint == null)
             {
                accuracyPaint = new Paint();
                accuracyPaint.setAntiAlias(true);
@@ -77,21 +88,22 @@ public class FixedMyLocationOverlay extends MyLocationOverlay {
             left = new Point();
          }
          Projection projection = mapView.getProjection();
-         
+
          double latitude = lastFix.getLatitude();
          double longitude = lastFix.getLongitude();
          float accuracy = lastFix.getAccuracy();
-         
+
          float[] result = new float[1];
 
          Location.distanceBetween(latitude, longitude, latitude, longitude + 1, result);
          float longitudeLineDistance = result[0];
 
-         GeoPoint leftGeo = new GeoPoint((int)(latitude*1e6), (int)((longitude-accuracy/longitudeLineDistance)*1e6));
+         GeoPoint leftGeo = new GeoPoint((int) (latitude * 1e6), (int) ((longitude - accuracy /
+               longitudeLineDistance) * 1e6));
          projection.toPixels(leftGeo, left);
          projection.toPixels(myLoc, center);
          int radius = center.x - left.x;
-         
+
          accuracyPaint.setColor(0xff6666ff);
          accuracyPaint.setStyle(Style.STROKE);
          canvas.drawCircle(center.x, center.y, radius, accuracyPaint);
@@ -99,7 +111,7 @@ public class FixedMyLocationOverlay extends MyLocationOverlay {
          accuracyPaint.setColor(0x186666ff);
          accuracyPaint.setStyle(Style.FILL);
          canvas.drawCircle(center.x, center.y, radius, accuracyPaint);
-                  
+
          drawable.setBounds(center.x - width / 2, center.y - height / 2, center.x + width / 2, center.y + height / 2);
          drawable.draw(canvas);
       }

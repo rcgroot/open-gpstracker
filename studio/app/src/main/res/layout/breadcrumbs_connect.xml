@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-	<TextView 
-        xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:id="@+id/listitem_name"
-        android:layout_height="?android:attr/listPreferredItemHeight"
-		android:layout_width="fill_parent" 
-        android:text="Sectionname here"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_alignParentTop="true" 
-        android:paddingLeft="6dip"
-        android:paddingRight="6dip"
-        android:paddingTop="6dip"
-        android:paddingBottom="6dip"
-        />
+<TextView
+    android:id="@+id/listitem_name"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_alignParentTop="true"
+    android:paddingBottom="6dip"
+    android:paddingLeft="6dip"
+    android:paddingRight="6dip"
+    android:paddingTop="6dip"
+    android:text="Sectionname here"
+    android:textAppearance="?android:attr/textAppearanceMedium"
+    />

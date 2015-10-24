@@ -28,9 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.tests.demo;
 
-import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
-import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -38,9 +35,12 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
+import nl.sogeti.android.gpstracker.tests.utils.MockGPSLoggerDriver;
+import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+
 /**
- * @version $Id$
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
+ * @version $Id$
  */
 public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerMap>
 {
@@ -54,7 +54,7 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
 
    public OpenGPSTrackerDemo()
    {
-      super( PACKAGE, CLASS );
+      super(PACKAGE, CLASS);
    }
 
    @Override
@@ -62,7 +62,7 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
    {
       super.setUp();
       this.mLoggermap = getActivity();
-      this.mMapView = (MapView) this.mLoggermap.findViewById( nl.sogeti.android.gpstracker.R.id.myMapView );
+      this.mMapView = (MapView) this.mLoggermap.findViewById(nl.sogeti.android.gpstracker.R.id.myMapView);
       this.mSender = new MockGPSLoggerDriver();
    }
 
@@ -73,233 +73,233 @@ public class OpenGPSTrackerDemo extends ActivityInstrumentationTestCase2<LoggerM
 
    /**
     * Start tracking and allow it to go on for 30 seconds
-    * 
+    *
     * @throws InterruptedException
     */
    @LargeTest
    public void testTracking() throws InterruptedException
    {
-            
+
       a_introSingelUtrecht30Seconds();
 
       c_startRoute10Seconds();
 
       d_showDrawMethods30seconds();
-   
+
       e_statistics10Seconds();
-      
+
       f_showPrecision30seconds();
-      
+
       g_stopTracking10Seconds();
-      
+
       h_shareTrack30Seconds();
-      
+
       i_finish10Seconds();
-      
+
    }
 
    @SmallTest
    public void a_introSingelUtrecht30Seconds() throws InterruptedException
    {
-      this.mMapView.getController().setZoom( ZOOM_LEVEL);
-      Thread.sleep( 1 * 1000 );
+      this.mMapView.getController().setZoom(ZOOM_LEVEL);
+      Thread.sleep(1 * 1000);
       // Browse the Utrecht map
-      sendMessage( "Selecting a previous recorded track" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "MENU DPAD_RIGHT" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "L" );
-      Thread.sleep( 2 * 1000 );
-      sendMessage( "The walk around the \"singel\" in Utrecht" );
-      this.sendKeys( "DPAD_CENTER" );
-      Thread.sleep( 2 * 1000 );
-   
-      Thread.sleep( 2 * 1000 );
-      sendMessage( "Scrolling about" );
-      this.mMapView.getController().animateTo( new GeoPoint( 52095829, 5118599 ) );
-      Thread.sleep( 2 * 1000 );
-      this.mMapView.getController().animateTo( new GeoPoint( 52096778, 5125090 ) );
-      Thread.sleep( 2 * 1000 );
-      this.mMapView.getController().animateTo( new GeoPoint( 52085117, 5128255 ) );
-      Thread.sleep( 2 * 1000 );
-      this.mMapView.getController().animateTo( new GeoPoint( 52081517, 5121646 ) );
-      Thread.sleep( 2 * 1000 );
-      this.mMapView.getController().animateTo( new GeoPoint( 52093535, 5116711 ) );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "G G" );
-      Thread.sleep( 5 * 1000 );
+      sendMessage("Selecting a previous recorded track");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("MENU DPAD_RIGHT");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("L");
+      Thread.sleep(2 * 1000);
+      sendMessage("The walk around the \"singel\" in Utrecht");
+      this.sendKeys("DPAD_CENTER");
+      Thread.sleep(2 * 1000);
+
+      Thread.sleep(2 * 1000);
+      sendMessage("Scrolling about");
+      this.mMapView.getController().animateTo(new GeoPoint(52095829, 5118599));
+      Thread.sleep(2 * 1000);
+      this.mMapView.getController().animateTo(new GeoPoint(52096778, 5125090));
+      Thread.sleep(2 * 1000);
+      this.mMapView.getController().animateTo(new GeoPoint(52085117, 5128255));
+      Thread.sleep(2 * 1000);
+      this.mMapView.getController().animateTo(new GeoPoint(52081517, 5121646));
+      Thread.sleep(2 * 1000);
+      this.mMapView.getController().animateTo(new GeoPoint(52093535, 5116711));
+      Thread.sleep(2 * 1000);
+      this.sendKeys("G G");
+      Thread.sleep(5 * 1000);
    }
 
    @SmallTest
    public void c_startRoute10Seconds() throws InterruptedException
-   {      
-      sendMessage( "Lets start a new route" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "MENU DPAD_RIGHT DPAD_LEFT" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "T" );//Toggle start/stop tracker
-      Thread.sleep( 1 * 1000 );
+   {
+      sendMessage("Lets start a new route");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("MENU DPAD_RIGHT DPAD_LEFT");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("T");//Toggle start/stop tracker
+      Thread.sleep(1 * 1000);
 
-      this.mMapView.getController().setZoom( ZOOM_LEVEL);
-      
-      this.sendKeys( "D E M O SPACE R O U T E ENTER" );
-      Thread.sleep( 5 * 1000 );
-      sendMessage( "The GPS logger is already running as a background service" );
-      Thread.sleep( 5 * 1000 );
-      this.sendKeys( "ENTER" );
+      this.mMapView.getController().setZoom(ZOOM_LEVEL);
 
-      this.sendKeys( "T T T T" );
-      
-      Thread.sleep( 30 * 1000 );
-      
-      this.sendKeys( "G G" );
+      this.sendKeys("D E M O SPACE R O U T E ENTER");
+      Thread.sleep(5 * 1000);
+      sendMessage("The GPS logger is already running as a background service");
+      Thread.sleep(5 * 1000);
+      this.sendKeys("ENTER");
+
+      this.sendKeys("T T T T");
+
+      Thread.sleep(30 * 1000);
+
+      this.sendKeys("G G");
    }
 
    @SmallTest
    public void d_showDrawMethods30seconds() throws InterruptedException
    {
-      sendMessage( "Track drawing color has different options" );
-      
-      this.mMapView.getController().setZoom( ZOOM_LEVEL );
-      this.sendKeys( "MENU DPAD_RIGHT DPAD_RIGHT DPAD_RIGHT" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "S" );
-      Thread.sleep( 3 * 1000 );
-      this.sendKeys( "DPAD_CENTER" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "DPAD_UP DPAD_UP DPAD_UP DPAD_UP" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "DPAD_CENTER" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "BACK" );
+      sendMessage("Track drawing color has different options");
 
-      sendMessage( "Plain green" );
+      this.mMapView.getController().setZoom(ZOOM_LEVEL);
+      this.sendKeys("MENU DPAD_RIGHT DPAD_RIGHT DPAD_RIGHT");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("S");
+      Thread.sleep(3 * 1000);
+      this.sendKeys("DPAD_CENTER");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("DPAD_UP DPAD_UP DPAD_UP DPAD_UP");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_CENTER");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("BACK");
 
-      Thread.sleep( 15 * 1000 );
-      
-      this.sendKeys( "MENU DPAD_RIGHT DPAD_RIGHT DPAD_RIGHT" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "S" );
-      Thread.sleep( 3 * 1000 );
-      this.sendKeys( "MENU" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "DPAD_CENTER" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "DPAD_UP DPAD_UP DPAD_UP DPAD_UP" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "DPAD_DOWN" );      
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "DPAD_DOWN" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "DPAD_DOWN" );      
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "DPAD_DOWN DPAD_DOWN" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "DPAD_UP");
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "DPAD_CENTER" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "BACK" );
-      
-      sendMessage( "Average speeds drawn" );
-      
-      Thread.sleep( 15 * 1000 );
+      sendMessage("Plain green");
+
+      Thread.sleep(15 * 1000);
+
+      this.sendKeys("MENU DPAD_RIGHT DPAD_RIGHT DPAD_RIGHT");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("S");
+      Thread.sleep(3 * 1000);
+      this.sendKeys("MENU");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("DPAD_CENTER");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("DPAD_UP DPAD_UP DPAD_UP DPAD_UP");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_DOWN");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_DOWN");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_DOWN");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_DOWN DPAD_DOWN");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_UP");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_CENTER");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("BACK");
+
+      sendMessage("Average speeds drawn");
+
+      Thread.sleep(15 * 1000);
    }
 
    @SmallTest
    public void e_statistics10Seconds() throws InterruptedException
-   {      
+   {
       // Show of the statistics screen
-      sendMessage( "Lets look at some statistics" );
-      this.sendKeys( "MENU DPAD_RIGHT DPAD_RIGHT" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "E" );
-      Thread.sleep( 2 * 1000 );
-      sendMessage( "Shows the basics on time, speed and distance" );
-      Thread.sleep( 10 * 1000 );
-      this.sendKeys( "BACK" );
+      sendMessage("Lets look at some statistics");
+      this.sendKeys("MENU DPAD_RIGHT DPAD_RIGHT");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("E");
+      Thread.sleep(2 * 1000);
+      sendMessage("Shows the basics on time, speed and distance");
+      Thread.sleep(10 * 1000);
+      this.sendKeys("BACK");
    }
 
    @SmallTest
    public void f_showPrecision30seconds() throws InterruptedException
    {
-      this.mMapView.getController().setZoom( ZOOM_LEVEL );
-      
-      sendMessage( "There are options on the precision of tracking" );
-      
-      this.sendKeys( "MENU DPAD_RIGHT DPAD_RIGHT DPAD_RIGHT" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "S" );
-      Thread.sleep( 3 * 1000 );
-      this.sendKeys( "DPAD_DOWN DPAD_DOWN" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "DPAD_CENTER" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "DPAD_UP DPAD_UP" );
-      Thread.sleep( 2 * 1000 );      
-      this.sendKeys( "DPAD_DOWN DPAD_DOWN" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "DPAD_UP" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "DPAD_CENTER" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "BACK" );
-      
-      sendMessage( "Course will drain the battery the least" );
-      Thread.sleep( 5 * 1000 );
-      sendMessage( "Fine will store the best track" );
-      
-      Thread.sleep( 10 * 1000 );
+      this.mMapView.getController().setZoom(ZOOM_LEVEL);
+
+      sendMessage("There are options on the precision of tracking");
+
+      this.sendKeys("MENU DPAD_RIGHT DPAD_RIGHT DPAD_RIGHT");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("S");
+      Thread.sleep(3 * 1000);
+      this.sendKeys("DPAD_DOWN DPAD_DOWN");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("DPAD_CENTER");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("DPAD_UP DPAD_UP");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_DOWN DPAD_DOWN");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_UP");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("DPAD_CENTER");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("BACK");
+
+      sendMessage("Course will drain the battery the least");
+      Thread.sleep(5 * 1000);
+      sendMessage("Fine will store the best track");
+
+      Thread.sleep(10 * 1000);
    }
 
    @SmallTest
    public void g_stopTracking10Seconds() throws InterruptedException
    {
-      this.mMapView.getController().setZoom( ZOOM_LEVEL );
-      
-      Thread.sleep( 5 * 1000 );
+      this.mMapView.getController().setZoom(ZOOM_LEVEL);
+
+      Thread.sleep(5 * 1000);
       // Stop tracking
-      sendMessage( "Stopping tracking" );
-      this.sendKeys( "MENU DPAD_RIGHT DPAD_LEFT" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "T" );
-      Thread.sleep( 2 * 1000 );
-   
-      sendMessage( "Is the track stored?" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "MENU DPAD_RIGHT" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "L" );
-      this.sendKeys( "DPAD_DOWN DPAD_DOWN" );
-      Thread.sleep( 2 * 1000 );
-      this.sendKeys( "DPAD_CENTER" );
-      Thread.sleep( 2 * 1000 );
+      sendMessage("Stopping tracking");
+      this.sendKeys("MENU DPAD_RIGHT DPAD_LEFT");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("T");
+      Thread.sleep(2 * 1000);
+
+      sendMessage("Is the track stored?");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("MENU DPAD_RIGHT");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("L");
+      this.sendKeys("DPAD_DOWN DPAD_DOWN");
+      Thread.sleep(2 * 1000);
+      this.sendKeys("DPAD_CENTER");
+      Thread.sleep(2 * 1000);
    }
 
    private void h_shareTrack30Seconds()
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @SmallTest
    public void i_finish10Seconds() throws InterruptedException
    {
-      this.mMapView.getController().setZoom( ZOOM_LEVEL );
-      
-      this.sendKeys( "G G" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "G G" );
-      Thread.sleep( 1 * 1000 );
-      this.sendKeys( "G G" );
-      sendMessage( "Thank you for watching this demo." );
-      Thread.sleep( 10 * 1000 );
+      this.mMapView.getController().setZoom(ZOOM_LEVEL);
 
-      Thread.sleep( 5 * 1000 );
+      this.sendKeys("G G");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("G G");
+      Thread.sleep(1 * 1000);
+      this.sendKeys("G G");
+      sendMessage("Thank you for watching this demo.");
+      Thread.sleep(10 * 1000);
+
+      Thread.sleep(5 * 1000);
    }
 
-   private void sendMessage( String string )
+   private void sendMessage(String string)
    {
-      this.mSender.sendSMS( string );
+      this.mSender.sendSMS(string);
    }
 }

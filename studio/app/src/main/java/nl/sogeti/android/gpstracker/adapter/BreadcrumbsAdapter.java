@@ -28,6 +28,13 @@
  */
 package nl.sogeti.android.gpstracker.adapter;
 
+import android.app.Activity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,25 +44,17 @@ import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
 import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsTracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Pair;
-import android.app.Activity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 /**
  * Organizes Breadcrumbs tasks based on demands on the BaseAdapter functions
- * 
- * @version $Id:$
+ *
  * @author rene (c) Apr 24, 2011, Sogeti B.V.
+ * @version $Id:$
  */
 public class BreadcrumbsAdapter extends BaseAdapter
 {
-   private static final String TAG = "OGT.BreadcrumbsAdapter";
-
    public static final boolean DEBUG = false;
-
+   private static final String TAG = "OGT.BreadcrumbsAdapter";
    private Activity mContext;
    private LayoutInflater mInflater;
    private BreadcrumbsService mService;
@@ -77,22 +76,21 @@ public class BreadcrumbsAdapter extends BaseAdapter
 
    /**
     * Reloads the current list of known breadcrumb listview items
-    * 
     */
    public void updateItemList()
    {
       mContext.runOnUiThread(new Runnable()
+      {
+         @Override
+         public void run()
          {
-            @Override
-            public void run()
+            if (mService != null)
             {
-               if (mService != null)
-               {
-                  breadcrumbItems = mService.getAllItems();
-                  notifyDataSetChanged();
-               }
+               breadcrumbItems = mService.getAllItems();
+               notifyDataSetChanged();
             }
-         });
+         }
+      });
    }
 
    /**
@@ -216,10 +214,17 @@ public class BreadcrumbsAdapter extends BaseAdapter
    }
 
    @Override
-   public int getViewTypeCount()
+   public boolean areAllItemsEnabled()
    {
-      int types = 4;
-      return types;
+      return false;
+   }
+
+   @Override
+   public boolean isEnabled(int position)
+   {
+      int itemViewType = getItemViewType(position);
+      return itemViewType == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE || itemViewType == Constants
+            .BREADCRUMBS_CONNECT_ITEM_VIEW_TYPE;
    }
 
    @Override
@@ -236,16 +241,12 @@ public class BreadcrumbsAdapter extends BaseAdapter
       }
    }
 
-   @Override
-   public boolean areAllItemsEnabled()
-   {
-      return false;
-   };
+   ;
 
    @Override
-   public boolean isEnabled(int position)
+   public int getViewTypeCount()
    {
-      int itemViewType = getItemViewType(position);
-      return itemViewType == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE || itemViewType == Constants.BREADCRUMBS_CONNECT_ITEM_VIEW_TYPE;
+      int types = 4;
+      return types;
    }
 }
