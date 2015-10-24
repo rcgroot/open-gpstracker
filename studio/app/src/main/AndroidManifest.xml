@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="nl.sogeti.android.gpstracker"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          android:installLocation="auto"
-          android:versionCode="85"
-          android:versionName="1.3.5">
+<manifest
+    package="nl.sogeti.android.gpstracker"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:installLocation="auto"
+    android:versionCode="85"
+    android:versionName="1.3.5">
 
     <uses-sdk
         android:minSdkVersion="4"
@@ -135,7 +136,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
 
-                <data android:mimeType="text/xml"/>
+                <data android:mimeType="application/gpx+xml"/>
             </intent-filter>
 
             <meta-data

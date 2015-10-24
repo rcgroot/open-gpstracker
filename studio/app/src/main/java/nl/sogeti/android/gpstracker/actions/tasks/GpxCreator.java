@@ -549,6 +549,6 @@ public class GpxCreator extends XmlCreator
    @Override
    protected String getContentType()
    {
-      return needsBundling() ? "application/zip" : "text/xml";
+      return needsBundling() ? "application/zip" : "application/gpx+xml";
    }
 }

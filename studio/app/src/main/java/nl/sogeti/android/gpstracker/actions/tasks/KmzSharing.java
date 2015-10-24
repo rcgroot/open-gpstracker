@@ -53,7 +53,7 @@ public class KmzSharing extends KmzCreator
    protected void onPostExecute(Uri resultFilename)
    {
       super.onPostExecute(resultFilename);
-      ShareTrack.sendFile(mContext, resultFilename, mContext.getString(R.string.email_kmzbody), getContentType());
+      ShareTrack.sendFile(mContext, resultFilename, getContentType(), mContext.getString(R.string.email_kmzbody));
    }
 
 }

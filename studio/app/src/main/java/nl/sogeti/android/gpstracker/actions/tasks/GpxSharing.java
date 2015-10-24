@@ -55,7 +55,7 @@ public class GpxSharing extends GpxCreator
    protected void onPostExecute(Uri resultFilename)
    {
       super.onPostExecute(resultFilename);
-      ShareTrack.sendFile(mContext, resultFilename, mContext.getString(R.string.email_gpxbody), getContentType());
+      ShareTrack.sendFile(mContext, resultFilename, getContentType(), mContext.getString(R.string.email_gpxbody));
    }
 
 }
