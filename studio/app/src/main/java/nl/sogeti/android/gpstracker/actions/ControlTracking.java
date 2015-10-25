@@ -218,19 +218,19 @@ public class ControlTracking extends Activity
    {
       switch (state)
       {
-         case Constants.STOPPED:
+         case Constants.STATE_STOPPED:
             start.setEnabled(true);
             pause.setEnabled(false);
             resume.setEnabled(false);
             stop.setEnabled(false);
             break;
-         case Constants.LOGGING:
+         case Constants.STATE_LOGGING:
             start.setEnabled(false);
             pause.setEnabled(true);
             resume.setEnabled(false);
             stop.setEnabled(true);
             break;
-         case Constants.PAUSED:
+         case Constants.STATE_PAUSED:
             start.setEnabled(false);
             pause.setEnabled(false);
             resume.setEnabled(true);

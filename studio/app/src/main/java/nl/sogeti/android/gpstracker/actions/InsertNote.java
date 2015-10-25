@@ -302,7 +302,7 @@ public class InsertNote extends Activity
       {
          case DIALOG_INSERTNOTE:
             boolean prepared = mLoggerServiceManager.isMediaPrepared() && mLoggerServiceManager.getLoggingState() ==
-                  Constants.LOGGING;
+                  Constants.STATE_LOGGING;
             name = (Button) dialog.findViewById(R.id.noteinsert_name);
             text = (Button) dialog.findViewById(R.id.noteinsert_text);
             voice = (Button) dialog.findViewById(R.id.noteinsert_voice);

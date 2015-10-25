@@ -5,7 +5,7 @@ def signingProperties = new Properties()
 signingProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdkVersion "Google Inc.:Google APIs:17"
+    compileSdkVersion "Google Inc.:Google APIs:22"
     buildToolsVersion "23.0.1"
 
     defaultConfig {
@@ -15,6 +15,7 @@ android {
         targetSdkVersion 15
         versionCode 1
         versionName "1.0"
+        generatedDensities = ["hdpi", "xhdpi"]
     }
 
     signingConfigs {
@@ -41,7 +42,7 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile project(':signpost')
     compile 'com.android.support:support-v4:23.1.0'
+    compile project(':signpost')
+    testCompile 'junit:junit:4.12'
 }

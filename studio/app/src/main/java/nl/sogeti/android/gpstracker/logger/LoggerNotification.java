@@ -44,7 +44,7 @@ public class LoggerNotification
    {
       mNoticationManager.cancel(ID_STATUS);
 
-      Notification notification = buildNotification(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
+      Notification notification = buildLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
       if (Build.VERSION.SDK_INT >= 5)
       {
          mService.startForeground(ID_STATUS, notification);
@@ -57,47 +57,8 @@ public class LoggerNotification
 
    void updateLogging(int mPrecision, int mLoggingState, boolean mStatusMonitor, long mTrackId)
    {
-      Notification notification = buildNotification(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
-      mNoticationManager.notify(R.layout.map, notification);
-   }
-
-   private Notification buildNotification(int mPrecision, int mLoggingState, boolean mStatusMonitor, long mTrackId)
-   {
-      Resources resources = mService.getResources();
-      CharSequence contentTitle = resources.getString(R.string.app_name);
-      String precision = resources.getStringArray(R.array.precision_choices)[mPrecision];
-      String state = resources.getStringArray(R.array.state_choices)[mLoggingState - 1];
-      CharSequence contentText;
-      switch (mPrecision)
-      {
-         case (Constants.LOGGING_GLOBAL):
-            contentText = resources.getString(R.string.service_networkstatus, state, precision);
-            break;
-         default:
-            if (mStatusMonitor)
-            {
-               contentText = resources.getString(R.string.service_gpsstatus, state, precision,
-                     mSatellites);
-            }
-            else
-            {
-               contentText = resources.getString(R.string.service_gpsnostatus, state, precision);
-            }
-            break;
-      }
-      Intent notificationIntent = new Intent(mService, LoggerMap.class);
-      notificationIntent.setData(ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, mTrackId));
-      PendingIntent contentIntent = PendingIntent.getActivity(mService, 0, notificationIntent, 0);
-
-      NotificationCompat.Builder builder =
-            new NotificationCompat.Builder(mService)
-                  .setSmallIcon(SMALL_ICON)
-                  .setContentTitle(contentTitle)
-                  .setContentText(contentText)
-                  .setContentIntent(contentIntent)
-                  .setOngoing(true);
-
-      return builder.build();
+      Notification notification = buildLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
+      mNoticationManager.notify(ID_STATUS, notification);
    }
 
    void stopLogging()
@@ -110,6 +71,62 @@ public class LoggerNotification
       {
          mNoticationManager.cancel(ID_STATUS);
       }
+   }
+
+   private Notification buildLogging(int precision, int state, boolean monitor, long trackId)
+   {
+      Resources resources = mService.getResources();
+      CharSequence contentTitle = resources.getString(R.string.app_name);
+      String precisionText = resources.getStringArray(R.array.precision_choices)[precision];
+      String stateText = resources.getStringArray(R.array.state_choices)[state - 1];
+      CharSequence contentText;
+      switch (precision)
+      {
+         case (Constants.LOGGING_GLOBAL):
+            contentText = resources.getString(R.string.service_networkstatus, stateText, precisionText);
+            break;
+         default:
+            if (monitor)
+            {
+               contentText = resources.getString(R.string.service_gpsstatus, stateText, precisionText,
+                     mSatellites);
+            }
+            else
+            {
+               contentText = resources.getString(R.string.service_gpsnostatus, stateText, precisionText);
+            }
+            break;
+      }
+      Intent notificationIntent = new Intent(mService, LoggerMap.class);
+      notificationIntent.setData(ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, trackId));
+      PendingIntent contentIntent = PendingIntent.getActivity(mService, 0, notificationIntent, 0);
+
+      NotificationCompat.Builder builder =
+            new NotificationCompat.Builder(mService)
+                  .setSmallIcon(SMALL_ICON)
+                  .setContentTitle(contentTitle)
+                  .setContentText(contentText)
+                  .setContentIntent(contentIntent)
+                  .setOngoing(true);
+      PendingIntent pendingIntent;
+      if (state == Constants.STATE_LOGGING)
+      {
+         CharSequence pause = resources.getString(R.string.logcontrol_pause);
+         Intent intent = new Intent(Constants.SERVICENAME);
+         intent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_PAUSE);
+         pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+         builder.addAction(R.drawable.ic_pause_24dp, pause, pendingIntent);
+      }
+      else if (state == Constants.STATE_PAUSED)
+      {
+         CharSequence resume = resources.getString(R.string.logcontrol_resume);
+         Intent intent = new Intent(Constants.SERVICENAME);
+         intent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_RESUME);
+         pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+         builder.addAction(R.drawable.ic_play_arrow_24dp, resume, pendingIntent);
+      }
+
+      return builder.build();
    }
 
    void startPoorSignal()

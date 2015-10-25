@@ -125,33 +125,33 @@ public class Constants
    /**
     * The state the service is.
     *
-    * @see #UNKNOWN
-    * @see #LOGGING
-    * @see #PAUSED
-    * @see #STOPPED
+    * @see #STATE_UNKNOWN
+    * @see #STATE_LOGGING
+    * @see #STATE_PAUSED
+    * @see #STATE_STOPPED
     */
    public static final String EXTRA_LOGGING_STATE = "nl.sogeti.android.gpstracker.EXTRA_LOGGING_STATE";
 
    /**
     * The state of the service is unknown
     */
-   public static final int UNKNOWN = -1;
+   public static final int STATE_UNKNOWN = -1;
 
    /**
     * The service is actively logging, it has requested location update from the location provider.
     */
-   public static final int LOGGING = 1;
+   public static final int STATE_LOGGING = 1;
 
    /**
     * The service is not active, but can be resumed to become active and store location changes as part of a new
     * segment of the current track.
     */
-   public static final int PAUSED = 2;
+   public static final int STATE_PAUSED = 2;
 
    /**
     * The service is not active and can not resume a current track but must start a new one when becoming active.
     */
-   public static final int STOPPED = 3;
+   public static final int STATE_STOPPED = 3;
 
    /**
     * The precision of the GPS provider is based on the custom time interval and distance.

@@ -117,7 +117,7 @@ public class GPSLoggerServiceManager
    {
       synchronized (mStartLock)
       {
-         int logging = Constants.UNKNOWN;
+         int logging = Constants.STATE_UNKNOWN;
          try
          {
             if (mBound)

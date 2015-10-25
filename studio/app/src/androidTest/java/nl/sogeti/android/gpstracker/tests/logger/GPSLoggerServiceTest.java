@@ -79,9 +79,9 @@ public class GPSLoggerServiceTest extends ServiceTestCase<GPSLoggerService>
    {
       IBinder ibinder = bindService(new Intent(Constants.SERVICENAME));
       IGPSLoggerServiceRemote stub = IGPSLoggerServiceRemote.Stub.asInterface((IBinder) ibinder);
-      Assert.assertEquals("The service should not be logging", Constants.STOPPED, stub.loggingState());
+      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, stub.loggingState());
       stub.startLogging();
-      Assert.assertEquals("The service should be logging", Constants.LOGGING, stub.loggingState());
+      Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, stub.loggingState());
       shutdownService();
    }
 

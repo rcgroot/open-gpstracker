@@ -326,7 +326,7 @@ public class LoggerMap extends MapActivity
          mWakeLock.release();
          Log.w(TAG, "onDestroy(): Released lock to keep screen on!");
       }
-      if (mLoggerServiceManager.getLoggingState() == Constants.STOPPED)
+      if (mLoggerServiceManager.getLoggingState() == Constants.STATE_STOPPED)
       {
          stopService(new Intent(Constants.SERVICENAME));
       }
@@ -353,7 +353,7 @@ public class LoggerMap extends MapActivity
    protected boolean isLocationDisplayed()
    {
       return mSharedPreferences.getBoolean(Constants.LOCATION, false) || mLoggerServiceManager.getLoggingState() ==
-            Constants.LOGGING;
+            Constants.STATE_LOGGING;
    }
 
    private void updateTitleBar()
@@ -397,7 +397,7 @@ public class LoggerMap extends MapActivity
                mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
             }
          }
-         if (mLoggerServiceManager.getLoggingState() == Constants.LOGGING && !mWakeLock.isHeld())
+         if (mLoggerServiceManager.getLoggingState() == Constants.STATE_LOGGING && !mWakeLock.isHeld())
          {
             mWakeLock.acquire();
             Log.w(TAG, "Acquired lock to keep screen on!");
@@ -1626,7 +1626,7 @@ public class LoggerMap extends MapActivity
    private void moveActiveViewWindow()
    {
       GeoPoint lastPoint = getLastTrackPoint();
-      if (lastPoint != null && mLoggerServiceManager.getLoggingState() == Constants.LOGGING)
+      if (lastPoint != null && mLoggerServiceManager.getLoggingState() == Constants.STATE_LOGGING)
       {
          Point out = new Point();
          this.mMapView.getProjection().toPixels(lastPoint, out);

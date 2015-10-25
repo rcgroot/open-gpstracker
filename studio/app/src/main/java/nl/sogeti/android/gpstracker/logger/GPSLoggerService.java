@@ -150,7 +150,7 @@ public class GPSLoggerService extends Service implements LocationListener
    private long mSegmentId = -1;
    private long mWaypointId = -1;
    private int mPrecision;
-   private int mLoggingState = Constants.STOPPED;
+   private int mLoggingState = Constants.STATE_STOPPED;
    private boolean mStartNextSegment;
 
    private String mSources;
@@ -742,7 +742,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
    protected boolean isLogging()
    {
-      return this.mLoggingState == Constants.LOGGING;
+      return this.mLoggingState == Constants.STATE_LOGGING;
    }
 
    /**
@@ -772,7 +772,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
       mWeakLocations = new Vector<>(3);
       mAltitudes = new LinkedList<>();
-      mLoggingState = Constants.STOPPED;
+      mLoggingState = Constants.STATE_STOPPED;
       mStartNextSegment = false;
       mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
       mLoggerNotification = new LoggerNotification(this);
@@ -785,7 +785,7 @@ public class GPSLoggerService extends Service implements LocationListener
             .LOGATSTARTUP, false);
 
       crashRestoreState();
-      if (startImmidiatly && mLoggingState == Constants.STOPPED)
+      if (startImmidiatly && mLoggingState == Constants.STATE_STOPPED)
       {
          startLogging();
          ContentValues values = new ContentValues();
@@ -901,8 +901,8 @@ public class GPSLoggerService extends Service implements LocationListener
    private synchronized void crashRestoreState()
    {
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-      long previousState = preferences.getInt(SERVICESTATE_STATE, Constants.STOPPED);
-      if (previousState == Constants.LOGGING || previousState == Constants.PAUSED)
+      long previousState = preferences.getInt(SERVICESTATE_STATE, Constants.STATE_STOPPED);
+      if (previousState == Constants.STATE_LOGGING || previousState == Constants.STATE_PAUSED)
       {
          Log.w(TAG, "Recovering from a crash or kill and restoring state.");
          mLoggerNotification.startLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
@@ -911,14 +911,14 @@ public class GPSLoggerService extends Service implements LocationListener
          mSegmentId = preferences.getLong(SERVICESTATE_SEGMENTID, -1);
          mPrecision = preferences.getInt(SERVICESTATE_PRECISION, -1);
          mDistance = preferences.getFloat(SERVICESTATE_DISTANCE, 0F);
-         if (previousState == Constants.LOGGING)
+         if (previousState == Constants.STATE_LOGGING)
          {
-            mLoggingState = Constants.PAUSED;
+            mLoggingState = Constants.STATE_PAUSED;
             resumeLogging();
          }
-         else if (previousState == Constants.PAUSED)
+         else if (previousState == Constants.STATE_PAUSED)
          {
-            mLoggingState = Constants.LOGGING;
+            mLoggingState = Constants.STATE_LOGGING;
             pauseLogging();
          }
       }
@@ -957,12 +957,12 @@ public class GPSLoggerService extends Service implements LocationListener
          Log.d(TAG, "startLogging()");
       }
       ;
-      if (this.mLoggingState == Constants.STOPPED)
+      if (this.mLoggingState == Constants.STATE_STOPPED)
       {
          startNewTrack();
          sendRequestLocationUpdatesMessage();
          sendRequestStatusUpdateMessage();
-         this.mLoggingState = Constants.LOGGING;
+         this.mLoggingState = Constants.STATE_LOGGING;
          updateWakeLock();
          mLoggerNotification.startLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
          crashProtectState();
@@ -977,11 +977,11 @@ public class GPSLoggerService extends Service implements LocationListener
          Log.d(TAG, "pauseLogging()");
       }
       ;
-      if (this.mLoggingState == Constants.LOGGING)
+      if (this.mLoggingState == Constants.STATE_LOGGING)
       {
          mLocationManager.removeGpsStatusListener(mStatusListener);
          stopListening();
-         mLoggingState = Constants.PAUSED;
+         mLoggingState = Constants.STATE_PAUSED;
          mPreviousLocation = null;
          updateWakeLock();
          mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
@@ -999,7 +999,7 @@ public class GPSLoggerService extends Service implements LocationListener
          Log.d(TAG, "resumeLogging()");
       }
       ;
-      if (this.mLoggingState == Constants.PAUSED)
+      if (this.mLoggingState == Constants.STATE_PAUSED)
       {
          if (mPrecision != Constants.LOGGING_GLOBAL)
          {
@@ -1008,7 +1008,7 @@ public class GPSLoggerService extends Service implements LocationListener
          sendRequestLocationUpdatesMessage();
          sendRequestStatusUpdateMessage();
 
-         this.mLoggingState = Constants.LOGGING;
+         this.mLoggingState = Constants.STATE_LOGGING;
          updateWakeLock();
          mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
          crashProtectState();
@@ -1023,7 +1023,7 @@ public class GPSLoggerService extends Service implements LocationListener
          Log.d(TAG, "stopLogging()");
       }
       ;
-      mLoggingState = Constants.STOPPED;
+      mLoggingState = Constants.STATE_STOPPED;
       crashProtectState();
 
       updateWakeLock();
@@ -1207,7 +1207,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
    private void updateWakeLock()
    {
-      if (this.mLoggingState == Constants.LOGGING)
+      if (this.mLoggingState == Constants.STATE_LOGGING)
       {
          PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener
                (mSharedPreferenceChangeListener);
@@ -1359,7 +1359,7 @@ public class GPSLoggerService extends Service implements LocationListener
                   soundGpsSignalAlarm();
                }
 
-               mLoggingState = Constants.PAUSED;
+               mLoggingState = Constants.STATE_PAUSED;
                resumeLogging();
             }
             else

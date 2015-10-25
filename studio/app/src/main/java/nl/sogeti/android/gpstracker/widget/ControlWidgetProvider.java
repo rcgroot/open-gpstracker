@@ -57,7 +57,7 @@ public class ControlWidgetProvider extends AppWidgetProvider
          ".gpstracker.widget.ControlWidgetProvider");
    private static final int BUTTON_TRACKINGCONTROL = 2;
    private static final int BUTTON_INSERTNOTE = 3;
-   private static final String TAG = "OGT.ControlWidgetProvider";
+   private static final String TAG = "OGT.Widget";
    private static int mState;
 
    public ControlWidgetProvider()
@@ -79,7 +79,7 @@ public class ControlWidgetProvider extends AppWidgetProvider
       String action = intent.getAction();
       if (Constants.LOGGING_STATE_CHANGED_ACTION.equals(action))
       {
-         mState = intent.getIntExtra(Constants.EXTRA_LOGGING_STATE, Constants.UNKNOWN);
+         mState = intent.getIntExtra(Constants.EXTRA_LOGGING_STATE, Constants.STATE_UNKNOWN);
          updateWidget(context);
       }
       else if (intent.hasCategory(Intent.CATEGORY_ALTERNATIVE))
@@ -180,16 +180,16 @@ public class ControlWidgetProvider extends AppWidgetProvider
 //      Log.d(TAG, "Updated the remote views to state " + mState);
       switch (mState)
       {
-         case Constants.LOGGING:
+         case Constants.STATE_LOGGING:
             setEnableInsertNote(views, true);
             break;
-         case Constants.PAUSED:
+         case Constants.STATE_PAUSED:
             setEnableInsertNote(views, false);
             break;
-         case Constants.STOPPED:
+         case Constants.STATE_STOPPED:
             setEnableInsertNote(views, false);
             break;
-         case Constants.UNKNOWN:
+         case Constants.STATE_UNKNOWN:
             setEnableInsertNote(views, false);
             break;
          default:
