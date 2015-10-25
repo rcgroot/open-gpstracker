@@ -43,6 +43,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -170,6 +171,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
       this.setContentView(R.layout.tracklist);
       Toolbar toolbar = (Toolbar) findViewById(R.id.support_actionbar);
       setSupportActionBar(toolbar);
+      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
       displayIntent(getIntent());
 
@@ -236,6 +238,10 @@ public class TrackList extends AppCompatActivity implements ProgressListener
       boolean handled = false;
       switch (item.getItemId())
       {
+         case android.R.id.home:
+            NavUtils.navigateUpFromSameTask(this);
+            handled = true;
+            break;
          case MENU_SEARCH:
             onSearchRequested();
             handled = true;

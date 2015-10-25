@@ -38,6 +38,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -164,6 +165,7 @@ public class Statistics extends AppCompatActivity implements StatisticsDelegate
       setContentView(R.layout.statistics);
       Toolbar toolbar = (Toolbar) findViewById(R.id.support_actionbar);
       setSupportActionBar(toolbar);
+      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
       mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
       mViewFlipper.setDrawingCacheEnabled(true);
@@ -293,6 +295,10 @@ public class Statistics extends AppCompatActivity implements StatisticsDelegate
       Intent intent;
       switch (item.getItemId())
       {
+         case android.R.id.home:
+            NavUtils.navigateUpFromSameTask(this);
+            handled = true;
+            break;
          case MENU_GRAPHTYPE:
             showDialog(DIALOG_GRAPHTYPE);
             handled = true;
@@ -418,8 +424,7 @@ public class Statistics extends AppCompatActivity implements StatisticsDelegate
       distanceView.setText(calculated.getDistanceText());
       starttimeView.setText(Long.toString(calculated.getStarttime()));
       endtimeView.setText(Long.toString(calculated.getEndtime()));
-      String titleFormat = getString(R.string.stat_title);
-      setTitle(String.format(titleFormat, calculated.getTracknameText()));
+      setTitle(calculated.getTracknameText());
       waypointsView.setText(calculated.getWaypointsText());
 
       calculating = false;

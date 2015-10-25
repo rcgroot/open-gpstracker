@@ -66,9 +66,6 @@
         <meta-data
             android:name="android.app.default_searchable"
             android:value=".viewer.TrackList"/>
-        <meta-data
-            android:name="CLOUDMADE_KEY"
-            android:value="534dfce474894e218f363a5473248ff6"/>
 
         <activity
             android:name=".viewer.LoggerMap"
@@ -106,7 +103,12 @@
         <activity
             android:name=".viewer.TrackList"
             android:label="@string/track_list"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:parentActivityName=".viewer.LoggerMap">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".viewer.LoggerMap"/>
+
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
 
@@ -148,7 +150,11 @@
         </activity>
         <activity
             android:name=".actions.Statistics"
-            android:label="@string/menu_statistics">
+            android:label="@string/menu_statistics"
+            android:parentActivityName=".viewer.LoggerMap">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".viewer.LoggerMap"/>
         </activity>
         <activity
             android:name=".actions.ShareTrack"
