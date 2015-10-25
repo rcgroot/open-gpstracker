@@ -28,9 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.logger;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -53,7 +50,6 @@ import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -63,11 +59,8 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -83,7 +76,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
 /**
  * A system service as controlling the background logging of gps locations.
@@ -135,14 +127,12 @@ public class GPSLoggerService extends Service implements LocationListener
    private static final int REQUEST_GLOBALNETWORK_LOCATIONUPDATES = 4;
    private static final int REQUEST_CUSTOMGPS_LOCATIONUPDATES = 5;
    private static final int STOPLOOPER = 6;
-   private static final int GPSPROBLEM = 7;
-   private static final int LOGGING_UNAVAILABLE = R.string.service_connectiondisabled;
    /**
     * DUP from android.app.Service.START_STICKY
     */
    private static final int START_STICKY = 1;
    private LocationManager mLocationManager;
-   private NotificationManager mNoticationManager;
+   private LoggerNotification mLoggerNotification;
    private PowerManager.WakeLock mWakeLock;
    private Handler mHandler;
 
@@ -167,7 +157,6 @@ public class GPSLoggerService extends Service implements LocationListener
 
    private Location mPreviousLocation;
    private float mDistance;
-   private Notification mNotification;
 
    private Vector<Location> mWeakLocations;
    private Queue<Double> mAltitudes;
@@ -177,12 +166,8 @@ public class GPSLoggerService extends Service implements LocationListener
     * of a waypoint in meters.
     */
    private float mMaxAcceptableAccuracy = 20;
-   private int mSatellites = 0;
-
-   private boolean mShowingGpsDisabled;
-
    /**
-    * Should the GPS Status monitor update the notification bar
+    * Should the GPS Status monitor update the mLoggerNotification bar
     */
    private boolean mStatusMonitor;
 
@@ -205,16 +190,16 @@ public class GPSLoggerService extends Service implements LocationListener
                if (mStatusMonitor)
                {
                   GpsStatus status = mLocationManager.getGpsStatus(null);
-                  mSatellites = 0;
+                  mLoggerNotification.mSatellites = 0;
                   Iterable<GpsSatellite> list = status.getSatellites();
                   for (GpsSatellite satellite : list)
                   {
                      if (satellite.usedInFix())
                      {
-                        mSatellites++;
+                        mLoggerNotification.mSatellites++;
                      }
                   }
-                  updateNotification();
+                  mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
                }
                break;
             case GpsStatus.GPS_EVENT_STOPPED:
@@ -240,36 +225,38 @@ public class GPSLoggerService extends Service implements LocationListener
       @Override
       public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
       {
-         if (key.equals(Constants.PRECISION) || key.equals(Constants.LOGGING_DISTANCE) || key.equals(Constants
-               .LOGGING_INTERVAL))
+         switch (key)
          {
-            sendRequestLocationUpdatesMessage();
-            crashProtectState();
-            updateNotification();
-            broadCastLoggingState();
-         }
-         else if (key.equals(Constants.SPEEDSANITYCHECK))
-         {
-            mSpeedSanityCheck = sharedPreferences.getBoolean(Constants.SPEEDSANITYCHECK, true);
-         }
-         else if (key.equals(Constants.STATUS_MONITOR))
-         {
-            mLocationManager.removeGpsStatusListener(mStatusListener);
-            sendRequestStatusUpdateMessage();
-            updateNotification();
-         }
-         else if (key.equals(Constants.BROADCAST_STREAM) || key.equals("VOICEOVER_ENABLED") || key.equals
-               ("CUSTOMUPLOAD_ENABLED"))
-         {
-            if (key.equals(Constants.BROADCAST_STREAM))
-            {
-               mStreamBroadcast = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
-            }
-            StreamUtils.shutdownStreams(GPSLoggerService.this);
-            if (!mStreamBroadcast)
-            {
-               StreamUtils.initStreams(GPSLoggerService.this);
-            }
+            case Constants.PRECISION:
+            case Constants.LOGGING_DISTANCE:
+            case Constants
+                  .LOGGING_INTERVAL:
+               sendRequestLocationUpdatesMessage();
+               crashProtectState();
+               mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
+               broadCastLoggingState();
+               break;
+            case Constants.SPEEDSANITYCHECK:
+               mSpeedSanityCheck = sharedPreferences.getBoolean(Constants.SPEEDSANITYCHECK, true);
+               break;
+            case Constants.STATUS_MONITOR:
+               mLocationManager.removeGpsStatusListener(mStatusListener);
+               sendRequestStatusUpdateMessage();
+               mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
+               break;
+            case Constants.BROADCAST_STREAM:
+            case "VOICEOVER_ENABLED":
+            case "CUSTOMUPLOAD_ENABLED":
+               if (key.equals(Constants.BROADCAST_STREAM))
+               {
+                  mStreamBroadcast = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
+               }
+               StreamUtils.shutdownStreams(GPSLoggerService.this);
+               if (!mStreamBroadcast)
+               {
+                  StreamUtils.initStreams(GPSLoggerService.this);
+               }
+               break;
          }
       }
    };
@@ -354,11 +341,10 @@ public class GPSLoggerService extends Service implements LocationListener
       {
          Log.v(TAG, "onLocationChanged( Location " + location + " )");
       }
-      ;
       // Might be claiming GPS disabled but when we were paused this changed and this location proves so
-      if (mShowingGpsDisabled)
+      if (mLoggerNotification.isShowingDisabled())
       {
-         notifyOnEnabledProviderNotification(R.string.service_gpsenabled);
+         mLoggerNotification.stopDisabledProvider(R.string.service_gpsenabled);
       }
       Location filteredLocation = locationFilter(location);
       if (filteredLocation != null)
@@ -390,14 +376,11 @@ public class GPSLoggerService extends Service implements LocationListener
       {
          Log.d(TAG, "onStatusChanged( String " + provider + ", int " + status + ", Bundle " + extras + " )");
       }
-      ;
       if (status == LocationProvider.OUT_OF_SERVICE)
       {
          Log.e(TAG, String.format("Provider %s changed to status %d", provider, status));
       }
    }
-
-   ;
 
    @Override
    public void onProviderEnabled(String provider)
@@ -406,15 +389,14 @@ public class GPSLoggerService extends Service implements LocationListener
       {
          Log.d(TAG, "onProviderEnabled( String " + provider + " )");
       }
-      ;
       if (mPrecision != Constants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER))
       {
-         notifyOnEnabledProviderNotification(R.string.service_gpsenabled);
+         mLoggerNotification.stopDisabledProvider(R.string.service_gpsenabled);
          mStartNextSegment = true;
       }
       else if (mPrecision == Constants.LOGGING_GLOBAL && provider.equals(LocationManager.NETWORK_PROVIDER))
       {
-         notifyOnEnabledProviderNotification(R.string.service_dataenabled);
+         mLoggerNotification.stopDisabledProvider(R.string.service_dataenabled);
       }
    }
 
@@ -428,42 +410,13 @@ public class GPSLoggerService extends Service implements LocationListener
       ;
       if (mPrecision != Constants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER))
       {
-         notifyOnDisabledProvider(R.string.service_gpsdisabled);
+         mLoggerNotification.startDisabledProvider(R.string.service_gpsdisabled, mTrackId);
       }
       else if (mPrecision == Constants.LOGGING_GLOBAL && provider.equals(LocationManager.NETWORK_PROVIDER))
       {
-         notifyOnDisabledProvider(R.string.service_datadisabled);
+         mLoggerNotification.startDisabledProvider(R.string.service_datadisabled, mTrackId);
       }
 
-   }
-
-   private void notifyOnDisabledProvider(int resId)
-   {
-      int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = getResources().getString(resId);
-      long when = System.currentTimeMillis();
-      Notification gpsNotification = new Notification(icon, tickerText, when);
-      gpsNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-      CharSequence contentTitle = getResources().getString(R.string.app_name);
-      CharSequence contentText = getResources().getString(resId);
-      Intent notificationIntent = new Intent(this, LoggerMap.class);
-      notificationIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
-      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent
-            .FLAG_ACTIVITY_NEW_TASK);
-      gpsNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
-
-      mNoticationManager.notify(LOGGING_UNAVAILABLE, gpsNotification);
-      mShowingGpsDisabled = true;
-   }
-
-   private void notifyOnEnabledProviderNotification(int resId)
-   {
-      mNoticationManager.cancel(LOGGING_UNAVAILABLE);
-      mShowingGpsDisabled = false;
-      CharSequence text = this.getString(resId);
-      Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-      toast.show();
    }
 
    /**
@@ -787,11 +740,6 @@ public class GPSLoggerService extends Service implements LocationListener
       ;
    }
 
-   /**
-    * (non-Javadoc)
-    *
-    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#getLoggingState()
-    */
    protected boolean isLogging()
    {
       return this.mLoggingState == Constants.LOGGING;
@@ -809,7 +757,6 @@ public class GPSLoggerService extends Service implements LocationListener
       {
          Log.d(TAG, "onCreate()");
       }
-      ;
 
       GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
       looper.start();
@@ -823,13 +770,13 @@ public class GPSLoggerService extends Service implements LocationListener
       }
       mHeartbeatTimer = new Timer("heartbeat", true);
 
-      mWeakLocations = new Vector<Location>(3);
-      mAltitudes = new LinkedList<Double>();
+      mWeakLocations = new Vector<>(3);
+      mAltitudes = new LinkedList<>();
       mLoggingState = Constants.STOPPED;
       mStartNextSegment = false;
       mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-      mNoticationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-      stopNotification();
+      mLoggerNotification = new LoggerNotification(this);
+      mLoggerNotification.stopLogging();
 
       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
       mSpeedSanityCheck = sharedPreferences.getBoolean(Constants.SPEEDSANITYCHECK, true);
@@ -903,11 +850,12 @@ public class GPSLoggerService extends Service implements LocationListener
             .mSharedPreferenceChangeListener);
       mLocationManager.removeGpsStatusListener(mStatusListener);
       stopListening();
-      mNoticationManager.cancel(R.layout.map);
-
+      mLoggerNotification.stopLogging();
       Message msg = Message.obtain();
       msg.what = STOPLOOPER;
       mHandler.sendMessage(msg);
+
+      mLoggerNotification = null;
    }
 
    /**
@@ -957,7 +905,7 @@ public class GPSLoggerService extends Service implements LocationListener
       if (previousState == Constants.LOGGING || previousState == Constants.PAUSED)
       {
          Log.w(TAG, "Recovering from a crash or kill and restoring state.");
-         startNotification();
+         mLoggerNotification.startLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
 
          mTrackId = preferences.getLong(SERVICESTATE_TRACKID, -1);
          mSegmentId = preferences.getLong(SERVICESTATE_SEGMENTID, -1);
@@ -1002,11 +950,6 @@ public class GPSLoggerService extends Service implements LocationListener
       return distance;
    }
 
-   /**
-    * (non-Javadoc)
-    *
-    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#startLogging()
-    */
    public synchronized void startLogging()
    {
       if (DEBUG)
@@ -1021,7 +964,7 @@ public class GPSLoggerService extends Service implements LocationListener
          sendRequestStatusUpdateMessage();
          this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
-         startNotification();
+         mLoggerNotification.startLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
          crashProtectState();
          broadCastLoggingState();
       }
@@ -1041,9 +984,9 @@ public class GPSLoggerService extends Service implements LocationListener
          mLoggingState = Constants.PAUSED;
          mPreviousLocation = null;
          updateWakeLock();
-         updateNotification();
-         mSatellites = 0;
-         updateNotification();
+         mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
+         mLoggerNotification.mSatellites = 0;
+         mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
          crashProtectState();
          broadCastLoggingState();
       }
@@ -1067,17 +1010,12 @@ public class GPSLoggerService extends Service implements LocationListener
 
          this.mLoggingState = Constants.LOGGING;
          updateWakeLock();
-         updateNotification();
+         mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
          crashProtectState();
          broadCastLoggingState();
       }
    }
 
-   /**
-    * (non-Javadoc)
-    *
-    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#stopLogging()
-    */
    public synchronized void stopLogging()
    {
       if (DEBUG)
@@ -1095,16 +1033,11 @@ public class GPSLoggerService extends Service implements LocationListener
 
       mLocationManager.removeGpsStatusListener(mStatusListener);
       stopListening();
-      stopNotification();
+      mLoggerNotification.stopLogging();
 
       broadCastLoggingState();
    }
 
-   /**
-    * (non-Javadoc)
-    *
-    * @see nl.sogeti.android.gpstracker.IGPSLoggerService#storeDerivedDataSource(java.lang.String)
-    */
    public void storeDerivedDataSource(String sourceName)
    {
       Uri trackMetaDataUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/metadata");
@@ -1154,72 +1087,6 @@ public class GPSLoggerService extends Service implements LocationListener
             this.getContentResolver().update(trackMetaDataUri, args, MetaData.KEY + " = ? ", new String[] { Constants
                   .DATASOURCES_KEY });
          }
-      }
-   }
-
-   private void startNotification()
-   {
-      mNoticationManager.cancel(R.layout.map);
-
-      int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = getResources().getString(R.string.service_start);
-      long when = System.currentTimeMillis();
-
-      mNotification = new Notification(icon, tickerText, when);
-      mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-
-      updateNotification();
-
-      if (Build.VERSION.SDK_INT >= 5)
-      {
-         startForegroundReflected(R.layout.map, mNotification);
-      }
-      else
-      {
-         mNoticationManager.notify(R.layout.map, mNotification);
-      }
-   }
-
-   private void updateNotification()
-   {
-      CharSequence contentTitle = getResources().getString(R.string.app_name);
-
-      String precision = getResources().getStringArray(R.array.precision_choices)[mPrecision];
-      String state = getResources().getStringArray(R.array.state_choices)[mLoggingState - 1];
-      CharSequence contentText;
-      switch (mPrecision)
-      {
-         case (Constants.LOGGING_GLOBAL):
-            contentText = getResources().getString(R.string.service_networkstatus, state, precision);
-            break;
-         default:
-            if (mStatusMonitor)
-            {
-               contentText = getResources().getString(R.string.service_gpsstatus, state, precision, mSatellites);
-            }
-            else
-            {
-               contentText = getResources().getString(R.string.service_gpsnostatus, state, precision);
-            }
-            break;
-      }
-      Intent notificationIntent = new Intent(this, LoggerMap.class);
-      notificationIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId));
-      mNotification.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent
-            .FLAG_ACTIVITY_NEW_TASK);
-      mNotification.setLatestEventInfo(this, contentTitle, contentText, mNotification.contentIntent);
-      mNoticationManager.notify(R.layout.map, mNotification);
-   }
-
-   private void stopNotification()
-   {
-      if (Build.VERSION.SDK_INT >= 5)
-      {
-         stopForegroundReflected(true);
-      }
-      else
-      {
-         mNoticationManager.cancel(R.layout.map);
       }
    }
 
@@ -1287,7 +1154,7 @@ public class GPSLoggerService extends Service implements LocationListener
             startListening(LocationManager.NETWORK_PROVIDER, intervaltime, distance);
             if (!isNetworkConnected())
             {
-               notifyOnDisabledProvider(R.string.service_connectiondisabled);
+               mLoggerNotification.startDisabledProvider(R.string.service_connectiondisabled, mTrackId);
             }
             break;
          case REQUEST_CUSTOMGPS_LOCATIONUPDATES:
@@ -1313,9 +1180,6 @@ public class GPSLoggerService extends Service implements LocationListener
             stopListening();
             Looper.myLooper().quit();
             break;
-         case GPSPROBLEM:
-            notifyOnPoorSignal(R.string.service_gpsproblem);
-            break;
       }
    }
 
@@ -1339,22 +1203,6 @@ public class GPSLoggerService extends Service implements LocationListener
       NetworkInfo info = connMgr.getActiveNetworkInfo();
 
       return (info != null && info.isConnected());
-   }
-
-   private void notifyOnPoorSignal(int resId)
-   {
-      int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = getResources().getString(resId);
-      long when = System.currentTimeMillis();
-      Notification signalNotification = new Notification(icon, tickerText, when);
-      CharSequence contentTitle = getResources().getString(R.string.app_name);
-      Intent notificationIntent = new Intent(this, LoggerMap.class);
-      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent
-            .FLAG_ACTIVITY_NEW_TASK);
-      signalNotification.setLatestEventInfo(this, contentTitle, tickerText, contentIntent);
-      signalNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-      mNoticationManager.notify(resId, signalNotification);
    }
 
    private void updateWakeLock()
@@ -1431,9 +1279,9 @@ public class GPSLoggerService extends Service implements LocationListener
       {
          mMediaPlayer.setDataSource(GPSLoggerService.this, alert);
          final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-         if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0)
+         if (audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION) != 0)
          {
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
             mMediaPlayer.setLooping(false);
             mMediaPlayer.prepare();
             mMediaPlayer.start();
@@ -1455,75 +1303,6 @@ public class GPSLoggerService extends Service implements LocationListener
       {
          Log.e(TAG, "Problem with mediaplayer", e);
       }
-      Message msg = Message.obtain();
-      msg.what = GPSPROBLEM;
-      mHandler.sendMessage(msg);
-   }
-
-   @SuppressWarnings("rawtypes")
-   private void startForegroundReflected(int id, Notification notification)
-   {
-
-      Method mStartForeground;
-      Class[] mStartForegroundSignature = new Class[] { int.class, Notification.class };
-
-      Object[] mStartForegroundArgs = new Object[2];
-      mStartForegroundArgs[0] = Integer.valueOf(id);
-      mStartForegroundArgs[1] = notification;
-      try
-      {
-         mStartForeground = getClass().getMethod("startForeground", mStartForegroundSignature);
-         mStartForeground.invoke(this, mStartForegroundArgs);
-      }
-      catch (NoSuchMethodException e)
-      {
-         Log.e(TAG, "Failed starting foreground notification using reflection", e);
-      }
-      catch (IllegalArgumentException e)
-      {
-         Log.e(TAG, "Failed starting foreground notification using reflection", e);
-      }
-      catch (IllegalAccessException e)
-      {
-         Log.e(TAG, "Failed starting foreground notification using reflection", e);
-      }
-      catch (InvocationTargetException e)
-      {
-         Log.e(TAG, "Failed starting foreground notification using reflection", e);
-      }
-
-   }
-
-   @SuppressWarnings("rawtypes")
-   private void stopForegroundReflected(boolean b)
-   {
-      Class[] mStopForegroundSignature = new Class[] { boolean.class };
-
-      Method mStopForeground;
-      Object[] mStopForegroundArgs = new Object[1];
-      mStopForegroundArgs[0] = Boolean.TRUE;
-      try
-      {
-         mStopForeground = getClass().getMethod("stopForeground", mStopForegroundSignature);
-         mStopForeground.invoke(this, mStopForegroundArgs);
-      }
-      catch (NoSuchMethodException e)
-      {
-         Log.e(TAG, "Failed stopping foreground notification using reflection", e);
-      }
-      catch (IllegalArgumentException e)
-      {
-         Log.e(TAG, "Failed stopping foreground notification using reflection", e);
-      }
-      catch (IllegalAccessException e)
-      {
-         Log.e(TAG, "Failed stopping foreground notification using reflection", e);
-      }
-      catch (InvocationTargetException e)
-      {
-         Log.e(TAG, "Failed stopping foreground notification using reflection", e);
-      }
-
    }
 
    /**
@@ -1574,14 +1353,18 @@ public class GPSLoggerService extends Service implements LocationListener
             if (checkLocation == null || checkLocation.getTime() + mCheckPeriod < new Date().getTime())
             {
                Log.w(TAG, "GPS system failed to produce a location during logging: " + checkLocation);
-               mLoggingState = Constants.PAUSED;
-               resumeLogging();
-
+               mLoggerNotification.startPoorSignal();
                if (mStatusMonitor)
                {
                   soundGpsSignalAlarm();
                }
 
+               mLoggingState = Constants.PAUSED;
+               resumeLogging();
+            }
+            else
+            {
+               mLoggerNotification.stopPoorSignal();
             }
          }
       }
