@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="app_name">開放式 GPS 追蹤器</string>
-    <string name="service_start">啟動日誌服務中</string>
     <string name="service_gpsstatus">日誌： %1$s (%2$s 使用 %3$d 個衛星)</string>
     <string name="service_gpsnostatus">日誌： %1$s (精確度 %2$s)</string>
     <string name="service_networkstatus">日誌： %1$s (%2$s 使用基站和WiFi)</string>
@@ -55,27 +54,14 @@
     <string name="dialog_nooipicker">OI 檔案管理器</string>
     <string name="dialog_nooipicker_message">需要來自 OpenIntents 項目的 \"OI 檔案管理器\" 來選取檔案。在接受 OI 檔案管理器的最終使用者許可協議後匯入按鈕即可用。</string>
     <string name="dialog_contrib_title">捐獻</string>
-    <string name="dialog_bundlecreate_hint">New bundle name</string>
     <string name="dialog_trackdescription_hint">Description of the track</string>
     <string name="dialog_public">Public posting</string>
-    <string name="dialog_description_title">Track description</string>
-    <string name="dialog_description_message">Please supply additional information before uploading</string>
-    <string name="dialog_bundle">Bundle: %1$s</string>
     <string name="authentication_redirect">Placing authentication request</string>
-    <string name="loading">Loading&#8230;</string>
-    <string name="msg_connecting_to">Connecting to&#8230;</string>
-    <string name="no_information_available">沒有可用的訊息。</string>
+    <string name="loading">Loading…</string>
+    <string name="msg_connecting_to">Connecting to…</string>
     <string name="taskerror_gpx_import">Importing GPX data</string>
-    <string name="taskerror_xml_write">Writing XML data</string>
     <string name="taskerror_gpx_write">Writing GPX data</string>
     <string name="taskerror_kmz_write">Writing KMZ data</string>
-    <string name="taskerror_breadcrumbs_activity">Retrieving activity list from GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs_bundle">Retrieving bundle list from GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs_track">Retrieving track list from GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs">Retrieving data from GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs_upload">Uploading track to GoBreadcrumbs</string>
-    <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
-    <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
     <string name="dialog_contrib_message">
     <b>代碼</b>
     \n
@@ -97,23 +83,19 @@
     <string name="from">記錄：</string>
     <string name="no_tracks">無已儲存路線</string>
     <string name="ticker_saving">儲存中：</string>
-    <string name="ticker_stored">已儲存：</string>
     <string name="ticker_failed">無法儲存路線：</string>
     <string name="error_filenotfound">原因：無法在SD卡上找到檔案或資料夾</string>
     <string name="error_filename"> 原因：錯誤的檔案名</string>
     <string name="error_buildxml"> 原因：建立 XML 時錯誤</string>
     <string name="error_writesdcard"> 原因：寫入到 SD 卡時錯誤</string>
-    <string name="error_response"> reason: Server response indicates error</string>
     <string name="tweettext">%1$s： 已行進 %2$s 統計出的平均速度是 %3$s 在 %4$s #opengpstracker</string>
     <string name="error_importgpx_xml">無法在匯入時讀取 XML。</string>
     <string name="error_importgpx_io">無法在匯入時讀取檔案。</string>
-    <string name="error_importgpx_parse">無法在匯入時讀取號碼。</string>
     <string name="time_and_speed">At %1$s going %2$s</string>
 
     <!-- Buttons -->
     <string name="btn_okay">確認</string>
     <string name="btn_cancel">取消</string>
-    <string name="btn_save">儲存</string>
     <string name="btn_selecttrack">選取路線</string>
     <string name="btn_install">安裝</string>
     <string name="btn_skip">跳過</string>
@@ -157,7 +139,6 @@
     <string name="share_target">分享的方法：</string>
     <string name="sender_chooser">選取傳送程式</string>
     <string name="opengpstracker_title">開放式 GPS 追蹤器</string>
-    <string name="opengpstracker_settings">設定</string>
     <string name="preference_display">顯示設定</string>
     <string name="preference_behavior">執行設定</string>
     <string name="logatstartup">在啟動時記錄</string>
@@ -178,10 +159,6 @@
     <string name="mapprovider_summary">要檢索地圖資料的源。</string>
     <string name="trackcoloring_title">路線顏色</string>
     <string name="trackcoloring_summary">繪製路線使用的顏色。</string>
-    <string name="showsatellite_title">衛星圖像</string>
-    <string name="showsatellite_summary">顯示谷歌地圖衛星檢視</string>
-    <string name="showtraffic_title">交通</string>
-    <string name="showtraffic_summary">顯示谷歌地圖交通訊息</string>
     <string name="showspeed_title">GPS 速度</string>
     <string name="showspeed_summary">顯示來自最後收到的 GPS 固定的速度。</string>
     <string name="showaltitude_title">GPS 海拔</string>
@@ -203,14 +180,11 @@
 Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
     <string name="stat_title">統計 - %s</string>
     <string name="stat_maximumspeed">最高速度</string>
-    <string name="stat_maximumaltitude">最高海拔</string>
-    <string name="stat_minimalaltitide">最低海拔</string>
     <string name="stat_overallaveragespeed">總平均速度</string>
     <string name="stat_averagespeed">平均速度</string>
     <string name="stat_distance">路線距離</string>
     <string name="stat_endtime">上次時間</string>
     <string name="stat_starttime">開始時間</string>
-    <string name="stat_trackname">路線名稱</string>
     <string name="stat_waypoints">路點數量</string>
     <string name="stat_elapsedtime">Elapsed</string>
     <string name="stat_ascension">Total elevation</string>
@@ -225,7 +199,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="jogmap_failed">上傳路線到 jogmap.de 失敗：</string>
     <string name="jogmap_success">上傳路線到 jogmap.de 成功：</string>
     <string name="jogrunner_message">請輸入從 http://www.jogmap.de/civic4/?q=mobilinfo 獲得的 Zugangskey。</string>
-    <string name="import_track">匯入一個路線到開放式 GPS 追蹤器中</string>
     <string name="preference_logging">日誌和 GPS 使用設定</string>
     <string name="customprecisiontime_title">目標陸點的時間間隔，以分鐘計</string>
     <string name="customprecisiontime_summary">在路點之間，GPS 接收器應該休眠的時間。</string>
@@ -233,12 +206,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customprecisiondistance_summary">路點之間應該覆寫的距離。</string>
     <string name="gpsstatusmonitor_title">監視 GPS 狀態</string>
     <string name="gpsstatusmonitor_summary">顯示正在使用的衛星的個數。</string>
-    <string name="osmusername_title">OpenStreetMap 使用者名</string>
-    <string name="osmusername_summary">使用者名建立於 http://www.openstreetmap.org/user/new</string>
-    <string name="osmusername_message">OpenStreetMap賬戶允許你開始編輯地圖的資料來為地圖做出貢獻。開放式 GPS 追蹤器將使用它來更新 GPS 資料。</string>
-    <string name="osmpassword_title">OpenStreetMap 密碼</string>
-    <string name="osmpassword_summary">適用於 http://www.openstreetmap.org/user/new 的密碼</string>
-    <string name="osmpassword_message">此密碼將用於 openstreetmap.org  伺服器的 HTTP 和基本驗證。</string>
     <string name="osmvisibility_title">openstreetmap.org 上的 GPS 路線公共可見度</string>
     <string name="osmvisibility_summary">請查閱 openstreetmap.org 的維基以瞭解更多關於可見度等級的訊息。</string>
     <string name="osm_success">已成功上傳路線到 www.openstreetmap.org：</string>
@@ -248,8 +215,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="sddirectory_title">使用 SD 卡資料夾來儲存分享路線。</string>
     <string name="sddirectory_summary">建立的路線和媒體檔案將儲存在 SD 卡資料夾中。</string>
     <string name="sddirectory_message">輸入檔案要使用的 SD 路徑。預設的實例 /OpenGPSTracker/ 將會新增一個單獨的資料夾到 SD 卡中，同時建立/Apps/OpenGPSTracker/。</string>
-    <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
-
     <string name="preference_stream">Location broadcasting settings</string>
     <string name="streamenabled_title">Streaming enabled</string>
     <string name="streamenabled_summary">Enable direct broadcasting of location</string>
@@ -275,5 +240,4 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
        About information
        ***************************-->
     <string name="about_comments">通過 GPS， 程式可以記錄你設備的移動。</string>
-    <string name="about_activity_name_extended">關於 %s</string>
-</resources>
+    </resources>

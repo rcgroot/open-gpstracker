@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="app_name">Open GPS Tracker</string>
-    <string name="service_start">Kayıt etkinleştiriliyor</string>
     <string name="service_gpsstatus">Logging: %1$s (%2$s with %3$d satellites)</string>
     <string name="service_gpsnostatus">Logging: %1$s (Precision %2$s)</string>
     <string name="service_networkstatus">Logging: %1$s (%2$s with cell tower and wifi)</string>
@@ -55,27 +54,14 @@
     <string name="dialog_nooipicker">OI File Manager</string>
     <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files. After accepting OI File Manager EULA the import button works.</string>
     <string name="dialog_contrib_title">Contribute</string>
-    <string name="dialog_bundlecreate_hint">New bundle name</string>
     <string name="dialog_trackdescription_hint">Description of the track</string>
     <string name="dialog_public">Public posting</string>
-    <string name="dialog_description_title">Track description</string>
-    <string name="dialog_description_message">Please supply additional information before uploading</string>
-    <string name="dialog_bundle">Bundle: %1$s</string>
     <string name="authentication_redirect">Placing authentication request</string>
-    <string name="loading">Loading&#8230;</string>
-    <string name="msg_connecting_to">Connecting to&#8230;</string>
-    <string name="no_information_available">No information available.</string>
+    <string name="loading">Loading…</string>
+    <string name="msg_connecting_to">Connecting to…</string>
     <string name="taskerror_gpx_import">Importing GPX data</string>
-    <string name="taskerror_xml_write">Writing XML data</string>
     <string name="taskerror_gpx_write">Writing GPX data</string>
     <string name="taskerror_kmz_write">Writing KMZ data</string>
-    <string name="taskerror_breadcrumbs_activity">Retrieving activity list from GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs_bundle">Retrieving bundle list from GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs_track">Retrieving track list from GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs">Retrieving data from GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs_upload">Uploading track to GoBreadcrumbs</string>
-    <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
-    <string name="dialog_breadcrumbsconnect_message">Authorize Open GPS Tracker with Breadcrumbs?</string>
     <string name="dialog_contrib_message">
     <b>Code</b>
     \n
@@ -105,23 +91,19 @@
     <string name="from">Tracked on: </string>
     <string name="no_tracks">No tracks stored</string>
     <string name="ticker_saving">Saving: </string>
-    <string name="ticker_stored">Stored: </string>
     <string name="ticker_failed">Unable to save the route: </string>
     <string name="error_filenotfound"> reason: Can not find file or directory on SD card</string>
     <string name="error_filename"> reason: Incorrect filename</string>
     <string name="error_buildxml"> reason: Error building XML</string>
     <string name="error_writesdcard"> reason: Error writing to SD card</string>
-    <string name="error_response"> reason: Server response indicates error</string>
     <string name="tweettext">%1$s: Traveled %2$s with an average speed of %3$s during %4$s #opengpstracker</string>
     <string name="error_importgpx_xml">Failed reading the XML during import.</string>
     <string name="error_importgpx_io">Failed reading the file during import.</string>
-    <string name="error_importgpx_parse">Failed reading a number during import.</string>
     <string name="time_and_speed">At %1$s going %2$s</string>
 
     <!-- Buttons -->
     <string name="btn_okay">OK</string>
     <string name="btn_cancel">Cancel</string>
-    <string name="btn_save">Save</string>
     <string name="btn_selecttrack">Select track</string>
     <string name="btn_install">Install</string>
     <string name="btn_skip">Skip</string>
@@ -165,7 +147,6 @@
     <string name="share_target">Means of sharing:</string>
     <string name="sender_chooser">Choose sender application</string>
     <string name="opengpstracker_title">Open GPS Tracker</string>
-    <string name="opengpstracker_settings">Settings</string>
     <string name="preference_display">Display settings</string>
     <string name="preference_behavior">Run settings</string>
     <string name="logatstartup">Log at service start</string>
@@ -186,10 +167,6 @@
     <string name="mapprovider_summary">The source from which to retrieve mapdata.</string>
     <string name="trackcoloring_title">Track color</string>
     <string name="trackcoloring_summary">The coloring used to draw the track.</string>
-    <string name="showsatellite_title">Satellite images</string>
-    <string name="showsatellite_summary">Show the Google Maps satellite view</string>
-    <string name="showtraffic_title">Traffic</string>
-    <string name="showtraffic_summary">Show the Google Maps traffic information</string>
     <string name="showspeed_title">GPS speed</string>
     <string name="showspeed_summary">Show the speed from the last received GPS fix.</string>
     <string name="showaltitude_title">GPS altitude</string>
@@ -211,14 +188,11 @@
 Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
     <string name="stat_title">Statistics - %s</string>
     <string name="stat_maximumspeed">Maximum speed</string>
-    <string name="stat_maximumaltitude">Maximum altitude</string>
-    <string name="stat_minimalaltitide">Minimum altitude</string>
     <string name="stat_overallaveragespeed">Travel speed</string>
     <string name="stat_averagespeed">Average speed</string>
     <string name="stat_distance">Tracked distance</string>
     <string name="stat_endtime">Last time</string>
     <string name="stat_starttime">Start time</string>
-    <string name="stat_trackname">Track name</string>
     <string name="stat_waypoints">Waypoints</string>
     <string name="stat_elapsedtime">Elapsed</string>
     <string name="stat_ascension">Total elevation</string>
@@ -233,7 +207,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
     <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
     <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo.\n </string>
-    <string name="import_track">Import a track into Open GPS Tracker</string>
     <string name="preference_logging">Logging and GPS</string>
     <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
     <string name="customprecisiontime_summary">The time the GPS receiver should sleep between waypoints.</string>
@@ -241,12 +214,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
     <string name="gpsstatusmonitor_summary">Displays the number of satellites used and sounds alarm on poor signal.</string>
-    <string name="osmusername_title">OpenStreetMap username</string>
-    <string name="osmusername_summary">The username created at http://www.openstreetmap.org/user/new</string>
-    <string name="osmusername_message">OpenStreetMap Account allows you to begin editing the map data to make contributions to the map. Open GPS Tracker uses it to upload new GPS data.</string>
-    <string name="osmpassword_title">OpenStreetMap password</string>
-    <string name="osmpassword_summary">The password used at http://www.openstreetmap.org/user/new</string>
-    <string name="osmpassword_message">This password will be used with HTTP and Basic Authorization on the openstreetmap.org server.</string>
     <string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
     <string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
     <string name="osm_success">Successfully uploading the track to www.openstreetmap.org: </string>
@@ -256,8 +223,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.\n </string>
-    <string name="breadcrumbs_connect">Connect to GoBreadcrumbs</string>
-
     <string name="preference_stream">Location broadcasting settings</string>
     <string name="streamenabled_title">Streaming enabled</string>
     <string name="streamenabled_summary">Enable direct broadcasting of location</string>
@@ -283,5 +248,4 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
        About information
        ***************************-->
     <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
-    <string name="about_activity_name_extended">About %s</string>
-</resources>
+    </resources>

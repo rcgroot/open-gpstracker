@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="app_name">Open GPS Tracker</string>
-    <string name="service_start">Opstarten opname service</string>
     <string name="service_gpsstatus">Loggen: %1$s (%2$s met %3$d satellieten)</string>
     <string name="service_gpsnostatus">Logging: %1$s (Nauwkeurigheid %2$s)</string>
     <string name="service_networkstatus">Loggen: %1$s (%2$s met gsm and wifi )</string>
@@ -55,27 +54,14 @@
     <string name="dialog_nooipicker">OI File Manager</string>
     <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files.</string>
     <string name="dialog_contrib_title">Bijdrage</string>
-    <string name="dialog_bundlecreate_hint">Nieuw bunlde naam</string>
     <string name="dialog_trackdescription_hint">Beschrijving van de route</string>
     <string name="dialog_public">Publieke upload</string>
-    <string name="dialog_description_title">Route beschrijving</string>
-    <string name="dialog_description_message">Geef meer informatie voor versturen</string>
-    <string name="dialog_bundle">Bundle: %1$s</string>
     <string name="authentication_redirect">Verzoeken van authenticatie</string>
-    <string name="loading">Laden&#8230;</string>
-    <string name="msg_connecting_to">Verbinden met&#8230;</string>
-    <string name="no_information_available">Geen informatie beschikbaar.</string>
+    <string name="loading">Laden…</string>
+    <string name="msg_connecting_to">Verbinden met…</string>
     <string name="taskerror_gpx_import">Importeren GPX data</string>
-    <string name="taskerror_xml_write">Schrijven XML data</string>
     <string name="taskerror_gpx_write">Schrijven GPX data</string>
     <string name="taskerror_kmz_write">Schrijven KMZ data</string>
-    <string name="taskerror_breadcrumbs_activity">Ophalen van activiteitenlijst van GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs_bundle">Ophalen van bundelslijst van GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs_track">Ophalen van routelijst van GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs">Ontvangen van data van GoBreadcrumbs</string>
-    <string name="taskerror_breadcrumbs_upload">Versturen van data naar GoBreadcrumbs</string>
-    <string name="dialog_breadcrumbsconnect">Breadcrumbs</string>
-    <string name="dialog_breadcrumbsconnect_message">Authenticeer Open GPS Tracker met Breadcrumbs?</string>
     <string name="dialog_contrib_message">
 <b>Code</b>
 \n
@@ -105,23 +91,19 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="from">Opgenomen op: </string>
     <string name="no_tracks">Geen routes opgeslagen</string>
     <string name="ticker_saving">Opslaan: </string>
-    <string name="ticker_stored">Opgeslagen: </string>
     <string name="ticker_failed">Kon niet opslaan: </string>
     <string name="error_filenotfound"> reden: Kan bestand of directory niet vinden</string>
     <string name="error_filename"> reden: Fout in de bestandsnaam</string>
     <string name="error_buildxml"> reden: Fout tijdens bouwen XML</string>
     <string name="error_writesdcard"> reden: Fout tijdens schrijven naar de SDcard</string>
-    <string name="error_response"> reden: Server geeft fout aan</string>
     <string name="tweettext">%1$s: Afgelegd %2$s met een gemiddelde snelheid van %3$s gedurende %4$s #opengpstracker</string>
     <string name="error_importgpx_xml">Er was een probleem met het lezen van de XML.</string>
     <string name="error_importgpx_io">Er was een probleem bij het lezen van het bestand.</string>
-    <string name="error_importgpx_parse">Er was een probleem met het lezen van een getal.</string>
     <string name="time_and_speed">Om %1$s met %2$s</string>
 
     <!-- Buttons -->
     <string name="btn_okay">OK</string>
     <string name="btn_cancel">Annuleren</string>
-    <string name="btn_save">Opslaan</string>
     <string name="btn_selecttrack">Route selecteren</string>
     <string name="btn_install">Installeren</string>
     <string name="btn_skip">Overslaan</string>
@@ -165,7 +147,6 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="share_target">Methode van delen:</string>
     <string name="sender_chooser">Kies zend applicatie</string>
     <string name="opengpstracker_title">Open GPS Tracker</string>
-    <string name="opengpstracker_settings">Instellingen</string>
     <string name="preference_display">Beeld instellingen</string>
     <string name="preference_behavior">Gedrags instellingen</string>
     <string name="logatstartup">Log na service start</string>
@@ -186,10 +167,6 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="mapprovider_summary">De bron vanwaar het kaartmateriaal te downloaden.</string>
     <string name="trackcoloring_title">Route kleur</string>
     <string name="trackcoloring_summary">De kleur en tekenmethode van de route</string>
-    <string name="showsatellite_title">Satellietbeelden</string>
-    <string name="showsatellite_summary">Toon Google Maps satellietbeelden</string>
-    <string name="showtraffic_title">Verkeersinformatie</string>
-    <string name="showtraffic_summary">Toon Google Maps verkeersinformatie (geen Nederlandse helaas)</string>
     <string name="showspeed_title">GPS snelheid</string>
     <string name="showspeed_summary">Toon de snelheid zoals van de laatste GPS bepaling.</string>
     <string name="showaltitude_title">GPS hoogte</string>
@@ -211,14 +188,11 @@ other machine that works/covers an area over a given time. For example, width of
 Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
     <string name="stat_title">Statistieken - %s</string>
     <string name="stat_maximumspeed">Maximale snelheid</string>
-    <string name="stat_maximumaltitude">Maximale hoogte</string>
-    <string name="stat_minimalaltitide">Minimale hoogte</string>
     <string name="stat_overallaveragespeed">Reis snelheid</string>
     <string name="stat_averagespeed">Gemiddelde snelheid</string>
     <string name="stat_distance">Gemeten afstand</string>
     <string name="stat_endtime">Laatste tijd</string>
     <string name="stat_starttime">Start tijd</string>
-    <string name="stat_trackname">Route naam</string>
     <string name="stat_waypoints">Metingen</string>
     <string name="stat_elapsedtime">Verstreken</string>
     <string name="stat_ascension">Totale stijging</string>
@@ -233,7 +207,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="jogmap_failed">Het is mislukt om de route te uploaden naar jogmap.de: </string>
     <string name="jogmap_success">Succesvol gestuurd naar jogmap.de: </string>
     <string name="jogrunner_message">Vul de toegangscode uit http://www.jogmap.de/civic4/?q=mobilinfo in.</string>
-    <string name="import_track">Import een route naar Open GPS Tracker</string>
     <string name="preference_logging">Loggen en GPS</string>
     <string name="customprecisiontime_title">Doel tijdsinterval in minuten</string>
     <string name="customprecisiontime_summary">De tijd die de GPS ontvangen kan slapen tussen opname punten.</string>
@@ -241,12 +214,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="customprecisiondistance_summary">De afstand die tussen opname punten past.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
     <string name="gpsstatusmonitor_summary">Toont het aantal satelieten waar signaal van komt en slaat alarm op een slecht signaal.</string>
-    <string name="osmusername_title">OpenStreetMap gebruikersnaam</string>
-    <string name="osmusername_summary">De gebruikersnaam zoals aangemaakt op http://www.openstreetmap.org/user/new</string>
-    <string name="osmusername_message">Een OpenStreetMap account maakt het mogelijk om map data contributies te maken. Open GPS Tracker kan alleen routes oploaden die zonder Google kaartmateriaal zijn opgenomen.</string>
-    <string name="osmpassword_title">OpenStreetMap wachtwoord</string>
-    <string name="osmpassword_summary">Het wachtwoord zoals aangemaakt op http://www.openstreetmap.org/user/new</string>
-    <string name="osmpassword_message">Dit wachtwoord zal met HTTP en Basic Authorization op de openstreetmap.org server gebruikt worden.</string>
     <string name="osmvisibility_title">De publieke zichtbaarheid van de GPS route on openstreetmap.org</string>
     <string name="osmvisibility_summary">Raadpleeg de openstreetmap.org wiki voor informatie over de zichtbaarheid niveau\'s.</string>
     <string name="osm_success">Uploaden naar www.openstreetmap.org is gelukt: </string>
@@ -256,8 +223,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="sddirectory_title">SD-Card folder om gedeelde routes op te slaan.</string>
     <string name="sddirectory_summary">Route bestanden en media bestanden worden in deze SD kaart folder opgeslagen.</string>
     <string name="sddirectory_message">Vul de verlenging van het SD kaart pad. Het pad /OpenGPSTracker/ zal een enkele directory aanmaken op SD kaart en /Apps/OpenGPSTracker/ zal er eentje twee diep aanmaken.</string>
-    <string name="breadcrumbs_connect">Verbind met GoBreadcrumbs</string>
-
     <string name="preference_stream">Locatie publicatie</string>
     <string name="streamenabled_title">Uitzenden geactiveerd</string>
     <string name="streamenabled_summary">Verzend locatie wijzigen direct</string>
@@ -283,5 +248,4 @@ In this URL the placeholders @LAT@ @LON@ and @ID@ are replaced with actual infor
        About information
        ***************************-->
     <string name="about_comments">Een applicatie die per GPS de tochten van je aparaat kan opnemen.</string>
-    <string name="about_activity_name_extended">Over %s</string>
-</resources>
+    </resources>
