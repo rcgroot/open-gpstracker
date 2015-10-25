@@ -34,20 +34,15 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -57,8 +52,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -66,19 +59,13 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.DescribeTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.adapter.BreadcrumbsAdapter;
 import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
-import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
-import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService.LocalBinder;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Pair;
 
 /**
  * Show a list view of all tracks, also doubles for showing search results
@@ -99,14 +86,12 @@ public class TrackList extends ListActivity implements ProgressListener
    private static final int MENU_SEARCH = Menu.FIRST + 4;
    private static final int MENU_VACUUM = Menu.FIRST + 5;
    private static final int MENU_PICKER = Menu.FIRST + 6;
-   private static final int MENU_BREADCRUMBS = Menu.FIRST + 7;
    private static final int DIALOG_RENAME = Menu.FIRST + 23;
    private static final int DIALOG_DELETE = Menu.FIRST + 24;
    private static final int DIALOG_VACUUM = Menu.FIRST + 25;
    private static final int DIALOG_IMPORT = Menu.FIRST + 26;
    private static final int DIALOG_INSTALL = Menu.FIRST + 27;
    private static final int PICKER_OI = Menu.FIRST + 29;
-   private static final int DESCRIBE = Menu.FIRST + 30;
    private final DialogInterface.OnClickListener mOiPickerDialogListener = new DialogInterface.OnClickListener()
    {
       @Override
@@ -126,8 +111,6 @@ public class TrackList extends ListActivity implements ProgressListener
          }
       }
    };
-   boolean mBound = false;
-   private BreadcrumbsAdapter mBreadcrumbAdapter;
    private EditText mTrackNameView;
    private Uri mDialogTrackUri;
    private String mDialogCurrentName = "";
@@ -136,30 +119,8 @@ public class TrackList extends ListActivity implements ProgressListener
    private Runnable mImportAction;
    private String mImportTrackName;
    private String mErrorTask;
-   /**
-    * Progress listener for the background tasks uploading to gobreadcrumbs
-    */
-   private ProgressListener mExportListener;
    private int mPausePosition;
-   private BreadcrumbsService mService;
-   private ServiceConnection mConnection = new ServiceConnection()
-   {
-      @Override
-      public void onServiceConnected(ComponentName className, IBinder service)
-      {
-         LocalBinder binder = (LocalBinder) service;
-         mService = binder.getService();
-         mBound = true;
-         mBreadcrumbAdapter.setService(mService);
-      }
 
-      @Override
-      public void onServiceDisconnected(ComponentName arg0)
-      {
-         mBound = false;
-         mService = null;
-      }
-   };
    private OnClickListener mDeleteOnClickListener = new DialogInterface.OnClickListener()
    {
       @Override
@@ -198,17 +159,6 @@ public class TrackList extends ListActivity implements ProgressListener
          mImportAction.run();
       }
    };
-   private BroadcastReceiver mReceiver = new BroadcastReceiver()
-   {
-      @Override
-      public void onReceive(Context context, Intent intent)
-      {
-         if (BreadcrumbsService.NOTIFY_DATA_SET_CHANGED.equals(intent.getAction()))
-         {
-            mBreadcrumbAdapter.updateItemList();
-         }
-      }
-   };
 
    @Override
    protected void onCreate(Bundle savedInstanceState)
@@ -229,21 +179,6 @@ public class TrackList extends ListActivity implements ProgressListener
       {
          getListView().setSelection(savedInstanceState.getInt("POSITION"));
       }
-
-      IntentFilter filter = new IntentFilter();
-      filter.addAction(BreadcrumbsService.NOTIFY_DATA_SET_CHANGED);
-      registerReceiver(mReceiver, filter);
-
-      Intent service = new Intent(this, BreadcrumbsService.class);
-      startService(service);
-   }
-
-   @Override
-   protected void onStart()
-   {
-      super.onStart();
-      Intent intent = new Intent(this, BreadcrumbsService.class);
-      bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
    }
 
    @Override
@@ -262,10 +197,6 @@ public class TrackList extends ListActivity implements ProgressListener
       displayIntent(newIntent);
    }
 
-   /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-    */
    @Override
    protected void onSaveInstanceState(Bundle outState)
    {
@@ -283,18 +214,6 @@ public class TrackList extends ListActivity implements ProgressListener
    }
 
    @Override
-   protected void onStop()
-   {
-      if (mBound)
-      {
-         unbindService(mConnection);
-         mBound = false;
-         mService = null;
-      }
-      super.onStop();
-   }
-
-   @Override
    public boolean onCreateOptionsMenu(Menu menu)
    {
       boolean result = super.onCreateOptionsMenu(menu);
@@ -305,8 +224,6 @@ public class TrackList extends ListActivity implements ProgressListener
             .ic_menu_crop);
       menu.add(ContextMenu.NONE, MENU_PICKER, ContextMenu.NONE, R.string.menu_picker).setIcon(android.R.drawable
             .ic_menu_add);
-      menu.add(ContextMenu.NONE, MENU_BREADCRUMBS, ContextMenu.NONE, R.string.dialog_breadcrumbsconnect).setIcon
-            (android.R.drawable.ic_menu_revert);
       return result;
    }
 
@@ -335,11 +252,6 @@ public class TrackList extends ListActivity implements ProgressListener
             {
                showDialog(DIALOG_INSTALL);
             }
-            break;
-         case MENU_BREADCRUMBS:
-            mService.removeAuthentication();
-            mService.clearAllCache();
-            mService.collectBreadcrumbsOauthToken();
             break;
          default:
             handled = super.onOptionsItemSelected(item);
@@ -539,7 +451,9 @@ public class TrackList extends ListActivity implements ProgressListener
    }
 
    /*******************************************************************/
-   /** ProgressListener interface and UI actions (non-Javadoc) **/
+   /**
+    * ProgressListener interface and UI actions (non-Javadoc)
+    **/
 
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -551,32 +465,14 @@ public class TrackList extends ListActivity implements ProgressListener
             case PICKER_OI:
                new GpxParser(TrackList.this, TrackList.this).execute(data.getData());
                break;
-            case DESCRIBE:
-               Uri trackUri = data.getData();
-               String name;
-               if (data.getExtras() != null && data.getExtras().containsKey(Constants.NAME))
-               {
-                  name = data.getExtras().getString(Constants.NAME);
-               }
-               else
-               {
-                  name = "shareToGobreadcrumbs";
-               }
-               mService.startUploadTask(TrackList.this, mExportListener, trackUri, name);
-               break;
             default:
                super.onActivityResult(requestCode, resultCode, data);
                break;
          }
       }
-      else
-      {
-         if (requestCode == DESCRIBE)
-         {
-            mBreadcrumbAdapter.notifyDataSetChanged();
-         }
-      }
-   }   /*******************************************************************/
+   }
+
+   /*******************************************************************/
 
    @Override
    public void setIndeterminate(boolean indeterminate)
@@ -635,7 +531,9 @@ public class TrackList extends ListActivity implements ProgressListener
       }
       displayCursor(tracksCursor);
 
-   }   @Override
+   }
+
+   @Override
    public void started()
    {
       setProgressBarVisibility(true);
@@ -648,7 +546,9 @@ public class TrackList extends ListActivity implements ProgressListener
       Cursor cursor = managedQuery(Tracks.CONTENT_URI, new String[] { Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME
       }, "name LIKE ?", new String[] { "%" + queryString + "%" }, null);
       return cursor;
-   }   @Override
+   }
+
+   @Override
    public void finished(Uri result)
    {
       setProgressBarVisibility(false);
@@ -663,10 +563,7 @@ public class TrackList extends ListActivity implements ProgressListener
       int[] toItems = new int[] { R.id.listitem_name, R.id.listitem_from, R.id.bcSyncedCheckBox };
       SimpleCursorAdapter trackAdapter = new SimpleCursorAdapter(this, R.layout.trackitem, tracksCursor, fromColumns,
             toItems);
-
-      mBreadcrumbAdapter = new BreadcrumbsAdapter(this, mService);
       sectionedAdapter.addSection("Local", trackAdapter);
-      sectionedAdapter.addSection("www.gobreadcrumbs.com", mBreadcrumbAdapter);
 
       // Enrich the track adapter with Breadcrumbs adapter data
       trackAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder()
@@ -682,74 +579,9 @@ public class TrackList extends ListActivity implements ProgressListener
                final CheckBox checkbox = (CheckBox) view;
                final ProgressBar progressbar = (ProgressBar) ((View) view.getParent()).findViewById(R.id
                      .bcExportProgress);
-               if (mService != null && mService.isAuthorized())
-               {
-                  checkbox.setVisibility(View.VISIBLE);
+               checkbox.setVisibility(View.INVISIBLE);
+               checkbox.setOnCheckedChangeListener(null);
 
-                  // Disable the checkbox if marked online
-                  boolean isOnline = mService.isLocalTrackSynced(trackId);
-                  checkbox.setEnabled(!isOnline);
-
-                  // Check the checkbox if determined synced
-                  boolean isSynced = mService.isLocalTrackSynced(trackId);
-                  checkbox.setOnCheckedChangeListener(null);
-                  checkbox.setChecked(isSynced);
-                  checkbox.setOnCheckedChangeListener(new OnCheckedChangeListener()
-                  {
-                     @Override
-                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-                     {
-                        if (isChecked)
-                        {
-                           // Start a description of the track
-                           Intent namingIntent = new Intent(TrackList.this, DescribeTrack.class);
-                           namingIntent.setData(ContentUris.withAppendedId(Tracks.CONTENT_URI, trackId));
-                           namingIntent.putExtra(Constants.NAME, trackName);
-                           mExportListener = new ProgressListener()
-                           {
-                              @Override
-                              public void setIndeterminate(boolean indeterminate)
-                              {
-                                 progressbar.setIndeterminate(indeterminate);
-                              }
-
-                              @Override
-                              public void started()
-                              {
-                                 checkbox.setVisibility(View.INVISIBLE);
-                                 progressbar.setVisibility(View.VISIBLE);
-                              }
-
-                              @Override
-                              public void finished(Uri result)
-                              {
-                                 checkbox.setVisibility(View.VISIBLE);
-                                 progressbar.setVisibility(View.INVISIBLE);
-                                 progressbar.setIndeterminate(false);
-                              }
-
-                              @Override
-                              public void setProgress(int value)
-                              {
-                                 progressbar.setProgress(value);
-                              }
-
-                              @Override
-                              public void showError(String task, String errorMessage, Exception exception)
-                              {
-                                 TrackList.this.showError(task, errorMessage, exception);
-                              }
-                           };
-                           startActivityForResult(namingIntent, DESCRIBE);
-                        }
-                     }
-                  });
-               }
-               else
-               {
-                  checkbox.setVisibility(View.INVISIBLE);
-                  checkbox.setOnCheckedChangeListener(null);
-               }
                return true;
             }
             return false;
@@ -757,7 +589,9 @@ public class TrackList extends ListActivity implements ProgressListener
       });
 
       setListAdapter(sectionedAdapter);
-   }   @Override
+   }
+
+   @Override
    public void showError(String task, String errorDialogMessage, Exception errorDialogException)
    {
       mErrorTask = task;
@@ -776,57 +610,23 @@ public class TrackList extends ListActivity implements ProgressListener
    protected void onListItemClick(ListView listView, View view, int position, long id)
    {
       super.onListItemClick(listView, view, position, id);
-
-      Object item = listView.getItemAtPosition(position);
-      if (item instanceof String)
+      Intent intent = new Intent();
+      Uri trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, id);
+      intent.setData(trackUri);
+      ComponentName caller = this.getCallingActivity();
+      if (caller != null)
       {
-         if (Constants.BREADCRUMBS_CONNECT.equals(item))
-         {
-            mService.collectBreadcrumbsOauthToken();
-         }
-      }
-      else if (item instanceof Pair<?, ?>)
-      {
-         @SuppressWarnings("unchecked")
-         final Pair<Integer, Integer> track = (Pair<Integer, Integer>) item;
-         if (track.first == Constants.BREADCRUMBS_TRACK_ITEM_VIEW_TYPE)
-         {
-            TextView tv = (TextView) view.findViewById(R.id.listitem_name);
-            mImportTrackName = tv.getText().toString();
-            mImportAction = new Runnable()
-            {
-               @Override
-               public void run()
-               {
-                  mService.startDownloadTask(TrackList.this, TrackList.this, track);
-               }
-            };
-            showDialog(DIALOG_IMPORT);
-         }
+         setResult(RESULT_OK, intent);
+         finish();
       }
       else
       {
-         Intent intent = new Intent();
-         Uri trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, id);
-         intent.setData(trackUri);
-         ComponentName caller = this.getCallingActivity();
-         if (caller != null)
-         {
-            setResult(RESULT_OK, intent);
-            finish();
-         }
-         else
-         {
-            intent.setClass(this, LoggerMap.class);
-            startActivity(intent);
-         }
+         intent.setClass(this, LoggerMap.class);
+         startActivity(intent);
       }
+
    }
 
-   /*
-    * (non-Javadoc)
-    * @see android.app.ListActivity#onRestoreInstanceState(android.os.Bundle)
-    */
    @Override
    protected void onRestoreInstanceState(Bundle state)
    {
@@ -836,20 +636,4 @@ public class TrackList extends ListActivity implements ProgressListener
       mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
       getListView().setSelection(state.getInt("POSITION"));
    }
-
-   @Override
-   protected void onDestroy()
-   {
-      if (isFinishing())
-      {
-         Intent service = new Intent(this, BreadcrumbsService.class);
-         stopService(service);
-      }
-      unregisterReceiver(mReceiver);
-      super.onDestroy();
-   }
-
-
-
-
 }

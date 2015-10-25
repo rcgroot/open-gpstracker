@@ -178,10 +178,6 @@ public class Constants
     */
    public static final int LOGGING_GLOBAL = 4;
 
-   public static final String REQUEST_URL = "http://api.gobreadcrumbs.com/oauth/request_token";
-   public static final String ACCESS_URL = "http://api.gobreadcrumbs.com/oauth/access_token";
-   public static final String AUTHORIZE_URL = "http://api.gobreadcrumbs.com/oauth/authorize";
-
    public static final String OSM_REQUEST_URL = "http://www.openstreetmap.org/oauth/request_token";
    public static final String OSM_ACCESS_URL = "http://www.openstreetmap.org/oauth/access_token";
    public static final String OSM_AUTHORIZE_URL = "http://www.openstreetmap.org/oauth/authorize";
@@ -190,11 +186,6 @@ public class Constants
    public static final String OAUTH_CALLBACK_HOST = "callback";
    public static final String OAUTH_CALLBACK_URL = OAUTH_CALLBACK_SCHEME + "://" + OAUTH_CALLBACK_HOST;
    public static final String NAME = "NAME";
-   public static final String BREADCRUMBS_CONNECT = "breadcrumbs_connect";
-   public static final int BREADCRUMBS_CONNECT_ITEM_VIEW_TYPE = 0;
-   public static final int BREADCRUMBS_BUNDLE_ITEM_VIEW_TYPE = 2;
-   public static final int BREADCRUMBS_TRACK_ITEM_VIEW_TYPE = 3;
-   public static final int BREADCRUMBS_ACTIVITY_ITEM_VIEW_TYPE = 4;
    public static final int SECTIONED_HEADER_ITEM_VIEW_TYPE = 0;
    public static final String BROADCAST_STREAM = "STREAM_ENABLED";
    /**

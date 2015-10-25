@@ -35,13 +35,9 @@ import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
@@ -52,7 +48,6 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -86,8 +81,6 @@ import nl.sogeti.android.gpstracker.actions.tasks.OsmSharing;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
-import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService;
-import nl.sogeti.android.gpstracker.breadcrumbs.BreadcrumbsService.LocalBinder;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
@@ -104,18 +97,14 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    private static final int EXPORT_TARGET_SEND = 1;
    private static final int EXPORT_TARGET_JOGRUN = 2;
    private static final int EXPORT_TARGET_OSM = 3;
-   private static final int EXPORT_TARGET_BREADCRUMBS = 4;
    private static final int EXPORT_TARGET_TWITTER = 0;
    private static final int EXPORT_TARGET_SMS = 1;
    private static final int EXPORT_TARGET_TEXT = 2;
 
    private static final int PROGRESS_STEPS = 10;
    private static final int DIALOG_ERROR = Menu.FIRST + 28;
-   private static final int DIALOG_CONNECTBREADCRUMBS = Menu.FIRST + 29;
-   private static final int DESCRIBE = 312;
 
    private static File sTempBitmap;
-   boolean mBound = false;
    private RemoteViews mContentView;
    private int barProgress = 0;
    private Notification mNotification;
@@ -125,7 +114,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    private Spinner mShareTypeSpinner;
    private Spinner mShareTargetSpinner;
    private Uri mTrackUri;
-   private BreadcrumbsService mService;
    private String mErrorDialogMessage;
    private Throwable mErrorDialogException;
 
@@ -133,32 +121,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    private ImageButton mCloseImageView;
 
    private Uri mImageUri;
-   private ServiceConnection mConnection = new ServiceConnection()
-   {
-      @Override
-      public void onServiceConnected(ComponentName className, IBinder service)
-      {
-         // We've bound to LocalService, cast the IBinder and get LocalService instance
-         LocalBinder binder = (LocalBinder) service;
-         mService = binder.getService();
-         mBound = true;
-      }
-
-      @Override
-      public void onServiceDisconnected(ComponentName arg0)
-      {
-         mBound = false;
-         mService = null;
-      }
-   };
-   private OnClickListener mBreadcrumbsDialogListener = new OnClickListener()
-   {
-      @Override
-      public void onClick(DialogInterface dialog, int which)
-      {
-         mService.collectBreadcrumbsOauthToken();
-      }
-   };
 
    public static void sendFile(Context context, Uri fileUri, String fileContentType, String body)
    {
@@ -218,8 +180,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.sharedialog);
-      Intent service = new Intent(this, BreadcrumbsService.class);
-      startService(service);
 
       mTrackUri = getIntent().getData();
 
@@ -239,15 +199,7 @@ public class ShareTrack extends Activity implements StatisticsDelegate
          @Override
          public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long arg3)
          {
-            if (mShareTypeSpinner.getSelectedItemPosition() == EXPORT_TYPE_GPX && position == EXPORT_TARGET_BREADCRUMBS)
-            {
-               boolean authorized = mService.isAuthorized();
-               if (!authorized)
-               {
-                  showDialog(DIALOG_CONNECTBREADCRUMBS);
-               }
-            }
-            else if (mShareTypeSpinner.getSelectedItemPosition() == EXPORT_TYPE_TEXTLINE && position !=
+            if (mShareTypeSpinner.getSelectedItemPosition() == EXPORT_TYPE_TEXTLINE && position !=
                   EXPORT_TARGET_SMS)
             {
                readScreenBitmap();
@@ -309,14 +261,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
    }
 
    @Override
-   protected void onStart()
-   {
-      super.onStart();
-      Intent intent = new Intent(this, BreadcrumbsService.class);
-      bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-   }
-
-   @Override
    protected void onResume()
    {
       super.onResume();
@@ -332,29 +276,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
       }
       findViewById(R.id.okayshare_button).setEnabled(true);
       findViewById(R.id.cancelshare_button).setEnabled(true);
-   }
-
-   @Override
-   protected void onStop()
-   {
-      if (mBound)
-      {
-         unbindService(mConnection);
-         mBound = false;
-         mService = null;
-      }
-      super.onStop();
-   }
-
-   @Override
-   protected void onDestroy()
-   {
-      if (isFinishing())
-      {
-         Intent service = new Intent(this, BreadcrumbsService.class);
-         stopService(service);
-      }
-      super.onDestroy();
    }
 
    /**
@@ -374,14 +295,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
             builder.setIcon(android.R.drawable.ic_dialog_alert).setTitle(android.R.string.dialog_alert_title)
                    .setMessage(mErrorDialogMessage + exceptionMessage)
                    .setNeutralButton(android.R.string.cancel, null);
-            dialog = builder.create();
-            return dialog;
-         case DIALOG_CONNECTBREADCRUMBS:
-            builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_breadcrumbsconnect).setMessage(R.string
-                  .dialog_breadcrumbsconnect_message).setIcon(android.R.drawable.ic_dialog_alert)
-                   .setPositiveButton(R.string.btn_okay, mBreadcrumbsDialogListener).setNegativeButton(R.string
-                  .btn_cancel, null);
             dialog = builder.create();
             return dialog;
          default:
@@ -405,34 +318,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
                   + ") ";
             alert.setMessage(mErrorDialogMessage + exceptionMessage);
             break;
-      }
-   }
-
-   @Override
-   protected void onActivityResult(int requestCode, int resultCode, Intent data)
-   {
-      if (resultCode != RESULT_CANCELED)
-      {
-         String name;
-         switch (requestCode)
-         {
-            case DESCRIBE:
-               Uri trackUri = data.getData();
-               if (data.getExtras() != null && data.getExtras().containsKey(Constants.NAME))
-               {
-                  name = data.getExtras().getString(Constants.NAME);
-               }
-               else
-               {
-                  name = "shareToGobreadcrumbs";
-               }
-               mService.startUploadTask(this, new ShareProgressListener(name), trackUri, name);
-               finish();
-               break;
-            default:
-               super.onActivityResult(requestCode, resultCode, data);
-               break;
-         }
       }
    }
 
@@ -654,9 +539,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
             new OsmSharing(this, mTrackUri, false, new ShareProgressListener(OsmSharing.OSM_FILENAME)).execute();
             ShareTrack.this.finish();
             break;
-         case EXPORT_TARGET_BREADCRUMBS:
-            sendToBreadcrumbs(mTrackUri, chosenFileName);
-            break;
          default:
             Log.e(TAG, "Unable to determine target for sharing GPX " + target);
             break;
@@ -681,15 +563,6 @@ public class ShareTrack extends Activity implements StatisticsDelegate
             break;
       }
 
-   }
-
-   private void sendToBreadcrumbs(Uri mTrackUri, String chosenFileName)
-   {
-      // Start a description of the track
-      Intent namingIntent = new Intent(this, DescribeTrack.class);
-      namingIntent.setData(mTrackUri);
-      namingIntent.putExtra(Constants.NAME, chosenFileName);
-      startActivityForResult(namingIntent, DESCRIBE);
    }
 
    private void sendTweet(String tweet)

@@ -102,9 +102,6 @@
             android:name=".actions.NameTrack"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity
-            android:name=".actions.DescribeTrack"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
-        <activity
             android:name=".actions.ControlTracking"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity
