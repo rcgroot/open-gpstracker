@@ -88,7 +88,6 @@ public class Constants
    public static final String EXPORT_TXTTARGET = "EXPORT_TXTTARGET";
 
    public static final double MIN_STATISTICS_SPEED = 1.0d;
-   public static final int OSM_CLOUDMADE = 0;
    public static final int OSM_MAKNIK = 1;
    public static final int OSM_CYCLE = 2;
    public static final String OSMBASEOVERLAY = "OSM_BASE_OVERLAY";

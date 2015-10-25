@@ -35,12 +35,6 @@
             android:layout_height="wrap_content">
 
             <RadioButton
-                android:id="@+id/layer_osm_cloudmade"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/layer_cloudmade"/>
-
-            <RadioButton
                 android:id="@+id/layer_osm_maknik"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"

@@ -19,8 +19,6 @@
 
     <org.osmdroid.views.MapView
         android:id="@+id/myOsmMapView"
-        cloudmadeStyle="1"
-        renderer="CLOUDMADESTANDARDTILES"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:visibility="gone"

@@ -38,7 +38,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-    
+
     lintOptions {
         abortOnError false
     }
@@ -49,4 +49,6 @@ dependencies {
     compile 'com.android.support:support-v4:23.1.0'
     compile project(':signpost')
     testCompile 'junit:junit:4.12'
+    compile 'org.osmdroid:osmdroid-android:4.3'
+    compile 'org.slf4j:slf4j-simple:1.6.1'
 }

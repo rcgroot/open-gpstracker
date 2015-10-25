@@ -588,9 +588,6 @@ public class LoggerMap extends MapActivity
    /**
     * For the current track identifier the route of that track is drawn by
     * adding a OverLay for each segments in the track
-    *
-    * @param trackId
-    * @see SegmentOverlay
     */
    private void createDataOverlays()
    {
@@ -718,8 +715,6 @@ public class LoggerMap extends MapActivity
 
    /**
     * Retrieve the last point of the current track
-    *
-    * @param context
     */
    private GeoPoint getLastTrackPoint()
    {
@@ -742,7 +737,7 @@ public class LoggerMap extends MapActivity
             ContentResolver resolver = this.getContentResolver();
             waypoint = resolver.query(Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/waypoints"), new String[]
                   { Waypoints.LATITUDE,
-                  Waypoints.LONGITUDE, "max(" + Waypoints.TABLE + "." + Waypoints._ID + ")" }, null, null, null);
+                        Waypoints.LONGITUDE, "max(" + Waypoints.TABLE + "." + Waypoints._ID + ")" }, null, null, null);
             if (waypoint != null && waypoint.moveToLast())
             {
                int microLatitude = (int) (waypoint.getDouble(0) * 1E6d);
@@ -1140,7 +1135,6 @@ public class LoggerMap extends MapActivity
    {
       RadioButton satellite;
       RadioButton regular;
-      RadioButton cloudmade;
       RadioButton mapnik;
       RadioButton cycle;
       switch (id)
@@ -1152,10 +1146,8 @@ public class LoggerMap extends MapActivity
             regular.setChecked(!mSharedPreferences.getBoolean(Constants.SATELLITE, false));
 
             int osmbase = mSharedPreferences.getInt(Constants.OSMBASEOVERLAY, 0);
-            cloudmade = (RadioButton) dialog.findViewById(R.id.layer_osm_cloudmade);
             mapnik = (RadioButton) dialog.findViewById(R.id.layer_osm_maknik);
             cycle = (RadioButton) dialog.findViewById(R.id.layer_osm_bicycle);
-            cloudmade.setChecked(osmbase == Constants.OSM_CLOUDMADE);
             mapnik.setChecked(osmbase == Constants.OSM_MAKNIK);
             cycle.setChecked(osmbase == Constants.OSM_CYCLE);
 
@@ -1362,9 +1354,6 @@ public class LoggerMap extends MapActivity
                   break;
                case R.id.layer_google_regular:
                   setSatelliteOverlay(false);
-                  break;
-               case R.id.layer_osm_cloudmade:
-                  setOsmBaseOverlay(Constants.OSM_CLOUDMADE);
                   break;
                case R.id.layer_osm_maknik:
                   setOsmBaseOverlay(Constants.OSM_MAKNIK);

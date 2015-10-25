@@ -75,11 +75,11 @@ public class ProjectionProxy
       }
       else if (mOpenStreetMapViewProjectionSource != null)
       {
-         org.osmdroid.views.MapView.Projection projection = mOpenStreetMapViewProjectionSource.getProjection();
+         org.osmdroid.views.Projection projection = mOpenStreetMapViewProjectionSource.getProjection();
          if (projection != null)
          {
             org.osmdroid.util.GeoPoint osmGeopoint = MapViewProxy.convertMapGeoPoint(geoPoint);
-            projection.toMapPixels(osmGeopoint, out);
+            projection.toPixels(osmGeopoint, out);
          }
       }
       else

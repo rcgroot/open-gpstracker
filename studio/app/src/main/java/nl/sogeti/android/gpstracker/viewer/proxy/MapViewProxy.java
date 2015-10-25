@@ -355,9 +355,6 @@ public class MapViewProxy
       {
          switch (renderer)
          {
-            case Constants.OSM_CLOUDMADE:
-               mOpenStreetMapView.setTileSource(TileSourceFactory.CLOUDMADESTANDARDTILES);
-               break;
             case Constants.OSM_MAKNIK:
                mOpenStreetMapView.setTileSource(TileSourceFactory.MAPNIK);
                break;
