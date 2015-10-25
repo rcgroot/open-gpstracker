@@ -31,7 +31,6 @@ package nl.sogeti.android.gpstracker.viewer;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -54,6 +53,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -112,17 +112,15 @@ public class LoggerMap extends AppCompatMapActivity
    private static final String INSTANCE_TRACK = "track";
    private static final int ZOOM_LEVEL = 16;
    // MENU'S
+   private static final int MENU_TRACKING = 15;
    private static final int MENU_SETTINGS = 1;
-   private static final int MENU_TRACKING = 2;
    private static final int MENU_TRACKLIST = 3;
    private static final int MENU_STATS = 4;
-   private static final int MENU_ABOUT = 5;
    private static final int MENU_LAYERS = 6;
    private static final int MENU_NOTE = 7;
    private static final int MENU_SHARE = 13;
    private static final int MENU_CONTRIB = 14;
    private static final int DIALOG_NOTRACK = 24;
-   private static final int DIALOG_INSTALL_ABOUT = 29;
    private static final int DIALOG_LAYERS = 31;
    private static final int DIALOG_URIS = 34;
    private static final int DIALOG_CONTRIB = 35;
@@ -158,7 +156,6 @@ public class LoggerMap extends AppCompatMapActivity
    private ContentObserver mSegmentWaypointsObserver;
    private ContentObserver mTrackMediasObserver;
    private DialogInterface.OnClickListener mNoTrackDialogListener;
-   private DialogInterface.OnClickListener mOiAboutDialogListener;
    private OnClickListener mNoteSelectDialogListener;
    private OnCheckedChangeListener mCheckedChangeListener;
    private android.widget.RadioGroup.OnCheckedChangeListener mGroupCheckedChangeListener;
@@ -170,6 +167,7 @@ public class LoggerMap extends AppCompatMapActivity
     */
    private Runnable mServiceConnected;
    private Runnable speedCalculator;
+   private FloatingActionButton mFab;
 
    /**
     * Called when the activity is first created.
@@ -222,7 +220,7 @@ public class LoggerMap extends AppCompatMapActivity
       mLastGPSSpeedView = (TextView) findViewById(R.id.currentSpeed);
       mLastGPSAltitudeView = (TextView) findViewById(R.id.currentAltitude);
       mDistanceView = (TextView) findViewById(R.id.currentDistance);
-
+      mFab = (FloatingActionButton) findViewById(R.id.tracking_control);
       createListeners();
       onRestoreInstanceState(load);
    }
@@ -915,28 +913,20 @@ public class LoggerMap extends AppCompatMapActivity
    public boolean onCreateOptionsMenu(Menu menu)
    {
       boolean result = super.onCreateOptionsMenu(menu);
-
-      menu.add(ContextMenu.NONE, MENU_TRACKING, ContextMenu.NONE, R.string.menu_tracking).setIcon(R.drawable
-            .ic_menu_movie).setAlphabeticShortcut('T');
-      menu.add(ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers).setIcon(R.drawable
-            .ic_menu_mapmode).setAlphabeticShortcut('L');
-      menu.add(ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote).setIcon(R.drawable
-            .ic_menu_myplaces);
-
-      menu.add(ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_statistics).setIcon(R.drawable
-            .ic_menu_picture).setAlphabeticShortcut('S');
-      menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack).setIcon(R.drawable
-            .ic_menu_share).setAlphabeticShortcut('I');
-      // More
-
       menu.add(ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist).setIcon(R.drawable
             .ic_menu_show_list).setAlphabeticShortcut('P');
+      menu.add(ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_statistics).setIcon(R.drawable
+            .ic_menu_picture).setAlphabeticShortcut('S');
+      menu.add(ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers).setIcon(R.drawable
+            .ic_menu_mapmode).setAlphabeticShortcut('L');
+      menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack).setIcon(R.drawable
+            .ic_menu_share).setAlphabeticShortcut('I');
+      menu.add(ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote).setIcon(R.drawable
+            .ic_menu_myplaces);
+      // More
       menu.add(ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings).setIcon(R.drawable
             .ic_menu_preferences).setAlphabeticShortcut('C');
-      menu.add(ContextMenu.NONE, MENU_ABOUT, ContextMenu.NONE, R.string.menu_about).setIcon(R.drawable
-            .ic_menu_info_details).setAlphabeticShortcut('A');
-      menu.add(ContextMenu.NONE, MENU_CONTRIB, ContextMenu.NONE, R.string.menu_contrib).setIcon(R.drawable
-            .ic_menu_allfriends);
+
 
       return result;
    }
@@ -966,11 +956,6 @@ public class LoggerMap extends AppCompatMapActivity
       Intent intent;
       switch (item.getItemId())
       {
-         case MENU_TRACKING:
-            intent = new Intent(this, ControlTracking.class);
-            startActivityForResult(intent, MENU_TRACKING);
-            handled = true;
-            break;
          case MENU_LAYERS:
             showDialog(DIALOG_LAYERS);
             handled = true;
@@ -1005,17 +990,6 @@ public class LoggerMap extends AppCompatMapActivity
                showDialog(DIALOG_NOTRACK);
             }
             handled = true;
-            break;
-         case MENU_ABOUT:
-            intent = new Intent("org.openintents.action.SHOW_ABOUT_DIALOG");
-            try
-            {
-               startActivityForResult(intent, MENU_ABOUT);
-            }
-            catch (ActivityNotFoundException e)
-            {
-               showDialog(DIALOG_INSTALL_ABOUT);
-            }
             break;
          case MENU_SHARE:
             intent = new Intent(Intent.ACTION_RUN);
@@ -1086,14 +1060,6 @@ public class LoggerMap extends AppCompatMapActivity
             builder.setTitle(R.string.dialog_notrack_title).setMessage(R.string.dialog_notrack_message).setIcon
                   (android.R.drawable.ic_dialog_alert)
                    .setPositiveButton(R.string.btn_selecttrack, mNoTrackDialogListener).setNegativeButton(R.string
-                  .btn_cancel, null);
-            dialog = builder.create();
-            return dialog;
-         case DIALOG_INSTALL_ABOUT:
-            builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_nooiabout).setMessage(R.string.dialog_nooiabout_message).setIcon(android
-                  .R.drawable.ic_dialog_alert)
-                   .setPositiveButton(R.string.btn_install, mOiAboutDialogListener).setNegativeButton(R.string
                   .btn_cancel, null);
             dialog = builder.create();
             return dialog;
@@ -1205,8 +1171,6 @@ public class LoggerMap extends AppCompatMapActivity
                moveToTrack(trackId, true);
             }
             break;
-         case MENU_ABOUT:
-            break;
          case MENU_TRACKING:
             if (resultCode == RESULT_OK)
             {
@@ -1272,6 +1236,15 @@ public class LoggerMap extends AppCompatMapActivity
 
    private void createListeners()
    {
+      mFab.setOnClickListener(new View.OnClickListener()
+      {
+         @Override
+         public void onClick(View v)
+         {
+            Intent intent = new Intent(LoggerMap.this, ControlTracking.class);
+            startActivityForResult(intent, MENU_TRACKING);
+         }
+      });
       /*******************************************************
        * 8 Runnable listener actions
        */
@@ -1404,25 +1377,6 @@ public class LoggerMap extends AppCompatMapActivity
             Intent tracklistIntent = new Intent(LoggerMap.this, TrackList.class);
             tracklistIntent.putExtra(Tracks._ID, LoggerMap.this.mTrackId);
             startActivityForResult(tracklistIntent, MENU_TRACKLIST);
-         }
-      };
-      mOiAboutDialogListener = new DialogInterface.OnClickListener()
-      {
-         @Override
-         public void onClick(DialogInterface dialog, int which)
-         {
-            Uri oiDownload = Uri.parse("market://details?id=org.openintents.about");
-            Intent oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-            try
-            {
-               startActivity(oiAboutIntent);
-            }
-            catch (ActivityNotFoundException e)
-            {
-               oiDownload = Uri.parse("http://openintents.googlecode.com/files/AboutApp-1.0.0.apk");
-               oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-               startActivity(oiAboutIntent);
-            }
          }
       };
       /**

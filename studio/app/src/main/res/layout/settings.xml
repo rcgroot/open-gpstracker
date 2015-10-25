@@ -260,4 +260,13 @@
         </PreferenceCategory>
     </PreferenceScreen>
 
+    <Preference
+        android:title="@string/menu_about">
+
+        <intent
+            android:action="nl.sogeti.android.gpstracker.action.VIEW"
+            android:data="content://nl.sogeti.android.gpstracker.about"/>
+    </Preference>
+
+
 </PreferenceScreen>

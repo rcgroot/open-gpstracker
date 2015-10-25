@@ -89,6 +89,20 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".actions.AboutActivity"
+            android:theme="@style/Theme.App.Translucent.NoTitleBar">
+
+            <intent-filter>
+                <action android:name="nl.sogeti.android.gpstracker.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <data android:scheme="content"/>
+                <data android:host="nl.sogeti.android.gpstracker.about"/>
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".viewer.ApplicationPreferenceActivity"
             android:label="@string/menu_settings"/>
         <activity
