@@ -39,6 +39,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -279,12 +280,19 @@ public class Statistics extends AppCompatActivity implements StatisticsDelegate
    public boolean onCreateOptionsMenu(Menu menu)
    {
       boolean result = super.onCreateOptionsMenu(menu);
-      menu.add(ContextMenu.NONE, MENU_GRAPHTYPE, ContextMenu.NONE, R.string.menu_graphtype).setIcon(R.drawable
-            .ic_menu_picture).setAlphabeticShortcut('t');
-      menu.add(ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist).setIcon(R.drawable
-            .ic_menu_show_list).setAlphabeticShortcut('l');
-      menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack).setIcon(R.drawable
-            .ic_menu_share).setAlphabeticShortcut('s');
+      MenuItem item;
+      item = menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack)
+                 .setIcon(R.drawable.ic_share_24dp)
+                 .setAlphabeticShortcut('s');
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
+      item = menu.add(ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist)
+                 .setIcon(R.drawable.ic_list_24dp)
+                 .setAlphabeticShortcut('l');
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
+      item = menu.add(ContextMenu.NONE, MENU_GRAPHTYPE, ContextMenu.NONE, R.string.menu_graphtype)
+                 .setIcon(R.drawable.ic_graph_24dp)
+                 .setAlphabeticShortcut('t');
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_NEVER);
       return result;
    }
 

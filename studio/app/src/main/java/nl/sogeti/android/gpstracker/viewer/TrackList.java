@@ -44,6 +44,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -222,13 +223,17 @@ public class TrackList extends AppCompatActivity implements ProgressListener
    public boolean onCreateOptionsMenu(Menu menu)
    {
       boolean result = super.onCreateOptionsMenu(menu);
-
-      menu.add(ContextMenu.NONE, MENU_SEARCH, ContextMenu.NONE, android.R.string.search_go).setIcon(android.R
-            .drawable.ic_search_category_default).setAlphabeticShortcut(SearchManager.MENU_KEY);
-      menu.add(ContextMenu.NONE, MENU_VACUUM, ContextMenu.NONE, R.string.menu_vacuum).setIcon(android.R.drawable
-            .ic_menu_crop);
-      menu.add(ContextMenu.NONE, MENU_PICKER, ContextMenu.NONE, R.string.menu_picker).setIcon(android.R.drawable
-            .ic_menu_add);
+      MenuItem item;
+      item = menu.add(ContextMenu.NONE, MENU_SEARCH, ContextMenu.NONE, android.R.string.search_go)
+                 .setIcon(R.drawable.ic_search_24dp)
+                 .setAlphabeticShortcut(SearchManager.MENU_KEY);
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
+      item = menu.add(ContextMenu.NONE, MENU_PICKER, ContextMenu.NONE, R.string.menu_picker)
+                 .setIcon(R.drawable.ic_import_24dp);
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
+      item = menu.add(ContextMenu.NONE, MENU_VACUUM, ContextMenu.NONE, R.string.menu_vacuum)
+                 .setIcon(android.R.drawable.ic_menu_crop);
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_NEVER);
       return result;
    }
 

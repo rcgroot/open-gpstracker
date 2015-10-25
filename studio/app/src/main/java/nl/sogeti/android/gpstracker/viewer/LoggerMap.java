@@ -54,6 +54,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -913,19 +914,34 @@ public class LoggerMap extends AppCompatMapActivity
    public boolean onCreateOptionsMenu(Menu menu)
    {
       boolean result = super.onCreateOptionsMenu(menu);
-      menu.add(ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist).setIcon(R.drawable
-            .ic_menu_show_list).setAlphabeticShortcut('P');
-      menu.add(ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_statistics).setIcon(R.drawable
-            .ic_menu_picture).setAlphabeticShortcut('S');
-      menu.add(ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers).setIcon(R.drawable
-            .ic_menu_mapmode).setAlphabeticShortcut('L');
-      menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack).setIcon(R.drawable
-            .ic_menu_share).setAlphabeticShortcut('I');
-      menu.add(ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote).setIcon(R.drawable
-            .ic_menu_myplaces);
-      // More
-      menu.add(ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings).setIcon(R.drawable
+      MenuItem item;
+
+      item = menu.add(ContextMenu.NONE, MENU_TRACKLIST, ContextMenu.NONE, R.string.menu_tracklist)
+                 .setIcon(R.drawable.ic_list_24dp)
+                 .setAlphabeticShortcut('P');
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+      item = menu.add(ContextMenu.NONE, MENU_STATS, ContextMenu.NONE, R.string.menu_statistics)
+                 .setIcon(R.drawable.ic_graph_24dp)
+                 .setAlphabeticShortcut('S');
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+      item = menu.add(ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers)
+                 .setIcon(R.drawable.ic_layers_24dp)
+                 .setAlphabeticShortcut('L');
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
+      item = menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack)
+                 .setIcon(R.drawable.ic_share_24dp)
+                 .setAlphabeticShortcut('I');
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+      item = menu.add(ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote)
+                 .setIcon(R.drawable.ic_menu_myplaces);
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
+      item = menu.add(ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings).setIcon(R.drawable
             .ic_menu_preferences).setAlphabeticShortcut('C');
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_NEVER);
 
 
       return result;
@@ -940,9 +956,6 @@ public class LoggerMap extends AppCompatMapActivity
    {
       MenuItem noteMenu = menu.findItem(MENU_NOTE);
       noteMenu.setEnabled(mLoggerServiceManager.isMediaPrepared());
-
-      MenuItem shareMenu = menu.findItem(MENU_SHARE);
-      shareMenu.setEnabled(mTrackId >= 0);
 
       return super.onPrepareOptionsMenu(menu);
    }
@@ -992,17 +1005,24 @@ public class LoggerMap extends AppCompatMapActivity
             handled = true;
             break;
          case MENU_SHARE:
-            intent = new Intent(Intent.ACTION_RUN);
-            trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId);
-            intent.setDataAndType(trackUri, Tracks.CONTENT_ITEM_TYPE);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Bitmap bm = findViewById(R.id.mapScreen).getDrawingCache();
-            if (bm != null)
+            if (this.mTrackId >= 0)
             {
-               Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
-               intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
+               intent = new Intent(Intent.ACTION_RUN);
+               trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId);
+               intent.setDataAndType(trackUri, Tracks.CONTENT_ITEM_TYPE);
+               intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+               Bitmap bm = findViewById(R.id.mapScreen).getDrawingCache();
+               if (bm != null)
+               {
+                  Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
+                  intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
+               }
+               startActivityForResult(Intent.createChooser(intent, getString(R.string.share_track)), MENU_SHARE);
             }
-            startActivityForResult(Intent.createChooser(intent, getString(R.string.share_track)), MENU_SHARE);
+            else
+            {
+               showDialog(DIALOG_NOTRACK);
+            }
             handled = true;
             break;
          case MENU_CONTRIB:
@@ -1014,10 +1034,6 @@ public class LoggerMap extends AppCompatMapActivity
       return handled;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onCreateDialog(int)
-    */
    @Override
    protected Dialog onCreateDialog(int id)
    {
@@ -1052,7 +1068,7 @@ public class LoggerMap extends AppCompatMapActivity
             mLocation.setOnCheckedChangeListener(mCheckedChangeListener);
 
             builder.setTitle(R.string.dialog_layer_title).setIcon(android.R.drawable.ic_dialog_map).setPositiveButton
-                  (R.string.btn_okay, null).setView(view);
+                  (android.R.string.ok, null).setView(view);
             dialog = builder.create();
             return dialog;
          case DIALOG_NOTRACK:
