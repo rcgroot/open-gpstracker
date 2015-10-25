@@ -54,6 +54,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -71,7 +72,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
 
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 
@@ -88,6 +88,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.support.AppCompatMapActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
@@ -99,9 +100,8 @@ import nl.sogeti.android.gpstracker.viewer.proxy.MyLocationOverlayProxy;
  * @author rene (c) Jan 18, 2009, Sogeti B.V.
  * @version $Id$
  */
-public class LoggerMap extends MapActivity
+public class LoggerMap extends AppCompatMapActivity
 {
-
    public static final String OSM_PROVIDER = "OSM";
    public static final String GOOGLE_PROVIDER = "GOOGLE";
 
@@ -178,8 +178,10 @@ public class LoggerMap extends MapActivity
    protected void onCreate(Bundle load)
    {
       super.onCreate(load);
-
       setContentView(R.layout.map);
+      Toolbar toolbar = (Toolbar) findViewById(R.id.support_actionbar);
+      setSupportActionBar(toolbar);
+
       findViewById(R.id.mapScreen).setDrawingCacheEnabled(true);
       mUnits = new UnitsI18n(this);
       mLoggerServiceManager = new GPSLoggerServiceManager(this);
@@ -225,11 +227,6 @@ public class LoggerMap extends MapActivity
       onRestoreInstanceState(load);
    }
 
-   /*
-    * (non-Javadoc)
-    * @see
-    * com.google.android.maps.MapActivity#onNewIntent(android.content.Intent)
-    */
    @Override
    public void onNewIntent(Intent newIntent)
    {
@@ -367,7 +364,7 @@ public class LoggerMap extends MapActivity
          if (trackCursor != null && trackCursor.moveToLast())
          {
             String trackName = trackCursor.getString(0);
-            this.setTitle(this.getString(R.string.app_name) + ": " + trackName);
+            setTitle(trackName);
          }
       }
       finally

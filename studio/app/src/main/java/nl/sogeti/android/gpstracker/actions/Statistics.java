@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -39,6 +38,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -69,7 +70,7 @@ import nl.sogeti.android.gpstracker.viewer.TrackList;
  * @author rene (c) Oct 19, 2009, Sogeti B.V.
  * @version $Id$
  */
-public class Statistics extends Activity implements StatisticsDelegate
+public class Statistics extends AppCompatActivity implements StatisticsDelegate
 {
 
    private static final int DIALOG_GRAPHTYPE = 3;
@@ -161,6 +162,8 @@ public class Statistics extends Activity implements StatisticsDelegate
          }
       });
       setContentView(R.layout.statistics);
+      Toolbar toolbar = (Toolbar) findViewById(R.id.support_actionbar);
+      setSupportActionBar(toolbar);
 
       mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
       mViewFlipper.setDrawingCacheEnabled(true);

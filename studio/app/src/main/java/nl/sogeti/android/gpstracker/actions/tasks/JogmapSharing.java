@@ -34,8 +34,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.apache.http.HttpException;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -113,7 +111,7 @@ public class JogmapSharing extends GpxCreator
       {
          Log.e(TAG, "Wrong status code " + statusCode);
          jogmapResponseText = mContext.getString(R.string.jogmap_failed) + jogmapResponseText;
-         handleError(mContext.getString(R.string.jogmap_task), new HttpException("Unexpected status reported by " +
+         handleError(mContext.getString(R.string.jogmap_task), new IOException("Unexpected status reported by " +
                "Jogmap"), jogmapResponseText);
       }
    }

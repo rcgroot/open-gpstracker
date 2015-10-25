@@ -638,9 +638,11 @@ public class GraphCanvas extends View
    protected synchronized void onSizeChanged(int w, int h, int oldw, int oldh)
    {
       super.onSizeChanged(w, h, oldw, oldh);
-      initRenderBuffer(w, h);
-
-      renderGraph();
+      if (w > 0 && h > 0)
+      {
+         initRenderBuffer(w, h);
+         renderGraph();
+      }
    }
 
    @Override

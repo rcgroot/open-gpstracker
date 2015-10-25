@@ -31,7 +31,6 @@ package nl.sogeti.android.gpstracker.viewer;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -43,6 +42,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -53,6 +55,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
@@ -73,7 +76,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  * @version $Id$
  */
-public class TrackList extends ListActivity implements ProgressListener
+public class TrackList extends AppCompatActivity implements ProgressListener
 {
 
    public static final int DIALOG_FILENAME = Menu.FIRST + 22;
@@ -164,9 +167,9 @@ public class TrackList extends ListActivity implements ProgressListener
    protected void onCreate(Bundle savedInstanceState)
    {
       super.onCreate(savedInstanceState);
-
-      getWindow().requestFeature(Window.FEATURE_PROGRESS);
       this.setContentView(R.layout.tracklist);
+      Toolbar toolbar = (Toolbar) findViewById(R.id.support_actionbar);
+      setSupportActionBar(toolbar);
 
       displayIntent(getIntent());
 
@@ -177,7 +180,7 @@ public class TrackList extends ListActivity implements ProgressListener
 
       if (savedInstanceState != null)
       {
-         getListView().setSelection(savedInstanceState.getInt("POSITION"));
+         setSelection(savedInstanceState.getInt("POSITION"));
       }
    }
 
@@ -606,10 +609,8 @@ public class TrackList extends ListActivity implements ProgressListener
       setProgressBarIndeterminate(false);
    }
 
-   @Override
    protected void onListItemClick(ListView listView, View view, int position, long id)
    {
-      super.onListItemClick(listView, view, position, id);
       Intent intent = new Intent();
       Uri trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, id);
       intent.setData(trackUri);
@@ -631,9 +632,99 @@ public class TrackList extends ListActivity implements ProgressListener
    protected void onRestoreInstanceState(Bundle state)
    {
       super.onRestoreInstanceState(state);
+      ensureList();
       mDialogTrackUri = state.getParcelable("URI");
       mDialogCurrentName = state.getString("NAME");
       mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
       getListView().setSelection(state.getInt("POSITION"));
+   }
+
+   // Copy of the ListActivity addition to Activity
+
+   protected ListView mList;
+   protected ListAdapter mAdapter;
+   private boolean mFinishedStart = false;
+   private Handler mHandler = new Handler();
+   private Runnable mRequestFocus = new Runnable()
+   {
+      public void run()
+      {
+         mList.focusableViewAvailable(mList);
+      }
+   };
+   private AdapterView.OnItemClickListener mOnClickListener = new AdapterView.OnItemClickListener()
+   {
+      public void onItemClick(AdapterView<?> parent, View v, int position, long id)
+      {
+         onListItemClick((ListView) parent, v, position, id);
+      }
+   };
+
+   @Override
+   protected void onDestroy()
+   {
+      mHandler.removeCallbacks(mRequestFocus);
+      super.onDestroy();
+   }
+
+   @Override
+   public void onContentChanged()
+   {
+      super.onContentChanged();
+      View emptyView = findViewById(android.R.id.empty);
+      mList = (ListView) findViewById(android.R.id.list);
+      if (mList == null)
+      {
+         throw new RuntimeException(
+               "Your content must have a ListView whose id attribute is " +
+                     "'android.R.id.list'");
+      }
+      if (emptyView != null)
+      {
+         mList.setEmptyView(emptyView);
+      }
+      mList.setOnItemClickListener(mOnClickListener);
+      if (mFinishedStart)
+      {
+         setListAdapter(mAdapter);
+      }
+      mHandler.post(mRequestFocus);
+      mFinishedStart = true;
+   }
+
+   public void setListAdapter(ListAdapter adapter)
+   {
+      synchronized (this)
+      {
+         ensureList();
+         mAdapter = adapter;
+         mList.setAdapter(adapter);
+      }
+   }
+
+   public ListAdapter getListAdapter()
+   {
+      return mAdapter;
+   }
+
+   private void ensureList()
+   {
+      if (mList != null)
+      {
+         return;
+      }
+      setContentView(new ListView(this));
+
+   }
+
+   public ListView getListView()
+   {
+      ensureList();
+      return mList;
+   }
+
+   public void setSelection(int position)
+   {
+      mList.setSelection(position);
    }
 }

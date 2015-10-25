@@ -32,7 +32,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
@@ -42,6 +41,7 @@ import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -98,34 +98,33 @@ public class NameTrack extends Activity
 
    private void clearNotification()
    {
-
-      NotificationManager noticationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-      ;
-      noticationManager.cancel(R.layout.namedialog);
+      NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context
+            .NOTIFICATION_SERVICE);
+      notificationManager.cancel(R.layout.namedialog);
    }
 
    private void startDelayNotification()
    {
       int resId = R.string.dialog_routename_title;
       int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = getResources().getString(resId);
-      long when = System.currentTimeMillis();
-
-      Notification nameNotification = new Notification(icon, tickerText, when);
-      nameNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-
       CharSequence contentTitle = getResources().getString(R.string.app_name);
       CharSequence contentText = getResources().getString(resId);
-
       Intent notificationIntent = new Intent(this, NameTrack.class);
       notificationIntent.setData(mTrackUri);
+      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, Intent
-            .FLAG_ACTIVITY_NEW_TASK);
-      nameNotification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
+      NotificationCompat.Builder builder =
+            new NotificationCompat.Builder(this)
+                  .setSmallIcon(icon)
+                  .setContentTitle(contentTitle)
+                  .setContentText(contentText)
+                  .setContentIntent(contentIntent)
+                  .setOngoing(true);
 
-      NotificationManager noticationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-      noticationManager.notify(R.layout.namedialog, nameNotification);
+
+      NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context
+            .NOTIFICATION_SERVICE);
+      notificationManager.notify(R.layout.namedialog, builder.build());
    }
 
    @Override

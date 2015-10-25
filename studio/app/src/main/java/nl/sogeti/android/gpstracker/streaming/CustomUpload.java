@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.streaming;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -39,9 +38,8 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
-import org.apache.http.client.ClientProtocolException;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -156,10 +154,6 @@ public class CustomUpload extends BroadcastReceiver
             clearNotification(context);
          }
       }
-      catch (ClientProtocolException e)
-      {
-         notifyError(context, e);
-      }
       catch (IOException e)
       {
          notifyError(context, e);
@@ -168,31 +162,30 @@ public class CustomUpload extends BroadcastReceiver
 
    private void clearNotification(Context context)
    {
-      String ns = Context.NOTIFICATION_SERVICE;
-      NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(ns);
-      mNotificationManager.cancel(NOTIFICATION_ID);
+      NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
+            .NOTIFICATION_SERVICE);
+      notificationManager.cancel(NOTIFICATION_ID);
    }
 
    private void notifyError(Context context, Exception e)
    {
       Log.e(TAG, "Custom upload failed", e);
-      String ns = Context.NOTIFICATION_SERVICE;
-      NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(ns);
+      NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
+            .NOTIFICATION_SERVICE);
 
       int icon = R.drawable.ic_maps_indicator_current_position;
       CharSequence tickerText = context.getText(R.string.customupload_failed);
-      long when = System.currentTimeMillis();
-      Notification notification = new Notification(icon, tickerText, when);
-
-      Context appContext = context.getApplicationContext();
-      CharSequence contentTitle = tickerText;
-      CharSequence contentText = e.getMessage();
       Intent notificationIntent = new Intent(context, CustomUpload.class);
       PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-      notification.setLatestEventInfo(appContext, contentTitle, contentText, contentIntent);
-      notification.flags = Notification.FLAG_AUTO_CANCEL;
+      NotificationCompat.Builder builder =
+            new NotificationCompat.Builder(context)
+                  .setSmallIcon(icon)
+                  .setContentTitle(tickerText)
+                  .setContentText(e.getMessage())
+                  .setContentIntent(contentIntent)
+                  .setAutoCancel(true);
 
-      mNotificationManager.notify(NOTIFICATION_ID, notification);
+      notificationManager.notify(NOTIFICATION_ID, builder.build());
    }
 
 }

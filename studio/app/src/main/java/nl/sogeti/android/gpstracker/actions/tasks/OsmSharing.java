@@ -39,8 +39,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.apache.http.HttpException;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -104,9 +102,6 @@ public class OsmSharing extends GpxCreator
 
    /**
     * POST a (GPX) file to the 0.6 API of the OpenStreetMap.org website publishing this track to the public.
-    *
-    * @param fileUri
-    * @param contentType
     */
    private void sendToOsm(final Uri fileUri, final Uri trackUri)
    {
@@ -219,7 +214,7 @@ public class OsmSharing extends GpxCreator
             editor.commit();
          }
 
-         handleError(mContext.getString(R.string.osm_task), new HttpException("Unexpected status reported by OSM"),
+         handleError(mContext.getString(R.string.osm_task), new IOException("Unexpected status reported by OSM"),
                text);
       }
    }

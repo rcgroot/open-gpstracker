@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -49,6 +48,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -86,7 +86,7 @@ import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
-public class ShareTrack extends Activity implements StatisticsDelegate
+public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
 {
    private static final String TAG = "OGT.ShareTrack";
 
