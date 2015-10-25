@@ -588,13 +588,13 @@ public class GPStrackingProvider extends ContentProvider
       switch (match)
       {
          case GPStrackingProvider.TRACK_ID:
-            affected = this.mDbHelper.deleteTrack(new Long(uri.getLastPathSegment()).longValue());
+            affected = this.mDbHelper.deleteTrack(Long.valueOf(uri.getLastPathSegment()));
             break;
          case GPStrackingProvider.MEDIA_ID:
-            affected = this.mDbHelper.deleteMedia(new Long(uri.getLastPathSegment()).longValue());
+            affected = this.mDbHelper.deleteMedia(Long.valueOf(uri.getLastPathSegment()));
             break;
          case GPStrackingProvider.METADATA_ID:
-            affected = this.mDbHelper.deleteMetaData(new Long(uri.getLastPathSegment()).longValue());
+            affected = this.mDbHelper.deleteMetaData(Long.valueOf(uri.getLastPathSegment()));
             break;
          default:
             affected = 0;

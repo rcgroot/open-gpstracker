@@ -1142,7 +1142,7 @@ public class LoggerMap extends AppCompatMapActivity
             satellite.setChecked(mSharedPreferences.getBoolean(Constants.SATELLITE, false));
             regular.setChecked(!mSharedPreferences.getBoolean(Constants.SATELLITE, false));
 
-            int osmbase = mSharedPreferences.getInt(Constants.OSMBASEOVERLAY, 0);
+            int osmbase = mSharedPreferences.getInt(Constants.OSMBASEOVERLAY, Constants.OSM_MAKNIK);
             mapnik = (RadioButton) dialog.findViewById(R.id.layer_osm_maknik);
             cycle = (RadioButton) dialog.findViewById(R.id.layer_osm_bicycle);
             mapnik.setChecked(osmbase == Constants.OSM_MAKNIK);

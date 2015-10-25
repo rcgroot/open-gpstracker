@@ -134,7 +134,7 @@ public class GPSLoggerService extends Service implements LocationListener
    private LocationManager mLocationManager;
    private LoggerNotification mLoggerNotification;
    private PowerManager.WakeLock mWakeLock;
-   private Handler mHandler;
+   private static Handler sHandler;
 
    /**
     * If speeds should be checked to sane values
@@ -657,7 +657,7 @@ public class GPSLoggerService extends Service implements LocationListener
       mStatusMonitor = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.STATUS_MONITOR, false);
       Message msg = Message.obtain();
       msg.what = ADDGPSSTATUSLISTENER;
-      mHandler.sendMessage(msg);
+      sHandler.sendMessage(msg);
    }
 
    private void sendRequestLocationUpdatesMessage()
@@ -670,23 +670,23 @@ public class GPSLoggerService extends Service implements LocationListener
       {
          case (Constants.LOGGING_FINE): // Fine
             msg.what = REQUEST_FINEGPS_LOCATIONUPDATES;
-            mHandler.sendMessage(msg);
+            sHandler.sendMessage(msg);
             break;
          case (Constants.LOGGING_NORMAL): // Normal
             msg.what = REQUEST_NORMALGPS_LOCATIONUPDATES;
-            mHandler.sendMessage(msg);
+            sHandler.sendMessage(msg);
             break;
          case (Constants.LOGGING_COARSE): // Coarse
             msg.what = REQUEST_COARSEGPS_LOCATIONUPDATES;
-            mHandler.sendMessage(msg);
+            sHandler.sendMessage(msg);
             break;
          case (Constants.LOGGING_GLOBAL): // Global
             msg.what = REQUEST_GLOBALNETWORK_LOCATIONUPDATES;
-            mHandler.sendMessage(msg);
+            sHandler.sendMessage(msg);
             break;
          case (Constants.LOGGING_CUSTOM): // Global
             msg.what = REQUEST_CUSTOMGPS_LOCATIONUPDATES;
-            mHandler.sendMessage(msg);
+            sHandler.sendMessage(msg);
             break;
          default:
             Log.e(TAG, "Unknown precision " + mPrecision);
@@ -853,7 +853,7 @@ public class GPSLoggerService extends Service implements LocationListener
       mLoggerNotification.stopLogging();
       Message msg = Message.obtain();
       msg.what = STOPLOOPER;
-      mHandler.sendMessage(msg);
+      sHandler.sendMessage(msg);
 
       mLoggerNotification = null;
    }
@@ -1110,7 +1110,7 @@ public class GPSLoggerService extends Service implements LocationListener
    }
 
    /**
-    * Message handler method to do the work off-loaded by mHandler to
+    * Message handler method to do the work off-loaded by sHandler to
     * GPSLoggerServiceThread
     *
     * @param msg
@@ -1383,7 +1383,7 @@ public class GPSLoggerService extends Service implements LocationListener
       public void run()
       {
          Looper.prepare();
-         mHandler = new Handler()
+         sHandler = new Handler()
          {
             @Override
             public void handleMessage(Message msg)

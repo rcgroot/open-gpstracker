@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <include layout="@layout/toolbar"/>
+
+    <ListView
+        android:id="@+id/android:list"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:choiceMode="multipleChoice"
+        android:drawSelectorOnTop="true"/>
 
-        <include layout="@layout/toolbar"/>
+    <TextView
+        android:id="@+id/android:empty"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:text="@string/no_tracks"/>
 
-        <ListView
-            android:id="@+id/android:list"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:choiceMode="multipleChoice"
-            android:drawSelectorOnTop="true"/>
-
-        <TextView
-            android:id="@+id/android:empty"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:text="@string/no_tracks"/>
-
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>

@@ -67,47 +67,40 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+        <RadioGroup
+            android:id="@+id/shared_layers"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
 
-            <RadioGroup
-                android:id="@+id/shared_layers"
+            <CheckBox
+                android:id="@+id/layer_speed"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:text="@string/layer_speed"/>
 
-                <CheckBox
-                    android:id="@+id/layer_speed"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/layer_speed"/>
+            <CheckBox
+                android:id="@+id/layer_altitude"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_altitude"/>
 
-                <CheckBox
-                    android:id="@+id/layer_altitude"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/layer_altitude"/>
+            <CheckBox
+                android:id="@+id/layer_distance"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_distance"/>
 
-                <CheckBox
-                    android:id="@+id/layer_distance"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/layer_distance"/>
+            <CheckBox
+                android:id="@+id/layer_compass"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_compass"/>
 
-                <CheckBox
-                    android:id="@+id/layer_compass"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/layer_compass"/>
-
-                <CheckBox
-                    android:id="@+id/layer_location"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/layer_location"/>
-            </RadioGroup>
-        </LinearLayout>
+            <CheckBox
+                android:id="@+id/layer_location"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/layer_location"/>
+        </RadioGroup>
     </LinearLayout>
 </ScrollView>

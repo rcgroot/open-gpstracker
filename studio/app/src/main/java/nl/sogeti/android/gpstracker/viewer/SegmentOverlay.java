@@ -996,7 +996,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private void setScreenPoint(GeoPoint geoPoint)
    {
       mScreenPointBackup.x = this.mScreenPoint.x;
-      mScreenPointBackup.y = this.mScreenPoint.x;
+      mScreenPointBackup.y = this.mScreenPoint.y;
 
       this.mProjection.toPixels(geoPoint, this.mScreenPoint);
    }
