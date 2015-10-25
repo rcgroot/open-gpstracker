@@ -32,7 +32,6 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.SearchManager;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -84,7 +83,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
    public static final int DIALOG_FILENAME = Menu.FIRST + 22;
    protected static final int DIALOG_ERROR = Menu.FIRST + 28;
    private static final String TAG = "OGT.TrackList";
-   private static final int MENU_DETELE = Menu.FIRST + 0;
+   private static final int MENU_DELETE = Menu.FIRST + 0;
    private static final int MENU_SHARE = Menu.FIRST + 1;
    private static final int MENU_RENAME = Menu.FIRST + 2;
    private static final int MENU_STATS = Menu.FIRST + 3;
@@ -95,27 +94,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
    private static final int DIALOG_DELETE = Menu.FIRST + 24;
    private static final int DIALOG_VACUUM = Menu.FIRST + 25;
    private static final int DIALOG_IMPORT = Menu.FIRST + 26;
-   private static final int DIALOG_INSTALL = Menu.FIRST + 27;
-   private static final int PICKER_OI = Menu.FIRST + 29;
-   private final DialogInterface.OnClickListener mOiPickerDialogListener = new DialogInterface.OnClickListener()
-   {
-      @Override
-      public void onClick(DialogInterface dialog, int which)
-      {
-         Uri oiDownload = Uri.parse("market://details?id=org.openintents.filemanager");
-         Intent oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-         try
-         {
-            startActivity(oiAboutIntent);
-         }
-         catch (ActivityNotFoundException e)
-         {
-            oiDownload = Uri.parse("http://openintents.googlecode.com/files/FileManager-1.1.3.apk");
-            oiAboutIntent = new Intent(Intent.ACTION_VIEW, oiDownload);
-            startActivity(oiAboutIntent);
-         }
-      }
-   };
+   private static final int FILE_PICKER = Menu.FIRST + 29;
    private EditText mTrackNameView;
    private Uri mDialogTrackUri;
    private String mDialogCurrentName = "";
@@ -255,17 +234,9 @@ public class TrackList extends AppCompatActivity implements ProgressListener
             showDialog(DIALOG_VACUUM);
             break;
          case MENU_PICKER:
-            try
-            {
-               Intent intent = new Intent("org.openintents.action.PICK_FILE");
-               intent.putExtra("org.openintents.extra.TITLE", getString(R.string.dialog_import_picker));
-               intent.putExtra("org.openintents.extra.BUTTON_TEXT", getString(R.string.menu_picker));
-               startActivityForResult(intent, PICKER_OI);
-            }
-            catch (ActivityNotFoundException e)
-            {
-               showDialog(DIALOG_INSTALL);
-            }
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");
+            startActivityForResult(intent, FILE_PICKER);
             break;
          default:
             handled = super.onOptionsItemSelected(item);
@@ -291,7 +262,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
             menu.add(0, MENU_STATS, 0, R.string.menu_statistics);
             menu.add(0, MENU_SHARE, 0, R.string.menu_shareTrack);
             menu.add(0, MENU_RENAME, 0, R.string.menu_renameTrack);
-            menu.add(0, MENU_DETELE, 0, R.string.menu_deleteTrack);
+            menu.add(0, MENU_DELETE, 0, R.string.menu_deleteTrack);
          }
       }
    }
@@ -320,7 +291,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
          mDialogCurrentName = mDialogCurrentName != null ? mDialogCurrentName : "";
          switch (item.getItemId())
          {
-            case MENU_DETELE:
+            case MENU_DELETE:
             {
                showDialog(DIALOG_DELETE);
                handled = true;
@@ -405,14 +376,6 @@ public class TrackList extends AppCompatActivity implements ProgressListener
                                                                    mImportOnClickListener);
             dialog = builder.create();
             return dialog;
-         case DIALOG_INSTALL:
-            builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_nooipicker).setMessage(R.string.dialog_nooipicker_message).setIcon
-                  (android.R.drawable.ic_dialog_alert)
-                   .setPositiveButton(R.string.btn_install, mOiPickerDialogListener).setNegativeButton(R.string
-                  .btn_cancel, null);
-            dialog = builder.create();
-            return dialog;
          case DIALOG_ERROR:
             builder = new AlertDialog.Builder(this);
             builder.setIcon(android.R.drawable.ic_dialog_alert).setTitle(android.R.string.dialog_alert_title)
@@ -476,7 +439,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
       {
          switch (requestCode)
          {
-            case PICKER_OI:
+            case FILE_PICKER:
                new GpxParser(TrackList.this, TrackList.this).execute(data.getData());
                break;
             default:
