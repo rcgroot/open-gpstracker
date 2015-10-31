@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+project.archivesBaseName = "opengpstracker"
+
 def keystorePropertiesFile = rootProject.file("keystore.properties");
 def signingProperties = new Properties()
 signingProperties.load(new FileInputStream(keystorePropertiesFile))
