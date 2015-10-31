@@ -50,14 +50,20 @@ import static nl.sogeti.android.gpstracker.BuildConfig.GIT_COMMIT;
 public class AboutActivity extends AppCompatActivity
 {
 
+   public static final String DIALOG = "fragment_about_dialog";
+
    @Override
    protected void onResume()
    {
       super.onResume();
       FragmentManager fm = getSupportFragmentManager();
-      AboutDialogFragment aboutDialog = new AboutDialogFragment();
-      aboutDialog.setListener(this);
-      aboutDialog.show(fm, "fragment_about_dialog");
+      AboutDialogFragment aboutDialog = (AboutDialogFragment) fm.findFragmentByTag(DIALOG);
+      if (aboutDialog == null)
+      {
+         aboutDialog = new AboutDialogFragment();
+         aboutDialog.setListener(this);
+         aboutDialog.show(fm, DIALOG);
+      }
    }
 
    public void onDismiss(AboutDialogFragment aboutDialogFragment)
@@ -67,11 +73,6 @@ public class AboutActivity extends AppCompatActivity
 
    public static class AboutDialogFragment extends DialogFragment
    {
-      interface Listener
-      {
-         void onDismiss(AboutDialogFragment aboutDialogFragment);
-      }
-
       AboutActivity listener;
 
       public void setListener(AboutActivity listener)
@@ -115,7 +116,10 @@ public class AboutActivity extends AppCompatActivity
       public void onDismiss(DialogInterface dialog)
       {
          super.onDismiss(dialog);
-         listener.onDismiss(this);
+         if (listener != null)
+         {
+            listener.onDismiss(this);
+         }
       }
    }
 }
