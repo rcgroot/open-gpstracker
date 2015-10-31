@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
 
     <string name="about_copyright">Copyright©2010 Sogeti Nederland B.V.</string>
     <string name="about_website_url">http://code.google.com/p/open-gpstracker/</string>

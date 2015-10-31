@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
     <string name="speed_unitname">km/h</string>
     <string name="distance_unitname">km</string>
     <string name="distance_smallunitname">meter</string>
