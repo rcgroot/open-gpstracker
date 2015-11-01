@@ -23,8 +23,6 @@
     <string name="dialog_delete_title">Διαγραφή ίχνους
 </string>
     <string name="dialog_delete_message">Παρακαλώ επιβεβαιώστε τη διαγραφή της διαδρομής %s</string>
-    <string name="dialog_nooiabout">Λείπει το OI About</string>
-    <string name="dialog_nooiabout_message">Η εφαρμογή \"OI About\" από το OpenIntents χρειάζεται για την εμφάνιση της πληροφορίας για την εφαρμογή.</string>
     <string name="dialog_layer_title">Ενεργοποίηση overlays</string>
     <string name="dialog_graphtype_title">Τύπος Γραφήματος</string>
     <string name="dialog_notetext_title">Σημείωση κειμένου</string>
@@ -43,23 +41,12 @@
     <string name="layer_distance">Distance</string>
     <string name="layer_compass">Πυξίδα</string>
     <string name="layer_location">Η Τοποθεσία μου</string>
-    <string name="layer_cloudmade">Χάρτες CloudMade</string>
-    <string name="layer_maknik">Mapnik</string>
-    <string name="layer_bicycle">OpenCycleMap</string>
     <string name="dialog_vacuum_title">Crop data</string>
     <string name="dialog_vacuum_message">Returns space lost due to fragmentation by a rebuilding the database.</string>
     <string name="dialog_import_title">GPX import</string>
     <string name="dialog_import_message">Θέλετε να εισάγετε το GPX %1$s ;</string>
-    <string name="dialog_import_picker">Εισαγωγή αρχείου GPX</string>
     <string name="menu_picker">Εισαγωγή</string>
-    <string name="dialog_nooipicker">OI File Manager</string>
-    <string name="dialog_nooipicker_message">Η εφαρμογή \"OI File Manager\" από το OpenIntents απαιτείται για την εισαγωγή αρχείων.  Όταν αποδεχθείτε τους όρους χρήσης του OI File Manager, το κουμπί της εισαγωγής θα λειτουργήσει.</string>
     <string name="dialog_contrib_title">Συμβάλλει</string>
-    <string name="dialog_trackdescription_hint">Description of the track</string>
-    <string name="dialog_public">Δημόσια ανάρτηση</string>
-    <string name="authentication_redirect">Γίνεται η αίτηση σύνδεσης</string>
-    <string name="loading">Φόρτωση…</string>
-    <string name="msg_connecting_to">Σύνδεση σε …</string>
     <string name="taskerror_gpx_import">Εισαγωγή δεδομένων GPX</string>
     <string name="taskerror_gpx_write">Εγγραφή GPX δεδομένων</string>
     <string name="taskerror_kmz_write">Εγγραφή KMZ δεδομένων </string>
@@ -101,12 +88,10 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="btn_okay">OK</string>
     <string name="btn_cancel">Ακύρωση</string>
     <string name="btn_selecttrack">Επιλογή διαδρομής</string>
-    <string name="btn_install">Εγκατάσταση</string>
     <string name="btn_skip">Παράλειψη</string>
 
     <!-- Menu's -->
     <string name="menu_settings">Ρυθμίσεις</string>
-    <string name="menu_tracking">Καταγραφή</string>
     <string name="menu_tracklist">Λίστα διαδρομών</string>
     <string name="menu_shareTrack">Δημοσίευση διαδρομής</string>
     <string name="menu_deleteTrack">Διαγραφή διαδρομής</string>
@@ -126,8 +111,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="graphtype_distancespeed">Ταχύτητα / Απόσταση</string>
     <string name="graphtype_distancealtitude">Υψόμετρο / Απόσταση</string>
     <string name="menu_vacuum">Κλάδεμα δεδομένων</string>
-    <string name="menu_contrib">Συνεισφορά</string>
-
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Track data</string>
     <string name="email_gpxbody">Προσαρτημένη μια διαδρομή σε μορφή GPS Exchange Format (GPX) όπως περιγράφεται στο http://www.topografix.com/gpx.asp</string>
@@ -177,12 +160,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="showlocation_summary">Εμφάνιση της θέσης μου στο χάρτη</string>
     <string name="units_title">Μονάδες</string>
     <string name="units_summary">Προσδιορίστε τη χρήση μετρικών ή άλλων μονάδων</string>
-    <string name="units_implement_width_title">Πλάτος εργαλείου</string>
-    <string name="units_implement_width_summary">Το πλάτος του εργαλείου που αποτυπώνει την απεικόνιση</string>
-    <string name="units_implement_width_message">The width of the implement the tractor is pulling or
-     other machine that works/covers an area over a given time. For example, width of a swather. \n\n
-Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
-    <string name="stat_title">Στατιστικά - %s</string>
     <string name="stat_maximumspeed">Μέγιστη ταχύτητα</string>
     <string name="stat_overallaveragespeed">Ταχύτητα ταξιδιού</string>
     <string name="stat_averagespeed">Μέση ταχύτητα</string>
@@ -197,12 +174,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="search_description">Ονόματα διαδρομών στο Open GPS Tracker</string>
     <string name="search_hint">Αναζήτηση διαδρομών</string>
     <string name="preference_sharing">Ρυθμίσεις δημοσίευσης</string>
-    <string name="jogmap_title">Jogmap upload code</string>
-    <string name="jogmap_summary">The authentication code to upload to a jogmap.de account</string>
-    <string name="jogmap_task">Uploading the track to jogmap.de</string>
-    <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
-    <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
-    <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo.\n </string>
     <string name="preference_logging">Καταγραφή και GPS</string>
     <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
     <string name="customprecisiontime_summary">Ο χρόνος μεταξύ μετρήσεων GPS</string>
@@ -212,10 +183,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="gpsstatusmonitor_summary">Εμφανίζει τον αριθμό των εν χρήσει δορυφόρων και ηχεί συναγερμός σε ασθενές σήμα.  </string>
     <string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
     <string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
-    <string name="osm_success">Successfully uploading the track to www.openstreetmap.org: </string>
-    <string name="osm_failed">Failed uploading the track to www.openstreetmap.org: </string>
-    <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
-    <string name="osm_task">Uploading trace to OpenStreetMap</string>
     <string name="sddirectory_title">SD-φάκελος για την αποθήκευση εξαγμένων διαδρομών.</string>
     <string name="sddirectory_summary">Τα αρχεία διαδρομών και media που εξάγονται, αποθηκεύονται σ\' αυτό το φάκελο στην κάρτα SD.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.\n </string>
@@ -243,5 +210,4 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <!-- ***************************
        About information
        ***************************-->
-    <string name="about_comments">Μια εφαρμογή που μπορεί να καταγράψει, με GPS, τα ταξίδια της συσκευής σας.</string>
     </resources>

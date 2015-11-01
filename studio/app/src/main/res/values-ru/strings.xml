@@ -22,8 +22,6 @@
     <string name="dialog_notrack_message">Для экспорта сначала выберите трек</string>
     <string name="dialog_delete_title">Удалить трек</string>
     <string name="dialog_delete_message">Вы уверены, что хотите удалить трек %s?</string>
-    <string name="dialog_nooiabout">Отсутствует OI About</string>
-    <string name="dialog_nooiabout_message">Для вывода информации о программе требуется приложение \"OI About\" проекта OpenIntents.</string>
     <string name="dialog_layer_title">Включить слои</string>
     <string name="dialog_graphtype_title">Вид графика</string>
     <string name="dialog_notetext_title">Текстовая заметка</string>
@@ -42,23 +40,12 @@
     <string name="layer_distance">Расстояние</string>
     <string name="layer_compass">Компас</string>
     <string name="layer_location">Мое Положение</string>
-    <string name="layer_cloudmade">Карты CloudMade</string>
-    <string name="layer_maknik">Mapnik</string>
-    <string name="layer_bicycle">OpenCycleMap</string>
     <string name="dialog_vacuum_title">Сжать данные</string>
     <string name="dialog_vacuum_message">Уменьшает объем занятой из-за фрагментации памяти полностью перестраивая базу данных.</string>
     <string name="dialog_import_title">Импорт GPX</string>
     <string name="dialog_import_message">Хотите импортировать GPX %1$s ?</string>
-    <string name="dialog_import_picker">Импорт GPX-файла</string>
     <string name="menu_picker">Импорт</string>
-    <string name="dialog_nooipicker">OI File Manager</string>
-    <string name="dialog_nooipicker_message">Для выбора файла требуется приложение \"OI File Manager\" проекта OpenIntents. Импорт будет доступен после согласия с условиями использования OI File Manager.</string>
     <string name="dialog_contrib_title">Сотрудничество</string>
-    <string name="dialog_trackdescription_hint">Описание трека</string>
-    <string name="dialog_public">Общедоступный</string>
-    <string name="authentication_redirect">Отправляю запрос аутентификации</string>
-    <string name="loading">Загрузка…</string>
-    <string name="msg_connecting_to">Подключаюсь к…</string>
     <string name="taskerror_gpx_import">Импорт данных GPX</string>
     <string name="taskerror_gpx_write">Запись данных GPX</string>
     <string name="taskerror_kmz_write">Запись данных KMZ</string>
@@ -103,12 +90,10 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="btn_okay">OK</string>
     <string name="btn_cancel">Отмена</string>
     <string name="btn_selecttrack">Выберите трек</string>
-    <string name="btn_install">Установить</string>
     <string name="btn_skip">Пропустить</string>
 
     <!-- Menu's -->
     <string name="menu_settings">Настройки</string>
-    <string name="menu_tracking">Запись трека</string>
     <string name="menu_tracklist">Список треков</string>
     <string name="menu_shareTrack">Опубликовать трек</string>
     <string name="menu_deleteTrack">Удалить трек</string>
@@ -128,8 +113,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="graphtype_distancespeed">Скорость по дистанции</string>
     <string name="graphtype_distancealtitude">Высота по дистанции</string>
     <string name="menu_vacuum">Обрезать данные</string>
-    <string name="menu_contrib">Сотрудничество</string>
-
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Данные трека</string>
     <string name="email_gpxbody">Трек присоединен в формате GPS Exchange Format (GPX) описание здесь http://www.topografix.com/gpx.asp</string>
@@ -179,12 +162,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="showlocation_summary">Показывать мое положение на карте</string>
     <string name="units_title">Единицы измерения</string>
     <string name="units_summary">Настроить использование метрических или британских единиц измерения</string>
-    <string name="units_implement_width_title">Реализованная ширина</string>
-    <string name="units_implement_width_summary">Ширина инвентаря трактора</string>
-    <string name="units_implement_width_message">Ширина инвентаря трактора (отвала грейдера) или другой машины, 
-которая обрабатывает некоторую площадь за определенное время. Например, ширина мотовила комбайна. \n\n
-Введите количество футов для рассчета в акр/час или метры для гектар/час.\n</string>
-    <string name="stat_title">Статистика - %s</string>
     <string name="stat_maximumspeed">Максимальная скорость</string>
     <string name="stat_overallaveragespeed">Скорость перемещения</string>
     <string name="stat_averagespeed">Средняя скорость</string>
@@ -199,12 +176,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="search_description">Названия треков Open GPS Tracker</string>
     <string name="search_hint">Поиск треков</string>
     <string name="preference_sharing">Публикация</string>
-    <string name="jogmap_title">Код выгрузки Jogmap</string>
-    <string name="jogmap_summary">Код аутентификации для выгрузки в учетную запись jogmap.de</string>
-    <string name="jogmap_task">Выгружаю трек на jogmap.de</string>
-    <string name="jogmap_failed">Ошибка выгрузки трека на jogmap.de: </string>
-    <string name="jogmap_success">Выгружаю трек на jogmap.de: </string>
-    <string name="jogrunner_message">Введите код Zugangskey полученный на http://www.jogmap.de/civic4/?q=mobilinfo.\n </string>
     <string name="preference_logging">Запись и GPS</string>
     <string name="customprecisiontime_title">Интервал между точками, минуты</string>
     <string name="customprecisiontime_summary">Интервал времени между точками трека.</string>
@@ -214,10 +185,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="gpsstatusmonitor_summary">Показывать количество спутников и уведомлять о плохом сигнале.</string>
     <string name="osmvisibility_title">Общедоступная видимость треков GPS на openstreetmap.org</string>
     <string name="osmvisibility_summary">Больше узнать об уровнях видимости можно в openstreetmap.org wiki.</string>
-    <string name="osm_success">Выгружаю трек на www.openstreetmap.org: </string>
-    <string name="osm_failed">Ошибка выгрузки трека на www.openstreetmap.org: </string>
-    <string name="osmauth_message">Разрешить Open GPS Tracker-у выгружать треки на OpenStreetMap</string>
-    <string name="osm_task">Выгружаю трек на OpenStreetMap</string>
     <string name="sddirectory_title">Каталог SD-карты для сохранения треков.</string>
     <string name="sddirectory_summary">Созданные треки и медиа файлы сохраняются в этом каталоге.</string>
     <string name="sddirectory_message">Введите путь на SD-карте для хранения файлов. Например, по умолчанию /OpenGPSTracker/ добавит один каталог на SD-карте, а /Apps/OpenGPSTracker/ - два вложенных.\n </string>
@@ -245,5 +212,4 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <!-- ***************************
        About information
        ***************************-->
-    <string name="about_comments">Приложение для записи GPS треков перемещения вашего устройства.</string>
     </resources>

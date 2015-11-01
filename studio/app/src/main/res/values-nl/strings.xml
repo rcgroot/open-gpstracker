@@ -22,8 +22,6 @@
     <string name="dialog_notrack_message">Kiest u alstublieft eerst een route</string>
     <string name="dialog_delete_title">Verwijder</string>
     <string name="dialog_delete_message">Bevestigt u alstublieft het verwijderen van %s</string>
-    <string name="dialog_nooiabout">OI About nodig</string>
-    <string name="dialog_nooiabout_message">De applicatie \"OI About\" van het OpenIntents project is nodig om informatie te tonen.</string>
     <string name="dialog_layer_title">Activeer overlays</string>
     <string name="dialog_graphtype_title">Grafiek soort</string>
     <string name="dialog_notetext_title">Text notitie</string>
@@ -42,23 +40,12 @@
     <string name="layer_distance">Afstand</string>
     <string name="layer_compass">Kompas</string>
     <string name="layer_location">Mijn locatie</string>
-    <string name="layer_cloudmade">CloudMade maps</string>
-    <string name="layer_maknik">Mapnik</string>
-    <string name="layer_bicycle">OpenCycleMap</string>
     <string name="dialog_vacuum_title">Snoei data</string>
     <string name="dialog_vacuum_message">Geeft ruimte terug aan het systeem verloren door fragmentatie.</string>
     <string name="dialog_import_title">GPX import</string>
     <string name="dialog_import_message">Wilt u de GPX %1$s importeren?</string>
-    <string name="dialog_import_picker">Import GPX file</string>
     <string name="menu_picker">Import</string>
-    <string name="dialog_nooipicker">OI File Manager</string>
-    <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files.</string>
     <string name="dialog_contrib_title">Bijdrage</string>
-    <string name="dialog_trackdescription_hint">Beschrijving van de route</string>
-    <string name="dialog_public">Publieke upload</string>
-    <string name="authentication_redirect">Verzoeken van authenticatie</string>
-    <string name="loading">Laden…</string>
-    <string name="msg_connecting_to">Verbinden met…</string>
     <string name="taskerror_gpx_import">Importeren GPX data</string>
     <string name="taskerror_gpx_write">Schrijven GPX data</string>
     <string name="taskerror_kmz_write">Schrijven KMZ data</string>
@@ -105,12 +92,10 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="btn_okay">OK</string>
     <string name="btn_cancel">Annuleren</string>
     <string name="btn_selecttrack">Route selecteren</string>
-    <string name="btn_install">Installeren</string>
     <string name="btn_skip">Overslaan</string>
 
     <!-- Menu's -->
     <string name="menu_settings">Instellingen</string>
-    <string name="menu_tracking">Opnemen</string>
     <string name="menu_tracklist">Toon routes</string>
     <string name="menu_shareTrack">Deel route</string>
     <string name="menu_deleteTrack">Verwijder route</string>
@@ -130,8 +115,6 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="graphtype_distancespeed">Snelheid tegen afstand</string>
     <string name="graphtype_distancealtitude">Hoogte tegen afstand</string>
     <string name="menu_vacuum">Snoei data</string>
-    <string name="menu_contrib">Bijdragen</string>
-
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Trackdata</string>
     <string name="email_gpxbody">Bijgevoegd is een route als GPS Exchange Format (GPX) bestand zoals beschreven op http://www.topografix.com/gpx.asp</string>
@@ -181,12 +164,6 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="showlocation_summary">Toon mijn locatie op de kaart</string>
     <string name="units_title">Eenheden</string>
     <string name="units_summary">Worden Engelse of internationale maten getoond</string>
-    <string name="units_implement_width_title">Werktuig breedte</string>
-    <string name="units_implement_width_summary">De breedte van het werktuig dat de grond bewerkt</string>
-    <string name="units_implement_width_message">The width of the implement the tractor is pulling or
-other machine that works/covers an area over a given time. For example, width of a swather. \n\n
-Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
-    <string name="stat_title">Statistieken - %s</string>
     <string name="stat_maximumspeed">Maximale snelheid</string>
     <string name="stat_overallaveragespeed">Reis snelheid</string>
     <string name="stat_averagespeed">Gemiddelde snelheid</string>
@@ -201,12 +178,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="search_description">Open GPS Tracker route namen</string>
     <string name="search_hint">Zoek routes</string>
     <string name="preference_sharing">Delen instellingen</string>
-    <string name="jogmap_title">jogmap upload code</string>
-    <string name="jogmap_summary">De authentication code om the uploaden naar een jogmap.de account</string>
-    <string name="jogmap_task">De route versturen naar jogmap.de</string>
-    <string name="jogmap_failed">Het is mislukt om de route te uploaden naar jogmap.de: </string>
-    <string name="jogmap_success">Succesvol gestuurd naar jogmap.de: </string>
-    <string name="jogrunner_message">Vul de toegangscode uit http://www.jogmap.de/civic4/?q=mobilinfo in.</string>
     <string name="preference_logging">Loggen en GPS</string>
     <string name="customprecisiontime_title">Doel tijdsinterval in minuten</string>
     <string name="customprecisiontime_summary">De tijd die de GPS ontvangen kan slapen tussen opname punten.</string>
@@ -216,10 +187,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="gpsstatusmonitor_summary">Toont het aantal satelieten waar signaal van komt en slaat alarm op een slecht signaal.</string>
     <string name="osmvisibility_title">De publieke zichtbaarheid van de GPS route on openstreetmap.org</string>
     <string name="osmvisibility_summary">Raadpleeg de openstreetmap.org wiki voor informatie over de zichtbaarheid niveau\'s.</string>
-    <string name="osm_success">Uploaden naar www.openstreetmap.org is gelukt: </string>
-    <string name="osm_failed">Uploaden naar www.openstreetmap.org is mislukt: </string>
-    <string name="osmauth_message">Authenticeer Open GPS Tracker om traces te uploaden naar OpenStreetMap</string>
-    <string name="osm_task">De route uploaden naar OpenStreetMap</string>
     <string name="sddirectory_title">SD-Card folder om gedeelde routes op te slaan.</string>
     <string name="sddirectory_summary">Route bestanden en media bestanden worden in deze SD kaart folder opgeslagen.</string>
     <string name="sddirectory_message">Vul de verlenging van het SD kaart pad. Het pad /OpenGPSTracker/ zal een enkele directory aanmaken op SD kaart en /Apps/OpenGPSTracker/ zal er eentje twee diep aanmaken.</string>
@@ -247,5 +214,4 @@ In this URL the placeholders @LAT@ @LON@ and @ID@ are replaced with actual infor
     <!-- ***************************
        About information
        ***************************-->
-    <string name="about_comments">Een applicatie die per GPS de tochten van je aparaat kan opnemen.</string>
     </resources>

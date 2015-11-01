@@ -1,16 +1,13 @@
-<resources
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingTranslation">
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string-array
-        name="state_choices">
+    <string-array name="state_choices">
         <item>Active</item>
         <item>Paused</item>
         <item>Stopped</item>
     </string-array>
 
-    <string-array
-        name="precision_choices">
+    <string-array name="precision_choices">
         <item>Custom</item>
         <item>Fine</item>
         <item>Normal</item>
@@ -18,14 +15,12 @@
         <item>Global network</item>
     </string-array>
 
-    <string-array
-        name="mapprovider_choices">
+    <string-array name="mapprovider_choices">
         <item>Google Maps</item>
         <item>OpenStreetMap</item>
     </string-array>
 
-    <string-array
-        name="trackcoloring_choices">
+    <string-array name="trackcoloring_choices">
         <item>Green</item>
         <item>Red</item>
         <item>Speed</item>
@@ -33,8 +28,7 @@
         <item>Waypoints</item>
     </string-array>
 
-    <string-array
-        name="units_choices">
+    <string-array name="units_choices">
         <item>Device locale</item>
         <item>Imperial (miles)</item>
         <item>Metric (meters)</item>
@@ -45,42 +39,36 @@
         <item>Hectares/hour (Metric)</item>
     </string-array>
 
-    <string-array
-        name="sharetype_choices">
+    <string-array name="sharetype_choices">
         <item>KMZ - Google Earth, etc.</item>
         <item>GPX - the GPS Exchange Format</item>
         <item>Image and text - Speed and distance summary</item>
     </string-array>
 
-    <string-array
-        name="sharegpxtarget_choices">
+    <string-array name="sharegpxtarget_choices">
         <item>Store to SD Card</item>
         <item>Send with an (email) application</item>
     </string-array>
 
-    <string-array
-        name="sharekmztarget_choices">
+    <string-array name="sharekmztarget_choices">
         <item>Store to SD Card</item>
         <item>Send with an (email) application</item>
     </string-array>
 
-    <string-array
-        name="sharetexttarget_choices">
+    <string-array name="sharetexttarget_choices">
         <item>Tweet</item>
         <item>SMS</item>
         <item>Generic text send</item>
     </string-array>
 
-    <string-array
-        name="osmvisibility_choices">
+    <string-array name="osmvisibility_choices">
         <item>Identifiable (Recommended)</item>
         <item>Public</item>
         <item>Trackable (Preferred over Private)</item>
         <item>Private</item>
     </string-array>
 
-    <string-array
-        name="about_translators"><!-- Add your name here if you translated -->
+    <string-array name="about_translators"><!-- Add your name here if you translated -->
         <item>René de Groot</item>
     </string-array>
 </resources>

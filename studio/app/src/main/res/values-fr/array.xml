@@ -1,15 +1,13 @@
-<resources
-    >
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
 
-    <string-array
-        name="state_choices">
+    <string-array name="state_choices">
         <item>Actif</item>
         <item>Pause</item>
         <item>Arrêt</item>
     </string-array>
 
-    <string-array
-        name="precision_choices">
+    <string-array name="precision_choices">
         <item>Personalisé</item>
         <item>Fin</item>
         <item>Normal</item>
@@ -17,14 +15,12 @@
         <item>Global</item>
     </string-array>
 
-    <string-array
-        name="mapprovider_choices">
+    <string-array name="mapprovider_choices">
         <item>Google Maps</item>
         <item>OpenStreetMap</item>
     </string-array>
 
-    <string-array
-        name="trackcoloring_choices">
+    <string-array name="trackcoloring_choices">
         <item>Vert</item>
         <item>Rouge</item>
         <item>Vitesse</item>
@@ -32,8 +28,7 @@
         <item>Points de parcours</item>
     </string-array>
 
-    <string-array
-        name="units_choices">
+    <string-array name="units_choices">
         <item>Défaut dispositif</item>
         <item>Impériale (milles)</item>
         <item>Métrique (mètres)</item>
@@ -44,15 +39,13 @@
         <item>Hectares/hour (Métrique)</item>
     </string-array>
 
-    <string-array
-        name="sharetype_choices">
+    <string-array name="sharetype_choices">
         <item>KMZ - Google Earth, etc.</item>
         <item>GPX - Format échange GPS</item>
         <item>Texte - Sommaire vitesse et distance</item>
     </string-array>
 
-    <string-array
-        name="sharegpxtarget_choices">
+    <string-array name="sharegpxtarget_choices">
         <item>Enregistrer sur Carte SD</item>
         <item>Envoyer par email</item>
         <item>Publier sur www.jogmap.de</item>
@@ -60,29 +53,25 @@
         <item>Publier sur Breadcrumbs</item>
     </string-array>
 
-    <string-array
-        name="sharekmztarget_choices">
+    <string-array name="sharekmztarget_choices">
         <item>Enregistrer sur Carte SD</item>
         <item>Envoyer par email</item>
     </string-array>
 
-    <string-array
-        name="sharetexttarget_choices">
+    <string-array name="sharetexttarget_choices">
         <item>Tweet</item>
         <item>SMS</item>
         <item>Envoyer par texte</item>
     </string-array>
 
-    <string-array
-        name="osmvisibility_choices">
+    <string-array name="osmvisibility_choices">
         <item>Identifiables (recommandé)</item>
         <item>Publique</item>
         <item>Traceable (préféré en lieu de option \'Privé\' )</item>
         <item>Privé</item>
     </string-array>
 
-    <string-array
-        name="about_translators"><!-- Add your name here if you translated -->
+    <string-array name="about_translators"><!-- Add your name here if you translated -->
         <item>Paul Meier</item>
     </string-array>
 </resources>

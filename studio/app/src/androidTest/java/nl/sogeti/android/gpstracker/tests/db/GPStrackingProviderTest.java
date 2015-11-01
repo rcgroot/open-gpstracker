@@ -564,6 +564,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
       Assert.assertEquals("Single segment media", 1, segmentMedia.getCount());
       Assert.assertEquals("Single waypoint media", 1, waypointMedia.getCount());
 
+      media.close();
       trackMedia.close();
       segmentMedia.close();
       waypointMedia.close();

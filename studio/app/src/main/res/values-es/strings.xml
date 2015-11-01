@@ -22,8 +22,6 @@
     <string name="dialog_notrack_message">Please select a track first before exporting</string>
     <string name="dialog_delete_title">Borrar track</string>
     <string name="dialog_delete_message">Please confirm the deletion of the track %s</string>
-    <string name="dialog_nooiabout">OI About missing</string>
-    <string name="dialog_nooiabout_message">The application \"OI About\" from the OpenIntents project is required to display the about information.</string>
     <string name="dialog_layer_title">Activate overlays</string>
     <string name="dialog_graphtype_title">Graph type</string>
     <string name="dialog_notetext_title">Nota de texto</string>
@@ -42,23 +40,12 @@
     <string name="layer_distance">Distancia</string>
     <string name="layer_compass">Brújula</string>
     <string name="layer_location">Mi Ubicación</string>
-    <string name="layer_cloudmade">Mapas CloudMade</string>
-    <string name="layer_maknik">Mapnik</string>
-    <string name="layer_bicycle">OpenCycleMap</string>
     <string name="dialog_vacuum_title">Crop data</string>
     <string name="dialog_vacuum_message">Returns space lost due to fragmentation by a rebuilding the database.</string>
     <string name="dialog_import_title">Importar GPX</string>
     <string name="dialog_import_message">Would you like to import the GPX %1$s ?</string>
-    <string name="dialog_import_picker">Importar archivo GPX</string>
     <string name="menu_picker">Importar</string>
-    <string name="dialog_nooipicker">OI File Manager</string>
-    <string name="dialog_nooipicker_message">The application \"OI File Manager\" from the OpenIntents project is required to pick files. After accepting OI File Manager EULA the import button works.</string>
     <string name="dialog_contrib_title">Contribute</string>
-    <string name="dialog_trackdescription_hint">Description of the track</string>
-    <string name="dialog_public">Public posting</string>
-    <string name="authentication_redirect">Placing authentication request</string>
-    <string name="loading">Loading…</string>
-    <string name="msg_connecting_to">Conectandose a …</string>
     <string name="taskerror_gpx_import">Importing GPX data</string>
     <string name="taskerror_gpx_write">Escribiendo informacion de GPX</string>
     <string name="taskerror_kmz_write">Escribiendo informacion de KMZ</string>
@@ -105,12 +92,10 @@
     <string name="btn_okay">OK</string>
     <string name="btn_cancel">Cancelar</string>
     <string name="btn_selecttrack">Seleccionar track</string>
-    <string name="btn_install">Instalar</string>
     <string name="btn_skip">Saltar</string>
 
     <!-- Menu's -->
     <string name="menu_settings">Ajustes</string>
-    <string name="menu_tracking">Tracking</string>
     <string name="menu_tracklist">Listar tracks</string>
     <string name="menu_shareTrack">Compartir track</string>
     <string name="menu_deleteTrack">Borrar track</string>
@@ -130,8 +115,6 @@
     <string name="graphtype_distancespeed">Speed over distance</string>
     <string name="graphtype_distancealtitude">Altitude over distance</string>
     <string name="menu_vacuum">Crop data</string>
-    <string name="menu_contrib">Contribute</string>
-
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Track data</string>
     <string name="email_gpxbody">Attached is a track in GPS Exchange Format (GPX) format as described on http://www.topografix.com/gpx.asp</string>
@@ -181,12 +164,6 @@
     <string name="showlocation_summary">Mostrar mi ubicación en el mapa</string>
     <string name="units_title">Unidades</string>
     <string name="units_summary">Determina si usar unidades métricas o imperiales</string>
-    <string name="units_implement_width_title">Implementar el ancho</string>
-    <string name="units_implement_width_summary">Ancho de la implementacion que el rastreo este sacando</string>
-    <string name="units_implement_width_message">The width of the implement the tractor is pulling or
-     other machine that works/covers an area over a given time. For example, width of a swather. \n\n
-Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
-    <string name="stat_title">Estadísticas - %s</string>
     <string name="stat_maximumspeed">Velocidad máxima</string>
     <string name="stat_overallaveragespeed">Travel speed</string>
     <string name="stat_averagespeed">Velocidad media</string>
@@ -201,12 +178,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="search_description">Open GPS Tracker track names</string>
     <string name="search_hint">Buscar tracks</string>
     <string name="preference_sharing">Ajustes de compartición</string>
-    <string name="jogmap_title">Jogmap upload code</string>
-    <string name="jogmap_summary">The authentication code to upload to a jogmap.de account</string>
-    <string name="jogmap_task">Subiendo la ruta a jogmap.de</string>
-    <string name="jogmap_failed">Failed uploading the track to jogmap.de: </string>
-    <string name="jogmap_success">Successfully uploading the track to jogmap.de: </string>
-    <string name="jogrunner_message">Please enter the Zugangskey obtained from http://www.jogmap.de/civic4/?q=mobilinfo. </string>
     <string name="preference_logging">Ajustes de registro y uso de GPS</string>
     <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
     <string name="customprecisiontime_summary">The time the GPS receiver should sleep between waypoints.</string>
@@ -216,10 +187,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="gpsstatusmonitor_summary">Muestra el número de satélites usados.</string>
     <string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
     <string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
-    <string name="osm_success">Track subido con éxito a www.openstreetmap.org: </string>
-    <string name="osm_failed">Falló la subida del track a www.openstreetmap.org: </string>
-    <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
-    <string name="osm_task">Subiendo el traceo a OpenStreetMap</string>
     <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.</string>
@@ -247,5 +214,4 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <!-- ***************************
        About information
        ***************************-->
-    <string name="about_comments">An application that can record, by GPS, the travels of your device.</string>
     </resources>

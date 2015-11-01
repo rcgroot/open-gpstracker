@@ -53,6 +53,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -66,9 +67,7 @@ import com.google.android.maps.Projection;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
@@ -95,9 +94,7 @@ public class SegmentOverlay extends Overlay
    public static final int DRAW_DOTS = 4;
    private static final String TAG = "OGT.SegmentOverlay";
    private static final float MINIMUM_PX_DISTANCE = 15;
-
-   private static Map<Integer, Bitmap> sBitmapCache = new HashMap<Integer, Bitmap>();
-   ;
+   private static SparseArray<Bitmap> sBitmapCache = new SparseArray<>();
    private static Bitmap mStartBitmap;
    private static Bitmap mStopBitmap;
    private int mTrackColoringMethod = DRAW_CALCULATED;
@@ -385,7 +382,7 @@ public class SegmentOverlay extends Overlay
       {
          for (MediaVO mediaVO : mMediaPath)
          {
-            if (mediaVO.bitmapKey != null)
+            if (mediaVO.bitmapKey != Integer.MIN_VALUE)
             {
                canvas.drawBitmap(sBitmapCache.get(mediaVO.bitmapKey), mediaVO.x, mediaVO.y, defaultPaint);
             }
@@ -809,7 +806,7 @@ public class SegmentOverlay extends Overlay
       return onscreen;
    }
 
-   private Integer getResourceForMedia(Resources resources, Uri uri)
+   private int getResourceForMedia(Resources resources, Uri uri)
    {
       int drawable = 0;
       if (uri.getScheme().equals("file"))
@@ -838,19 +835,16 @@ public class SegmentOverlay extends Overlay
             drawable = R.drawable.media_speech;
          }
       }
-      Bitmap bitmap = null;
-      Integer bitmapKey = Integer.valueOf(drawable);
       synchronized (sBitmapCache)
       {
-         if (!sBitmapCache.containsKey(bitmapKey))
+         if (sBitmapCache.get(drawable) != null)
          {
-            bitmap = BitmapFactory.decodeResource(resources, drawable);
-            sBitmapCache.put(bitmapKey, bitmap);
+            Bitmap bitmap = BitmapFactory.decodeResource(resources, drawable);
+            sBitmapCache.put(drawable, bitmap);
 
          }
-         bitmap = sBitmapCache.get(bitmapKey);
       }
-      return bitmapKey;
+      return drawable;
    }
 
    /**
@@ -1265,7 +1259,7 @@ public class SegmentOverlay extends Overlay
 
    private static class MediaVO
    {
-      public Integer bitmapKey;
+      public int bitmapKey = Integer.MIN_VALUE;
       public Uri uri;
       public GeoPoint geopoint;
       public int x;

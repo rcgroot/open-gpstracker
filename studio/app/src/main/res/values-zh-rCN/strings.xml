@@ -22,8 +22,6 @@
     <string name="dialog_notrack_message">在导出之前请选择一个路线</string>
     <string name="dialog_delete_title">删除路线</string>
     <string name="dialog_delete_message">请确认此路线的删除操作</string>
-    <string name="dialog_nooiabout">缺少 OI About</string>
-    <string name="dialog_nooiabout_message">本软件需要来自 OpenIntents 项目的\"OI About\"程序来显示关于信息。</string>
     <string name="dialog_layer_title">启动覆盖</string>
     <string name="dialog_graphtype_title">图类型</string>
     <string name="dialog_notetext_title">文字附注</string>
@@ -42,23 +40,12 @@
     <string name="layer_distance">Distance</string>
     <string name="layer_compass">指南针</string>
     <string name="layer_location">我的位置</string>
-    <string name="layer_cloudmade">CloudMade 地图</string>
-    <string name="layer_maknik">Mapnik</string>
-    <string name="layer_bicycle">OpenCycleMap</string>
     <string name="dialog_vacuum_title">修剪数据</string>
     <string name="dialog_vacuum_message">由于一个重建的数据库造成的存储碎片返回了空间丢失。</string>
     <string name="dialog_import_title">GPX 导入</string>
     <string name="dialog_import_message">你是否想要导入此 GPX %1$s ？</string>
-    <string name="dialog_import_picker">导入 GPX 文件</string>
     <string name="menu_picker">导入</string>
-    <string name="dialog_nooipicker">OI 文件管理器</string>
-    <string name="dialog_nooipicker_message">需要来自 OpenIntents 项目的 \"OI 文件管理器\" 来选取文件。在接受 OI 文件管理器的最终用户许可协议后导入按钮即可用。</string>
     <string name="dialog_contrib_title">捐献</string>
-    <string name="dialog_trackdescription_hint">Description of the track</string>
-    <string name="dialog_public">Public posting</string>
-    <string name="authentication_redirect">Placing authentication request</string>
-    <string name="loading">Loading…</string>
-    <string name="msg_connecting_to">Connecting to…</string>
     <string name="taskerror_gpx_import">Importing GPX data</string>
     <string name="taskerror_gpx_write">Writing GPX data</string>
     <string name="taskerror_kmz_write">Writing KMZ data</string>
@@ -97,12 +84,10 @@
     <string name="btn_okay">确认</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_selecttrack">选择路线</string>
-    <string name="btn_install">安装</string>
     <string name="btn_skip">跳过</string>
 
     <!-- Menu's -->
     <string name="menu_settings">设置</string>
-    <string name="menu_tracking">追踪中</string>
     <string name="menu_tracklist">列出路线</string>
     <string name="menu_shareTrack">分享路线</string>
     <string name="menu_deleteTrack">删除路线</string>
@@ -122,8 +107,6 @@
     <string name="graphtype_distancespeed">速度/距离</string>
     <string name="graphtype_distancealtitude">海拔/距离</string>
     <string name="menu_vacuum">修剪数据</string>
-    <string name="menu_contrib">捐献</string>
-
     <!-- Communicated -->
     <string name="email_subject">开放式 GPS 追踪器 - 追踪数据</string>
     <string name="email_gpxbody">附加的是一个在 GPS 交换格式(GPX)文件中的路线，该格式的描述见：http：//www。topografix。com/gpx。asp</string>
@@ -173,12 +156,6 @@
     <string name="showlocation_summary">在地图上显示我的位置</string>
     <string name="units_title">单位</string>
     <string name="units_summary">决定使用的单位是公制还是英制</string>
-    <string name="units_implement_width_title">Implement width</string>
-    <string name="units_implement_width_summary">Width of the implement the tractor is pulling</string>
-    <string name="units_implement_width_message">The width of the implement the tractor is pulling or
-     other machine that works/covers an area over a given time. For example, width of a swather. \n\n
-Enter number of feet for acres/hour or meters for use in hectares/hour.\n </string>
-    <string name="stat_title">统计 - %s</string>
     <string name="stat_maximumspeed">最高速度</string>
     <string name="stat_overallaveragespeed">总平均速度</string>
     <string name="stat_averagespeed">平均速度</string>
@@ -193,12 +170,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="search_description">开放式 GPS 追踪器的路线名</string>
     <string name="search_hint">搜索路线</string>
     <string name="preference_sharing">分享设置</string>
-    <string name="jogmap_title">jogmap 上传代码</string>
-    <string name="jogmap_summary">此验证码用来上到到一个 jogmap.de 账户</string>
-    <string name="jogmap_task">Uploading the track to jogmap.de</string>
-    <string name="jogmap_failed">上传路线到 jogmap.de 失败：</string>
-    <string name="jogmap_success">上传路线到 jogmap.de 成功：</string>
-    <string name="jogrunner_message">请输入从 http://www.jogmap.de/civic4/?q=mobilinfo 获得的 Zugangskey。</string>
     <string name="preference_logging">日志和 GPS 使用设置</string>
     <string name="customprecisiontime_title">目标陆点的时间间隔，以分钟计</string>
     <string name="customprecisiontime_summary">在路点之间，GPS 接收器应该休眠的时间。</string>
@@ -208,10 +179,6 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <string name="gpsstatusmonitor_summary">显示正在使用的卫星的个数。</string>
     <string name="osmvisibility_title">openstreetmap.org 上的 GPS 路线公共可见度</string>
     <string name="osmvisibility_summary">请查阅 openstreetmap.org 的维基以了解更多关于可见度等级的信息。</string>
-    <string name="osm_success">已成功上传路线到 www.openstreetmap.org：</string>
-    <string name="osm_failed">上传路线到 www.openstreetmap.org 失败：</string>
-    <string name="osmauth_message">Authorize Open GPS Tracker to upload traces to OpenStreetMap</string>
-    <string name="osm_task">Uploading trace to OpenStreetMap</string>
     <string name="sddirectory_title">使用 SD 卡文件夹来储存分享路线。</string>
     <string name="sddirectory_summary">创建的路线和媒体文件将储存在 SD 卡文件夹中。</string>
     <string name="sddirectory_message">输入文件要使用的 SD 路径。默认的实例 /OpenGPSTracker/ 将会添加一个单独的文件夹到 SD 卡中，同时创建/Apps/OpenGPSTracker/。</string>
@@ -239,5 +206,4 @@ Enter number of feet for acres/hour or meters for use in hectares/hour.\n </stri
     <!-- ***************************
        About information
        ***************************-->
-    <string name="about_comments">通过 GPS， 程序可以记录你设备的移动。</string>
     </resources>

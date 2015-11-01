@@ -93,7 +93,8 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    {
       GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(this.getInstrumentation().getContext());
       serviceManager.startup(getActivity(), null);
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager.getLoggingState());
+      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+            .getLoggingState());
 
       this.sendKeys("MENU T DPAD_DOWN ENTER");
       this.sendKeys("T E S T R O U T E ENTER ENTER");
@@ -102,7 +103,8 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
       Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, serviceManager.getLoggingState());
 
       this.sendKeys("MENU T DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_CENTER");
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager.getLoggingState());
+      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+            .getLoggingState());
       serviceManager.shutdown(getActivity());
    }
 
@@ -118,7 +120,8 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
    {
       GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(this.getInstrumentation().getContext());
       serviceManager.startup(getActivity(), null);
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager.getLoggingState());
+      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+            .getLoggingState());
 
       serviceManager.startGPSLogging("testBackgroundTracking");
       Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, serviceManager.getLoggingState());
@@ -127,12 +130,15 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
       Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, serviceManager.getLoggingState());
 
       this.sendKeys("MENU T DPAD_DOWN ENTER");
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager.getLoggingState());
+      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+            .getLoggingState());
 
       //this.sendKeys( "HOME" );
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager.getLoggingState());
+      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+            .getLoggingState());
       //this.setUp();
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager.getLoggingState());
+      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+            .getLoggingState());
       serviceManager.stopGPSLogging();
 
       serviceManager.shutdown(getActivity());
@@ -219,17 +225,17 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
             }
       );
       ContentValues wp = new ContentValues();
-      wp.put(Waypoints.ACCURACY, new Double(1d));
-      wp.put(Waypoints.ALTITUDE, new Double(5d));
+      wp.put(Waypoints.ACCURACY, Double.valueOf(1d));
+      wp.put(Waypoints.ALTITUDE, Double.valueOf(5d));
 
       for (int step = 0; step < total / 2; step++)
       {
          Thread.sleep(1750);
          double latitude = lat1 + ((lat1 - lat2) / total) * step;
          double longtitude = lon1 + ((lon2 - lon1) / total) * step;
-         wp.put(Waypoints.LATITUDE, new Double(latitude));
-         wp.put(Waypoints.LONGITUDE, new Double(longtitude));
-         wp.put(Waypoints.SPEED, new Double(step / 5d));
+         wp.put(Waypoints.LATITUDE, Double.valueOf(latitude));
+         wp.put(Waypoints.LONGITUDE, Double.valueOf(longtitude));
+         wp.put(Waypoints.SPEED, Double.valueOf(step / 5d));
          resolver.insert(waypointUri, wp);
       }
    }

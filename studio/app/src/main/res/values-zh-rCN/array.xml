@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
 
     <string-array name="state_choices">
@@ -27,8 +28,7 @@
         <item>路点</item>
     </string-array>
 
-    <string-array
-        name="units_choices">
+    <string-array name="units_choices">
         <item>设备区域</item>
         <item>英制 (英里)</item>
         <item>公制 (米)</item>

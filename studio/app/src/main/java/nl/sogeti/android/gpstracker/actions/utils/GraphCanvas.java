@@ -390,15 +390,15 @@ public class GraphCanvas extends View
       yAxis = new Path();
       yAxis.moveTo(5, 5 + mHeight / 2);
       yAxis.lineTo(5, 5);
-      mRenderCanvas.drawTextOnPath(String.format(start), yAxis, 0, whiteCenteredText.getTextSize(), whiteCenteredText);
+      mRenderCanvas.drawTextOnPath(start, yAxis, 0, whiteCenteredText.getTextSize(), whiteCenteredText);
       yAxis = new Path();
       yAxis.moveTo(5 + mWidth / 2, 5 + mHeight / 2);
       yAxis.lineTo(5 + mWidth / 2, 5);
-      mRenderCanvas.drawTextOnPath(String.format(half), yAxis, 0, -3, whiteCenteredText);
+      mRenderCanvas.drawTextOnPath(half, yAxis, 0, -3, whiteCenteredText);
       yAxis = new Path();
       yAxis.moveTo(5 + mWidth - 1, 5 + mHeight / 2);
       yAxis.lineTo(5 + mWidth - 1, 5);
-      mRenderCanvas.drawTextOnPath(String.format(end), yAxis, 0, -3, whiteCenteredText);
+      mRenderCanvas.drawTextOnPath(end, yAxis, 0, -3, whiteCenteredText);
    }
 
    /**
@@ -511,15 +511,15 @@ public class GraphCanvas extends View
       yAxis = new Path();
       yAxis.moveTo(5, 5 + mHeight / 2);
       yAxis.lineTo(5, 5);
-      mRenderCanvas.drawTextOnPath(String.format(start), yAxis, 0, whiteText.getTextSize(), whiteCenteredText);
+      mRenderCanvas.drawTextOnPath(start, yAxis, 0, whiteText.getTextSize(), whiteCenteredText);
       yAxis = new Path();
       yAxis.moveTo(5 + mWidth / 2, 5 + mHeight / 2);
       yAxis.lineTo(5 + mWidth / 2, 5);
-      mRenderCanvas.drawTextOnPath(String.format(half), yAxis, 0, -3, whiteCenteredText);
+      mRenderCanvas.drawTextOnPath(half, yAxis, 0, -3, whiteCenteredText);
       yAxis = new Path();
       yAxis.moveTo(5 + mWidth - 1, 5 + mHeight / 2);
       yAxis.lineTo(5 + mWidth - 1, 5);
-      mRenderCanvas.drawTextOnPath(String.format(end), yAxis, 0, -3, whiteCenteredText);
+      mRenderCanvas.drawTextOnPath(end, yAxis, 0, -3, whiteCenteredText);
    }
 
    private void setupAltitudeAxis()

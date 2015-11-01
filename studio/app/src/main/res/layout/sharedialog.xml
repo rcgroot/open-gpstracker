@@ -71,6 +71,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/TextView4"
                 android:clickable="true"
+                android:inputType="textAutoCorrect"
                 android:singleLine="true"/>
 
             <ProgressBar
@@ -88,6 +89,7 @@
                 android:layout_below="@+id/fileNameField"
                 android:layout_toRightOf="@+id/tweet_progress"
                 android:clickable="true"
+                android:inputType="textAutoCorrect"
                 android:maxLength="140"
                 android:maxLines="3"
                 android:text=""/>

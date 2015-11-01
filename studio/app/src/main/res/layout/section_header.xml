@@ -8,6 +8,5 @@
     android:gravity="center"
     android:paddingLeft="6dip"
     android:paddingRight="6dip"
-    android:text="Section name here"
     android:textAppearance="?android:attr/textAppearanceMedium"
     />

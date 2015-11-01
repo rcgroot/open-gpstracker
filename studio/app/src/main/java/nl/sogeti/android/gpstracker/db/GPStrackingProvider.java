@@ -624,7 +624,7 @@ public class GPStrackingProvider extends ContentProvider
       switch (match)
       {
          case TRACK_ID:
-            trackId = new Long(uri.getLastPathSegment()).longValue();
+            trackId = Long.parseLong(uri.getLastPathSegment());
             String name = givenValues.getAsString(Tracks.NAME);
             updates = mDbHelper.updateTrack(trackId, name);
             break;
