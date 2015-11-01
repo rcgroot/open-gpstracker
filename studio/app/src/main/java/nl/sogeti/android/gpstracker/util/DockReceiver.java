@@ -33,7 +33,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import nl.sogeti.android.gpstracker.util.Log;
 
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 
@@ -62,13 +61,13 @@ public class DockReceiver extends BroadcastReceiver
          }
          if (start)
          {
-            Intent serviceIntent = new Intent(Constants.SERVICENAME);
+            Intent serviceIntent = new Intent(context, GPSLoggerService.class);
             serviceIntent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_START);
             context.startService(serviceIntent);
          }
          else if (stop)
          {
-            Intent serviceIntent = new Intent(Constants.SERVICENAME);
+            Intent serviceIntent = new Intent(context, GPSLoggerService.class);
             serviceIntent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_STOP);
             context.startService(serviceIntent);
          }

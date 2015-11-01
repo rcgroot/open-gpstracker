@@ -63,7 +63,6 @@ public class Constants
    public static final String STOPATUNDOCK = "stopatundock";
    public static final String LOGATPOWERCONNECTED = "logatpowerconnected";
    public static final String STOPATPOWERDISCONNECTED = "stopatpowerdisconnected";
-   public static final String SERVICENAME = "nl.sogeti.android.gpstracker.intent.action.GPSLoggerService";
    public static final String STREAMBROADCAST = "nl.sogeti.android.gpstracker.intent.action.STREAMBROADCAST";
    public static final String UNITS = "units";
    public static final int UNITS_DEFAULT = 0;

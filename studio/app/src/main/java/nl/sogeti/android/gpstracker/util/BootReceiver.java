@@ -23,6 +23,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.preference.PreferenceManager;
+
+import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.util.Log;
 
 public class BootReceiver extends BroadcastReceiver
@@ -45,7 +47,7 @@ public class BootReceiver extends BroadcastReceiver
          if (startImmidiatly)
          {
 //            Log.d( TAG, "Starting LoggerMap activity..." );
-            context.startService(new Intent(Constants.SERVICENAME));
+            context.startService(new Intent(context, GPSLoggerService.class));
          }
          else
          {

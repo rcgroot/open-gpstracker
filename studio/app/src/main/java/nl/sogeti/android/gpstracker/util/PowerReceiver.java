@@ -56,13 +56,13 @@ public class PowerReceiver extends BroadcastReceiver
 
       if (start)
       {
-         Intent serviceIntent = new Intent(Constants.SERVICENAME);
+         Intent serviceIntent = new Intent(context, GPSLoggerService.class);
          serviceIntent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_START);
          context.startService(serviceIntent);
       }
       else if (stop)
       {
-         Intent serviceIntent = new Intent(Constants.SERVICENAME);
+         Intent serviceIntent = new Intent(context, GPSLoggerService.class);
          serviceIntent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_STOP);
          context.startService(serviceIntent);
       }

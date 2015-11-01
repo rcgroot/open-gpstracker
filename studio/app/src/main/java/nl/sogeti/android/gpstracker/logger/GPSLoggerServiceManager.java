@@ -60,7 +60,7 @@ public class GPSLoggerServiceManager
 
    public GPSLoggerServiceManager(Context ctx)
    {
-      ctx.startService(new Intent(Constants.SERVICENAME));
+      ctx.startService(new Intent(ctx, GPSLoggerService.class));
    }
 
    public Location getLastWaypoint()
@@ -324,7 +324,8 @@ public class GPSLoggerServiceManager
                   }
                }
             };
-            context.bindService(new Intent(Constants.SERVICENAME), this.mServiceConnection, Context.BIND_AUTO_CREATE);
+            context.bindService(new Intent(context, GPSLoggerService.class), this.mServiceConnection, Context
+                  .BIND_AUTO_CREATE);
          }
          else
          {

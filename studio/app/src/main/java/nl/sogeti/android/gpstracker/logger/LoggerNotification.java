@@ -111,7 +111,7 @@ public class LoggerNotification
       if (state == Constants.STATE_LOGGING)
       {
          CharSequence pause = resources.getString(R.string.logcontrol_pause);
-         Intent intent = new Intent(Constants.SERVICENAME);
+         Intent intent = new Intent(mService, GPSLoggerService.class);
          intent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_PAUSE);
          pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
          builder.addAction(R.drawable.ic_pause_24dp, pause, pendingIntent);
@@ -119,7 +119,7 @@ public class LoggerNotification
       else if (state == Constants.STATE_PAUSED)
       {
          CharSequence resume = resources.getString(R.string.logcontrol_resume);
-         Intent intent = new Intent(Constants.SERVICENAME);
+         Intent intent = new Intent(mService, GPSLoggerService.class);
          intent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_RESUME);
          pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
          builder.addAction(R.drawable.ic_play_arrow_24dp, resume, pendingIntent);
