@@ -10,9 +10,9 @@ interface IGPSLoggerServiceRemote {
     void pauseLogging();
     long resumeLogging();
 	void stopLogging();
-	Uri storeMediaUri(in Uri mediaUri);
     boolean isMediaPrepared();
-    void storeDerivedDataSource(in String sourceName);
+	Uri storeMediaUri(in Uri mediaUri);
+    Uri storeMetaData(in String key, in String value);
     Location getLastWaypoint();
     float getTrackedDistance();
 }

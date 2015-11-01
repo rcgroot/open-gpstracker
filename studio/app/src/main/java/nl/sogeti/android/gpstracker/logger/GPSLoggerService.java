@@ -152,9 +152,6 @@ public class GPSLoggerService extends Service implements LocationListener
    private int mPrecision;
    private int mLoggingState = Constants.STATE_STOPPED;
    private boolean mStartNextSegment;
-
-   private String mSources;
-
    private Location mPreviousLocation;
    private float mDistance;
 
@@ -308,9 +305,9 @@ public class GPSLoggerService extends Service implements LocationListener
       }
 
       @Override
-      public void storeDerivedDataSource(String sourceName) throws RemoteException
+      public Uri storeMetaData(String key, String value) throws RemoteException
       {
-         GPSLoggerService.this.storeDerivedDataSource(sourceName);
+         return GPSLoggerService.this.storeMetaData(key, value);
       }
 
       @Override
@@ -1038,56 +1035,44 @@ public class GPSLoggerService extends Service implements LocationListener
       broadCastLoggingState();
    }
 
-   public void storeDerivedDataSource(String sourceName)
+   public Uri storeMetaData(String key, String value)
    {
-      Uri trackMetaDataUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/metadata");
+      Uri uri = Uri.withAppendedPath(Tracks.CONTENT_URI, mTrackId + "/metadata");
 
       if (mTrackId >= 0)
       {
-         if (mSources == null)
+         Cursor cursor = null;
+         try
          {
-            Cursor metaData = null;
-            String source = null;
-            try
+            cursor = this.getContentResolver().query(
+                  uri, new String[] { MetaData.VALUE },
+                  MetaData.KEY + " = ? ", new String[] { key }, null);
+            if (cursor.moveToFirst())
             {
-               metaData = this.getContentResolver().query(trackMetaDataUri, new String[] { MetaData.VALUE }, MetaData
-                           .KEY + " = ? ",
-                     new String[] { Constants.DATASOURCES_KEY }, null);
-               if (metaData.moveToFirst())
-               {
-                  source = metaData.getString(0);
-               }
-            }
-            finally
-            {
-               if (metaData != null)
-               {
-                  metaData.close();
-               }
-            }
-            if (source != null)
-            {
-               mSources = source;
+               ContentValues args = new ContentValues();
+               args.put(MetaData.VALUE, value);
+               this.getContentResolver().update(
+                     uri, args,
+                     MetaData.KEY + " = ? ", new String[] { key });
             }
             else
             {
-               mSources = sourceName;
                ContentValues args = new ContentValues();
-               args.put(MetaData.KEY, Constants.DATASOURCES_KEY);
-               args.put(MetaData.VALUE, mSources);
-               this.getContentResolver().insert(trackMetaDataUri, args);
+               args.put(MetaData.KEY, key);
+               args.put(MetaData.VALUE, value);
+               this.getContentResolver().insert(uri, args);
             }
          }
-
-         if (!mSources.contains(sourceName))
+         finally
          {
-            mSources += "," + sourceName;
-            ContentValues args = new ContentValues();
-            args.put(MetaData.VALUE, mSources);
-            this.getContentResolver().update(trackMetaDataUri, args, MetaData.KEY + " = ? ", new String[] { Constants
-                  .DATASOURCES_KEY });
+            if (cursor != null)
+            {
+               cursor.close();
+            }
          }
       }
+
+      return uri;
    }
 
    /**

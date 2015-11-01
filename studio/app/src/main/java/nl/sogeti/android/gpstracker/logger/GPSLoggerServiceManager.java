@@ -36,9 +36,9 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
-import nl.sogeti.android.gpstracker.util.Log;
 
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * Class to interact with the service that tracks and logs the locations
@@ -239,7 +239,7 @@ public class GPSLoggerServiceManager
       }
    }
 
-   public void storeDerivedDataSource(String datasource)
+   public void storeMetaData(String key, String value)
    {
       synchronized (mStartLock)
       {
@@ -247,7 +247,7 @@ public class GPSLoggerServiceManager
          {
             try
             {
-               this.mGPSLoggerRemote.storeDerivedDataSource(datasource);
+               this.mGPSLoggerRemote.storeMetaData(key, value);
             }
             catch (RemoteException e)
             {

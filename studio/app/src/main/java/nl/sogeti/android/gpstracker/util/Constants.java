@@ -89,7 +89,6 @@ public class Constants
    public static final String LOGGING_INTERVAL = "customprecisiontime";
    public static final String LOGGING_DISTANCE = "customprecisiondistance";
    public static final String STATUS_MONITOR = "gpsstatusmonitor";
-   public static final String DATASOURCES_KEY = "DATASOURCES";
 
    /**
     * Broadcast intent action indicating that the logger service state has changed. Includes the logging state and
