@@ -23,12 +23,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import nl.sogeti.android.gpstracker.util.Log;
 
 public class BootReceiver extends BroadcastReceiver
 {
-   private final static String TAG = "OGT.BootReceiver";
-
    @Override
    public void onReceive(Context context, Intent intent)
    {
@@ -51,13 +49,13 @@ public class BootReceiver extends BroadcastReceiver
          }
          else
          {
-            Log.i(TAG, "Not starting Logger Service. Adjust the settings if you wanted this !");
+            Log.i(this, "Not starting Logger Service. Adjust the settings if you wanted this !");
          }
       }
       else
       {
          // this shouldn't happen !
-         Log.w(TAG, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
+         Log.w(this, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
                Intent.ACTION_BOOT_COMPLETED + ". This shouldn't happen !");
       }
    }

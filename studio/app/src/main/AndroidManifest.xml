@@ -122,16 +122,6 @@
                 android:resource="@xml/searchable"/>
         </activity>
         <activity
-            android:name=".viewer.TracksLiveFolder"
-            android:icon="@drawable/icon"
-            android:label="@string/track_list">
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_LIVE_FOLDER"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".actions.Statistics"
             android:label="@string/menu_statistics"
             android:parentActivityName=".viewer.LoggerMap">
@@ -173,9 +163,6 @@
             <path-permission
                 android:path="/search_suggest_query"
                 android:readPermission="android.permission.GLOBAL_SEARCH"/>
-            <path-permission
-                android:path="/live_folders/tracks"
-                android:readPermission="android.permission.BIND_APPWIDGET"/>
         </provider>
 
         <!-- This is used to auto start the application at boot -->
@@ -206,23 +193,6 @@
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED">
                 </action>
             </intent-filter>
-        </receiver>
-
-        <!-- This receiver defines the app widget and the broadcasts it receives -->
-        <receiver
-            android:name=".widget.ControlWidgetProvider"
-            android:exported="false"
-            android:label="Logger control">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="nl.sogeti.android.gpstracker.LOGGING_STATE_CHANGED"/>
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/control_appwidget_info"/>
         </receiver>
     </application>
 

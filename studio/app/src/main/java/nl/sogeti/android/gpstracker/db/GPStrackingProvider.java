@@ -39,7 +39,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.location.Location;
 import android.net.Uri;
 import android.provider.LiveFolders;
-import android.util.Log;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -50,6 +49,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.MetaData;
 import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * Goal of this Content Provider is to make the GPS Tracking information uniformly
@@ -125,9 +125,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
  */
 public class GPStrackingProvider extends ContentProvider
 {
-
-   private static final String TAG = "OGT.GPStrackingProvider";
-
    /* Action types as numbers for using the UriMatcher */
    private static final int TRACKS = 1;
    private static final int TRACK_ID = 2;
@@ -165,6 +162,7 @@ public class GPStrackingProvider extends ContentProvider
                      Tracks.NAME + " AS " + LiveFolders.NAME,
                      "datetime(" + Tracks.CREATION_TIME + "/1000, 'unixepoch') as " + LiveFolders.DESCRIPTION
                };
+   private static final String LOCATION_TAG = "OpenGpsTracker";
 
    private static UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -236,8 +234,6 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)
    {
-      //      Log.d( TAG, "Query on Uri:"+uri );
-
       int match = GPStrackingProvider.sURIMatcher.match(uri);
 
       String tableName = null;
@@ -350,7 +346,7 @@ public class GPStrackingProvider extends ContentProvider
             sortorder = Tracks.CREATION_TIME + " desc";
             break;
          default:
-            Log.e(GPStrackingProvider.TAG, "Unable to come to an action in the query uri: " + uri.toString());
+            Log.e(GPStrackingProvider.class, "Unable to come to an action in the query uri: " + uri.toString());
             return null;
       }
 
@@ -432,7 +428,7 @@ public class GPStrackingProvider extends ContentProvider
             break;
          case UriMatcher.NO_MATCH:
          default:
-            Log.w(TAG, "There is not MIME type defined for URI " + uri);
+            Log.w(this, "There is not MIME type defined for URI " + uri);
             break;
       }
       return mime;
@@ -446,7 +442,6 @@ public class GPStrackingProvider extends ContentProvider
    @Override
    public Uri insert(Uri uri, ContentValues values)
    {
-      //Log.d( TAG, "insert on "+uri );
       Uri insertedUri = null;
       int match = GPStrackingProvider.sURIMatcher.match(uri);
       List<String> pathSegments = null;
@@ -462,7 +457,7 @@ public class GPStrackingProvider extends ContentProvider
             pathSegments = uri.getPathSegments();
             trackId = Long.parseLong(pathSegments.get(1));
             segmentId = Long.parseLong(pathSegments.get(3));
-            Location loc = new Location(TAG);
+            Location loc = new Location(LOCATION_TAG);
             Double latitude = values.getAsDouble(Waypoints.LATITUDE);
             Double longitude = values.getAsDouble(Waypoints.LONGITUDE);
             Long time = values.getAsLong(Waypoints.TIME);
@@ -497,7 +492,6 @@ public class GPStrackingProvider extends ContentProvider
                   trackId,
                   segmentId,
                   loc);
-            //            Log.d( TAG, "Have inserted to segment "+segmentId+" with waypoint "+waypointId );
             insertedUri = ContentUris.withAppendedId(uri, waypointId);
             break;
          case WAYPOINT_MEDIA:
@@ -548,7 +542,7 @@ public class GPStrackingProvider extends ContentProvider
             insertedUri = ContentUris.withAppendedId(MetaData.CONTENT_URI, mediaId);
             break;
          default:
-            Log.e(GPStrackingProvider.TAG, "Unable to match the insert URI: " + uri.toString());
+            Log.e(GPStrackingProvider.class, "Unable to match the insert URI: " + uri.toString());
             insertedUri = null;
             break;
       }
@@ -656,7 +650,7 @@ public class GPStrackingProvider extends ContentProvider
             updates = mDbHelper.updateMetaData(-1L, -1L, -1L, metaDataId, selection, selectionArgs, value);
             break;
          default:
-            Log.e(GPStrackingProvider.TAG, "Unable to come to an action in the query uri" + uri.toString());
+            Log.e(GPStrackingProvider.class, "Unable to come to an action in the query uri" + uri.toString());
             return -1;
       }
 

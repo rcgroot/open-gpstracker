@@ -58,7 +58,6 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.Date;
@@ -76,6 +75,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * A system service as controlling the background logging of gps locations.
@@ -114,7 +114,7 @@ public class GPSLoggerService extends Service implements LocationListener
    private static final int MAX_REASONABLE_ALTITUDECHANGE = 200;
    private static final Boolean DEBUG = false;
    private static final boolean VERBOSE = false;
-   private static final String TAG = "OGT.GPSLoggerService";
+   private static final String TAG = "WakeLockTag";
    private static final String SERVICESTATE_DISTANCE = "SERVICESTATE_DISTANCE";
    private static final String SERVICESTATE_STATE = "SERVICESTATE_STATE";
    private static final String SERVICESTATE_PRECISION = "SERVICESTATE_PRECISION";
@@ -339,7 +339,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (VERBOSE)
       {
-         Log.v(TAG, "onLocationChanged( Location " + location + " )");
+         Log.v(this, "onLocationChanged( Location " + location + " )");
       }
       // Might be claiming GPS disabled but when we were paused this changed and this location proves so
       if (mLoggerNotification.isShowingDisabled())
@@ -374,11 +374,11 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "onStatusChanged( String " + provider + ", int " + status + ", Bundle " + extras + " )");
+         Log.d(this, "onStatusChanged( String " + provider + ", int " + status + ", Bundle " + extras + " )");
       }
       if (status == LocationProvider.OUT_OF_SERVICE)
       {
-         Log.e(TAG, String.format("Provider %s changed to status %d", provider, status));
+         Log.e(this, String.format("Provider %s changed to status %d", provider, status));
       }
    }
 
@@ -387,7 +387,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "onProviderEnabled( String " + provider + " )");
+         Log.d(this, "onProviderEnabled( String " + provider + " )");
       }
       if (mPrecision != Constants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER))
       {
@@ -405,7 +405,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "onProviderDisabled( String " + provider + " )");
+         Log.d(this, "onProviderDisabled( String " + provider + " )");
       }
       ;
       if (mPrecision != Constants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER))
@@ -432,14 +432,14 @@ public class GPSLoggerService extends Service implements LocationListener
       if (proposedLocation != null && (proposedLocation.getLatitude() == 0.0d
             || proposedLocation.getLongitude() == 0.0d))
       {
-         Log.w(TAG, "A wrong location was received, 0.0 latitude and 0.0 longitude... ");
+         Log.w(this, "A wrong location was received, 0.0 latitude and 0.0 longitude... ");
          proposedLocation = null;
       }
 
       // Do not log a waypoint which is more inaccurate then is configured to be acceptable
       if (proposedLocation != null && proposedLocation.getAccuracy() > mMaxAcceptableAccuracy)
       {
-         Log.w(TAG, String.format("A weak location was received, lots of inaccuracy... (%f is more then max %f)",
+         Log.w(this, String.format("A weak location was received, lots of inaccuracy... (%f is more then max %f)",
                proposedLocation.getAccuracy(),
                mMaxAcceptableAccuracy));
          proposedLocation = addBadLocation(proposedLocation);
@@ -449,7 +449,7 @@ public class GPSLoggerService extends Service implements LocationListener
       if (proposedLocation != null && mPreviousLocation != null && proposedLocation.getAccuracy() > mPreviousLocation
             .distanceTo(proposedLocation))
       {
-         Log.w(TAG,
+         Log.w(this,
                String.format("A weak location was received, not quite clear from the previous waypoint... (%f more " +
                            "then max %f)",
                      proposedLocation.getAccuracy(), mPreviousLocation.distanceTo(proposedLocation)));
@@ -466,12 +466,12 @@ public class GPSLoggerService extends Service implements LocationListener
          float speed = meters / seconds;
          if (speed > MAX_REASONABLE_SPEED)
          {
-            Log.w(TAG, "A strange location was received, a really high speed of " + speed + " m/s, prob wrong...");
+            Log.w(this, "A strange location was received, a really high speed of " + speed + " m/s, prob wrong...");
             proposedLocation = addBadLocation(proposedLocation);
             // Might be a messed up Samsung Galaxy S GPS, reset the logging
             if (speed > 2 * MAX_REASONABLE_SPEED && mPrecision != Constants.LOGGING_GLOBAL)
             {
-               Log.w(TAG, "A strange location was received on GPS, reset the GPS listeners");
+               Log.w(this, "A strange location was received on GPS, reset the GPS listeners");
                stopListening();
                mLocationManager.removeGpsStatusListener(mStatusListener);
                mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -484,7 +484,7 @@ public class GPSLoggerService extends Service implements LocationListener
       // Remove speed if not sane
       if (mSpeedSanityCheck && proposedLocation != null && proposedLocation.getSpeed() > MAX_REASONABLE_SPEED)
       {
-         Log.w(TAG, "A strange speed, a really high speed, prob wrong...");
+         Log.w(this, "A strange speed, a really high speed, prob wrong...");
          proposedLocation.removeSpeed();
       }
 
@@ -493,7 +493,7 @@ public class GPSLoggerService extends Service implements LocationListener
       {
          if (!addSaneAltitude(proposedLocation.getAltitude()))
          {
-            Log.w(TAG, "A strange altitude, a really big difference, prob wrong...");
+            Log.w(this, "A strange altitude, a really big difference, prob wrong...");
             proposedLocation.removeAltitude();
          }
       }
@@ -526,7 +526,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (!isLogging())
       {
-         Log.e(TAG, String.format("Not logging but storing location %s, prepare to fail", location.toString()));
+         Log.e(this, String.format("Not logging but storing location %s, prepare to fail", location.toString()));
       }
       ContentValues args = new ContentValues();
 
@@ -689,7 +689,7 @@ public class GPSLoggerService extends Service implements LocationListener
             sHandler.sendMessage(msg);
             break;
          default:
-            Log.e(TAG, "Unknown precision " + mPrecision);
+            Log.e(this, "Unknown precision " + mPrecision);
             break;
       }
    }
@@ -735,7 +735,7 @@ public class GPSLoggerService extends Service implements LocationListener
       editor.commit();
       if (DEBUG)
       {
-         Log.d(TAG, "crashProtectState()");
+         Log.d(this, "crashProtectState()");
       }
       ;
    }
@@ -755,7 +755,7 @@ public class GPSLoggerService extends Service implements LocationListener
       super.onCreate();
       if (DEBUG)
       {
-         Log.d(TAG, "onCreate()");
+         Log.d(this, "onCreate()");
       }
 
       GPSLoggerServiceThread looper = new GPSLoggerServiceThread();
@@ -766,7 +766,7 @@ public class GPSLoggerService extends Service implements LocationListener
       }
       catch (InterruptedException e)
       {
-         Log.e(TAG, "Interrupted during wait for the GPSLoggerServiceThread to start, prepare for trouble!", e);
+         Log.e(this, "Interrupted during wait for the GPSLoggerServiceThread to start, prepare for trouble!", e);
       }
       mHeartbeatTimer = new Timer("heartbeat", true);
 
@@ -830,14 +830,14 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "onDestroy()");
+         Log.d(this, "onDestroy()");
       }
       ;
       super.onDestroy();
 
       if (isLogging())
       {
-         Log.w(TAG, "Destroyin an activly logging service");
+         Log.w(this, "Destroyin an activly logging service");
       }
       mHeartbeatTimer.cancel();
       mHeartbeatTimer.purge();
@@ -873,7 +873,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "handleCommand(Intent " + intent + ")");
+         Log.d(this, "handleCommand(Intent " + intent + ")");
       }
       ;
       if (intent != null && intent.hasExtra(COMMAND))
@@ -904,7 +904,7 @@ public class GPSLoggerService extends Service implements LocationListener
       long previousState = preferences.getInt(SERVICESTATE_STATE, Constants.STATE_STOPPED);
       if (previousState == Constants.STATE_LOGGING || previousState == Constants.STATE_PAUSED)
       {
-         Log.w(TAG, "Recovering from a crash or kill and restoring state.");
+         Log.w(this, "Recovering from a crash or kill and restoring state.");
          mLoggerNotification.startLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
 
          mTrackId = preferences.getLong(SERVICESTATE_TRACKID, -1);
@@ -954,7 +954,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "startLogging()");
+         Log.d(this, "startLogging()");
       }
       ;
       if (this.mLoggingState == Constants.STATE_STOPPED)
@@ -974,7 +974,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "pauseLogging()");
+         Log.d(this, "pauseLogging()");
       }
       ;
       if (this.mLoggingState == Constants.STATE_LOGGING)
@@ -996,7 +996,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "resumeLogging()");
+         Log.d(this, "resumeLogging()");
       }
       ;
       if (this.mLoggingState == Constants.STATE_PAUSED)
@@ -1020,7 +1020,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "stopLogging()");
+         Log.d(this, "stopLogging()");
       }
       ;
       mLoggingState = Constants.STATE_STOPPED;
@@ -1119,7 +1119,7 @@ public class GPSLoggerService extends Service implements LocationListener
    {
       if (DEBUG)
       {
-         Log.d(TAG, "_handleMessage( Message " + msg + " )");
+         Log.d(this, "_handleMessage( Message " + msg + " )");
       }
       ;
       long intervaltime = 0;
@@ -1254,7 +1254,7 @@ public class GPSLoggerService extends Service implements LocationListener
       }
       else
       {
-         Log.e(TAG, "No logging done under which to store the track");
+         Log.e(this, "No logging done under which to store the track");
       }
    }
 
@@ -1289,19 +1289,19 @@ public class GPSLoggerService extends Service implements LocationListener
       }
       catch (IllegalArgumentException e)
       {
-         Log.e(TAG, "Problem setting data source for mediaplayer", e);
+         Log.e(this, "Problem setting data source for mediaplayer", e);
       }
       catch (SecurityException e)
       {
-         Log.e(TAG, "Problem setting data source for mediaplayer", e);
+         Log.e(this, "Problem setting data source for mediaplayer", e);
       }
       catch (IllegalStateException e)
       {
-         Log.e(TAG, "Problem with mediaplayer", e);
+         Log.e(this, "Problem with mediaplayer", e);
       }
       catch (IOException e)
       {
-         Log.e(TAG, "Problem with mediaplayer", e);
+         Log.e(this, "Problem with mediaplayer", e);
       }
    }
 
@@ -1352,7 +1352,7 @@ public class GPSLoggerService extends Service implements LocationListener
 
             if (checkLocation == null || checkLocation.getTime() + mCheckPeriod < new Date().getTime())
             {
-               Log.w(TAG, "GPS system failed to produce a location during logging: " + checkLocation);
+               Log.w(this, "GPS system failed to produce a location during logging: " + checkLocation);
                mLoggerNotification.startPoorSignal();
                if (mStatusMonitor)
                {

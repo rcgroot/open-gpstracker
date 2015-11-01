@@ -26,7 +26,6 @@ public class LoggerNotification
    private static final int ID_STATUS = R.layout.map;
    private static final int ID_GPS_PROBLEM = R.string.service_gpsproblem;
    private static final int SMALL_ICON = R.drawable.ic_maps_indicator_current_position;
-   private static final String TAG = "LoggerNotification";
    private final Service mService;
 
    int mSatellites = 0;

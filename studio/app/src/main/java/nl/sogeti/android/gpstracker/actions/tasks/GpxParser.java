@@ -35,7 +35,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.util.Log;
 import android.view.Window;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -58,6 +57,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.Log;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
 import nl.sogeti.android.gpstracker.util.UnicodeReader;
 
@@ -77,7 +77,6 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
    private static final String COURSE_ELEMENT = "course";
    private static final String ACCURACY_ELEMENT = "accuracy";
    private static final String SPEED_ELEMENT = "speed";
-   private static final String TAG = "OGT.GpxParser";
 
    static
    {
@@ -157,13 +156,9 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       return result;
    }
 
-   /**
-    * @param e
-    * @param text
-    */
    protected void handleError(Exception dialogException, String dialogErrorMessage)
    {
-      Log.e(TAG, "Unable to save ", dialogException);
+      Log.e(this, "Unable to save ", dialogException);
       mErrorDialogException = dialogException;
       mErrorDialogMessage = dialogErrorMessage;
       cancel(false);
@@ -369,7 +364,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
          }
          catch (IOException e)
          {
-            Log.w(TAG, "Failed closing inputstream");
+            Log.w(this, "Failed closing inputstream");
          }
       }
       return trackUri;
@@ -425,7 +420,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri>
       }
       catch (ParseException e)
       {
-         Log.w(TAG, "Failed to parse a time-date", e);
+         Log.w(GpxParser.class, "Failed to parse a time-date", e);
       }
       return dateTime;
    }

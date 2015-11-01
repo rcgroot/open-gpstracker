@@ -36,7 +36,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
+import nl.sogeti.android.gpstracker.util.Log;
 
 import nl.sogeti.android.gpstracker.util.Constants;
 
@@ -48,7 +48,6 @@ import nl.sogeti.android.gpstracker.util.Constants;
  */
 public class GPSLoggerServiceManager
 {
-   private static final String TAG = "OGT.GPSLoggerServiceManager";
    private static final String REMOTE_EXCEPTION = "REMOTE_EXCEPTION";
    public final Object mStartLock = new Object();
    private IGPSLoggerServiceRemote mGPSLoggerRemote;
@@ -77,12 +76,12 @@ public class GPSLoggerServiceManager
             }
             else
             {
-               Log.w(TAG, "Remote interface to logging service not found. Started: " + mBound);
+               Log.w(this, "Remote interface to logging service not found. Started: " + mBound);
             }
          }
          catch (RemoteException e)
          {
-            Log.e(TAG, "Could get lastWaypoint GPSLoggerService.", e);
+            Log.e(this, "Could get lastWaypoint GPSLoggerService.", e);
          }
          return lastWaypoint;
       }
@@ -102,12 +101,12 @@ public class GPSLoggerServiceManager
             }
             else
             {
-               Log.w(TAG, "Remote interface to logging service not found. Started: " + mBound);
+               Log.w(this, "Remote interface to logging service not found. Started: " + mBound);
             }
          }
          catch (RemoteException e)
          {
-            Log.e(TAG, "Could get tracked distance from GPSLoggerService.", e);
+            Log.e(this, "Could get tracked distance from GPSLoggerService.", e);
          }
          return distance;
       }
@@ -127,12 +126,12 @@ public class GPSLoggerServiceManager
             }
             else
             {
-               Log.w(TAG, "Remote interface to logging service not found. Started: " + mBound);
+               Log.w(this, "Remote interface to logging service not found. Started: " + mBound);
             }
          }
          catch (RemoteException e)
          {
-            Log.e(TAG, "Could stat GPSLoggerService.", e);
+            Log.e(this, "Could stat GPSLoggerService.", e);
          }
          return logging;
       }
@@ -151,12 +150,12 @@ public class GPSLoggerServiceManager
             }
             else
             {
-               Log.w(TAG, "Remote interface to logging service not found. Started: " + mBound);
+               Log.w(this, "Remote interface to logging service not found. Started: " + mBound);
             }
          }
          catch (RemoteException e)
          {
-            Log.e(TAG, "Could stat GPSLoggerService.", e);
+            Log.e(this, "Could stat GPSLoggerService.", e);
          }
          return prepared;
       }
@@ -174,7 +173,7 @@ public class GPSLoggerServiceManager
             }
             catch (RemoteException e)
             {
-               Log.e(TAG, "Could not start GPSLoggerService.", e);
+               Log.e(this, "Could not start GPSLoggerService.", e);
             }
          }
          return -1;
@@ -193,7 +192,7 @@ public class GPSLoggerServiceManager
             }
             catch (RemoteException e)
             {
-               Log.e(TAG, "Could not start GPSLoggerService.", e);
+               Log.e(this, "Could not start GPSLoggerService.", e);
             }
          }
       }
@@ -211,7 +210,7 @@ public class GPSLoggerServiceManager
             }
             catch (RemoteException e)
             {
-               Log.e(TAG, "Could not start GPSLoggerService.", e);
+               Log.e(this, "Could not start GPSLoggerService.", e);
             }
          }
          return -1;
@@ -235,7 +234,7 @@ public class GPSLoggerServiceManager
          }
          else
          {
-            Log.e(TAG, "No GPSLoggerRemote service connected to this manager");
+            Log.e(this, "No GPSLoggerRemote service connected to this manager");
          }
       }
    }
@@ -257,7 +256,7 @@ public class GPSLoggerServiceManager
          }
          else
          {
-            Log.e(TAG, "No GPSLoggerRemote service connected to this manager");
+            Log.e(this, "No GPSLoggerRemote service connected to this manager");
          }
       }
    }
@@ -279,7 +278,7 @@ public class GPSLoggerServiceManager
          }
          else
          {
-            Log.e(TAG, "No GPSLoggerRemote service connected to this manager");
+            Log.e(this, "No GPSLoggerRemote service connected to this manager");
          }
       }
    }
@@ -329,7 +328,7 @@ public class GPSLoggerServiceManager
          }
          else
          {
-            Log.w(TAG, "Attempting to connect whilst already connected");
+            Log.w(this, "Attempting to connect whilst already connected");
          }
       }
    }
@@ -355,7 +354,7 @@ public class GPSLoggerServiceManager
          }
          catch (IllegalArgumentException e)
          {
-            Log.w(TAG, "Failed to unbind a service, prehaps the service disapearded?", e);
+            Log.w(this, "Failed to unbind a service, prehaps the service disapearded?", e);
          }
       }
    }

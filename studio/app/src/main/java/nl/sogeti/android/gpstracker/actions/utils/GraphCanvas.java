@@ -67,8 +67,6 @@ public class GraphCanvas extends View
    public static final int DISTANCESPEEDGRAPH = 1;
    public static final int TIMEALTITUDEGRAPH = 2;
    public static final int DISTANCEALTITUDEGRAPH = 3;
-   @SuppressWarnings("unused")
-   private static final String TAG = "OGT.GraphCanvas";
    float density = Resources.getSystem().getDisplayMetrics().density;
    private Uri mUri;
    private Bitmap mRenderBuffer;

@@ -33,7 +33,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore.MediaColumns;
-import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlSerializer;
@@ -57,6 +56,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * Create a GPX version of a stored track
@@ -79,7 +79,6 @@ public class GpxCreator extends XmlCreator
    }
 
    protected String mName;
-   private String TAG = "OGT.GpxCreator";
    private boolean includeAttachments;
 
    public GpxCreator(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener
@@ -185,7 +184,7 @@ public class GpxCreator extends XmlCreator
             }
             catch (IOException e)
             {
-               Log.e(TAG, "Failed to close buf after completion, ignoring.", e);
+               Log.e(this, "Failed to close buf after completion, ignoring.", e);
             }
          }
          if (fos != null)
@@ -196,7 +195,7 @@ public class GpxCreator extends XmlCreator
             }
             catch (IOException e)
             {
-               Log.e(TAG, "Failed to close fos after completion, ignoring.", e);
+               Log.e(this, "Failed to close fos after completion, ignoring.", e);
             }
          }
       }

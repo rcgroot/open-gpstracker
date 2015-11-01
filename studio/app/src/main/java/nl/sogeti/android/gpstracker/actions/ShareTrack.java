@@ -49,7 +49,6 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -81,13 +80,12 @@ import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Log;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
 public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
 {
-   private static final String TAG = "OGT.ShareTrack";
-
    private static final int EXPORT_TYPE_KMZ = 0;
    private static final int EXPORT_TYPE_GPX = 1;
    private static final int EXPORT_TYPE_TEXTLINE = 2;
@@ -143,7 +141,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
       }
       catch (IOException e)
       {
-         Log.e(TAG, "Bitmap extra storing failed", e);
+         Log.e(ShareTrack.class, "Bitmap extra storing failed", e);
       }
       finally
       {
@@ -156,7 +154,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
          }
          catch (IOException e)
          {
-            Log.e(TAG, "Bitmap extra close failed", e);
+            Log.e(InsertNote.class, "Bitmap extra close failed", e);
          }
       }
       return fileUri;
@@ -336,7 +334,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
             }
             catch (FileNotFoundException e)
             {
-               Log.e(TAG, "Failed reading image from file", e);
+               Log.e(this, "Failed reading image from file", e);
             }
             finally
             {
@@ -348,7 +346,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
                   }
                   catch (IOException e)
                   {
-                     Log.e(TAG, "Failed close image from file", e);
+                     Log.e(this, "Failed close image from file", e);
                   }
                }
             }
@@ -439,7 +437,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
             exportTextLine(textLine, target);
             break;
          default:
-            Log.e(TAG, "Failed to determine sharing type" + type);
+            Log.e(this, "Failed to determine sharing type" + type);
             break;
       }
    }
@@ -499,7 +497,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
             new KmzCreator(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName)).execute();
             break;
          default:
-            Log.e(TAG, "Unable to determine target for sharing KMZ " + target);
+            Log.e(this, "Unable to determine target for sharing KMZ " + target);
             break;
       }
       ShareTrack.this.finish();
@@ -518,7 +516,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
             ShareTrack.this.finish();
             break;
          default:
-            Log.e(TAG, "Unable to determine target for sharing GPX " + target);
+            Log.e(this, "Unable to determine target for sharing GPX " + target);
             break;
       }
    }
@@ -631,7 +629,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
       @Override
       public void setIndeterminate(boolean indeterminate)
       {
-         Log.w(TAG, "Unsupported indeterminate progress display");
+         Log.w(this, "Unsupported indeterminate progress display");
       }
 
       @Override

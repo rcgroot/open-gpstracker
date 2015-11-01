@@ -49,8 +49,6 @@ import nl.sogeti.android.gpstracker.R;
  */
 public class UnitsI18n
 {
-   @SuppressWarnings("unused")
-   private static final String TAG = "OGT.UnitsI18n";
    private Context mContext;
    private double mConversion_from_mps_to_speed;
    private double mConversion_from_meter_to_distance;

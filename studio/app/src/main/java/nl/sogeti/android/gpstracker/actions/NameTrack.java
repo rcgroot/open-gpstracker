@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -42,7 +41,7 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +51,7 @@ import java.util.Calendar;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * Empty Activity that pops up the dialog to name the track
@@ -59,9 +59,8 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
  * @version $Id$
  */
-public class NameTrack extends Activity
+public class NameTrack extends AppCompatActivity
 {
-   protected static final String TAG = "OGT.NameTrack";
    private static final int DIALOG_TRACKNAME = 23;
    Uri mTrackUri;
    private EditText mTrackNameView;
@@ -87,7 +86,7 @@ public class NameTrack extends Activity
                clearNotification();
                break;
             default:
-               Log.e(TAG, "Unknown option ending dialog:" + which);
+               Log.e(this, "Unknown option ending dialog:" + which);
                break;
          }
          finish();
@@ -151,7 +150,7 @@ public class NameTrack extends Activity
       }
       else
       {
-         Log.e(TAG, "Naming track without a track URI supplied.");
+         Log.e(this, "Naming track without a track URI supplied.");
          finish();
       }
    }

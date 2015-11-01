@@ -33,14 +33,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.speech.tts.TextToSpeech;
-import android.util.Log;
+import nl.sogeti.android.gpstracker.util.Log;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 
 public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitListener
 {
-   private static final String TAG = "OGT.VoiceOver";
    private static VoiceOver sVoiceOver = null;
    private TextToSpeech mTextToSpeech;
    private int mVoiceStatus = -1;
@@ -97,7 +96,7 @@ public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitL
       }
       else
       {
-         Log.w(TAG, "Voice stream failed TTS not ready");
+         Log.w(this, "Voice stream failed TTS not ready");
       }
    }
 }

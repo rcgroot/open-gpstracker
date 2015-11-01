@@ -52,7 +52,7 @@ import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
+import nl.sogeti.android.gpstracker.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,7 +92,6 @@ public class SegmentOverlay extends Overlay
    public static final int DRAW_MEASURED = 2;
    public static final int DRAW_CALCULATED = 3;
    public static final int DRAW_DOTS = 4;
-   private static final String TAG = "OGT.SegmentOverlay";
    private static final float MINIMUM_PX_DISTANCE = 15;
    private static SparseArray<Bitmap> sBitmapCache = new SparseArray<>();
    private static Bitmap mStartBitmap;
@@ -218,7 +217,7 @@ public class SegmentOverlay extends Overlay
             }
             else
             {
-               Log.w(TAG, "mTrackSegmentsObserver skipping change on " + mSegmentUri);
+               Log.w(this, "mTrackSegmentsObserver skipping change on " + mSegmentUri);
             }
          }
       };
@@ -629,7 +628,7 @@ public class SegmentOverlay extends Overlay
                   lineToGeoPoint(geoPoint, speed);
                   break;
                default:
-                  Log.w(TAG, "Unknown coloring method");
+                  Log.w(this, "Unknown coloring method");
                   break;
             }
          }

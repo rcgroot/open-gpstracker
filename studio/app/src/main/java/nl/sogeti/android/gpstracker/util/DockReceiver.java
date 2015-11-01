@@ -33,14 +33,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import nl.sogeti.android.gpstracker.util.Log;
 
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 
 public class DockReceiver extends BroadcastReceiver
 {
-   private final static String TAG = "OGT.DockReceiver";
-
    @Override
    public void onReceive(Context context, Intent intent)
    {
@@ -77,7 +75,7 @@ public class DockReceiver extends BroadcastReceiver
       }
       else
       {
-         Log.w(TAG, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
+         Log.w(this, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
                Intent.ACTION_BOOT_COMPLETED + ". This shouldn't happen !");
       }
    }

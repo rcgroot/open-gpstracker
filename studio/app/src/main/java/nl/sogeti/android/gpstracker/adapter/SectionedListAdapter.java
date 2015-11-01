@@ -52,8 +52,6 @@ import nl.sogeti.android.gpstracker.util.Constants;
  */
 public class SectionedListAdapter extends BaseAdapter
 {
-   @SuppressWarnings("unused")
-   private static final String TAG = "OGT.SectionedListAdapter";
    private Map<String, BaseAdapter> mSections;
    private ArrayAdapter<String> mHeaders;
 

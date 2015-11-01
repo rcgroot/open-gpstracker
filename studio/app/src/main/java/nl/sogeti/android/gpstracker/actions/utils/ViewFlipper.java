@@ -31,7 +31,7 @@ package nl.sogeti.android.gpstracker.actions.utils;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * Work around based on input from the comment section of
@@ -43,8 +43,6 @@ import android.util.Log;
  */
 public class ViewFlipper extends android.widget.ViewFlipper
 {
-   private static final String TAG = "OGT.ViewFlipper";
-
    public ViewFlipper(Context context)
    {
       super(context);
@@ -71,7 +69,7 @@ public class ViewFlipper extends android.widget.ViewFlipper
          }
          catch (IllegalArgumentException e)
          {
-            Log.w(TAG, "Android project issue 6191 workaround.");
+            Log.w(this, "Android project issue 6191 workaround.");
             /* Quick catch and continue on api level 7+, the Eclair 2.1 / 2.2 */
          }
          finally

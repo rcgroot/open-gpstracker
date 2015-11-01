@@ -35,7 +35,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.util.Log;
+import nl.sogeti.android.gpstracker.util.Log;
 import android.view.Window;
 
 import org.xmlpull.v1.XmlSerializer;
@@ -78,7 +78,6 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
    protected Uri mTrackUri;
    String mChosenName;
    String mFileName;
-   private String TAG = "OGT.XmlCreator";
    private String mExportDirectoryPath;
    private boolean mNeedsBundling;
    private ProgressListener mProgressListener;
@@ -277,7 +276,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       }
       else
       {
-         Log.w(TAG, "Exporting " + mTrackUri + " without progress!");
+         Log.w(this, "Exporting " + mTrackUri + " without progress!");
       }
    }
 
@@ -327,7 +326,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
       }
       else
       {
-         Log.w(TAG, "Failed to add file to new XML export. Missing: " + inputFilePath);
+         Log.w(this, "Failed to add file to new XML export. Missing: " + inputFilePath);
       }
       mProgressAdmin.addMediaProgress();
 
@@ -437,7 +436,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
 
    protected void handleError(String task, Exception e, String text)
    {
-      Log.e(TAG, "Unable to save ", e);
+      Log.e(this, "Unable to save ", e);
       mTask = task;
       mException = e;
       mErrorText = text;

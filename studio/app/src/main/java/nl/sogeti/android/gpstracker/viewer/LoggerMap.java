@@ -28,8 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -55,8 +53,9 @@ import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -92,6 +91,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.support.AppCompatMapActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Log;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 
 /**
@@ -124,7 +124,7 @@ public class LoggerMap extends AppCompatMapActivity
    private static final int DIALOG_LAYERS = 31;
    private static final int DIALOG_URIS = 34;
    private static final int DIALOG_CONTRIB = 35;
-   private static final String TAG = "OGT.LoggerMap";
+   private static final String WAKELOCK_TAG = "LoggerMap";
    // UI's
    private CheckBox mTraffic;
    private CheckBox mSpeed;
@@ -203,7 +203,7 @@ public class LoggerMap extends AppCompatMapActivity
       }
       catch (InterruptedException e)
       {
-         Log.e(TAG, "Failed waiting for a semaphore", e);
+         Log.e(this, "Failed waiting for a semaphore", e);
       }
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
       mMapView = (MapView) findViewById(R.id.myMapView);
@@ -292,7 +292,7 @@ public class LoggerMap extends AppCompatMapActivity
       if (this.mWakeLock != null && this.mWakeLock.isHeld())
       {
          this.mWakeLock.release();
-         Log.w(TAG, "onPause(): Released lock to keep screen on!");
+         Log.w(this, "onPause(): Released lock to keep screen on!");
       }
       ContentResolver resolver = this.getContentResolver();
       resolver.unregisterContentObserver(this.mTrackSegmentsObserver);
@@ -327,7 +327,7 @@ public class LoggerMap extends AppCompatMapActivity
       if (mWakeLock != null && mWakeLock.isHeld())
       {
          mWakeLock.release();
-         Log.w(TAG, "onDestroy(): Released lock to keep screen on!");
+         Log.w(this, "onDestroy(): Released lock to keep screen on!");
       }
       if (mLoggerServiceManager.getLoggingState() == Constants.STATE_STOPPED)
       {
@@ -443,17 +443,17 @@ public class LoggerMap extends AppCompatMapActivity
             PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
             if (disabledimming)
             {
-               mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, TAG);
+               mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, WAKELOCK_TAG);
             }
             else
             {
-               mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
+               mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, WAKELOCK_TAG);
             }
          }
          if (mLoggerServiceManager.getLoggingState() == Constants.STATE_LOGGING && !mWakeLock.isHeld())
          {
             mWakeLock.acquire();
-            Log.w(TAG, "Acquired lock to keep screen on!");
+            Log.w(this, "Acquired lock to keep screen on!");
          }
       }
    }
@@ -1142,7 +1142,7 @@ public class LoggerMap extends AppCompatMapActivity
             ShareTrack.clearScreenBitmap();
             break;
          default:
-            Log.e(TAG, "Returned form unknow activity: " + requestCode);
+            Log.e(this, "Returned form unknow activity: " + requestCode);
             break;
       }
    }
@@ -1383,7 +1383,7 @@ public class LoggerMap extends AppCompatMapActivity
             }
             else
             {
-               Log.w(TAG, "mTrackMediasObserver skipping change on " + mLastSegment);
+               Log.w(this, "mTrackMediasObserver skipping change on " + mLastSegment);
             }
          }
       };
@@ -1398,7 +1398,7 @@ public class LoggerMap extends AppCompatMapActivity
             }
             else
             {
-               Log.w(TAG, "mTrackSegmentsObserver skipping change on " + mLastSegment);
+               Log.w(this, "mTrackSegmentsObserver skipping change on " + mLastSegment);
             }
          }
       };
@@ -1416,12 +1416,12 @@ public class LoggerMap extends AppCompatMapActivity
                }
                else
                {
-                  Log.e(TAG, "Error the last segment changed but it is not on screen! " + mLastSegment);
+                  Log.e(this, "Error the last segment changed but it is not on screen! " + mLastSegment);
                }
             }
             else
             {
-               Log.w(TAG, "mSegmentWaypointsObserver skipping change on " + mLastSegment);
+               Log.w(this, "mSegmentWaypointsObserver skipping change on " + mLastSegment);
             }
          }
       };

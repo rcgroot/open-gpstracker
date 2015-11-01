@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -42,7 +41,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +59,7 @@ import java.util.Calendar;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * Empty Activity that pops up the dialog to add a note to the most current
@@ -68,12 +68,9 @@ import nl.sogeti.android.gpstracker.util.Constants;
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
  * @version $Id$
  */
-public class InsertNote extends Activity
+public class InsertNote extends AppCompatActivity
 {
    private static final int DIALOG_INSERTNOTE = 27;
-
-   private static final String TAG = "OGT.InsertNote";
-
    private static final int MENU_PICTURE = 9;
    private static final int MENU_VOICE = 11;
    private static final int MENU_VIDEO = 12;
@@ -155,7 +152,7 @@ public class InsertNote extends Activity
          }
          catch (IOException e)
          {
-            Log.e(TAG, "Note storing failed", e);
+            Log.e(this, "Note storing failed", e);
             CharSequence text = e.getLocalizedMessage();
             Toast toast = Toast.makeText(InsertNote.this, text, Toast.LENGTH_LONG);
             toast.show();
@@ -356,7 +353,7 @@ public class InsertNote extends Activity
                      isLocal = file.renameTo(newFile); //
                      if (!isLocal)
                      {
-                        Log.w(TAG, "Failed rename will try copy image: " + file.getAbsolutePath());
+                        Log.w(this, "Failed rename will try copy image: " + file.getAbsolutePath());
                         isLocal = copyFile(file, newFile);
                      }
                      if (isLocal)
@@ -387,7 +384,7 @@ public class InsertNote extends Activity
                      }
                      else
                      {
-                        Log.e(TAG, "Failed either rename or copy image: " + file.getAbsolutePath());
+                        Log.e(this, "Failed either rename or copy image: " + file.getAbsolutePath());
                      }
                      break;
                   case MENU_VIDEO:
@@ -399,7 +396,7 @@ public class InsertNote extends Activity
                      isLocal = file.renameTo(newFile);
                      if (!isLocal)
                      {
-                        Log.w(TAG, "Failed rename will try copy video: " + file.getAbsolutePath());
+                        Log.w(this, "Failed rename will try copy video: " + file.getAbsolutePath());
                         isLocal = copyFile(file, newFile);
                      }
                      if (isLocal)
@@ -410,7 +407,7 @@ public class InsertNote extends Activity
                      }
                      else
                      {
-                        Log.e(TAG, "Failed either rename or copy video: " + file.getAbsolutePath());
+                        Log.e(this, "Failed either rename or copy video: " + file.getAbsolutePath());
                      }
                      break;
                   case MENU_VOICE:
@@ -418,13 +415,13 @@ public class InsertNote extends Activity
                      InsertNote.this.mLoggerServiceManager.storeMediaUri(uri);
                      break;
                   default:
-                     Log.e(TAG, "Returned form unknow activity: " + requestCode);
+                     Log.e(this, "Returned form unknow activity: " + requestCode);
                      break;
                }
             }
             else
             {
-               Log.w(TAG, "Received unexpected resultcode " + resultCode);
+               Log.w(this, "Received unexpected resultcode " + resultCode);
             }
             setResult(resultCode, new Intent());
             finish();
@@ -451,7 +448,7 @@ public class InsertNote extends Activity
       }
       catch (IOException e)
       {
-         Log.e(TAG, "File copy failed", e);
+         Log.e(InsertNote.class, "File copy failed", e);
       }
       finally
       {
@@ -463,7 +460,7 @@ public class InsertNote extends Activity
             }
             catch (IOException e)
             {
-               Log.w(TAG, "File close after copy failed", e);
+               Log.w(InsertNote.class, "File close after copy failed", e);
             }
          }
          if (in != null)
@@ -474,7 +471,7 @@ public class InsertNote extends Activity
             }
             catch (IOException e)
             {
-               Log.w(TAG, "File close after copy failed", e);
+               Log.w(InsertNote.class, "File close after copy failed", e);
             }
          }
       }
@@ -510,7 +507,7 @@ public class InsertNote extends Activity
       }
       catch (ActivityNotFoundException e)
       {
-         Log.e(TAG, "Unable to start Activity to record video", e);
+         Log.e(this, "Unable to start Activity to record video", e);
       }
    }
 
@@ -523,7 +520,7 @@ public class InsertNote extends Activity
       }
       catch (ActivityNotFoundException e)
       {
-         Log.e(TAG, "Unable to start Activity to record audio", e);
+         Log.e(this, "Unable to start Activity to record audio", e);
       }
    }
 }

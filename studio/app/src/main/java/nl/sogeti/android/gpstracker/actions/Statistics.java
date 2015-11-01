@@ -42,7 +42,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -64,6 +63,7 @@ import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.util.Log;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
 
@@ -81,8 +81,6 @@ public class Statistics extends AppCompatActivity implements StatisticsDelegate
    private static final int MENU_TRACKLIST = 12;
    private static final int MENU_SHARE = 41;
    private static final String TRACKURI = "TRACKURI";
-   private static final String TAG = "OGT.Statistics";
-
    private static final int SWIPE_MIN_DISTANCE = 120;
    private static final int SWIPE_MAX_OFF_PATH = 250;
    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
@@ -404,7 +402,7 @@ public class Statistics extends AppCompatActivity implements StatisticsDelegate
             ShareTrack.clearScreenBitmap();
             break;
          default:
-            Log.w(TAG, "Unknown activity result request code");
+            Log.w(this, "Unknown activity result request code");
       }
    }
 

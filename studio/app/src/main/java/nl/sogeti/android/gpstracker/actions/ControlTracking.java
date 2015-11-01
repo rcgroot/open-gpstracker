@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.ContentUris;
@@ -36,7 +35,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +45,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * Empty Activity that pops up the dialog to name the track
@@ -53,10 +53,8 @@ import nl.sogeti.android.gpstracker.util.Constants;
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
  * @version $Id$
  */
-public class ControlTracking extends Activity
+public class ControlTracking extends AppCompatActivity
 {
-   private static final String TAG = "OGT.ControlTracking";
-
    private GPSLoggerServiceManager mLoggerServiceManager;
    private final View.OnClickListener mLoggingControlListener = new View.OnClickListener()
    {
@@ -164,7 +162,7 @@ public class ControlTracking extends Activity
    protected Dialog onCreateDialog(int id)
    {
 
-      LayoutInflater factory = LayoutInflater.from(this);
+      LayoutInflater factory = getLayoutInflater();
       ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content);
       View view = factory.inflate(R.layout.logcontrol, rootView, false);
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -221,7 +219,7 @@ public class ControlTracking extends Activity
             stop.setEnabled(true);
             break;
          default:
-            Log.w(TAG, String.format("State %d of logging, enabling and hope for the best....", state));
+            Log.w(this, String.format("State %d of logging, enabling and hope for the best....", state));
             start.setEnabled(false);
             pause.setEnabled(false);
             resume.setEnabled(false);

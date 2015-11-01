@@ -46,7 +46,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -71,6 +70,7 @@ import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
 import nl.sogeti.android.gpstracker.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * Show a list view of all tracks, also doubles for showing search results
@@ -80,10 +80,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
  */
 public class TrackList extends AppCompatActivity implements ProgressListener
 {
-
-   public static final int DIALOG_FILENAME = Menu.FIRST + 22;
    protected static final int DIALOG_ERROR = Menu.FIRST + 28;
-   private static final String TAG = "OGT.TrackList";
    private static final int MENU_DELETE = Menu.FIRST + 0;
    private static final int MENU_SHARE = Menu.FIRST + 1;
    private static final int MENU_RENAME = Menu.FIRST + 2;
@@ -279,7 +276,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
       }
       catch (ClassCastException e)
       {
-         Log.e(TAG, "Bad menuInfo", e);
+         Log.e(this, "Bad menuInfo", e);
          return handled;
       }
 
@@ -498,7 +495,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
          }
          else
          {
-            Log.e(TAG, "Unable to VIEW " + uri);
+            Log.e(this, "Unable to VIEW " + uri);
          }
       }
       else
@@ -575,7 +572,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
       mErrorTask = task;
       mErrorDialogMessage = errorDialogMessage;
       mErrorDialogException = errorDialogException;
-      Log.e(TAG, errorDialogMessage, errorDialogException);
+      Log.e(this, errorDialogMessage, errorDialogException);
       if (!isFinishing())
       {
          showDialog(DIALOG_ERROR);

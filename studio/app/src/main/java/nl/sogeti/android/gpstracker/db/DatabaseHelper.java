@@ -37,7 +37,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.net.Uri;
-import android.util.Log;
+import nl.sogeti.android.gpstracker.util.Log;
 
 import java.util.Date;
 
@@ -60,7 +60,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking.WaypointsColumns;
  */
 public class DatabaseHelper extends SQLiteOpenHelper
 {
-   private final static String TAG = "OGT.DatabaseHelper";
    private Context mContext;
 
    public DatabaseHelper(Context context)
@@ -95,7 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
    @Override
    public void onUpgrade(SQLiteDatabase db, int current, int targetVersion)
    {
-      Log.i(TAG, "Upgrading db from " + current + " to " + targetVersion);
+      Log.i(this, "Upgrading db from " + current + " to " + targetVersion);
       if (current <= 5) // From 1-5 to 6 (these before are the same before) 
       {
          current = 6;
@@ -367,7 +366,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
          }
          else
          {
-            Log.e(TAG, "Did not find the last active segment");
+            Log.e(this, "Did not find the last active segment");
          }
          // Delete the track
          affected += sqldb.delete(Tracks.TABLE, Tracks._ID + "= ?", new String[] { String.valueOf(trackId) });
@@ -457,7 +456,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
          }
          else
          {
-            Log.e(TAG, "Did not find the media element to delete");
+            Log.e(this, "Did not find the media element to delete");
          }
       }
       finally
@@ -515,7 +514,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
          }
          else
          {
-            Log.e(TAG, "Did not find the media element to delete");
+            Log.e(this, "Did not find the media element to delete");
          }
       }
       finally
