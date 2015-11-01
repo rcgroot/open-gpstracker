@@ -29,8 +29,6 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -42,9 +40,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -237,7 +238,7 @@ public class InsertNote extends Activity
          case DIALOG_INSERTNOTE:
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.insertnote, null);
+            view = factory.inflate(R.layout.insertnote, (ViewGroup) findViewById(android.R.id.content), false);
             builder.setTitle(R.string.menu_insertnote).setIcon(android.R.drawable.ic_dialog_alert).setNegativeButton
                   (R.string.btn_cancel, mDialogClickListener)
                    .setView(view);
@@ -267,7 +268,7 @@ public class InsertNote extends Activity
          case DIALOG_TEXT:
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.notetextdialog, null);
+            view = factory.inflate(R.layout.notetextdialog, (ViewGroup) findViewById(android.R.id.content), false);
             mNoteTextView = (EditText) view.findViewById(R.id.notetext);
             builder.setTitle(R.string.dialog_notetext_title).setMessage(R.string.dialog_notetext_message).setIcon
                   (android.R.drawable.ic_dialog_map)
@@ -278,7 +279,7 @@ public class InsertNote extends Activity
          case DIALOG_NAME:
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.notenamedialog, null);
+            view = factory.inflate(R.layout.notenamedialog, (ViewGroup) findViewById(android.R.id.content), false);
             mNoteNameView = (EditText) view.findViewById(R.id.notename);
             builder.setTitle(R.string.dialog_notename_title).setMessage(R.string.dialog_notename_message).setIcon
                   (android.R.drawable.ic_dialog_map)

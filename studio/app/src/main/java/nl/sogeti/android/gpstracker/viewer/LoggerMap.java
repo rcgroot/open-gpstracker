@@ -28,8 +28,8 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -63,6 +63,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -1019,7 +1020,7 @@ public class LoggerMap extends AppCompatMapActivity
          case DIALOG_LAYERS:
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.layerdialog, null);
+            view = factory.inflate(R.layout.layerdialog, (ViewGroup) findViewById(android.R.id.content), false);
 
             mTraffic = (CheckBox) view.findViewById(R.id.layer_traffic);
             mSpeed = (CheckBox) view.findViewById(R.id.layer_speed);
@@ -1053,7 +1054,7 @@ public class LoggerMap extends AppCompatMapActivity
          case DIALOG_URIS:
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.mediachooser, null);
+            view = factory.inflate(R.layout.mediachooser, (ViewGroup) findViewById(android.R.id.content), false);
             mGallery = (Gallery) view.findViewById(R.id.gallery);
             builder.setTitle(R.string.dialog_select_media_title).setMessage(R.string.dialog_select_media_message)
                    .setIcon(android.R.drawable.ic_dialog_alert)
@@ -1064,7 +1065,7 @@ public class LoggerMap extends AppCompatMapActivity
          case DIALOG_CONTRIB:
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.contrib, null);
+            view = factory.inflate(R.layout.contrib, (ViewGroup) findViewById(android.R.id.content), false);
             TextView contribView = (TextView) view.findViewById(R.id.contrib_view);
             contribView.setText(R.string.dialog_contrib_message);
             builder.setTitle(R.string.dialog_contrib_title).setView(view).setIcon(android.R.drawable.ic_dialog_email)

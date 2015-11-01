@@ -28,8 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.actions;
 
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -40,6 +38,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -52,6 +52,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -348,7 +349,7 @@ public class Statistics extends AppCompatActivity implements StatisticsDelegate
          case DIALOG_GRAPHTYPE:
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.graphtype, null);
+            view = factory.inflate(R.layout.graphtype, (ViewGroup) findViewById(android.R.id.content), false);
             builder.setTitle(R.string.dialog_graphtype_title).setIcon(android.R.drawable.ic_dialog_alert)
                    .setNegativeButton(R.string.btn_cancel, null).setView(view);
             dialog = builder.create();

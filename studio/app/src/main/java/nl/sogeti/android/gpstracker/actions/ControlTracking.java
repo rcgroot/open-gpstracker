@@ -29,19 +29,17 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import nl.sogeti.android.gpstracker.R;
@@ -57,7 +55,6 @@ import nl.sogeti.android.gpstracker.util.Constants;
  */
 public class ControlTracking extends Activity
 {
-   private static final int DIALOG_LOGCONTROL = 26;
    private static final String TAG = "OGT.ControlTracking";
 
    private GPSLoggerServiceManager mLoggerServiceManager;
@@ -110,13 +107,24 @@ public class ControlTracking extends Activity
    private Button resume;
    private Button stop;
    private boolean paused;
-   private OnClickListener mDialogClickListener = new OnClickListener()
+   private DialogInterface.OnClickListener mDialogClickListener = new DialogInterface.OnClickListener()
    {
       @Override
       public void onClick(DialogInterface dialog, int which)
       {
          setResult(RESULT_CANCELED, new Intent());
          finish();
+      }
+   };
+   private DialogInterface.OnDismissListener dismissListener = new DialogInterface.OnDismissListener()
+   {
+      @Override
+      public void onDismiss(DialogInterface dialog)
+      {
+         if (!paused)
+         {
+            finish();
+         }
       }
    };
 
@@ -139,7 +147,7 @@ public class ControlTracking extends Activity
          @Override
          public void run()
          {
-            showDialog(DIALOG_LOGCONTROL);
+            showDialog(0);
          }
       });
    }
@@ -155,44 +163,26 @@ public class ControlTracking extends Activity
    @Override
    protected Dialog onCreateDialog(int id)
    {
-      Dialog dialog = null;
-      LayoutInflater factory = null;
-      View view = null;
-      Builder builder = null;
-      switch (id)
-      {
-         case DIALOG_LOGCONTROL:
-            builder = new AlertDialog.Builder(this);
-            factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.logcontrol, null);
-            builder.setTitle(R.string.dialog_tracking_title).
-                  setIcon(android.R.drawable.ic_dialog_alert).
-                         setNegativeButton(R.string.btn_cancel, mDialogClickListener).
-                         setView(view);
-            dialog = builder.create();
-            start = (Button) view.findViewById(R.id.logcontrol_start);
-            pause = (Button) view.findViewById(R.id.logcontrol_pause);
-            resume = (Button) view.findViewById(R.id.logcontrol_resume);
-            stop = (Button) view.findViewById(R.id.logcontrol_stop);
-            start.setOnClickListener(mLoggingControlListener);
-            pause.setOnClickListener(mLoggingControlListener);
-            resume.setOnClickListener(mLoggingControlListener);
-            stop.setOnClickListener(mLoggingControlListener);
-            dialog.setOnDismissListener(new OnDismissListener()
-            {
-               @Override
-               public void onDismiss(DialogInterface dialog)
-               {
-                  if (!paused)
-                  {
-                     finish();
-                  }
-               }
-            });
-            return dialog;
-         default:
-            return super.onCreateDialog(id);
-      }
+
+      LayoutInflater factory = LayoutInflater.from(this);
+      ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content);
+      View view = factory.inflate(R.layout.logcontrol, rootView, false);
+      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+      builder.setTitle(R.string.dialog_tracking_title)
+             .setIcon(android.R.drawable.ic_dialog_alert)
+             .setNegativeButton(R.string.btn_cancel, mDialogClickListener)
+             .setOnDismissListener(dismissListener)
+             .setView(view);
+      start = (Button) view.findViewById(R.id.logcontrol_start);
+      pause = (Button) view.findViewById(R.id.logcontrol_pause);
+      resume = (Button) view.findViewById(R.id.logcontrol_resume);
+      stop = (Button) view.findViewById(R.id.logcontrol_stop);
+      start.setOnClickListener(mLoggingControlListener);
+      pause.setOnClickListener(mLoggingControlListener);
+      resume.setOnClickListener(mLoggingControlListener);
+      stop.setOnClickListener(mLoggingControlListener);
+
+      return builder.create();
    }
 
    /*
@@ -202,15 +192,9 @@ public class ControlTracking extends Activity
    @Override
    protected void onPrepareDialog(int id, Dialog dialog)
    {
-      switch (id)
-      {
-         case DIALOG_LOGCONTROL:
-            updateDialogState(mLoggerServiceManager.getLoggingState());
-            break;
-         default:
-            break;
-      }
       super.onPrepareDialog(id, dialog);
+
+      updateDialogState(mLoggerServiceManager.getLoggingState());
    }
 
 

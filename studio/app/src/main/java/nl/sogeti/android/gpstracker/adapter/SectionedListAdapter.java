@@ -30,6 +30,7 @@ package nl.sogeti.android.gpstracker.adapter;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
@@ -58,8 +59,8 @@ public class SectionedListAdapter extends BaseAdapter
 
    public SectionedListAdapter(Context ctx)
    {
-      mHeaders = new ArrayAdapter<String>(ctx, R.layout.section_header);
-      mSections = new LinkedHashMap<String, BaseAdapter>();
+      mHeaders = new ArrayAdapter<>(ctx, R.layout.section_header);
+      mSections = new LinkedHashMap<>();
    }
 
    public void addSection(String name, BaseAdapter adapter)
@@ -157,10 +158,6 @@ public class SectionedListAdapter extends BaseAdapter
       return types;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see android.widget.Adapter#getCount()
-    */
    @Override
    public int getCount()
    {
@@ -172,10 +169,6 @@ public class SectionedListAdapter extends BaseAdapter
       return count;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see android.widget.Adapter#getItem(int)
-    */
    @Override
    public Object getItem(int position)
    {
@@ -199,10 +192,6 @@ public class SectionedListAdapter extends BaseAdapter
       return null;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see android.widget.Adapter#getItemId(int)
-    */
    @Override
    public long getItemId(int position)
    {
@@ -227,13 +216,6 @@ public class SectionedListAdapter extends BaseAdapter
       return -1;
    }
 
-   ;
-
-   /*
-    * (non-Javadoc)
-    * @see android.widget.Adapter#getView(int, android.view.View,
-    * android.view.ViewGroup)
-    */
    @Override
    public View getView(final int position, View convertView, ViewGroup parent)
    {
@@ -247,7 +229,12 @@ public class SectionedListAdapter extends BaseAdapter
          // check if position inside this section
          if (countDown == 0)
          {
-            return mHeaders.getView(sectionNumber, convertView, parent);
+            View view = new View(mHeaders.getContext());
+            if (!TextUtils.isEmpty(mHeaders.getItem(sectionNumber)))
+            {
+               view = mHeaders.getView(sectionNumber, convertView, parent);
+            }
+            return view;
          }
          if (countDown < size)
          {

@@ -29,8 +29,6 @@
 package nl.sogeti.android.gpstracker.actions;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -42,9 +40,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 
 import java.util.Calendar;
@@ -174,7 +175,7 @@ public class NameTrack extends Activity
          case DIALOG_TRACKNAME:
             builder = new AlertDialog.Builder(this);
             factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.namedialog, null);
+            view = factory.inflate(R.layout.namedialog, (ViewGroup) findViewById(android.R.id.content), false);
             mTrackNameView = (EditText) view.findViewById(R.id.nameField);
             builder
                   .setTitle(R.string.dialog_routename_title)

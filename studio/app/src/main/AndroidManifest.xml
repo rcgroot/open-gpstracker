@@ -76,13 +76,13 @@
             android:label="@string/menu_settings"/>
         <activity
             android:name=".actions.NameTrack"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            android:theme="@style/Theme.App.Translucent.NoTitleBar"/>
         <activity
             android:name=".actions.ControlTracking"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            android:theme="@style/Theme.App.Translucent.NoTitleBar"/>
         <activity
             android:name=".actions.InsertNote"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            android:theme="@style/Theme.App.Translucent.NoTitleBar"/>
         <activity
             android:name=".viewer.TrackList"
             android:label="@string/track_list"

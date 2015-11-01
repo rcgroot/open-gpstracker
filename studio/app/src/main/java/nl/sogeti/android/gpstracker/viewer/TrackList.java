@@ -28,8 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.viewer;
 
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.ComponentName;
@@ -44,6 +42,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -52,6 +52,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
@@ -341,7 +342,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
       {
          case DIALOG_RENAME:
             LayoutInflater factory = LayoutInflater.from(this);
-            View view = factory.inflate(R.layout.namedialog, null);
+            View view = factory.inflate(R.layout.namedialog, (ViewGroup) findViewById(android.R.id.content), false);
             mTrackNameView = (EditText) view.findViewById(R.id.nameField);
             builder = new AlertDialog.Builder(this).setTitle(R.string.dialog_routename_title).setMessage(R.string
                   .dialog_routename_message).setIcon(android.R.drawable.ic_dialog_alert)
@@ -540,7 +541,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener
       int[] toItems = new int[] { R.id.listitem_name, R.id.listitem_from, R.id.bcSyncedCheckBox };
       SimpleCursorAdapter trackAdapter = new SimpleCursorAdapter(this, R.layout.trackitem, tracksCursor, fromColumns,
             toItems);
-      sectionedAdapter.addSection("Local", trackAdapter);
+      sectionedAdapter.addSection("", trackAdapter);
 
       // Enrich the track adapter with Breadcrumbs adapter data
       trackAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder()

@@ -52,7 +52,6 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
 {
 
    public static final String STREAMBROADCAST_PREFERENCE = "streambroadcast_distance";
-   public static final String UNITS_IMPLEMENT_WIDTH_PREFERENCE = "units_implement_width";
    public static final String CUSTOMPRECISIONDISTANCE_PREFERENCE = "customprecisiondistance";
    public static final String CUSTOMPRECISIONTIME_PREFERENCE = "customprecisiontime";
    public static final String PRECISION_PREFERENCE = "precision";
@@ -61,7 +60,6 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
 
    private EditTextPreference time;
    private EditTextPreference distance;
-   private EditTextPreference implentWidth;
 
    private EditTextPreference streambroadcast_distance;
    private EditTextPreference custumupload_backlog;
@@ -76,7 +74,6 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
       ListPreference precision = (ListPreference) findPreference(PRECISION_PREFERENCE);
       time = (EditTextPreference) findPreference(CUSTOMPRECISIONTIME_PREFERENCE);
       distance = (EditTextPreference) findPreference(CUSTOMPRECISIONDISTANCE_PREFERENCE);
-      implentWidth = (EditTextPreference) findPreference(UNITS_IMPLEMENT_WIDTH_PREFERENCE);
       streambroadcast_distance = (EditTextPreference) findPreference(STREAMBROADCAST_PREFERENCE);
       custumupload_backlog = (EditTextPreference) findPreference(CUSTOMUPLOAD_BACKLOG);
 
@@ -88,15 +85,6 @@ public class ApplicationPreferenceActivity extends PreferenceActivity
          {
             setEnabledCustomValues(newValue);
             return true;
-         }
-      });
-      implentWidth.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
-      {
-         @Override
-         public boolean onPreferenceChange(Preference preference, Object newValue)
-         {
-            String fpExpr = "\\d{1,4}([,\\.]\\d+)?";
-            return Pattern.matches(fpExpr, newValue.toString());
          }
       });
       streambroadcast_distance.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
