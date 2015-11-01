@@ -901,15 +901,16 @@ public class LoggerMap extends AppCompatMapActivity
                  .setAlphabeticShortcut('S');
       MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
 
+      item = menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack)
+                 .setIcon(R.drawable.ic_share_24dp)
+                 .setAlphabeticShortcut('I');
+      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
       item = menu.add(ContextMenu.NONE, MENU_LAYERS, ContextMenu.NONE, R.string.menu_showLayers)
                  .setIcon(R.drawable.ic_layers_24dp)
                  .setAlphabeticShortcut('L');
       MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
-      item = menu.add(ContextMenu.NONE, MENU_SHARE, ContextMenu.NONE, R.string.menu_shareTrack)
-                 .setIcon(R.drawable.ic_share_24dp)
-                 .setAlphabeticShortcut('I');
-      MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
       item = menu.add(ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote)
                  .setIcon(R.drawable.ic_menu_myplaces);
       MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
