@@ -52,7 +52,6 @@ import android.graphics.Shader.TileMode;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
-import nl.sogeti.android.gpstracker.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,6 +73,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.util.Log;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 
 /**
@@ -92,6 +92,7 @@ public class SegmentOverlay extends Overlay
    public static final int DRAW_MEASURED = 2;
    public static final int DRAW_CALCULATED = 3;
    public static final int DRAW_DOTS = 4;
+   private static final String TAG = "OGT.SegmentOverlay";
    private static final float MINIMUM_PX_DISTANCE = 15;
    private static SparseArray<Bitmap> sBitmapCache = new SparseArray<>();
    private static Bitmap mStartBitmap;
@@ -836,11 +837,10 @@ public class SegmentOverlay extends Overlay
       }
       synchronized (sBitmapCache)
       {
-         if (sBitmapCache.get(drawable) != null)
+         if (sBitmapCache.get(drawable) == null)
          {
             Bitmap bitmap = BitmapFactory.decodeResource(resources, drawable);
             sBitmapCache.put(drawable, bitmap);
-
          }
       }
       return drawable;
