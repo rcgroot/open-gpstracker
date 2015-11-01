@@ -14,11 +14,6 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
 
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-
 /**
  * This utility class provides an abstraction layer for sending multipart HTTP POST requests to a web server.
  *
@@ -38,23 +33,13 @@ public class MultipartStreamer implements Closeable
    /**
     * This constructor initializes a new HTTP POST request with content type is set to multipart/form-data
     *
-    * @param requestURL
-    * @param charset
     * @throws IOException
-    * @throws OAuthCommunicationException
-    * @throws OAuthExpectationFailedException
-    * @throws OAuthMessageSignerException
     */
-   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming,
-                            OAuthConsumer mConsumer) throws IOException, OAuthMessageSignerException,
-         OAuthExpectationFailedException, OAuthCommunicationException
+   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming
+   ) throws IOException
    {
       initHttpUrlConnection(httpConnection, multipart, streaming);
 
-      if (mConsumer != null)
-      {
-         mConsumer.sign(httpConnection);
-      }
       outputStream = httpConnection.getOutputStream();
       writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
    }
@@ -81,15 +66,6 @@ public class MultipartStreamer implements Closeable
       // creates a unique boundary based on time stamp
       boundary = "===" + System.currentTimeMillis() + "===";
       httpConnection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-   }
-
-   public MultipartStreamer(HttpURLConnection httpConnection, HttpMultipartMode multipart, StreamingMode streaming)
-         throws IOException
-   {
-      initHttpUrlConnection(httpConnection, multipart, streaming);
-
-      outputStream = httpConnection.getOutputStream();
-      writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
    }
 
    /**

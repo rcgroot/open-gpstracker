@@ -129,14 +129,6 @@
                 android:summary="@string/units_summary"
                 android:title="@string/units_title"/>
 
-            <EditTextPreference
-                android:defaultValue="@string/units_implement_width"
-                android:dialogMessage="@string/units_implement_width_message"
-                android:inputType="phone"
-                android:key="units_implement_width"
-                android:summary="@string/units_implement_width_summary"
-                android:title="@string/units_implement_width_title"/>
-
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="showspeed"
@@ -172,13 +164,6 @@
     <PreferenceScreen android:title="@string/preference_sharing">
 
         <PreferenceCategory android:title="@string/preference_sharing">
-
-            <EditTextPreference
-                android:defaultValue=""
-                android:dialogMessage="@string/jogrunner_message"
-                android:key="JOGRUNNER_AUTH"
-                android:summary="@string/jogmap_summary"
-                android:title="@string/jogmap_title"/>
 
             <ListPreference
                 android:defaultValue="trackable"

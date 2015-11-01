@@ -74,10 +74,8 @@ import java.util.List;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxCreator;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxSharing;
-import nl.sogeti.android.gpstracker.actions.tasks.JogmapSharing;
 import nl.sogeti.android.gpstracker.actions.tasks.KmzCreator;
 import nl.sogeti.android.gpstracker.actions.tasks.KmzSharing;
-import nl.sogeti.android.gpstracker.actions.tasks.OsmSharing;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
@@ -95,8 +93,6 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
    private static final int EXPORT_TYPE_TEXTLINE = 2;
    private static final int EXPORT_TARGET_SAVE = 0;
    private static final int EXPORT_TARGET_SEND = 1;
-   private static final int EXPORT_TARGET_JOGRUN = 2;
-   private static final int EXPORT_TARGET_OSM = 3;
    private static final int EXPORT_TARGET_TWITTER = 0;
    private static final int EXPORT_TARGET_SMS = 1;
    private static final int EXPORT_TARGET_TEXT = 2;
@@ -265,15 +261,6 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
    {
       super.onResume();
 
-      // Upgrade from stored OSM username/password to OAuth authorization
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-      if (prefs.contains(Constants.OSM_USERNAME) || prefs.contains(Constants.OSM_PASSWORD))
-      {
-         Editor editor = prefs.edit();
-         editor.remove(Constants.OSM_USERNAME);
-         editor.remove(Constants.OSM_PASSWORD);
-         editor.commit();
-      }
       findViewById(R.id.okayshare_button).setEnabled(true);
       findViewById(R.id.cancelshare_button).setEnabled(true);
    }
@@ -528,15 +515,6 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate
             break;
          case EXPORT_TARGET_SEND:
             new GpxSharing(this, mTrackUri, chosenFileName, true, new ShareProgressListener(chosenFileName)).execute();
-            ShareTrack.this.finish();
-            break;
-         case EXPORT_TARGET_JOGRUN:
-            new JogmapSharing(this, mTrackUri, chosenFileName, false, new ShareProgressListener(chosenFileName))
-                  .execute();
-            ShareTrack.this.finish();
-            break;
-         case EXPORT_TARGET_OSM:
-            new OsmSharing(this, mTrackUri, false, new ShareProgressListener(OsmSharing.OSM_FILENAME)).execute();
             ShareTrack.this.finish();
             break;
          default:

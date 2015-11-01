@@ -15,14 +15,6 @@
         android:enabled="true"
         android:visibility="visible"/>
 
-    <org.osmdroid.views.MapView
-        android:id="@+id/myOsmMapView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@+id/support_actionbar"
-        android:visibility="gone"
-        />
-
     <TextView
         android:id="@+id/currentSpeed"
         android:layout_width="wrap_content"

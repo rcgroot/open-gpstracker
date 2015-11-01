@@ -54,7 +54,6 @@ public class Constants
    public static final String DISTANCE = "showdistance";
    public static final String COMPASS = "COMPASS";
    public static final String LOCATION = "LOCATION";
-   public static final String MAPPROVIDER = "mapprovider";
    public static final String TRACKCOLORING = "trackcoloring";
    public static final String SPEEDSANITYCHECK = "speedsanitycheck";
    public static final String PRECISION = "precision";
@@ -79,8 +78,6 @@ public class Constants
    public static final String DEFAULT_EXTERNAL_DIR = "/OpenGPSTracker/";
    public static final String TMPICTUREFILE_SUBPATH = "media_tmp.tmp";
    public static final Uri NAME_URI = Uri.parse("content://" + GPStracking.AUTHORITY + ".string");
-   public static final int GOOGLE = 0;
-   public static final int OSM = 1;
    public static final String JOGRUNNER_AUTH = "JOGRUNNER_AUTH";
    public static final String EXPORT_TYPE = "SHARE_TYPE";
    public static final String EXPORT_GPXTARGET = "EXPORT_GPXTARGET";
@@ -88,16 +85,10 @@ public class Constants
    public static final String EXPORT_TXTTARGET = "EXPORT_TXTTARGET";
 
    public static final double MIN_STATISTICS_SPEED = 1.0d;
-   public static final int OSM_MAKNIK = 1;
-   public static final int OSM_CYCLE = 2;
-   public static final String OSMBASEOVERLAY = "OSM_BASE_OVERLAY";
 
    public static final String LOGGING_INTERVAL = "customprecisiontime";
    public static final String LOGGING_DISTANCE = "customprecisiondistance";
    public static final String STATUS_MONITOR = "gpsstatusmonitor";
-   public static final String OSM_USERNAME = "OSM_USERNAME";
-   public static final String OSM_PASSWORD = "OSM_PASSWORD";
-   public static final String OSM_VISIBILITY = "OSM_VISIBILITY";
    public static final String DATASOURCES_KEY = "DATASOURCES";
 
    /**
@@ -177,13 +168,6 @@ public class Constants
     */
    public static final int LOGGING_GLOBAL = 4;
 
-   public static final String OSM_REQUEST_URL = "http://www.openstreetmap.org/oauth/request_token";
-   public static final String OSM_ACCESS_URL = "http://www.openstreetmap.org/oauth/access_token";
-   public static final String OSM_AUTHORIZE_URL = "http://www.openstreetmap.org/oauth/authorize";
-
-   public static final String OAUTH_CALLBACK_SCHEME = "x-oauthflow-opengpstracker";
-   public static final String OAUTH_CALLBACK_HOST = "callback";
-   public static final String OAUTH_CALLBACK_URL = OAUTH_CALLBACK_SCHEME + "://" + OAUTH_CALLBACK_HOST;
    public static final String NAME = "NAME";
    public static final int SECTIONED_HEADER_ITEM_VIEW_TYPE = 0;
    public static final String BROADCAST_STREAM = "STREAM_ENABLED";

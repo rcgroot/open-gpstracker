@@ -47,24 +47,6 @@
                     android:text="@string/layer_traffic"/>
             </RadioGroup>
 
-            <RadioGroup
-                android:id="@+id/osm_backgrounds"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <RadioButton
-                    android:id="@+id/layer_osm_maknik"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/layer_maknik"/>
-
-                <RadioButton
-                    android:id="@+id/layer_osm_bicycle"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/layer_bicycle"/>
-            </RadioGroup>
-
         </LinearLayout>
 
         <RadioGroup

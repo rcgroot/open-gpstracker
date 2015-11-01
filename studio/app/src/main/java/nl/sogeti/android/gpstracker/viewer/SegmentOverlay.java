@@ -53,7 +53,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -63,6 +62,7 @@ import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
+import com.google.android.maps.Projection;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -76,9 +76,6 @@ import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.gpstracker.viewer.proxy.MapViewProxy;
-import nl.sogeti.android.gpstracker.viewer.proxy.OverlayProxy;
-import nl.sogeti.android.gpstracker.viewer.proxy.ProjectionProxy;
 
 /**
  * Creates an overlay that can draw a single segment of connected waypoints
@@ -86,7 +83,7 @@ import nl.sogeti.android.gpstracker.viewer.proxy.ProjectionProxy;
  * @author rene (c) Jan 11, 2009, Sogeti B.V.
  * @version $Id$
  */
-public class SegmentOverlay extends Overlay implements OverlayProxy
+public class SegmentOverlay extends Overlay
 {
    public static final int MIDDLE_SEGMENT = 0;
    public static final int FIRST_SEGMENT = 1;
@@ -106,8 +103,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private int mTrackColoringMethod = DRAW_CALCULATED;
    private ContentResolver mResolver;
    private LoggerMap mLoggerMap;
-   private ProjectionProxy mProjection;
-   private org.osmdroid.views.overlay.Overlay mOsmOverlay;
+   private Projection mProjection;
    private int mPlacement = SegmentOverlay.MIDDLE_SEGMENT;
    private Uri mWaypointsUri;
    private Uri mMediaUri;
@@ -129,7 +125,7 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
    private Point mMediaScreenPoint;
    private Point startStopCirclePoint;
    private int mStepSize = -1;
-   private MapViewProxy mMapView;
+   private MapView mMapView;
    private Location mLocation;
    private Location mPrevLocation;
    private Cursor mWaypointsCursor;
@@ -171,9 +167,9 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     * @param segmentUri
     * @param color
     * @param avgSpeed
-    * @param mMapView
+    * @param mapView
     */
-   public SegmentOverlay(LoggerMap loggermap, Uri segmentUri, int color, double avgSpeed, MapViewProxy mapView,
+   public SegmentOverlay(LoggerMap loggermap, Uri segmentUri, int color, double avgSpeed, MapView mapView,
                          Handler handler)
    {
       super();
@@ -212,29 +208,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       mPathCalculation = new Path();
       mMediaPath = new Vector<MediaVO>();
       mMediaPathCalculation = new Vector<MediaVO>();
-
-      mOsmOverlay = new org.osmdroid.views.overlay.Overlay(mLoggerMap)
-      {
-
-         @Override
-         protected void draw(Canvas canvas, org.osmdroid.views.MapView view, boolean shadow)
-         {
-            if (!shadow)
-            {
-               mProjection.setProjection(view);
-               SegmentOverlay.this.draw(canvas);
-            }
-         }
-
-         @Override
-         public boolean onSingleTapUp(MotionEvent e, org.osmdroid.views.MapView openStreetMapView)
-         {
-            int x = (int) e.getX();
-            int y = (int) e.getY();
-            GeoPoint tappedGeoPoint = mProjection.fromPixels(x, y);
-            return SegmentOverlay.this.commonOnTap(tappedGeoPoint);
-         }
-      };
 
       mTrackSegmentsObserver = new ContentObserver(new Handler())
       {
@@ -671,12 +644,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
    }
 
-   /**
-    * @param canvas
-    * @param mapView
-    * @param shadow
-    * @see SegmentOverlay#draw(Canvas, MapView, boolean)
-    */
    private void calculateDots()
    {
       mPathCalculation.reset();
@@ -819,9 +786,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    /**
     * Is a given GeoPoint in the current projection of the map.
-    *
-    * @param eval
-    * @return
     */
    protected boolean isGeoPointOnScreen(GeoPoint geopoint)
    {
@@ -893,9 +857,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
     * Set the mPlace to the specified value.
     *
     * @param place The placement of this segment in the line.
-    * @see SegmentOverlay.FIRST
-    * @see SegmentOverlay.MIDDLE
-    * @see SegmentOverlay.LAST
     */
    public void addPlacement(int place)
    {
@@ -1030,9 +991,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    /**
     * Move the cursor to the next waypoint modulo of the step size or less if the screen edge is reached
-    *
-    * @param trackCursor
-    * @return
     */
    private boolean moveOnScreenWaypoint()
    {
@@ -1149,9 +1107,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
 
    /**
     * Is a given coordinates are on the screen
-    *
-    * @param eval
-    * @return
     */
    protected boolean isOnScreen(int x, int y)
    {
@@ -1268,10 +1223,6 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       return new GeoPoint(microLatitude, microLongitude);
    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.google.android.maps.Overlay#onTap(com.google.android.maps.GeoPoint, com.google.android.maps.MapView)
-    */
    @Override
    public boolean onTap(GeoPoint tappedGeoPoint, MapView mapView)
    {
@@ -1284,24 +1235,11 @@ public class SegmentOverlay extends Overlay implements OverlayProxy
       super.draw(canvas, mapView, shadow);
       if (!shadow)
       {
-         mProjection.setProjection(mapView.getProjection());
+         mProjection = mapView.getProjection();
          draw(canvas);
       }
    }
 
-   @Override
-   public Overlay getGoogleOverlay()
-   {
-      return this;
-   }
-
-   @Override
-   public org.osmdroid.views.overlay.Overlay getOSMOverlay()
-   {
-      return mOsmOverlay;
-   }
-
-   @Override
    public void closeResources()
    {
       mResolver.unregisterContentObserver(mTrackSegmentsObserver);

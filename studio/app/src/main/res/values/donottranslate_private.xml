@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <string name="CONSUMER_KEY">place_key_here</string>
-    <string name="CONSUMER_SECRET">place_secret_here</string>
-
-    <string name="OSM_CONSUMER_KEY">place_key_here</string>
-    <string name="OSM_CONSUMER_SECRET">place_secret_here</string>
+    <string name="OSM_CONSUMER_KEY">Yp5bbwyrCa7FKd1PDAEjQ</string>
+    <string name="OSM_CONSUMER_SECRET">Q6cbylSfR0h98ZBJcPi3yxdlIGyTzddhFJdx5u4X9qw</string>
 </resources>
