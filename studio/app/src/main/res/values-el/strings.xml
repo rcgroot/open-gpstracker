@@ -142,8 +142,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="disabledimming_summary">Κρατά την οθόνη σε πλήρη φωτεινότητα στη διάρκεια της καταγραφής.</string>
     <string name="precision_title">Ακρίβεια καταγραφής</string>
     <string name="precision_summary">Το μέγεθος του διαστήματος μεταξύ GPS μετρήσεων.</string>
-    <string name="mapprovider_title">Προμηθευτής χάρτη</string>
-    <string name="mapprovider_summary">Η πηγή προέλευσης δεδομένων για το χάρτη.</string>
     <string name="trackcoloring_title">Χρώμα διαδρομής</string>
     <string name="trackcoloring_summary">Το χρώμα για την απεικόνιση της διαδρομής.</string>
     <string name="showspeed_title">Ταχύτητα GPS</string>
@@ -181,8 +179,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="customprecisiondistance_summary">Η επιθυμητή διανυθείσα απόσταση μεταξύ μετρήσεων.</string>
     <string name="gpsstatusmonitor_title">Παρακολούθηση  κατάστασης GPS</string>
     <string name="gpsstatusmonitor_summary">Εμφανίζει τον αριθμό των εν χρήσει δορυφόρων και ηχεί συναγερμός σε ασθενές σήμα.  </string>
-    <string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
-    <string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
     <string name="sddirectory_title">SD-φάκελος για την αποθήκευση εξαγμένων διαδρομών.</string>
     <string name="sddirectory_summary">Τα αρχεία διαδρομών και media που εξάγονται, αποθηκεύονται σ\' αυτό το φάκελο στην κάρτα SD.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.\n </string>

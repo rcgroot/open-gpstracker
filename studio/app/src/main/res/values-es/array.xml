@@ -15,11 +15,6 @@
         <item>Global network</item>
     </string-array>
 
-    <string-array name="mapprovider_choices">
-        <item>Google Maps</item>
-        <item>OpenStreetMap</item>
-    </string-array>
-
     <string-array name="trackcoloring_choices">
         <item>Green</item>
         <item>Red</item>
@@ -48,9 +43,6 @@
     <string-array name="sharegpxtarget_choices">
         <item>Store to SD Card</item>
         <item>Send with an (email) application</item>
-        <item>Publish to www.jogmap.de</item>
-        <item>Publish as OpenStreetMap trace</item>
-        <item>Publish to Breadcrumbs</item>
     </string-array>
 
     <string-array name="sharekmztarget_choices">

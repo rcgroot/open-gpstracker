@@ -15,11 +15,6 @@
         <item>总的</item>
     </string-array>
 
-    <string-array name="mapprovider_choices">
-        <item>谷歌地图</item>
-        <item>OpenStreetMap</item>
-    </string-array>
-
     <string-array name="trackcoloring_choices">
         <item>绿色</item>
         <item>红色</item>
@@ -48,8 +43,6 @@
     <string-array name="sharegpxtarget_choices">
         <item>保存到SD卡</item>
         <item>使用一个(Email)程序发送</item>
-        <item>http://www.jogmap.de/</item>
-        <item>http://www.openstreetmap.org/</item>
     </string-array>
 
     <string-array name="sharekmztarget_choices">

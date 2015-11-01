@@ -146,8 +146,6 @@
     <string name="disabledimming_summary">Luminosité écran maximale pendant l\'enregistrement.</string>
     <string name="precision_title">Précision localisation</string>
     <string name="precision_summary">Taille de l\'intervalle entre les repères GPS</string>
-    <string name="mapprovider_title">Fournisseur plan</string>
-    <string name="mapprovider_summary">Source à partir duquel récupérer plan.</string>
     <string name="trackcoloring_title">Couleur parcours</string>
     <string name="trackcoloring_summary">Couleurs à utiliser pour tracer le parcours.</string>
     <string name="showspeed_title">Vitesse GPS</string>
@@ -185,8 +183,6 @@
     <string name="customprecisiondistance_summary">La distance qui devraient être couverte entre les points de parcours</string>
     <string name="gpsstatusmonitor_title">Moniteur statut GPS</string>
     <string name="gpsstatusmonitor_summary">Affiche le nombre de satellites utilisé.</string>
-    <string name="osmvisibility_title">La visibilité publique des traces GPS sur openstreetmap.org</string>
-    <string name="osmvisibility_summary">Consultez la wiki openstreetmap.org pour plus d\'informations sur les niveaux de visibilité.</string>
     <string name="sddirectory_title">Répertoire carte SD utilisé pour enregistrer les parcours partagées.</string>
     <string name="sddirectory_summary">Parcours et fichiers multimédias créé sont enregistrés dans ce répertoire carte SD.</string>
     <string name="sddirectory_message">Entrez le chemin ajouté à la carte SD à utiliser pour les fichiers. Par exemple, le défaut /OpenGPSTracker/ va ajouter un dossier unique pour la carte SD et /Apps/OpenGPSTracker / vas abriter les deux.</string>

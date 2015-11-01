@@ -146,8 +146,6 @@
     <string name="disabledimming_summary">Mantiene la pantalla con iluminacion completa durante el rastreo.</string>
     <string name="precision_title">Precisión de registro</string>
     <string name="precision_summary">The size of interval between GPS fixes.</string>
-    <string name="mapprovider_title">Map provider</string>
-    <string name="mapprovider_summary">The source from which to retrieve mapdata.</string>
     <string name="trackcoloring_title">Color del track</string>
     <string name="trackcoloring_summary">The coloring used to draw the track.</string>
     <string name="showspeed_title">Velocidad GPS</string>
@@ -185,8 +183,6 @@
     <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
     <string name="gpsstatusmonitor_summary">Muestra el número de satélites usados.</string>
-    <string name="osmvisibility_title">The public visibility of GPS traces on openstreetmap.org</string>
-    <string name="osmvisibility_summary">Please consult the openstreetmap.org wiki for more information about the visibility levels.</string>
     <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
     <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
     <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.</string>

@@ -9,11 +9,6 @@
         <item>4</item>
     </string-array>
 
-    <string-array name="mapprovider_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
-
     <string-array name="trackcoloring_values" translatable="false">
         <item>0</item>
         <item>1</item>
@@ -31,13 +26,6 @@
         <item>5</item>
         <item>6</item>
         <item>7</item>
-    </string-array>
-
-    <string-array name="osmvisibility_values" translatable="false">
-        <item>identifiable</item>
-        <item>public</item>
-        <item>trackable</item>
-        <item>private</item>
     </string-array>
 
     <string-array name="about_authors" translatable="false"><!-- Add your name here if you helped out -->

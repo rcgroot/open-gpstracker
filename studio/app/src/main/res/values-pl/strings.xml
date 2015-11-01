@@ -146,8 +146,6 @@
     <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>
     <string name="precision_title">Precyzja zapisywania</string>
     <string name="precision_summary">Rozmiar przerwy pomiędzy namiarami GPS.</string>
-    <string name="mapprovider_title">Dostawca mapy</string>
-    <string name="mapprovider_summary">Źródło, z którego pobierana jest mapa.</string>
     <string name="trackcoloring_title">Kolor ścieżki</string>
     <string name="trackcoloring_summary">Kolory używane do kreślenia ścieżki.</string>
     <string name="showspeed_title">Prędkość GPS</string>
@@ -185,8 +183,6 @@
     <string name="customprecisiondistance_summary">Odległość, którą należy przebyć pomiędzy kolejnymi punktami orientacyjnymi.</string>
     <string name="gpsstatusmonitor_title">Monitorowanie statusu GPS</string>
     <string name="gpsstatusmonitor_summary">Wyświetla liczbę używanych satelit i alarmuje w razie słabego sygnału.</string>
-    <string name="osmvisibility_title">Widoczność ścieżek na openstreetmap.org</string>
-    <string name="osmvisibility_summary">Informacje o poszczególnych poziomach widoczności można znaleźć w wiki na openstreetmap.org</string>
     <string name="sddirectory_title">Folder na karcie SD służący do przechowywania ścieżek</string>
     <string name="sddirectory_summary">Utworzone ścieżki i pliki multimedialne będą przechowywane w tym folderze na karcie SD.</string>
     <string name="sddirectory_message">Wprowadź ścieżkę na karcie SD, która będzie używana dla plików. Domyślna wartość /OpenGPSTracker/ utworzy jeden folder na karcie SD w lokalizacji /Apps/OpenGPSTracker/.</string>

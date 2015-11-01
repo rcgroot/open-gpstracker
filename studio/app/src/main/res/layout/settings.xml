@@ -106,14 +106,6 @@
         <PreferenceCategory android:title="@string/preference_display">
 
             <ListPreference
-                android:defaultValue="0"
-                android:entries="@array/mapprovider_choices"
-                android:entryValues="@array/mapprovider_values"
-                android:key="mapprovider"
-                android:summary="@string/mapprovider_summary"
-                android:title="@string/mapprovider_title"/>
-
-            <ListPreference
                 android:defaultValue="2"
                 android:entries="@array/trackcoloring_choices"
                 android:entryValues="@array/trackcoloring_values"
@@ -164,14 +156,6 @@
     <PreferenceScreen android:title="@string/preference_sharing">
 
         <PreferenceCategory android:title="@string/preference_sharing">
-
-            <ListPreference
-                android:defaultValue="trackable"
-                android:entries="@array/osmvisibility_choices"
-                android:entryValues="@array/osmvisibility_values"
-                android:key="OSM_VISIBILITY"
-                android:summary="@string/osmvisibility_summary"
-                android:title="@string/osmvisibility_title"/>
 
             <EditTextPreference
                 android:defaultValue="/OpenGPSTracker/"

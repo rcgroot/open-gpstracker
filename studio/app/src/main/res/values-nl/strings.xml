@@ -146,8 +146,6 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="disabledimming_summary">Houd het scherm op normale helderheid aan tijdens het opnemen.</string>
     <string name="precision_title">Meetprecisie</string>
     <string name="precision_summary">De interval en frequentie van meten.</string>
-    <string name="mapprovider_title">Kaarten aanbieder</string>
-    <string name="mapprovider_summary">De bron vanwaar het kaartmateriaal te downloaden.</string>
     <string name="trackcoloring_title">Route kleur</string>
     <string name="trackcoloring_summary">De kleur en tekenmethode van de route</string>
     <string name="showspeed_title">GPS snelheid</string>
@@ -185,8 +183,6 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="customprecisiondistance_summary">De afstand die tussen opname punten past.</string>
     <string name="gpsstatusmonitor_title">Monitor GPS status</string>
     <string name="gpsstatusmonitor_summary">Toont het aantal satelieten waar signaal van komt en slaat alarm op een slecht signaal.</string>
-    <string name="osmvisibility_title">De publieke zichtbaarheid van de GPS route on openstreetmap.org</string>
-    <string name="osmvisibility_summary">Raadpleeg de openstreetmap.org wiki voor informatie over de zichtbaarheid niveau\'s.</string>
     <string name="sddirectory_title">SD-Card folder om gedeelde routes op te slaan.</string>
     <string name="sddirectory_summary">Route bestanden en media bestanden worden in deze SD kaart folder opgeslagen.</string>
     <string name="sddirectory_message">Vul de verlenging van het SD kaart pad. Het pad /OpenGPSTracker/ zal een enkele directory aanmaken op SD kaart en /Apps/OpenGPSTracker/ zal er eentje twee diep aanmaken.</string>

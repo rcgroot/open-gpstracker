@@ -144,8 +144,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="disabledimming_summary">Экран будет на полной яркости во время работы программы.</string>
     <string name="precision_title">Точность трека</string>
     <string name="precision_summary">Интервал для корректировки GPS.</string>
-    <string name="mapprovider_title">Источник карты</string>
-    <string name="mapprovider_summary">Источник картографического материала.</string>
     <string name="trackcoloring_title">Цвет трека</string>
     <string name="trackcoloring_summary">Цвет для отрисовки трека.</string>
     <string name="showspeed_title">Скорость GPS</string>
@@ -183,8 +181,6 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="customprecisiondistance_summary">Расстояние между точками трека.</string>
     <string name="gpsstatusmonitor_title">Отслеживать состояние GPS</string>
     <string name="gpsstatusmonitor_summary">Показывать количество спутников и уведомлять о плохом сигнале.</string>
-    <string name="osmvisibility_title">Общедоступная видимость треков GPS на openstreetmap.org</string>
-    <string name="osmvisibility_summary">Больше узнать об уровнях видимости можно в openstreetmap.org wiki.</string>
     <string name="sddirectory_title">Каталог SD-карты для сохранения треков.</string>
     <string name="sddirectory_summary">Созданные треки и медиа файлы сохраняются в этом каталоге.</string>
     <string name="sddirectory_message">Введите путь на SD-карте для хранения файлов. Например, по умолчанию /OpenGPSTracker/ добавит один каталог на SD-карте, а /Apps/OpenGPSTracker/ - два вложенных.\n </string>

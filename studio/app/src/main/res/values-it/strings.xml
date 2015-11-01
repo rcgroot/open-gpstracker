@@ -146,8 +146,6 @@
     <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>
     <string name="precision_title">Precisione tracciatura</string>
     <string name="precision_summary">Intervalli entro fissi GPS.</string>
-    <string name="mapprovider_title">Prestatore mappe</string>
-    <string name="mapprovider_summary">Origine recupero dati mappe.</string>
     <string name="trackcoloring_title">Colore traccia</string>
     <string name="trackcoloring_summary">Colore a utilizzare per traccia percorso.</string>
     <string name="showspeed_title">Velocità GPS</string>
@@ -185,8 +183,6 @@
     <string name="customprecisiondistance_summary">Distanza da coprire entro punti.</string>
     <string name="gpsstatusmonitor_title">Monitor stato GPS</string>
     <string name="gpsstatusmonitor_summary">Mostra numero satelliti utilizzati.</string>
-    <string name="osmvisibility_title">Tracce GPS visibili a tutti su OpenStreetMap.org</string>
-    <string name="osmvisibility_summary">Consultare wiki openstreetmap.org wiki per maggiore informazione sui livelli visibili.</string>
     <string name="sddirectory_title">Directory scheda SD usata per salvare le tracce condivise</string>
     <string name="sddirectory_summary">Tracce e files sono salvati in questa directory su scheda SD.</string>
     <string name="sddirectory_message">Inserisci percorso su scheda SD dove salvare i files. Il percorso è relativo alla scheda SD. Per esempio il percorso /OpenGPSTracker/ utilizzato di default è accessibile da /Apps/OpenGPSTracker/ o /sdcard/OpenGPSTracker/</string>

@@ -138,8 +138,6 @@
     <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>
     <string name="precision_title">記錄精度</string>
     <string name="precision_summary">GPS 記錄點之間的間隔大小。</string>
-    <string name="mapprovider_title">地圖提供器</string>
-    <string name="mapprovider_summary">要檢索地圖資料的源。</string>
     <string name="trackcoloring_title">路線顏色</string>
     <string name="trackcoloring_summary">繪製路線使用的顏色。</string>
     <string name="showspeed_title">GPS 速度</string>
@@ -177,8 +175,6 @@
     <string name="customprecisiondistance_summary">路點之間應該覆寫的距離。</string>
     <string name="gpsstatusmonitor_title">監視 GPS 狀態</string>
     <string name="gpsstatusmonitor_summary">顯示正在使用的衛星的個數。</string>
-    <string name="osmvisibility_title">openstreetmap.org 上的 GPS 路線公共可見度</string>
-    <string name="osmvisibility_summary">請查閱 openstreetmap.org 的維基以瞭解更多關於可見度等級的訊息。</string>
     <string name="sddirectory_title">使用 SD 卡資料夾來儲存分享路線。</string>
     <string name="sddirectory_summary">建立的路線和媒體檔案將儲存在 SD 卡資料夾中。</string>
     <string name="sddirectory_message">輸入檔案要使用的 SD 路徑。預設的實例 /OpenGPSTracker/ 將會新增一個單獨的資料夾到 SD 卡中，同時建立/Apps/OpenGPSTracker/。</string>

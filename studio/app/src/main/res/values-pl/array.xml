@@ -15,11 +15,6 @@
         <item>Globalnie (z sieci komórkowej)</item>
     </string-array>
 
-    <string-array name="mapprovider_choices">
-        <item>Google Maps</item>
-        <item>OpenStreetMap</item>
-    </string-array>
-
     <string-array name="trackcoloring_choices">
         <item>Zielony</item>
         <item>Czerwony</item>
@@ -48,9 +43,6 @@
     <string-array name="sharegpxtarget_choices">
         <item>Zapisz na karcie SD</item>
         <item>Wyślij programem pocztowym</item>
-        <item>Wyślij do www.jogmap.de</item>
-        <item>Wyślij do OpenStreetMap</item>
-        <item>Wyślij do Breadcrumbs</item>
     </string-array>
 
     <string-array name="sharekmztarget_choices">
