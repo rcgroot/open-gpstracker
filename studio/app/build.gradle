@@ -15,8 +15,8 @@ android {
         testApplicationId "nl.sogeti.android.gpstracker.tests"
         minSdkVersion 7
         targetSdkVersion 14
-        versionCode 140
-        versionName "1.4.0-beta"
+        versionCode 1403
+        versionName "1.4.0"
         buildConfigField "int", "BUILD_NUMBER", System.getenv("BUILD_NUMBER") as String ?: "0"
         buildConfigField "String", "GIT_COMMIT", "\"" + System.getenv("GIT_COMMIT") + "\"" as String ?: "\"Unknown\""
         generatedDensities = ["hdpi", "xxhdpi"]
