@@ -912,7 +912,7 @@ public class LoggerMap extends AppCompatMapActivity
       MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
       item = menu.add(ContextMenu.NONE, MENU_NOTE, ContextMenu.NONE, R.string.menu_insertnote)
-                 .setIcon(R.drawable.ic_menu_myplaces);
+                 .setIcon(R.drawable.ic_pin_drop_24dp);
       MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
       item = menu.add(ContextMenu.NONE, MENU_SETTINGS, ContextMenu.NONE, R.string.menu_settings).setIcon(R.drawable

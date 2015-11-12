@@ -138,6 +138,16 @@ public class Log
       }
    }
 
+   public static void d(final Object tagSource, final String msgSource, String... args)
+   {
+      if (DEBUG)
+      {
+         String tag = getTag(tagSource);
+         String msg = getFormattedMessage(tag, String.format(msgSource, args));
+         android.util.Log.d(tag, msg);
+      }
+   }
+
 
    public static void d(final Object tagSource, final String msgSource, Exception e)
    {
