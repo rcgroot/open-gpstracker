@@ -45,6 +45,7 @@ import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -208,6 +209,7 @@ public class LoggerMap extends AppCompatMapActivity
       }
       mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
       mMapView = (MapView) findViewById(R.id.myMapView);
+      setupHardwareAcceleration();
       mMylocation = new FixedMyLocationOverlay(this, mMapView);
       mMapView.setBuiltInZoomControls(true);
       mMapView.setClickable(true);
@@ -230,6 +232,23 @@ public class LoggerMap extends AppCompatMapActivity
       if (getIntent() != null)
       {
          handleIntentData(getIntent());
+      }
+   }
+
+   private void setupHardwareAcceleration()
+   {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+      {
+         return;
+      }
+
+      if (isHardwareAccelerated())
+      {
+         mMapView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+      }
+      else
+      {
+         mMapView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
       }
    }
 
@@ -495,6 +514,13 @@ public class LoggerMap extends AppCompatMapActivity
       }
    }
 
+   private boolean isHardwareAccelerated()
+   {
+      int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
+      return trackColoringMethod != SegmentOverlay.DRAW_CALCULATED && trackColoringMethod != SegmentOverlay
+            .DRAW_MEASURED;
+   }
+
    private void updateSpeedColoring()
    {
       int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
@@ -616,6 +642,7 @@ public class LoggerMap extends AppCompatMapActivity
    {
       mLastSegmentOverlay = null;
       resetOverlay();
+      setupHardwareAcceleration();
 
       ContentResolver resolver = this.getContentResolver();
       Cursor segments = null;
