@@ -193,7 +193,7 @@ public class InsertNote extends AppCompatActivity
       super.onCreate(savedInstanceState);
       this.setVisible(false);
       paused = false;
-      mLoggerServiceManager = new GPSLoggerServiceManager(this);
+      mLoggerServiceManager = new GPSLoggerServiceManager();
    }
 
    @Override

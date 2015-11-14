@@ -5,11 +5,8 @@ import android.location.Location;
 
 interface IGPSLoggerServiceRemote {
 
+    long getTrackId();
 	int loggingState();
-    long startLogging();
-    void pauseLogging();
-    long resumeLogging();
-	void stopLogging();
     boolean isMediaPrepared();
 	Uri storeMediaUri(in Uri mediaUri);
     Uri storeMetaData(in String key, in String value);

@@ -143,6 +143,7 @@
         </activity>
 
         <service
+            android:process=":remote"
             android:name=".logger.GPSLoggerService"
             android:enabled="true"
             android:permission="android.permission.ACCESS_FINE_LOCATION">

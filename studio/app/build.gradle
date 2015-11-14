@@ -61,4 +61,5 @@ dependencies {
     compile 'com.android.support:design:23.1.0'
     compile 'com.android.support:support-annotations:23.1.0'
     testCompile 'junit:junit:4.12'
+    compile project(':service')
 }

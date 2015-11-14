@@ -184,7 +184,7 @@ public class LoggerMap extends AppCompatMapActivity
 
       findViewById(R.id.mapScreen).setDrawingCacheEnabled(true);
       mUnits = new UnitsI18n(this);
-      mLoggerServiceManager = new GPSLoggerServiceManager(this);
+      mLoggerServiceManager = new GPSLoggerServiceManager();
 
       final Semaphore calulatorSemaphore = new Semaphore(0);
       Thread calulator = new Thread("OverlayCalculator")
@@ -1142,14 +1142,13 @@ public class LoggerMap extends AppCompatMapActivity
    protected void onActivityResult(int requestCode, int resultCode, Intent intent)
    {
       super.onActivityResult(requestCode, resultCode, intent);
-      Uri trackUri;
       long trackId;
       switch (requestCode)
       {
          case MENU_TRACKLIST:
             if (resultCode == RESULT_OK)
             {
-               trackUri = intent.getData();
+               Uri trackUri = intent.getData();
                trackId = Long.parseLong(trackUri.getLastPathSegment());
                mAverageSpeed = 0.0;
                moveToTrack(trackId, true);
@@ -1158,20 +1157,16 @@ public class LoggerMap extends AppCompatMapActivity
          case MENU_TRACKING:
             if (resultCode == RESULT_OK)
             {
-               trackUri = intent.getData();
-               if (trackUri != null)
-               {
-                  trackId = Long.parseLong(trackUri.getLastPathSegment());
-                  mAverageSpeed = 0.0;
-                  moveToTrack(trackId, true);
-               }
+               trackId = mLoggerServiceManager.getTrackId();
+               mAverageSpeed = 0.0;
+               moveToTrack(trackId, true);
             }
             break;
          case MENU_SHARE:
             ShareTrack.clearScreenBitmap();
             break;
          default:
-            Log.e(this, "Returned form unknow activity: " + requestCode);
+            Log.e(this, "Returned form unknown activity: " + requestCode);
             break;
       }
    }

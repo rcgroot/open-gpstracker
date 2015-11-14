@@ -8,13 +8,20 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Log;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
 /**
@@ -112,7 +119,7 @@ public class LoggerNotification
       {
          CharSequence pause = resources.getString(R.string.logcontrol_pause);
          Intent intent = new Intent(mService, GPSLoggerService.class);
-         intent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_PAUSE);
+         intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_PAUSE);
          pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
          builder.addAction(R.drawable.ic_pause_24dp, pause, pendingIntent);
       }
@@ -120,7 +127,7 @@ public class LoggerNotification
       {
          CharSequence resume = resources.getString(R.string.logcontrol_resume);
          Intent intent = new Intent(mService, GPSLoggerService.class);
-         intent.putExtra(GPSLoggerService.COMMAND, GPSLoggerService.EXTRA_COMMAND_RESUME);
+         intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_RESUME);
          pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
          builder.addAction(R.drawable.ic_play_arrow_24dp, resume, pendingIntent);
       }
@@ -171,8 +178,8 @@ public class LoggerNotification
                   .setContentIntent(contentIntent);
 
       mNoticationManager.notify(
-            ID_DISABLED,
-            mBuilder.build());
+              ID_DISABLED,
+              mBuilder.build());
    }
 
    void stopDisabledProvider(int resId)
@@ -188,5 +195,34 @@ public class LoggerNotification
    public boolean isShowingDisabled()
    {
       return isShowingDisabled;
+   }
+
+   void soundGpsSignalAlarm() {
+      Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+      if (alert == null) {
+         alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+         if (alert == null) {
+            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+         }
+      }
+      MediaPlayer mMediaPlayer = new MediaPlayer();
+      try {
+         mMediaPlayer.setDataSource(mService, alert);
+         final AudioManager audioManager = (AudioManager) mService.getSystemService(Context.AUDIO_SERVICE);
+          if (audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION) != 0) {
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
+            mMediaPlayer.setLooping(false);
+            mMediaPlayer.prepare();
+            mMediaPlayer.start();
+         }
+      } catch (IllegalArgumentException e) {
+         Log.e(this, "Problem setting data source for mediaplayer", e);
+      } catch (SecurityException e) {
+         Log.e(this, "Problem setting data source for mediaplayer", e);
+      } catch (IllegalStateException e) {
+         Log.e(this, "Problem with mediaplayer", e);
+      } catch (IOException e) {
+         Log.e(this, "Problem with mediaplayer", e);
+      }
    }
 }
