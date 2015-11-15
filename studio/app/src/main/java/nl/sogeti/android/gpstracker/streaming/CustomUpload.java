@@ -46,10 +46,11 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.service.R;
+import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
-import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
+import nl.sogeti.android.log.Log;
+
 
 public class CustomUpload extends BroadcastReceiver {
     private static final String CUSTOMUPLOAD_BACKLOG_DEFAULT = "20";
@@ -65,7 +66,7 @@ public class CustomUpload extends BroadcastReceiver {
         sCustomUpload = new CustomUpload();
         sRequestBacklog = new LinkedList<URL>();
 
-        IntentFilter filter = new IntentFilter(Constants.STREAMBROADCAST);
+        IntentFilter filter = new IntentFilter(ExternalConstants.STREAM_BROADCAST);
         ctx.registerReceiver(sCustomUpload, filter);
     }
 
@@ -86,11 +87,11 @@ public class CustomUpload extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(this, "onReceive(Context, Intent)");
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String prefUrl = preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_URL, "http://www.example.com");
-        Integer prefBacklog = Integer.valueOf(preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_BACKLOG,
+        String prefUrl = preferences.getString(Constants.CUSTOMUPLOAD_URL, "http://www.example.com");
+        Integer prefBacklog = Integer.valueOf(preferences.getString(Constants.CUSTOMUPLOAD_BACKLOG,
                 CUSTOMUPLOAD_BACKLOG_DEFAULT));
-        Location loc = intent.getParcelableExtra(Constants.EXTRA_LOCATION);
-        Uri trackUri = intent.getParcelableExtra(Constants.EXTRA_TRACK);
+        Location loc = intent.getParcelableExtra(ExternalConstants.EXTRA_LOCATION);
+        Uri trackUri = intent.getParcelableExtra(ExternalConstants.EXTRA_TRACK);
         String buildUrl = prefUrl;
         buildUrl = buildUrl.replace("@LAT@", Double.toString(loc.getLatitude()));
         buildUrl = buildUrl.replace("@LON@", Double.toString(loc.getLongitude()));

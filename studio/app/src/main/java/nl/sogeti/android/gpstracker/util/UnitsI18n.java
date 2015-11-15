@@ -61,7 +61,7 @@ public class UnitsI18n {
     private OnSharedPreferenceChangeListener mPreferenceListener = new OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(Constants.UNITS)) {
+            if (key.equals(nl.sogeti.android.gpstracker.util.Constants.UNITS)) {
                 initBasedOnPreferences(sharedPreferences);
                 if (mListener != null) {
                     mListener.onUnitsChange();
@@ -81,35 +81,35 @@ public class UnitsI18n {
     }
 
     private void initBasedOnPreferences(SharedPreferences sharedPreferences) {
-        mUnits = Integer.parseInt(sharedPreferences.getString(Constants.UNITS, Integer.toString(Constants
+        mUnits = Integer.parseInt(sharedPreferences.getString(nl.sogeti.android.gpstracker.util.Constants.UNITS, Integer.toString(nl.sogeti.android.gpstracker.util.Constants
                 .UNITS_DEFAULT)));
         switch (mUnits) {
-            case (Constants.UNITS_DEFAULT):
+            case (nl.sogeti.android.gpstracker.util.Constants.UNITS_DEFAULT):
                 setToDefault();
                 break;
-            case (Constants.UNITS_IMPERIAL):
+            case (nl.sogeti.android.gpstracker.util.Constants.UNITS_IMPERIAL):
                 setToImperial();
                 break;
-            case (Constants.UNITS_METRIC):
+            case (nl.sogeti.android.gpstracker.util.Constants.UNITS_METRIC):
                 setToMetric();
                 break;
-            case (Constants.UNITS_NAUTIC):
+            case (nl.sogeti.android.gpstracker.util.Constants.UNITS_NAUTIC):
                 setToMetric();
                 overrideWithNautic(mContext.getResources());
                 break;
-            case (Constants.UNITS_METRICPACE):
+            case (nl.sogeti.android.gpstracker.util.Constants.UNITS_METRICPACE):
                 setToMetric();
                 overrideWithPace(mContext.getResources());
                 break;
-            case (Constants.UNITS_IMPERIALPACE):
+            case (nl.sogeti.android.gpstracker.util.Constants.UNITS_IMPERIALPACE):
                 setToImperial();
                 overrideWithPaceImperial(mContext.getResources());
                 break;
-            case Constants.UNITS_IMPERIALSURFACE:
+            case nl.sogeti.android.gpstracker.util.Constants.UNITS_IMPERIALSURFACE:
                 setToImperial();
                 overrideWithSurfaceImperial();
                 break;
-            case Constants.UNITS_METRICSURFACE:
+            case nl.sogeti.android.gpstracker.util.Constants.UNITS_METRICSURFACE:
                 setToMetric();
                 overrideWithSurfaceMetric();
                 break;
@@ -276,7 +276,7 @@ public class UnitsI18n {
      */
     public String formatSpeed(double speed, boolean decimals) {
         String speedText;
-        if (mUnits == Constants.UNITS_METRICPACE || mUnits == Constants.UNITS_IMPERIALPACE) {
+        if (mUnits == nl.sogeti.android.gpstracker.util.Constants.UNITS_METRICPACE || mUnits == nl.sogeti.android.gpstracker.util.Constants.UNITS_IMPERIALPACE) {
             if (decimals) {
                 speedText = String.format("%02d %s",
                         (int) speed,

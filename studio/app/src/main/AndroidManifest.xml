@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nl.sogeti.android.gpstracker"
     android:installLocation="auto">
 
@@ -9,15 +8,12 @@
         android:normalScreens="true"
         android:smallScreens="true" />
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <uses-feature
         android:name="android.hardware.location.gps"
@@ -48,11 +44,7 @@
             </intent-filter>
             <intent-filter android:label="Show track on map">
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="content" />
-                <data android:host="nl.sogeti.android.gpstracker" />
                 <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
         </activity>
@@ -71,11 +63,14 @@
         </activity>
 
         <activity
-            android:name=".viewer.ApplicationPreferenceActivity"
-            android:label="@string/menu_settings" />
-        <activity
             android:name=".actions.NameTrack"
-            android:theme="@style/Theme.App.Translucent.NoTitleBar" />
+            android:theme="@style/Theme.App.Translucent.NoTitleBar">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="nl.sogeti.android.gpstracker.service.action.NAMING" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".actions.ControlTracking"
             android:theme="@style/Theme.App.Translucent.NoTitleBar" />
@@ -135,62 +130,19 @@
             android:windowSoftInputMode="stateUnchanged">
             <intent-filter>
                 <action android:name="android.intent.action.RUN" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name=".logger.GPSLoggerService"
-            android:enabled="true"
-            android:permission="android.permission.ACCESS_FINE_LOCATION"
-            android:process=":remote">
-            <intent-filter android:label="GPS logger">
-                <action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
-            </intent-filter>
-        </service>
-
-        <provider
-            android:name=".db.GPStrackingProvider"
-            android:authorities="nl.sogeti.android.gpstracker"
-            android:enabled="true"
-            android:permission="android.permission.ACCESS_FINE_LOCATION">
-            <grant-uri-permission android:pathPrefix="/tracks/" />
-
-            <path-permission
-                android:path="/search_suggest_query"
-                android:readPermission="android.permission.GLOBAL_SEARCH" />
-        </provider>
-
-        <!-- This is used to auto start the application at boot -->
-        <receiver
-            android:name=".util.BootReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <!-- This is used to auto start the application at docking -->
-        <receiver
-            android:name=".util.DockReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.DOCK_EVENT" />
-            </intent-filter>
-        </receiver>
-
-        <!-- This is used to auto start the application at docking -->
-        <receiver
-            android:name=".util.PowerReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"></action>
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"></action>
-            </intent-filter>
-        </receiver>
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="false"
+            android:label="@string/menu_settings"
+            android:parentActivityName=".viewer.LoggerMap">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".viewer.LoggerMap" />
+        </activity>
 
         <receiver
             android:name=".widget.ControlWidgetProvider"
@@ -206,6 +158,12 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/control_appwidget_info" />
+        </receiver>
+
+        <receiver android:name=".streaming.StartStop">
+            <intent-filter>
+                <action android:name="nl.sogeti.android.gpstracker.LOGGING_STATE_CHANGED" />
+            </intent-filter>
         </receiver>
 
     </application>

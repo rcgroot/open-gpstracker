@@ -62,10 +62,10 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.GraphCanvas;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
+import nl.sogeti.android.log.Log;
 
 /**
  * Display some calulations based on a track

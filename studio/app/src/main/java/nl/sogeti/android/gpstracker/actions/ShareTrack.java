@@ -78,11 +78,11 @@ import nl.sogeti.android.gpstracker.actions.tasks.KmzSharing;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
+import nl.sogeti.android.log.Log;
 
 public class ShareTrack extends AppCompatActivity implements StatisticsDelegate {
     private static final int EXPORT_TYPE_KMZ = 0;

@@ -30,8 +30,6 @@
         <item>航海 (节)</item>
         <item>速度 (每公里所用分钟)</item>
         <item>速度 (每英里所用分钟)</item>
-        <item>Acres/hour (Imperial)</item>
-        <item>Hectares/hour (Metric)</item>
     </string-array>
 
     <string-array name="sharetype_choices">

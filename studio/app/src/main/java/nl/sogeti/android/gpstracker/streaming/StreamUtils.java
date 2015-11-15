@@ -32,10 +32,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.settings.Helper;
+import nl.sogeti.android.log.Log;
+
 
 public class StreamUtils {
+
+
     /**
      * Initialize all appropriate stream listeners
      *
@@ -44,7 +47,7 @@ public class StreamUtils {
     public static void initStreams(final Context ctx) {
         Log.d(StreamUtils.class, "initStreams(Context)");
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ctx);
-        boolean streams_enabled = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
+        boolean streams_enabled = Helper.getBoolean(sharedPreferences, Helper.LEGACY_BROADCAST_STREAM, Helper.BROADCAST_STREAM, false);
         if (streams_enabled && sharedPreferences.getBoolean("VOICEOVER_ENABLED", false)) {
             VoiceOver.initStreaming(ctx);
         }

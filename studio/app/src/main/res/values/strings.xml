@@ -1,15 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Open GPS Tracker</string>
-    <string name="service_gpsstatus">Logging: %1$s (%2$s with %3$d satellites)</string>
-    <string name="service_gpsnostatus">Logging: %1$s (Precision %2$s)</string>
-    <string name="service_networkstatus">Logging: %1$s (%2$s with cell tower and wifi)</string>
-    <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
-    <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
-    <string name="service_connectiondisabled">Network is disabled, network location logging is without effect.</string>
-    <string name="service_datadisabled">Network positioning is disabled, logging is without effect.</string>
-    <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
-    <string name="service_gpsproblem">Receiving no location information</string>
 
     <!-- Dialogs -->
     <string name="dialog_select_media_title">Select note</string>
@@ -28,10 +19,6 @@
     <string name="dialog_notetext_message">Enter a text note for the current location</string>
     <string name="dialog_notename_title">Mark</string>
     <string name="dialog_notename_message">Enter the name of this location</string>
-    <string name="logcontrol_start">Start tracking</string>
-    <string name="logcontrol_pause">Pause tracking</string>
-    <string name="logcontrol_resume">Resume tracking</string>
-    <string name="logcontrol_stop">Stop tracking</string>
     <string name="layer_regular">Normal map</string>
     <string name="layer_satellite">Satellite</string>
     <string name="layer_traffic">Traffic</string>
@@ -200,14 +187,12 @@
     <string name="streambroadcast_distance_summary">Number of miles or kilometers after which new progress is broadcasted</string>
     <string name="voiceover_title">Stream to audio voice-over</string>
     <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
-    <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
     <string name="customupload_title">Stream to custom web server</string>
     <string name="customupload_summary">Upload track progress to (personal) web server</string>
     <string name="customupload_url_title">Custom web server URL</string>
     <string name="customupload_url_summary">The web address to which to upload progress</string>
     <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request. 
         In this URL the placeholders are replaced with actual information. The possible placeholders are @LAT@, @LON@, @ALT@, @ACC@, @SPEED@, @BEAR@, @TIME@ and @ID@.</string>
-    <string name="customupload_failed">The last upload of track progress failed</string>
     <string name="customupload_backlog_title">On failure keep a backlog</string>
     <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
     <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>

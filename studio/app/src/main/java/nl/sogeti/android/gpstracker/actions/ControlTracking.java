@@ -41,9 +41,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.log.Log;
 
 /**
  * Empty Activity that pops up the dialog to name the track
@@ -172,19 +172,19 @@ public class ControlTracking extends AppCompatActivity {
 
     private void updateDialogState(int state) {
         switch (state) {
-            case Constants.STATE_STOPPED:
+            case ExternalConstants.STATE_STOPPED:
                 start.setEnabled(true);
                 pause.setEnabled(false);
                 resume.setEnabled(false);
                 stop.setEnabled(false);
                 break;
-            case Constants.STATE_LOGGING:
+            case ExternalConstants.STATE_LOGGING:
                 start.setEnabled(false);
                 pause.setEnabled(true);
                 resume.setEnabled(false);
                 stop.setEnabled(true);
                 break;
-            case Constants.STATE_PAUSED:
+            case ExternalConstants.STATE_PAUSED:
                 start.setEnabled(false);
                 pause.setEnabled(false);
                 resume.setEnabled(true);

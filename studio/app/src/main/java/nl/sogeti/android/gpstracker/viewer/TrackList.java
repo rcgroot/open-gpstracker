@@ -67,10 +67,10 @@ import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
-import nl.sogeti.android.gpstracker.db.DatabaseHelper;
-import nl.sogeti.android.gpstracker.db.GPStracking;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.service.db.DatabaseHelper;
+import nl.sogeti.android.gpstracker.service.db.GPStracking;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
+import nl.sogeti.android.log.Log;
 
 /**
  * Show a list view of all tracks, also doubles for showing search results

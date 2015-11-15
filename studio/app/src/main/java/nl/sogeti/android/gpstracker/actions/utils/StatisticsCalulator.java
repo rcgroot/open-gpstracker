@@ -35,9 +35,9 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 
-import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Segments;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 

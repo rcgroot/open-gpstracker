@@ -39,7 +39,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import nl.sogeti.android.gpstracker.actions.tasks.XmlCreator;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
 
 public class ExportGPXTest extends TestCase {
     @SmallTest

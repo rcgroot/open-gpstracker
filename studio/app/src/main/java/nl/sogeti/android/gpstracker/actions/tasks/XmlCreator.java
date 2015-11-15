@@ -58,11 +58,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.log.Log;
 
 /**
  * Async XML creation task Execute without parameters (Void) Update posted with single Integer And result is a filename

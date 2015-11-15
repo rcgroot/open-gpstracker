@@ -30,8 +30,6 @@
         <item>Nautico (nodi)</item>
         <item>Andatura (minuti per chilometro)</item>
         <item>Andatura (minuti per miglia)</item>
-        <item>Acres/hour (Imperiale)</item>
-        <item>Hectares/hour (Metrico)</item>
     </string-array>
 
     <string-array name="sharetype_choices">

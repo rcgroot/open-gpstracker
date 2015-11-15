@@ -30,8 +30,6 @@
         <item>Morskie (węzły)</item>
         <item>Tempo (minuty na kilometr)</item>
         <item>Tempo (minuty na milę)</item>
-        <item>Acres/hour (Imperialne)</item>
-        <item>Hectares/hour (Metryczne)</item>
     </string-array>
 
     <string-array name="sharetype_choices">

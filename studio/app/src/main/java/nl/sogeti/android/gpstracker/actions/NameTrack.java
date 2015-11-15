@@ -50,8 +50,8 @@ import android.widget.EditText;
 import java.util.Calendar;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
+import nl.sogeti.android.log.Log;
 
 /**
  * Empty Activity that pops up the dialog to name the track

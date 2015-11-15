@@ -44,9 +44,9 @@ import android.widget.RemoteViews;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
+import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.log.Log;
 
 /**
  * An App Widget for on the home screen to control logging with a start, pause,
@@ -85,16 +85,16 @@ public class ControlWidgetProvider extends AppWidgetProvider {
     private static void updateButtons(RemoteViews views) {
         Log.d(ControlWidgetProvider.class, "Updated the remote views to state " + mState);
         switch (mState) {
-            case Constants.STATE_LOGGING:
+            case ExternalConstants.STATE_LOGGING:
                 setEnableInsertNote(views, true);
                 break;
-            case Constants.STATE_PAUSED:
+            case ExternalConstants.STATE_PAUSED:
                 setEnableInsertNote(views, false);
                 break;
-            case Constants.STATE_STOPPED:
+            case ExternalConstants.STATE_STOPPED:
                 setEnableInsertNote(views, false);
                 break;
-            case Constants.STATE_UNKNOWN:
+            case ExternalConstants.STATE_UNKNOWN:
                 setEnableInsertNote(views, false);
                 break;
             default:
@@ -190,8 +190,8 @@ public class ControlWidgetProvider extends AppWidgetProvider {
         Log.d(this, "Did receive intent with action: " + intent.getAction());
         super.onReceive(context, intent);
         String action = intent.getAction();
-        if (Constants.LOGGING_STATE_CHANGED_ACTION.equals(action)) {
-            mState = intent.getIntExtra(Constants.EXTRA_LOGGING_STATE, Constants.STATE_UNKNOWN);
+        if (ExternalConstants.LOGGING_STATE_CHANGED_ACTION.equals(action)) {
+            mState = intent.getIntExtra(ExternalConstants.EXTRA_LOGGING_STATE, ExternalConstants.STATE_UNKNOWN);
             updateWidget(context);
         } else if (intent.hasCategory(Intent.CATEGORY_ALTERNATIVE)) {
             Uri data = intent.getData();

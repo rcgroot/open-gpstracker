@@ -85,16 +85,18 @@ import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
 import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
-import nl.sogeti.android.gpstracker.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Segments;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
+import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.gpstracker.settings.SettingsActivity;
 import nl.sogeti.android.gpstracker.support.AppCompatMapActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import nl.sogeti.android.log.Log;
 
 /**
  * Main activity showing a track and allowing logging control
@@ -103,8 +105,6 @@ import nl.sogeti.android.gpstracker.util.UnitsI18n;
  * @version $Id$
  */
 public class LoggerMap extends AppCompatMapActivity {
-    public static final String OSM_PROVIDER = "OSM";
-    public static final String GOOGLE_PROVIDER = "GOOGLE";
 
     private static final String INSTANCE_E6LONG = "e6long";
     private static final String INSTANCE_E6LAT = "e6lat";
@@ -324,7 +324,7 @@ public class LoggerMap extends AppCompatMapActivity {
             mWakeLock.release();
             Log.w(this, "onDestroy(): Released lock to keep screen on!");
         }
-        if (mLoggerServiceManager.getLoggingState() == Constants.STATE_STOPPED) {
+        if (mLoggerServiceManager.getLoggingState() == ExternalConstants.STATE_STOPPED) {
             stopService(new Intent(this, GPSLoggerService.class));
         }
         mUnits = null;
@@ -389,7 +389,7 @@ public class LoggerMap extends AppCompatMapActivity {
     @Override
     protected boolean isLocationDisplayed() {
         return mSharedPreferences.getBoolean(Constants.LOCATION, false) || mLoggerServiceManager.getLoggingState() ==
-                Constants.STATE_LOGGING;
+                ExternalConstants.STATE_LOGGING;
     }
 
     private void updateTitleBar() {
@@ -421,7 +421,7 @@ public class LoggerMap extends AppCompatMapActivity {
                     mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, WAKELOCK_TAG);
                 }
             }
-            if (mLoggerServiceManager.getLoggingState() == Constants.STATE_LOGGING && !mWakeLock.isHeld()) {
+            if (mLoggerServiceManager.getLoggingState() == ExternalConstants.STATE_LOGGING && !mWakeLock.isHeld()) {
                 mWakeLock.acquire();
                 Log.w(this, "Acquired lock to keep screen on!");
             }
@@ -842,7 +842,7 @@ public class LoggerMap extends AppCompatMapActivity {
                 handled = true;
                 break;
             case MENU_SETTINGS:
-                intent = new Intent(this, ApplicationPreferenceActivity.class);
+                intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 handled = true;
                 break;
@@ -1280,7 +1280,7 @@ public class LoggerMap extends AppCompatMapActivity {
 
     private void moveActiveViewWindow() {
         GeoPoint lastPoint = getLastTrackPoint();
-        if (lastPoint != null && mLoggerServiceManager.getLoggingState() == Constants.STATE_LOGGING) {
+        if (lastPoint != null && mLoggerServiceManager.getLoggingState() == ExternalConstants.STATE_LOGGING) {
             Point out = new Point();
             this.mMapView.getProjection().toPixels(lastPoint, out);
             int height = this.mMapView.getHeight();

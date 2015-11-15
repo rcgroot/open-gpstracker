@@ -30,8 +30,6 @@
         <item>Nautical (knots)</item>
         <item>Pace (minutes per kilometer)</item>
         <item>Pace (minutes per mile)</item>
-        <item>Acres/hour (Imperial)</item>
-        <item>Hectares/hour (Metric)</item>
     </string-array>
 
     <string-array name="sharetype_choices">

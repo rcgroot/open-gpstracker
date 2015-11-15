@@ -30,8 +30,6 @@
         <item>Nautical (Knoten)</item>
         <item>Pace (min/km)</item>
         <item>Pace (min/mile)</item>
-        <item>Acres/hour (Imperial)</item>
-        <item>Hectares/hour (Metric)</item>
     </string-array>
 
     <string-array name="sharetype_choices">

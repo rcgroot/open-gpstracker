@@ -49,13 +49,13 @@ import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.db.GPStracking;
-import nl.sogeti.android.gpstracker.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.service.db.GPStracking;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Segments;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
+ import nl.sogeti.android.log.Log;
 
 /**
  * Create a KMZ version of a stored track

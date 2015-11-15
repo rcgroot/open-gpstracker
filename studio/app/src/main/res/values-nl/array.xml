@@ -30,8 +30,6 @@
         <item>Zeevaart</item>
         <item>Tempo (minuten per kilometer)</item>
         <item>Tempo (minuten per mile)</item>
-        <item>Acres/hour (Engelse)</item>
-        <item>Hectares/hour (Meters)</item>
     </string-array>
 
     <string-array name="sharetype_choices">

@@ -30,8 +30,6 @@
         <item>Nautique (noeuds)</item>
         <item>Vitesse (min/km)</item>
         <item>Vitesse (min/noeuds)</item>
-        <item>Acres/hour (Impériale)</item>
-        <item>Hectares/hour (Métrique)</item>
     </string-array>
 
     <string-array name="sharetype_choices">

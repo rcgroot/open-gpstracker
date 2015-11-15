@@ -32,7 +32,8 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.log.Log;
+
 
 /**
  * Work around based on input from the comment section of

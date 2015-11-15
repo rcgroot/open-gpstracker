@@ -57,9 +57,10 @@ import java.io.IOException;
 import java.util.Calendar;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.log.Log;
 
 /**
  * Empty Activity that pops up the dialog to add a note to the most current
@@ -302,7 +303,7 @@ public class InsertNote extends AppCompatActivity {
         switch (id) {
             case DIALOG_INSERTNOTE:
                 boolean prepared = mLoggerServiceManager.isMediaPrepared() && mLoggerServiceManager.getLoggingState() ==
-                        Constants.STATE_LOGGING;
+                        ExternalConstants.STATE_LOGGING;
                 name = (Button) dialog.findViewById(R.id.noteinsert_name);
                 text = (Button) dialog.findViewById(R.id.noteinsert_text);
                 voice = (Button) dialog.findViewById(R.id.noteinsert_voice);

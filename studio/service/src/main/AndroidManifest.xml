@@ -1,6 +1,63 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="nl.sogeti.android.linger.lingerservice">
+    package="nl.sogeti.android.gpstracker.service">
 
-    <application/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application>
+        <service
+            android:name=".logger.GPSLoggerService"
+            android:enabled="true"
+            android:permission="android.permission.ACCESS_FINE_LOCATION"
+            android:process=":remote">
+            <intent-filter android:label="GPS logger">
+                <action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name=".db.GPStrackingProvider"
+            android:authorities="nl.sogeti.android.gpstracker"
+            android:enabled="true"
+            android:permission="android.permission.ACCESS_FINE_LOCATION">
+            <grant-uri-permission android:pathPrefix="/tracks/" />
+
+            <path-permission
+                android:path="/search_suggest_query"
+                android:readPermission="android.permission.GLOBAL_SEARCH" />
+        </provider>
+
+        <!-- This is used to auto start the application at boot -->
+        <receiver
+            android:name=".startstop.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- This is used to auto start the application at docking -->
+        <receiver
+            android:name=".startstop.DockReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.DOCK_EVENT" />
+            </intent-filter>
+        </receiver>
+
+        <!-- This is used to auto start the application at docking -->
+        <receiver
+            android:name=".startstop.PowerReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"></action>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"></action>
+            </intent-filter>
+        </receiver>
+    </application>
 
 </manifest>

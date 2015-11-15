@@ -37,12 +37,12 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import junit.framework.Assert;
 
-import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
-import nl.sogeti.android.gpstracker.logger.IGPSLoggerServiceRemote;
+import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
+import nl.sogeti.android.gpstracker.service.logger.IGPSLoggerServiceRemote;
 import nl.sogeti.android.gpstracker.util.Constants;
 
 /**
- * Test cases for nl.sogeti.android.gpstracker.logger.GPSLoggerService
+ * Test cases for nl.sogeti.android.gpstracker.service.logger.GPSLoggerService
  *
  * @author rene (c) Mar 14, 2009, Sogeti B.V.
  * @version $Id$

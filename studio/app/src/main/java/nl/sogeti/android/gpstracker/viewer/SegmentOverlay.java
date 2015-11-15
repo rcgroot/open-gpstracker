@@ -70,11 +70,11 @@ import java.util.List;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.db.GPStracking;
-import nl.sogeti.android.gpstracker.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.service.db.GPStracking;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Media;
+import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
+import nl.sogeti.android.log.Log;
 
 /**
  * Creates an overlay that can draw a single segment of connected waypoints
