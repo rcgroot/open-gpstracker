@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<gpx creator="Sunday Morning Rides" version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="Sunday Morning Rides" version="1.1"
+    xmlns="http://www.topografix.com/GPX/1/1"
+    xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
     <trk>
         <trkseg>
             <trkpt lat="52.085255246553906" lon="4.378995895385742"></trkpt>

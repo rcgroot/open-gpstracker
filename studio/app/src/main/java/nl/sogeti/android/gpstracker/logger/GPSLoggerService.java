@@ -35,7 +35,6 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-
 import nl.sogeti.android.gpstracker.actions.NameTrack;
 import nl.sogeti.android.gpstracker.db.GPStracking;
 import nl.sogeti.android.gpstracker.util.Log;
@@ -49,19 +48,10 @@ import nl.sogeti.android.linger.lingerservice.LingerService;
  */
 public class GPSLoggerService extends LingerService {
 
-    public static class Commands {
-        public static final String COMMAND = "nl.sogeti.android.gpstracker.extra.COMMAND";
-        public static final int EXTRA_COMMAND_START = 0;
-        public static final int EXTRA_COMMAND_PAUSE = 1;
-        public static final int EXTRA_COMMAND_RESUME = 2;
-        public static final int EXTRA_COMMAND_STOP = 3;
-    }
-
     private GPSListener mGPSListener;
     private LoggerNotification mLoggerNotification;
     private IBinder mBinder = new GPSLoggerServiceImplementation();
-
-    public GPSLoggerService(){
+    public GPSLoggerService() {
         super("GPS Logger", 60);
     }
 
@@ -135,6 +125,14 @@ public class GPSLoggerService extends LingerService {
     public IBinder onBind(Intent intent) {
         initLogging();
         return this.mBinder;
+    }
+
+    public static class Commands {
+        public static final String COMMAND = "nl.sogeti.android.gpstracker.extra.COMMAND";
+        public static final int EXTRA_COMMAND_START = 0;
+        public static final int EXTRA_COMMAND_PAUSE = 1;
+        public static final int EXTRA_COMMAND_RESUME = 2;
+        public static final int EXTRA_COMMAND_STOP = 3;
     }
 
     private class GPSLoggerServiceImplementation extends IGPSLoggerServiceRemote.Stub {

@@ -1,5 +1,4 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -24,7 +23,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:padding="5dip"
-                android:text="@string/share_explained"/>
+                android:text="@string/share_explained" />
 
             <TextView
                 android:id="@+id/TextView2"
@@ -32,14 +31,14 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/TextView1"
-                android:text="@string/share_type"/>
+                android:text="@string/share_type" />
 
             <Spinner
                 android:id="@+id/shareTypeSpinner"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_below="@+id/TextView2"/>
+                android:layout_below="@+id/TextView2" />
 
             <TextView
                 android:id="@+id/TextView3"
@@ -47,14 +46,14 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/shareTypeSpinner"
-                android:text="@string/share_target"/>
+                android:text="@string/share_target" />
 
             <Spinner
                 android:id="@+id/shareTargetSpinner"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_below="@+id/TextView3"/>
+                android:layout_below="@+id/TextView3" />
 
             <TextView
                 android:id="@+id/TextView4"
@@ -62,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/shareTargetSpinner"
-                android:text="@string/share_name"/>
+                android:text="@string/share_name" />
 
             <EditText
                 android:id="@+id/fileNameField"
@@ -72,7 +71,7 @@
                 android:layout_below="@+id/TextView4"
                 android:clickable="true"
                 android:inputType="textAutoCorrect"
-                android:singleLine="true"/>
+                android:singleLine="true" />
 
             <ProgressBar
                 android:id="@+id/tweet_progress"
@@ -80,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/fileNameField"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/tweetField"
@@ -92,7 +91,7 @@
                 android:inputType="textAutoCorrect"
                 android:maxLength="140"
                 android:maxLines="3"
-                android:text=""/>
+                android:text="" />
 
             <ImageView
                 android:id="@+id/imageView"
@@ -112,7 +111,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
                 android:clickable="true"
-                android:src="@drawable/btn_close"/>
+                android:src="@drawable/btn_close" />
         </RelativeLayout>
     </ScrollView>
 
@@ -130,13 +129,13 @@
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:singleLine="true"
-            android:text="@string/btn_cancel"/>
+            android:text="@string/btn_cancel" />
         <!-- Placeholder to get blank space between the two buttons -->
         <View
             android:layout_width="1dip"
             android:layout_height="0dip"
             android:layout_weight="1"
-            android:visibility="invisible"/>
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/okayshare_button"
@@ -145,7 +144,7 @@
             android:drawablePadding="3dip"
             android:ellipsize="marquee"
             android:singleLine="true"
-            android:text="@string/btn_okay"/>
+            android:text="@string/btn_okay" />
     </LinearLayout>
 
 </LinearLayout>

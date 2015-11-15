@@ -35,7 +35,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import nl.sogeti.android.gpstracker.util.Log;
 import android.view.Window;
 
 import org.xmlpull.v1.XmlSerializer;
@@ -63,6 +62,7 @@ import nl.sogeti.android.gpstracker.db.GPStracking.Media;
 import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.util.Log;
 
 /**
  * Async XML creation task Execute without parameters (Void) Update posted with single Integer And result is a filename
@@ -71,540 +71,437 @@ import nl.sogeti.android.gpstracker.util.Constants;
  * @author rene (c) May 29, 2011, Sogeti B.V.
  * @version $Id$
  */
-public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri>
-{
-   public ProgressAdmin mProgressAdmin;
-   protected Context mContext;
-   protected Uri mTrackUri;
-   String mChosenName;
-   String mFileName;
-   private String mExportDirectoryPath;
-   private boolean mNeedsBundling;
-   private ProgressListener mProgressListener;
-   private String mErrorText;
-   private Exception mException;
-   private String mTask;
+public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
+    public ProgressAdmin mProgressAdmin;
+    protected Context mContext;
+    protected Uri mTrackUri;
+    String mChosenName;
+    String mFileName;
+    private String mExportDirectoryPath;
+    private boolean mNeedsBundling;
+    private ProgressListener mProgressListener;
+    private String mErrorText;
+    private Exception mException;
+    private String mTask;
 
-   XmlCreator(Context context, Uri trackUri, String chosenFileName, ProgressListener listener)
-   {
-      mChosenName = chosenFileName;
-      mContext = context;
-      mTrackUri = trackUri;
-      mProgressListener = listener;
-      mProgressAdmin = new ProgressAdmin();
+    XmlCreator(Context context, Uri trackUri, String chosenFileName, ProgressListener listener) {
+        mChosenName = chosenFileName;
+        mContext = context;
+        mTrackUri = trackUri;
+        mProgressListener = listener;
+        mProgressAdmin = new ProgressAdmin();
 
-      String trackName = extractCleanTrackName();
-      mFileName = cleanFilename(mChosenName, trackName);
-   }
+        String trackName = extractCleanTrackName();
+        mFileName = cleanFilename(mChosenName, trackName);
+    }
 
-   private String extractCleanTrackName()
-   {
-      Cursor trackCursor = null;
-      ContentResolver resolver = mContext.getContentResolver();
-      String trackName = "Untitled";
-      try
-      {
-         trackCursor = resolver.query(mTrackUri, new String[] { Tracks.NAME }, null, null, null);
-         if (trackCursor.moveToLast())
-         {
-            trackName = cleanFilename(trackCursor.getString(0), trackName);
-         }
-      }
-      finally
-      {
-         if (trackCursor != null)
-         {
-            trackCursor.close();
-         }
-      }
-      return trackName;
-   }
+    /**
+     * Removes all non-word chars (\W) from the text
+     *
+     * @param fileName
+     * @param defaultName
+     * @return a string larger then 0 with either word chars remaining from the input or the default provided
+     */
+    public static String cleanFilename(String fileName, String defaultName) {
+        if (fileName == null || "".equals(fileName)) {
+            fileName = defaultName;
+        } else {
+            fileName = fileName.replaceAll("\\W", "");
+            fileName = (fileName.length() > 0) ? fileName : defaultName;
+        }
+        return fileName;
+    }
 
-   /**
-    * Removes all non-word chars (\W) from the text
-    *
-    * @param fileName
-    * @param defaultName
-    * @return a string larger then 0 with either word chars remaining from the input or the default provided
-    */
-   public static String cleanFilename(String fileName, String defaultName)
-   {
-      if (fileName == null || "".equals(fileName))
-      {
-         fileName = defaultName;
-      }
-      else
-      {
-         fileName = fileName.replaceAll("\\W", "");
-         fileName = (fileName.length() > 0) ? fileName : defaultName;
-      }
-      return fileName;
-   }
-
-   public static boolean deleteRecursive(File file)
-   {
-      if (file.isDirectory())
-      {
-         String[] children = file.list();
-         for (int i = 0; i < children.length; i++)
-         {
-            boolean success = deleteRecursive(new File(file, children[i]));
-            if (!success)
-            {
-               return false;
+    public static boolean deleteRecursive(File file) {
+        if (file.isDirectory()) {
+            String[] children = file.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteRecursive(new File(file, children[i]));
+                if (!success) {
+                    return false;
+                }
             }
-         }
-      }
-      return file.delete();
-   }
+        }
+        return file.delete();
+    }
 
-   public static String convertStreamToString(InputStream is) throws IOException
-   {
-      String result = "";
+    public static String convertStreamToString(InputStream is) throws IOException {
+        String result = "";
       /*
        * To convert the InputStream to String we use the Reader.read(char[] buffer) method. We iterate until the Reader
        * return -1 which means there's no more data to read. We use the StringWriter class to produce the string.
        */
-      if (is != null)
-      {
-         Writer writer = new StringWriter();
+        if (is != null) {
+            Writer writer = new StringWriter();
 
-         char[] buffer = new char[8192];
-         try
-         {
-            Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            int n;
-            while ((n = reader.read(buffer)) != -1)
-            {
-               writer.write(buffer, 0, n);
+            char[] buffer = new char[8192];
+            try {
+                Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                int n;
+                while ((n = reader.read(buffer)) != -1) {
+                    writer.write(buffer, 0, n);
+                }
+            } finally {
+                is.close();
             }
-         }
-         finally
-         {
-            is.close();
-         }
-         result = writer.toString();
-      }
-      return result;
-   }
+            result = writer.toString();
+        }
+        return result;
+    }
 
-   public static InputStream convertStreamToLoggedStream(String tag, InputStream is) throws IOException
-   {
-      String result = "";
+    public static InputStream convertStreamToLoggedStream(String tag, InputStream is) throws IOException {
+        String result = "";
       /*
        * To convert the InputStream to String we use the Reader.read(char[] buffer) method. We iterate until the Reader
        * return -1 which means there's no more data to read. We use the StringWriter class to produce the string.
        */
-      if (is != null)
-      {
-         Writer writer = new StringWriter();
+        if (is != null) {
+            Writer writer = new StringWriter();
 
-         char[] buffer = new char[8192];
-         try
-         {
-            Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            int n;
-            while ((n = reader.read(buffer)) != -1)
-            {
-               writer.write(buffer, 0, n);
+            char[] buffer = new char[8192];
+            try {
+                Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                int n;
+                while ((n = reader.read(buffer)) != -1) {
+                    writer.write(buffer, 0, n);
+                }
+            } finally {
+                is.close();
             }
-         }
-         finally
-         {
-            is.close();
-         }
-         result = writer.toString();
-      }
-      InputStream in = new ByteArrayInputStream(result.getBytes("UTF-8"));
-      return in;
-   }
+            result = writer.toString();
+        }
+        InputStream in = new ByteArrayInputStream(result.getBytes("UTF-8"));
+        return in;
+    }
 
-   public void executeOn(Executor executor)
-   {
-      if (Build.VERSION.SDK_INT >= 11)
-      {
-         executeOnExecutor(executor);
-      }
-      else
-      {
-         execute();
-      }
-   }
-
-   /**
-    * Calculated the total progress sum expected from a export to file This is the sum of the number of waypoints and
-    * media entries times 100. The whole number is doubled when compression is needed.
-    */
-   public void determineProgressGoal()
-   {
-      if (mProgressListener != null)
-      {
-         Uri allWaypointsUri = Uri.withAppendedPath(mTrackUri, "waypoints");
-         Uri allMediaUri = Uri.withAppendedPath(mTrackUri, "media");
-         Cursor cursor = null;
-         ContentResolver resolver = mContext.getContentResolver();
-         try
-         {
-            cursor = resolver.query(allWaypointsUri, new String[] { "count(" + Waypoints.TABLE + "." + Waypoints._ID
-                  + ")" }, null, null, null);
-            if (cursor.moveToLast())
-            {
-               mProgressAdmin.setWaypointCount(cursor.getInt(0));
+    private String extractCleanTrackName() {
+        Cursor trackCursor = null;
+        ContentResolver resolver = mContext.getContentResolver();
+        String trackName = "Untitled";
+        try {
+            trackCursor = resolver.query(mTrackUri, new String[]{Tracks.NAME}, null, null, null);
+            if (trackCursor.moveToLast()) {
+                trackName = cleanFilename(trackCursor.getString(0), trackName);
             }
-            cursor.close();
-            cursor = resolver.query(allMediaUri, new String[] { "count(" + Media.TABLE + "." + Media._ID + ")" }, null,
-                  null, null);
-            if (cursor.moveToLast())
-            {
-               mProgressAdmin.setMediaCount(cursor.getInt(0));
+        } finally {
+            if (trackCursor != null) {
+                trackCursor.close();
             }
-            cursor.close();
-            cursor = resolver.query(allMediaUri, new String[] { "count(" + Tracks._ID + ")" }, Media.URI
-                  + " LIKE ? and " + Media.URI + " NOT LIKE ?", new String[] { "file://%", "%txt" }, null);
-            if (cursor.moveToLast())
-            {
-               mProgressAdmin.setCompress(cursor.getInt(0) > 0);
+        }
+        return trackName;
+    }
+
+    public void executeOn(Executor executor) {
+        if (Build.VERSION.SDK_INT >= 11) {
+            executeOnExecutor(executor);
+        } else {
+            execute();
+        }
+    }
+
+    /**
+     * Calculated the total progress sum expected from a export to file This is the sum of the number of waypoints and
+     * media entries times 100. The whole number is doubled when compression is needed.
+     */
+    public void determineProgressGoal() {
+        if (mProgressListener != null) {
+            Uri allWaypointsUri = Uri.withAppendedPath(mTrackUri, "waypoints");
+            Uri allMediaUri = Uri.withAppendedPath(mTrackUri, "media");
+            Cursor cursor = null;
+            ContentResolver resolver = mContext.getContentResolver();
+            try {
+                cursor = resolver.query(allWaypointsUri, new String[]{"count(" + Waypoints.TABLE + "." + Waypoints._ID
+                        + ")"}, null, null, null);
+                if (cursor.moveToLast()) {
+                    mProgressAdmin.setWaypointCount(cursor.getInt(0));
+                }
+                cursor.close();
+                cursor = resolver.query(allMediaUri, new String[]{"count(" + Media.TABLE + "." + Media._ID + ")"}, null,
+                        null, null);
+                if (cursor.moveToLast()) {
+                    mProgressAdmin.setMediaCount(cursor.getInt(0));
+                }
+                cursor.close();
+                cursor = resolver.query(allMediaUri, new String[]{"count(" + Tracks._ID + ")"}, Media.URI
+                        + " LIKE ? and " + Media.URI + " NOT LIKE ?", new String[]{"file://%", "%txt"}, null);
+                if (cursor.moveToLast()) {
+                    mProgressAdmin.setCompress(cursor.getInt(0) > 0);
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
-         }
-         finally
-         {
-            if (cursor != null)
-            {
-               cursor.close();
+        } else {
+            Log.w(this, "Exporting " + mTrackUri + " without progress!");
+        }
+    }
+
+    /**
+     * Includes media into the export directory and returns the relative path of the media
+     *
+     * @param inputFilePath
+     * @return file path relative to the export dir
+     * @throws IOException
+     */
+    protected String includeMediaFile(String inputFilePath) throws IOException {
+        mNeedsBundling = true;
+        File source = new File(inputFilePath);
+        File target = new File(mExportDirectoryPath + "/" + source.getName());
+
+        //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) );
+        if (source.exists()) {
+            FileInputStream fileInputStream = new FileInputStream(source);
+            FileChannel inChannel = fileInputStream.getChannel();
+            FileOutputStream fileOutputStream = new FileOutputStream(target);
+            FileChannel outChannel = fileOutputStream.getChannel();
+            try {
+                inChannel.transferTo(0, inChannel.size(), outChannel);
+            } finally {
+                if (inChannel != null) {
+                    inChannel.close();
+                }
+                if (outChannel != null) {
+                    outChannel.close();
+                }
+                if (fileInputStream != null) {
+                    fileInputStream.close();
+                }
+                if (fileOutputStream != null) {
+                    fileOutputStream.close();
+                }
             }
-         }
-      }
-      else
-      {
-         Log.w(this, "Exporting " + mTrackUri + " without progress!");
-      }
-   }
+        } else {
+            Log.w(this, "Failed to add file to new XML export. Missing: " + inputFilePath);
+        }
+        mProgressAdmin.addMediaProgress();
 
-   /**
-    * Includes media into the export directory and returns the relative path of the media
-    *
-    * @param inputFilePath
-    * @return file path relative to the export dir
-    * @throws IOException
-    */
-   protected String includeMediaFile(String inputFilePath) throws IOException
-   {
-      mNeedsBundling = true;
-      File source = new File(inputFilePath);
-      File target = new File(mExportDirectoryPath + "/" + source.getName());
+        return target.getName();
+    }
 
-      //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) );
-      if (source.exists())
-      {
-         FileInputStream fileInputStream = new FileInputStream(source);
-         FileChannel inChannel = fileInputStream.getChannel();
-         FileOutputStream fileOutputStream = new FileOutputStream(target);
-         FileChannel outChannel = fileOutputStream.getChannel();
-         try
-         {
-            inChannel.transferTo(0, inChannel.size(), outChannel);
-         }
-         finally
-         {
-            if (inChannel != null)
-            {
-               inChannel.close();
+    /**
+     * Just to start failing early
+     *
+     * @throws IOException
+     */
+    protected void verifySdCardAvailibility() throws IOException {
+        String state = Environment.getExternalStorageState();
+        if (!Environment.MEDIA_MOUNTED.equals(state)) {
+            throw new IOException("The ExternalStorage is not mounted, unable to export files for sharing.");
+        }
+    }
+
+    /**
+     * Create a zip of the export directory based on the given filename
+     *
+     * @param fileName  The directory to be replaced by a zipped file of the same name
+     * @param extension
+     * @return full path of the build zip file
+     * @throws IOException
+     */
+    protected String bundlingMediaAndXml(String fileName, String extension) throws IOException {
+        String zipFilePath;
+        if (fileName.endsWith(".zip") || fileName.endsWith(extension)) {
+            zipFilePath = Constants.getSdCardDirectory(mContext) + fileName;
+        } else {
+            zipFilePath = Constants.getSdCardDirectory(mContext) + fileName + extension;
+        }
+        String[] filenames = new File(mExportDirectoryPath).list();
+        byte[] buf = new byte[1024];
+        ZipOutputStream zos = null;
+        try {
+            zos = new ZipOutputStream(new FileOutputStream(zipFilePath));
+            for (int i = 0; i < filenames.length; i++) {
+                String entryFilePath = mExportDirectoryPath + "/" + filenames[i];
+                FileInputStream in = new FileInputStream(entryFilePath);
+                zos.putNextEntry(new ZipEntry(filenames[i]));
+                int len;
+                while ((len = in.read(buf)) >= 0) {
+                    zos.write(buf, 0, len);
+                }
+                zos.closeEntry();
+                in.close();
+                mProgressAdmin.addCompressProgress();
             }
-            if (outChannel != null)
-            {
-               outChannel.close();
+        } finally {
+            if (zos != null) {
+                zos.close();
             }
-            if (fileInputStream != null)
-            {
-               fileInputStream.close();
+        }
+
+        deleteRecursive(new File(mExportDirectoryPath));
+
+        return zipFilePath;
+    }
+
+    public String getExportDirectoryPath() {
+        return mExportDirectoryPath;
+    }
+
+    public void setExportDirectoryPath(String exportDirectoryPath) {
+        this.mExportDirectoryPath = exportDirectoryPath;
+    }
+
+    public void quickTag(XmlSerializer serializer, String ns, String tag, String content)
+            throws IllegalArgumentException, IllegalStateException, IOException {
+        if (tag == null) {
+            tag = "";
+        }
+        if (content == null) {
+            content = "";
+        }
+        serializer.text("\n");
+        serializer.startTag(ns, tag);
+        serializer.text(content);
+        serializer.endTag(ns, tag);
+    }
+
+    public boolean needsBundling() {
+        return mNeedsBundling;
+    }
+
+    protected abstract String getContentType();
+
+    protected void handleError(String task, Exception e, String text) {
+        Log.e(this, "Unable to save ", e);
+        mTask = task;
+        mException = e;
+        mErrorText = text;
+        cancel(false);
+        throw new CancellationException(text);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        if (mProgressListener != null) {
+            mProgressListener.started();
+        }
+    }
+
+    @Override
+    protected void onPostExecute(Uri resultFilename) {
+        if (mProgressListener != null) {
+            mProgressListener.finished(resultFilename);
+        }
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... progress) {
+        if (mProgressListener != null) {
+            mProgressListener.setProgress(mProgressAdmin.getProgress());
+        }
+    }
+
+    @Override
+    protected void onCancelled() {
+        if (mProgressListener != null) {
+            mProgressListener.finished(null);
+            mProgressListener.showError(mTask, mErrorText, mException);
+        }
+    }
+
+    public class ProgressAdmin {
+        long lastUpdate;
+        private boolean compressCount;
+        private boolean compressProgress;
+        private boolean uploadCount;
+        private boolean uploadProgress;
+        private int mediaCount;
+        private int mediaProgress;
+        private int waypointCount;
+        private int waypointProgress;
+        private long photoUploadCount;
+        private long photoUploadProgress;
+
+        public void addMediaProgress() {
+            mediaProgress++;
+        }
+
+        public void addCompressProgress() {
+            compressProgress = true;
+        }
+
+        public void addUploadProgress() {
+            uploadProgress = true;
+        }
+
+        public void addPhotoUploadProgress(long length) {
+            photoUploadProgress += length;
+        }
+
+        /**
+         * Get the progress on scale 0 ... Window.PROGRESS_END
+         *
+         * @return Returns the progress as a int.
+         */
+        public int getProgress() {
+            int blocks = 0;
+            if (waypointCount > 0) {
+                blocks++;
             }
-            if (fileOutputStream != null)
-            {
-               fileOutputStream.close();
+            if (mediaCount > 0) {
+                blocks++;
             }
-         }
-      }
-      else
-      {
-         Log.w(this, "Failed to add file to new XML export. Missing: " + inputFilePath);
-      }
-      mProgressAdmin.addMediaProgress();
-
-      return target.getName();
-   }
-
-   /**
-    * Just to start failing early
-    *
-    * @throws IOException
-    */
-   protected void verifySdCardAvailibility() throws IOException
-   {
-      String state = Environment.getExternalStorageState();
-      if (!Environment.MEDIA_MOUNTED.equals(state))
-      {
-         throw new IOException("The ExternalStorage is not mounted, unable to export files for sharing.");
-      }
-   }
-
-   /**
-    * Create a zip of the export directory based on the given filename
-    *
-    * @param fileName  The directory to be replaced by a zipped file of the same name
-    * @param extension
-    * @return full path of the build zip file
-    * @throws IOException
-    */
-   protected String bundlingMediaAndXml(String fileName, String extension) throws IOException
-   {
-      String zipFilePath;
-      if (fileName.endsWith(".zip") || fileName.endsWith(extension))
-      {
-         zipFilePath = Constants.getSdCardDirectory(mContext) + fileName;
-      }
-      else
-      {
-         zipFilePath = Constants.getSdCardDirectory(mContext) + fileName + extension;
-      }
-      String[] filenames = new File(mExportDirectoryPath).list();
-      byte[] buf = new byte[1024];
-      ZipOutputStream zos = null;
-      try
-      {
-         zos = new ZipOutputStream(new FileOutputStream(zipFilePath));
-         for (int i = 0; i < filenames.length; i++)
-         {
-            String entryFilePath = mExportDirectoryPath + "/" + filenames[i];
-            FileInputStream in = new FileInputStream(entryFilePath);
-            zos.putNextEntry(new ZipEntry(filenames[i]));
-            int len;
-            while ((len = in.read(buf)) >= 0)
-            {
-               zos.write(buf, 0, len);
+            if (compressCount) {
+                blocks++;
             }
-            zos.closeEntry();
-            in.close();
-            mProgressAdmin.addCompressProgress();
-         }
-      }
-      finally
-      {
-         if (zos != null)
-         {
-            zos.close();
-         }
-      }
+            if (uploadCount) {
+                blocks++;
+            }
+            if (photoUploadCount > 0) {
+                blocks++;
+            }
+            int progress;
+            if (blocks > 0) {
+                int blockSize = Window.PROGRESS_END / blocks;
+                progress = waypointCount > 0 ? blockSize * waypointProgress / waypointCount : 0;
+                progress += mediaCount > 0 ? blockSize * mediaProgress / mediaCount : 0;
+                progress += compressProgress ? blockSize : 0;
+                progress += uploadProgress ? blockSize : 0;
+                progress += photoUploadCount > 0 ? blockSize * photoUploadProgress / photoUploadCount : 0;
+            } else {
+                progress = 0;
+            }
+            //Log.d( TAG, "Progress updated to "+progress);
+            return progress;
+        }
 
-      deleteRecursive(new File(mExportDirectoryPath));
+        public void setWaypointCount(int waypoint) {
+            waypointCount = waypoint;
+            considerPublishProgress();
+        }
 
-      return zipFilePath;
-   }
+        public void considerPublishProgress() {
+            long now = new Date().getTime();
+            if (now - lastUpdate > 1000) {
+                lastUpdate = now;
+                publishProgress();
+            }
+        }
 
-   public String getExportDirectoryPath()
-   {
-      return mExportDirectoryPath;
-   }
+        public void setMediaCount(int media) {
+            mediaCount = media;
+            considerPublishProgress();
+        }
 
-   public void setExportDirectoryPath(String exportDirectoryPath)
-   {
-      this.mExportDirectoryPath = exportDirectoryPath;
-   }
+        public void setCompress(boolean compress) {
+            compressCount = compress;
+            considerPublishProgress();
+        }
 
-   public void quickTag(XmlSerializer serializer, String ns, String tag, String content)
-         throws IllegalArgumentException, IllegalStateException, IOException
-   {
-      if (tag == null)
-      {
-         tag = "";
-      }
-      if (content == null)
-      {
-         content = "";
-      }
-      serializer.text("\n");
-      serializer.startTag(ns, tag);
-      serializer.text(content);
-      serializer.endTag(ns, tag);
-   }
+        public void setUpload(boolean upload) {
+            uploadCount = upload;
+            considerPublishProgress();
+        }
 
-   public boolean needsBundling()
-   {
-      return mNeedsBundling;
-   }
+        public void setPhotoUpload(long length) {
+            photoUploadCount += length;
+            considerPublishProgress();
+        }
 
-   protected abstract String getContentType();
-
-   protected void handleError(String task, Exception e, String text)
-   {
-      Log.e(this, "Unable to save ", e);
-      mTask = task;
-      mException = e;
-      mErrorText = text;
-      cancel(false);
-      throw new CancellationException(text);
-   }
-
-   @Override
-   protected void onPreExecute()
-   {
-      if (mProgressListener != null)
-      {
-         mProgressListener.started();
-      }
-   }
-
-   @Override
-   protected void onPostExecute(Uri resultFilename)
-   {
-      if (mProgressListener != null)
-      {
-         mProgressListener.finished(resultFilename);
-      }
-   }
-
-   @Override
-   protected void onProgressUpdate(Integer... progress)
-   {
-      if (mProgressListener != null)
-      {
-         mProgressListener.setProgress(mProgressAdmin.getProgress());
-      }
-   }
-
-   @Override
-   protected void onCancelled()
-   {
-      if (mProgressListener != null)
-      {
-         mProgressListener.finished(null);
-         mProgressListener.showError(mTask, mErrorText, mException);
-      }
-   }
-
-   public class ProgressAdmin
-   {
-      long lastUpdate;
-      private boolean compressCount;
-      private boolean compressProgress;
-      private boolean uploadCount;
-      private boolean uploadProgress;
-      private int mediaCount;
-      private int mediaProgress;
-      private int waypointCount;
-      private int waypointProgress;
-      private long photoUploadCount;
-      private long photoUploadProgress;
-
-      public void addMediaProgress()
-      {
-         mediaProgress++;
-      }
-
-      public void addCompressProgress()
-      {
-         compressProgress = true;
-      }
-
-      public void addUploadProgress()
-      {
-         uploadProgress = true;
-      }
-
-      public void addPhotoUploadProgress(long length)
-      {
-         photoUploadProgress += length;
-      }
-
-      /**
-       * Get the progress on scale 0 ... Window.PROGRESS_END
-       *
-       * @return Returns the progress as a int.
-       */
-      public int getProgress()
-      {
-         int blocks = 0;
-         if (waypointCount > 0)
-         {
-            blocks++;
-         }
-         if (mediaCount > 0)
-         {
-            blocks++;
-         }
-         if (compressCount)
-         {
-            blocks++;
-         }
-         if (uploadCount)
-         {
-            blocks++;
-         }
-         if (photoUploadCount > 0)
-         {
-            blocks++;
-         }
-         int progress;
-         if (blocks > 0)
-         {
-            int blockSize = Window.PROGRESS_END / blocks;
-            progress = waypointCount > 0 ? blockSize * waypointProgress / waypointCount : 0;
-            progress += mediaCount > 0 ? blockSize * mediaProgress / mediaCount : 0;
-            progress += compressProgress ? blockSize : 0;
-            progress += uploadProgress ? blockSize : 0;
-            progress += photoUploadCount > 0 ? blockSize * photoUploadProgress / photoUploadCount : 0;
-         }
-         else
-         {
-            progress = 0;
-         }
-         //Log.d( TAG, "Progress updated to "+progress);
-         return progress;
-      }
-
-      public void setWaypointCount(int waypoint)
-      {
-         waypointCount = waypoint;
-         considerPublishProgress();
-      }
-
-      public void considerPublishProgress()
-      {
-         long now = new Date().getTime();
-         if (now - lastUpdate > 1000)
-         {
-            lastUpdate = now;
-            publishProgress();
-         }
-      }
-
-      public void setMediaCount(int media)
-      {
-         mediaCount = media;
-         considerPublishProgress();
-      }
-
-      public void setCompress(boolean compress)
-      {
-         compressCount = compress;
-         considerPublishProgress();
-      }
-
-      public void setUpload(boolean upload)
-      {
-         uploadCount = upload;
-         considerPublishProgress();
-      }
-
-      public void setPhotoUpload(long length)
-      {
-         photoUploadCount += length;
-         considerPublishProgress();
-      }
-
-      public void addWaypointProgress(int i)
-      {
-         waypointProgress += i;
-         considerPublishProgress();
-      }
-   }
+        public void addWaypointProgress(int i) {
+            waypointProgress += i;
+            considerPublishProgress();
+        }
+    }
 }

@@ -55,163 +55,144 @@ import nl.sogeti.android.gpstracker.viewer.LoggerMap;
  * @author rene (c) Mar 15, 2009, Sogeti B.V.
  * @version $Id: LoggerMapStressTest.java 47 2009-05-17 19:15:00Z rcgroot $
  */
-public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> implements PerformanceTestCase
-{
-   private static final Class<LoggerMap> CLASS = LoggerMap.class;
-   private static final String PACKAGE = "nl.sogeti.android.gpstracker";
-   private static final String TAG = "OGT.MapStressTest";
-   private Intermediates mIntermediates;
+public class MapStressTest extends ActivityInstrumentationTestCase2<LoggerMap> implements PerformanceTestCase {
+    private static final Class<LoggerMap> CLASS = LoggerMap.class;
+    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
+    private static final String TAG = "OGT.MapStressTest";
+    private Intermediates mIntermediates;
 
-   public MapStressTest()
-   {
-      super(PACKAGE, CLASS);
-   }
+    public MapStressTest() {
+        super(PACKAGE, CLASS);
+    }
 
-   @Override
-   protected void setUp() throws Exception
-   {
-      super.setUp();
-      getActivity();
-   }
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        getActivity();
+    }
 
-   protected void tearDown() throws Exception
-   {
-      super.tearDown();
-   }
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 
-   @LargeTest
-   public void testCreateTestData() throws XmlPullParserException, IOException
-   {
-      //createTrackBigTest( 2000 );
-      //createTrackFromKMLData( "/mnt/sdcard/estland50k.xml" );
-   }
+    @LargeTest
+    public void testCreateTestData() throws XmlPullParserException, IOException {
+        //createTrackBigTest( 2000 );
+        //createTrackFromKMLData( "/mnt/sdcard/estland50k.xml" );
+    }
 
-   private void createTrackFromKMLData(String xmlResource) throws XmlPullParserException, IOException
-   {
+    private void createTrackFromKMLData(String xmlResource) throws XmlPullParserException, IOException {
 
-      XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 
-      XmlPullParser xpp = factory.newPullParser();
-      xpp.setInput(new FileReader(xmlResource));
+        XmlPullParser xpp = factory.newPullParser();
+        xpp.setInput(new FileReader(xmlResource));
 
 
-      ContentResolver resolver = this.getActivity().getContentResolver();
-      Uri trackUri = resolver.insert(Tracks.CONTENT_URI, null);
+        ContentResolver resolver = this.getActivity().getContentResolver();
+        Uri trackUri = resolver.insert(Tracks.CONTENT_URI, null);
 
-      int eventType = xpp.getEventType();
-      while (eventType != XmlPullParser.END_DOCUMENT)
-      {
+        int eventType = xpp.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
 
-         if (eventType == XmlPullParser.START_TAG)
-         {
-            if ("coordinates".equals(xpp.getName()))
-            {
-               //Start new Segment
-               Uri segmentUri = resolver.insert(Uri.withAppendedPath(trackUri, "segments"), null);
-               Uri waypointUri = Uri.withAppendedPath(segmentUri, "waypoints");
-               //Insert all coordinates as waypoints
-               xpp.next();
-               String coords = xpp.getText();
-               StringTokenizer tokizer = new StringTokenizer(coords, " ");
-               String[] tuple = new String[3];
-               String waypoint;
-               ContentValues wp = new ContentValues();
-               while (tokizer.hasMoreTokens())
-               {
-                  waypoint = tokizer.nextToken();
-                  Log.d(TAG, "Insert waypoint: " + waypoint);
-                  tuple = waypoint.split(",");
-                  wp.put(Waypoints.LONGITUDE, new Double(tuple[0]));
-                  wp.put(Waypoints.LATITUDE, new Double(tuple[1]));
-                  wp.put(Waypoints.ALTITUDE, new Double(tuple[2]));
-                  resolver.insert(waypointUri, wp);
-               }
+            if (eventType == XmlPullParser.START_TAG) {
+                if ("coordinates".equals(xpp.getName())) {
+                    //Start new Segment
+                    Uri segmentUri = resolver.insert(Uri.withAppendedPath(trackUri, "segments"), null);
+                    Uri waypointUri = Uri.withAppendedPath(segmentUri, "waypoints");
+                    //Insert all coordinates as waypoints
+                    xpp.next();
+                    String coords = xpp.getText();
+                    StringTokenizer tokizer = new StringTokenizer(coords, " ");
+                    String[] tuple = new String[3];
+                    String waypoint;
+                    ContentValues wp = new ContentValues();
+                    while (tokizer.hasMoreTokens()) {
+                        waypoint = tokizer.nextToken();
+                        Log.d(TAG, "Insert waypoint: " + waypoint);
+                        tuple = waypoint.split(",");
+                        wp.put(Waypoints.LONGITUDE, new Double(tuple[0]));
+                        wp.put(Waypoints.LATITUDE, new Double(tuple[1]));
+                        wp.put(Waypoints.ALTITUDE, new Double(tuple[2]));
+                        resolver.insert(waypointUri, wp);
+                    }
+                }
             }
-         }
-         eventType = xpp.next();
-      }
+            eventType = xpp.next();
+        }
 
-   }
+    }
 
-   private void createTrackBigTest(int total)
-   {
-      // zig-zag through the netherlands
-      double lat1 = 52.195d;
-      double lon1 = 4.685d;
-      double lat2 = 51.882d;
-      double lon2 = 5.040d;
-      double lat3 = 52.178d;
-      double lon3 = 5.421d;
+    private void createTrackBigTest(int total) {
+        // zig-zag through the netherlands
+        double lat1 = 52.195d;
+        double lon1 = 4.685d;
+        double lat2 = 51.882d;
+        double lon2 = 5.040d;
+        double lat3 = 52.178d;
+        double lon3 = 5.421d;
 
-      ContentResolver resolver = this.getActivity().getContentResolver();
-      ContentValues wp = new ContentValues();
-      wp.put(Waypoints.ACCURACY, new Double(10d));
-      wp.put(Waypoints.ALTITUDE, new Double(5d));
-      wp.put(Waypoints.SPEED, new Double(15d));
+        ContentResolver resolver = this.getActivity().getContentResolver();
+        ContentValues wp = new ContentValues();
+        wp.put(Waypoints.ACCURACY, new Double(10d));
+        wp.put(Waypoints.ALTITUDE, new Double(5d));
+        wp.put(Waypoints.SPEED, new Double(15d));
 
-      // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
-      Uri trackUri = resolver.insert(Tracks.CONTENT_URI, null);
-      Uri segmentUri = resolver.insert(Uri.withAppendedPath(trackUri, "segments"), null);
-      Uri waypointUri = Uri.withAppendedPath(segmentUri, "waypoints");
+        // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
+        Uri trackUri = resolver.insert(Tracks.CONTENT_URI, null);
+        Uri segmentUri = resolver.insert(Uri.withAppendedPath(trackUri, "segments"), null);
+        Uri waypointUri = Uri.withAppendedPath(segmentUri, "waypoints");
 
-      for (int step = 0; step < total / 2; step++)
-      {
-         double latitude = lat1 + ((lat1 - lat2) / total) * step;
-         double longtitude = lon1 + ((lon2 - lon1) / total) * step;
-         wp.put(Waypoints.LATITUDE, new Double(latitude));
-         wp.put(Waypoints.LONGITUDE, new Double(longtitude));
-         resolver.insert(waypointUri, wp);
-      }
-      for (int step = 0; step < total / 2; step++)
-      {
-         double latitude = lat2 + ((lat3 - lat2) / total) * step;
-         double longtitude = lon2 + ((lon3 - lon2) / total) * step;
-         wp.put(Waypoints.LATITUDE, new Double(latitude));
-         wp.put(Waypoints.LONGITUDE, new Double(longtitude));
-         resolver.insert(waypointUri, wp);
-      }
-   }
+        for (int step = 0; step < total / 2; step++) {
+            double latitude = lat1 + ((lat1 - lat2) / total) * step;
+            double longtitude = lon1 + ((lon2 - lon1) / total) * step;
+            wp.put(Waypoints.LATITUDE, new Double(latitude));
+            wp.put(Waypoints.LONGITUDE, new Double(longtitude));
+            resolver.insert(waypointUri, wp);
+        }
+        for (int step = 0; step < total / 2; step++) {
+            double latitude = lat2 + ((lat3 - lat2) / total) * step;
+            double longtitude = lon2 + ((lon3 - lon2) / total) * step;
+            wp.put(Waypoints.LATITUDE, new Double(latitude));
+            wp.put(Waypoints.LONGITUDE, new Double(longtitude));
+            resolver.insert(waypointUri, wp);
+        }
+    }
 
-   /**
-    * Open the first track in the list and scroll around forcing redraws during a perf test
-    *
-    * @throws InterruptedException
-    */
-   @LargeTest
-   public void testBrowseFirstTrack() throws InterruptedException
-   {
-      int actions = 0;
-      String[] timeActions = { "G", "G", "T", "T", "T" };
+    /**
+     * Open the first track in the list and scroll around forcing redraws during a perf test
+     *
+     * @throws InterruptedException
+     */
+    @LargeTest
+    public void testBrowseFirstTrack() throws InterruptedException {
+        int actions = 0;
+        String[] timeActions = {"G", "G", "T", "T", "T"};
 
-      // Start method tracing for Issue 18
-      Debug.startMethodTracing("testBrowseFirstTrack");
-      if (this.mIntermediates != null)
-      {
-         this.mIntermediates.startTiming(true);
-      }
-      while (actions < timeActions.length)
-      {
-         this.sendKeys(timeActions[actions]);
-         actions++;
-         Thread.sleep(300L);
-      }
-      if (this.mIntermediates != null)
-      {
-         this.mIntermediates.finishTiming(true);
-      }
-      Debug.stopMethodTracing();
-      Log.d(TAG, "Completed actions: " + actions);
-   }
+        // Start method tracing for Issue 18
+        Debug.startMethodTracing("testBrowseFirstTrack");
+        if (this.mIntermediates != null) {
+            this.mIntermediates.startTiming(true);
+        }
+        while (actions < timeActions.length) {
+            this.sendKeys(timeActions[actions]);
+            actions++;
+            Thread.sleep(300L);
+        }
+        if (this.mIntermediates != null) {
+            this.mIntermediates.finishTiming(true);
+        }
+        Debug.stopMethodTracing();
+        Log.d(TAG, "Completed actions: " + actions);
+    }
 
-   public int startPerformance(Intermediates intermediates)
-   {
-      this.mIntermediates = intermediates;
-      return 1;
-   }
+    public int startPerformance(Intermediates intermediates) {
+        this.mIntermediates = intermediates;
+        return 1;
+    }
 
-   public boolean isPerformanceOnly()
-   {
-      return true;
-   }
+    public boolean isPerformanceOnly() {
+        return true;
+    }
 
 }

@@ -210,4 +210,4 @@ In this URL the placeholders @LAT@ @LON@ and @ID@ are replaced with actual infor
     <!-- ***************************
        About information
        ***************************-->
-    </resources>
+</resources>

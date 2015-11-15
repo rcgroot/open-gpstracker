@@ -78,8 +78,8 @@ public class GPSListener implements LocationListener, GpsStatus.Listener, Shared
     private static final boolean VERBOSE = false;
     private final Service mService;
     private final LoggerNotification mLoggerNotification;
-    private boolean mStartNextSegment;
     Location mPreviousLocation;
+    private boolean mStartNextSegment;
     private LocationManager mLocationManager;
     /**
      * If speeds should be checked to sane values
@@ -808,6 +808,28 @@ public class GPSListener implements LocationListener, GpsStatus.Listener, Shared
     }
 
     /**
+     * Provides the cached last stored waypoint it current logging is active alse
+     * null.
+     *
+     * @return last waypoint location or null
+     */
+    Location getLastWaypoint() {
+        Location myLastWaypoint = null;
+        if (isLogging()) {
+            myLastWaypoint = mPreviousLocation;
+        }
+        return myLastWaypoint;
+    }
+
+    float getTrackedDistance() {
+        float distance = 0F;
+        if (isLogging()) {
+            distance = mDistance;
+        }
+        return distance;
+    }
+
+    /**
      * Task to determine if the GPS is alive
      */
     class Heartbeat extends TimerTask {
@@ -855,27 +877,5 @@ public class GPSListener implements LocationListener, GpsStatus.Listener, Shared
                 }
             }
         }
-    }
-
-    /**
-     * Provides the cached last stored waypoint it current logging is active alse
-     * null.
-     *
-     * @return last waypoint location or null
-     */
-    Location getLastWaypoint() {
-        Location myLastWaypoint = null;
-        if (isLogging()) {
-            myLastWaypoint = mPreviousLocation;
-        }
-        return myLastWaypoint;
-    }
-
-    float getTrackedDistance() {
-        float distance = 0F;
-        if (isLogging()) {
-            distance = mDistance;
-        }
-        return distance;
     }
 }

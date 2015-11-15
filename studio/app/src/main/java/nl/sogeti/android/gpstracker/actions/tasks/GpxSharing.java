@@ -41,21 +41,18 @@ import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
  * @author rene (c) Jul 9, 2011, Sogeti B.V.
  * @version $Id:$
  */
-public class GpxSharing extends GpxCreator
-{
+public class GpxSharing extends GpxCreator {
 
 
-   public GpxSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener
-         listener)
-   {
-      super(context, trackUri, chosenBaseFileName, attachments, listener);
-   }
+    public GpxSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener
+            listener) {
+        super(context, trackUri, chosenBaseFileName, attachments, listener);
+    }
 
-   @Override
-   protected void onPostExecute(Uri resultFilename)
-   {
-      super.onPostExecute(resultFilename);
-      ShareTrack.sendFile(mContext, resultFilename, getContentType(), mContext.getString(R.string.email_gpxbody));
-   }
+    @Override
+    protected void onPostExecute(Uri resultFilename) {
+        super.onPostExecute(resultFilename);
+        ShareTrack.sendFile(mContext, resultFilename, getContentType(), mContext.getString(R.string.email_gpxbody));
+    }
 
 }

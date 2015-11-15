@@ -25,40 +25,31 @@ import android.content.Intent;
 import android.preference.PreferenceManager;
 
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
-import nl.sogeti.android.gpstracker.util.Log;
 
-public class BootReceiver extends BroadcastReceiver
-{
-   @Override
-   public void onReceive(Context context, Intent intent)
-   {
+public class BootReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
 //      Log.d( TAG, "BootReceiver.onReceive(), probably ACTION_BOOT_COMPLETED" );
-      String action = intent.getAction();
+        String action = intent.getAction();
 
-      // start on BOOT_COMPLETED
-      if (action.equals(Intent.ACTION_BOOT_COMPLETED))
-      {
+        // start on BOOT_COMPLETED
+        if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
 //         Log.d( TAG, "BootReceiver received ACTION_BOOT_COMPLETED" );
 
-         // check in the settings if we need to auto start
-         boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants
-               .STARTUPATBOOT, false);
+            // check in the settings if we need to auto start
+            boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants
+                    .STARTUPATBOOT, false);
 
-         if (startImmidiatly)
-         {
+            if (startImmidiatly) {
 //            Log.d( TAG, "Starting LoggerMap activity..." );
-            context.startService(new Intent(context, GPSLoggerService.class));
-         }
-         else
-         {
-            Log.i(this, "Not starting Logger Service. Adjust the settings if you wanted this !");
-         }
-      }
-      else
-      {
-         // this shouldn't happen !
-         Log.w(this, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
-               Intent.ACTION_BOOT_COMPLETED + ". This shouldn't happen !");
-      }
-   }
+                context.startService(new Intent(context, GPSLoggerService.class));
+            } else {
+                Log.i(this, "Not starting Logger Service. Adjust the settings if you wanted this !");
+            }
+        } else {
+            // this shouldn't happen !
+            Log.w(this, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
+                    Intent.ACTION_BOOT_COMPLETED + ". This shouldn't happen !");
+        }
+    }
 }

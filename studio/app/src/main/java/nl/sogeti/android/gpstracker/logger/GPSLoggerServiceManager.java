@@ -61,6 +61,30 @@ public class GPSLoggerServiceManager {
         mBound = false;
     }
 
+    public static void startGPSLogging(Context context) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_START);
+        context.startService(intent);
+    }
+
+    public static void pauseGPSLogging(Context context) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_PAUSE);
+        context.startService(intent);
+    }
+
+    public static void resumeGPSLogging(Context context) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_RESUME);
+        context.startService(intent);
+    }
+
+    public static void stopGPSLogging(Context context) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_STOP);
+        context.startService(intent);
+    }
+
     public Location getLastWaypoint() {
         synchronized (mStartLock) {
             Location lastWaypoint = null;
@@ -140,30 +164,6 @@ public class GPSLoggerServiceManager {
             }
             return prepared;
         }
-    }
-
-    public static void startGPSLogging(Context context) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_START);
-        context.startService(intent);
-    }
-
-    public static void pauseGPSLogging(Context context) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_PAUSE);
-        context.startService(intent);
-    }
-
-    public static void resumeGPSLogging(Context context) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_RESUME);
-        context.startService(intent);
-    }
-
-    public static void stopGPSLogging(Context context) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_STOP);
-        context.startService(intent);
     }
 
     public void storeMetaData(String key, String value) {

@@ -40,172 +40,136 @@ import nl.sogeti.android.gpstracker.BuildConfig;
  * <p/>
  * Use either String or Object as tag. Any non-string class will have its simple name used as tag name
  */
-public class Log
-{
-   public static final boolean DEBUG = BuildConfig.DEBUG;
-   private static final boolean ADD_LINE_NUMBERS = false;
-   private static final boolean SHOW_THREAD_ID = true;
+public class Log {
+    public static final boolean DEBUG = BuildConfig.DEBUG;
+    private static final boolean ADD_LINE_NUMBERS = false;
+    private static final boolean SHOW_THREAD_ID = true;
 
-   private Log()
-   {
-   }
+    private Log() {
+    }
 
-   private static String getTag(Object tag)
-   {
-      String tagName;
-      if (tag instanceof String)
-      {
-         tagName = (String) tag;
-      }
-      else
-      {
-         tagName = tag.getClass().getSimpleName();
-         if (TextUtils.isEmpty(tagName))
-         {
-            tagName = tag.getClass().getCanonicalName();
-         }
-
-         if (TextUtils.isEmpty(tagName))
-         {
-            tagName = tag.getClass().getName();
-            if (tagName.contains("."))
-            {
-               tagName = tagName.substring(tagName.lastIndexOf(".") + 1);
+    private static String getTag(Object tag) {
+        String tagName;
+        if (tag instanceof String) {
+            tagName = (String) tag;
+        } else {
+            tagName = tag.getClass().getSimpleName();
+            if (TextUtils.isEmpty(tagName)) {
+                tagName = tag.getClass().getCanonicalName();
             }
-            if (tagName.contains("$"))
-            {
-               tagName = tagName.substring(0, tagName.indexOf("$"));
+
+            if (TextUtils.isEmpty(tagName)) {
+                tagName = tag.getClass().getName();
+                if (tagName.contains(".")) {
+                    tagName = tagName.substring(tagName.lastIndexOf(".") + 1);
+                }
+                if (tagName.contains("$")) {
+                    tagName = tagName.substring(0, tagName.indexOf("$"));
+                }
             }
-         }
-      }
-      if (tagName.length() > 23)
-      {
-         tagName = tagName.substring(0, 23);
-      }
-      return tagName;
-   }
+        }
+        if (tagName.length() > 23) {
+            tagName = tagName.substring(0, 23);
+        }
+        return tagName;
+    }
 
-   private static String getFormattedMessage(Object tag, final String msg)
-   {
-      String result = msg;
-      if (SHOW_THREAD_ID)
-      {
-         result = String.format(Locale.getDefault(), "(thread:%d) %s", Thread.currentThread().getId(), result);
-      }
+    private static String getFormattedMessage(Object tag, final String msg) {
+        String result = msg;
+        if (SHOW_THREAD_ID) {
+            result = String.format(Locale.getDefault(), "(thread:%d) %s", Thread.currentThread().getId(), result);
+        }
 
-      if (ADD_LINE_NUMBERS)
-      {
-         int stackTraceLength = Thread.currentThread().getStackTrace().length;
-         if (stackTraceLength > 0)
-         {
-            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-            StackTraceElement stackElement = null;
+        if (ADD_LINE_NUMBERS) {
+            int stackTraceLength = Thread.currentThread().getStackTrace().length;
+            if (stackTraceLength > 0) {
+                StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                StackTraceElement stackElement = null;
 
-            for (int i = stackTraceLength - 1; i > 0; i--)
-            {
-               if (stackTrace[i].getFileName().equals(tag + ".java"))
-               {
-                  stackElement = stackTrace[i];
-               }
+                for (int i = stackTraceLength - 1; i > 0; i--) {
+                    if (stackTrace[i].getFileName().equals(tag + ".java")) {
+                        stackElement = stackTrace[i];
+                    }
+                }
+                if (stackElement != null) {
+                    result = String.format(Locale.getDefault(), "%s (%s:%d)", result, stackElement.getFileName(),
+                            stackElement.getLineNumber());
+                }
             }
-            if (stackElement != null)
-            {
-               result = String.format(Locale.getDefault(), "%s (%s:%d)", result, stackElement.getFileName(),
-                     stackElement.getLineNumber());
-            }
-         }
-      }
-      return result;
-   }
+        }
+        return result;
+    }
 
-   public static void v(final Object tagSource, final String msgSource)
-   {
-      if (DEBUG)
-      {
-         String tag = getTag(tagSource);
-         String msg = getFormattedMessage(tag, msgSource);
-         android.util.Log.v(tag, msg);
-      }
-   }
+    public static void v(final Object tagSource, final String msgSource) {
+        if (DEBUG) {
+            String tag = getTag(tagSource);
+            String msg = getFormattedMessage(tag, msgSource);
+            android.util.Log.v(tag, msg);
+        }
+    }
 
-   public static void d(final Object tagSource, final String msgSource)
-   {
-      if (DEBUG)
-      {
-         String tag = getTag(tagSource);
-         String msg = getFormattedMessage(tag, msgSource);
-         android.util.Log.d(tag, msg);
-      }
-   }
+    public static void d(final Object tagSource, final String msgSource) {
+        if (DEBUG) {
+            String tag = getTag(tagSource);
+            String msg = getFormattedMessage(tag, msgSource);
+            android.util.Log.d(tag, msg);
+        }
+    }
 
-   public static void d(final Object tagSource, final String msgSource, String... args)
-   {
-      if (DEBUG)
-      {
-         String tag = getTag(tagSource);
-         String msg = getFormattedMessage(tag, String.format(msgSource, args));
-         android.util.Log.d(tag, msg);
-      }
-   }
+    public static void d(final Object tagSource, final String msgSource, String... args) {
+        if (DEBUG) {
+            String tag = getTag(tagSource);
+            String msg = getFormattedMessage(tag, String.format(msgSource, args));
+            android.util.Log.d(tag, msg);
+        }
+    }
 
 
-   public static void d(final Object tagSource, final String msgSource, Exception e)
-   {
-      if (DEBUG)
-      {
-         String tag = getTag(tagSource);
-         String msg = getFormattedMessage(tag, msgSource);
-         android.util.Log.d(tag, msg, e);
-      }
-   }
+    public static void d(final Object tagSource, final String msgSource, Exception e) {
+        if (DEBUG) {
+            String tag = getTag(tagSource);
+            String msg = getFormattedMessage(tag, msgSource);
+            android.util.Log.d(tag, msg, e);
+        }
+    }
 
-   public static void i(final Object tagSource, final String msgSource)
-   {
-      if (DEBUG)
-      {
-         String tag = getTag(tagSource);
-         String msg = getFormattedMessage(tag, msgSource);
-         android.util.Log.i(tag, msg);
-      }
-   }
+    public static void i(final Object tagSource, final String msgSource) {
+        if (DEBUG) {
+            String tag = getTag(tagSource);
+            String msg = getFormattedMessage(tag, msgSource);
+            android.util.Log.i(tag, msg);
+        }
+    }
 
-   public static void e(final Object tagSource, final String msgSource)
-   {
-      if (DEBUG)
-      {
-         String tag = getTag(tagSource);
-         String msg = getFormattedMessage(tag, msgSource);
-         android.util.Log.e(tag, msg);
-      }
-   }
+    public static void e(final Object tagSource, final String msgSource) {
+        if (DEBUG) {
+            String tag = getTag(tagSource);
+            String msg = getFormattedMessage(tag, msgSource);
+            android.util.Log.e(tag, msg);
+        }
+    }
 
-   public static void e(final Object tagSource, final String msgSource, Throwable e)
-   {
-      if (DEBUG)
-      {
-         String tag = getTag(tagSource);
-         String msg = getFormattedMessage(tag, msgSource);
-         android.util.Log.e(tag, msg, e);
-      }
-   }
+    public static void e(final Object tagSource, final String msgSource, Throwable e) {
+        if (DEBUG) {
+            String tag = getTag(tagSource);
+            String msg = getFormattedMessage(tag, msgSource);
+            android.util.Log.e(tag, msg, e);
+        }
+    }
 
-   public static void w(final Object tagSource, final String msgSource)
-   {
-      if (DEBUG)
-      {
-         String tag = getTag(tagSource);
-         String msg = getFormattedMessage(tag, msgSource);
-         android.util.Log.w(tag, msg);
-      }
-   }
+    public static void w(final Object tagSource, final String msgSource) {
+        if (DEBUG) {
+            String tag = getTag(tagSource);
+            String msg = getFormattedMessage(tag, msgSource);
+            android.util.Log.w(tag, msg);
+        }
+    }
 
-   public static void w(final Object tagSource, final String msgSource, Throwable e)
-   {
-      if (DEBUG)
-      {
-         String tag = getTag(tagSource);
-         String msg = getFormattedMessage(tag, msgSource);
-         android.util.Log.w(tag, msg, e);
-      }
-   }
+    public static void w(final Object tagSource, final String msgSource, Throwable e) {
+        if (DEBUG) {
+            String tag = getTag(tagSource);
+            String msg = getFormattedMessage(tag, msgSource);
+            android.util.Log.w(tag, msg, e);
+        }
+    }
 }

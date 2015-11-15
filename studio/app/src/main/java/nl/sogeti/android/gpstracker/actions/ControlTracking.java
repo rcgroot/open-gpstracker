@@ -30,7 +30,6 @@ package nl.sogeti.android.gpstracker.actions;
 
 import android.app.Dialog;
 import android.content.ComponentName;
-import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,8 +41,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.Log;
@@ -55,7 +52,6 @@ import nl.sogeti.android.gpstracker.util.Log;
  * @version $Id$
  */
 public class ControlTracking extends AppCompatActivity {
-    private GPSLoggerServiceManager mLoggerServiceManager;
     private final View.OnClickListener mLoggingControlListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -89,6 +85,7 @@ public class ControlTracking extends AppCompatActivity {
             finish();
         }
     };
+    private GPSLoggerServiceManager mLoggerServiceManager;
     private Button start;
     private Button pause;
     private Button resume;

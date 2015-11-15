@@ -28,43 +28,33 @@ import android.preference.PreferenceManager;
 
 import nl.sogeti.android.gpstracker.logger.GPSLoggerService;
 
-public class PowerReceiver extends BroadcastReceiver
-{
-   @Override
-   public void onReceive(Context context, Intent intent)
-   {
-      boolean start = false;
-      boolean stop = false;
-      String action = intent.getAction();
-      Log.d(this, "OpenGPSTracker's PowerReceiver received: " + action);
-      if (action.equals(Intent.ACTION_POWER_CONNECTED))
-      {
-         start = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.LOGATPOWERCONNECTED,
-               false);
-      }
-      else if (action.equals(Intent.ACTION_POWER_DISCONNECTED))
-      {
-         stop = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.STOPATPOWERDISCONNECTED,
-               false);
-      }
-      else
-      {
-         Log.w(this, "OpenGPSTracker's PowerReceiver received " + action + ", but it's only able to respond to " +
-               Intent.ACTION_POWER_CONNECTED + " and " + Intent.ACTION_POWER_DISCONNECTED
-               + ". This shouldn't happen!");
-      }
+public class PowerReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        boolean start = false;
+        boolean stop = false;
+        String action = intent.getAction();
+        Log.d(this, "OpenGPSTracker's PowerReceiver received: " + action);
+        if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
+            start = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.LOGATPOWERCONNECTED,
+                    false);
+        } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
+            stop = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.STOPATPOWERDISCONNECTED,
+                    false);
+        } else {
+            Log.w(this, "OpenGPSTracker's PowerReceiver received " + action + ", but it's only able to respond to " +
+                    Intent.ACTION_POWER_CONNECTED + " and " + Intent.ACTION_POWER_DISCONNECTED
+                    + ". This shouldn't happen!");
+        }
 
-      if (start)
-      {
-         Intent serviceIntent = new Intent(context, GPSLoggerService.class);
-         serviceIntent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_START);
-         context.startService(serviceIntent);
-      }
-      else if (stop)
-      {
-         Intent serviceIntent = new Intent(context, GPSLoggerService.class);
-         serviceIntent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_STOP);
-         context.startService(serviceIntent);
-      }
-   }
+        if (start) {
+            Intent serviceIntent = new Intent(context, GPSLoggerService.class);
+            serviceIntent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_START);
+            context.startService(serviceIntent);
+        } else if (stop) {
+            Intent serviceIntent = new Intent(context, GPSLoggerService.class);
+            serviceIntent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_STOP);
+            context.startService(serviceIntent);
+        }
+    }
 }
