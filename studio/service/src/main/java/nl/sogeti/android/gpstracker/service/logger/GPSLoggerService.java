@@ -77,7 +77,9 @@ public class GPSLoggerService extends LingerService {
         }
         mGPSListener.removeGpsStatusListener();
         mGPSListener.stopListening();
-        mLoggerNotification.stopLogging();
+        if (mGPSListener.getLoggingState() != ExternalConstants.STATE_PAUSED) {
+            mLoggerNotification.stopLogging();
+        }
         mGPSListener.onDestroy();
         mLoggerNotification = null;
     }
