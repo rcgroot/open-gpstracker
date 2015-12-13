@@ -1,18 +1,32 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nl.sogeti.android.gpstracker.service">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <permission
+        android:name="nl.sogeti.android.gpstracker.permission.TRACKING_CONTROL"
+        android:description="@string/permission_control_description"
+        android:label="@string/permission_control"
+        android:permissionGroup="android.permission-group.LOCATION"
+        android:protectionLevel="dangerous" />
+    <permission
+        android:name="nl.sogeti.android.gpstracker.permission.TRACKING_HISTORY"
+        android:description="@string/permission_history_description"
+        android:label="@string/permission_history"
+        android:permissionGroup="android.permission-group.LOCATION"
+        android:protectionLevel="dangerous" />
+
     <application>
         <service
             android:name=".logger.GPSLoggerService"
             android:enabled="true"
-            android:permission="android.permission.ACCESS_FINE_LOCATION"
+            android:exported="true"
+            android:permission="nl.sogeti.android.gpstracker.permission.TRACKING_CONTROL"
             android:process=":remote">
             <intent-filter android:label="GPS logger">
                 <action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
@@ -23,7 +37,8 @@
             android:name=".db.GPStrackingProvider"
             android:authorities="nl.sogeti.android.gpstracker"
             android:enabled="true"
-            android:permission="android.permission.ACCESS_FINE_LOCATION">
+            android:exported="true"
+            android:permission="nl.sogeti.android.gpstracker.permission.TRACKING_HISTORY">
             <grant-uri-permission android:pathPrefix="/tracks/" />
 
             <path-permission

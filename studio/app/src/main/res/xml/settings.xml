@@ -67,12 +67,6 @@
 
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="logatstartup"
-            android:summary="@string/logatstartup_summary"
-            android:title="@string/logatstartup" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
             android:key="logatdock"
             android:summary="@string/logatdock_summary"
             android:title="@string/logatdock" />

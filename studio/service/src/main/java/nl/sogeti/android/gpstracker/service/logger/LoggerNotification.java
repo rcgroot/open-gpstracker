@@ -12,7 +12,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
@@ -28,7 +27,7 @@ import nl.sogeti.android.log.Log;
  */
 public class LoggerNotification {
     private static final int ID_DISABLED = R.string.service_connectiondisabled;
-    private static final int ID_STATUS = R.string.app_name;
+    private static final int ID_STATUS = R.string.service_gpsstatus;
     private static final int ID_GPS_PROBLEM = R.string.service_gpsproblem;
     private static final int SMALL_ICON = R.drawable.ic_maps_indicator_current_position;
     private final Service mService;
@@ -47,11 +46,7 @@ public class LoggerNotification {
         mNoticationManager.cancel(ID_STATUS);
 
         Notification notification = buildLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
-        if (Build.VERSION.SDK_INT >= 5) {
-            mService.startForeground(ID_STATUS, notification);
-        } else {
-            mNoticationManager.notify(ID_STATUS, notification);
-        }
+        mService.startForeground(ID_STATUS, notification);
     }
 
     void updateLogging(int mPrecision, int mLoggingState, boolean mStatusMonitor, long mTrackId) {
@@ -60,16 +55,12 @@ public class LoggerNotification {
     }
 
     void stopLogging() {
-        if (Build.VERSION.SDK_INT >= 5) {
-            mService.stopForeground(true);
-        } else {
-            mNoticationManager.cancel(ID_STATUS);
-        }
+        mService.stopForeground(true);
     }
 
     private Notification buildLogging(int precision, int state, boolean monitor, long trackId) {
         Resources resources = mService.getResources();
-        CharSequence contentTitle = resources.getString(R.string.app_name);
+        CharSequence contentTitle = resources.getString(R.string.service_title);
         String precisionText = resources.getStringArray(R.array.precision_choices)[precision];
         String stateText = resources.getStringArray(R.array.state_choices)[state - 1];
         CharSequence contentText;
@@ -118,7 +109,7 @@ public class LoggerNotification {
     void startPoorSignal(long trackId) {
         Resources resources = mService.getResources();
         CharSequence contentText = resources.getString(R.string.service_gpsproblem);
-        CharSequence contentTitle = resources.getString(R.string.app_name);
+        CharSequence contentTitle = resources.getString(R.string.service_title);
 
         Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, trackId);
         Intent notificationIntent = new Intent(Intent.ACTION_VIEW, uri);
@@ -142,7 +133,7 @@ public class LoggerNotification {
     void startDisabledProvider(int resId, long trackId) {
         isShowingDisabled = true;
 
-        CharSequence contentTitle = mService.getResources().getString(R.string.app_name);
+        CharSequence contentTitle = mService.getResources().getString(R.string.service_title);
         CharSequence contentText = mService.getResources().getString(resId);
         CharSequence tickerText = mService.getResources().getString(resId);
 

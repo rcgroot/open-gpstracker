@@ -47,7 +47,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
 import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
 /**
@@ -86,19 +86,19 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap> {
     @MediumTest
     @Suppress
     public void testStartTracking() throws InterruptedException {
-        GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(this.getInstrumentation().getContext());
+        GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager();
         serviceManager.startup(getActivity(), null);
-        Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+        Assert.assertEquals("The service should not be logging", ExternalConstants.STATE_STOPPED, serviceManager
                 .getLoggingState());
 
         this.sendKeys("MENU T DPAD_DOWN ENTER");
         this.sendKeys("T E S T R O U T E ENTER ENTER");
         Assert.assertTrue("Title contains the current route name", this.mLoggermap.getTitle().toString().contains
                 ("testroute"));
-        Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, serviceManager.getLoggingState());
+        Assert.assertEquals("The service should be logging", ExternalConstants.STATE_LOGGING, serviceManager.getLoggingState());
 
         this.sendKeys("MENU T DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_CENTER");
-        Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+        Assert.assertEquals("The service should not be logging", ExternalConstants.STATE_STOPPED, serviceManager
                 .getLoggingState());
         serviceManager.shutdown(getActivity());
     }
@@ -112,28 +112,28 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap> {
     @MediumTest
     @Suppress
     public void testBackgroundTracking() throws Exception {
-        GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(this.getInstrumentation().getContext());
+        GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager();
         serviceManager.startup(getActivity(), null);
-        Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+        Assert.assertEquals("The service should not be logging", ExternalConstants.STATE_STOPPED, serviceManager
                 .getLoggingState());
 
-        serviceManager.startGPSLogging("testBackgroundTracking");
-        Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, serviceManager.getLoggingState());
+        serviceManager.startGPSLogging(getInstrumentation().getContext());
+        Assert.assertEquals("The service should be logging", ExternalConstants.STATE_LOGGING, serviceManager.getLoggingState());
 
         //this.setUp();
-        Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, serviceManager.getLoggingState());
+        Assert.assertEquals("The service should be logging", ExternalConstants.STATE_LOGGING, serviceManager.getLoggingState());
 
         this.sendKeys("MENU T DPAD_DOWN ENTER");
-        Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+        Assert.assertEquals("The service should not be logging", ExternalConstants.STATE_STOPPED, serviceManager
                 .getLoggingState());
 
         //this.sendKeys( "HOME" );
-        Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+        Assert.assertEquals("The service should not be logging", ExternalConstants.STATE_STOPPED, serviceManager
                 .getLoggingState());
         //this.setUp();
-        Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
+        Assert.assertEquals("The service should not be logging", ExternalConstants.STATE_STOPPED, serviceManager
                 .getLoggingState());
-        serviceManager.stopGPSLogging();
+        serviceManager.stopGPSLogging(getInstrumentation().getContext());
 
         serviceManager.shutdown(getActivity());
     }

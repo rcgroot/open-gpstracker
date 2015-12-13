@@ -8,12 +8,10 @@
         android:normalScreens="true"
         android:smallScreens="true" />
 
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="nl.sogeti.android.gpstracker.permission.TRACKING_CONTROL" />
+    <uses-permission android:name="nl.sogeti.android.gpstracker.permission.TRACKING_HISTORY" />
 
     <uses-feature
         android:name="android.hardware.location.gps"

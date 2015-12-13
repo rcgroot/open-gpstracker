@@ -22,10 +22,9 @@ package nl.sogeti.android.gpstracker.service.startstop;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.preference.PreferenceManager;
 
-import nl.sogeti.android.gpstracker.service.logger.Constants;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
+import nl.sogeti.android.gpstracker.service.logger.LoggerPersistence;
 import nl.sogeti.android.log.Log;
 
 public class BootReceiver extends BroadcastReceiver {
@@ -37,12 +36,11 @@ public class BootReceiver extends BroadcastReceiver {
         // start on BOOT_COMPLETED
         if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
             Log.d(this, "BootReceiver received ACTION_BOOT_COMPLETED");
-
+            LoggerPersistence persistence = new LoggerPersistence(context);
             // check in the settings if we need to auto start
-            boolean startImmidiatly = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-                    Constants.STARTUPATBOOT, false);
+            boolean startImmediately = persistence.shouldLogAtBoot();
 
-            if (startImmidiatly) {
+            if (startImmediately) {
                 Log.d(this, "Starting LoggerMap activity...");
                 context.startService(new Intent(context, GPSLoggerService.class));
             } else {

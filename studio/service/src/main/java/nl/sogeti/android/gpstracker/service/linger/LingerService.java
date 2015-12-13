@@ -43,13 +43,14 @@ import android.os.Message;
  */
 public abstract class LingerService extends Service {
 
-    private final long mDuration;
+    private long mDuration;
     private volatile Looper mServiceLooper;
     private volatile ServiceHandler mServiceHandler;
     private final String mName;
     private boolean isFirstRun;
 
     private final class ServiceHandler extends Handler {
+
         public ServiceHandler(Looper looper) {
             super(looper);
         }
@@ -62,9 +63,11 @@ public abstract class LingerService extends Service {
                 this.postDelayed(new RunStopSelf(startId), mDuration);
             }
         }
+
     }
 
     private final class RunStopSelf implements Runnable {
+
         private final int startId;
 
         public RunStopSelf(int startId) {
@@ -79,6 +82,7 @@ public abstract class LingerService extends Service {
                 stopSelf(startId);
             }
         }
+
     }
 
     /**
@@ -128,6 +132,14 @@ public abstract class LingerService extends Service {
     public void onDestroy() {
         mServiceLooper.quit();
         didDestroy();
+    }
+
+    public long getDuration() {
+        return mDuration;
+    }
+
+    public void setLingerDuration(long mDuration) {
+        this.mDuration = mDuration;
     }
 
     @Override

@@ -33,7 +33,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
@@ -46,13 +45,10 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.service.R;
@@ -77,7 +73,8 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     private static final boolean VERBOSE = false;
     private final Service mService;
     private final LoggerNotification mLoggerNotification;
-    Location mPreviousLocation;
+    private final LoggerPersistence mPersistence;
+    private Location mPreviousLocation;
     private boolean mStartNextSegment;
     private LocationManager mLocationManager;
     /**
@@ -106,16 +103,6 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      */
     private boolean mStatusMonitor;
     /**
-     * Time thread to runs tasks that check whether the GPS listener has received
-     * enough to consider the GPS system alive.
-     */
-    private Timer mHeartbeatTimer;
-    /**
-     * Task that will be run periodically during active logging to verify that
-     * the logging really happens and that the GPS hasn't silently stopped.
-     */
-    private TimerTask mHeartbeat = null;
-    /**
      * Number of milliseconds that a functioning GPS system needs to provide a
      * location. Calculated to be either 120 seconds or 4 times the requested
      * period, whichever is larger.
@@ -127,41 +114,27 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
     private Vector<Location> mWeakLocations;
     private Queue<Double> mAltitudes;
+    private String mProvider;
 
-    public GPSListener(GPSLoggerService gpsLoggerService, LoggerNotification loggerNotification) {
+    public GPSListener(GPSLoggerService gpsLoggerService, LoggerPersistence persistence, LoggerNotification loggerNotification) {
         mService = gpsLoggerService;
+        mPersistence = persistence;
         mLoggerNotification = loggerNotification;
     }
 
     public void onCreate() {
-        mHeartbeatTimer = new Timer("heartbeat", true);
-
         mWeakLocations = new Vector<>(3);
         mAltitudes = new LinkedList<>();
         mLoggingState = ExternalConstants.STATE_STOPPED;
         mStartNextSegment = false;
         mLocationManager = (LocationManager) mService.getSystemService(Context.LOCATION_SERVICE);
-        SharedPreferences sharedPreferences = preferences();
-        mSpeedSanityCheck = sharedPreferences.getBoolean(Constants.SPEEDSANITYCHECK, true);
-        mStreamBroadcast = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
-
-        boolean startImmidiatly = preferences().getBoolean(Constants
-                .LOGATSTARTUP, false);
+        mSpeedSanityCheck = mPersistence.isSpeedChecked();
+        mStreamBroadcast = mPersistence.getStreamBroadcast();
 
         crashRestoreState();
-        if (startImmidiatly && mLoggingState == ExternalConstants.STATE_STOPPED) {
-            startLogging();
-            ContentValues values = new ContentValues();
-            values.put(GPStracking.Tracks.NAME, "Recorded at startup");
-            mService.getContentResolver().update(ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, mTrackId), values, null, null);
-        } else {
-            broadCastLoggingState();
-        }
     }
 
     public void onDestroy() {
-        mHeartbeatTimer.cancel();
-        mHeartbeatTimer.purge();
         if (this.mWakeLock != null) {
             this.mWakeLock.release();
             this.mWakeLock = null;
@@ -264,19 +237,16 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         crashProtectState();
         mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
         broadCastLoggingState();
-        SharedPreferences preferences = preferences();
-        mSpeedSanityCheck = preferences.getBoolean(Constants.SPEEDSANITYCHECK, true);
         mLocationManager.removeGpsStatusListener(this);
         sendRequestStatusUpdateMessage();
         mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
-        mStreamBroadcast = preferences.getBoolean(Constants.BROADCAST_STREAM, false);
+        mStreamBroadcast = mPersistence.getStreamBroadcast();
     }
 
     private void sendRequestLocationUpdatesMessage() {
         stopListening();
-        mStatusMonitor = preferences().getBoolean(Constants.STATUS_MONITOR, false);
-        mPrecision = Integer.valueOf(preferences().getString(Constants.PRECISION,
-                "2"));
+        mStatusMonitor = mPersistence.isStatusMonitor();
+        mPrecision = mPersistence.getPrecision();
         long intervaltime;
         float distance, accuracy;
         switch (mPrecision) {
@@ -308,17 +278,8 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
                 }
                 break;
             case (ExternalConstants.LOGGING_CUSTOM): // Global
-                SharedPreferences defaultSharedPreferences = preferences();
-                String intervalPreference = defaultSharedPreferences.getString(Constants.LOGGING_INTERVAL, "15000");
-                try {
-                    intervaltime = 60 * 1000 * Long.valueOf(intervalPreference);
-                } catch (NumberFormatException e) {
-                    intervaltime = LoggingConstants.NORMAL_INTERVAL;
-                    SharedPreferences.Editor edit = defaultSharedPreferences.edit();
-                    edit.putString(Constants.LOGGING_INTERVAL, "" + intervaltime / 60000);
-                    edit.commit();
-                }
-                distance = Float.valueOf(defaultSharedPreferences.getString(Constants.LOGGING_DISTANCE, "10"));
+                intervaltime = mPersistence.getCustomLocationIntervalMinutes() * 60 * 1000;
+                distance = mPersistence.getCustomLocationIntervalMetres();
                 accuracy = Math.max(10f, Math.min(distance, 50f));
                 startListening(LocationManager.GPS_PROVIDER, intervaltime, distance, accuracy);
                 break;
@@ -326,10 +287,6 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
                 Log.e(this, "Unknown precision " + mPrecision);
                 break;
         }
-    }
-
-    private SharedPreferences preferences() {
-        return PreferenceManager.getDefaultSharedPreferences(mService);
     }
 
     private boolean isNetworkConnected() {
@@ -470,10 +427,8 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         Intent intent = new Intent(ExternalConstants.STREAM_BROADCAST);
 
         if (mStreamBroadcast) {
-            final long minDistance = (long) preferences().getFloat
-                    ("streambroadcast_distance_meter", 5000F);
-            final long minTime = 60000 * Long.parseLong(preferences().getString
-                    ("streambroadcast_time", "1"));
+            float minDistance = mPersistence.getBroadcastIntervalMeters();
+            long minTime = mPersistence.getBroadcastIntervalMinutes();
             final long nowTime = location.getTime();
             if (mPreviousLocation != null) {
                 mBroadcastDistance += location.distanceTo(mPreviousLocation);
@@ -533,10 +488,6 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     }
 
     void stopListening() {
-        if (mHeartbeat != null) {
-            mHeartbeat.cancel();
-            mHeartbeat = null;
-        }
         mLocationManager.removeUpdates(this);
     }
 
@@ -568,30 +519,27 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     }
 
     private void crashProtectState() {
-        SharedPreferences preferences = preferences();
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putLong(LoggingConstants.SERVICESTATE_TRACKID, mTrackId);
-        editor.putLong(LoggingConstants.SERVICESTATE_SEGMENTID, mSegmentId);
-        editor.putInt(LoggingConstants.SERVICESTATE_PRECISION, mPrecision);
-        editor.putInt(LoggingConstants.SERVICESTATE_STATE, mLoggingState);
-        editor.putFloat(LoggingConstants.SERVICESTATE_DISTANCE, mDistance);
-        editor.commit();
+        mPersistence.setTrackId(mTrackId);
+        mPersistence.setSegmentId(mSegmentId);
+        mPersistence.setPrecision(mPrecision);
+        mPersistence.setDistance(mDistance);
+        mPersistence.setLoggingState(mLoggingState);
+
         if (DEBUG) {
             Log.d(this, "crashProtectState()");
         }
     }
 
     private synchronized void crashRestoreState() {
-        SharedPreferences preferences = preferences();
-        long previousState = preferences.getInt(LoggingConstants.SERVICESTATE_STATE, ExternalConstants.STATE_STOPPED);
+        int previousState = mPersistence.getLoggingState();
         if (previousState == ExternalConstants.STATE_LOGGING || previousState == ExternalConstants.STATE_PAUSED) {
             Log.w(this, "Recovering from a crash or kill and restoring state.");
             mLoggerNotification.startLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
 
-            mTrackId = preferences.getLong(LoggingConstants.SERVICESTATE_TRACKID, -1);
-            mSegmentId = preferences.getLong(LoggingConstants.SERVICESTATE_SEGMENTID, -1);
-            mPrecision = preferences.getInt(LoggingConstants.SERVICESTATE_PRECISION, -1);
-            mDistance = preferences.getFloat(LoggingConstants.SERVICESTATE_DISTANCE, 0F);
+            mTrackId = mPersistence.getTrackId();
+            mSegmentId = mPersistence.getSegmentId();
+            mPrecision = mPersistence.getPrecision();
+            mDistance = mPersistence.getDistance();
             if (previousState == ExternalConstants.STATE_LOGGING) {
                 mLoggingState = ExternalConstants.STATE_PAUSED;
                 GPSLoggerServiceManager.resumeGPSLogging(mService);
@@ -704,19 +652,60 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         mService.getApplicationContext().sendBroadcast(broadcast);
     }
 
-    void startListening(String provider, long intervaltime, float distance, float accuracy) {
+    /**
+     * @param provider
+     * @param milliseconds
+     * @param meters
+     * @param accuracy
+     */
+    private void startListening(String provider, long milliseconds, float meters, float accuracy) {
+        mProvider = provider;
         mMaxAcceptableAccuracy = accuracy;
         mLocationManager.removeUpdates(this);
-        mLocationManager.requestLocationUpdates(provider, intervaltime, distance, this);
-        mCheckPeriod = Math.max(12 * intervaltime, 120 * 1000);
-        if (mHeartbeat != null) {
-            mHeartbeat.cancel();
-            mHeartbeat = null;
-        }
-        mHeartbeat = new Heartbeat(provider);
-        mHeartbeatTimer.schedule(mHeartbeat, mCheckPeriod, mCheckPeriod);
+        mLocationManager.requestLocationUpdates(provider, milliseconds, meters, this);
+        mCheckPeriod = Math.max(12 * milliseconds, 120);
     }
 
+    void verifyLoggingState() {
+        if (mLoggingState == ExternalConstants.STATE_LOGGING) {
+            // Collect the last location from the last logged location or a more recent from the last weak location
+            Location checkLocation = mPreviousLocation;
+            synchronized (mWeakLocations) {
+                if (!mWeakLocations.isEmpty()) {
+                    if (checkLocation == null) {
+                        checkLocation = mWeakLocations.lastElement();
+                    } else {
+                        Location weakLocation = mWeakLocations.lastElement();
+                        checkLocation = weakLocation.getTime() > checkLocation.getTime() ? weakLocation : checkLocation;
+                    }
+                }
+            }
+            // Is the last known GPS location something nearby we are not told?
+            Location managerLocation = mLocationManager.getLastKnownLocation(mProvider);
+            if (managerLocation != null && checkLocation != null) {
+                if (checkLocation.distanceTo(managerLocation) < 2 * mMaxAcceptableAccuracy) {
+                    checkLocation = managerLocation.getTime() > checkLocation.getTime() ? managerLocation : checkLocation;
+                }
+            }
+
+            if (checkLocation == null || checkLocation.getTime() + mCheckPeriod < new Date().getTime()) {
+                Log.w(this, "GPS system failed to produce a location during logging: " + checkLocation);
+                mLoggerNotification.startPoorSignal(mTrackId);
+                if (mStatusMonitor) {
+                    mLoggerNotification.soundGpsSignalAlarm();
+                }
+
+                mLoggingState = ExternalConstants.STATE_PAUSED;
+                GPSLoggerServiceManager.resumeGPSLogging(GPSListener.this.mService);
+            } else {
+                mLoggerNotification.stopPoorSignal();
+            }
+        }
+    }
+
+    public long getCheckPeriod() {
+        return mCheckPeriod;
+    }
 
     private void updateWakeLock() {
         if (this.mLoggingState == ExternalConstants.STATE_LOGGING) {
@@ -797,55 +786,5 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             distance = mDistance;
         }
         return distance;
-    }
-
-    /**
-     * Task to determine if the GPS is alive
-     */
-    class Heartbeat extends TimerTask {
-
-        private String mProvider;
-
-        public Heartbeat(String provider) {
-            mProvider = provider;
-        }
-
-        @Override
-        public void run() {
-            if (mLoggingState == ExternalConstants.STATE_LOGGING) {
-                // Collect the last location from the last logged location or a more recent from the last weak location
-                Location checkLocation = mPreviousLocation;
-                synchronized (mWeakLocations) {
-                    if (!mWeakLocations.isEmpty()) {
-                        if (checkLocation == null) {
-                            checkLocation = mWeakLocations.lastElement();
-                        } else {
-                            Location weakLocation = mWeakLocations.lastElement();
-                            checkLocation = weakLocation.getTime() > checkLocation.getTime() ? weakLocation : checkLocation;
-                        }
-                    }
-                }
-                // Is the last known GPS location something nearby we are not told?
-                Location managerLocation = mLocationManager.getLastKnownLocation(mProvider);
-                if (managerLocation != null && checkLocation != null) {
-                    if (checkLocation.distanceTo(managerLocation) < 2 * mMaxAcceptableAccuracy) {
-                        checkLocation = managerLocation.getTime() > checkLocation.getTime() ? managerLocation : checkLocation;
-                    }
-                }
-
-                if (checkLocation == null || checkLocation.getTime() + mCheckPeriod < new Date().getTime()) {
-                    Log.w(this, "GPS system failed to produce a location during logging: " + checkLocation);
-                    mLoggerNotification.startPoorSignal(mTrackId);
-                    if (mStatusMonitor) {
-                        mLoggerNotification.soundGpsSignalAlarm();
-                    }
-
-                    mLoggingState = ExternalConstants.STATE_PAUSED;
-                    GPSLoggerServiceManager.resumeGPSLogging(GPSListener.this.mService);
-                } else {
-                    mLoggerNotification.stopPoorSignal();
-                }
-            }
-        }
     }
 }

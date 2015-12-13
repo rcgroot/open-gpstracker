@@ -24,10 +24,9 @@ package nl.sogeti.android.gpstracker.service.startstop;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.preference.PreferenceManager;
 
-import nl.sogeti.android.gpstracker.service.logger.Constants;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
+import nl.sogeti.android.gpstracker.service.logger.LoggerPersistence;
 import nl.sogeti.android.log.Log;
 
 public class PowerReceiver extends BroadcastReceiver {
@@ -37,12 +36,11 @@ public class PowerReceiver extends BroadcastReceiver {
         boolean stop = false;
         String action = intent.getAction();
         Log.d(this, "OpenGPSTracker's PowerReceiver received: " + action);
-        if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
-            start = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.LOGATPOWERCONNECTED,
-                    false);
-        } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
-            stop = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.STOPATPOWERDISCONNECTED,
-                    false);
+        LoggerPersistence persistence = new LoggerPersistence(context);
+        if (Intent.ACTION_POWER_CONNECTED.equals(action)) {
+            start = persistence.shouldLogAtPowerConnected();
+        } else if (Intent.ACTION_POWER_DISCONNECTED.equals(action)) {
+            stop = persistence.shouldLogAtPowerDisconnected();
         } else {
             Log.w(this, "OpenGPSTracker's PowerReceiver received " + action + ", but it's only able to respond to " +
                     Intent.ACTION_POWER_CONNECTED + " and " + Intent.ACTION_POWER_DISCONNECTED

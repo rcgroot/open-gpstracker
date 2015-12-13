@@ -41,9 +41,6 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 
-/**
- * Created by rene on 15-11-15.
- */
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     private EditTextPreference time;

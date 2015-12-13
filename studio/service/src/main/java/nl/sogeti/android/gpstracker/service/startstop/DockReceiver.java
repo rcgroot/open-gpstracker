@@ -34,8 +34,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
-import nl.sogeti.android.gpstracker.service.logger.Constants;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
+import nl.sogeti.android.gpstracker.service.logger.LoggerPersistence;
 import nl.sogeti.android.log.Log;
 
 public class DockReceiver extends BroadcastReceiver {
@@ -48,10 +48,11 @@ public class DockReceiver extends BroadcastReceiver {
             boolean stop = false;
             if (extras != null && extras.containsKey(Intent.EXTRA_DOCK_STATE)) {
                 int dockstate = extras.getInt(Intent.EXTRA_DOCK_STATE, -1);
+                LoggerPersistence persistence = new LoggerPersistence(context);
                 if (dockstate == Intent.EXTRA_DOCK_STATE_CAR) {
-                    start = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.LOGATDOCK, false);
+                    start = persistence.shouldLogAtDockCar();
                 } else if (dockstate == Intent.EXTRA_DOCK_STATE_UNDOCKED) {
-                    stop = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.STOPATUNDOCK, false);
+                    stop = persistence.shouldLogAtUndockCar();
                 }
             }
             if (start) {
