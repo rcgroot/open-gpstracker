@@ -80,7 +80,7 @@ public class LoggerPersistence {
     }
 
     public long getCustomLocationIntervalMinutes() {
-        return mSharedPreferences.getLong(LOGGING_INTERVAL, LoggingConstants.NORMAL_INTERVAL);
+        return mSharedPreferences.getLong(LOGGING_INTERVAL, 1L);
     }
 
     public void setCustomLocationIntervalMinutes(long interval) {

@@ -69,8 +69,6 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      * and a new one the difference should be less then 200 meter.
      */
     private static final int MAX_REASONABLE_ALTITUDECHANGE = 200;
-    private static final Boolean DEBUG = false;
-    private static final boolean VERBOSE = false;
     private final Service mService;
     private final LoggerNotification mLoggerNotification;
     private final LoggerPersistence mPersistence;
@@ -92,8 +90,8 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      */
     private float mMaxAcceptableAccuracy = 20;
 
-    private float mDistance;
-    private int mPrecision;
+    private float mDistance = -1;
+    private int mPrecision = -1;
     private long mTrackId = -1;
     private long mSegmentId = -1;
     private long mWaypointId = -1;
@@ -145,9 +143,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
     @Override
     public void onLocationChanged(Location location) {
-        if (VERBOSE) {
-            Log.v(this, "onLocationChanged( Location " + location + " )");
-        }
+        Log.v(this, "onLocationChanged( Location " + location + " )");
         // Might be claiming GPS disabled but when we were paused this changed and this location proves so
         if (mLoggerNotification.isShowingDisabled()) {
             mLoggerNotification.stopDisabledProvider(R.string.service_gpsenabled);
@@ -172,9 +168,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        if (DEBUG) {
-            Log.d(this, "onStatusChanged( String " + provider + ", int " + status + ", Bundle " + extras + " )");
-        }
+        Log.d(this, "onStatusChanged( String " + provider + ", int " + status + ", Bundle " + extras + " )");
         if (status == LocationProvider.OUT_OF_SERVICE) {
             Log.e(this, String.format("Provider %s changed to status %d", provider, status));
         }
@@ -182,9 +176,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
     @Override
     public void onProviderEnabled(String provider) {
-        if (DEBUG) {
-            Log.d(this, "onProviderEnabled( String " + provider + " )");
-        }
+        Log.d(this, "onProviderEnabled( String " + provider + " )");
         if (mPrecision != ExternalConstants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER)) {
             mLoggerNotification.stopDisabledProvider(R.string.service_gpsenabled);
             mStartNextSegment = true;
@@ -195,10 +187,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
     @Override
     public void onProviderDisabled(String provider) {
-        if (DEBUG) {
-            Log.d(this, "onProviderDisabled( String " + provider + " )");
-        }
-        ;
+        Log.d(this, "onProviderDisabled( String " + provider + " )");
         if (mPrecision != ExternalConstants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER)) {
             mLoggerNotification.startDisabledProvider(R.string.service_gpsdisabled, mTrackId);
         } else if (mPrecision == ExternalConstants.LOGGING_GLOBAL && provider.equals(LocationManager.NETWORK_PROVIDER)) {
@@ -247,41 +236,41 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         stopListening();
         mStatusMonitor = mPersistence.isStatusMonitor();
         mPrecision = mPersistence.getPrecision();
-        long intervaltime;
+        long intervalTime;
         float distance, accuracy;
         switch (mPrecision) {
             case (ExternalConstants.LOGGING_FINE): // Fine
                 accuracy = LoggingConstants.FINE_ACCURACY;
-                intervaltime = LoggingConstants.FINE_INTERVAL;
+                intervalTime = LoggingConstants.FINE_INTERVAL;
                 distance = LoggingConstants.FINE_DISTANCE;
-                startListening(LocationManager.GPS_PROVIDER, intervaltime, distance, accuracy);
+                startListening(LocationManager.GPS_PROVIDER, intervalTime, distance, accuracy);
                 break;
             case (ExternalConstants.LOGGING_NORMAL): // Normal
                 accuracy = LoggingConstants.NORMAL_ACCURACY;
-                intervaltime = LoggingConstants.NORMAL_INTERVAL;
+                intervalTime = LoggingConstants.NORMAL_INTERVAL;
                 distance = LoggingConstants.NORMAL_DISTANCE;
-                startListening(LocationManager.GPS_PROVIDER, intervaltime, distance, accuracy);
+                startListening(LocationManager.GPS_PROVIDER, intervalTime, distance, accuracy);
                 break;
             case (ExternalConstants.LOGGING_COARSE): // Coarse
                 accuracy = LoggingConstants.COARSE_ACCURACY;
-                intervaltime = LoggingConstants.COARSE_INTERVAL;
+                intervalTime = LoggingConstants.COARSE_INTERVAL;
                 distance = LoggingConstants.COARSE_DISTANCE;
-                startListening(LocationManager.GPS_PROVIDER, intervaltime, distance, accuracy);
+                startListening(LocationManager.GPS_PROVIDER, intervalTime, distance, accuracy);
                 break;
             case (ExternalConstants.LOGGING_GLOBAL): // Global
                 accuracy = LoggingConstants.GLOBAL_ACCURACY;
-                intervaltime = LoggingConstants.GLOBAL_INTERVAL;
+                intervalTime = LoggingConstants.GLOBAL_INTERVAL;
                 distance = LoggingConstants.GLOBAL_DISTANCE;
-                startListening(LocationManager.NETWORK_PROVIDER, intervaltime, distance, accuracy);
+                startListening(LocationManager.NETWORK_PROVIDER, intervalTime, distance, accuracy);
                 if (!isNetworkConnected()) {
                     mLoggerNotification.startDisabledProvider(R.string.service_connectiondisabled, mTrackId);
                 }
                 break;
             case (ExternalConstants.LOGGING_CUSTOM): // Global
-                intervaltime = mPersistence.getCustomLocationIntervalMinutes() * 60 * 1000;
+                intervalTime = mPersistence.getCustomLocationIntervalMinutes() * 60 * 1000;
                 distance = mPersistence.getCustomLocationIntervalMetres();
                 accuracy = Math.max(10f, Math.min(distance, 50f));
-                startListening(LocationManager.GPS_PROVIDER, intervaltime, distance, accuracy);
+                startListening(LocationManager.GPS_PROVIDER, intervalTime, distance, accuracy);
                 break;
             default:
                 Log.e(this, "Unknown precision " + mPrecision);
@@ -521,25 +510,22 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     private void crashProtectState() {
         mPersistence.setTrackId(mTrackId);
         mPersistence.setSegmentId(mSegmentId);
-        mPersistence.setPrecision(mPrecision);
-        mPersistence.setDistance(mDistance);
         mPersistence.setLoggingState(mLoggingState);
 
-        if (DEBUG) {
-            Log.d(this, "crashProtectState()");
-        }
+        Log.d(this, "Save GPS Listen State()");
     }
 
     private synchronized void crashRestoreState() {
+        mPrecision = mPersistence.getPrecision();
+        mDistance = mPersistence.getDistance();
+
         int previousState = mPersistence.getLoggingState();
         if (previousState == ExternalConstants.STATE_LOGGING || previousState == ExternalConstants.STATE_PAUSED) {
-            Log.w(this, "Recovering from a crash or kill and restoring state.");
+            Log.d(this, "Load GPS Listen State()");
             mLoggerNotification.startLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
 
             mTrackId = mPersistence.getTrackId();
             mSegmentId = mPersistence.getSegmentId();
-            mPrecision = mPersistence.getPrecision();
-            mDistance = mPersistence.getDistance();
             if (previousState == ExternalConstants.STATE_LOGGING) {
                 mLoggingState = ExternalConstants.STATE_PAUSED;
                 GPSLoggerServiceManager.resumeGPSLogging(mService);
@@ -659,6 +645,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      * @param accuracy
      */
     private void startListening(String provider, long milliseconds, float meters, float accuracy) {
+        Log.d(this, "startListening(" + provider + ", " + milliseconds / 1000L + "s, " + meters + "m, " + accuracy + "m)");
         mProvider = provider;
         mMaxAcceptableAccuracy = accuracy;
         mLocationManager.removeUpdates(this);

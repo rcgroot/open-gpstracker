@@ -86,17 +86,17 @@ public class GPSLoggerService extends LingerService {
     @Override
     protected boolean shouldContinue() {
         boolean isLogging = mGPSListener.isLogging();
+        Log.d(this, "shouldContinue() " + isLogging);
+
         if (isLogging) {
-            setLingerDuration(mGPSListener.getCheckPeriod());
             mGPSListener.verifyLoggingState();
         }
-
         return isLogging;
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d(this, "handleCommand(Intent " + intent + ")");
+        Log.d(this, "handleCommand(Intent " + intent.getAction() + ")");
         LoggerPersistence persistence = new LoggerPersistence(this);
         if (intent.hasExtra(Commands.CONFIG_PRECISION)) {
             int precision = intent.getIntExtra(Commands.CONFIG_PRECISION, ExternalConstants.LOGGING_NORMAL);
@@ -167,6 +167,12 @@ public class GPSLoggerService extends LingerService {
                 break;
             default:
                 break;
+        }
+
+        if (mGPSListener.isLogging()) {
+            setLingerDuration(mGPSListener.getCheckPeriod() / 1000L);
+        } else {
+            setLingerDuration(10L);
         }
     }
 

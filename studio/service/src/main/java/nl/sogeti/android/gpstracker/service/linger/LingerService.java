@@ -36,6 +36,8 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 
+import nl.sogeti.android.log.Log;
+
 /**
  * Based on android.app.IntentService
  * <p/>
@@ -48,6 +50,7 @@ public abstract class LingerService extends Service {
     private volatile ServiceHandler mServiceHandler;
     private final String mName;
     private boolean isFirstRun;
+    private ContinueRunnable continueRunnable;
 
     private final class ServiceHandler extends Handler {
 
@@ -57,32 +60,37 @@ public abstract class LingerService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
+            repostContinueRunnable();
+
             if (msg.obj != null && msg.obj instanceof Intent) {
                 onHandleIntent((Intent) msg.obj);
-                final int startId = msg.arg1;
-                this.postDelayed(new RunStopSelf(startId), mDuration);
             }
-        }
 
+        }
     }
 
-    private final class RunStopSelf implements Runnable {
+    private void repostContinueRunnable() {
+        mServiceHandler.removeCallbacks(continueRunnable);
+        ContinueRunnable runnable = getContinueRunnable();
+        mServiceHandler.postDelayed(runnable, getLingerDuration() * 1000L);
+    }
 
-        private final int startId;
-
-        public RunStopSelf(int startId) {
-            this.startId = startId;
+    public ContinueRunnable getContinueRunnable() {
+        if (continueRunnable == null) {
+            continueRunnable = new ContinueRunnable();
         }
+        return continueRunnable;
+    }
 
+    private final class ContinueRunnable implements Runnable {
         @Override
         public void run() {
             if (shouldContinue()) {
-                mServiceHandler.postDelayed(this, mDuration);
+                mServiceHandler.postDelayed(this, mDuration * 1000L);
             } else {
-                stopSelf(startId);
+                stopSelf();
             }
         }
-
     }
 
     /**
@@ -94,7 +102,7 @@ public abstract class LingerService extends Service {
     public LingerService(String name, int lingerDuration) {
         super();
         mName = name;
-        mDuration = 1000L * lingerDuration;
+        mDuration = lingerDuration;
         isFirstRun = true;
     }
 
@@ -120,7 +128,6 @@ public abstract class LingerService extends Service {
         }
 
         Message msg = mServiceHandler.obtainMessage();
-        msg.arg1 = startId;
         msg.obj = intent;
         mServiceHandler.sendMessage(msg);
 
@@ -134,12 +141,16 @@ public abstract class LingerService extends Service {
         didDestroy();
     }
 
-    public long getDuration() {
+    public long getLingerDuration() {
         return mDuration;
     }
 
     public void setLingerDuration(long mDuration) {
         this.mDuration = mDuration;
+        if (continueRunnable != null) {
+            this.repostContinueRunnable();
+        }
+        Log.d(this, "Service check interval changed to " + mDuration);
     }
 
     @Override
