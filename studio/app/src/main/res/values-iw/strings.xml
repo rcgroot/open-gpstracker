@@ -192,7 +192,7 @@
     <string name="streambroadcast_time_title">Minimum time between broadcasts</string>
     <string name="streambroadcast_time_summary">Number of minutes after which new progress is broadcasted</string>
     <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
-    <string name="streambroadcast_distance_summary">Number of miles or kilometers after which new progress is broadcasted</string>
+    <string name="streambroadcast_distance_summary">Number of meters after which new progress is broadcasted</string>
     <string name="voiceover_title">Stream to audio voice-over</string>
     <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
     <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>

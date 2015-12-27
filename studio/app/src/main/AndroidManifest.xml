@@ -18,6 +18,7 @@
         android:required="true" />
 
     <application
+        android:name=".Application"
         android:allowBackup="true"
         android:allowClearUserData="true"
         android:hardwareAccelerated="true"
@@ -157,12 +158,6 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/control_appwidget_info" />
-        </receiver>
-
-        <receiver android:name=".streaming.StartStop">
-            <intent-filter>
-                <action android:name="nl.sogeti.android.gpstracker.LOGGING_STATE_CHANGED" />
-            </intent-filter>
         </receiver>
 
     </application>

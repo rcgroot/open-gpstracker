@@ -132,6 +132,14 @@ public class GPSLoggerServiceManager {
         context.startService(intent);
     }
 
+    public static void setStreaming(Context context, boolean isStreaming, float distance, long time) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_STREAM_BROADCAST, isStreaming);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_STREAM_INTERVAL_DISTANCE, distance);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_STREAM_INTERVAL_TIME, time);
+        context.startService(intent);
+    }
+
     public Location getLastWaypoint() {
         synchronized (mStartLock) {
             Location lastWaypoint = null;

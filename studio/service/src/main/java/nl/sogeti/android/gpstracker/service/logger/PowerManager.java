@@ -44,6 +44,8 @@ public class PowerManager {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        mWakeLock.release();
+        if (mWakeLock != null) {
+            mWakeLock.release();
+        }
     }
 }

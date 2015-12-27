@@ -83,7 +83,9 @@ public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitL
             int meters = intent.getIntExtra(ExternalConstants.EXTRA_DISTANCE, 0);
             int minutes = intent.getIntExtra(ExternalConstants.EXTRA_TIME, 0);
             String myText = context.getString(R.string.voiceover_speaking, minutes, meters);
-            mTextToSpeech.speak(myText, TextToSpeech.QUEUE_ADD, null);
+            if (!mTextToSpeech.isSpeaking()) {
+                mTextToSpeech.speak(myText, TextToSpeech.QUEUE_ADD, null);
+            }
         } else {
             Log.w(this, "Voice stream failed TTS not ready");
         }

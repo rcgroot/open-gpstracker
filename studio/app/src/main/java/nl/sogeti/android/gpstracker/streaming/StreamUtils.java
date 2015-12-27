@@ -37,8 +37,6 @@ import nl.sogeti.android.log.Log;
 
 
 public class StreamUtils {
-
-
     /**
      * Initialize all appropriate stream listeners
      *
@@ -50,20 +48,13 @@ public class StreamUtils {
         boolean streams_enabled = Helper.getBoolean(sharedPreferences, Helper.LEGACY_BROADCAST_STREAM, Helper.BROADCAST_STREAM, false);
         if (streams_enabled && sharedPreferences.getBoolean("VOICEOVER_ENABLED", false)) {
             VoiceOver.initStreaming(ctx);
+        } else {
+            VoiceOver.shutdownStreaming(ctx);
         }
         if (streams_enabled && sharedPreferences.getBoolean("CUSTOMUPLOAD_ENABLED", false)) {
             CustomUpload.initStreaming(ctx);
+        } else {
+            CustomUpload.shutdownStreaming(ctx);
         }
-    }
-
-    /**
-     * Shutdown all stream listeners
-     *
-     * @param ctx
-     */
-    public static void shutdownStreams(Context ctx) {
-        Log.d(StreamUtils.class, "shutdownStreams(Context)");
-        VoiceOver.shutdownStreaming(ctx);
-        CustomUpload.shutdownStreaming(ctx);
     }
 }

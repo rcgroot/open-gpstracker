@@ -192,7 +192,7 @@
     <string name="streambroadcast_time_title">Délai minimum entre les émissions</string>
     <string name="streambroadcast_time_summary">Nombre de minutes entre les diffusions de la progression</string>
     <string name="streambroadcast_distance_title">Distance minimum entre les émissions</string>
-    <string name="streambroadcast_distance_summary">Nombre de miles ou de kilomètres entre les diffusions de la progression</string>
+    <string name="streambroadcast_distance_summary">Nombre de mètres entre les diffusions de la progression</string>
     <string name="voiceover_title">Stream to audio voice-over</string>
     <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
     <string name="voiceover_speaking">%2$d mètres couverts durant les %1$d dernières minutes</string>

@@ -123,8 +123,8 @@ public class LoggerPersistence {
         put(STREAM_BROADCAST_DISTANCE_METER, meters);
     }
 
-    public long getBroadcastIntervalMeters() {
-        return mSharedPreferences.getLong(STREAM_BROADCAST_TIME_MINUTES, 1L);
+    public float getBroadcastIntervalMeters() {
+        return mSharedPreferences.getFloat(STREAM_BROADCAST_DISTANCE_METER, 1L);
     }
 
     public boolean shouldLogAtBoot() {

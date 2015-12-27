@@ -168,7 +168,7 @@
             android:title="@string/streambroadcast_time_title" />
 
         <EditTextPreference
-            android:defaultValue="5"
+            android:defaultValue="100"
             android:dependency="APP_SETTING_BROADCAST_STREAM"
             android:dialogMessage="@string/streambroadcast_distance_summary"
             android:inputType="number"

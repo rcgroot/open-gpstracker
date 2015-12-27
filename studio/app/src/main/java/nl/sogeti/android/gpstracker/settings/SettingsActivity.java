@@ -37,6 +37,7 @@ import android.support.v7.widget.Toolbar;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 
 /**
  * Created by rene on 15-11-15.
@@ -59,6 +60,9 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
     public static final String UNDOCK = "stopatundock";
     public static final String POWER_ON = "logatpowerconnected";
     public static final String POWER_OFF = "stopatpowerdisconnected";
+    public static final String STREAMING = "APP_SETTING_BROADCAST_STREAM";
+    public static final String STREAMING_TIME = "streambroadcast_time";
+    public static final String STREAMING_DISTANCE = "streambroadcast_distance";
     private SharedPreferences mPreferences;
 
     @Override
@@ -88,13 +92,18 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
     @Override
     public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
         if (PRECISION.equals(key)) {
-            GPSLoggerServiceManager.setLoggingPrecision(this, Integer.valueOf(preferences.getString(SettingsActivity.PRECISION, Integer.toString(ExternalConstants.LOGGING_NORMAL))));
+            GPSLoggerServiceManager.setLoggingPrecision(this,
+                    Integer.valueOf(preferences.getString(SettingsActivity.PRECISION, Integer.toString(ExternalConstants.LOGGING_NORMAL))));
         } else if (CUSTOM_TIME.equals(key) || CUSTOM_DISTANCE.equals(key)) {
-            GPSLoggerServiceManager.setCustomLoggingPrecision(this, Integer.valueOf(preferences.getString(SettingsActivity.CUSTOM_TIME, "1")), Float.valueOf(preferences.getString(SettingsActivity.CUSTOM_DISTANCE, "1")));
+            GPSLoggerServiceManager.setCustomLoggingPrecision(this,
+                    Integer.valueOf(preferences.getString(SettingsActivity.CUSTOM_TIME, "1")),
+                    Float.valueOf(preferences.getString(SettingsActivity.CUSTOM_DISTANCE, "1")));
         } else if (SANITY.equals(key)) {
-            GPSLoggerServiceManager.setSanityFilter(this, preferences.getBoolean(SANITY, true));
+            GPSLoggerServiceManager.setSanityFilter(this,
+                    preferences.getBoolean(SANITY, true));
         } else if (MONITOR.equals(key)) {
-            GPSLoggerServiceManager.setStatusMonitor(this, preferences.getBoolean(MONITOR, true));
+            GPSLoggerServiceManager.setStatusMonitor(this,
+                    preferences.getBoolean(MONITOR, true));
         } else if (BOOT.equals(key) || DOCK.equals(key) || UNDOCK.equals(key) || POWER_ON.equals(key) || POWER_OFF.equals(key)) {
             GPSLoggerServiceManager.setAutomaticLogging(this,
                     preferences.getBoolean(BOOT, false),
@@ -102,6 +111,12 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                     preferences.getBoolean(UNDOCK, false),
                     preferences.getBoolean(POWER_ON, false),
                     preferences.getBoolean(POWER_OFF, false));
+        } else if (STREAMING.equals(key) || STREAMING_TIME.equals(key) || STREAMING_DISTANCE.equals(key)) {
+            GPSLoggerServiceManager.setStreaming(this,
+                    preferences.getBoolean(STREAMING, false),
+                    Float.valueOf(preferences.getString(SettingsActivity.STREAMING_DISTANCE, "1")),
+                    Long.valueOf(preferences.getString(SettingsActivity.STREAMING_TIME, "1")));
+            StreamUtils.initStreams(this.getApplicationContext());
         }
     }
 }

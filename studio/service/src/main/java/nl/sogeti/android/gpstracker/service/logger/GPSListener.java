@@ -409,7 +409,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      *
      * @param location
      */
-    public void broadcastLocation(Location location) {
+    private void broadcastLocation(Location location) {
         Intent intent = new Intent(ExternalConstants.STREAM_BROADCAST);
 
         if (mStreamBroadcast) {
@@ -423,20 +423,18 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
                 mLastTimeBroadcast = nowTime;
             }
             long passedTime = (nowTime - mLastTimeBroadcast);
+            passedTime = passedTime / 60000;
             intent.putExtra(ExternalConstants.EXTRA_DISTANCE, (int) mBroadcastDistance);
-            intent.putExtra(ExternalConstants.EXTRA_TIME, (int) passedTime / 60000);
+            intent.putExtra(ExternalConstants.EXTRA_TIME, (int) passedTime);
             intent.putExtra(ExternalConstants.EXTRA_LOCATION, location);
             intent.putExtra(ExternalConstants.EXTRA_TRACK, ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, mTrackId));
 
             boolean distanceBroadcast = minDistance > 0 && mBroadcastDistance >= minDistance;
             boolean timeBroadcast = minTime > 0 && passedTime >= minTime;
-            if (distanceBroadcast || timeBroadcast) {
-                if (distanceBroadcast) {
-                    mBroadcastDistance = 0;
-                }
-                if (timeBroadcast) {
-                    mLastTimeBroadcast = nowTime;
-                }
+            if (distanceBroadcast && timeBroadcast) {
+                Log.d(this, "Broadcasting intent" + intent);
+                mBroadcastDistance = 0;
+                mLastTimeBroadcast = nowTime;
                 mService.sendBroadcast(intent, "android.permission.ACCESS_FINE_LOCATION");
             }
         }

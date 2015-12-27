@@ -190,7 +190,7 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="streambroadcast_time_title">Минимальное время между обновлениями</string>
     <string name="streambroadcast_time_summary">Количество минут между обновлением положения</string>
     <string name="streambroadcast_distance_title">Минимальное расстояние между обновлениями</string>
-    <string name="streambroadcast_distance_summary">Количество миль или километров между обновлением положения</string>
+    <string name="streambroadcast_distance_summary">Number of meters after which new progress is broadcasted</string>
     <string name="voiceover_title">Влючить аудио сопровождение</string>
     <string name="voiceover_summary">Каждое обновление будет дополнено голосовым сопровождением</string>
     <string name="voiceover_speaking">За последние %1$d минут пройдено %2$d метров</string>

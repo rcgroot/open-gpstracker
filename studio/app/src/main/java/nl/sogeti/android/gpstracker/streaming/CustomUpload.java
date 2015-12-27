@@ -37,6 +37,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
@@ -53,10 +54,10 @@ import nl.sogeti.android.log.Log;
 
 
 public class CustomUpload extends BroadcastReceiver {
-    private static final String CUSTOMUPLOAD_BACKLOG_DEFAULT = "20";
+    private static final String CUSTOM_UPLOAD_BACKLOG_DEFAULT = "20";
     private static final int NOTIFICATION_ID = R.string.customupload_failed;
     private static CustomUpload sCustomUpload = null;
-    private static Queue<URL> sRequestBacklog = new LinkedList<URL>();
+    private static Queue<URL> sRequestBacklog = new LinkedList<>();
 
     public static synchronized void initStreaming(Context ctx) {
         Log.d(CustomUpload.class, "initStreaming(Context)");
@@ -64,7 +65,7 @@ public class CustomUpload extends BroadcastReceiver {
             shutdownStreaming(ctx);
         }
         sCustomUpload = new CustomUpload();
-        sRequestBacklog = new LinkedList<URL>();
+        sRequestBacklog = new LinkedList<>();
 
         IntentFilter filter = new IntentFilter(ExternalConstants.STREAM_BROADCAST);
         ctx.registerReceiver(sCustomUpload, filter);
@@ -89,7 +90,7 @@ public class CustomUpload extends BroadcastReceiver {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String prefUrl = preferences.getString(Constants.CUSTOMUPLOAD_URL, "http://www.example.com");
         Integer prefBacklog = Integer.valueOf(preferences.getString(Constants.CUSTOMUPLOAD_BACKLOG,
-                CUSTOMUPLOAD_BACKLOG_DEFAULT));
+                CUSTOM_UPLOAD_BACKLOG_DEFAULT));
         Location loc = intent.getParcelableExtra(ExternalConstants.EXTRA_LOCATION);
         Uri trackUri = intent.getParcelableExtra(ExternalConstants.EXTRA_TRACK);
         String buildUrl = prefUrl;
@@ -114,30 +115,20 @@ public class CustomUpload extends BroadcastReceiver {
             if (sRequestBacklog.size() > prefBacklog) {
                 sRequestBacklog.poll();
             }
-            while (!sRequestBacklog.isEmpty()) {
-                URL request = sRequestBacklog.peek();
-                HttpURLConnection connection = (HttpURLConnection) request.openConnection();
-                sRequestBacklog.poll();
-                connection.connect();
-                int status = connection.getResponseCode();
-                if (status != 200) {
-                    throw new IOException("Invalid response from server: " + status);
-                }
-                clearNotification(context);
-            }
+            new Uploader(context).execute();
         } catch (IOException e) {
             notifyError(context, e);
         }
     }
 
-    private void clearNotification(Context context) {
+    private static void clearNotification(Context context) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
                 .NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
-    private void notifyError(Context context, Exception e) {
-        Log.e(this, "Custom upload failed", e);
+    private static void notifyError(Context context, Exception e) {
+        Log.e(CustomUpload.class, "Custom upload failed", e);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
                 .NOTIFICATION_SERVICE);
 
@@ -156,4 +147,33 @@ public class CustomUpload extends BroadcastReceiver {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
+    static class Uploader extends AsyncTask<Void, Void, Void> {
+
+        private final Context mContext;
+
+        Uploader(Context ctx) {
+            this.mContext = ctx;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                while (!sRequestBacklog.isEmpty()) {
+                    URL request = sRequestBacklog.peek();
+                    HttpURLConnection connection = (HttpURLConnection) request.openConnection();
+                    sRequestBacklog.poll();
+                    connection.connect();
+                    int status = connection.getResponseCode();
+                    if (status != 200) {
+                        throw new IOException("Invalid response from server: " + status);
+                    }
+                    clearNotification(mContext);
+                }
+            } catch (IOException e) {
+                notifyError(mContext, e);
+            }
+
+            return null;
+        }
+    }
 }

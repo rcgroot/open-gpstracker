@@ -26,25 +26,17 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.streaming;
+package nl.sogeti.android.gpstracker;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 
 /**
- * Created by rene on 15-11-15.
+ * Created by rene on 27-12-15.
  */
-public class StartStop extends BroadcastReceiver {
+public class Application extends android.app.Application {
     @Override
-    public void onReceive(Context context, Intent intent) {
-        int state = intent.getIntExtra(ExternalConstants.EXTRA_LOGGING_STATE, ExternalConstants.STATE_UNKNOWN);
-        if (state == ExternalConstants.STATE_LOGGING) {
-            StreamUtils.initStreams(context);
-        } else {
-            StreamUtils.shutdownStreams(context);
-        }
+    public void onCreate() {
+        super.onCreate();
+        StreamUtils.initStreams(this);
     }
 }

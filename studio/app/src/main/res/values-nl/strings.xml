@@ -192,7 +192,7 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="streambroadcast_time_title">Minimale tijd tussen verzendingen</string>
     <string name="streambroadcast_time_summary">Het aantal minuten na wanneer een verzending gedaan wordt</string>
     <string name="streambroadcast_distance_title">Minimale afstand tussen verzendingen</string>
-    <string name="streambroadcast_distance_summary">Het aantal afgelegde mijlen of kilometers na wanneer een verzending gedaan wordt</string>
+    <string name="streambroadcast_distance_summary">Het aantal afgelegde meters na wanneer een verzending gedaan wordt</string>
     <string name="voiceover_title">Verstuur naar audio voice-over</string>
     <string name="voiceover_summary">Elke locatie publicatie krijgt een gesproken samenvatting</string>
     <string name="voiceover_speaking">In de laatste %1$d minuten is een afstand van %2$d meter afgelegd</string>
