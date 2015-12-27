@@ -378,7 +378,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      */
     public void storeLocation(Location location) {
         if (!isLogging() || mTrackId < 0 || mSegmentId < 0) {
-            Log.e(this, String.format("Storing location without Logging (%d) or track (%d,%d).", isLogging(), mTrackId, mSegmentId));
+            Log.e(this, String.format("Storing location without Logging (%b) or track (%d,%d).", isLogging(), mTrackId, mSegmentId));
             return;
         }
         ContentValues args = new ContentValues();
@@ -691,7 +691,6 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         return mCheckPeriod;
     }
 
-
     /**
      * Trigged by events that start a new track
      */
@@ -700,6 +699,11 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         Uri newTrack = mService.getContentResolver().insert(GPStracking.Tracks.CONTENT_URI, new ContentValues(0));
         mTrackId = Long.valueOf(newTrack.getLastPathSegment()).longValue();
         startNewSegment();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, newTrack);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        mService.startActivity(intent);
     }
 
     protected void storeMediaUri(Uri mediaUri) {
