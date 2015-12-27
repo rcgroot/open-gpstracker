@@ -28,35 +28,34 @@
  */
 package nl.sogeti.android.gpstracker.actions.tasks;
 
-import android.test.suitebuilder.annotation.SmallTest;
-
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
-public class XmlCreatorTest extends TestCase {
+import org.junit.Test;
 
-    @SmallTest
+public class XmlCreatorTest {
+
+    @Test
     public void testCleanFilename() {
         String dirty = "abc=+:;/123";
         String clean = XmlCreator.cleanFilename(dirty, "ERROR");
         Assert.assertEquals("Cleaned", "abc123", clean);
     }
 
-    @SmallTest
+    @Test
     public void testCleanFilenameEmpty() {
         String dirty = "";
         String clean = XmlCreator.cleanFilename(dirty, "Untitled");
         Assert.assertEquals("Cleaned", "Untitled", clean);
     }
 
-    @SmallTest
+    @Test
     public void testCleanFilenameNull() {
         String dirty = null;
         String clean = XmlCreator.cleanFilename(dirty, "Untitled2");
         Assert.assertEquals("Cleaned", "Untitled2", clean);
     }
 
-    @SmallTest
+    @Test
     public void testCleanFilenameAllSpecial() {
         String dirty = "!!??";
         String clean = XmlCreator.cleanFilename(dirty, "Untitled3");
