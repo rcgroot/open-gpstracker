@@ -34,9 +34,7 @@ import android.test.InstrumentationTestSuite;
 import junit.framework.TestSuite;
 
 import nl.sogeti.android.gpstracker.tests.actions.ExportGPXTest;
-import nl.sogeti.android.gpstracker.tests.db.GPStrackingProviderTest;
 import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerServiceTest;
-import nl.sogeti.android.gpstracker.tests.logger.GPSLoggerServiceTest;
 import nl.sogeti.android.gpstracker.tests.userinterface.LoggerMapTest;
 
 /**
@@ -60,9 +58,7 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner {
     public TestSuite getAllTests() {
         TestSuite suite = new InstrumentationTestSuite(this);
         suite.setName("GPS Tracking Testsuite");
-        suite.addTestSuite(GPStrackingProviderTest.class);
         suite.addTestSuite(MockGPSLoggerServiceTest.class);
-        suite.addTestSuite(GPSLoggerServiceTest.class);
         suite.addTestSuite(ExportGPXTest.class);
         suite.addTestSuite(LoggerMapTest.class);
 

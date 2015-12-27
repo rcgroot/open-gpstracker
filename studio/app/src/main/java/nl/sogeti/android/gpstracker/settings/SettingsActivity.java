@@ -28,16 +28,38 @@
  */
 package nl.sogeti.android.gpstracker.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 
 /**
  * Created by rene on 15-11-15.
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    /**
+     * The app preference for logging precession stored as String
+     */
+    public static final String PRECISION = "APP_SETTING_PRECISION";
+    /**
+     * The app preference for logging precession stored as String
+     */
+    public static final String CUSTOM_TIME = "APP_SETTING_CUSTOM_PRECISION_TIME";
+    public static final String CUSTOM_DISTANCE = "APP_SETTING_CUSTOM_DISTANCE_TIME";
+    public static final String SANITY = "speedsanitycheck";
+    public static final String MONITOR = "gpsstatusmonitor";
+    public static final String BOOT = "startupatboot";
+    public static final String DOCK = "logatdock";
+    public static final String UNDOCK = "stopatundock";
+    public static final String POWER_ON = "logatpowerconnected";
+    public static final String POWER_OFF = "stopatpowerdisconnected";
+    private SharedPreferences mPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,5 +69,39 @@ public class SettingsActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.support_actionbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        mPreferences = null;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
+        if (PRECISION.equals(key)) {
+            GPSLoggerServiceManager.setLoggingPrecision(this, Integer.valueOf(preferences.getString(SettingsActivity.PRECISION, Integer.toString(ExternalConstants.LOGGING_NORMAL))));
+        } else if (CUSTOM_TIME.equals(key) || CUSTOM_DISTANCE.equals(key)) {
+            GPSLoggerServiceManager.setCustomLoggingPrecision(this, Integer.valueOf(preferences.getString(SettingsActivity.CUSTOM_TIME, "1")), Float.valueOf(preferences.getString(SettingsActivity.CUSTOM_DISTANCE, "1")));
+        } else if (SANITY.equals(key)) {
+            GPSLoggerServiceManager.setSanityFilter(this, preferences.getBoolean(SANITY, true));
+        } else if (MONITOR.equals(key)) {
+            GPSLoggerServiceManager.setStatusMonitor(this, preferences.getBoolean(MONITOR, true));
+        } else if (BOOT.equals(key) || DOCK.equals(key) || UNDOCK.equals(key) || POWER_ON.equals(key) || POWER_OFF.equals(key)) {
+            GPSLoggerServiceManager.setAutomaticLogging(this,
+                    preferences.getBoolean(BOOT, false),
+                    preferences.getBoolean(DOCK, false),
+                    preferences.getBoolean(UNDOCK, false),
+                    preferences.getBoolean(POWER_ON, false),
+                    preferences.getBoolean(POWER_OFF, false));
+        }
     }
 }

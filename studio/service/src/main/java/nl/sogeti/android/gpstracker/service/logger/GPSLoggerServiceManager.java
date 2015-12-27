@@ -67,6 +67,12 @@ public class GPSLoggerServiceManager {
         context.startService(intent);
     }
 
+    public static void startGPSLogging(Context context, int precision, int customInterval, float customDistance) {
+        setCustomLoggingPrecision(context, customInterval, customDistance);
+        setLoggingPrecision(context, precision);
+        startGPSLogging(context);
+    }
+
     public static void pauseGPSLogging(Context context) {
         Intent intent = new Intent(context, GPSLoggerService.class);
         intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_PAUSE);
@@ -79,9 +85,50 @@ public class GPSLoggerServiceManager {
         context.startService(intent);
     }
 
+    public static void resumeGPSLogging(Context context, int precision, int customInterval, float customDistance) {
+        setCustomLoggingPrecision(context, customInterval, customDistance);
+        setLoggingPrecision(context, precision);
+        resumeGPSLogging(context);
+    }
+
     public static void stopGPSLogging(Context context) {
         Intent intent = new Intent(context, GPSLoggerService.class);
         intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_STOP);
+        context.startService(intent);
+    }
+
+    public static void setLoggingPrecision(Context context, int mode) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_PRECISION, mode);
+        context.startService(intent);
+    }
+
+    public static void setCustomLoggingPrecision(Context context, long minutes, float meters) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_INTERVAL_TIME, minutes);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_INTERVAL_DISTANCE, meters);
+        context.startService(intent);
+    }
+
+    public static void setSanityFilter(Context context, boolean filter) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_SPEED_SANITY, filter);
+        context.startService(intent);
+    }
+
+    public static void setStatusMonitor(Context context, boolean monitor) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_STATUS_MONITOR, monitor);
+        context.startService(intent);
+    }
+
+    public static void setAutomaticLogging(Context context, boolean atBoot, boolean atDocking, boolean atUnDocking, boolean atPowerConnect, boolean atPowerDisconnect) {
+        Intent intent = new Intent(context, GPSLoggerService.class);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_START_AT_BOOT, atBoot);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_START_AT_DOCK, atDocking);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_STOP_AT_UNDOCK, atUnDocking);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_START_AT_POWER_CONNECT, atPowerConnect);
+        intent.putExtra(GPSLoggerService.Commands.CONFIG_STOP_AT_POWER_DISCONNECT, atPowerDisconnect);
         context.startService(intent);
     }
 

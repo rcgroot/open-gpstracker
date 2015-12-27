@@ -52,6 +52,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle bundle, String s) {
         addPreferencesFromResource(R.xml.settings);
 
+
         ListPreference precision = (ListPreference) findPreference(Helper.PRECISION);
         time = (EditTextPreference) findPreference(Helper.CUSTOM_PRECISION_TIME);
         distance = (EditTextPreference) findPreference(Helper.CUSTOM_DISTANCE_TIME);
@@ -95,6 +96,4 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         time.setEnabled(customPrecision);
         distance.setEnabled(customPrecision);
     }
-
-    //TODO Sync to from Service and to App
 }

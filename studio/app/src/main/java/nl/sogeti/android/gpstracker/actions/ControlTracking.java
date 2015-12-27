@@ -32,7 +32,9 @@ import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -43,6 +45,7 @@ import android.widget.Button;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.gpstracker.settings.SettingsActivity;
 import nl.sogeti.android.log.Log;
 
 /**
@@ -55,25 +58,34 @@ public class ControlTracking extends AppCompatActivity {
     private final View.OnClickListener mLoggingControlListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ControlTracking.this);
             int id = v.getId();
             Intent intent = new Intent();
             switch (id) {
-                case R.id.logcontrol_start:
-                    GPSLoggerServiceManager.startGPSLogging(ControlTracking.this);
+                case R.id.logcontrol_start: {
+                    int precision = Integer.valueOf(preferences.getString(SettingsActivity.PRECISION, Integer.toString(ExternalConstants.LOGGING_NORMAL)));
+                    int interval = Integer.valueOf(preferences.getString(SettingsActivity.CUSTOM_TIME, "1"));
+                    float distance = Float.valueOf(preferences.getString(SettingsActivity.CUSTOM_DISTANCE, "1"));
+                    GPSLoggerServiceManager.startGPSLogging(ControlTracking.this, precision, interval, distance);
                     // Create data for the caller that a new track has been started
                     ComponentName caller = ControlTracking.this.getCallingActivity();
                     if (caller != null) {
                         setResult(RESULT_OK, intent);
                     }
                     break;
+                }
                 case R.id.logcontrol_pause:
                     GPSLoggerServiceManager.pauseGPSLogging(ControlTracking.this);
                     setResult(RESULT_OK, intent);
                     break;
-                case R.id.logcontrol_resume:
-                    GPSLoggerServiceManager.resumeGPSLogging(ControlTracking.this);
+                case R.id.logcontrol_resume: {
+                    int precision = Integer.valueOf(preferences.getString(SettingsActivity.PRECISION, Integer.toString(ExternalConstants.LOGGING_NORMAL)));
+                    int interval = Integer.valueOf(preferences.getString(SettingsActivity.CUSTOM_TIME, "1"));
+                    float distance = Float.valueOf(preferences.getString(SettingsActivity.CUSTOM_DISTANCE, "1"));
+                    GPSLoggerServiceManager.resumeGPSLogging(ControlTracking.this, precision, interval, distance);
                     setResult(RESULT_OK, intent);
                     break;
+                }
                 case R.id.logcontrol_stop:
                     GPSLoggerServiceManager.stopGPSLogging(ControlTracking.this);
                     setResult(RESULT_OK, intent);

@@ -37,24 +37,24 @@ public class LoggerNotification {
     private NotificationManager mNoticationManager;
     private boolean isShowingDisabled = false;
 
-    LoggerNotification(Service service) {
+    public LoggerNotification(Service service) {
         mService = service;
         mNoticationManager = (NotificationManager) mService.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
-    void startLogging(int mPrecision, int mLoggingState, boolean mStatusMonitor, long mTrackId) {
+    public void startLogging(int mPrecision, int mLoggingState, boolean mStatusMonitor, long mTrackId) {
         mNoticationManager.cancel(ID_STATUS);
 
         Notification notification = buildLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
         mService.startForeground(ID_STATUS, notification);
     }
 
-    void updateLogging(int mPrecision, int mLoggingState, boolean mStatusMonitor, long mTrackId) {
+    public void updateLogging(int mPrecision, int mLoggingState, boolean mStatusMonitor, long mTrackId) {
         Notification notification = buildLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
         mNoticationManager.notify(ID_STATUS, notification);
     }
 
-    void stopLogging() {
+    public void stopLogging() {
         mService.stopForeground(true);
     }
 

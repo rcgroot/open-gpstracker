@@ -109,7 +109,7 @@ public class GPSLoggerService extends LingerService {
             mGPSListener.onPreferenceChange();
         }
         if (intent.hasExtra(Commands.CONFIG_INTERVAL_TIME)) {
-            long interval = intent.getLongExtra(Commands.CONFIG_INTERVAL_TIME, LoggingConstants.NORMAL_INTERVAL);
+            long interval = intent.getLongExtra(Commands.CONFIG_INTERVAL_TIME, 1L);
             persistence.setCustomLocationIntervalMinutes(interval);
             mGPSListener.onPreferenceChange();
         }
@@ -180,7 +180,7 @@ public class GPSLoggerService extends LingerService {
         mLoggerNotification = new LoggerNotification(this);
         mLoggerNotification.stopLogging();
         LoggerPersistence persistence = new LoggerPersistence(this);
-        mGPSListener = new GPSListener(this, persistence, mLoggerNotification);
+        mGPSListener = new GPSListener(this, persistence, mLoggerNotification, new PowerManager(this));
         mGPSListener.onCreate();
     }
 

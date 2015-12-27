@@ -44,7 +44,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PowerManager;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -58,7 +57,6 @@ import nl.sogeti.android.log.Log;
 
 public class GPSListener implements LocationListener, GpsStatus.Listener {
 
-    private static final String TAG = "WakeLockTag";
     /**
      * <code>MAX_REASONABLE_SPEED</code> is about 324 kilometer per hour or 201
      * mile per hour.
@@ -108,16 +106,17 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     private long mCheckPeriod;
     private float mBroadcastDistance;
     private long mLastTimeBroadcast;
-    private PowerManager.WakeLock mWakeLock;
 
     private Vector<Location> mWeakLocations;
     private Queue<Double> mAltitudes;
     private String mProvider;
+    private PowerManager mPowerManager;
 
-    public GPSListener(GPSLoggerService gpsLoggerService, LoggerPersistence persistence, LoggerNotification loggerNotification) {
+    public GPSListener(GPSLoggerService gpsLoggerService, LoggerPersistence persistence, LoggerNotification loggerNotification, PowerManager powerManager) {
         mService = gpsLoggerService;
         mPersistence = persistence;
         mLoggerNotification = loggerNotification;
+        mPowerManager = powerManager;
     }
 
     public void onCreate() {
@@ -133,10 +132,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     }
 
     public void onDestroy() {
-        if (this.mWakeLock != null) {
-            this.mWakeLock.release();
-            this.mWakeLock = null;
-        }
+        mPowerManager.release();
         mLocationManager.removeGpsStatusListener(this);
         stopListening();
     }
@@ -381,8 +377,9 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      * @param location
      */
     public void storeLocation(Location location) {
-        if (!isLogging()) {
-            Log.e(this, String.format("Not logging but storing location %s, prepare to fail", location.toString()));
+        if (!isLogging() || mTrackId < 0 || mSegmentId < 0) {
+            Log.e(this, String.format("Storing location without Logging (%d) or track (%d,%d).", isLogging(), mTrackId, mSegmentId));
+            return;
         }
         ContentValues args = new ContentValues();
 
@@ -544,7 +541,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             sendRequestLocationUpdatesMessage();
             sendRequestStatusUpdateMessage();
             this.mLoggingState = ExternalConstants.STATE_LOGGING;
-            updateWakeLock();
+            mPowerManager.updateWakeLock(getLoggingState());
             mLoggerNotification.startLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
             crashProtectState();
             broadCastLoggingState();
@@ -558,7 +555,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             stopListening();
             mLoggingState = ExternalConstants.STATE_PAUSED;
             mPreviousLocation = null;
-            updateWakeLock();
+            mPowerManager.updateWakeLock(getLoggingState());
             mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
             mLoggerNotification.mSatellites = 0;
             mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
@@ -577,7 +574,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             sendRequestStatusUpdateMessage();
 
             this.mLoggingState = ExternalConstants.STATE_LOGGING;
-            updateWakeLock();
+            mPowerManager.updateWakeLock(getLoggingState());
             mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
             crashProtectState();
             broadCastLoggingState();
@@ -588,7 +585,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         Log.d(this, "stopLogging()");
         mLoggingState = ExternalConstants.STATE_STOPPED;
         crashProtectState();
-        updateWakeLock();
+        mPowerManager.updateWakeLock(getLoggingState());
 
         mLocationManager.removeGpsStatusListener(this);
         stopListening();
@@ -694,22 +691,6 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         return mCheckPeriod;
     }
 
-    private void updateWakeLock() {
-        if (this.mLoggingState == ExternalConstants.STATE_LOGGING) {
-            PowerManager pm = (PowerManager) mService.getSystemService(Context.POWER_SERVICE);
-            if (this.mWakeLock != null) {
-                this.mWakeLock.release();
-                this.mWakeLock = null;
-            }
-            this.mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-            this.mWakeLock.acquire();
-        } else {
-            if (this.mWakeLock != null) {
-                this.mWakeLock.release();
-                this.mWakeLock = null;
-            }
-        }
-    }
 
     /**
      * Trigged by events that start a new track
