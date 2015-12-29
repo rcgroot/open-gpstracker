@@ -15,8 +15,8 @@ android {
         testApplicationId "nl.sogeti.android.gpstracker.tests"
         minSdkVersion 7
         targetSdkVersion 14
-        versionCode 1410
-        versionName "1.4.1"
+        versionCode 1500
+        versionName "1.5.0-SNAPSHOT"
         buildConfigField "int", "BUILD_NUMBER", System.getenv("BUILD_NUMBER") as String ?: "0"
         buildConfigField "String", "GIT_COMMIT", "\"" + System.getenv("GIT_COMMIT") + "\"" as String ?: "\"Unknown\""
         generatedDensities = ["hdpi", "xxhdpi"]
@@ -58,7 +58,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:preference-v7:23.1.0'
+    compile 'com.android.support:preference-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:support-annotations:23.1.1'
     compile project(':log')

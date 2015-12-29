@@ -107,36 +107,6 @@
             android:key="units"
             android:summary="@string/units_summary"
             android:title="@string/units_title" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="showspeed"
-            android:summary="@string/showspeed_summary"
-            android:title="@string/showspeed_title" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="showaltitude"
-            android:summary="@string/showaltitude_summary"
-            android:title="@string/showaltitude_title" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="showdistance"
-            android:summary="@string/showdistance_summary"
-            android:title="@string/showdistance_title" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="COMPASS"
-            android:summary="@string/showcompass_summary"
-            android:title="@string/showcompass_title" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="LOCATION"
-            android:summary="@string/showlocation_summary"
-            android:title="@string/showlocation_title" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/preference_sharing">
@@ -218,6 +188,5 @@
             android:action="nl.sogeti.android.gpstracker.action.VIEW"
             android:data="content://nl.sogeti.android.gpstracker.about" />
     </Preference>
-
 
 </PreferenceScreen>

@@ -39,9 +39,6 @@ import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 
-/**
- * Created by rene on 15-11-15.
- */
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**
