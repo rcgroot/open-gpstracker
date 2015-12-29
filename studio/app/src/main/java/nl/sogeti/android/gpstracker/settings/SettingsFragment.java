@@ -46,6 +46,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private EditTextPreference time;
     private EditTextPreference distance;
     private EditTextPreference streambroadcast_distance;
+    private EditTextPreference streambroadcast_time;
     private EditTextPreference custumupload_backlog;
 
     @Override
@@ -57,6 +58,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         time = (EditTextPreference) findPreference(Helper.CUSTOM_PRECISION_TIME);
         distance = (EditTextPreference) findPreference(Helper.CUSTOM_DISTANCE_TIME);
         streambroadcast_distance = (EditTextPreference) findPreference(Helper.BROADCAST_STREAM_DISTANCE);
+        streambroadcast_time = (EditTextPreference) findPreference(Helper.BROADCAST_STREAM_TIME);
         custumupload_backlog = (EditTextPreference) findPreference(Helper.CUSTOM_UPLOAD_BACKLOG);
 
         setEnabledCustomValues(precision.getValue());
@@ -80,6 +82,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     editor.commit();
                 }
                 return matches;
+            }
+        });
+        streambroadcast_time.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                String fpExpr = "\\d{1,2}";
+                return Pattern.matches(fpExpr, newValue.toString());
             }
         });
         custumupload_backlog.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {

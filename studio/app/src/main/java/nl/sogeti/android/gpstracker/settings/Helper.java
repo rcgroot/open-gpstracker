@@ -2,9 +2,6 @@ package nl.sogeti.android.gpstracker.settings;
 
 import android.content.SharedPreferences;
 
-/**
- * Created by rene on 15-11-15.
- */
 public class Helper {
 
     public static final String LEGACY_BROADCAST_STREAM = "STREAM_ENABLED";
@@ -15,6 +12,7 @@ public class Helper {
 
     public static final String BROADCAST_STREAM = "APP_SETTING_BROADCAST_STREAM";
     public static final String BROADCAST_STREAM_DISTANCE = "streambroadcast_distance";
+    public static final String BROADCAST_STREAM_TIME = "streambroadcast_time";
     public static final String BROADCAST_STREAM_DISTANCE_METER = "streambroadcast_distance_meter";
     public static final String CUSTOM_UPLOAD_BACKLOG = "APP_SETTING_CUSTOM_UPLOAD_BACKLOG";
     public static final String PRECISION = "APP_SETTING_PRECISION";
