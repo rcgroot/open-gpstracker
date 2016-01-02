@@ -45,7 +45,7 @@ import android.widget.Button;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
-import nl.sogeti.android.gpstracker.settings.SettingsActivity;
+import nl.sogeti.android.gpstracker.settings.Helper;
 import nl.sogeti.android.log.Log;
 
 /**
@@ -63,9 +63,9 @@ public class ControlTracking extends AppCompatActivity {
             Intent intent = new Intent();
             switch (id) {
                 case R.id.logcontrol_start: {
-                    int precision = Integer.valueOf(preferences.getString(SettingsActivity.PRECISION, Integer.toString(ExternalConstants.LOGGING_NORMAL)));
-                    int interval = Integer.valueOf(preferences.getString(SettingsActivity.CUSTOM_TIME, "1"));
-                    float distance = Float.valueOf(preferences.getString(SettingsActivity.CUSTOM_DISTANCE, "1"));
+                    int precision = Integer.valueOf(preferences.getString(Helper.PRECISION_PREFERENCE, Integer.toString(ExternalConstants.LOGGING_NORMAL)));
+                    int interval = Integer.valueOf(preferences.getString(Helper.CUSTOMPRECISIONTIME_PREFERENCE, "1"));
+                    float distance = Float.valueOf(preferences.getString(Helper.CUSTOMPRECISIONDISTANCE_PREFERENCE, "1"));
                     GPSLoggerServiceManager.startGPSLogging(ControlTracking.this, precision, interval, distance);
                     // Create data for the caller that a new track has been started
                     ComponentName caller = ControlTracking.this.getCallingActivity();
@@ -79,9 +79,9 @@ public class ControlTracking extends AppCompatActivity {
                     setResult(RESULT_OK, intent);
                     break;
                 case R.id.logcontrol_resume: {
-                    int precision = Integer.valueOf(preferences.getString(SettingsActivity.PRECISION, Integer.toString(ExternalConstants.LOGGING_NORMAL)));
-                    int interval = Integer.valueOf(preferences.getString(SettingsActivity.CUSTOM_TIME, "1"));
-                    float distance = Float.valueOf(preferences.getString(SettingsActivity.CUSTOM_DISTANCE, "1"));
+                    int precision = Integer.valueOf(preferences.getString(Helper.PRECISION_PREFERENCE, Integer.toString(ExternalConstants.LOGGING_NORMAL)));
+                    int interval = Integer.valueOf(preferences.getString(Helper.CUSTOMPRECISIONTIME_PREFERENCE, "1"));
+                    float distance = Float.valueOf(preferences.getString(Helper.CUSTOMPRECISIONDISTANCE_PREFERENCE, "1"));
                     GPSLoggerServiceManager.resumeGPSLogging(ControlTracking.this, precision, interval, distance);
                     setResult(RESULT_OK, intent);
                     break;

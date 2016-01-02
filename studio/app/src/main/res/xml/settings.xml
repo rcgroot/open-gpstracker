@@ -10,14 +10,14 @@
             android:defaultValue="2"
             android:entries="@array/precision_choices"
             android:entryValues="@array/precision_values"
-            android:key="APP_SETTING_PRECISION"
+            android:key="precision"
             android:summary="@string/precision_summary"
             android:title="@string/precision_title" />
 
         <EditTextPreference
             android:defaultValue="5"
             android:inputType="number"
-            android:key="APP_SETTING_CUSTOM_PRECISION_TIME"
+            android:key="customprecisiontime"
             android:singleLine="true"
             android:summary="@string/customprecisiontime_summary"
             android:title="@string/customprecisiontime_title" />
@@ -25,7 +25,7 @@
         <EditTextPreference
             android:defaultValue="10"
             android:inputType="number"
-            android:key="APP_SETTING_CUSTOM_DISTANCE_TIME"
+            android:key="customprecisiondistance"
             android:singleLine="true"
             android:summary="@string/customprecisiondistance_summary"
             android:title="@string/customprecisiondistance_title" />
@@ -123,13 +123,13 @@
 
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="APP_SETTING_BROADCAST_STREAM"
+            android:key="STREAM_ENABLED"
             android:summary="@string/streamenabled_summary"
             android:title="@string/streamenabled_title" />
 
         <EditTextPreference
             android:defaultValue="15"
-            android:dependency="APP_SETTING_BROADCAST_STREAM"
+            android:dependency="STREAM_ENABLED"
             android:dialogMessage="@string/streambroadcast_time_summary"
             android:inputType="number"
             android:key="streambroadcast_time"
@@ -139,24 +139,24 @@
 
         <EditTextPreference
             android:defaultValue="100"
-            android:dependency="APP_SETTING_BROADCAST_STREAM"
+            android:dependency="STREAM_ENABLED"
             android:dialogMessage="@string/streambroadcast_distance_summary"
             android:inputType="number"
-            android:key="streambroadcast_distance"
+            android:key="streambroadcast_distance_meter_string"
             android:singleLine="true"
             android:summary="@string/streambroadcast_distance_summary"
             android:title="@string/streambroadcast_distance_title" />
 
         <CheckBoxPreference
             android:defaultValue="false"
-            android:dependency="APP_SETTING_BROADCAST_STREAM"
+            android:dependency="STREAM_ENABLED"
             android:key="VOICEOVER_ENABLED"
             android:summary="@string/voiceover_summary"
             android:title="@string/voiceover_title" />
 
         <CheckBoxPreference
             android:defaultValue="false"
-            android:dependency="APP_SETTING_BROADCAST_STREAM"
+            android:dependency="STREAM_ENABLED"
             android:key="CUSTOMUPLOAD_ENABLED"
             android:summary="@string/customupload_summary"
             android:title="@string/customupload_title" />
@@ -176,7 +176,7 @@
             android:dependency="CUSTOMUPLOAD_ENABLED"
             android:dialogMessage="@string/customupload_backlog_message"
             android:inputType="number"
-            android:key="APP_SETTING_CUSTOM_UPLOAD_BACKLOG"
+            android:key="CUSTOMUPLOAD_BACKLOG"
             android:singleLine="true"
             android:summary="@string/customupload_backlog_summary"
             android:title="@string/customupload_backlog_title" />

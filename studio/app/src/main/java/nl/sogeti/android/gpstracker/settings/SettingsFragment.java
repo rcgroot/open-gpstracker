@@ -28,7 +28,6 @@
  */
 package nl.sogeti.android.gpstracker.settings;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
@@ -39,7 +38,6 @@ import java.util.regex.Pattern;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
-import nl.sogeti.android.gpstracker.util.UnitsI18n;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -54,10 +52,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         addPreferencesFromResource(R.xml.settings);
 
 
-        ListPreference precision = (ListPreference) findPreference(Helper.PRECISION);
-        time = (EditTextPreference) findPreference(Helper.CUSTOM_PRECISION_TIME);
-        distance = (EditTextPreference) findPreference(Helper.CUSTOM_DISTANCE_TIME);
-        streambroadcast_distance = (EditTextPreference) findPreference(Helper.BROADCAST_STREAM_DISTANCE);
+        ListPreference precision = (ListPreference) findPreference(Helper.PRECISION_PREFERENCE);
+        time = (EditTextPreference) findPreference(Helper.CUSTOMPRECISIONTIME_PREFERENCE);
+        distance = (EditTextPreference) findPreference(Helper.CUSTOMPRECISIONDISTANCE_PREFERENCE);
+        streambroadcast_distance = (EditTextPreference) findPreference(Helper.BROADCAST_STREAM_DISTANCE_METER);
         streambroadcast_time = (EditTextPreference) findPreference(Helper.BROADCAST_STREAM_TIME);
         custumupload_backlog = (EditTextPreference) findPreference(Helper.CUSTOM_UPLOAD_BACKLOG);
 
@@ -73,21 +71,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String fpExpr = "\\d{1,5}";
-                boolean matches = Pattern.matches(fpExpr, newValue.toString());
-                if (matches) {
-                    SharedPreferences.Editor editor = getPreferenceManager().getSharedPreferences().edit();
-                    double value = new UnitsI18n(getActivity()).conversionFromLocalToMeters(Integer
-                            .parseInt(newValue.toString()));
-                    editor.putFloat(Helper.BROADCAST_STREAM_DISTANCE_METER, (float) value);
-                    editor.commit();
-                }
-                return matches;
+                return Pattern.matches(fpExpr, newValue.toString());
             }
         });
         streambroadcast_time.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                String fpExpr = "\\d{1,2}";
+                String fpExpr = "\\d{1,21}";
                 return Pattern.matches(fpExpr, newValue.toString());
             }
         });
