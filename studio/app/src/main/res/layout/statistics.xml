@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -19,7 +20,9 @@
                 android:paddingRight="15dp"
                 android:text="@string/stat_distance" />
 
-            <TextView android:id="@+id/stat_distance" />
+            <TextView
+                android:id="@+id/stat_distance"
+                tools:text="2.72 km" />
         </TableRow>
 
         <TableRow
@@ -30,7 +33,9 @@
                 android:paddingRight="15dp"
                 android:text="@string/stat_overallaveragespeed" />
 
-            <TextView android:id="@+id/stat_overallaveragespeed" />
+            <TextView
+                android:id="@+id/stat_overallaveragespeed"
+                tools:text="3.27 km/h" />
         </TableRow>
 
         <TableRow
@@ -41,7 +46,9 @@
                 android:paddingRight="15dp"
                 android:text="@string/stat_averagespeed" />
 
-            <TextView android:id="@+id/stat_averagespeed" />
+            <TextView
+                android:id="@+id/stat_averagespeed"
+                tools:text="3.27 km/h" />
         </TableRow>
 
         <TableRow
@@ -52,7 +59,9 @@
                 android:paddingRight="15dp"
                 android:text="@string/stat_maximumspeed" />
 
-            <TextView android:id="@+id/stat_maximumspeed" />
+            <TextView
+                android:id="@+id/stat_maximumspeed"
+                tools:text="22.50 km/h" />
         </TableRow>
 
         <TableRow
@@ -63,7 +72,9 @@
                 android:paddingRight="15dp"
                 android:text="@string/stat_waypoints" />
 
-            <TextView android:id="@+id/stat_waypoints" />
+            <TextView
+                android:id="@+id/stat_waypoints"
+                tools:text="269" />
         </TableRow>
 
         <TableRow
@@ -74,7 +85,9 @@
                 android:paddingRight="15dp"
                 android:text="@string/stat_starttime" />
 
-            <nl.sogeti.android.gpstracker.util.DateView android:id="@+id/stat_starttime" />
+            <nl.sogeti.android.gpstracker.util.DateView
+                android:id="@+id/stat_starttime"
+                tools:text="15:10 February 29, 2016" />
         </TableRow>
 
         <TableRow
@@ -85,7 +98,9 @@
                 android:paddingRight="15dp"
                 android:text="@string/stat_endtime" />
 
-            <nl.sogeti.android.gpstracker.util.DateView android:id="@+id/stat_endtime" />
+            <nl.sogeti.android.gpstracker.util.DateView
+                android:id="@+id/stat_endtime"
+                tools:text="16:00 February 29, 2016" />
         </TableRow>
 
         <TableRow
@@ -96,7 +111,9 @@
                 android:paddingRight="15dp"
                 android:text="@string/stat_elapsedtime" />
 
-            <TextView android:id="@+id/stat_elapsedtime" />
+            <TextView
+                android:id="@+id/stat_elapsedtime"
+                tools:text="0h:49m:54s" />
         </TableRow>
 
         <TableRow
@@ -107,7 +124,9 @@
                 android:paddingRight="15dp"
                 android:text="@string/stat_ascension" />
 
-            <TextView android:id="@+id/stat_ascension" />
+            <TextView
+                android:id="@+id/stat_ascension"
+                tools:text="20 meter" />
         </TableRow>
 
         <nl.sogeti.android.gpstracker.actions.utils.ViewFlipper

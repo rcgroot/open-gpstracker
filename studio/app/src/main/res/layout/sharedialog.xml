@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -71,7 +72,8 @@
                 android:layout_below="@+id/TextView4"
                 android:clickable="true"
                 android:inputType="textAutoCorrect"
-                android:singleLine="true" />
+                android:singleLine="true"
+                tools:text="Track 2016-02-29 15:10" />
 
             <ProgressBar
                 android:id="@+id/tweet_progress"
@@ -91,7 +93,7 @@
                 android:inputType="textAutoCorrect"
                 android:maxLength="140"
                 android:maxLines="3"
-                android:text="" />
+                tools:text="@string/tweettext" />
 
             <ImageView
                 android:id="@+id/imageView"
