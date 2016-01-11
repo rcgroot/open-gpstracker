@@ -2,10 +2,6 @@ apply plugin: 'com.android.application'
 
 project.archivesBaseName = "opengpstracker"
 
-def keystorePropertiesFile = rootProject.file("keystore.properties");
-def signingProperties = new Properties()
-signingProperties.load(new FileInputStream(keystorePropertiesFile))
-
 android {
     compileSdkVersion "Google Inc.:Google APIs:23"
     buildToolsVersion '23.0.2'
@@ -23,13 +19,7 @@ android {
     }
 
     signingConfigs {
-        all {
-            storeFile file(signingProperties["storeFile"])
-            storePassword signingProperties["storePassword"]
-            keyAlias signingProperties["keyAlias"]
-            keyPassword signingProperties["keyPassword"]
-        }
-        release {}
+        release
     }
 
     buildTypes {
@@ -64,4 +54,15 @@ dependencies {
     compile project(':log')
     compile project(':service')
     testCompile 'junit:junit:4.12'
+}
+
+def keystorePropertiesFile = rootProject.file("keystore.properties");
+if (keystorePropertiesFile.exists()) {
+    def signingProperties = new Properties()
+    signingProperties.load(new FileInputStream(keystorePropertiesFile))
+    def release = android.signingConfigs.release
+    release.storeFile = file(signingProperties["storeFile"])
+    release.storePassword = signingProperties["storePassword"]
+    release.keyAlias = signingProperties["keyAlias"]
+    release.keyPassword = signingProperties["keyPassword"]
 }
