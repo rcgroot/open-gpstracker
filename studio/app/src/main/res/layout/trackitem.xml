@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
 
@@ -10,7 +11,8 @@
         android:layout_alignParentTop="true"
         android:paddingLeft="6dip"
         android:paddingRight="6dip"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        tools:text="Track 2016-02-29 15:10" />
 
     <TextView
         android:id="@+id/from_textview"
@@ -28,7 +30,8 @@
         android:layout_below="@+id/listitem_name"
         android:layout_toRightOf="@+id/from_textview"
         android:paddingLeft="3dip"
-        android:paddingTop="3dip" />
+        android:paddingTop="3dip"
+        tools:text="15:10 February 29, 2016" />
 
     <CheckBox
         android:id="@+id/bcSyncedCheckBox"
@@ -40,7 +43,8 @@
         android:focusable="false"
         android:paddingLeft="3dip"
         android:text=""
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/bcExportProgress"
@@ -51,6 +55,7 @@
         android:layout_centerVertical="true"
         android:max="10000"
         android:paddingLeft="3dip"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
 </RelativeLayout>

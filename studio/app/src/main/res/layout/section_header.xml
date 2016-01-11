@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/listitem_name"
     style="?android:attr/listSeparatorTextViewStyle"
     android:layout_width="fill_parent"
@@ -8,4 +9,5 @@
     android:gravity="center"
     android:paddingLeft="6dip"
     android:paddingRight="6dip"
-    android:textAppearance="?android:attr/textAppearanceMedium" />
+    android:textAppearance="?android:attr/textAppearanceMedium"
+    tools:text="Local" />
