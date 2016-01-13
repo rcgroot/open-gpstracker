@@ -27,11 +27,7 @@
             android:enabled="true"
             android:exported="true"
             android:permission="nl.sogeti.android.gpstracker.permission.TRACKING_CONTROL"
-            android:process=":remote">
-            <intent-filter android:label="GPS logger">
-                <action android:name="nl.sogeti.android.gpstracker.intent.action.GPSLoggerService"></action>
-            </intent-filter>
-        </service>
+            android:process=":remote" />
 
         <provider
             android:name=".db.GPStrackingProvider"

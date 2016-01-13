@@ -35,8 +35,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {

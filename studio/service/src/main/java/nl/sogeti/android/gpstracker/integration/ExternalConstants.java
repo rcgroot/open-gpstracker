@@ -26,7 +26,7 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.service.util;
+package nl.sogeti.android.gpstracker.integration;
 
 /**
  * Created by rene on 15-11-15.
@@ -116,4 +116,29 @@ public class ExternalConstants {
      */
     public static final String EXTRA_LOGGING_PRECISION = "nl.sogeti.android.gpstracker.EXTRA_LOGGING_PRECISION";
 
+    public static class Commands {
+        public static final String COMMAND = "nl.sogeti.android.gpstracker.extra.COMMAND";
+        public static final String CONFIG_PRECISION = "nl.sogeti.android.gpstracker.extra.CONFIG_PRECISION";
+        public static final String CONFIG_INTERVAL_DISTANCE = "nl.sogeti.android.gpstracker.extra.CONFIG_INTERVAL_DISTANCE";
+        public static final String CONFIG_INTERVAL_TIME = "nl.sogeti.android.gpstracker.extra.CONFIG_INTERVAL_TIME";
+        public static final String CONFIG_SPEED_SANITY = "nl.sogeti.android.gpstracker.extra.CONFIG_SPEED_SANITY";
+        public static final String CONFIG_STATUS_MONITOR = "nl.sogeti.android.gpstracker.extra.CONFIG_STATUS_MONITOR";
+        public static final String CONFIG_STREAM_BROADCAST = "nl.sogeti.android.gpstracker.extra.CONFIG_STREAM_BROADCAST";
+        public static final String CONFIG_STREAM_INTERVAL_DISTANCE = "nl.sogeti.android.gpstracker.extra.CONFIG_STREAM_INTERVAL_DISTANCE";
+        public static final String CONFIG_STREAM_INTERVAL_TIME = "nl.sogeti.android.gpstracker.extra.CONFIG_STREAM_INTERVAL_TIME";
+        public static final int EXTRA_COMMAND_START = 0;
+        public static final int EXTRA_COMMAND_PAUSE = 1;
+        public static final int EXTRA_COMMAND_RESUME = 2;
+        public static final int EXTRA_COMMAND_STOP = 3;
+        public static final String CONFIG_START_AT_BOOT = "nl.sogeti.android.gpstracker.extra.CONFIG_START_AT_BOOT";
+        public static final String CONFIG_START_AT_POWER_CONNECT = "nl.sogeti.android.gpstracker.extra.CONFIG_START_AT_POWER_CONNECT";
+        public static final String CONFIG_STOP_AT_POWER_DISCONNECT = "nl.sogeti.android.gpstracker.extra.CONFIG_STOP_AT_POWER_DISCONNECT";
+        public static final String CONFIG_START_AT_DOCK = "nl.sogeti.android.gpstracker.extra.CONFIG_START_AT_DOCK";
+        public static final String CONFIG_STOP_AT_UNDOCK = "nl.sogeti.android.gpstracker.extra.CONFIG_STOP_AT_UNDOCK";
+    }
+
+    public static final class permission {
+        public static final String TRACKING_CONTROL = "nl.sogeti.android.gpstracker.permission.TRACKING_CONTROL";
+        public static final String TRACKING_HISTORY = "nl.sogeti.android.gpstracker.permission.TRACKING_HISTORY";
+    }
 }

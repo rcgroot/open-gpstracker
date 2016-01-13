@@ -32,7 +32,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+
 
 /**
  * Encapsulated persisted data used by during GPS Logging

@@ -50,9 +50,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
 
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.service.R;
 import nl.sogeti.android.gpstracker.service.db.GPStracking;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.log.Log;
 
 public class GPSListener implements LocationListener, GpsStatus.Listener {

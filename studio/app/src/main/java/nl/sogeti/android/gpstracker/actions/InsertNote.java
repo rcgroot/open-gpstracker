@@ -57,9 +57,9 @@ import java.io.IOException;
 import java.util.Calendar;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.log.Log;
 
 /**

@@ -34,8 +34,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.speech.tts.TextToSpeech;
 
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
 import nl.sogeti.android.gpstracker.service.R;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.log.Log;
 
 public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitListener {

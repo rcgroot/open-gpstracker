@@ -37,7 +37,7 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import java.util.regex.Pattern;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 

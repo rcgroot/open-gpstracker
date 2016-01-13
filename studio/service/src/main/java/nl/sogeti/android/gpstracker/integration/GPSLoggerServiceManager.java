@@ -26,18 +26,20 @@
  *   along with OpenGPSTracker.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package nl.sogeti.android.gpstracker.service.logger;
+package nl.sogeti.android.gpstracker.integration;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.log.Log;
 
 /**
@@ -47,6 +49,7 @@ import nl.sogeti.android.log.Log;
  * @version $Id$
  */
 public class GPSLoggerServiceManager {
+
     private static final String REMOTE_EXCEPTION = "REMOTE_EXCEPTION";
     public final Object mStartLock = new Object();
     private IGPSLoggerServiceRemote mGPSLoggerRemote;
@@ -62,9 +65,16 @@ public class GPSLoggerServiceManager {
     }
 
     public static void startGPSLogging(Context context) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_START);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_START);
         context.startService(intent);
+    }
+
+    @NonNull
+    private static Intent createServiceIntent() {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName("nl.sogeti.android.gpstracker", "nl.sogeti.android.gpstracker.service.logger.GPSLoggerService"));
+        return intent;
     }
 
     public static void startGPSLogging(Context context, int precision, int customInterval, float customDistance) {
@@ -74,14 +84,14 @@ public class GPSLoggerServiceManager {
     }
 
     public static void pauseGPSLogging(Context context) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_PAUSE);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_PAUSE);
         context.startService(intent);
     }
 
     public static void resumeGPSLogging(Context context) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_RESUME);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_RESUME);
         context.startService(intent);
     }
 
@@ -92,51 +102,51 @@ public class GPSLoggerServiceManager {
     }
 
     public static void stopGPSLogging(Context context) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_STOP);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_STOP);
         context.startService(intent);
     }
 
     public static void setLoggingPrecision(Context context, int mode) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_PRECISION, mode);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.CONFIG_PRECISION, mode);
         context.startService(intent);
     }
 
     public static void setCustomLoggingPrecision(Context context, long minutes, float meters) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_INTERVAL_TIME, minutes);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_INTERVAL_DISTANCE, meters);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.CONFIG_INTERVAL_TIME, minutes);
+        intent.putExtra(ExternalConstants.Commands.CONFIG_INTERVAL_DISTANCE, meters);
         context.startService(intent);
     }
 
     public static void setSanityFilter(Context context, boolean filter) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_SPEED_SANITY, filter);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.CONFIG_SPEED_SANITY, filter);
         context.startService(intent);
     }
 
     public static void setStatusMonitor(Context context, boolean monitor) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_STATUS_MONITOR, monitor);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.CONFIG_STATUS_MONITOR, monitor);
         context.startService(intent);
     }
 
     public static void setAutomaticLogging(Context context, boolean atBoot, boolean atDocking, boolean atUnDocking, boolean atPowerConnect, boolean atPowerDisconnect) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_START_AT_BOOT, atBoot);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_START_AT_DOCK, atDocking);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_STOP_AT_UNDOCK, atUnDocking);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_START_AT_POWER_CONNECT, atPowerConnect);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_STOP_AT_POWER_DISCONNECT, atPowerDisconnect);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.CONFIG_START_AT_BOOT, atBoot);
+        intent.putExtra(ExternalConstants.Commands.CONFIG_START_AT_DOCK, atDocking);
+        intent.putExtra(ExternalConstants.Commands.CONFIG_STOP_AT_UNDOCK, atUnDocking);
+        intent.putExtra(ExternalConstants.Commands.CONFIG_START_AT_POWER_CONNECT, atPowerConnect);
+        intent.putExtra(ExternalConstants.Commands.CONFIG_STOP_AT_POWER_DISCONNECT, atPowerDisconnect);
         context.startService(intent);
     }
 
     public static void setStreaming(Context context, boolean isStreaming, float distance, long time) {
-        Intent intent = new Intent(context, GPSLoggerService.class);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_STREAM_BROADCAST, isStreaming);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_STREAM_INTERVAL_DISTANCE, distance);
-        intent.putExtra(GPSLoggerService.Commands.CONFIG_STREAM_INTERVAL_TIME, time);
+        Intent intent = createServiceIntent();
+        intent.putExtra(ExternalConstants.Commands.CONFIG_STREAM_BROADCAST, isStreaming);
+        intent.putExtra(ExternalConstants.Commands.CONFIG_STREAM_INTERVAL_DISTANCE, distance);
+        intent.putExtra(ExternalConstants.Commands.CONFIG_STREAM_INTERVAL_TIME, time);
         context.startService(intent);
     }
 
@@ -278,8 +288,11 @@ public class GPSLoggerServiceManager {
                         }
                     }
                 };
-                context.bindService(new Intent(context, GPSLoggerService.class), this.mServiceConnection, Context
-                        .BIND_AUTO_CREATE);
+                if (ContextCompat.checkSelfPermission(context, ExternalConstants.permission.TRACKING_CONTROL) == PackageManager.PERMISSION_GRANTED) {
+                    context.bindService(createServiceIntent(), this.mServiceConnection, Context.BIND_AUTO_CREATE);
+                } else {
+                    Log.e(this, "Did not bind service because required permission is lacking");
+                }
             } else {
                 Log.w(this, "Attempting to connect whilst already connected");
             }

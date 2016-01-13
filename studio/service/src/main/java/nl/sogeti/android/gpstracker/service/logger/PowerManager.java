@@ -2,7 +2,8 @@ package nl.sogeti.android.gpstracker.service.logger;
 
 import android.content.Context;
 
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+
 
 /**
  * Created by rene on 27-12-15.

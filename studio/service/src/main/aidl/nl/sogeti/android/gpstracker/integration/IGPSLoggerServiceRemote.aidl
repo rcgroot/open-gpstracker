@@ -1,4 +1,4 @@
-package nl.sogeti.android.gpstracker.service.logger;
+package nl.sogeti.android.gpstracker.integration;
 
 import android.net.Uri;
 import android.location.Location;

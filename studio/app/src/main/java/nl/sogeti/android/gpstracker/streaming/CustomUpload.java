@@ -47,8 +47,8 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
 import nl.sogeti.android.gpstracker.service.R;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.log.Log;
 

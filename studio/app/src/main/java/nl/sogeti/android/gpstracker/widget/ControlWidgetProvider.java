@@ -44,8 +44,8 @@ import android.widget.RemoteViews;
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.log.Log;
 
 /**

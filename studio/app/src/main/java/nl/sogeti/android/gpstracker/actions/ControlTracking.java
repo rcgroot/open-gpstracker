@@ -43,8 +43,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.service.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.GPSLoggerServiceManager;
 import nl.sogeti.android.gpstracker.settings.Helper;
 import nl.sogeti.android.log.Log;
 

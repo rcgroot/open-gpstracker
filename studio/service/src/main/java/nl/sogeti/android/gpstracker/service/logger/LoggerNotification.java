@@ -17,9 +17,9 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
 import nl.sogeti.android.gpstracker.service.R;
 import nl.sogeti.android.gpstracker.service.db.GPStracking;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.log.Log;
 
 /**
@@ -92,13 +92,13 @@ public class LoggerNotification {
         if (state == ExternalConstants.STATE_LOGGING) {
             CharSequence pause = resources.getString(R.string.logcontrol_pause);
             Intent intent = new Intent(mService, GPSLoggerService.class);
-            intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_PAUSE);
+            intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_PAUSE);
             pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_pause_24dp, pause, pendingIntent);
         } else if (state == ExternalConstants.STATE_PAUSED) {
             CharSequence resume = resources.getString(R.string.logcontrol_resume);
             Intent intent = new Intent(mService, GPSLoggerService.class);
-            intent.putExtra(GPSLoggerService.Commands.COMMAND, GPSLoggerService.Commands.EXTRA_COMMAND_RESUME);
+            intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_RESUME);
             pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_play_arrow_24dp, resume, pendingIntent);
         }

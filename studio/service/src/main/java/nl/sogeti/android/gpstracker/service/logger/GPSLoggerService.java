@@ -35,9 +35,10 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.IGPSLoggerServiceRemote;
 import nl.sogeti.android.gpstracker.service.db.GPStracking;
 import nl.sogeti.android.gpstracker.service.linger.LingerService;
-import nl.sogeti.android.gpstracker.service.util.ExternalConstants;
 import nl.sogeti.android.log.Log;
 
 /**
@@ -98,56 +99,56 @@ public class GPSLoggerService extends LingerService {
     protected void onHandleIntent(Intent intent) {
         Log.d(this, "handleCommand(Intent " + intent.getAction() + ")");
         LoggerPersistence persistence = new LoggerPersistence(this);
-        if (intent.hasExtra(Commands.CONFIG_PRECISION)) {
-            int precision = intent.getIntExtra(Commands.CONFIG_PRECISION, ExternalConstants.LOGGING_NORMAL);
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_PRECISION)) {
+            int precision = intent.getIntExtra(ExternalConstants.Commands.CONFIG_PRECISION, ExternalConstants.LOGGING_NORMAL);
             persistence.setPrecision(precision);
             mGPSListener.onPreferenceChange();
         }
-        if (intent.hasExtra(Commands.CONFIG_INTERVAL_DISTANCE)) {
-            float interval = intent.getFloatExtra(Commands.CONFIG_INTERVAL_DISTANCE, LoggingConstants.NORMAL_DISTANCE);
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_INTERVAL_DISTANCE)) {
+            float interval = intent.getFloatExtra(ExternalConstants.Commands.CONFIG_INTERVAL_DISTANCE, LoggingConstants.NORMAL_DISTANCE);
             persistence.setCustomLocationIntervalMetres(interval);
             mGPSListener.onPreferenceChange();
         }
-        if (intent.hasExtra(Commands.CONFIG_INTERVAL_TIME)) {
-            long interval = intent.getLongExtra(Commands.CONFIG_INTERVAL_TIME, 1L);
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_INTERVAL_TIME)) {
+            long interval = intent.getLongExtra(ExternalConstants.Commands.CONFIG_INTERVAL_TIME, 1L);
             persistence.setCustomLocationIntervalMinutes(interval);
             mGPSListener.onPreferenceChange();
         }
-        if (intent.hasExtra(Commands.CONFIG_SPEED_SANITY)) {
-            persistence.isSpeedChecked(intent.getBooleanExtra(Commands.CONFIG_SPEED_SANITY, true));
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_SPEED_SANITY)) {
+            persistence.isSpeedChecked(intent.getBooleanExtra(ExternalConstants.Commands.CONFIG_SPEED_SANITY, true));
         }
-        if (intent.hasExtra(Commands.CONFIG_STATUS_MONITOR)) {
-            persistence.isStatusMonitor(intent.getBooleanExtra(Commands.CONFIG_STATUS_MONITOR, false));
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_STATUS_MONITOR)) {
+            persistence.isStatusMonitor(intent.getBooleanExtra(ExternalConstants.Commands.CONFIG_STATUS_MONITOR, false));
             mGPSListener.onPreferenceChange();
         }
-        if (intent.hasExtra(Commands.CONFIG_STREAM_BROADCAST)) {
-            persistence.getStreamBroadcast(intent.getBooleanExtra(Commands.CONFIG_STREAM_BROADCAST, false));
-            persistence.setBroadcastIntervalMeters(intent.getFloatExtra(Commands.CONFIG_STREAM_INTERVAL_DISTANCE, 1L));
-            persistence.setBroadcastIntervalMinutes(intent.getLongExtra(Commands.CONFIG_STREAM_INTERVAL_TIME, 1L));
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_STREAM_BROADCAST)) {
+            persistence.getStreamBroadcast(intent.getBooleanExtra(ExternalConstants.Commands.CONFIG_STREAM_BROADCAST, false));
+            persistence.setBroadcastIntervalMeters(intent.getFloatExtra(ExternalConstants.Commands.CONFIG_STREAM_INTERVAL_DISTANCE, 1L));
+            persistence.setBroadcastIntervalMinutes(intent.getLongExtra(ExternalConstants.Commands.CONFIG_STREAM_INTERVAL_TIME, 1L));
         }
-        if (intent.hasExtra(Commands.CONFIG_START_AT_BOOT)) {
-            persistence.shouldLogAtBoot(intent.getBooleanExtra(Commands.CONFIG_START_AT_BOOT, false));
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_START_AT_BOOT)) {
+            persistence.shouldLogAtBoot(intent.getBooleanExtra(ExternalConstants.Commands.CONFIG_START_AT_BOOT, false));
         }
-        if (intent.hasExtra(Commands.CONFIG_START_AT_POWER_CONNECT)) {
-            persistence.shouldLogAtPowerConnected(intent.getBooleanExtra(Commands.CONFIG_START_AT_POWER_CONNECT, false));
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_START_AT_POWER_CONNECT)) {
+            persistence.shouldLogAtPowerConnected(intent.getBooleanExtra(ExternalConstants.Commands.CONFIG_START_AT_POWER_CONNECT, false));
         }
-        if (intent.hasExtra(Commands.CONFIG_STOP_AT_POWER_DISCONNECT)) {
-            persistence.shouldLogAtPowerDisconnected(intent.getBooleanExtra(Commands.CONFIG_STOP_AT_POWER_DISCONNECT, false));
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_STOP_AT_POWER_DISCONNECT)) {
+            persistence.shouldLogAtPowerDisconnected(intent.getBooleanExtra(ExternalConstants.Commands.CONFIG_STOP_AT_POWER_DISCONNECT, false));
         }
-        if (intent.hasExtra(Commands.CONFIG_START_AT_DOCK)) {
-            persistence.shouldLogAtDockCar(intent.getBooleanExtra(Commands.CONFIG_START_AT_DOCK, false));
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_START_AT_DOCK)) {
+            persistence.shouldLogAtDockCar(intent.getBooleanExtra(ExternalConstants.Commands.CONFIG_START_AT_DOCK, false));
         }
-        if (intent.hasExtra(Commands.CONFIG_STOP_AT_UNDOCK)) {
-            persistence.shouldLogAtUndockCar(intent.getBooleanExtra(Commands.CONFIG_STOP_AT_UNDOCK, false));
+        if (intent.hasExtra(ExternalConstants.Commands.CONFIG_STOP_AT_UNDOCK)) {
+            persistence.shouldLogAtUndockCar(intent.getBooleanExtra(ExternalConstants.Commands.CONFIG_STOP_AT_UNDOCK, false));
         }
-        if (intent.hasExtra(Commands.COMMAND)) {
+        if (intent.hasExtra(ExternalConstants.Commands.COMMAND)) {
             executeCommandIntent(intent);
         }
     }
 
     private void executeCommandIntent(Intent intent) {
-        switch (intent.getIntExtra(Commands.COMMAND, -1)) {
-            case Commands.EXTRA_COMMAND_START:
+        switch (intent.getIntExtra(ExternalConstants.Commands.COMMAND, -1)) {
+            case ExternalConstants.Commands.EXTRA_COMMAND_START:
                 mGPSListener.startLogging();
                 // Start a naming of the track
                 Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, mGPSListener.getTrackId());
@@ -156,13 +157,13 @@ public class GPSLoggerService extends LingerService {
                 namingIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                 startActivity(namingIntent);
                 break;
-            case Commands.EXTRA_COMMAND_PAUSE:
+            case ExternalConstants.Commands.EXTRA_COMMAND_PAUSE:
                 mGPSListener.pauseLogging();
                 break;
-            case Commands.EXTRA_COMMAND_RESUME:
+            case ExternalConstants.Commands.EXTRA_COMMAND_RESUME:
                 mGPSListener.resumeLogging();
                 break;
-            case Commands.EXTRA_COMMAND_STOP:
+            case ExternalConstants.Commands.EXTRA_COMMAND_STOP:
                 mGPSListener.stopLogging();
                 break;
             default:
@@ -188,27 +189,6 @@ public class GPSLoggerService extends LingerService {
     public IBinder onBind(Intent intent) {
         initLogging();
         return this.mBinder;
-    }
-
-    public static class Commands {
-        public static final String COMMAND = "nl.sogeti.android.gpstracker.extra.COMMAND";
-        public static final String CONFIG_PRECISION = "nl.sogeti.android.gpstracker.extra.CONFIG_PRECISION";
-        public static final String CONFIG_INTERVAL_DISTANCE = "nl.sogeti.android.gpstracker.extra.CONFIG_INTERVAL_DISTANCE";
-        public static final String CONFIG_INTERVAL_TIME = "nl.sogeti.android.gpstracker.extra.CONFIG_INTERVAL_TIME";
-        public static final String CONFIG_SPEED_SANITY = "nl.sogeti.android.gpstracker.extra.CONFIG_SPEED_SANITY";
-        public static final String CONFIG_STATUS_MONITOR = "nl.sogeti.android.gpstracker.extra.CONFIG_STATUS_MONITOR";
-        public static final String CONFIG_STREAM_BROADCAST = "nl.sogeti.android.gpstracker.extra.CONFIG_STREAM_BROADCAST";
-        public static final String CONFIG_STREAM_INTERVAL_DISTANCE = "nl.sogeti.android.gpstracker.extra.CONFIG_STREAM_INTERVAL_DISTANCE";
-        public static final String CONFIG_STREAM_INTERVAL_TIME = "nl.sogeti.android.gpstracker.extra.CONFIG_STREAM_INTERVAL_TIME";
-        public static final int EXTRA_COMMAND_START = 0;
-        public static final int EXTRA_COMMAND_PAUSE = 1;
-        public static final int EXTRA_COMMAND_RESUME = 2;
-        public static final int EXTRA_COMMAND_STOP = 3;
-        public static final String CONFIG_START_AT_BOOT = "nl.sogeti.android.gpstracker.extra.CONFIG_START_AT_BOOT";
-        public static final String CONFIG_START_AT_POWER_CONNECT = "nl.sogeti.android.gpstracker.extra.CONFIG_START_AT_POWER_CONNECT";
-        public static final String CONFIG_STOP_AT_POWER_DISCONNECT = "nl.sogeti.android.gpstracker.extra.CONFIG_STOP_AT_POWER_DISCONNECT";
-        public static final String CONFIG_START_AT_DOCK = "nl.sogeti.android.gpstracker.extra.CONFIG_START_AT_DOCK";
-        public static final String CONFIG_STOP_AT_UNDOCK = "nl.sogeti.android.gpstracker.extra.CONFIG_STOP_AT_UNDOCK";
     }
 
     private class GPSLoggerServiceImplementation extends IGPSLoggerServiceRemote.Stub {
