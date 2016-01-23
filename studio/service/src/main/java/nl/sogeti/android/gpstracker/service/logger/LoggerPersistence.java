@@ -46,7 +46,7 @@ public class LoggerPersistence {
     private static final String LOG_AT_POWER_CONNECTED = "LOG_AT_POWER_CONNECTED";
     private static final String STOP_AT_POWER_DISCONNECTED = "STOP_AT_POWER_DISCONNECTED";
     private static final String BROADCAST_STREAM = "STREAM_ENABLED";
-    private static final String LOGGING_INTERVAL = "LOGGING_INTERVAL";
+    private static final String LOGGING_INTERVAL_SECONDS = "LOGGING_INTERVAL_SECONDS";
     private static final String SPEED_SANITY_CHECK = "SPEED_SANITY_CHECK";
     private static final String LOGGING_DISTANCE = "LOGGING_DISTANCE";
     private static final String STREAM_BROADCAST_DISTANCE_METER = "STREAM_BROADCAST_DISTANCE_METER";
@@ -73,19 +73,19 @@ public class LoggerPersistence {
     }
 
     public float getCustomLocationIntervalMetres() {
-        return mSharedPreferences.getFloat(LOGGING_DISTANCE, LoggingConstants.NORMAL_DISTANCE);
+        return mSharedPreferences.getFloat(LOGGING_DISTANCE, 25.0f);
     }
 
     public void setCustomLocationIntervalMetres(float intervalMetres) {
         put(LOGGING_DISTANCE, intervalMetres);
     }
 
-    public long getCustomLocationIntervalMinutes() {
-        return mSharedPreferences.getLong(LOGGING_INTERVAL, 1L);
+    public long getCustomLocationIntervalSeconds() {
+        return mSharedPreferences.getLong(LOGGING_INTERVAL_SECONDS, 60L);
     }
 
-    public void setCustomLocationIntervalMinutes(long interval) {
-        put(LOGGING_INTERVAL, interval);
+    public void setCustomLocationIntervalSeconds(long interval) {
+        put(LOGGING_INTERVAL_SECONDS, interval);
     }
 
     public boolean isSpeedChecked() {

@@ -177,7 +177,7 @@
     <string name="search_hint">Szukaj ścieżek</string>
     <string name="preference_sharing">Ustawienia udostępniania</string>
     <string name="preference_logging">Ustawienia zapisywania i wykorzystania GPS</string>
-    <string name="customprecisiontime_title">Przedział czasu (w minutach) pomiędzy punktami orientacyjnymi</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in seconds</string>
     <string name="customprecisiontime_summary">Czas, który powinien upłynąć pomiędzy kolejnymi punktami orientacyjnymi.</string>
     <string name="customprecisiondistance_title">Odległość (w metrach) pomiędzy punktami orientacyjnymi</string>
     <string name="customprecisiondistance_summary">Odległość, którą należy przebyć pomiędzy kolejnymi punktami orientacyjnymi.</string>

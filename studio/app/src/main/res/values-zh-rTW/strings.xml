@@ -169,7 +169,7 @@
     <string name="search_hint">搜索路線</string>
     <string name="preference_sharing">分享設定</string>
     <string name="preference_logging">日誌和 GPS 使用設定</string>
-    <string name="customprecisiontime_title">目標陸點的時間間隔，以分鐘計</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in seconds</string>
     <string name="customprecisiontime_summary">在路點之間，GPS 接收器應該休眠的時間。</string>
     <string name="customprecisiondistance_title">目標路點的距離，以米計</string>
     <string name="customprecisiondistance_summary">路點之間應該覆寫的距離。</string>

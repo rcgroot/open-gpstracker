@@ -173,7 +173,7 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="search_hint">Αναζήτηση διαδρομών</string>
     <string name="preference_sharing">Ρυθμίσεις δημοσίευσης</string>
     <string name="preference_logging">Καταγραφή και GPS</string>
-    <string name="customprecisiontime_title">Target waypoint time interval in minutes</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in seconds</string>
     <string name="customprecisiontime_summary">Ο χρόνος μεταξύ μετρήσεων GPS</string>
     <string name="customprecisiondistance_title">Απόσταση μεταξύ μετρήσεων, σε μέτρα</string>
     <string name="customprecisiondistance_summary">Η επιθυμητή διανυθείσα απόσταση μεταξύ μετρήσεων.</string>

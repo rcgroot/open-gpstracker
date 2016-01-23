@@ -113,9 +113,9 @@ public class GPSLoggerServiceManager {
         context.startService(intent);
     }
 
-    public static void setCustomLoggingPrecision(Context context, long minutes, float meters) {
+    public static void setCustomLoggingPrecision(Context context, long seconds, float meters) {
         Intent intent = createServiceIntent();
-        intent.putExtra(ExternalConstants.Commands.CONFIG_INTERVAL_TIME, minutes);
+        intent.putExtra(ExternalConstants.Commands.CONFIG_INTERVAL_TIME, seconds);
         intent.putExtra(ExternalConstants.Commands.CONFIG_INTERVAL_DISTANCE, meters);
         context.startService(intent);
     }

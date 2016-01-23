@@ -15,7 +15,7 @@
             android:title="@string/precision_title" />
 
         <EditTextPreference
-            android:defaultValue="5"
+            android:defaultValue="60"
             android:inputType="number"
             android:key="customprecisiontime"
             android:singleLine="true"
@@ -23,7 +23,7 @@
             android:title="@string/customprecisiontime_title" />
 
         <EditTextPreference
-            android:defaultValue="10"
+            android:defaultValue="25"
             android:inputType="number"
             android:key="customprecisiondistance"
             android:singleLine="true"

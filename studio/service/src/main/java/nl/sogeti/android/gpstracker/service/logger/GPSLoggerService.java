@@ -111,7 +111,7 @@ public class GPSLoggerService extends LingerService {
         }
         if (intent.hasExtra(ExternalConstants.Commands.CONFIG_INTERVAL_TIME)) {
             long interval = intent.getLongExtra(ExternalConstants.Commands.CONFIG_INTERVAL_TIME, 1L);
-            persistence.setCustomLocationIntervalMinutes(interval);
+            persistence.setCustomLocationIntervalSeconds(interval);
             mGPSListener.onPreferenceChange();
         }
         if (intent.hasExtra(ExternalConstants.Commands.CONFIG_SPEED_SANITY)) {

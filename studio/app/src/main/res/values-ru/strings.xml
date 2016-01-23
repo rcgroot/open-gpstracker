@@ -175,7 +175,7 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="search_hint">Поиск треков</string>
     <string name="preference_sharing">Публикация</string>
     <string name="preference_logging">Запись и GPS</string>
-    <string name="customprecisiontime_title">Интервал между точками, минуты</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in seconds</string>
     <string name="customprecisiontime_summary">Интервал времени между точками трека.</string>
     <string name="customprecisiondistance_title">Расстояние между точками, метры</string>
     <string name="customprecisiondistance_summary">Расстояние между точками трека.</string>

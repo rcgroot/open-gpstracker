@@ -264,7 +264,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
                 }
                 break;
             case (ExternalConstants.LOGGING_CUSTOM): // Global
-                intervalTime = mPersistence.getCustomLocationIntervalMinutes() * 60 * 1000;
+                intervalTime = mPersistence.getCustomLocationIntervalSeconds() * 1000;
                 distance = mPersistence.getCustomLocationIntervalMetres();
                 accuracy = Math.max(10f, Math.min(distance, 50f));
                 startListening(LocationManager.GPS_PROVIDER, intervalTime, distance, accuracy);

@@ -177,7 +177,7 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="search_hint">Zoek routes</string>
     <string name="preference_sharing">Delen instellingen</string>
     <string name="preference_logging">Loggen en GPS</string>
-    <string name="customprecisiontime_title">Doel tijdsinterval in minuten</string>
+    <string name="customprecisiontime_title">Doel tijdsinterval in seconden</string>
     <string name="customprecisiontime_summary">De tijd die de GPS ontvangen kan slapen tussen opname punten.</string>
     <string name="customprecisiondistance_title">Doel afstandsinterval in meters</string>
     <string name="customprecisiondistance_summary">De afstand die tussen opname punten past.</string>

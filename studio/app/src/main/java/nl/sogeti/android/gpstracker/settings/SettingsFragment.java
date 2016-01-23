@@ -51,14 +51,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle bundle, String s) {
         addPreferencesFromResource(R.xml.settings);
 
-
         ListPreference precision = (ListPreference) findPreference(Helper.PRECISION_PREFERENCE);
         time = (EditTextPreference) findPreference(Helper.CUSTOMPRECISIONTIME_PREFERENCE);
         distance = (EditTextPreference) findPreference(Helper.CUSTOMPRECISIONDISTANCE_PREFERENCE);
         streambroadcast_distance = (EditTextPreference) findPreference(Helper.BROADCAST_STREAM_DISTANCE_METER);
         streambroadcast_time = (EditTextPreference) findPreference(Helper.BROADCAST_STREAM_TIME);
         custumupload_backlog = (EditTextPreference) findPreference(Helper.CUSTOM_UPLOAD_BACKLOG);
-
         setEnabledCustomValues(precision.getValue());
         precision.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -67,27 +65,33 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-        streambroadcast_distance.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        Preference.OnPreferenceChangeListener fiveDigits = new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String fpExpr = "\\d{1,5}";
                 return Pattern.matches(fpExpr, newValue.toString());
             }
-        });
-        streambroadcast_time.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        };
+        Preference.OnPreferenceChangeListener twentyOneDigits = new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String fpExpr = "\\d{1,21}";
                 return Pattern.matches(fpExpr, newValue.toString());
             }
-        });
-        custumupload_backlog.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        };
+        Preference.OnPreferenceChangeListener threeDigits = new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String fpExpr = "\\d{1,3}";
                 return Pattern.matches(fpExpr, newValue.toString());
             }
-        });
+        };
+
+        time.setOnPreferenceChangeListener(fiveDigits);
+        distance.setOnPreferenceChangeListener(fiveDigits);
+        streambroadcast_distance.setOnPreferenceChangeListener(fiveDigits);
+        streambroadcast_time.setOnPreferenceChangeListener(twentyOneDigits);
+        custumupload_backlog.setOnPreferenceChangeListener(threeDigits);
     }
 
     private void setEnabledCustomValues(Object newValue) {
