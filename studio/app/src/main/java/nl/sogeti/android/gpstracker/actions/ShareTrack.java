@@ -52,6 +52,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
+import android.widget.AbsSpinner;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -219,7 +220,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         int lastType = prefs.getInt(Constants.EXPORT_TYPE, EXPORT_TYPE_KMZ);
-        mShareTypeSpinner.setSelection(lastType);
+        setSelectionBounded(mShareTypeSpinner, lastType);
         adjustTargetToType(lastType);
 
         mFileNameView.setText(queryForTrackName(getContentResolver(), mTrackUri));
@@ -287,6 +288,20 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
                         + ") ";
                 alert.setMessage(mErrorDialogMessage + exceptionMessage);
                 break;
+        }
+    }
+
+    private void setSelectionBounded(AbsSpinner list, int selection) {
+        if (selection < 0) {
+            selection = 0;
+        }
+        int count = list.getCount();
+        if (selection >= count) {
+            selection = count - 1;
+        }
+
+        if (selection >= 0) {
+            list.setSelection(selection);
         }
     }
 
@@ -391,7 +406,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
         mShareTargetSpinner.setAdapter(shareTargetAdapter);
         int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_KMZTARGET,
                 EXPORT_TARGET_SEND);
-        mShareTargetSpinner.setSelection(lastTarget);
+        setSelectionBounded(mShareTargetSpinner, lastTarget);
 
         removeScreenBitmap();
     }
@@ -403,7 +418,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
         mShareTargetSpinner.setAdapter(shareTargetAdapter);
         int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_GPXTARGET,
                 EXPORT_TARGET_SEND);
-        mShareTargetSpinner.setSelection(lastTarget);
+        setSelectionBounded(mShareTargetSpinner, lastTarget);
 
         removeScreenBitmap();
     }
@@ -415,7 +430,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
         mShareTargetSpinner.setAdapter(shareTargetAdapter);
         int lastTarget = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXPORT_TXTTARGET,
                 EXPORT_TARGET_TWITTER);
-        mShareTargetSpinner.setSelection(lastTarget);
+        setSelectionBounded(mShareTargetSpinner, lastTarget);
     }
 
     private void createTweetText() {
