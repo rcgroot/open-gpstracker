@@ -9,33 +9,34 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/menu_notename"></Button>
+        android:text="@string/menu_notename" />
 
     <Button
         android:id="@+id/noteinsert_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/menu_notetext"></Button>
+        android:text="@string/menu_notetext" />
 
     <Button
         android:id="@+id/noteinsert_voice"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/menu_notespeech"></Button>
+        android:text="@string/menu_notespeech" />
 
     <Button
         android:id="@+id/noteinsert_picture"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/menu_notepicture"></Button>
+        android:text="@string/menu_notepicture" />
 
     <Button
         android:id="@+id/noteinsert_video"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/menu_notevideo"></Button>
+        android:text="@string/menu_notevideo" />
+
 </LinearLayout>

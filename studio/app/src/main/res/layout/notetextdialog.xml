@@ -13,6 +13,6 @@
         android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
         android:maxLines="6"
         android:minLines="3"
-        android:singleLine="false"></EditText>
+        android:singleLine="false" />
 
 </LinearLayout>
