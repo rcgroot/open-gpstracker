@@ -201,6 +201,7 @@
     <string name="customupload_backlog_title">On failure keep a backlog</string>
     <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
     <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>
+    <string name="error_map_nullpointer">Fatal map issue</string>
 
     <!-- ***************************
        About information

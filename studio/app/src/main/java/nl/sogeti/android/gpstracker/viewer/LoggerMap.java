@@ -72,6 +72,7 @@ import android.widget.Gallery;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -175,7 +176,12 @@ public class LoggerMap extends AppCompatMapActivity {
      */
     @Override
     protected void onCreate(Bundle load) {
-        super.onCreate(load);
+        try {
+            super.onCreate(load);
+        } catch (NullPointerException exceptions) {
+            // Unrecoverable Google Maps V1 crash
+            Toast.makeText(this, R.string.error_map_nullpointer, Toast.LENGTH_LONG);
+        }
         setContentView(R.layout.map);
         Toolbar toolbar = (Toolbar) findViewById(R.id.support_actionbar);
         setSupportActionBar(toolbar);
