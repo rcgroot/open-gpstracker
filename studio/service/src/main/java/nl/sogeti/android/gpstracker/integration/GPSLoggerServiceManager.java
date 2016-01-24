@@ -64,9 +64,10 @@ public class GPSLoggerServiceManager {
         mBound = false;
     }
 
-    public static void startGPSLogging(Context context) {
+    public static void startGPSLogging(Context context, String trackName) {
         Intent intent = createServiceIntent();
         intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_START);
+        intent.putExtra(ExternalConstants.EXTRA_TRACK_NAME, trackName);
         context.startService(intent);
     }
 
@@ -77,10 +78,10 @@ public class GPSLoggerServiceManager {
         return intent;
     }
 
-    public static void startGPSLogging(Context context, int precision, int customInterval, float customDistance) {
+    public static void startGPSLogging(Context context, int precision, int customInterval, float customDistance, String trackName) {
         setCustomLoggingPrecision(context, customInterval, customDistance);
         setLoggingPrecision(context, precision);
-        startGPSLogging(context);
+        startGPSLogging(context, trackName);
     }
 
     public static void pauseGPSLogging(Context context) {

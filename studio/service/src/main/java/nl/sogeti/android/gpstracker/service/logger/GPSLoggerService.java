@@ -149,13 +149,19 @@ public class GPSLoggerService extends LingerService {
     private void executeCommandIntent(Intent intent) {
         switch (intent.getIntExtra(ExternalConstants.Commands.COMMAND, -1)) {
             case ExternalConstants.Commands.EXTRA_COMMAND_START:
-                mGPSListener.startLogging();
-                // Start a naming of the track
-                Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, mGPSListener.getTrackId());
-                Intent namingIntent = new Intent(ExternalConstants.NAMING_ACTION, uri);
-                namingIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                namingIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                startActivity(namingIntent);
+                String trackName = null;
+                if (intent.hasExtra(ExternalConstants.EXTRA_TRACK_NAME)) {
+                    trackName = intent.getExtras().getString(ExternalConstants.EXTRA_TRACK_NAME);
+                }
+                mGPSListener.startLogging(trackName);
+                if (trackName == null) {
+                    // Start a naming of the track
+                    Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, mGPSListener.getTrackId());
+                    Intent namingIntent = new Intent(ExternalConstants.NAMING_ACTION, uri);
+                    namingIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    namingIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    startActivity(namingIntent);
+                }
                 break;
             case ExternalConstants.Commands.EXTRA_COMMAND_PAUSE:
                 mGPSListener.pauseLogging();

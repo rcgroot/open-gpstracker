@@ -116,6 +116,8 @@ public class ExternalConstants {
      */
     public static final String EXTRA_LOGGING_PRECISION = "nl.sogeti.android.gpstracker.EXTRA_LOGGING_PRECISION";
 
+    public static final String EXTRA_TRACK_NAME = "nl.sogeti.android.gpstracker.EXTRA_LOGGING_TRACK_NAME";
+
     public static class Commands {
         public static final String COMMAND = "nl.sogeti.android.gpstracker.extra.COMMAND";
         public static final String CONFIG_PRECISION = "nl.sogeti.android.gpstracker.extra.CONFIG_PRECISION";

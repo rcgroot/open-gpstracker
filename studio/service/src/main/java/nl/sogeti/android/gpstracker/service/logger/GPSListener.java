@@ -533,10 +533,14 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     }
 
 
-    public synchronized void startLogging() {
+    public synchronized void startLogging(String trackName) {
         Log.d(this, "startLogging()");
         if (this.mLoggingState == ExternalConstants.STATE_STOPPED) {
-            startNewTrack();
+            boolean shouldDisplayTrack = (trackName == null);
+            Uri trackUri = startNewTrack(shouldDisplayTrack);
+            if (trackName != null) {
+                updateTrackName(trackUri, trackName);
+            }
             sendRequestLocationUpdatesMessage();
             sendRequestStatusUpdateMessage();
             this.mLoggingState = ExternalConstants.STATE_LOGGING;
@@ -545,6 +549,12 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             crashProtectState();
             broadCastLoggingState();
         }
+    }
+
+    private void updateTrackName(Uri trackUri, String trackName) {
+        ContentValues values = new ContentValues();
+        values.put(GPStracking.Tracks.NAME, trackName);
+        mService.getContentResolver().update(trackUri, values, null, null);
     }
 
     public synchronized void pauseLogging() {
@@ -693,16 +703,19 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     /**
      * Trigged by events that start a new track
      */
-    private void startNewTrack() {
+    private Uri startNewTrack(boolean shouldDisplayTrack) {
         mDistance = 0;
         Uri newTrack = mService.getContentResolver().insert(GPStracking.Tracks.CONTENT_URI, new ContentValues(0));
         mTrackId = Long.valueOf(newTrack.getLastPathSegment()).longValue();
         startNewSegment();
+        if (shouldDisplayTrack) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, newTrack);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+            mService.startActivity(intent);
+        }
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, newTrack);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        mService.startActivity(intent);
+        return newTrack;
     }
 
     protected void storeMediaUri(Uri mediaUri) {

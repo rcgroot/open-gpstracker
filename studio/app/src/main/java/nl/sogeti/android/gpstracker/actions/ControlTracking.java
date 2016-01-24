@@ -66,7 +66,7 @@ public class ControlTracking extends AppCompatActivity {
                     int precision = Integer.valueOf(preferences.getString(Helper.PRECISION_PREFERENCE, Integer.toString(ExternalConstants.LOGGING_NORMAL)));
                     int interval = Integer.valueOf(preferences.getString(Helper.CUSTOMPRECISIONTIME_PREFERENCE, "1"));
                     float distance = Float.valueOf(preferences.getString(Helper.CUSTOMPRECISIONDISTANCE_PREFERENCE, "1"));
-                    GPSLoggerServiceManager.startGPSLogging(ControlTracking.this, precision, interval, distance);
+                    GPSLoggerServiceManager.startGPSLogging(ControlTracking.this, precision, interval, distance, null);
                     // Create data for the caller that a new track has been started
                     ComponentName caller = ControlTracking.this.getCallingActivity();
                     if (caller != null) {
