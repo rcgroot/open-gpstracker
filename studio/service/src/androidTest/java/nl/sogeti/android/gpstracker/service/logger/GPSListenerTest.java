@@ -108,8 +108,6 @@ public class GPSListenerTest extends InstrumentationTestCase {
     @SmallTest
     public void testInaccurateLocation() {
         sut.onCreate();
-        sut.startLogging();
-
         Location reference = new Location(this.referenceLocation);
         reference.setLatitude(reference.getLatitude() + 0.01d); //Other side of the golfpark, about 1100 meters
         sut.storeLocation(reference);
@@ -120,8 +118,6 @@ public class GPSListenerTest extends InstrumentationTestCase {
     @SmallTest
     public void testAccurateLocation() {
         sut.onCreate();
-        sut.startLogging();
-
         Location reference = new Location(this.referenceLocation);
         reference.setLatitude(reference.getLatitude() + 0.01d); //Other side of the golfpark, about 1100 meters
         reference.setTime(reference.getTime() + 60000l); // In one minute times
@@ -134,8 +130,6 @@ public class GPSListenerTest extends InstrumentationTestCase {
     @SmallTest
     public void testCloseLocation() {
         sut.onCreate();
-        sut.startLogging();
-
         Location reference = new Location(this.referenceLocation);
         reference.setLatitude(reference.getLatitude() + 0.0001d); // About 11 meters
         reference.setTime(reference.getTime() + 6000l); // In 6 seconds times
@@ -150,8 +144,6 @@ public class GPSListenerTest extends InstrumentationTestCase {
     @SmallTest
     public void testBetterSomethingThenNothingAccurateLocation() {
         sut.onCreate();
-        sut.startLogging();
-
         Location first = this.referenceLocation;
         first.setAccuracy(150f);
 
@@ -177,8 +169,6 @@ public class GPSListenerTest extends InstrumentationTestCase {
     public void testToFastLocation() {
         when(mockPersistence.isSpeedChecked()).thenReturn(true);
         sut.onCreate();
-        sut.startLogging();
-
         Location reference = new Location(this.referenceLocation);
         reference.setLatitude(reference.getLatitude() + 0.0001d);
         reference.setTime(reference.getTime() + 6000l); // In 6 seconds times
@@ -198,8 +188,6 @@ public class GPSListenerTest extends InstrumentationTestCase {
     @SmallTest
     public void testNormalSpeedLocation() {
         sut.onCreate();
-        sut.startLogging();
-
         Location reference = new Location(this.referenceLocation);
         reference.setLatitude(reference.getLatitude() + 0.0001d);
         reference.setTime(reference.getTime() + 6000l); // In one minute times
@@ -217,8 +205,6 @@ public class GPSListenerTest extends InstrumentationTestCase {
     @SmallTest
     public void testNormalAltitudeChange() {
         sut.onCreate();
-        sut.startLogging();
-
         referenceLocation = sut.locationFilter(referenceLocation);
         referenceLocation.setLatitude(referenceLocation.getLatitude() + 0.0001d);
         referenceLocation = sut.locationFilter(referenceLocation);
@@ -247,8 +233,6 @@ public class GPSListenerTest extends InstrumentationTestCase {
     public void testInsaneAltitudeChange() {
         when(mockPersistence.isSpeedChecked()).thenReturn(true);
         sut.onCreate();
-        sut.startLogging();
-
         referenceLocation = sut.locationFilter(referenceLocation);
         referenceLocation.setLatitude(referenceLocation.getLatitude() + 0.0001d);
         referenceLocation = sut.locationFilter(referenceLocation);
