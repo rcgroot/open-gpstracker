@@ -1,7 +1,6 @@
 package nl.sogeti.android.gpstracker.service.logger;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
@@ -13,6 +12,7 @@ import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -23,43 +23,43 @@ import nl.sogeti.android.gpstracker.service.db.GPStracking;
 import nl.sogeti.android.log.Log;
 
 /**
- * Manages the different notification task needed when running the logger mService
+ * Manages the different notification task needed when running the logger service
  */
 public class LoggerNotification {
     private static final int ID_DISABLED = R.string.service_connectiondisabled;
     private static final int ID_STATUS = R.string.service_gpsstatus;
     private static final int ID_GPS_PROBLEM = R.string.service_gpsproblem;
     private static final int SMALL_ICON = R.drawable.ic_maps_indicator_current_position;
-    private final Service mService;
+    private final Service service;
 
-    int mSatellites = 0;
+    int numberOfSatellites = 0;
 
-    private NotificationManager mNoticationManager;
+    private NotificationManagerCompat notificationManager;
     private boolean isShowingDisabled = false;
 
     public LoggerNotification(Service service) {
-        mService = service;
-        mNoticationManager = (NotificationManager) mService.getSystemService(Context.NOTIFICATION_SERVICE);
+        this.service = service;
+        notificationManager = NotificationManagerCompat.from(service);
     }
 
     public void startLogging(int mPrecision, int mLoggingState, boolean mStatusMonitor, long mTrackId) {
-        mNoticationManager.cancel(ID_STATUS);
+        notificationManager.cancel(ID_STATUS);
 
         Notification notification = buildLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
-        mService.startForeground(ID_STATUS, notification);
+        service.startForeground(ID_STATUS, notification);
     }
 
     public void updateLogging(int mPrecision, int mLoggingState, boolean mStatusMonitor, long mTrackId) {
         Notification notification = buildLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
-        mNoticationManager.notify(ID_STATUS, notification);
+        notificationManager.notify(ID_STATUS, notification);
     }
 
     public void stopLogging() {
-        mService.stopForeground(true);
+        service.stopForeground(true);
     }
 
     private Notification buildLogging(int precision, int state, boolean monitor, long trackId) {
-        Resources resources = mService.getResources();
+        Resources resources = service.getResources();
         CharSequence contentTitle = resources.getString(R.string.service_title);
         String precisionText = resources.getStringArray(R.array.precision_choices)[precision];
         String stateText = resources.getStringArray(R.array.state_choices)[state - 1];
@@ -71,7 +71,7 @@ public class LoggerNotification {
             default:
                 if (monitor) {
                     contentText = resources.getString(R.string.service_gpsstatus, stateText, precisionText,
-                            mSatellites);
+                            numberOfSatellites);
                 } else {
                     contentText = resources.getString(R.string.service_gpsnostatus, stateText, precisionText);
                 }
@@ -79,10 +79,10 @@ public class LoggerNotification {
         }
         Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, trackId);
         Intent notificationIntent = new Intent(Intent.ACTION_VIEW, uri);
-        PendingIntent contentIntent = PendingIntent.getActivity(mService, 0, notificationIntent, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);
 
         NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(mService)
+                new NotificationCompat.Builder(service)
                         .setSmallIcon(SMALL_ICON)
                         .setContentTitle(contentTitle)
                         .setContentText(contentText)
@@ -91,15 +91,15 @@ public class LoggerNotification {
         PendingIntent pendingIntent;
         if (state == ExternalConstants.STATE_LOGGING) {
             CharSequence pause = resources.getString(R.string.logcontrol_pause);
-            Intent intent = new Intent(mService, GPSLoggerService.class);
+            Intent intent = new Intent(service, GPSLoggerService.class);
             intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_PAUSE);
-            pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pendingIntent = PendingIntent.getService(service, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_pause_24dp, pause, pendingIntent);
         } else if (state == ExternalConstants.STATE_PAUSED) {
             CharSequence resume = resources.getString(R.string.logcontrol_resume);
-            Intent intent = new Intent(mService, GPSLoggerService.class);
+            Intent intent = new Intent(service, GPSLoggerService.class);
             intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_RESUME);
-            pendingIntent = PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pendingIntent = PendingIntent.getService(service, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_play_arrow_24dp, resume, pendingIntent);
         }
 
@@ -107,58 +107,58 @@ public class LoggerNotification {
     }
 
     void startPoorSignal(long trackId) {
-        Resources resources = mService.getResources();
+        Resources resources = service.getResources();
         CharSequence contentText = resources.getString(R.string.service_gpsproblem);
         CharSequence contentTitle = resources.getString(R.string.service_title);
 
         Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, trackId);
         Intent notificationIntent = new Intent(Intent.ACTION_VIEW, uri);
-        PendingIntent contentIntent = PendingIntent.getActivity(mService, 0, notificationIntent, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);
 
         NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(mService)
+                new NotificationCompat.Builder(service)
                         .setSmallIcon(SMALL_ICON)
                         .setContentTitle(contentTitle)
                         .setContentText(contentText)
                         .setContentIntent(contentIntent)
                         .setAutoCancel(true);
 
-        mNoticationManager.notify(ID_GPS_PROBLEM, builder.build());
+        notificationManager.notify(ID_GPS_PROBLEM, builder.build());
     }
 
     public void stopPoorSignal() {
-        mNoticationManager.cancel(ID_GPS_PROBLEM);
+        notificationManager.cancel(ID_GPS_PROBLEM);
     }
 
     void startDisabledProvider(int resId, long trackId) {
         isShowingDisabled = true;
 
-        CharSequence contentTitle = mService.getResources().getString(R.string.service_title);
-        CharSequence contentText = mService.getResources().getString(resId);
-        CharSequence tickerText = mService.getResources().getString(resId);
+        CharSequence contentTitle = service.getResources().getString(R.string.service_title);
+        CharSequence contentText = service.getResources().getString(resId);
+        CharSequence tickerText = service.getResources().getString(resId);
 
         Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, trackId);
         Intent notificationIntent = new Intent(Intent.ACTION_VIEW, uri);
-        PendingIntent contentIntent = PendingIntent.getActivity(mService, 0, notificationIntent, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(mService)
+                new NotificationCompat.Builder(service)
                         .setAutoCancel(true)
                         .setTicker(tickerText)
                         .setContentTitle(contentTitle)
                         .setContentText(contentText)
                         .setContentIntent(contentIntent);
 
-        mNoticationManager.notify(
+        notificationManager.notify(
                 ID_DISABLED,
                 mBuilder.build());
     }
 
     void stopDisabledProvider(int resId) {
-        mNoticationManager.cancel(ID_DISABLED);
+        notificationManager.cancel(ID_DISABLED);
         isShowingDisabled = false;
 
-        CharSequence text = mService.getString(resId);
-        Toast toast = Toast.makeText(mService, text, Toast.LENGTH_LONG);
+        CharSequence text = service.getString(resId);
+        Toast toast = Toast.makeText(service, text, Toast.LENGTH_LONG);
         toast.show();
     }
 
@@ -176,8 +176,8 @@ public class LoggerNotification {
         }
         MediaPlayer mMediaPlayer = new MediaPlayer();
         try {
-            mMediaPlayer.setDataSource(mService, alert);
-            final AudioManager audioManager = (AudioManager) mService.getSystemService(Context.AUDIO_SERVICE);
+            mMediaPlayer.setDataSource(service, alert);
+            final AudioManager audioManager = (AudioManager) service.getSystemService(Context.AUDIO_SERVICE);
             if (audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION) != 0) {
                 mMediaPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
                 mMediaPlayer.setLooping(false);

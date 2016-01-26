@@ -199,11 +199,11 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                 if (mStatusMonitor) {
                     GpsStatus status = mLocationManager.getGpsStatus(null);
-                    mLoggerNotification.mSatellites = 0;
+                    mLoggerNotification.numberOfSatellites = 0;
                     Iterable<GpsSatellite> list = status.getSatellites();
                     for (GpsSatellite satellite : list) {
                         if (satellite.usedInFix()) {
-                            mLoggerNotification.mSatellites++;
+                            mLoggerNotification.numberOfSatellites++;
                         }
                     }
                     mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
@@ -566,7 +566,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             mPreviousLocation = null;
             mPowerManager.updateWakeLock(getLoggingState());
             mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
-            mLoggerNotification.mSatellites = 0;
+            mLoggerNotification.numberOfSatellites = 0;
             mLoggerNotification.updateLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
             crashProtectState();
             broadCastLoggingState();
