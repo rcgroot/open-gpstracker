@@ -73,6 +73,7 @@
         </activity>
         <activity
             android:name=".actions.ControlTracking"
+            android:excludeFromRecents="true"
             android:theme="@style/Theme.App.Translucent.NoTitleBar" />
         <activity
             android:name=".actions.InsertNote"
