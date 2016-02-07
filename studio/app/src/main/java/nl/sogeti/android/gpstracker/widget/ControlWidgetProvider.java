@@ -198,6 +198,7 @@ public class ControlWidgetProvider extends AppWidgetProvider {
             int buttonId = Integer.parseInt(data.getSchemeSpecificPart());
             if (buttonId == BUTTON_TRACKINGCONTROL) {
                 Intent controlIntent = new Intent(context, ControlTracking.class);
+                controlIntent.putExtra(ControlTracking.EXTRA_DEFAULT_NAME, true);
                 controlIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 controlIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                 context.startActivity(controlIntent);

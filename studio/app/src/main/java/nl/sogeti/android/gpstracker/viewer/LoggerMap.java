@@ -461,9 +461,7 @@ public class LoggerMap extends AppCompatMapActivity {
     }
 
     private boolean isHardwareAccelerated() {
-        int trackColoringMethod = Integer.valueOf(mSharedPreferences.getString(Constants.TRACKCOLORING, "3")).intValue();
-        return trackColoringMethod != SegmentOverlay.DRAW_CALCULATED && trackColoringMethod != SegmentOverlay
-                .DRAW_MEASURED;
+        return false;
     }
 
     private void updateSpeedColoring() {

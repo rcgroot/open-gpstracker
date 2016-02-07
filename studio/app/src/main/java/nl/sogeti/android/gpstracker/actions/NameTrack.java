@@ -190,8 +190,7 @@ public class NameTrack extends AppCompatActivity {
         switch (id) {
             case DIALOG_TRACKNAME:
                 String trackName;
-                Calendar c = Calendar.getInstance();
-                trackName = String.format(getString(R.string.dialog_routename_default), c, c, c, c, c);
+                trackName = createDefaultTrackName(this);
                 mTrackNameView.setText(trackName);
                 mTrackNameView.setSelection(0, trackName.length());
                 break;
@@ -199,6 +198,14 @@ public class NameTrack extends AppCompatActivity {
                 super.onPrepareDialog(id, dialog);
                 break;
         }
+    }
+
+    public static String createDefaultTrackName(Context ctx) {
+        String trackName;
+        Calendar c = Calendar.getInstance();
+        trackName = String.format(ctx.getString(R.string.dialog_routename_default), c, c, c, c, c);
+
+        return trackName;
     }
 }
    
