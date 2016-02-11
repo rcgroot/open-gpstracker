@@ -50,11 +50,11 @@ import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.service.db.GPStracking;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.GPStracking;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.log.Log;
 
@@ -267,7 +267,7 @@ public class GpxCreator extends XmlCreator {
                     null, null, null);
             if (mediaCursor.moveToFirst()) {
                 do {
-                    Uri waypointUri = Waypoints.buildUri(mediaCursor.getLong(1), mediaCursor.getLong(2), mediaCursor
+                    Uri waypointUri = GPStracking.buildUri(mediaCursor.getLong(1), mediaCursor.getLong(2), mediaCursor
                             .getLong(3));
                     waypointCursor = resolver.query(waypointUri, new String[]{Waypoints.LATITUDE, Waypoints.LONGITUDE,
                             Waypoints.ALTITUDE, Waypoints.TIME}, null, null, null);

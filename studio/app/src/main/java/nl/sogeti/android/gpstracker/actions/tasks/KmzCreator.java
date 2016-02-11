@@ -49,11 +49,11 @@ import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.service.db.GPStracking;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.GPStracking;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
  import nl.sogeti.android.log.Log;
 

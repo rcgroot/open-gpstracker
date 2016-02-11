@@ -50,8 +50,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 

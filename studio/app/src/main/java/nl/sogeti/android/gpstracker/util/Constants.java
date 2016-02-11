@@ -35,7 +35,7 @@ import android.preference.PreferenceManager;
 
 import java.io.File;
 
-import nl.sogeti.android.gpstracker.service.db.GPStracking;
+import nl.sogeti.android.gpstracker.integration.GPStracking;
 
 /**
  * Various application wide constants

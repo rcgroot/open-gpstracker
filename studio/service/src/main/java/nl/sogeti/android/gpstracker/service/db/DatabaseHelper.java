@@ -40,14 +40,15 @@ import android.net.Uri;
 
 import java.util.Date;
 
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.MediaColumns;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.TracksColumns;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.WaypointsColumns;
+import nl.sogeti.android.gpstracker.integration.GPStracking;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
+import nl.sogeti.android.gpstracker.integration.GPStracking.MediaColumns;
+import nl.sogeti.android.gpstracker.integration.GPStracking.MetaData;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.integration.GPStracking.TracksColumns;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.GPStracking.WaypointsColumns;
 import nl.sogeti.android.log.Log;
 
 /**
@@ -62,7 +63,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private Context mContext;
 
     public DatabaseHelper(Context context) {
-        super(context, GPStracking.DATABASE_NAME, null, GPStracking.DATABASE_VERSION);
+        super(context, DatabaseConstants.DATABASE_NAME, null, DatabaseConstants.DATABASE_VERSION);
         this.mContext = context;
     }
 
@@ -74,11 +75,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(Waypoints.CREATE_STATEMENT);
-        db.execSQL(Segments.CREATE_STATMENT);
-        db.execSQL(Tracks.CREATE_STATEMENT);
-        db.execSQL(Media.CREATE_STATEMENT);
-        db.execSQL(MetaData.CREATE_STATEMENT);
+        db.execSQL(DatabaseConstants.Waypoints.CREATE_STATEMENT);
+        db.execSQL(DatabaseConstants.Segments.CREATE_STATMENT);
+        db.execSQL(DatabaseConstants.Tracks.CREATE_STATEMENT);
+        db.execSQL(DatabaseConstants.Media.CREATE_STATEMENT);
+        db.execSQL(DatabaseConstants.MetaData.CREATE_STATEMENT);
     }
 
     /**
@@ -86,7 +87,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      *
      * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase,
      * int, int)
-     * @see GPStracking.DATABASE_VERSION
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int current, int targetVersion) {
@@ -101,19 +101,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         if (current == 7) // From 7 to 8 ( more waypoints data )
         {
-            for (String statement : Waypoints.UPGRADE_STATEMENT_7_TO_8) {
+            for (String statement : DatabaseConstants.Waypoints.UPGRADE_STATEMENT_7_TO_8) {
                 db.execSQL(statement);
             }
             current = 8;
         }
         if (current == 8) // From 8 to 9 ( media Uri data )
         {
-            db.execSQL(Media.CREATE_STATEMENT);
+            db.execSQL(DatabaseConstants.Media.CREATE_STATEMENT);
             current = 9;
         }
         if (current == 9) // From 9 to 10 ( metadata )
         {
-            db.execSQL(MetaData.CREATE_STATEMENT);
+            db.execSQL(DatabaseConstants.MetaData.CREATE_STATEMENT);
             current = 10;
         }
     }
@@ -161,12 +161,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * Creates a waypoint under the current track segment with the current time
      * on which the waypoint is reached
      *
-     * @param track     track
-     * @param segment   segment
-     * @param latitude  latitude
-     * @param longitude longitude
-     * @param time      time
-     * @param speed     the measured speed
      * @return
      */
     long insertWaypoint(long trackId, long segmentId, Location location) {
@@ -497,7 +491,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param trackId
      * @param segmentId
      * @param waypointId
-     * @param key
      * @param value
      * @return
      */

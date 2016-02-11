@@ -38,11 +38,12 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import junit.framework.Assert;
 
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.GPStracking;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
+import nl.sogeti.android.gpstracker.integration.GPStracking.MetaData;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
 
 /**
  * Basically test that the functions offered by the content://nl.sogeti.android.gpstracker does what is documented.

@@ -50,7 +50,7 @@ import android.widget.EditText;
 import java.util.Calendar;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
 import nl.sogeti.android.log.Log;
 
 /**

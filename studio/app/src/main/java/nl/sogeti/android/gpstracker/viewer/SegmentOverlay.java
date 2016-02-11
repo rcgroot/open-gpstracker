@@ -70,9 +70,9 @@ import java.util.List;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.service.db.GPStracking;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Media;
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.GPStracking;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.log.Log;
 

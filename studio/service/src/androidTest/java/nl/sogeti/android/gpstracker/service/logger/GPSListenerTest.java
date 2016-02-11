@@ -43,7 +43,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import junit.framework.Assert;
 
-import nl.sogeti.android.gpstracker.service.db.GPStracking;
+import nl.sogeti.android.gpstracker.integration.GPStracking;
 import nl.sogeti.android.log.Log;
 
 import static org.mockito.Matchers.anyBoolean;

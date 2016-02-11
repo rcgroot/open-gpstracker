@@ -38,7 +38,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import nl.sogeti.android.gpstracker.service.db.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
 
 public class ExportGPXTest extends TestCase {
     @SmallTest

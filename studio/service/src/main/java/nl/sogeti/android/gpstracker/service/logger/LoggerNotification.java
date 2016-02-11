@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import nl.sogeti.android.gpstracker.integration.ExternalConstants;
 import nl.sogeti.android.gpstracker.service.R;
-import nl.sogeti.android.gpstracker.service.db.GPStracking;
+import nl.sogeti.android.gpstracker.integration.GPStracking;
 import nl.sogeti.android.log.Log;
 
 /**

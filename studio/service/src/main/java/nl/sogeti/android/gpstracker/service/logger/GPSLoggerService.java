@@ -37,7 +37,7 @@ import android.os.RemoteException;
 
 import nl.sogeti.android.gpstracker.integration.ExternalConstants;
 import nl.sogeti.android.gpstracker.integration.IGPSLoggerServiceRemote;
-import nl.sogeti.android.gpstracker.service.db.GPStracking;
+import nl.sogeti.android.gpstracker.integration.GPStracking;
 import nl.sogeti.android.gpstracker.service.linger.LingerService;
 import nl.sogeti.android.log.Log;
 
