@@ -9,6 +9,6 @@
     <fragment
         android:id="@+id/fragment_settings"
         class="nl.sogeti.android.gpstracker.settings.SettingsFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
 </LinearLayout>
