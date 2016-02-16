@@ -55,8 +55,8 @@ import java.util.concurrent.Executor;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
  import nl.sogeti.android.log.Log;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
 import nl.sogeti.android.gpstracker.util.UnicodeReader;

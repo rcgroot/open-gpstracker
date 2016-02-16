@@ -43,8 +43,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
-import nl.sogeti.android.gpstracker.integration.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceManager;
 import nl.sogeti.android.gpstracker.settings.Helper;
 import nl.sogeti.android.log.Log;
 
@@ -64,14 +64,14 @@ public class ControlTracking extends AppCompatActivity {
             Intent intent = new Intent();
             switch (id) {
                 case R.id.logcontrol_start: {
-                    int precision = Integer.valueOf(preferences.getString(Helper.PRECISION_PREFERENCE, Integer.toString(ExternalConstants.LOGGING_NORMAL)));
+                    int precision = Integer.valueOf(preferences.getString(Helper.PRECISION_PREFERENCE, Integer.toString(ServiceConstants.LOGGING_NORMAL)));
                     int interval = Integer.valueOf(preferences.getString(Helper.CUSTOMPRECISIONTIME_PREFERENCE, "1"));
                     float distance = Float.valueOf(preferences.getString(Helper.CUSTOMPRECISIONDISTANCE_PREFERENCE, "1"));
                     String trackName = null;
                     if (getIntent().getBooleanExtra(EXTRA_DEFAULT_NAME, false)) {
                         trackName = NameTrack.createDefaultTrackName(ControlTracking.this);
                     }
-                    GPSLoggerServiceManager.startGPSLogging(ControlTracking.this, precision, interval, distance, trackName);
+                    ServiceManager.startGPSLogging(ControlTracking.this, precision, interval, distance, trackName);
                     // Create data for the caller that a new track has been started
                     ComponentName caller = ControlTracking.this.getCallingActivity();
                     if (caller != null) {
@@ -80,19 +80,19 @@ public class ControlTracking extends AppCompatActivity {
                     break;
                 }
                 case R.id.logcontrol_pause:
-                    GPSLoggerServiceManager.pauseGPSLogging(ControlTracking.this);
+                    ServiceManager.pauseGPSLogging(ControlTracking.this);
                     setResult(RESULT_OK, intent);
                     break;
                 case R.id.logcontrol_resume: {
-                    int precision = Integer.valueOf(preferences.getString(Helper.PRECISION_PREFERENCE, Integer.toString(ExternalConstants.LOGGING_NORMAL)));
+                    int precision = Integer.valueOf(preferences.getString(Helper.PRECISION_PREFERENCE, Integer.toString(ServiceConstants.LOGGING_NORMAL)));
                     int interval = Integer.valueOf(preferences.getString(Helper.CUSTOMPRECISIONTIME_PREFERENCE, "1"));
                     float distance = Float.valueOf(preferences.getString(Helper.CUSTOMPRECISIONDISTANCE_PREFERENCE, "1"));
-                    GPSLoggerServiceManager.resumeGPSLogging(ControlTracking.this, precision, interval, distance);
+                    ServiceManager.resumeGPSLogging(ControlTracking.this, precision, interval, distance);
                     setResult(RESULT_OK, intent);
                     break;
                 }
                 case R.id.logcontrol_stop:
-                    GPSLoggerServiceManager.stopGPSLogging(ControlTracking.this);
+                    ServiceManager.stopGPSLogging(ControlTracking.this);
                     setResult(RESULT_OK, intent);
                     break;
                 default:
@@ -102,7 +102,7 @@ public class ControlTracking extends AppCompatActivity {
             finish();
         }
     };
-    private GPSLoggerServiceManager mLoggerServiceManager;
+    private ServiceManager mLoggerServiceManager;
     private Button start;
     private Button pause;
     private Button resume;
@@ -130,7 +130,7 @@ public class ControlTracking extends AppCompatActivity {
 
         this.setVisible(false);
         paused = false;
-        mLoggerServiceManager = new GPSLoggerServiceManager();
+        mLoggerServiceManager = new ServiceManager();
     }
 
     @Override
@@ -189,19 +189,19 @@ public class ControlTracking extends AppCompatActivity {
 
     private void updateDialogState(int state) {
         switch (state) {
-            case ExternalConstants.STATE_STOPPED:
+            case ServiceConstants.STATE_STOPPED:
                 start.setEnabled(true);
                 pause.setEnabled(false);
                 resume.setEnabled(false);
                 stop.setEnabled(false);
                 break;
-            case ExternalConstants.STATE_LOGGING:
+            case ServiceConstants.STATE_LOGGING:
                 start.setEnabled(false);
                 pause.setEnabled(true);
                 resume.setEnabled(false);
                 stop.setEnabled(true);
                 break;
-            case ExternalConstants.STATE_PAUSED:
+            case ServiceConstants.STATE_PAUSED:
                 start.setEnabled(false);
                 pause.setEnabled(false);
                 resume.setEnabled(true);

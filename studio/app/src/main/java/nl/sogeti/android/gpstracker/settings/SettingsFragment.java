@@ -37,7 +37,7 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import java.util.regex.Pattern;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -95,7 +95,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void setEnabledCustomValues(Object newValue) {
-        boolean customPrecision = Integer.toString(ExternalConstants.LOGGING_CUSTOM).equals(newValue);
+        boolean customPrecision = Integer.toString(ServiceConstants.LOGGING_CUSTOM).equals(newValue);
         time.setEnabled(customPrecision);
         distance.setEnabled(customPrecision);
     }

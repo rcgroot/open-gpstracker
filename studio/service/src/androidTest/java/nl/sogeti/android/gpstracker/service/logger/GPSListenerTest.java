@@ -43,7 +43,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import junit.framework.Assert;
 
-import nl.sogeti.android.gpstracker.integration.GPStracking;
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.log.Log;
 
 import static org.mockito.Matchers.anyBoolean;
@@ -79,7 +79,7 @@ public class GPSListenerTest extends InstrumentationTestCase {
         mockApplicationContext = mock(Context.class);
         when(mockService.getApplicationContext()).thenReturn(mockApplicationContext);
         mockProvider = new MyMockContentProvider();
-        mockResolver.addProvider(GPStracking.AUTHORITY, mockProvider);
+        mockResolver.addProvider(ContentConstants.AUTHORITY, mockProvider);
         mockPersistence = mock(LoggerPersistence.class);
         mockPowerManager = mock(PowerManager.class);
         doNothing().when(mockPowerManager).updateWakeLock(anyInt());
@@ -266,7 +266,7 @@ public class GPSListenerTest extends InstrumentationTestCase {
         @Override
         public Uri insert(Uri uri, ContentValues values) {
             String result = null;
-            Uri track = GPStracking.Tracks.CONTENT_URI;
+            Uri track = ContentConstants.Tracks.CONTENT_URI;
             Uri segment = Uri.withAppendedPath(track, "1/segments");
             Uri waypoint = Uri.withAppendedPath(segment, "1/waypoints");
 

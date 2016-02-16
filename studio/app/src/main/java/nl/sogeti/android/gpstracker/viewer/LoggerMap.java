@@ -86,12 +86,12 @@ import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
 import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
-import nl.sogeti.android.gpstracker.integration.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceManager;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Media;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Segments;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.settings.SettingsActivity;
 import nl.sogeti.android.gpstracker.support.AppCompatMapActivity;
@@ -146,7 +146,7 @@ public class LoggerMap extends AppCompatMapActivity {
     private UnitsI18n mUnits;
     private WakeLock mWakeLock = null;
     private SharedPreferences mSharedPreferences;
-    private GPSLoggerServiceManager mLoggerServiceManager;
+    private ServiceManager mLoggerServiceManager;
     private SegmentOverlay mLastSegmentOverlay;
     private BaseAdapter mMediaAdapter;
 
@@ -188,7 +188,7 @@ public class LoggerMap extends AppCompatMapActivity {
 
         findViewById(R.id.mapScreen).setDrawingCacheEnabled(true);
         mUnits = new UnitsI18n(this);
-        mLoggerServiceManager = new GPSLoggerServiceManager();
+        mLoggerServiceManager = new ServiceManager();
 
         final Semaphore calulatorSemaphore = new Semaphore(0);
         Thread calulator = new Thread("OverlayCalculator") {
@@ -330,7 +330,7 @@ public class LoggerMap extends AppCompatMapActivity {
             mWakeLock.release();
             Log.w(this, "onDestroy(): Released lock to keep screen on!");
         }
-        if (mLoggerServiceManager.getLoggingState() == ExternalConstants.STATE_STOPPED) {
+        if (mLoggerServiceManager.getLoggingState() == ServiceConstants.STATE_STOPPED) {
             stopService(new Intent(this, GPSLoggerService.class));
         }
         mUnits = null;
@@ -395,7 +395,7 @@ public class LoggerMap extends AppCompatMapActivity {
     @Override
     protected boolean isLocationDisplayed() {
         return mSharedPreferences.getBoolean(Constants.LOCATION, false) || mLoggerServiceManager.getLoggingState() ==
-                ExternalConstants.STATE_LOGGING;
+                ServiceConstants.STATE_LOGGING;
     }
 
     private void updateTitleBar() {
@@ -427,7 +427,7 @@ public class LoggerMap extends AppCompatMapActivity {
                     mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, WAKELOCK_TAG);
                 }
             }
-            if (mLoggerServiceManager.getLoggingState() == ExternalConstants.STATE_LOGGING && !mWakeLock.isHeld()) {
+            if (mLoggerServiceManager.getLoggingState() == ServiceConstants.STATE_LOGGING && !mWakeLock.isHeld()) {
                 mWakeLock.acquire();
                 Log.w(this, "Acquired lock to keep screen on!");
             }
@@ -1284,7 +1284,7 @@ public class LoggerMap extends AppCompatMapActivity {
 
     private void moveActiveViewWindow() {
         GeoPoint lastPoint = getLastTrackPoint();
-        if (lastPoint != null && mLoggerServiceManager.getLoggingState() == ExternalConstants.STATE_LOGGING) {
+        if (lastPoint != null && mLoggerServiceManager.getLoggingState() == ServiceConstants.STATE_LOGGING) {
             Point out = new Point();
             this.mMapView.getProjection().toPixels(lastPoint, out);
             int height = this.mMapView.getHeight();

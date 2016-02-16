@@ -2,7 +2,7 @@ package nl.sogeti.android.gpstracker.service.logger;
 
 import android.content.Context;
 
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 
 
 /**
@@ -19,7 +19,7 @@ public class PowerManager {
     }
 
     public void updateWakeLock(int loggingState) {
-        if (loggingState == ExternalConstants.STATE_LOGGING) {
+        if (loggingState == ServiceConstants.STATE_LOGGING) {
             android.os.PowerManager pm = (android.os.PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
             if (this.mWakeLock != null) {
                 this.mWakeLock.release();

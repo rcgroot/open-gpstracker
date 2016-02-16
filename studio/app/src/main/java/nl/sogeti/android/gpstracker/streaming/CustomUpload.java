@@ -47,7 +47,7 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.R;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.log.Log;
@@ -67,7 +67,7 @@ public class CustomUpload extends BroadcastReceiver {
         sCustomUpload = new CustomUpload();
         sRequestBacklog = new LinkedList<>();
 
-        IntentFilter filter = new IntentFilter(ExternalConstants.STREAM_BROADCAST);
+        IntentFilter filter = new IntentFilter(ServiceConstants.STREAM_BROADCAST);
         ctx.registerReceiver(sCustomUpload, filter);
     }
 
@@ -91,8 +91,8 @@ public class CustomUpload extends BroadcastReceiver {
         String prefUrl = preferences.getString(Constants.CUSTOMUPLOAD_URL, "http://www.example.com");
         Integer prefBacklog = Integer.valueOf(preferences.getString(Constants.CUSTOMUPLOAD_BACKLOG,
                 CUSTOM_UPLOAD_BACKLOG_DEFAULT));
-        Location loc = intent.getParcelableExtra(ExternalConstants.EXTRA_LOCATION);
-        Uri trackUri = intent.getParcelableExtra(ExternalConstants.EXTRA_TRACK);
+        Location loc = intent.getParcelableExtra(ServiceConstants.EXTRA_LOCATION);
+        Uri trackUri = intent.getParcelableExtra(ServiceConstants.EXTRA_TRACK);
         String buildUrl = prefUrl;
         buildUrl = buildUrl.replace("@LAT@", Double.toString(loc.getLatitude()));
         buildUrl = buildUrl.replace("@LON@", Double.toString(loc.getLongitude()));

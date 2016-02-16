@@ -50,11 +50,11 @@ import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
-import nl.sogeti.android.gpstracker.integration.GPStracking;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Media;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Segments;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.log.Log;
 
@@ -267,7 +267,7 @@ public class GpxCreator extends XmlCreator {
                     null, null, null);
             if (mediaCursor.moveToFirst()) {
                 do {
-                    Uri waypointUri = GPStracking.buildUri(mediaCursor.getLong(1), mediaCursor.getLong(2), mediaCursor
+                    Uri waypointUri = ContentConstants.buildUri(mediaCursor.getLong(1), mediaCursor.getLong(2), mediaCursor
                             .getLong(3));
                     waypointCursor = resolver.query(waypointUri, new String[]{Waypoints.LATITUDE, Waypoints.LONGITUDE,
                             Waypoints.ALTITUDE, Waypoints.TIME}, null, null, null);
@@ -325,7 +325,7 @@ public class GpxCreator extends XmlCreator {
                             serializer.endTag("", "desc");
                         }
                     } else if (mediaUri.getScheme().equals("content")) {
-                        if ((GPStracking.AUTHORITY + ".string").equals(mediaUri.getAuthority())) {
+                        if ((ContentConstants.AUTHORITY + ".string").equals(mediaUri.getAuthority())) {
                             quickTag(serializer, "", "name", mediaUri.getLastPathSegment());
                         } else if (mediaUri.getAuthority().equals("media")) {
 

@@ -70,9 +70,9 @@ import java.util.List;
 import java.util.Vector;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.integration.GPStracking;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Media;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.log.Log;
 
@@ -235,7 +235,7 @@ public class SegmentOverlay extends Overlay {
                 return true;
             }
         } else if (mediaUri.getScheme().equals("content")) {
-            if (mediaUri.getAuthority().equals(GPStracking.AUTHORITY + ".string")) {
+            if (mediaUri.getAuthority().equals(ContentConstants.AUTHORITY + ".string")) {
                 String text = mediaUri.getLastPathSegment();
                 Toast toast = Toast.makeText(ctx, text, Toast.LENGTH_LONG);
                 toast.show();
@@ -712,7 +712,7 @@ public class SegmentOverlay extends Overlay {
                 drawable = R.drawable.media_notepad;
             }
         } else if (uri.getScheme().equals("content")) {
-            if (uri.getAuthority().equals(GPStracking.AUTHORITY + ".string")) {
+            if (uri.getAuthority().equals(ContentConstants.AUTHORITY + ".string")) {
                 drawable = R.drawable.media_mark;
             } else if (uri.getAuthority().equals("media")) {
                 drawable = R.drawable.media_speech;

@@ -44,12 +44,12 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import nl.sogeti.android.gpstracker.integration.GPStracking;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
-import nl.sogeti.android.gpstracker.integration.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Media;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.MetaData;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Segments;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 import nl.sogeti.android.log.Log;
 
 
@@ -173,36 +173,36 @@ public class GPStrackingProvider extends ContentProvider {
      */
     static {
         GPStrackingProvider.sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks", GPStrackingProvider.TRACKS);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#", GPStrackingProvider.TRACK_ID);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/media", GPStrackingProvider.TRACK_MEDIA);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/metadata", GPStrackingProvider
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks", GPStrackingProvider.TRACKS);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#", GPStrackingProvider.TRACK_ID);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/media", GPStrackingProvider.TRACK_MEDIA);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/metadata", GPStrackingProvider
                 .TRACK_METADATA);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/waypoints", GPStrackingProvider
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/waypoints", GPStrackingProvider
                 .TRACK_WAYPOINTS);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/segments", GPStrackingProvider.SEGMENTS);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/segments/#", GPStrackingProvider
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/segments", GPStrackingProvider.SEGMENTS);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/segments/#", GPStrackingProvider
                 .SEGMENT_ID);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/segments/#/media", GPStrackingProvider
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/segments/#/media", GPStrackingProvider
                 .SEGMENT_MEDIA);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/segments/#/metadata",
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/segments/#/metadata",
                 GPStrackingProvider.SEGMENT_METADATA);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints",
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/segments/#/waypoints",
                 GPStrackingProvider.WAYPOINTS);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#",
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/segments/#/waypoints/#",
                 GPStrackingProvider.WAYPOINT_ID);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#/media",
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/segments/#/waypoints/#/media",
                 GPStrackingProvider.WAYPOINT_MEDIA);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "tracks/#/segments/#/waypoints/#/metadata",
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/segments/#/waypoints/#/metadata",
                 GPStrackingProvider.WAYPOINT_METADATA);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "media", GPStrackingProvider.MEDIA);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "media/#", GPStrackingProvider.MEDIA_ID);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "metadata", GPStrackingProvider.METADATA);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "metadata/#", GPStrackingProvider.METADATA_ID);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "media", GPStrackingProvider.MEDIA);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "media/#", GPStrackingProvider.MEDIA_ID);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "metadata", GPStrackingProvider.METADATA);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "metadata/#", GPStrackingProvider.METADATA_ID);
 
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "live_folders/tracks", GPStrackingProvider
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "live_folders/tracks", GPStrackingProvider
                 .LIVE_FOLDERS);
-        GPStrackingProvider.sURIMatcher.addURI(GPStracking.AUTHORITY, "search_suggest_query", GPStrackingProvider
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "search_suggest_query", GPStrackingProvider
                 .SEARCH_SUGGEST_ID);
 
     }

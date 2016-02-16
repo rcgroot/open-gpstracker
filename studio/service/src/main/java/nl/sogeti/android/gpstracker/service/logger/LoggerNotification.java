@@ -17,9 +17,9 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.R;
-import nl.sogeti.android.gpstracker.integration.GPStracking;
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.log.Log;
 
 /**
@@ -65,7 +65,7 @@ public class LoggerNotification {
         String stateText = resources.getStringArray(R.array.state_choices)[state - 1];
         CharSequence contentText;
         switch (precision) {
-            case (ExternalConstants.LOGGING_GLOBAL):
+            case (ServiceConstants.LOGGING_GLOBAL):
                 contentText = resources.getString(R.string.service_networkstatus, stateText, precisionText);
                 break;
             default:
@@ -77,7 +77,7 @@ public class LoggerNotification {
                 }
                 break;
         }
-        Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, trackId);
+        Uri uri = ContentUris.withAppendedId(ContentConstants.Tracks.CONTENT_URI, trackId);
         Intent notificationIntent = new Intent(Intent.ACTION_VIEW, uri);
         PendingIntent contentIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);
 
@@ -89,16 +89,16 @@ public class LoggerNotification {
                         .setContentIntent(contentIntent)
                         .setOngoing(true);
         PendingIntent pendingIntent;
-        if (state == ExternalConstants.STATE_LOGGING) {
+        if (state == ServiceConstants.STATE_LOGGING) {
             CharSequence pause = resources.getString(R.string.logcontrol_pause);
             Intent intent = new Intent(service, GPSLoggerService.class);
-            intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_PAUSE);
+            intent.putExtra(ServiceConstants.Commands.COMMAND, ServiceConstants.Commands.EXTRA_COMMAND_PAUSE);
             pendingIntent = PendingIntent.getService(service, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_pause_24dp, pause, pendingIntent);
-        } else if (state == ExternalConstants.STATE_PAUSED) {
+        } else if (state == ServiceConstants.STATE_PAUSED) {
             CharSequence resume = resources.getString(R.string.logcontrol_resume);
             Intent intent = new Intent(service, GPSLoggerService.class);
-            intent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_RESUME);
+            intent.putExtra(ServiceConstants.Commands.COMMAND, ServiceConstants.Commands.EXTRA_COMMAND_RESUME);
             pendingIntent = PendingIntent.getService(service, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_play_arrow_24dp, resume, pendingIntent);
         }
@@ -111,7 +111,7 @@ public class LoggerNotification {
         CharSequence contentText = resources.getString(R.string.service_gpsproblem);
         CharSequence contentTitle = resources.getString(R.string.service_title);
 
-        Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, trackId);
+        Uri uri = ContentUris.withAppendedId(ContentConstants.Tracks.CONTENT_URI, trackId);
         Intent notificationIntent = new Intent(Intent.ACTION_VIEW, uri);
         PendingIntent contentIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);
 
@@ -137,7 +137,7 @@ public class LoggerNotification {
         CharSequence contentText = service.getResources().getString(resId);
         CharSequence tickerText = service.getResources().getString(resId);
 
-        Uri uri = ContentUris.withAppendedId(GPStracking.Tracks.CONTENT_URI, trackId);
+        Uri uri = ContentUris.withAppendedId(ContentConstants.Tracks.CONTENT_URI, trackId);
         Intent notificationIntent = new Intent(Intent.ACTION_VIEW, uri);
         PendingIntent contentIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);
         NotificationCompat.Builder mBuilder =

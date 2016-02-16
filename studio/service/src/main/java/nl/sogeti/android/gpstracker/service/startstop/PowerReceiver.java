@@ -25,7 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.service.logger.LoggerPersistence;
 import nl.sogeti.android.log.Log;
@@ -50,11 +50,11 @@ public class PowerReceiver extends BroadcastReceiver {
 
         if (start) {
             Intent serviceIntent = new Intent(context, GPSLoggerService.class);
-            serviceIntent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_START);
+            serviceIntent.putExtra(ServiceConstants.Commands.COMMAND, ServiceConstants.Commands.EXTRA_COMMAND_START);
             context.startService(serviceIntent);
         } else if (stop) {
             Intent serviceIntent = new Intent(context, GPSLoggerService.class);
-            serviceIntent.putExtra(ExternalConstants.Commands.COMMAND, ExternalConstants.Commands.EXTRA_COMMAND_STOP);
+            serviceIntent.putExtra(ServiceConstants.Commands.COMMAND, ServiceConstants.Commands.EXTRA_COMMAND_STOP);
             context.startService(serviceIntent);
         }
     }

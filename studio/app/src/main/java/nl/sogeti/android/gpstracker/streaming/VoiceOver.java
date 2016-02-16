@@ -34,7 +34,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.speech.tts.TextToSpeech;
 
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.R;
 import nl.sogeti.android.log.Log;
 
@@ -55,7 +55,7 @@ public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitL
         }
         sVoiceOver = new VoiceOver(ctx);
 
-        IntentFilter filter = new IntentFilter(ExternalConstants.STREAM_BROADCAST);
+        IntentFilter filter = new IntentFilter(ServiceConstants.STREAM_BROADCAST);
         ctx.registerReceiver(sVoiceOver, filter);
     }
 
@@ -80,8 +80,8 @@ public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitL
     @Override
     public void onReceive(Context context, Intent intent) {
         if (mVoiceStatus == TextToSpeech.SUCCESS) {
-            int meters = intent.getIntExtra(ExternalConstants.EXTRA_DISTANCE, 0);
-            int minutes = intent.getIntExtra(ExternalConstants.EXTRA_TIME, 0);
+            int meters = intent.getIntExtra(ServiceConstants.EXTRA_DISTANCE, 0);
+            int minutes = intent.getIntExtra(ServiceConstants.EXTRA_TIME, 0);
             String myText = context.getString(R.string.voiceover_speaking, minutes, meters);
             if (!mTextToSpeech.isSpeaking()) {
                 mTextToSpeech.speak(myText, TextToSpeech.QUEUE_ADD, null);

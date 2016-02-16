@@ -32,7 +32,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 
 
 /**
@@ -69,7 +69,7 @@ public class LoggerPersistence {
     }
 
     public int getPrecision() {
-        return mSharedPreferences.getInt(LoggingConstants.SERVICESTATE_PRECISION, ExternalConstants.LOGGING_NORMAL);
+        return mSharedPreferences.getInt(LoggingConstants.SERVICESTATE_PRECISION, ServiceConstants.LOGGING_NORMAL);
     }
 
     public float getCustomLocationIntervalMetres() {
@@ -202,7 +202,7 @@ public class LoggerPersistence {
     }
 
     public int getLoggingState() {
-        return mSharedPreferences.getInt(LoggingConstants.SERVICESTATE_STATE, ExternalConstants.STATE_STOPPED);
+        return mSharedPreferences.getInt(LoggingConstants.SERVICESTATE_STATE, ServiceConstants.STATE_STOPPED);
     }
 
     /* *****

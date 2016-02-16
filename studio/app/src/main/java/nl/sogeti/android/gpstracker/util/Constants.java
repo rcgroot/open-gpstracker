@@ -35,7 +35,7 @@ import android.preference.PreferenceManager;
 
 import java.io.File;
 
-import nl.sogeti.android.gpstracker.integration.GPStracking;
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
 
 /**
  * Various application wide constants
@@ -68,7 +68,7 @@ public class Constants {
     public static final String SDDIR_DIR = "SDDIR_DIR";
     public static final String DEFAULT_EXTERNAL_DIR = "/OpenGPSTracker/";
     public static final String TMPICTUREFILE_SUBPATH = "media_tmp.tmp";
-    public static final Uri NAME_URI = Uri.parse("content://" + GPStracking.AUTHORITY + ".string");
+    public static final Uri NAME_URI = Uri.parse("content://" + ContentConstants.AUTHORITY + ".string");
     public static final String EXPORT_TYPE = "SHARE_TYPE";
     public static final String EXPORT_GPXTARGET = "EXPORT_GPXTARGET";
     public static final String EXPORT_KMZTARGET = "EXPORT_KMZTARGET";

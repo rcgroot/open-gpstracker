@@ -35,8 +35,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.integration.ExternalConstants;
-import nl.sogeti.android.gpstracker.integration.GPSLoggerServiceManager;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceManager;
 import nl.sogeti.android.gpstracker.streaming.StreamUtils;
 
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -82,27 +82,27 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
     @Override
     public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
         if (Helper.PRECISION_PREFERENCE.equals(key)) {
-            GPSLoggerServiceManager.setLoggingPrecision(this,
-                    Integer.valueOf(preferences.getString(Helper.PRECISION_PREFERENCE, Integer.toString(ExternalConstants.LOGGING_NORMAL))));
+            ServiceManager.setLoggingPrecision(this,
+                    Integer.valueOf(preferences.getString(Helper.PRECISION_PREFERENCE, Integer.toString(ServiceConstants.LOGGING_NORMAL))));
         } else if (Helper.CUSTOMPRECISIONTIME_PREFERENCE.equals(key) || Helper.CUSTOMPRECISIONDISTANCE_PREFERENCE.equals(key)) {
-            GPSLoggerServiceManager.setCustomLoggingPrecision(this,
+            ServiceManager.setCustomLoggingPrecision(this,
                     Integer.valueOf(preferences.getString(Helper.CUSTOMPRECISIONTIME_PREFERENCE, "1")),
                     Float.valueOf(preferences.getString(Helper.CUSTOMPRECISIONDISTANCE_PREFERENCE, "1")));
         } else if (SANITY.equals(key)) {
-            GPSLoggerServiceManager.setSanityFilter(this,
+            ServiceManager.setSanityFilter(this,
                     preferences.getBoolean(SANITY, true));
         } else if (MONITOR.equals(key)) {
-            GPSLoggerServiceManager.setStatusMonitor(this,
+            ServiceManager.setStatusMonitor(this,
                     preferences.getBoolean(MONITOR, true));
         } else if (BOOT.equals(key) || DOCK.equals(key) || UNDOCK.equals(key) || POWER_ON.equals(key) || POWER_OFF.equals(key)) {
-            GPSLoggerServiceManager.setAutomaticLogging(this,
+            ServiceManager.setAutomaticLogging(this,
                     preferences.getBoolean(BOOT, false),
                     preferences.getBoolean(DOCK, false),
                     preferences.getBoolean(UNDOCK, false),
                     preferences.getBoolean(POWER_ON, false),
                     preferences.getBoolean(POWER_OFF, false));
         } else if (Helper.BROADCAST_STREAM.equals(key) || STREAMING_TIME.equals(key) || STREAMING_DISTANCE.equals(key)) {
-            GPSLoggerServiceManager.setStreaming(this,
+            ServiceManager.setStreaming(this,
                     preferences.getBoolean(Helper.BROADCAST_STREAM, false),
                     Float.valueOf(preferences.getString(SettingsActivity.STREAMING_DISTANCE, "1")),
                     Long.valueOf(preferences.getString(SettingsActivity.STREAMING_TIME, "1")));

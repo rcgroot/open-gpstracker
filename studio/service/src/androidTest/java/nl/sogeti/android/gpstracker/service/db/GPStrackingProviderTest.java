@@ -38,12 +38,12 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import junit.framework.Assert;
 
-import nl.sogeti.android.gpstracker.integration.GPStracking;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
-import nl.sogeti.android.gpstracker.integration.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Media;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.MetaData;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Segments;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 
 /**
  * Basically test that the functions offered by the content://nl.sogeti.android.gpstracker does what is documented.
@@ -56,7 +56,7 @@ public class GPStrackingProviderTest extends ProviderTestCase2<GPStrackingProvid
     private ContentResolver mResolver;
 
     public GPStrackingProviderTest() {
-        super(GPStrackingProvider.class, GPStracking.AUTHORITY);
+        super(GPStrackingProvider.class, ContentConstants.AUTHORITY);
 
     }
 

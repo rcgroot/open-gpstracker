@@ -30,10 +30,10 @@ package nl.sogeti.android.gpstracker.service.db;
 
 import android.provider.BaseColumns;
 
-import nl.sogeti.android.gpstracker.integration.GPStracking;
-import nl.sogeti.android.gpstracker.integration.GPStracking.MediaColumns;
-import nl.sogeti.android.gpstracker.integration.GPStracking.MetaDataColumns;
-import nl.sogeti.android.gpstracker.integration.GPStracking.WaypointsColumns;
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.MediaColumns;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.MetaDataColumns;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.WaypointsColumns;
 
 public class DatabaseConstants {
     /**
@@ -45,7 +45,7 @@ public class DatabaseConstants {
      */
     static final int DATABASE_VERSION = 10;
 
-    public static final class Tracks extends GPStracking.Tracks {
+    public static final class Tracks extends ContentConstants.Tracks {
         static final String CREATION_TIME_TYPE = "INTEGER NOT NULL";
         static final String NAME_TYPE = "TEXT";
         static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
@@ -56,7 +56,7 @@ public class DatabaseConstants {
                         ");";
     }
 
-    public static final class Segments extends GPStracking.Segments {
+    public static final class Segments extends ContentConstants.Segments {
         static final String TRACK_TYPE = "INTEGER NOT NULL";
         static final String _ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
         static final String CREATE_STATMENT =
@@ -65,7 +65,7 @@ public class DatabaseConstants {
                         ");";
     }
 
-    public static final class Waypoints extends GPStracking.Waypoints {
+    public static final class Waypoints extends ContentConstants.Waypoints {
         static final String LATITUDE_TYPE = "REAL NOT NULL";
         static final String LONGITUDE_TYPE = "REAL NOT NULL";
         static final String TIME_TYPE = "INTEGER NOT NULL";
@@ -98,7 +98,7 @@ public class DatabaseConstants {
                 };
     }
 
-    public static final class Media extends GPStracking.Media {
+    public static final class Media extends ContentConstants.Media {
         static final String TRACK_TYPE = "INTEGER NOT NULL";
         static final String SEGMENT_TYPE = "INTEGER NOT NULL";
         static final String WAYPOINT_TYPE = "INTEGER NOT NULL";
@@ -113,7 +113,7 @@ public class DatabaseConstants {
                 ");";
     }
 
-    public static final class MetaData extends GPStracking.MetaData {
+    public static final class MetaData extends ContentConstants.MetaData {
         static final String TRACK_TYPE = "INTEGER NOT NULL";
         static final String SEGMENT_TYPE = "INTEGER";
         static final String WAYPOINT_TYPE = "INTEGER";

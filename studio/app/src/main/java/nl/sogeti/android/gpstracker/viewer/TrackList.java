@@ -68,8 +68,8 @@ import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
 import nl.sogeti.android.gpstracker.service.db.DatabaseHelper;
-import nl.sogeti.android.gpstracker.integration.GPStracking;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
 import nl.sogeti.android.log.Log;
 
 /**
@@ -436,7 +436,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener {
             tracksCursor = doSearchWithIntent(intent);
         } else if (Intent.ACTION_VIEW.equals(queryAction)) {
             final Uri uri = intent.getData();
-            if ("content".equals(uri.getScheme()) && GPStracking.AUTHORITY.equals(uri.getAuthority())) {
+            if ("content".equals(uri.getScheme()) && ContentConstants.AUTHORITY.equals(uri.getAuthority())) {
                 // Got to VIEW a single track, instead hand it of to the LoggerMap
                 Intent notificationIntent = new Intent(this, LoggerMap.class);
                 notificationIntent.setData(uri);

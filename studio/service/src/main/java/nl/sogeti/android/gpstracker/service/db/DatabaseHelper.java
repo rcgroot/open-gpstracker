@@ -40,15 +40,14 @@ import android.net.Uri;
 
 import java.util.Date;
 
-import nl.sogeti.android.gpstracker.integration.GPStracking;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Media;
-import nl.sogeti.android.gpstracker.integration.GPStracking.MediaColumns;
-import nl.sogeti.android.gpstracker.integration.GPStracking.MetaData;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Segments;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.integration.GPStracking.TracksColumns;
-import nl.sogeti.android.gpstracker.integration.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.integration.GPStracking.WaypointsColumns;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Media;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.MediaColumns;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.MetaData;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Segments;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.TracksColumns;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.WaypointsColumns;
 import nl.sogeti.android.log.Log;
 
 /**
