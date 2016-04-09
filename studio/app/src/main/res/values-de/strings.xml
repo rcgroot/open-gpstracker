@@ -41,7 +41,7 @@
     <string name="layer_compass">Kompass</string>
     <string name="layer_location">Mein Standort</string>
     <string name="dialog_vacuum_title">Aufräumen</string>
-    <string name="dialog_vacuum_message">Erstellt die Datenbank und gibt leeren Raum auf das System.</string>
+    <string name="dialog_vacuum_message">Baut die Datenbank neu auf und gibt ungenutzten Platz frei.</string>
     <string name="dialog_import_title">GPX Import</string>
     <string name="dialog_import_message">Möchten Sie %1$s importieren?</string>
     <string name="menu_picker">Import</string>
@@ -111,8 +111,8 @@ Ich hoffe, sie haben Spaß an dieser Anwendung und würde mich freuen davon zu h
     <string name="email_subject">Open GPS Tracker - Track data</string>
     <string name="email_gpxbody">Angehängt ist ein Track im GPS Exchange Format (GPX). Formatdetails hier: http://www.topografix.com/gpx.asp</string>
     <string name="email_kmzbody">Angehängt ist ein Track im KMZ-Format. Formatdetails hier:  http://code.google.com/apis/kml/documentation/kml_tut.html</string>
-    <string name="kmlVideoUnsupported">Videoeinbettung nicht unterstüzt, nutze ein Zip-Tool um das Video %s aus der KMZ Datei zu entpacken.</string>
-    <string name="kmlAudioUnsupported">Audioeinbettung nicht unterstüzt, nutze ein Zip-Tool um die Audiodatei %s aus der KMZ-Datei zu entpacken.</string>
+    <string name="kmlVideoUnsupported">Videoeinbettung nicht unterstützt, nutze ein Zip-Tool um das Video %s aus der KMZ Datei zu entpacken.</string>
+    <string name="kmlAudioUnsupported">Audioeinbettung nicht unterstützt, nutze ein Zip-Tool um die Audiodatei %s aus der KMZ-Datei zu entpacken.</string>
 
     <!-- Screens -->
     <string name="share_track">Diesen Track teilen</string>
@@ -149,7 +149,7 @@ Ich hoffe, sie haben Spaß an dieser Anwendung und würde mich freuen davon zu h
     <string name="showcompass_title">Kompass</string>
     <string name="showcompass_summary">Zeige Kompassnadel für Nordrichtung an.</string>
     <string name="sanitycheck_title">Höhe und Geschwindigkeit checken </string>
-    <string name="sanitycheck_summary"> Prüft GPS-Höhe und -Geschwindigkeit auf Plausibilität</string>
+    <string name="sanitycheck_summary">Prüft GPS-Höhe und -Geschwindigkeit auf Plausibilität</string>
     <string name="showlocation_title">Mein Standort </string>
     <string name="showlocation_summary">Zeigt meinen Standort auf der Karte</string>
     <string name="units_title">Maßeinheiten</string>
