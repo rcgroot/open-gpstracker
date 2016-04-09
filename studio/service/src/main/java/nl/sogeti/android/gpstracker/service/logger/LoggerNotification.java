@@ -17,9 +17,9 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.R;
-import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.log.Log;
 
 /**
@@ -55,6 +55,7 @@ public class LoggerNotification {
     }
 
     public void stopLogging() {
+        notificationManager.cancel(ID_STATUS);
         service.stopForeground(true);
     }
 
@@ -167,9 +168,9 @@ public class LoggerNotification {
     }
 
     void soundGpsSignalAlarm() {
-        Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         if (alert == null) {
-            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
             if (alert == null) {
                 alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
             }

@@ -70,8 +70,8 @@ public abstract class LingerService extends Service {
     }
 
     private void repostContinueRunnable() {
-        mServiceHandler.removeCallbacks(continueRunnable);
         ContinueRunnable runnable = getContinueRunnable();
+        mServiceHandler.removeCallbacks(continueRunnable);
         mServiceHandler.postDelayed(runnable, getLingerDuration() * 1000L);
     }
 
