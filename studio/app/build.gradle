@@ -1,7 +1,5 @@
 apply plugin: 'com.android.application'
 
-project.archivesBaseName = "opengpstracker"
-
 android {
     compileSdkVersion "Google Inc.:Google APIs:23"
     buildToolsVersion '23.0.2'
@@ -11,11 +9,12 @@ android {
         testApplicationId "nl.sogeti.android.gpstracker.tests"
         minSdkVersion 7
         targetSdkVersion 14
-        versionCode 1510
-        versionName "1.5.1"
+        versionCode 1520
+        versionName "1.5.2"
         buildConfigField "int", "BUILD_NUMBER", System.getenv("BUILD_NUMBER") as String ?: "0"
         buildConfigField "String", "GIT_COMMIT", "\"" + System.getenv("GIT_COMMIT") + "\"" as String ?: "\"Unknown\""
         generatedDensities = ["hdpi", "xxhdpi"]
+        archivesBaseName = "opengpstracker-$versionName"
     }
 
     if (rootProject.file("keystore.properties").exists()) {
