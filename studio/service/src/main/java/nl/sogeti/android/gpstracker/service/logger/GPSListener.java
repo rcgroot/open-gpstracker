@@ -50,10 +50,11 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
 
+import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.integration.ServiceManager;
+import nl.sogeti.android.gpstracker.service.BuildConfig;
 import nl.sogeti.android.gpstracker.service.R;
-import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.log.Log;
 
 public class GPSListener implements LocationListener, GpsStatus.Listener {
@@ -290,6 +291,10 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      * @return either the (cleaned) original or null when unacceptable
      */
     public Location locationFilter(Location proposedLocation) {
+        if (BuildConfig.IS_EMULATED) {
+            return proposedLocation;
+        }
+
         // Do no include log wrong 0.0 lat 0.0 long, skip to next value in while-loop
         if (proposedLocation != null && (proposedLocation.getLatitude() == 0.0d
                 || proposedLocation.getLongitude() == 0.0d)) {
@@ -381,6 +386,8 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         if (!isLogging() || mTrackId < 0 || mSegmentId < 0) {
             Log.e(this, String.format("Storing location without Logging (%b) or track (%d,%d).", isLogging(), mTrackId, mSegmentId));
             return;
+        } else {
+            Log.e(this, String.format("Storing location track/segment (%d,%d).", mTrackId, mSegmentId));
         }
         ContentValues args = new ContentValues();
 
