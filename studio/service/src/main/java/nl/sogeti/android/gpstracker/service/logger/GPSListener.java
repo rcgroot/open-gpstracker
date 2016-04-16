@@ -648,6 +648,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         Intent broadcast = new Intent(ServiceConstants.LOGGING_STATE_CHANGED_ACTION);
         broadcast.putExtra(ServiceConstants.EXTRA_LOGGING_PRECISION, mPrecision);
         broadcast.putExtra(ServiceConstants.EXTRA_LOGGING_STATE, mLoggingState);
+        broadcast.putExtra(ServiceConstants.EXTRA_TRACK, ContentUris.withAppendedId(ContentConstants.Tracks.CONTENT_URI, mTrackId));
         mService.getApplicationContext().sendBroadcast(broadcast);
     }
 
