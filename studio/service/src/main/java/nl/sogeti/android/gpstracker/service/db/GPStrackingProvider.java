@@ -128,6 +128,8 @@ import nl.sogeti.android.log.Log;
 public class GPStrackingProvider extends ContentProvider {
     /* Action types as numbers for using the UriMatcher */
     private static final int TRACKS = 1;
+    private static final int SEGMENTS_ALL = 20;
+    private static final int WAYPOINTS_ALL = 21;
     private static final int TRACK_ID = 2;
     private static final int TRACK_MEDIA = 3;
     private static final int TRACK_WAYPOINTS = 4;
@@ -195,6 +197,8 @@ public class GPStrackingProvider extends ContentProvider {
                 GPStrackingProvider.WAYPOINT_MEDIA);
         GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "tracks/#/segments/#/waypoints/#/metadata",
                 GPStrackingProvider.WAYPOINT_METADATA);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "segments", GPStrackingProvider.SEGMENTS_ALL);
+        GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "waypoints", GPStrackingProvider.WAYPOINTS_ALL);
         GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "media", GPStrackingProvider.MEDIA);
         GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "media/#", GPStrackingProvider.MEDIA_ID);
         GPStrackingProvider.sURIMatcher.addURI(ContentConstants.AUTHORITY, "metadata", GPStrackingProvider.METADATA);
@@ -209,17 +213,12 @@ public class GPStrackingProvider extends ContentProvider {
 
     private DatabaseHelper mDbHelper;
 
-    /**
-     * (non-Javadoc)
-     *
-     * @see android.content.ContentProvider#onCreate()
-     */
     @Override
     public boolean onCreate() {
-
         if (this.mDbHelper == null) {
             this.mDbHelper = new DatabaseHelper(getContext());
         }
+
         return true;
     }
 
@@ -230,7 +229,6 @@ public class GPStrackingProvider extends ContentProvider {
         String tableName = null;
         String innerSelection = "1";
         String[] innerSelectionArgs = new String[]{};
-        String sortorder = sortOrder;
         List<String> pathSegments = uri.getPathSegments();
         switch (match) {
             case TRACKS:
@@ -321,7 +319,7 @@ public class GPStrackingProvider extends ContentProvider {
                 if (selectionArgs[0] == null || selectionArgs[0].equals("")) {
                     selection = null;
                     selectionArgs = null;
-                    sortorder = Tracks.CREATION_TIME + " desc";
+                    sortOrder = Tracks.CREATION_TIME + " desc";
                 } else {
                     selectionArgs[0] = "%" + selectionArgs[0] + "%";
                 }
@@ -330,7 +328,13 @@ public class GPStrackingProvider extends ContentProvider {
             case LIVE_FOLDERS:
                 tableName = Tracks.TABLE;
                 projection = LIVE_PROJECTION;
-                sortorder = Tracks.CREATION_TIME + " desc";
+                sortOrder = Tracks.CREATION_TIME + " desc";
+                break;
+            case SEGMENTS_ALL:
+                tableName = Segments.TABLE;
+                break;
+            case WAYPOINTS_ALL:
+                tableName = Waypoints.TABLE;
                 break;
             default:
                 Log.e(GPStrackingProvider.class, "Unable to come to an action in the query uri: " + uri.toString());
@@ -360,16 +364,12 @@ public class GPStrackingProvider extends ContentProvider {
 
         // Make the query.
         SQLiteDatabase mDb = this.mDbHelper.getWritableDatabase();
-        Cursor c = qBuilder.query(mDb, projection, selection, selectionArgs, null, null, sortorder);
+        Cursor c = qBuilder.query(mDb, projection, selection, selectionArgs, null, null, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
+
         return c;
     }
 
-    /**
-     * (non-Javadoc)
-     *
-     * @see android.content.ContentProvider#getType(android.net.Uri)
-     */
     @Override
     public String getType(Uri uri) {
         int match = GPStrackingProvider.sURIMatcher.match(uri);
@@ -384,10 +384,16 @@ public class GPStrackingProvider extends ContentProvider {
             case SEGMENTS:
                 mime = Segments.CONTENT_TYPE;
                 break;
+            case SEGMENTS_ALL:
+                mime = Segments.CONTENT_TYPE;
+                break;
             case SEGMENT_ID:
                 mime = Segments.CONTENT_ITEM_TYPE;
                 break;
             case WAYPOINTS:
+                mime = Waypoints.CONTENT_TYPE;
+                break;
+            case WAYPOINTS_ALL:
                 mime = Waypoints.CONTENT_TYPE;
                 break;
             case WAYPOINT_ID:
@@ -410,23 +416,19 @@ public class GPStrackingProvider extends ContentProvider {
                 Log.w(this, "There is not MIME type defined for URI " + uri);
                 break;
         }
+
         return mime;
     }
 
-    /**
-     * (non-Javadoc)
-     *
-     * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
-     */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        Uri insertedUri = null;
+        Uri insertedUri;
         int match = GPStrackingProvider.sURIMatcher.match(uri);
-        List<String> pathSegments = null;
-        long trackId = -1;
-        long segmentId = -1;
-        long waypointId = -1;
-        long mediaId = -1;
+        List<String> pathSegments;
+        long trackId;
+        long segmentId;
+        long waypointId;
+        long mediaId;
         String key;
         String value;
         switch (match) {
@@ -518,12 +520,13 @@ public class GPStrackingProvider extends ContentProvider {
                 insertedUri = null;
                 break;
         }
+
         return insertedUri;
     }
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] valuesArray) {
-        int inserted = 0;
+        int inserted;
         int match = GPStrackingProvider.sURIMatcher.match(uri);
         switch (match) {
             case WAYPOINTS:
@@ -536,18 +539,14 @@ public class GPStrackingProvider extends ContentProvider {
                 inserted = super.bulkInsert(uri, valuesArray);
                 break;
         }
+
         return inserted;
     }
 
-    /**
-     * (non-Javadoc)
-     *
-     * @see android.content.ContentProvider#delete(android.net.Uri, java.lang.String, java.lang.String[])
-     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         int match = GPStrackingProvider.sURIMatcher.match(uri);
-        int affected = 0;
+        int affected;
         switch (match) {
             case GPStrackingProvider.TRACK_ID:
                 affected = this.mDbHelper.deleteTrack(Long.valueOf(uri.getLastPathSegment()));
@@ -562,18 +561,13 @@ public class GPStrackingProvider extends ContentProvider {
                 affected = 0;
                 break;
         }
+
         return affected;
     }
 
-    /**
-     * (non-Javadoc)
-     *
-     * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String,
-     * java.lang.String[])
-     */
     @Override
     public int update(Uri uri, ContentValues givenValues, String selection, String[] selectionArgs) {
-        int updates = -1;
+        int updates;
         long trackId;
         long segmentId;
         long waypointId;
@@ -620,8 +614,6 @@ public class GPStrackingProvider extends ContentProvider {
                 return -1;
         }
 
-
         return updates;
     }
-
 }

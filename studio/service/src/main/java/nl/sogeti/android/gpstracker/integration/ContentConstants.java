@@ -53,8 +53,8 @@ public final class ContentConstants {
      * content://nl.sogeti.android.gpstracker/tracks/2/segments/1/waypoints/52
      * using the provided identifiers
      *
-     * @param trackId identifier denoting the track
-     * @param segmentId identifier denoting the segment
+     * @param trackId    identifier denoting the track
+     * @param segmentId  identifier denoting the segment
      * @param waypointId identifier denoting the waypoint
      * @return
      */
@@ -74,7 +74,7 @@ public final class ContentConstants {
      * content://nl.sogeti.android.gpstracker/tracks/2/segments/1/waypoints
      * using the provided identifiers
      *
-     * @param trackId identifier denoting the track
+     * @param trackId   identifier denoting the track
      * @param segmentId identifier denoting the segment
      * @return
      */
@@ -129,6 +129,8 @@ public final class ContentConstants {
          * The name of this table, segments
          */
         public static final String TABLE = "segments";
+
+        public static final Uri CONTENT_URI = Uri.parse("content://" + ContentConstants.AUTHORITY + "/" + Segments.TABLE);
     }
 
     /**
@@ -150,7 +152,7 @@ public final class ContentConstants {
          */
         public static final String TABLE = "waypoints";
 
-
+        public static final Uri CONTENT_URI = Uri.parse("content://" + ContentConstants.AUTHORITY + "/" + Waypoints.TABLE);
     }
 
     /**
