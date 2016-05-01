@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion "Google Inc.:Google APIs:23"
-    buildToolsVersion '23.0.2'
+    buildToolsVersion "$rootProject.buildToolsVersion"
 
     defaultConfig {
         applicationId "nl.sogeti.android.gpstracker"
@@ -44,12 +44,12 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:support-v4:23.1.1'
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:preference-v7:23.1.1'
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:support-annotations:23.1.1'
+    compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
+    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:preference-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:design:$rootProject.supportLibraryVersion"
+    compile "com.android.support:support-annotations:$rootProject.supportLibraryVersion"
     compile project(':log')
     compile project(':service')
-    testCompile 'junit:junit:4.12'
+    testCompile "junit:junit:$rootProject.junitVersion"
 }
