@@ -38,6 +38,7 @@ import android.os.RemoteException;
 import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.gpstracker.integration.IGPSLoggerServiceRemote;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
+import nl.sogeti.android.gpstracker.service.BuildConfig;
 import nl.sogeti.android.gpstracker.service.linger.LingerService;
 import timber.log.Timber;
 
@@ -55,6 +56,12 @@ public class GPSLoggerService extends LingerService {
 
     public GPSLoggerService() {
         super("GPS Logger", 10);
+    }
+
+    static {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        }
     }
 
     @Override
