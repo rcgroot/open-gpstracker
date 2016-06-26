@@ -1,6 +1,7 @@
 ext {
     // App support
     supportLibraryVersion = '23.3.0'
+    timberVersion = '4.1.2'
 
     // Testing
     junitVersion = '4.12'

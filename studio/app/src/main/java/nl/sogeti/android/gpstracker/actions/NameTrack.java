@@ -51,7 +51,7 @@ import java.util.Calendar;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Empty Activity that pops up the dialog to name the track
@@ -82,7 +82,7 @@ public class NameTrack extends AppCompatActivity {
                     clearNotification();
                     break;
                 default:
-                    Log.e(this, "Unknown option ending dialog:" + which);
+                    Timber.e("Unknown option ending dialog:" + which);
                     break;
             }
             finish();
@@ -139,7 +139,7 @@ public class NameTrack extends AppCompatActivity {
         if (mTrackUri != null) {
             showDialog(DIALOG_TRACKNAME);
         } else {
-            Log.e(this, "Naming track without a track URI supplied.");
+            Timber.e("Naming track without a track URI supplied.");
             finish();
         }
     }

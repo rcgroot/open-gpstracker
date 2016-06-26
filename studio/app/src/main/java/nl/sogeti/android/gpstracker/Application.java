@@ -29,6 +29,7 @@
 package nl.sogeti.android.gpstracker;
 
 import nl.sogeti.android.gpstracker.streaming.StreamUtils;
+import timber.log.Timber;
 
 /**
  * Created by rene on 27-12-15.
@@ -37,6 +38,9 @@ public class Application extends android.app.Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        }
         StreamUtils.initStreams(this);
     }
 }

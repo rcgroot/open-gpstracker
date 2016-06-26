@@ -36,7 +36,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Based on android.app.IntentService
@@ -150,7 +150,7 @@ public abstract class LingerService extends Service {
         if (continueRunnable != null) {
             this.repostContinueRunnable();
         }
-        Log.d(this, "Service check interval changed to " + mDuration);
+        Timber.d("Service check interval changed to " + mDuration);
     }
 
     @Override

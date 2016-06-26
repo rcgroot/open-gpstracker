@@ -60,7 +60,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.integration.ServiceManager;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Empty Activity that pops up the dialog to add a note to the most current
@@ -142,7 +142,7 @@ public class InsertNote extends AppCompatActivity {
                 filewriter.append(noteText);
                 filewriter.flush();
             } catch (IOException e) {
-                Log.e(this, "Note storing failed", e);
+                Timber.e("Note storing failed", e);
                 CharSequence text = e.getLocalizedMessage();
                 Toast toast = Toast.makeText(InsertNote.this, text, Toast.LENGTH_LONG);
                 toast.show();
@@ -183,20 +183,20 @@ public class InsertNote extends AppCompatActivity {
             }
             succes = true;
         } catch (IOException e) {
-            Log.e(InsertNote.class, "File copy failed", e);
+            Timber.e("File copy failed", e);
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    Log.w(InsertNote.class, "File close after copy failed", e);
+                    Timber.w("File close after copy failed", e);
                 }
             }
             if (in != null) {
                 try {
                     out.close();
                 } catch (IOException e) {
-                    Log.w(InsertNote.class, "File close after copy failed", e);
+                    Timber.w("File close after copy failed", e);
                 }
             }
         }
@@ -350,7 +350,7 @@ public class InsertNote extends AppCompatActivity {
                             file.getParentFile().mkdirs();
                             isLocal = file.renameTo(newFile); //
                             if (!isLocal) {
-                                Log.w(this, "Failed rename will try copy image: " + file.getAbsolutePath());
+                                Timber.w("Failed rename will try copy image: " + file.getAbsolutePath());
                                 isLocal = copyFile(file, newFile);
                             }
                             if (isLocal) {
@@ -375,7 +375,7 @@ public class InsertNote extends AppCompatActivity {
                                 InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);
 
                             } else {
-                                Log.e(this, "Failed either rename or copy image: " + file.getAbsolutePath());
+                                Timber.e("Failed either rename or copy image: " + file.getAbsolutePath());
                             }
                             break;
                         case MENU_VIDEO:
@@ -386,7 +386,7 @@ public class InsertNote extends AppCompatActivity {
                             file.getParentFile().mkdirs();
                             isLocal = file.renameTo(newFile);
                             if (!isLocal) {
-                                Log.w(this, "Failed rename will try copy video: " + file.getAbsolutePath());
+                                Timber.w("Failed rename will try copy video: " + file.getAbsolutePath());
                                 isLocal = copyFile(file, newFile);
                             }
                             if (isLocal) {
@@ -394,7 +394,7 @@ public class InsertNote extends AppCompatActivity {
                                 fileUri = builder.scheme("file").appendPath(newFile.getAbsolutePath()).build();
                                 InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);
                             } else {
-                                Log.e(this, "Failed either rename or copy video: " + file.getAbsolutePath());
+                                Timber.e("Failed either rename or copy video: " + file.getAbsolutePath());
                             }
                             break;
                         case MENU_VOICE:
@@ -402,11 +402,11 @@ public class InsertNote extends AppCompatActivity {
                             InsertNote.this.mLoggerServiceManager.storeMediaUri(uri);
                             break;
                         default:
-                            Log.e(this, "Returned form unknow activity: " + requestCode);
+                            Timber.e("Returned form unknow activity: " + requestCode);
                             break;
                     }
                 } else {
-                    Log.w(this, "Received unexpected resultcode " + resultCode);
+                    Timber.w("Received unexpected resultcode " + resultCode);
                 }
                 setResult(resultCode, new Intent());
                 finish();
@@ -438,7 +438,7 @@ public class InsertNote extends AppCompatActivity {
         try {
             startActivityForResult(i, MENU_VIDEO);
         } catch (ActivityNotFoundException e) {
-            Log.e(this, "Unable to start Activity to record video", e);
+            Timber.e("Unable to start Activity to record video", e);
         }
     }
 
@@ -447,7 +447,7 @@ public class InsertNote extends AppCompatActivity {
         try {
             startActivityForResult(intent, MENU_VOICE);
         } catch (ActivityNotFoundException e) {
-            Log.e(this, "Unable to start Activity to record audio", e);
+            Timber.e("Unable to start Activity to record audio", e);
         }
     }
 }

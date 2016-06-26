@@ -46,7 +46,7 @@ import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * An App Widget for on the home screen to control logging with a start, pause,
@@ -83,7 +83,7 @@ public class ControlWidgetProvider extends AppWidgetProvider {
      * Load image for given widget and build {@link RemoteViews} for it.
      */
     private static void updateButtons(RemoteViews views) {
-        Log.d(ControlWidgetProvider.class, "Updated the remote views to state " + mState);
+        Timber.d("Updated the remote views to state " + mState);
         switch (mState) {
             case ServiceConstants.STATE_LOGGING:
                 setEnableInsertNote(views, true);
@@ -98,7 +98,7 @@ public class ControlWidgetProvider extends AppWidgetProvider {
                 setEnableInsertNote(views, false);
                 break;
             default:
-                Log.w(ControlWidgetProvider.class, "Unknown logging state for widget: " + mState);
+                Timber.w("Unknown logging state for widget: " + mState);
                 break;
         }
     }
@@ -144,7 +144,7 @@ public class ControlWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) {
-        Log.d(this, "onEnabled() ");
+        Timber.d("onEnabled() ");
         super.onEnabled(context);
 
         context.startService(new Intent(context, GPSLoggerService.class));
@@ -152,12 +152,12 @@ public class ControlWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context context) {
-        Log.d(this, "onDisabled() ");
+        Timber.d("onDisabled() ");
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        Log.d(this, "onDisabled() ");
+        Timber.d("onDisabled() ");
         // Update each requested appWidgetId
         RemoteViews view = buildUpdate(context, -1);
 
@@ -174,7 +174,7 @@ public class ControlWidgetProvider extends AppWidgetProvider {
             Bundle bundle = appWidgetManager.getAppWidgetOptions(appWidgetId);
             int minwidth_dp = bundle.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
             int maxwidth_dp = bundle.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-            Log.d(this, "(%s ... %s)", Integer.toString(minwidth_dp), Integer.toString(maxwidth_dp));
+            Timber.d("(%s ... %s)", Integer.toString(minwidth_dp), Integer.toString(maxwidth_dp));
 
         }
     }
@@ -187,7 +187,7 @@ public class ControlWidgetProvider extends AppWidgetProvider {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(this, "Did receive intent with action: " + intent.getAction());
+        Timber.d("Did receive intent with action: " + intent.getAction());
         super.onReceive(context, intent);
         String action = intent.getAction();
         if (ServiceConstants.LOGGING_STATE_CHANGED_ACTION.equals(action)) {

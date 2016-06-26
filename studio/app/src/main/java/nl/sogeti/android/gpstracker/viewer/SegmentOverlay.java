@@ -74,7 +74,7 @@ import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Media;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Creates an overlay that can draw a single segment of connected waypoints
@@ -207,7 +207,7 @@ public class SegmentOverlay extends Overlay {
                 if (!selfUpdate) {
                     mRequeryFlag = true;
                 } else {
-                    Log.w(this, "mTrackSegmentsObserver skipping change on " + mSegmentUri);
+                    Timber.w("mTrackSegmentsObserver skipping change on " + mSegmentUri);
                 }
             }
         };
@@ -552,7 +552,7 @@ public class SegmentOverlay extends Overlay {
                         lineToGeoPoint(geoPoint, speed);
                         break;
                     default:
-                        Log.w(this, "Unknown coloring method");
+                        Timber.w("Unknown coloring method");
                         break;
                 }
             }

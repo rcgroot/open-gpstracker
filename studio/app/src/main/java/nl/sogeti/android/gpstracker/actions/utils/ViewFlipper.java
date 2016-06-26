@@ -32,8 +32,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 
-import nl.sogeti.android.log.Log;
-
+import timber.log.Timber;
 
 /**
  * Work around based on input from the comment section of
@@ -63,7 +62,7 @@ public class ViewFlipper extends android.widget.ViewFlipper {
             try {
                 super.onDetachedFromWindow();
             } catch (IllegalArgumentException e) {
-                Log.w(this, "Android project issue 6191 workaround.");
+                Timber.w("Android project issue 6191 workaround.");
             /* Quick catch and continue on api level 7+, the Eclair 2.1 / 2.2 */
             } finally {
                 super.stopFlipping();

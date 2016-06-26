@@ -36,7 +36,7 @@ import android.os.Bundle;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.service.logger.LoggerPersistence;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 public class DockReceiver extends BroadcastReceiver {
     @Override
@@ -65,7 +65,7 @@ public class DockReceiver extends BroadcastReceiver {
                 context.startService(serviceIntent);
             }
         } else {
-            Log.w(this, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
+            Timber.w("OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
                     Intent.ACTION_BOOT_COMPLETED + ". This shouldn't happen !");
         }
     }

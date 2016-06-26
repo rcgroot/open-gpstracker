@@ -36,7 +36,7 @@ import android.speech.tts.TextToSpeech;
 
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.R;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitListener {
     private static VoiceOver sVoiceOver = null;
@@ -87,7 +87,7 @@ public class VoiceOver extends BroadcastReceiver implements TextToSpeech.OnInitL
                 mTextToSpeech.speak(myText, TextToSpeech.QUEUE_ADD, null);
             }
         } else {
-            Log.w(this, "Voice stream failed TTS not ready");
+            Timber.w("Voice stream failed TTS not ready");
         }
     }
 }

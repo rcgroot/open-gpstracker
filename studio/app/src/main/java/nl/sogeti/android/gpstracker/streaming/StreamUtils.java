@@ -33,7 +33,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import nl.sogeti.android.gpstracker.settings.Helper;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 
 public class StreamUtils {
@@ -43,7 +43,7 @@ public class StreamUtils {
      * @param ctx
      */
     public static void initStreams(final Context ctx) {
-        Log.d(StreamUtils.class, "initStreams(Context)");
+        Timber.d("initStreams(Context)");
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ctx);
         boolean streams_enabled = sharedPreferences.getBoolean(Helper.BROADCAST_STREAM, false);
         if (streams_enabled && sharedPreferences.getBoolean("VOICEOVER_ENABLED", false)) {

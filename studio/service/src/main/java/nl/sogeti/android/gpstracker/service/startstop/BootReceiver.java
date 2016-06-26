@@ -25,30 +25,30 @@ import android.content.Intent;
 
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.service.logger.LoggerPersistence;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(this, "BootReceiver.onReceive(), probably ACTION_BOOT_COMPLETED");
+        Timber.d("BootReceiver.onReceive(), probably ACTION_BOOT_COMPLETED");
         String action = intent.getAction();
 
         // start on BOOT_COMPLETED
         if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
-            Log.d(this, "BootReceiver received ACTION_BOOT_COMPLETED");
+            Timber.d("BootReceiver received ACTION_BOOT_COMPLETED");
             LoggerPersistence persistence = new LoggerPersistence(context);
             // check in the settings if we need to auto start
             boolean startImmediately = persistence.shouldLogAtBoot();
 
             if (startImmediately) {
-                Log.d(this, "Starting LoggerMap activity...");
+                Timber.d("Starting LoggerMap activity...");
                 context.startService(new Intent(context, GPSLoggerService.class));
             } else {
-                Log.i(this, "Not starting Logger Service. Adjust the settings if you wanted this !");
+                Timber.i("Not starting Logger Service. Adjust the settings if you wanted this !");
             }
         } else {
             // this shouldn't happen !
-            Log.w(this, "OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
+            Timber.w("OpenGPSTracker's BootReceiver received " + action + ", but it's only able to respond to " +
                     Intent.ACTION_BOOT_COMPLETED + ". This shouldn't happen !");
         }
     }

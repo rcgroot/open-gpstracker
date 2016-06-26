@@ -46,7 +46,7 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.integration.ServiceManager;
 import nl.sogeti.android.gpstracker.settings.Helper;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Empty Activity that pops up the dialog to name the track
@@ -208,7 +208,7 @@ public class ControlTracking extends AppCompatActivity {
                 stop.setEnabled(true);
                 break;
             default:
-                Log.w(this, String.format("State %d of logging, enabling and hope for the best....", state));
+                Timber.w(String.format("State %d of logging, enabling and hope for the best....", state));
                 start.setEnabled(false);
                 pause.setEnabled(false);
                 resume.setEnabled(false);

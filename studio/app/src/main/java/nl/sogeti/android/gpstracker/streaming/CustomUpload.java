@@ -50,7 +50,7 @@ import java.util.Queue;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.R;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 
 public class CustomUpload extends BroadcastReceiver {
@@ -60,7 +60,7 @@ public class CustomUpload extends BroadcastReceiver {
     private static Queue<URL> sRequestBacklog = new LinkedList<>();
 
     public static synchronized void initStreaming(Context ctx) {
-        Log.d(CustomUpload.class, "initStreaming(Context)");
+        Timber.d("initStreaming(Context)");
         if (sCustomUpload != null) {
             shutdownStreaming(ctx);
         }
@@ -72,7 +72,7 @@ public class CustomUpload extends BroadcastReceiver {
     }
 
     public static synchronized void shutdownStreaming(Context ctx) {
-        Log.d(CustomUpload.class, "shutdownStreaming(Context)");
+        Timber.d("shutdownStreaming(Context)");
         if (sCustomUpload != null) {
             ctx.unregisterReceiver(sCustomUpload);
             sCustomUpload.onShutdown();
@@ -81,12 +81,12 @@ public class CustomUpload extends BroadcastReceiver {
     }
 
     private void onShutdown() {
-        Log.d(this, "onShutdown()");
+        Timber.d("onShutdown()");
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(this, "onReceive(Context, Intent)");
+        Timber.d("onReceive(Context, Intent)");
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String prefUrl = preferences.getString(Constants.CUSTOMUPLOAD_URL, "http://www.example.com");
         Integer prefBacklog = Integer.valueOf(preferences.getString(Constants.CUSTOMUPLOAD_BACKLOG,
@@ -110,7 +110,7 @@ public class CustomUpload extends BroadcastReceiver {
                     .getProtocol()))) {
                 sRequestBacklog.add(uploadUri);
             } else {
-                Log.e(this, "URL does not have correct scheme or host " + uploadUri);
+                Timber.e("URL does not have correct scheme or host " + uploadUri);
             }
             if (sRequestBacklog.size() > prefBacklog) {
                 sRequestBacklog.poll();
@@ -128,7 +128,7 @@ public class CustomUpload extends BroadcastReceiver {
     }
 
     private static void notifyError(Context context, Exception e) {
-        Log.e(CustomUpload.class, "Custom upload failed", e);
+        Timber.e("Custom upload failed", e);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
                 .NOTIFICATION_SERVICE);
 

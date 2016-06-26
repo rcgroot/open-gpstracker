@@ -56,7 +56,7 @@ import nl.sogeti.android.gpstracker.integration.ContentConstants.Segments;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Create a GPX version of a stored track
@@ -158,14 +158,14 @@ public class GpxCreator extends XmlCreator {
                 try {
                     buf.close();
                 } catch (IOException e) {
-                    Log.e(this, "Failed to close buf after completion, ignoring.", e);
+                    Timber.e("Failed to close buf after completion, ignoring.", e);
                 }
             }
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
-                    Log.e(this, "Failed to close fos after completion, ignoring.", e);
+                    Timber.e("Failed to close fos after completion, ignoring.", e);
                 }
             }
         }

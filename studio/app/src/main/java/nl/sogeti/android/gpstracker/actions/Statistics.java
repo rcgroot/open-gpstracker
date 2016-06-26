@@ -65,7 +65,7 @@ import nl.sogeti.android.gpstracker.actions.utils.StatisticsDelegate;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.TrackList;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Display some calulations based on a track
@@ -368,7 +368,7 @@ public class Statistics extends AppCompatActivity implements StatisticsDelegate 
                 ShareTrack.clearScreenBitmap();
                 break;
             default:
-                Log.w(this, "Unknown activity result request code");
+                Timber.w("Unknown activity result request code");
         }
     }
 

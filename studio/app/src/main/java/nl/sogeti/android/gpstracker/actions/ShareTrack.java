@@ -83,7 +83,7 @@ import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 public class ShareTrack extends AppCompatActivity implements StatisticsDelegate {
     private static final int EXPORT_TYPE_KMZ = 0;
@@ -136,14 +136,14 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
             stream = new FileOutputStream(sTempBitmap);
             bm.compress(CompressFormat.PNG, 100, stream);
         } catch (IOException e) {
-            Log.e(ShareTrack.class, "Bitmap extra storing failed", e);
+            Timber.e("Bitmap extra storing failed", e);
         } finally {
             try {
                 if (stream != null) {
                     stream.close();
                 }
             } catch (IOException e) {
-                Log.e(InsertNote.class, "Bitmap extra close failed", e);
+                Timber.e("Bitmap extra close failed", e);
             }
         }
         return fileUri;
@@ -325,13 +325,13 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
                         }
                     });
                 } catch (FileNotFoundException e) {
-                    Log.e(this, "Failed reading image from file", e);
+                    Timber.e("Failed reading image from file", e);
                 } finally {
                     if (is != null) {
                         try {
                             is.close();
                         } catch (IOException e) {
-                            Log.e(this, "Failed close image from file", e);
+                            Timber.e("Failed close image from file", e);
                         }
                     }
                 }
@@ -394,7 +394,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
                 exportTextLine(textLine, target);
                 break;
             default:
-                Log.e(this, "Failed to determine sharing type" + type);
+                Timber.e("Failed to determine sharing type" + type);
                 break;
         }
     }
@@ -448,7 +448,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
                 new KmzCreator(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName)).execute();
                 break;
             default:
-                Log.e(this, "Unable to determine target for sharing KMZ " + target);
+                Timber.e("Unable to determine target for sharing KMZ " + target);
                 break;
         }
         ShareTrack.this.finish();
@@ -465,7 +465,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
                 ShareTrack.this.finish();
                 break;
             default:
-                Log.e(this, "Unable to determine target for sharing GPX " + target);
+                Timber.e("Unable to determine target for sharing GPX " + target);
                 break;
         }
     }
@@ -562,7 +562,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
 
         @Override
         public void setIndeterminate(boolean indeterminate) {
-            Log.w(this, "Unsupported indeterminate progress display");
+            Timber.w("Unsupported indeterminate progress display");
         }
 
         @Override

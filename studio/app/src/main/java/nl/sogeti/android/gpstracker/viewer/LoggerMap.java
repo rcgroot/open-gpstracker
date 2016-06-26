@@ -86,18 +86,18 @@ import nl.sogeti.android.gpstracker.actions.ControlTracking;
 import nl.sogeti.android.gpstracker.actions.InsertNote;
 import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
-import nl.sogeti.android.gpstracker.integration.ServiceConstants;
-import nl.sogeti.android.gpstracker.integration.ServiceManager;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Media;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Segments;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceManager;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.settings.SettingsActivity;
 import nl.sogeti.android.gpstracker.support.AppCompatMapActivity;
 import nl.sogeti.android.gpstracker.util.Constants;
 import nl.sogeti.android.gpstracker.util.UnitsI18n;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Main activity showing a track and allowing logging control
@@ -204,7 +204,7 @@ public class LoggerMap extends AppCompatMapActivity {
         try {
             calulatorSemaphore.acquire();
         } catch (InterruptedException e) {
-            Log.e(this, "Failed waiting for a semaphore", e);
+            Timber.e("Failed waiting for a semaphore", e);
         }
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mMapView = (MapView) findViewById(R.id.myMapView);
@@ -297,7 +297,7 @@ public class LoggerMap extends AppCompatMapActivity {
     protected void onPause() {
         if (this.mWakeLock != null && this.mWakeLock.isHeld()) {
             this.mWakeLock.release();
-            Log.w(this, "onPause(): Released lock to keep screen on!");
+            Timber.w("onPause(): Released lock to keep screen on!");
         }
         ContentResolver resolver = this.getContentResolver();
         resolver.unregisterContentObserver(this.mTrackSegmentsObserver);
@@ -328,7 +328,7 @@ public class LoggerMap extends AppCompatMapActivity {
 
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
-            Log.w(this, "onDestroy(): Released lock to keep screen on!");
+            Timber.w("onDestroy(): Released lock to keep screen on!");
         }
         if (mLoggerServiceManager.getLoggingState() == ServiceConstants.STATE_STOPPED) {
             stopService(new Intent(this, GPSLoggerService.class));
@@ -429,7 +429,7 @@ public class LoggerMap extends AppCompatMapActivity {
             }
             if (mLoggerServiceManager.getLoggingState() == ServiceConstants.STATE_LOGGING && !mWakeLock.isHeld()) {
                 mWakeLock.acquire();
-                Log.w(this, "Acquired lock to keep screen on!");
+                Timber.w("Acquired lock to keep screen on!");
             }
         }
     }
@@ -1015,7 +1015,7 @@ public class LoggerMap extends AppCompatMapActivity {
                 ShareTrack.clearScreenBitmap();
                 break;
             default:
-                Log.e(this, "Returned form unknown activity: " + requestCode);
+                Timber.e("Returned form unknown activity: " + requestCode);
                 break;
         }
     }
@@ -1201,7 +1201,7 @@ public class LoggerMap extends AppCompatMapActivity {
                         mMapView.postInvalidate();
                     }
                 } else {
-                    Log.w(this, "mTrackMediasObserver skipping change on " + mLastSegment);
+                    Timber.w("mTrackMediasObserver skipping change on " + mLastSegment);
                 }
             }
         };
@@ -1211,7 +1211,7 @@ public class LoggerMap extends AppCompatMapActivity {
                 if (!selfUpdate) {
                     LoggerMap.this.updateDataOverlays();
                 } else {
-                    Log.w(this, "mTrackSegmentsObserver skipping change on " + mLastSegment);
+                    Timber.w("mTrackSegmentsObserver skipping change on " + mLastSegment);
                 }
             }
         };
@@ -1223,10 +1223,10 @@ public class LoggerMap extends AppCompatMapActivity {
                     if (mLastSegmentOverlay != null) {
                         moveActiveViewWindow();
                     } else {
-                        Log.e(this, "Error the last segment changed but it is not on screen! " + mLastSegment);
+                        Timber.e("Error the last segment changed but it is not on screen! " + mLastSegment);
                     }
                 } else {
-                    Log.w(this, "mSegmentWaypointsObserver skipping change on " + mLastSegment);
+                    Timber.w("mSegmentWaypointsObserver skipping change on " + mLastSegment);
                 }
             }
         };

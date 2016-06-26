@@ -48,7 +48,7 @@ import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.TracksColumns;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.WaypointsColumns;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Class to hold bare-metal database operations exposed as functionality blocks
@@ -89,7 +89,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int current, int targetVersion) {
-        Log.i(this, "Upgrading db from " + current + " to " + targetVersion);
+        Timber.i("Upgrading db from " + current + " to " + targetVersion);
         if (current <= 5) // From 1-5 to 6 (these before are the same before)
         {
             current = 6;
@@ -317,7 +317,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
                 while (cursor.moveToNext());
             } else {
-                Log.e(this, "Did not find the last active segment");
+                Timber.e("Did not find the last active segment");
             }
             // Delete the track
             affected += sqldb.delete(Tracks.TABLE, Tracks._ID + "= ?", new String[]{String.valueOf(trackId)});
@@ -395,7 +395,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 segmentId = cursor.getLong(0);
                 waypointId = cursor.getLong(0);
             } else {
-                Log.e(this, "Did not find the media element to delete");
+                Timber.e("Did not find the media element to delete");
             }
         } finally {
             if (cursor != null) {
@@ -443,7 +443,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 segmentId = cursor.getLong(0);
                 waypointId = cursor.getLong(0);
             } else {
-                Log.e(this, "Did not find the media element to delete");
+                Timber.e("Did not find the media element to delete");
             }
         } finally {
             if (cursor != null) {

@@ -62,7 +62,7 @@ import nl.sogeti.android.gpstracker.integration.ContentConstants.Media;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * Async XML creation task Execute without parameters (Void) Update posted with single Integer And result is a filename
@@ -233,7 +233,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
                 }
             }
         } else {
-            Log.w(this, "Exporting " + mTrackUri + " without progress!");
+            Timber.w("Exporting " + mTrackUri + " without progress!");
         }
     }
 
@@ -272,7 +272,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
                 }
             }
         } else {
-            Log.w(this, "Failed to add file to new XML export. Missing: " + inputFilePath);
+            Timber.w("Failed to add file to new XML export. Missing: " + inputFilePath);
         }
         mProgressAdmin.addMediaProgress();
 
@@ -363,7 +363,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
     protected abstract String getContentType();
 
     protected void handleError(String task, Exception e, String text) {
-        Log.e(this, "Unable to save ", e);
+        Timber.e("Unable to save ", e);
         mTask = task;
         mException = e;
         mErrorText = text;

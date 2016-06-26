@@ -50,8 +50,7 @@ import nl.sogeti.android.gpstracker.integration.ContentConstants.MetaData;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Segments;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
-import nl.sogeti.android.log.Log;
-
+import timber.log.Timber;
 
 /**
  * Goal of this Content Provider is to make the GPS Tracking information uniformly
@@ -337,7 +336,7 @@ public class GPStrackingProvider extends ContentProvider {
                 tableName = Waypoints.TABLE;
                 break;
             default:
-                Log.e(GPStrackingProvider.class, "Unable to come to an action in the query uri: " + uri.toString());
+                Timber.e("Unable to come to an action in the query uri: " + uri.toString());
                 return null;
         }
 
@@ -413,7 +412,7 @@ public class GPStrackingProvider extends ContentProvider {
                 break;
             case UriMatcher.NO_MATCH:
             default:
-                Log.w(this, "There is not MIME type defined for URI " + uri);
+                Timber.w("There is not MIME type defined for URI " + uri);
                 break;
         }
 
@@ -516,7 +515,7 @@ public class GPStrackingProvider extends ContentProvider {
                 insertedUri = ContentUris.withAppendedId(MetaData.CONTENT_URI, mediaId);
                 break;
             default:
-                Log.e(GPStrackingProvider.class, "Unable to match the insert URI: " + uri.toString());
+                Timber.e("Unable to match the insert URI: " + uri.toString());
                 insertedUri = null;
                 break;
         }
@@ -610,7 +609,7 @@ public class GPStrackingProvider extends ContentProvider {
                 updates = mDbHelper.updateMetaData(-1L, -1L, -1L, metaDataId, selection, selectionArgs, value);
                 break;
             default:
-                Log.e(GPStrackingProvider.class, "Unable to come to an action in the query uri" + uri.toString());
+                Timber.e("Unable to come to an action in the query uri" + uri.toString());
                 return -1;
         }
 

@@ -20,8 +20,7 @@ import java.io.IOException;
 import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.R;
-import nl.sogeti.android.log.Log;
-
+import timber.log.Timber;
 /**
  * Manages the different notification task needed when running the logger service
  */
@@ -186,13 +185,13 @@ public class LoggerNotification {
                 mMediaPlayer.start();
             }
         } catch (IllegalArgumentException e) {
-            Log.e(this, "Problem setting data source for mediaplayer", e);
+            Timber.e("Problem setting data source for mediaplayer", e);
         } catch (SecurityException e) {
-            Log.e(this, "Problem setting data source for mediaplayer", e);
+            Timber.e("Problem setting data source for mediaplayer", e);
         } catch (IllegalStateException e) {
-            Log.e(this, "Problem with mediaplayer", e);
+            Timber.e("Problem with mediaplayer", e);
         } catch (IOException e) {
-            Log.e(this, "Problem with mediaplayer", e);
+            Timber.e("Problem with mediaplayer", e);
         }
     }
 }

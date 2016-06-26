@@ -35,11 +35,11 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import nl.sogeti.android.gpstracker.integration.ServiceConstants;
-import nl.sogeti.android.gpstracker.integration.IGPSLoggerServiceRemote;
 import nl.sogeti.android.gpstracker.integration.ContentConstants;
+import nl.sogeti.android.gpstracker.integration.IGPSLoggerServiceRemote;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.linger.LingerService;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 /**
  * A system service as controlling the background logging of gps locations.
@@ -59,21 +59,21 @@ public class GPSLoggerService extends LingerService {
 
     @Override
     protected void didCreate() {
-        Log.d(this, "didCreate()");
+        Timber.d("didCreate()");
         initLogging();
     }
 
     @Override
     protected void didContinue() {
-        Log.d(this, "didCreate()");
+        Timber.d("didCreate()");
         initLogging();
     }
 
     @Override
     protected void didDestroy() {
-        Log.d(this, "didDestroy()");
+        Timber.d("didDestroy()");
         if (mGPSListener.isLogging()) {
-            Log.w(this, "Destroying an actively logging service");
+            Timber.w("Destroying an actively logging service");
         }
         mGPSListener.removeGpsStatusListener();
         mGPSListener.stopListening();
@@ -87,7 +87,7 @@ public class GPSLoggerService extends LingerService {
     @Override
     protected boolean shouldContinue() {
         boolean isLogging = mGPSListener.isLogging();
-        Log.d(this, "shouldContinue() " + isLogging);
+        Timber.d("shouldContinue() " + isLogging);
 
         if (isLogging) {
             mGPSListener.verifyLoggingState();
@@ -97,7 +97,7 @@ public class GPSLoggerService extends LingerService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d(this, "handleCommand(Intent " + intent.getAction() + ")");
+        Timber.d("handleCommand(Intent " + intent.getAction() + ")");
         LoggerPersistence persistence = new LoggerPersistence(this);
         if (intent.hasExtra(ServiceConstants.Commands.CONFIG_PRECISION)) {
             int precision = intent.getIntExtra(ServiceConstants.Commands.CONFIG_PRECISION, ServiceConstants.LOGGING_NORMAL);

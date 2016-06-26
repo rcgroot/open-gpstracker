@@ -55,7 +55,7 @@ import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.integration.ServiceManager;
 import nl.sogeti.android.gpstracker.service.BuildConfig;
 import nl.sogeti.android.gpstracker.service.R;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 public class GPSListener implements LocationListener, GpsStatus.Listener {
 
@@ -141,7 +141,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.v(this, "onLocationChanged( Location " + location + " )");
+        Timber.v("onLocationChanged( Location " + location + " )");
         // Might be claiming GPS disabled but when we were paused this changed and this location proves so
         if (mLoggerNotification.isShowingDisabled()) {
             mLoggerNotification.stopDisabledProvider(R.string.service_gpsenabled);
@@ -166,15 +166,15 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d(this, "onStatusChanged( String " + provider + ", int " + status + ", Bundle " + extras + " )");
+        Timber.d("onStatusChanged( String " + provider + ", int " + status + ", Bundle " + extras + " )");
         if (status == LocationProvider.OUT_OF_SERVICE) {
-            Log.e(this, String.format("Provider %s changed to status %d", provider, status));
+            Timber.e(String.format("Provider %s changed to status %d", provider, status));
         }
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        Log.d(this, "onProviderEnabled( String " + provider + " )");
+        Timber.d("onProviderEnabled( String " + provider + " )");
         if (mPrecision != ServiceConstants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER)) {
             mLoggerNotification.stopDisabledProvider(R.string.service_gpsenabled);
             mStartNextSegment = true;
@@ -185,7 +185,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
     @Override
     public void onProviderDisabled(String provider) {
-        Log.d(this, "onProviderDisabled( String " + provider + " )");
+        Timber.d("onProviderDisabled( String " + provider + " )");
         if (mPrecision != ServiceConstants.LOGGING_GLOBAL && provider.equals(LocationManager.GPS_PROVIDER)) {
             mLoggerNotification.startDisabledProvider(R.string.service_gpsdisabled, mTrackId);
         } else if (mPrecision == ServiceConstants.LOGGING_GLOBAL && provider.equals(LocationManager.NETWORK_PROVIDER)) {
@@ -271,7 +271,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
                 startListening(LocationManager.GPS_PROVIDER, intervalTime, distance, accuracy);
                 break;
             default:
-                Log.e(this, "Unknown precision " + mPrecision);
+                Timber.e("Unknown precision " + mPrecision);
                 break;
         }
     }
@@ -298,13 +298,13 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         // Do no include log wrong 0.0 lat 0.0 long, skip to next value in while-loop
         if (proposedLocation != null && (proposedLocation.getLatitude() == 0.0d
                 || proposedLocation.getLongitude() == 0.0d)) {
-            Log.w(this, "A wrong location was received, 0.0 latitude and 0.0 longitude... ");
+            Timber.w("A wrong location was received, 0.0 latitude and 0.0 longitude... ");
             proposedLocation = null;
         }
 
         // Do not log a waypoint which is more inaccurate then is configured to be acceptable
         if (proposedLocation != null && proposedLocation.getAccuracy() > mMaxAcceptableAccuracy) {
-            Log.w(this, String.format("A weak location was received, lots of inaccuracy... (%f is more then max %f)",
+            Timber.w(String.format("A weak location was received, lots of inaccuracy... (%f is more then max %f)",
                     proposedLocation.getAccuracy(),
                     mMaxAcceptableAccuracy));
             proposedLocation = addBadLocation(proposedLocation);
@@ -313,7 +313,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         // Do not log a waypoint which might be on any side of the previous waypoint
         if (proposedLocation != null && mPreviousLocation != null && proposedLocation.getAccuracy() > mPreviousLocation
                 .distanceTo(proposedLocation)) {
-            Log.w(this,
+            Timber.w(
                     String.format("A weak location was received, not quite clear from the previous waypoint... (%f more " +
                                     "then max %f)",
                             proposedLocation.getAccuracy(), mPreviousLocation.distanceTo(proposedLocation)));
@@ -328,11 +328,11 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             long seconds = (proposedLocation.getTime() - mPreviousLocation.getTime()) / 1000L;
             float speed = meters / seconds;
             if (speed > MAX_REASONABLE_SPEED) {
-                Log.w(this, "A strange location was received, a really high speed of " + speed + " m/s, prob wrong...");
+                Timber.w("A strange location was received, a really high speed of " + speed + " m/s, prob wrong...");
                 proposedLocation = addBadLocation(proposedLocation);
                 // Might be a messed up Samsung Galaxy S GPS, reset the logging
                 if (speed > 2 * MAX_REASONABLE_SPEED && mPrecision != ServiceConstants.LOGGING_GLOBAL) {
-                    Log.w(this, "A strange location was received on GPS, reset the GPS listeners");
+                    Timber.w("A strange location was received on GPS, reset the GPS listeners");
                     stopListening();
                     mLocationManager.removeGpsStatusListener(this);
                     mLocationManager = (LocationManager) mService.getSystemService(Context.LOCATION_SERVICE);
@@ -344,14 +344,14 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
         // Remove speed if not sane
         if (mSpeedSanityCheck && proposedLocation != null && proposedLocation.getSpeed() > MAX_REASONABLE_SPEED) {
-            Log.w(this, "A strange speed, a really high speed, prob wrong...");
+            Timber.w("A strange speed, a really high speed, prob wrong...");
             proposedLocation.removeSpeed();
         }
 
         // Remove altitude if not sane
         if (mSpeedSanityCheck && proposedLocation != null && proposedLocation.hasAltitude()) {
             if (!addSaneAltitude(proposedLocation.getAltitude())) {
-                Log.w(this, "A strange altitude, a really big difference, prob wrong...");
+                Timber.w("A strange altitude, a really big difference, prob wrong...");
                 proposedLocation.removeAltitude();
             }
         }
@@ -384,10 +384,10 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      */
     public void storeLocation(Location location) {
         if (!isLogging() || mTrackId < 0 || mSegmentId < 0) {
-            Log.e(this, String.format("Storing location without Logging (%b) or track (%d,%d).", isLogging(), mTrackId, mSegmentId));
+            Timber.e(String.format("Storing location without Logging (%b) or track (%d,%d).", isLogging(), mTrackId, mSegmentId));
             return;
         } else {
-            Log.e(this, String.format("Storing location track/segment (%d,%d).", mTrackId, mSegmentId));
+            Timber.e(String.format("Storing location track/segment (%d,%d).", mTrackId, mSegmentId));
         }
         ContentValues args = new ContentValues();
 
@@ -440,7 +440,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             boolean distanceBroadcast = minDistance > 0 && mBroadcastDistance >= minDistance;
             boolean timeBroadcast = minTime > 0 && passedTime >= minTime;
             if (distanceBroadcast && timeBroadcast) {
-                Log.d(this, "Broadcasting intent" + intent);
+                Timber.d("Broadcasting intent" + intent);
                 mBroadcastDistance = 0;
                 mLastTimeBroadcast = nowTime;
                 mService.sendBroadcast(intent, "android.permission.ACCESS_FINE_LOCATION");
@@ -515,7 +515,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         mPersistence.setSegmentId(mSegmentId);
         mPersistence.setLoggingState(mLoggingState);
 
-        Log.d(this, "Save GPS Listen State()");
+        Timber.d("Save GPS Listen State()");
     }
 
     private synchronized void crashRestoreState() {
@@ -524,7 +524,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
         int previousState = mPersistence.getLoggingState();
         if (previousState == ServiceConstants.STATE_LOGGING || previousState == ServiceConstants.STATE_PAUSED) {
-            Log.d(this, "Load GPS Listen State()");
+            Timber.d("Load GPS Listen State()");
             mLoggerNotification.startLogging(mPrecision, mLoggingState, mStatusMonitor, mTrackId);
 
             mTrackId = mPersistence.getTrackId();
@@ -541,7 +541,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
 
 
     public synchronized void startLogging(String trackName) {
-        Log.d(this, "startLogging()");
+        Timber.d("startLogging()");
         if (this.mLoggingState == ServiceConstants.STATE_STOPPED) {
             boolean shouldDisplayTrack = (trackName == null);
             Uri trackUri = startNewTrack(shouldDisplayTrack);
@@ -565,7 +565,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     }
 
     public synchronized void pauseLogging() {
-        Log.d(this, "pauseLogging()");
+        Timber.d("pauseLogging()");
         if (this.mLoggingState == ServiceConstants.STATE_LOGGING) {
             mLocationManager.removeGpsStatusListener(this);
             stopListening();
@@ -581,7 +581,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     }
 
     public synchronized void resumeLogging() {
-        Log.d(this, "resumeLogging()");
+        Timber.d("resumeLogging()");
         if (this.mLoggingState == ServiceConstants.STATE_PAUSED) {
             if (mPrecision != ServiceConstants.LOGGING_GLOBAL) {
                 mStartNextSegment = true;
@@ -598,7 +598,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
     }
 
     public synchronized void stopLogging() {
-        Log.d(this, "stopLogging()");
+        Timber.d("stopLogging()");
         mLoggingState = ServiceConstants.STATE_STOPPED;
         crashProtectState();
         mPowerManager.updateWakeLock(getLoggingState());
@@ -659,7 +659,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      * @param accuracy
      */
     private void startListening(String provider, long milliseconds, float meters, float accuracy) {
-        Log.d(this, "startListening(" + provider + ", " + milliseconds / 1000L + "s, " + meters + "m, " + accuracy + "m)");
+        Timber.d("startListening(" + provider + ", " + milliseconds / 1000L + "s, " + meters + "m, " + accuracy + "m)");
         mProvider = provider;
         mMaxAcceptableAccuracy = accuracy;
         mLocationManager.removeUpdates(this);
@@ -690,7 +690,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             }
 
             if (checkLocation == null || checkLocation.getTime() + mCheckPeriod < new Date().getTime()) {
-                Log.w(this, "GPS system failed to produce a location during logging: " + checkLocation);
+                Timber.w("GPS system failed to produce a location during logging: " + checkLocation);
                 mLoggerNotification.startPoorSignal(mTrackId);
                 if (mStatusMonitor) {
                     mLoggerNotification.soundGpsSignalAlarm();
@@ -734,7 +734,7 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
             args.put(ContentConstants.Media.URI, mediaUri.toString());
             mService.getContentResolver().insert(mediaInsertUri, args);
         } else {
-            Log.e(this, "No logging done under which to store the track");
+            Timber.e("No logging done under which to store the track");
         }
     }
 

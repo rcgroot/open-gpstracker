@@ -28,7 +28,7 @@ import android.content.Intent;
 import nl.sogeti.android.gpstracker.integration.ServiceConstants;
 import nl.sogeti.android.gpstracker.service.logger.GPSLoggerService;
 import nl.sogeti.android.gpstracker.service.logger.LoggerPersistence;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 public class PowerReceiver extends BroadcastReceiver {
     @Override
@@ -36,14 +36,14 @@ public class PowerReceiver extends BroadcastReceiver {
         boolean start = false;
         boolean stop = false;
         String action = intent.getAction();
-        Log.d(this, "OpenGPSTracker's PowerReceiver received: " + action);
+        Timber.d("OpenGPSTracker's PowerReceiver received: " + action);
         LoggerPersistence persistence = new LoggerPersistence(context);
         if (Intent.ACTION_POWER_CONNECTED.equals(action)) {
             start = persistence.shouldLogAtPowerConnected();
         } else if (Intent.ACTION_POWER_DISCONNECTED.equals(action)) {
             stop = persistence.shouldLogAtPowerDisconnected();
         } else {
-            Log.w(this, "OpenGPSTracker's PowerReceiver received " + action + ", but it's only able to respond to " +
+            Timber.w("OpenGPSTracker's PowerReceiver received " + action + ", but it's only able to respond to " +
                     Intent.ACTION_POWER_CONNECTED + " and " + Intent.ACTION_POWER_DISCONNECTED
                     + ". This shouldn't happen!");
         }

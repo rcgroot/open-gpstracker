@@ -57,9 +57,9 @@ import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
- import nl.sogeti.android.log.Log;
 import nl.sogeti.android.gpstracker.util.ProgressFilterInputStream;
 import nl.sogeti.android.gpstracker.util.UnicodeReader;
+import timber.log.Timber;
 
 public class GpxParser extends AsyncTask<Uri, Void, Uri> {
     public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -124,7 +124,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
                     throw new ParseException("Unable to parse dateTime " + text + " of length " + length, 0);
             }
         } catch (ParseException e) {
-            Log.w(GpxParser.class, "Failed to parse a time-date", e);
+            Timber.w("Failed to parse a time-date", e);
         }
         return dateTime;
     }
@@ -174,7 +174,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
     }
 
     protected void handleError(Exception dialogException, String dialogErrorMessage) {
-        Log.e(this, "Unable to save ", dialogException);
+        Timber.e("Unable to save ", dialogException);
         mErrorDialogException = dialogException;
         mErrorDialogMessage = dialogErrorMessage;
         cancel(false);
@@ -311,7 +311,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
             try {
                 fis.close();
             } catch (IOException e) {
-                Log.w(this, "Failed closing inputstream");
+                Timber.w("Failed closing inputstream");
             }
         }
         return trackUri;

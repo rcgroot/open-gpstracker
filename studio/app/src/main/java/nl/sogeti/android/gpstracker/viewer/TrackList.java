@@ -67,10 +67,10 @@ import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.adapter.SectionedListAdapter;
-import nl.sogeti.android.gpstracker.service.db.DatabaseHelper;
 import nl.sogeti.android.gpstracker.integration.ContentConstants;
 import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
-import nl.sogeti.android.log.Log;
+import nl.sogeti.android.gpstracker.service.db.DatabaseHelper;
+import timber.log.Timber;
 
 /**
  * Show a list view of all tracks, also doubles for showing search results
@@ -264,7 +264,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener {
         try {
             info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         } catch (ClassCastException e) {
-            Log.e(this, "Bad menuInfo", e);
+            Timber.e("Bad menuInfo", e);
             return handled;
         }
 
@@ -456,7 +456,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener {
                 tracksCursor = managedQuery(Tracks.CONTENT_URI, new String[]{Tracks._ID, Tracks.NAME, Tracks
                         .CREATION_TIME}, null, null, orderby);
             } else {
-                Log.e(this, "Unable to VIEW " + uri);
+                Timber.e("Unable to VIEW " + uri);
             }
         } else {
             // Got to nothing, make a list of everything
@@ -525,7 +525,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener {
         mErrorTask = task;
         mErrorDialogMessage = errorDialogMessage;
         mErrorDialogException = errorDialogException;
-        Log.e(this, errorDialogMessage, errorDialogException);
+        Timber.e(errorDialogMessage, errorDialogException);
         if (!isFinishing()) {
             showDialog(DIALOG_ERROR);
         }
