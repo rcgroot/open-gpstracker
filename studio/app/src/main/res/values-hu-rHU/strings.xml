@@ -1,120 +1,112 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-    <string name="app_name">GPS Tracker megnyitása</string>
-    <string name="service_gpsstatus">Logging: %1$s (%2$s with %3$d satellites)</string>
-    <string name="service_gpsnostatus">Logging: %1$s (Precision %2$s)</string>
-    <string name="service_networkstatus">Logging: %1$s (%2$s with cell tower and wifi)</string>
-    <string name="service_gpsdisabled">GPS is disabled, logging is without effect.</string>
-    <string name="service_gpsenabled">GPS is enabled, commencing logging.</string>
-    <string name="service_connectiondisabled">Network is disabled, network location logging is without effect.</string>
-    <string name="service_datadisabled">Network positioning is disabled, logging is without effect.</string>
-    <string name="service_dataenabled">Network positioning is enabled, commencing logging.</string>
-    <string name="service_gpsproblem">Receiving no location information</string>
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" tools:ignore="MissingTranslation">
+    <string name="app_name">Open GPS Tracker</string>
 
     <!-- Dialogs -->
-    <string name="dialog_select_media_title">Select note</string>
-    <string name="dialog_select_media_message">Multiple notes were found at this location, please select one to open</string>
-    <string name="dialog_tracking_title">Tracking control</string>
-    <string name="dialog_routename_title">Name track</string>
-    <string name="dialog_routename_message">Please enter the name of the track</string>
-    <string name="dialog_routename_default">Track %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
-    <string name="dialog_notrack_title">No track is selected</string>
-    <string name="dialog_notrack_message">Please select a track first before exporting</string>
-    <string name="dialog_delete_title">Delete track</string>
-    <string name="dialog_delete_message">Please confirm the deletion of the track %s</string>
-    <string name="dialog_layer_title">Activate overlays</string>
-    <string name="dialog_graphtype_title">Graph type</string>
-    <string name="dialog_notetext_title">Text note</string>
-    <string name="dialog_notetext_message">Enter a text note for the current location</string>
-    <string name="dialog_notename_title">Mark</string>
-    <string name="dialog_notename_message">Enter the name of this location</string>
-    <string name="logcontrol_start">Start tracking</string>
-    <string name="logcontrol_pause">Pause tracking</string>
-    <string name="logcontrol_resume">Resume tracking</string>
-    <string name="logcontrol_stop">Stop tracking</string>
-    <string name="layer_regular">Normal map</string>
-    <string name="layer_satellite">Satellite</string>
-    <string name="layer_traffic">Traffic</string>
-    <string name="layer_speed">Speed</string>
-    <string name="layer_altitude">Altitude</string>
-    <string name="layer_distance">Distance</string>
-    <string name="layer_compass">Compass</string>
-    <string name="layer_location">My Location</string>
-    <string name="dialog_vacuum_title">Crop data</string>
-    <string name="dialog_vacuum_message">Returns space lost due to fragmentation by a rebuilding the database.</string>
+    <string name="dialog_select_media_title">Feljegyzés kiválasztásas</string>
+    <string name="dialog_select_media_message">Több feljegyzés található ezen a helyen, válassz ki egyet</string>
+    <string name="dialog_tracking_title">Nyomkövetés vezérlése</string>
+    <string name="dialog_routename_title">Útvonal neve</string>
+    <string name="dialog_routename_message">Add meg az útvonal nevét</string>
+    <string name="dialog_routename_default">Útvonal %1$tY-%2$tm-%3$td %4$tH:%5$tM</string>
+    <string name="dialog_notrack_title">Nincs útvonal kiválasztva</string>
+    <string name="dialog_notrack_message">Exportálás előtt válasz útvonalat</string>
+    <string name="dialog_delete_title">Útvonal törlése</string>
+    <string name="dialog_delete_message">Erősítse meg a következő útvonal törlését: %s</string>
+    <string name="dialog_layer_title">Rétek nézet kiválasztása</string>
+    <string name="dialog_graphtype_title">Grafikon típusa</string>
+    <string name="dialog_notetext_title">Szöveges megj.</string>
+    <string name="dialog_notetext_message">Add meg a megj. a jelenlegi pozicióhoz</string>
+    <string name="dialog_notename_title">Jel</string>
+    <string name="dialog_notename_message">Add meg a nevet a jelenlegi pozicióhoz</string>
+    <string name="layer_regular">Hagyományos térkép</string>
+    <string name="layer_satellite">Műhold</string>
+    <string name="layer_traffic">Forgalom</string>
+    <string name="layer_speed">Sebesség</string>
+    <string name="layer_altitude">Magasság</string>
+    <string name="layer_distance">Távolság</string>
+    <string name="layer_compass">Tájolsá</string>
+    <string name="layer_location">Saját pozícióm</string>
+    <string name="dialog_vacuum_title">Adatok vágása</string>
+    <string name="dialog_vacuum_message">Vissza adja hely miatt elvesztett fragmentáció egy újjáépítése az adatbázisban.</string>
     <string name="dialog_import_title">GPX import</string>
-    <string name="dialog_import_message">Would you like to import the GPX %1$s ?</string>
+    <string name="dialog_import_message">Importálni szeretnéd a GPX %1$s ?</string>
     <string name="menu_picker">Import</string>
-    <string name="dialog_contrib_title">Contribute</string>
-    <string name="taskerror_gpx_import">Importing GPX data</string>
-    <string name="taskerror_gpx_write">Writing GPX data</string>
-    <string name="taskerror_kmz_write">Writing KMZ data</string>
-    <string name="dialog_contrib_message">
-    <b>Code</b>
-    \n
-    This application and the source code are publicly available. Feel free to submit
-    a patch. All code contributions are very welcome. The complete application source is 
-    available under GPL license at http://code.google.com/p/open-gpstracker/source
-    \n\n
-    <b>Errors</b>
-    \n
-    In case of an error, crash or fault please send a message. Log the error 
-    at http://code.google.com/p/open-gpstracker/issues/entry and make an important 
-    contribution to improve this application.  
-    \n\n
-    <b>Idea\'s</b>
-    \n
-    Do you have an idea that could improve this application? Explain your idea at
-    http://code.google.com/p/open-gpstracker/issues/entry
-    \n\n
-    <b>Donate</b>
-    \n
-    Hopefully you enjoyed the application, I love to hear if you did. A thank you 
-    or PayPal donation are appreciated at rcgroot@gmail.com
-    \n\n
-    </string>
+    <string name="dialog_contrib_title">Közreműködők</string>
+    <string name="taskerror_gpx_import">GPX adatok importálása</string>
+    <string name="taskerror_gpx_write">GPX adatok írása</string>
+    <string name="taskerror_kmz_write">KMZ adatok írása</string>
+  <string name="dialog_contrib_message">
+  <b>Forráskód</b>
+  \n
+  A program és a forráskód nyilvánosan elérhető. Javítások szabadon küldhető.
+  Minden kód hozzájárulások nagyon szívesen fogadok. A teljes program forráskód
+  elérhető GPL licensz alatt: http://code.google.com/p/open-gpstracker/source
+  \n\n
+  <b>Hibák</b>
+  \n
+  Program összeomlás vagy hiba esetén, kérjük küldjön egy üzenetet.
+  A hibát a http://code.google.com/p/open-gpstracker/issues/entry jelentsd
+  így jelentőse hozzájárulsz az alkalmazás tökéletesítéséhez.
+  \n\n
+  <b>Ötletek\'s</b>
+  \n
+  Van egy ötleted, ami javítja ezt az alkalmazást? Dobd fel a következő címre:
+  http://code.google.com/p/open-gpstracker/issues/entry
+  \n\n
+  <b>Támogadás</b>
+  \n
+  Remélem élvezed a programot,  Ha köszönetet szeretnél írni, vagy PayPal-on
+  keresztű támogatni akkor a rcgroot@gmail.com címen teheted meg.
+  \n\n
+  </string>
 
     <!-- Messages -->
-    <string name="from">Tracked on: </string>
-    <string name="no_tracks">No tracks stored</string>
-    <string name="ticker_saving">Saving: </string>
-    <string name="ticker_failed">Unable to save the route: </string>
-    <string name="error_filenotfound"> reason: Can not find file or directory on SD card</string>
-    <string name="error_filename"> reason: Incorrect filename</string>
-    <string name="error_buildxml"> reason: Error building XML</string>
-    <string name="error_writesdcard"> reason: Error writing to SD card</string>
-    <string name="tweettext">%1$s: Traveled %2$s with an average speed of %3$s during %4$s #opengpstracker</string>
-    <string name="error_importgpx_xml">Failed reading the XML during import.</string>
-    <string name="error_importgpx_io">Failed reading the file during import.</string>
-    <string name="time_and_speed">At %1$s going %2$s</string>
+    <string name="from">Követés innen: </string>
+    <string name="no_tracks">Nincsenek útvonalak lementve</string>
+    <string name="ticker_saving">Mentés: </string>
+    <string name="ticker_failed">Az útvonal mentése sikertelen: </string>
+    <string name="error_filenotfound"> ok: fájl nem található az SD kártyán</string>
+    <string name="error_filename"> ok: a fájl sérült</string>
+    <string name="error_buildxml"> ok: XML létrehozás sikertelen</string>
+    <string name="error_writesdcard"> ok: sikertelen az SD kártyára írás</string>
+  <string name="tweettext">
+      <xliff:g example="Track 2016-02-29 15:10" id="trackName">%1$s:</xliff:g> Traveled
+      <xliff:g example="2.72 km" id="distance">%2$s</xliff:g> with an average speed of
+      <xliff:g example="3.27 km/h" id="averageSpeed">%3$s</xliff:g> during
+      <xliff:g example="0h:49m:54s" id="duration">%4$s</xliff:g> #opengpstracker
+  </string>
+    <string name="error_importgpx_xml">Sikertelen az XML olvasása importálás közben.</string>
+    <string name="error_importgpx_io">Sikertelen a fájl olvasása importálás közben.</string>
+    <string name="time_and_speed">%1$s -kor indulás %2$s</string>
 
     <!-- Buttons -->
-    <string name="btn_okay">OK</string>
-    <string name="btn_cancel">Cancel</string>
-    <string name="btn_selecttrack">Select track</string>
-    <string name="btn_skip">Skip</string>
+    <string name="btn_okay">Rendben</string>
+    <string name="btn_cancel">Mégse</string>
+    <string name="btn_selecttrack">Válasz útvonalat</string>
+    <string name="btn_skip">Kihagy</string>
 
     <!-- Menu's -->
-    <string name="menu_settings">Settings</string>
-    <string name="menu_tracklist">List tracks</string>
-    <string name="menu_shareTrack">Share track</string>
-    <string name="menu_deleteTrack">Delete track</string>
-    <string name="menu_renameTrack">Rename track</string>
-    <string name="menu_statistics">Statistics</string>
-    <string name="menu_about">About</string>
-    <string name="menu_showLayers">Overlays</string>
-    <string name="menu_graphtype">Graph type</string>
-    <string name="menu_insertnote">Make note</string>
-    <string name="menu_notename">Mark with a name</string>
-    <string name="menu_notepicture">Take Picture</string>
-    <string name="menu_notetext">Write Text</string>
-    <string name="menu_notespeech">Record Speech</string>
-    <string name="menu_notevideo">Record Video</string>
-    <string name="graphtype_timespeed">Speed over time</string>
-    <string name="graphtype_timealtitude">Altitude over time</string>
-    <string name="graphtype_distancespeed">Speed over distance</string>
-    <string name="graphtype_distancealtitude">Altitude over distance</string>
-    <string name="menu_vacuum">Crop data</string>
+    <string name="menu_settings">Beállítások</string>
+    <string name="menu_tracklist">Útvonal lista</string>
+    <string name="menu_shareTrack">Útvonal megosztás</string>
+    <string name="menu_deleteTrack">Útvonal törlés</string>
+    <string name="menu_renameTrack">Útvonal átnevezés</string>
+    <string name="menu_statistics">Statisztika</string>
+    <string name="menu_about">Leírás</string>
+    <string name="menu_showLayers">Nézetek</string>
+    <string name="menu_graphtype">Diagram típusa</string>
+    <string name="menu_insertnote">Megjegyés írás</string>
+    <string name="menu_notename">Megjegyzés névvel</string>
+    <string name="menu_notepicture">Fénykép készítés</string>
+    <string name="menu_notetext">Szöveg írása</string>
+    <string name="menu_notespeech">Hangfelvétel rögzítés</string>
+    <string name="menu_notevideo">Videó rögzítés</string>
+    <string name="graphtype_timespeed">Sebesség idő függvényében</string>
+    <string name="graphtype_timealtitude">Szintkülönbség idő függvényében </string>
+    <string name="graphtype_distancespeed">Sebesség távolság függvényében </string>
+    <string name="graphtype_distancealtitude">Szintkülönbség távolság függvényében </string>
+    <string name="menu_vacuum">Adat tisztitás</string>
     <!-- Communicated -->
     <string name="email_subject">Open GPS Tracker - Track data</string>
     <string name="email_gpxbody">Attached is a track in GPS Exchange Format (GPX) format as described on http://www.topografix.com/gpx.asp</string>
@@ -123,91 +115,98 @@
     <string name="kmlAudioUnsupported">Embedded audio is not supported, please use a zip tools to retrieve the %s audio file from the KMZ file.</string>
 
     <!-- Screens -->
-    <string name="share_track">Share this track</string>
-    <string name="share_explained">Sharing creates a track export with as much of the recorded data as possible.</string>
-    <string name="share_type">Choose format of shared track:</string>
-    <string name="share_name">Name of export:</string>
-    <string name="share_target">Means of sharing:</string>
-    <string name="sender_chooser">Choose sender application</string>
+    <string name="share_track">Útvonal megosztása</string>
+    <string name="share_explained">Útvonal export létrehozása a lehető legtöbb adattal.</string>
+    <string name="share_type">Válasz útvonal megosztási módot:</string>
+    <string name="share_name">Export neve:</string>
+    <string name="share_target">Megosztás jelentése:</string>
+    <string name="sender_chooser">Válasz küldő programot</string>
     <string name="opengpstracker_title">Open GPS Tracker</string>
-    <string name="preference_display">Display settings</string>
-    <string name="preference_behavior">Run settings</string>
-    <string name="logatstartup">Log at service start</string>
-    <string name="logatstartup_summary">After starting, the logging service immediately records.</string>
-    <string name="logatdock">Log at car docking</string>
-    <string name="logatdock_summary">After inserting in a car dock, the logging immediately records.</string>
-    <string name="stopatundock">Stop logging at undocking</string>
-    <string name="stopatundock_summary">After exiting a dock, the logging immediately stops.</string>
-    <string name="startupatboot">Start up at boot</string>
-    <string name="startupatboot_summary">After starting the device, the logging service starts.</string>
-    <string name="disableblanking_title">Disable screen blanking</string>
-    <string name="disableblanking_summary">Keeps the screen on during tracking.</string>
-    <string name="disabledimming_title">Disable screen dimming</string>
-    <string name="disabledimming_summary">Keeps the screen on full brightness during tracking.</string>
-    <string name="precision_title">Logging precision</string>
-    <string name="precision_summary">The size of interval between GPS fixes.</string>
-    <string name="trackcoloring_title">Track color</string>
-    <string name="trackcoloring_summary">The coloring used to draw the track.</string>
-    <string name="showspeed_title">GPS speed</string>
-    <string name="showspeed_summary">Show the speed from the last received GPS fix.</string>
-    <string name="showaltitude_title">GPS altitude</string>
-    <string name="showaltitude_summary">Show the altitude from the last received GPS fix.</string>
-    <string name="showdistance_title">Distance covered</string>
-    <string name="showdistance_summary">Show the distance covered by the track.</string>
-    <string name="showcompass_title">Compass</string>
-    <string name="showcompass_summary">Show a compass with a needle pointing north</string>
-    <string name="sanitycheck_title">Speed and altitude sanity check </string>
-    <string name="sanitycheck_summary">Only accept reasonable GPS speeds and altitudes</string>
-    <string name="showlocation_title">My location </string>
-    <string name="showlocation_summary">Show my location on the map</string>
-    <string name="units_title">Units</string>
-    <string name="units_summary">Determine if metric or imperial units are used</string>
-    <string name="stat_maximumspeed">Maximum speed</string>
-    <string name="stat_overallaveragespeed">Travel speed</string>
-    <string name="stat_averagespeed">Average speed</string>
-    <string name="stat_distance">Tracked distance</string>
-    <string name="stat_endtime">Last time</string>
-    <string name="stat_starttime">Start time</string>
-    <string name="stat_waypoints">Waypoints</string>
-    <string name="stat_elapsedtime">Elapsed</string>
-    <string name="stat_ascension">Total elevation</string>
-    <string name="track_list">Tracks</string>
-    <string name="search_label">Tracks</string>
-    <string name="search_description">Open GPS Tracker track names</string>
-    <string name="search_hint">Search tracks</string>
-    <string name="preference_sharing">Sharing settings</string>
-    <string name="preference_logging">Logging and GPS</string>
-    <string name="customprecisiontime_title">Target waypoint time interval in seconds</string>
-    <string name="customprecisiontime_summary">The time the GPS receiver should sleep between waypoints.</string>
-    <string name="customprecisiondistance_title">Target waypoint distance in meters</string>
-    <string name="customprecisiondistance_summary">The distance that should be covered between waypoints.</string>
-    <string name="gpsstatusmonitor_title">Monitor GPS status</string>
-    <string name="gpsstatusmonitor_summary">Displays the number of satellites used and sounds alarm on poor signal.</string>
-    <string name="sddirectory_title">SD-Card directory used to store shared tracks.</string>
-    <string name="sddirectory_summary">Created track and media files are stored in this SD-Card directory.</string>
-    <string name="sddirectory_message">Enter the path added to the SD-Card path to use for files. For instance the default /OpenGPSTracker/ will add a single directory to the SD-Card and /Apps/OpenGPSTracker/ will nest the two.\n </string>
-    <string name="preference_stream">Location broadcasting settings</string>
-    <string name="streamenabled_title">Streaming enabled</string>
-    <string name="streamenabled_summary">Enable direct broadcasting of location</string>
-    <string name="streambroadcast_time_title">Minimum time between broadcasts</string>
-    <string name="streambroadcast_time_summary">Number of minutes after which new progress is broadcasted</string>
-    <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
-    <string name="streambroadcast_distance_summary">Number of meters after which new progress is broadcasted</string>
-    <string name="voiceover_title">Stream to audio voice-over</string>
-    <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
-    <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
-    <string name="customupload_title">Stream to custom web server</string>
-    <string name="customupload_summary">Upload track progress to (personal) web server</string>
-    <string name="customupload_url_title">Custom web server URL</string>
-    <string name="customupload_url_summary">The web address to which to upload progress</string>
-    <string name="customupload_url_message">A HTTP GET requests is send for each stream broadcast. This URL is used for that request. 
-        In this URL the placeholders are replaced with actual information. The possible placeholders are @LAT@, @LON@, @ALT@, @ACC@, @SPEED@, @BEAR@, @TIME@ and @ID@.</string>
-    <string name="customupload_failed">The last upload of track progress failed</string>
-    <string name="customupload_backlog_title">On failure keep a backlog</string>
-    <string name="customupload_backlog_summary">The queue size of the backlog of requests</string>
-    <string name="customupload_backlog_message">Enter the number of requests that are cached in a backlog queue when requests do not reach the custom server URL</string>
+    <string name="preference_display">Megjelenítés beállítások</string>
+    <string name="preference_behavior">Működési beállítások</string>
+    <string name="logatstartup">Napló a szolgáltatás indulásakor</string>
+    <string name="logatstartup_summary">Indulás után naplózni a szolgáltatás amint lehetséges.</string>
+    <string name="logatdock">Naplózás autós csatlakozáskor</string>
+    <string name="logatdock_summary">Autós csatlakozáskor után, azonnal naplózás.</string>
+    <string name="stopatundock">Csatlakozás megszűnésekor, naplózás kikapcsolása</string>
+    <string name="stopatundock_summary">Autós lecsatlakozás után, azonnal naplózás kikapcsolás.</string>
+    <string name="startupatboot">Induláskor naplózás</string>
+    <string name="startupatboot_summary">A készülék indulása után, a naplózás indítása.</string>
+    <string name="logatpowerconnected">Naplózás töltő kábel csatlakoztatásakor</string>
+    <string name="logatpowerconnected_summary">Töltő kábel csatlakoztatása esetén naplózás indítása.</string>
+    <string name="stopatpowerdisconnected">Naplózás kikapcsolása töltő kábel lecsatlakoztatásakor</string>
+    <string name="stopatpowerdisconnected_summary">Töltő kábel lecsatlakoztatása esetén naplózás kiindítása.</string>
+    <string name="disableblanking_title">Képernyő kikapcsolás tiltása</string>
+    <string name="disableblanking_summary">Képernyő bekapcsolva marad nyomkövetéskor.</string>
+    <string name="disabledimming_title">Képernyő teljes fényerőn</string>
+    <string name="disabledimming_summary">Képernyő teljes fényerőn nyomkövetéskor.</string>
+    <string name="precision_title">Nyomkövetés alapossága</string>
+    <string name="precision_summary">GPS pontok közötti távolság.</string>
+    <string name="trackcoloring_title">Útvonal színe</string>
+    <string name="trackcoloring_summary">A szín amivel az útvonal megrajzolásra kerül.</string>
+    <string name="showspeed_title">GPS sebessége</string>
+    <string name="showspeed_summary">Megmutatja a sebességet az utolsó GPS pontban.</string>
+    <string name="showaltitude_title">GPS magasság</string>
+    <string name="showaltitude_summary">Megmutatja a magasságot az utolsó GPS pontban.</string>
+    <string name="showdistance_title">Megtett távolság</string>
+    <string name="showdistance_summary">Megmutatja a Megtett távolságot.</string>
+    <string name="showcompass_title">Iránytű</string>
+    <string name="showcompass_summary">Megjelenik egy iránytű</string>
+    <string name="sanitycheck_title">Sebesség és magasság biztonsági ellenőrzése</string>
+    <string name="sanitycheck_summary">Csak biztos sebesség és magassági adat használata</string>
+    <string name="showlocation_title">Saját pozícióm</string>
+    <string name="showlocation_summary">Megmutatja a saját pozíciómat a térképen</string>
+    <string name="units_title">Mértékegység</string>
+    <string name="units_summary">Meghatározza, hogy milyen metrikus mértékegységek less használatban</string>
+    <string name="stat_maximumspeed">Legnagyobb sebesség</string>
+    <string name="stat_overallaveragespeed">Útvonal sebesség</string>
+    <string name="stat_averagespeed">Átlag sebesség</string>
+    <string name="stat_distance">Útvonal hossza</string>
+    <string name="stat_endtime">Vége időpont</string>
+    <string name="stat_starttime">Kezdő időpont</string>
+    <string name="stat_waypoints">Részpontok</string>
+    <string name="stat_elapsedtime">Eltelt idő</string>
+    <string name="stat_ascension">Összes magasságkülömbség</string>
+    <string name="track_list">Útvonalak</string>
+    <string name="search_label">Útvonalak</string>
+    <string name="search_description">Open GPS Tracker útvonal név</string>
+    <string name="search_hint">Útvonal keresés</string>
+    <string name="preference_sharing">Beállítás megosztás</string>
+    <string name="preference_logging">Naplózás és GPS</string>
+    <string name="customprecisiontime_title">GPS pontonként eltelt idő</string>
+    <string name="customprecisiontime_summary">GPS pontonként eltelt idő.</string>
+    <string name="customprecisiondistance_title">GPS pontonként megtett távolság</string>
+    <string name="customprecisiondistance_summary">GPS pontonként megtett távolság.</string>
+    <string name="gpsstatusmonitor_title">GPS állapot visszajelzés</string>
+    <string name="gpsstatusmonitor_summary">Az elért műholdak száma, és hang figyelmeztetés gyenge jelszint esetén.</string>
+    <string name="sddirectory_title">SD kártya használata.</string>
+    <string name="sddirectory_summary">A létrehozott útvonal és kép fájlok SD kártya tárolási könvtára.</string>
+    <string name="sddirectory_message">Add meg az SD kártyán a könyvár elérést, a haszánálhathoz. Az alapértelmezett könyvtár a /OpenGPSTracker/ lesz létrehozva az SD kártyán és a /Apps/OpenGPSTracker/ könyvtár lesz használva.\n </string>
+
+    <string name="preference_stream">Pozíció broadcasts beállítás</string>
+    <string name="streamenabled_title">Broadcasts bekapcsolása</string>
+    <string name="streamenabled_summary">Közvetlen  pozíció broadcasts</string>
+    <string name="streambroadcast_time_title">Minimum idő a  broadcasts-ig</string>
+    <string name="streambroadcast_time_summary">Minimum percek miután a broadcasthez</string>
+    <string name="streambroadcast_distance_title">Minimum távolság a broadcasthez</string>
+    <string name="streambroadcast_distance_summary">Minimum távolság miután elindul a broadcast</string>
+    <string name="voiceover_title">A hang közvetítéssel</string>
+    <string name="voiceover_summary">Minden elér pont a broadcast folyamán kagy egy szóbeli összegzést</string>
+    <string name="customupload_title">Sugárzás saját szerverre</string>
+    <string name="customupload_summary">A útvonal felötlése egy saját szerverre</string>
+    <string name="customupload_url_title">Saját szerverre URL</string>
+    <string name="customupload_url_summary">A saját WEB szerver URL címe</string>
+    <string name="customupload_url_message">A HTTP GET lekérdezés formája a küldés folyamán. A megadott URL lesz a célpont.
+      Az URL bizonyos címkei le lesznek cserélve az jelenlegi adatokkal. Lehetséges címkék: @LAT@, @LON@, @ALT@, @ACC@, @SPEED@, @BEAR@, @TIME@ and @ID@.</string>
+    <string name="customupload_backlog_title">Sikertelen esetén adatok eltárolása</string>
+    <string name="customupload_backlog_summary">A tároló mérete a sikertelen szerver kérésekre</string>
+    <string name="customupload_backlog_message">Add meg a tároló mérete a sikertelen szerver kérésekre tart fent</string>
+    <string name="error_map_nullpointer">Kivételes térkép esemény</string>
 
     <!-- ***************************
        About information
        ***************************-->
 </resources>
+
+
+
