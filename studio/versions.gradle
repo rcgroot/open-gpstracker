@@ -1,9 +1,12 @@
 ext {
+    // Building
+    gradlePluginVersion = '2.1.2'
+    buildToolsVersion = "23.0.3"
+
     // App support
-    supportLibraryVersion = '23.3.0'
+    supportLibraryVersion = '23.4.0'
     timberVersion = '4.1.2'
 
     // Testing
     junitVersion = '4.12'
-    buildToolsVersion = '23.0.3'
 }
