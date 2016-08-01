@@ -110,7 +110,7 @@ public class CustomUpload extends BroadcastReceiver {
                     .getProtocol()))) {
                 sRequestBacklog.add(uploadUri);
             } else {
-                Timber.e("URL does not have correct scheme or host " + uploadUri);
+                Timber.e("URL does not have correct scheme or host %s", uploadUri);
             }
             if (sRequestBacklog.size() > prefBacklog) {
                 sRequestBacklog.poll();
@@ -128,7 +128,7 @@ public class CustomUpload extends BroadcastReceiver {
     }
 
     private static void notifyError(Context context, Exception e) {
-        Timber.e("Custom upload failed", e);
+        Timber.e(e, "Custom upload failed");
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
                 .NOTIFICATION_SERVICE);
 

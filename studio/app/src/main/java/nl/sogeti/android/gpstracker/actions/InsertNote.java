@@ -142,7 +142,7 @@ public class InsertNote extends AppCompatActivity {
                 filewriter.append(noteText);
                 filewriter.flush();
             } catch (IOException e) {
-                Timber.e("Note storing failed", e);
+                Timber.e(e, "Note storing failed");
                 CharSequence text = e.getLocalizedMessage();
                 Toast toast = Toast.makeText(InsertNote.this, text, Toast.LENGTH_LONG);
                 toast.show();
@@ -183,20 +183,20 @@ public class InsertNote extends AppCompatActivity {
             }
             succes = true;
         } catch (IOException e) {
-            Timber.e("File copy failed", e);
+            Timber.e(e, "File copy failed");
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    Timber.w("File close after copy failed", e);
+                    Timber.w(e, "File close after copy failed");
                 }
             }
             if (in != null) {
                 try {
                     out.close();
                 } catch (IOException e) {
-                    Timber.w("File close after copy failed", e);
+                    Timber.w(e, "File close after copy failed");
                 }
             }
         }
@@ -438,7 +438,7 @@ public class InsertNote extends AppCompatActivity {
         try {
             startActivityForResult(i, MENU_VIDEO);
         } catch (ActivityNotFoundException e) {
-            Timber.e("Unable to start Activity to record video", e);
+            Timber.e(e, "Unable to start Activity to record video");
         }
     }
 
@@ -447,7 +447,7 @@ public class InsertNote extends AppCompatActivity {
         try {
             startActivityForResult(intent, MENU_VOICE);
         } catch (ActivityNotFoundException e) {
-            Timber.e("Unable to start Activity to record audio", e);
+            Timber.e(e, "Unable to start Activity to record audio");
         }
     }
 }

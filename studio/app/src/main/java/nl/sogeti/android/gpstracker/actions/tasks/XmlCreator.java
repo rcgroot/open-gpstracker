@@ -233,7 +233,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
                 }
             }
         } else {
-            Timber.w("Exporting " + mTrackUri + " without progress!");
+            Timber.w("Exporting %s without progress!", mTrackUri);
         }
     }
 
@@ -363,7 +363,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
     protected abstract String getContentType();
 
     protected void handleError(String task, Exception e, String text) {
-        Timber.e("Unable to save ", e);
+        Timber.e(e, "Unable to save ");
         mTask = task;
         mException = e;
         mErrorText = text;

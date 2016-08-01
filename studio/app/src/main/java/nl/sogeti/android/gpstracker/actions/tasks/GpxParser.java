@@ -48,6 +48,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Vector;
 import java.util.concurrent.CancellationException;
@@ -62,9 +63,9 @@ import nl.sogeti.android.gpstracker.util.UnicodeReader;
 import timber.log.Timber;
 
 public class GpxParser extends AsyncTask<Uri, Void, Uri> {
-    public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    public static final SimpleDateFormat ZULU_DATE_FORMAT_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    public static final SimpleDateFormat ZULU_DATE_FORMAT_BC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'");
+    public static final SimpleDateFormat ZULU_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+    public static final SimpleDateFormat ZULU_DATE_FORMAT_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+    public static final SimpleDateFormat ZULU_DATE_FORMAT_BC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'", Locale.US);
     protected static final int DEFAULT_UNKNOWN_FILESIZE = 1024 * 1024 * 10;
     private static final String LATITUDE_ATRIBUTE = "lat";
     private static final String LONGITUDE_ATTRIBUTE = "lon";
@@ -124,7 +125,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
                     throw new ParseException("Unable to parse dateTime " + text + " of length " + length, 0);
             }
         } catch (ParseException e) {
-            Timber.w("Failed to parse a time-date", e);
+            Timber.w(e, "Failed to parse a time-date");
         }
         return dateTime;
     }
@@ -174,7 +175,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
     }
 
     protected void handleError(Exception dialogException, String dialogErrorMessage) {
-        Timber.e("Unable to save ", dialogException);
+        Timber.e(dialogException, "Unable to save ");
         mErrorDialogException = dialogException;
         mErrorDialogMessage = dialogErrorMessage;
         cancel(false);
@@ -192,7 +193,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
         Uri trackUri = null;
         int eventType;
         ContentValues lastPosition = null;
-        Vector<ContentValues> bulk = new Vector<ContentValues>();
+        Vector<ContentValues> bulk = new Vector<>();
         boolean speed = false;
         boolean accuracy = false;
         boolean bearing = false;
@@ -382,4 +383,4 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
             this.contentLength = contentLength;
         }
     }
-};
+}

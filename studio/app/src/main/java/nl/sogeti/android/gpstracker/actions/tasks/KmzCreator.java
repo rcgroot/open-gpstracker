@@ -45,6 +45,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
@@ -66,7 +67,7 @@ import timber.log.Timber;
 public class KmzCreator extends XmlCreator {
     public static final String NS_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
     public static final String NS_KML_22 = "http://www.opengis.net/kml/2.2";
-    public static final SimpleDateFormat ZULU_DATE_FORMATER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    public static final SimpleDateFormat ZULU_DATE_FORMATER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
     static {
         TimeZone utc = TimeZone.getTimeZone("UTC");
@@ -133,14 +134,14 @@ public class KmzCreator extends XmlCreator {
                 try {
                     buf.close();
                 } catch (IOException e) {
-                    Timber.e("Failed to close buf after completion, ignoring.", e);
+                    Timber.e(e, "Failed to close buf after completion, ignoring.");
                 }
             }
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
-                    Timber.e("Failed to close fos after completion, ignoring.", e);
+                    Timber.e(e, "Failed to close fos after completion, ignoring.");
                 }
             }
         }
@@ -320,7 +321,7 @@ public class KmzCreator extends XmlCreator {
         try {
             waypointsCursor = resolver.query(waypoints, new String[]{Waypoints.TIME}, null, null, null);
 
-            if (waypointsCursor.moveToFirst()) {
+            if (waypointsCursor != null && waypointsCursor.moveToFirst()) {
                 segmentStartTime = new Date(waypointsCursor.getLong(0));
                 if (waypointsCursor.moveToLast()) {
                     segmentEndTime = new Date(waypointsCursor.getLong(0));
@@ -361,7 +362,7 @@ public class KmzCreator extends XmlCreator {
         try {
             waypointsCursor = resolver.query(waypoints, new String[]{Waypoints.LONGITUDE, Waypoints.LATITUDE,
                     Waypoints.ALTITUDE}, null, null, null);
-            if (waypointsCursor.moveToFirst()) {
+            if (waypointsCursor != null && waypointsCursor.moveToFirst()) {
                 serializer.text("\n");
                 serializer.startTag("", "coordinates");
                 do {
@@ -390,7 +391,7 @@ public class KmzCreator extends XmlCreator {
         try {
             mediaCursor = resolver.query(media, new String[]{Media.URI, Media.TRACK, Media.SEGMENT, Media.WAYPOINT},
                     null, null, null);
-            if (mediaCursor.moveToFirst()) {
+            if (mediaCursor != null && mediaCursor.moveToFirst()) {
                 do {
                     Uri mediaUri = Uri.parse(mediaCursor.getString(0));
                     Uri singleWaypointUri = Uri.withAppendedPath(Tracks.CONTENT_URI, mediaCursor.getLong(1) + "/segments/"
@@ -460,7 +461,7 @@ public class KmzCreator extends XmlCreator {
                             try {
                                 mediaItemCursor = resolver.query(mediaUri, new String[]{MediaColumns.DATA, MediaColumns
                                         .DISPLAY_NAME}, null, null, null);
-                                if (mediaItemCursor.moveToFirst()) {
+                                if (mediaItemCursor != null && mediaItemCursor.moveToFirst()) {
                                     String includedMediaFile = includeMediaFile(mediaItemCursor.getString(0));
                                     serializer.text("\n");
                                     serializer.startTag("", "Placemark");
@@ -526,7 +527,7 @@ public class KmzCreator extends XmlCreator {
         try {
             waypointsCursor = resolver.query(singleWaypointUri, new String[]{Waypoints.LONGITUDE, Waypoints.LATITUDE,
                     Waypoints.ALTITUDE}, null, null, null);
-            if (waypointsCursor.moveToFirst()) {
+            if (waypointsCursor != null && waypointsCursor.moveToFirst()) {
                 serializer.text("\n");
                 serializer.startTag("", "Point");
                 serializer.text("\n");

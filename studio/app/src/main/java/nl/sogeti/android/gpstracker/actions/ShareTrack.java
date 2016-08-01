@@ -136,14 +136,14 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
             stream = new FileOutputStream(sTempBitmap);
             bm.compress(CompressFormat.PNG, 100, stream);
         } catch (IOException e) {
-            Timber.e("Bitmap extra storing failed", e);
+            Timber.e(e, "Bitmap extra storing failed");
         } finally {
             try {
                 if (stream != null) {
                     stream.close();
                 }
             } catch (IOException e) {
-                Timber.e("Bitmap extra close failed", e);
+                Timber.e(e, "Bitmap extra close failed");
             }
         }
         return fileUri;
@@ -325,13 +325,13 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
                         }
                     });
                 } catch (FileNotFoundException e) {
-                    Timber.e("Failed reading image from file", e);
+                    Timber.e(e, "Failed reading image from file");
                 } finally {
                     if (is != null) {
                         try {
                             is.close();
                         } catch (IOException e) {
-                            Timber.e("Failed close image from file", e);
+                            Timber.e(e, "Failed close image from file");
                         }
                     }
                 }
@@ -380,21 +380,21 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
         switch (type) {
             case EXPORT_TYPE_KMZ:
                 editor.putInt(Constants.EXPORT_KMZTARGET, target);
-                editor.commit();
+                editor.apply();
                 exportKmz(chosenFileName, target);
                 break;
             case EXPORT_TYPE_GPX:
                 editor.putInt(Constants.EXPORT_GPXTARGET, target);
-                editor.commit();
+                editor.apply();
                 exportGpx(chosenFileName, target);
                 break;
             case EXPORT_TYPE_TEXTLINE:
                 editor.putInt(Constants.EXPORT_TXTTARGET, target);
-                editor.commit();
+                editor.apply();
                 exportTextLine(textLine, target);
                 break;
             default:
-                Timber.e("Failed to determine sharing type" + type);
+                Timber.e("Failed to determine sharing type %s", type);
                 break;
         }
     }
@@ -448,7 +448,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
                 new KmzCreator(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName)).execute();
                 break;
             default:
-                Timber.e("Unable to determine target for sharing KMZ " + target);
+                Timber.e("Unable to determine target for sharing KMZ %s", target);
                 break;
         }
         ShareTrack.this.finish();
@@ -465,7 +465,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
                 ShareTrack.this.finish();
                 break;
             default:
-                Timber.e("Unable to determine target for sharing GPX " + target);
+                Timber.e("Unable to determine target for sharing GPX %s", target);
                 break;
         }
     }

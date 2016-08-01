@@ -46,6 +46,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import nl.sogeti.android.gpstracker.R;
@@ -69,7 +70,7 @@ public class GpxCreator extends XmlCreator {
     public static final String NS_GPX_11 = "http://www.topografix.com/GPX/1/1";
     public static final String NS_GPX_10 = "http://www.topografix.com/GPX/1/0";
     public static final String NS_OGT_10 = "http://gpstracker.android.sogeti.nl/GPX/1/0";
-    public static final SimpleDateFormat ZULU_DATE_FORMATER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    public static final SimpleDateFormat ZULU_DATE_FORMATER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
     static {
         TimeZone utc = TimeZone.getTimeZone("UTC");
@@ -158,14 +159,14 @@ public class GpxCreator extends XmlCreator {
                 try {
                     buf.close();
                 } catch (IOException e) {
-                    Timber.e("Failed to close buf after completion, ignoring.", e);
+                    Timber.e(e, "Failed to close buf after completion, ignoring.");
                 }
             }
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
-                    Timber.e("Failed to close fos after completion, ignoring.", e);
+                    Timber.e(e, "Failed to close fos after completion, ignoring.");
                 }
             }
         }
@@ -224,7 +225,7 @@ public class GpxCreator extends XmlCreator {
         try {
             trackCursor = resolver.query(trackUri, new String[]{Tracks._ID, Tracks.NAME, Tracks.CREATION_TIME}, null,
                     null, null);
-            if (trackCursor.moveToFirst()) {
+            if (trackCursor != null && trackCursor.moveToFirst()) {
                 databaseName = trackCursor.getString(1);
                 serializer.text("\n");
                 serializer.startTag("", "metadata");
@@ -265,7 +266,7 @@ public class GpxCreator extends XmlCreator {
         try {
             mediaCursor = resolver.query(media, new String[]{Media.URI, Media.TRACK, Media.SEGMENT, Media.WAYPOINT},
                     null, null, null);
-            if (mediaCursor.moveToFirst()) {
+            if (mediaCursor != null && mediaCursor.moveToFirst()) {
                 do {
                     Uri waypointUri = ContentConstants.buildUri(mediaCursor.getLong(1), mediaCursor.getLong(2), mediaCursor
                             .getLong(3));
@@ -333,7 +334,7 @@ public class GpxCreator extends XmlCreator {
                             try {
                                 mediaItemCursor = resolver.query(mediaUri, new String[]{MediaColumns.DATA, MediaColumns
                                         .DISPLAY_NAME}, null, null, null);
-                                if (mediaItemCursor.moveToFirst()) {
+                                if (mediaItemCursor != null && mediaItemCursor.moveToFirst()) {
                                     String fileName = includeMediaFile(mediaItemCursor.getString(0));
                                     quickTag(serializer, "", "name", fileName);
                                     serializer.startTag("", "link");
@@ -374,7 +375,7 @@ public class GpxCreator extends XmlCreator {
         ContentResolver resolver = mContext.getContentResolver();
         try {
             segmentCursor = resolver.query(segments, new String[]{Segments._ID}, null, null, null);
-            if (segmentCursor.moveToFirst()) {
+            if (segmentCursor != null && segmentCursor.moveToFirst()) {
                 do {
                     Uri waypoints = Uri.withAppendedPath(segments, segmentCursor.getLong(0) + "/waypoints");
                     serializer.text("\n");
@@ -402,7 +403,7 @@ public class GpxCreator extends XmlCreator {
             waypointsCursor = resolver.query(waypoints, new String[]{Waypoints.LONGITUDE, Waypoints.LATITUDE,
                     Waypoints.TIME, Waypoints.ALTITUDE, Waypoints._ID, Waypoints.SPEED, Waypoints.ACCURACY,
                     Waypoints.BEARING}, null, null, null);
-            if (waypointsCursor.moveToFirst()) {
+            if (waypointsCursor != null && waypointsCursor.moveToFirst()) {
                 do {
                     mProgressAdmin.addWaypointProgress(1);
 
