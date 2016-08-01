@@ -204,7 +204,7 @@ public class LoggerMap extends AppCompatMapActivity {
         try {
             calulatorSemaphore.acquire();
         } catch (InterruptedException e) {
-            Timber.e("Failed waiting for a semaphore", e);
+            Timber.e(e, "Failed waiting for a semaphore");
         }
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mMapView = (MapView) findViewById(R.id.myMapView);
