@@ -560,8 +560,10 @@ public class SegmentOverlay extends Overlay {
 
             this.mEndPoint = extractGeoPoint(); // End point of the segments, possible a dot
 
+        } else {
+            mWaypointsCursor.close();
+            mWaypointsCursor = null;
         }
-        //      Log.d( TAG, "transformSegmentToPath stop: points "+mCalculatedPoints+" from "+moves+" moves" );
     }
 
     private void calculateDots() {
@@ -614,6 +616,9 @@ public class SegmentOverlay extends Overlay {
             pointVO.time = mWaypointsCursor.getLong(3);
             pointVO.radius = mProjection.metersToEquatorPixels(mWaypointsCursor.getFloat(4));
             mDotPathCalculation.add(pointVO);
+        } else {
+            mWaypointsCursor.close();
+            mWaypointsCursor = null;
         }
     }
 
@@ -668,6 +673,9 @@ public class SegmentOverlay extends Overlay {
                 mMediaPathCalculation.add(mediaVO);
             }
             while (mMediaCursor.moveToNext());
+        } else {
+            mMediaCursor.close();
+            mMediaCursor = null;
         }
 
         synchronized (mMediaPath) // Switch the fresh path with the old Path object
