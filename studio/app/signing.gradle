@@ -11,5 +11,17 @@ android {
             keyAlias signingProperties["keyAlias"]
             keyPassword signingProperties["keyPassword"]
         }
+        release {
+            storeFile file(signingProperties["storeFile"])
+            storePassword signingProperties["storePassword"]
+
+            keyAlias signingProperties["keyAlias"]
+            keyPassword signingProperties["keyPassword"]
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
     }
 }
