@@ -663,7 +663,11 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
         mProvider = provider;
         mMaxAcceptableAccuracy = accuracy;
         mLocationManager.removeUpdates(this);
+        if (!mLocationManager.getAllProviders().contains(provider)) {
+            provider = LocationManager.NETWORK_PROVIDER;
+        }
         mLocationManager.requestLocationUpdates(provider, milliseconds, meters, this);
+
         mCheckPeriod = Math.max(12 * milliseconds, 120);
     }
 
