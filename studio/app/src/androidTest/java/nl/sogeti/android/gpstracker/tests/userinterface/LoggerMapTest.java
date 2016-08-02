@@ -44,199 +44,187 @@ import com.google.android.maps.MapView;
 import junit.framework.Assert;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.db.GPStracking.Waypoints;
-import nl.sogeti.android.gpstracker.logger.GPSLoggerServiceManager;
-import nl.sogeti.android.gpstracker.util.Constants;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
+import nl.sogeti.android.gpstracker.integration.ServiceManager;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Waypoints;
 import nl.sogeti.android.gpstracker.viewer.LoggerMap;
 
 /**
  * @author rene (c) Jan 22, 2009, Sogeti B.V.
  * @version $Id$
  */
-public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap>
-{
-   private static final Class<LoggerMap> CLASS = LoggerMap.class;
-   private static final String PACKAGE = "nl.sogeti.android.gpstracker";
-   private LoggerMap mLoggermap;
-   private MapView mMapView;
+public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap> {
+    private static final Class<LoggerMap> CLASS = LoggerMap.class;
+    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
+    private LoggerMap mLoggermap;
+    private MapView mMapView;
 
-   public LoggerMapTest()
-   {
-      super(PACKAGE, CLASS);
-   }
+    public LoggerMapTest() {
+        super(PACKAGE, CLASS);
+    }
 
-   @Override
-   protected void setUp() throws Exception
-   {
-      super.setUp();
-      this.mLoggermap = getActivity();
-      this.mMapView = (MapView) this.mLoggermap.findViewById(R.id.myMapView);
-      this.mMapView.setSatellite(false);
-   }
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        this.mLoggermap = getActivity();
+        this.mMapView = (MapView) this.mLoggermap.findViewById(R.id.myMapView);
+        this.mMapView.setSatellite(false);
+    }
 
-   protected void tearDown() throws Exception
-   {
-      super.tearDown();
-   }
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 
-   /**
-    * Usecase A: Start logging
-    * <p/>
-    * Start the MapView and start / stop the logging
-    *
-    * @throws InterruptedException
-    */
-   @MediumTest
-   @Suppress
-   public void testStartTracking() throws InterruptedException
-   {
-      GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(this.getInstrumentation().getContext());
-      serviceManager.startup(getActivity(), null);
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
-            .getLoggingState());
+    /**
+     * Usecase A: Start logging
+     * <p/>
+     * Start the MapView and start / stop the logging
+     *
+     * @throws InterruptedException
+     */
+    @MediumTest
+    @Suppress
+    public void testStartTracking() throws InterruptedException {
+        ServiceManager serviceManager = new ServiceManager();
+        serviceManager.startup(getActivity(), null);
+        Assert.assertEquals("The service should not be logging", ServiceConstants.STATE_STOPPED, serviceManager
+                .getLoggingState());
 
-      this.sendKeys("MENU T DPAD_DOWN ENTER");
-      this.sendKeys("T E S T R O U T E ENTER ENTER");
-      Assert.assertTrue("Title contains the current route name", this.mLoggermap.getTitle().toString().contains
-            ("testroute"));
-      Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, serviceManager.getLoggingState());
+        this.sendKeys("MENU T DPAD_DOWN ENTER");
+        this.sendKeys("T E S T R O U T E ENTER ENTER");
+        Assert.assertTrue("Title contains the current route name", this.mLoggermap.getTitle().toString().contains
+                ("testroute"));
+        Assert.assertEquals("The service should be logging", ServiceConstants.STATE_LOGGING, serviceManager.getLoggingState());
 
-      this.sendKeys("MENU T DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_CENTER");
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
-            .getLoggingState());
-      serviceManager.shutdown(getActivity());
-   }
+        this.sendKeys("MENU T DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_DOWN DPAD_CENTER");
+        Assert.assertEquals("The service should not be logging", ServiceConstants.STATE_STOPPED, serviceManager
+                .getLoggingState());
+        serviceManager.shutdown(getActivity());
+    }
 
-   /**
-    * B: Background loging
-    *
-    * @throws Exception
-    */
-   @FlakyTest
-   @MediumTest
-   @Suppress
-   public void testBackgroundTracking() throws Exception
-   {
-      GPSLoggerServiceManager serviceManager = new GPSLoggerServiceManager(this.getInstrumentation().getContext());
-      serviceManager.startup(getActivity(), null);
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
-            .getLoggingState());
+    /**
+     * B: Background loging
+     *
+     * @throws Exception
+     */
+    @FlakyTest
+    @MediumTest
+    @Suppress
+    public void testBackgroundTracking() throws Exception {
+        ServiceManager serviceManager = new ServiceManager();
+        serviceManager.startup(getActivity(), null);
+        Assert.assertEquals("The service should not be logging", ServiceConstants.STATE_STOPPED, serviceManager
+                .getLoggingState());
 
-      serviceManager.startGPSLogging("testBackgroundTracking");
-      Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, serviceManager.getLoggingState());
+        serviceManager.startGPSLogging(getInstrumentation().getContext());
+        Assert.assertEquals("The service should be logging", ServiceConstants.STATE_LOGGING, serviceManager.getLoggingState());
 
-      //this.setUp();
-      Assert.assertEquals("The service should be logging", Constants.STATE_LOGGING, serviceManager.getLoggingState());
+        //this.setUp();
+        Assert.assertEquals("The service should be logging", ServiceConstants.STATE_LOGGING, serviceManager.getLoggingState());
 
-      this.sendKeys("MENU T DPAD_DOWN ENTER");
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
-            .getLoggingState());
+        this.sendKeys("MENU T DPAD_DOWN ENTER");
+        Assert.assertEquals("The service should not be logging", ServiceConstants.STATE_STOPPED, serviceManager
+                .getLoggingState());
 
-      //this.sendKeys( "HOME" );
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
-            .getLoggingState());
-      //this.setUp();
-      Assert.assertEquals("The service should not be logging", Constants.STATE_STOPPED, serviceManager
-            .getLoggingState());
-      serviceManager.stopGPSLogging();
+        //this.sendKeys( "HOME" );
+        Assert.assertEquals("The service should not be logging", ServiceConstants.STATE_STOPPED, serviceManager
+                .getLoggingState());
+        //this.setUp();
+        Assert.assertEquals("The service should not be logging", ServiceConstants.STATE_STOPPED, serviceManager
+                .getLoggingState());
+        serviceManager.stopGPSLogging(getInstrumentation().getContext());
 
-      serviceManager.shutdown(getActivity());
-   }
+        serviceManager.shutdown(getActivity());
+    }
 
-   /**
-    * C: Review route
-    */
-   @MediumTest
-   @Suppress
-   public void testMapKeyControls()
-   {
-      //1. Applicatie starten
-      int startZoomlevel = this.mMapView.getZoomLevel();
+    /**
+     * C: Review route
+     */
+    @MediumTest
+    @Suppress
+    public void testMapKeyControls() {
+        //1. Applicatie starten
+        int startZoomlevel = this.mMapView.getZoomLevel();
 
-      //2. Review map
-      this.sendKeys("T T");
-      Assert.assertEquals("Twice zoomed in", startZoomlevel + 2, this.mMapView.getZoomLevel());
-      this.sendKeys("G G");
-      Assert.assertEquals("Not zoomed in", startZoomlevel, this.mMapView.getZoomLevel());
-      this.sendKeys("S");
-      Assert.assertTrue("In satellite mode", this.mMapView.isSatellite());
-      this.sendKeys("G G");
-      Assert.assertEquals("Twice zoomed out", startZoomlevel - 2, this.mMapView.getZoomLevel());
-      this.sendKeys("T T");
-      Assert.assertEquals("Not zoomed in", startZoomlevel, this.mMapView.getZoomLevel());
-      this.sendKeys("S");
-   }
+        //2. Review map
+        this.sendKeys("T T");
+        Assert.assertEquals("Twice zoomed in", startZoomlevel + 2, this.mMapView.getZoomLevel());
+        this.sendKeys("G G");
+        Assert.assertEquals("Not zoomed in", startZoomlevel, this.mMapView.getZoomLevel());
+        this.sendKeys("S");
+        Assert.assertTrue("In satellite mode", this.mMapView.isSatellite());
+        this.sendKeys("G G");
+        Assert.assertEquals("Twice zoomed out", startZoomlevel - 2, this.mMapView.getZoomLevel());
+        this.sendKeys("T T");
+        Assert.assertEquals("Not zoomed in", startZoomlevel, this.mMapView.getZoomLevel());
+        this.sendKeys("S");
+    }
 
-   /**
-    * Switch orientation during route review
-    */
-   @MediumTest
-   @Suppress
-   public void testOrientationSwitch()
-   {
-      this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    /**
+     * Switch orientation during route review
+     */
+    @MediumTest
+    @Suppress
+    public void testOrientationSwitch() {
+        this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-      // Route historie openen
-      this.sendKeys("MENU L");
+        // Route historie openen
+        this.sendKeys("MENU L");
 
-      // Route uit de historie openen
-      this.sendKeys("DPAD_DOWN DPAD_DOWN DPAD_CENTER");
+        // Route uit de historie openen
+        this.sendKeys("DPAD_DOWN DPAD_DOWN DPAD_CENTER");
 
-      // Review route
-      this.sendKeys("T T");
+        // Review route
+        this.sendKeys("T T");
 
-      // Switch orientation
-      this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        // Switch orientation
+        this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-      this.sendKeys("G G");
+        this.sendKeys("G G");
 
-      // Switch orientation
-      this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-   }
+        // Switch orientation
+        this.mLoggermap.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
 
-   /**
-    * @throws InterruptedException
-    */
-   @LargeTest
-   @Suppress
-   public void testSpeedIncreaseColoring() throws InterruptedException
-   {
-      final int total = 250;
-      final double lat1 = 52.195d;
-      final double lon1 = 5.040d;
-      final double lat2 = 51.882d;
-      final double lon2 = 5.040d;
-      final ContentResolver resolver = this.getActivity().getContentResolver();
+    /**
+     * @throws InterruptedException
+     */
+    @LargeTest
+    @Suppress
+    public void testSpeedIncreaseColoring() throws InterruptedException {
+        final int total = 250;
+        final double lat1 = 52.195d;
+        final double lon1 = 5.040d;
+        final double lat2 = 51.882d;
+        final double lon2 = 5.040d;
+        final ContentResolver resolver = this.getActivity().getContentResolver();
 
-      // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
-      final Uri trackUri = resolver.insert(Tracks.CONTENT_URI, null);
-      final Uri segmentUri = resolver.insert(Uri.withAppendedPath(trackUri, "segments"), null);
-      final Uri waypointUri = Uri.withAppendedPath(segmentUri, "waypoints");
+        // E.g. returns: content://nl.sogeti.android.gpstracker/tracks/2
+        final Uri trackUri = resolver.insert(Tracks.CONTENT_URI, null);
+        final Uri segmentUri = resolver.insert(Uri.withAppendedPath(trackUri, "segments"), null);
+        final Uri waypointUri = Uri.withAppendedPath(segmentUri, "waypoints");
 
-      mLoggermap.runOnUiThread(
-            new Runnable()
-            {
-               public void run()
-               {
-                  Intent newTrack = new Intent(Intent.ACTION_VIEW, trackUri);
-                  mLoggermap.onNewIntent(newTrack);
-               }
-            }
-      );
-      ContentValues wp = new ContentValues();
-      wp.put(Waypoints.ACCURACY, Double.valueOf(1d));
-      wp.put(Waypoints.ALTITUDE, Double.valueOf(5d));
+        mLoggermap.runOnUiThread(
+                new Runnable() {
+                    public void run() {
+                        Intent newTrack = new Intent(Intent.ACTION_VIEW, trackUri);
+                        mLoggermap.onNewIntent(newTrack);
+                    }
+                }
+        );
+        ContentValues wp = new ContentValues();
+        wp.put(Waypoints.ACCURACY, Double.valueOf(1d));
+        wp.put(Waypoints.ALTITUDE, Double.valueOf(5d));
 
-      for (int step = 0; step < total / 2; step++)
-      {
-         Thread.sleep(1750);
-         double latitude = lat1 + ((lat1 - lat2) / total) * step;
-         double longtitude = lon1 + ((lon2 - lon1) / total) * step;
-         wp.put(Waypoints.LATITUDE, Double.valueOf(latitude));
-         wp.put(Waypoints.LONGITUDE, Double.valueOf(longtitude));
-         wp.put(Waypoints.SPEED, Double.valueOf(step / 5d));
-         resolver.insert(waypointUri, wp);
-      }
-   }
+        for (int step = 0; step < total / 2; step++) {
+            Thread.sleep(1750);
+            double latitude = lat1 + ((lat1 - lat2) / total) * step;
+            double longtitude = lon1 + ((lon2 - lon1) / total) * step;
+            wp.put(Waypoints.LATITUDE, Double.valueOf(latitude));
+            wp.put(Waypoints.LONGITUDE, Double.valueOf(longtitude));
+            wp.put(Waypoints.SPEED, Double.valueOf(step / 5d));
+            resolver.insert(waypointUri, wp);
+        }
+    }
 }

@@ -177,7 +177,7 @@
     <string name="search_hint">Ricerca tracce</string>
     <string name="preference_sharing">Parametri condivisione</string>
     <string name="preference_logging">Localizzazione ed GPS</string>
-    <string name="customprecisiontime_title">Intervallo in minuti punto targa</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in seconds</string>
     <string name="customprecisiontime_summary">Intervallo pausa del GPS entro punti.</string>
     <string name="customprecisiondistance_title">Distanza in metri punto targa</string>
     <string name="customprecisiondistance_summary">Distanza da coprire entro punti.</string>
@@ -192,7 +192,7 @@
     <string name="streambroadcast_time_title">Minimum time between broadcasts</string>
     <string name="streambroadcast_time_summary">Number of minutes after which new progress is broadcasted</string>
     <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
-    <string name="streambroadcast_distance_summary">Number of miles or kilometers after which new progress is broadcasted</string>
+    <string name="streambroadcast_distance_summary">Number of meters after which new progress is broadcasted</string>
     <string name="voiceover_title">Stream to audio voice-over</string>
     <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
     <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
@@ -210,4 +210,4 @@
     <!-- ***************************
        About information
        ***************************-->
-    </resources>
+</resources>

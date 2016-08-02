@@ -40,81 +40,71 @@ import nl.sogeti.android.gpstracker.R;
  * @version $Id$
  * @see <a href="http://www.spectrekking.com/download/FixedMyLocationOverlay.java">www.spectrekking.com</a>
  */
-public class FixedMyLocationOverlay extends MyLocationOverlay
-{
-   private boolean bugged = false;
+public class FixedMyLocationOverlay extends MyLocationOverlay {
+    private boolean bugged = false;
 
-   private Paint accuracyPaint;
-   private Point center;
-   private Point left;
-   private Drawable drawable;
-   private int width;
-   private int height;
+    private Paint accuracyPaint;
+    private Point center;
+    private Point left;
+    private Drawable drawable;
+    private int width;
+    private int height;
 
-   public FixedMyLocationOverlay(Context context, MapView mapView)
-   {
-      super(context, mapView);
-   }
+    public FixedMyLocationOverlay(Context context, MapView mapView) {
+        super(context, mapView);
+    }
 
-   @Override
-   protected void drawMyLocation(Canvas canvas, MapView mapView, Location lastFix, GeoPoint myLoc, long when)
-   {
-      if (!bugged)
-      {
-         try
-         {
-            super.drawMyLocation(canvas, mapView, lastFix, myLoc, when);
-         }
-         catch (Exception e)
-         {
-            bugged = true;
-         }
-      }
-
-      if (bugged)
-      {
-         if (drawable == null)
-         {
-            if (accuracyPaint == null)
-            {
-               accuracyPaint = new Paint();
-               accuracyPaint.setAntiAlias(true);
-               accuracyPaint.setStrokeWidth(2.0f);
+    @Override
+    protected void drawMyLocation(Canvas canvas, MapView mapView, Location lastFix, GeoPoint myLoc, long when) {
+        if (!bugged) {
+            try {
+                super.drawMyLocation(canvas, mapView, lastFix, myLoc, when);
+            } catch (Exception e) {
+                bugged = true;
             }
-            drawable = mapView.getContext().getResources().getDrawable(R.drawable.mylocation);
-            width = drawable.getIntrinsicWidth();
-            height = drawable.getIntrinsicHeight();
-            center = new Point();
-            left = new Point();
-         }
-         Projection projection = mapView.getProjection();
+        }
 
-         double latitude = lastFix.getLatitude();
-         double longitude = lastFix.getLongitude();
-         float accuracy = lastFix.getAccuracy();
+        if (bugged) {
+            if (drawable == null) {
+                if (accuracyPaint == null) {
+                    accuracyPaint = new Paint();
+                    accuracyPaint.setAntiAlias(true);
+                    accuracyPaint.setStrokeWidth(2.0f);
+                }
+                drawable = mapView.getContext().getResources().getDrawable(R.drawable.mylocation);
+                width = drawable.getIntrinsicWidth();
+                height = drawable.getIntrinsicHeight();
+                center = new Point();
+                left = new Point();
+            }
+            Projection projection = mapView.getProjection();
 
-         float[] result = new float[1];
+            double latitude = lastFix.getLatitude();
+            double longitude = lastFix.getLongitude();
+            float accuracy = lastFix.getAccuracy();
 
-         Location.distanceBetween(latitude, longitude, latitude, longitude + 1, result);
-         float longitudeLineDistance = result[0];
+            float[] result = new float[1];
 
-         GeoPoint leftGeo = new GeoPoint((int) (latitude * 1e6), (int) ((longitude - accuracy /
-               longitudeLineDistance) * 1e6));
-         projection.toPixels(leftGeo, left);
-         projection.toPixels(myLoc, center);
-         int radius = center.x - left.x;
+            Location.distanceBetween(latitude, longitude, latitude, longitude + 1, result);
+            float longitudeLineDistance = result[0];
 
-         accuracyPaint.setColor(0xff6666ff);
-         accuracyPaint.setStyle(Style.STROKE);
-         canvas.drawCircle(center.x, center.y, radius, accuracyPaint);
+            GeoPoint leftGeo = new GeoPoint((int) (latitude * 1e6), (int) ((longitude - accuracy /
+                    longitudeLineDistance) * 1e6));
+            projection.toPixels(leftGeo, left);
+            projection.toPixels(myLoc, center);
+            int radius = center.x - left.x;
 
-         accuracyPaint.setColor(0x186666ff);
-         accuracyPaint.setStyle(Style.FILL);
-         canvas.drawCircle(center.x, center.y, radius, accuracyPaint);
+            accuracyPaint.setColor(0xff6666ff);
+            accuracyPaint.setStyle(Style.STROKE);
+            canvas.drawCircle(center.x, center.y, radius, accuracyPaint);
 
-         drawable.setBounds(center.x - width / 2, center.y - height / 2, center.x + width / 2, center.y + height / 2);
-         drawable.draw(canvas);
-      }
-   }
+            accuracyPaint.setColor(0x186666ff);
+            accuracyPaint.setStyle(Style.FILL);
+            canvas.drawCircle(center.x, center.y, radius, accuracyPaint);
+
+            drawable.setBounds(center.x - width / 2, center.y - height / 2, center.x + width / 2, center.y + height / 2);
+            drawable.draw(canvas);
+        }
+    }
 
 }

@@ -1,48 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     android:orientation="horizontal"
-    >
+    android:padding="@dimen/alert_dialog_content_margin">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/graphtype_timespeed"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/graphtype_timespeed"/>
+            android:text="@string/graphtype_timespeed" />
 
         <Button
             android:id="@+id/graphtype_distancespeed"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/graphtype_distancespeed"/>
+            android:text="@string/graphtype_distancespeed" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/graphtype_timealtitude"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/graphtype_timealtitude"/>
+            android:text="@string/graphtype_timealtitude" />
 
         <Button
             android:id="@+id/graphtype_distancealtitude"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/graphtype_distancealtitude"/>
+            android:text="@string/graphtype_distancealtitude" />
     </LinearLayout>
 
 

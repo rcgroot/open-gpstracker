@@ -43,70 +43,61 @@ import nl.sogeti.android.gpstracker.viewer.LoggerMap;
  * @author rene (c) Mar 15, 2009, Sogeti B.V.
  * @version $Id$
  */
-public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap> implements PerformanceTestCase
-{
-   private static final Class<LoggerMap> CLASS = LoggerMap.class;
-   private static final String PACKAGE = "nl.sogeti.android.gpstracker";
-   private Intermediates mIntermediates;
+public class LoggerStressTest extends ActivityInstrumentationTestCase2<LoggerMap> implements PerformanceTestCase {
+    private static final Class<LoggerMap> CLASS = LoggerMap.class;
+    private static final String PACKAGE = "nl.sogeti.android.gpstracker";
+    private Intermediates mIntermediates;
 
-   public LoggerStressTest()
-   {
-      super(PACKAGE, CLASS);
-   }
+    public LoggerStressTest() {
+        super(PACKAGE, CLASS);
+    }
 
-   @Override
-   protected void setUp() throws Exception
-   {
-      super.setUp();
-      getActivity();
-   }
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        getActivity();
+    }
 
-   protected void tearDown() throws Exception
-   {
-      super.tearDown();
-   }
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 
-   /**
-    * Just pours a lot of tracking actions at the application
-    *
-    * @throws InterruptedException
-    */
-   @LargeTest
-   public void testLapsAroundUtrecht() throws InterruptedException
-   {
-      // Our data feeder to the emulator
-      MockGPSLoggerDriver service = new MockGPSLoggerDriver(getInstrumentation().getContext(), R.xml
-            .rondjesingelutrecht, 10);
+    /**
+     * Just pours a lot of tracking actions at the application
+     *
+     * @throws InterruptedException
+     */
+    @LargeTest
+    public void testLapsAroundUtrecht() throws InterruptedException {
+        // Our data feeder to the emulator
+        MockGPSLoggerDriver service = new MockGPSLoggerDriver(getInstrumentation().getContext(), R.xml
+                .rondjesingelutrecht, 10);
 
-      this.sendKeys("T T T T");
-      this.sendKeys("MENU DPAD_RIGHT T T E S T R O U T E ENTER");
-      this.sendKeys("ENTER");
+        this.sendKeys("T T T T");
+        this.sendKeys("MENU DPAD_RIGHT T T E S T R O U T E ENTER");
+        this.sendKeys("ENTER");
 
-      // Start method tracing for Issue 18
-      Debug.startMethodTracing("rondjesingelutrecht");
-      if (this.mIntermediates != null)
-      {
-         this.mIntermediates.startTiming(true);
-      }
+        // Start method tracing for Issue 18
+        Debug.startMethodTracing("rondjesingelutrecht");
+        if (this.mIntermediates != null) {
+            this.mIntermediates.startTiming(true);
+        }
 
-      service.run();
+        service.run();
 
-      // Start method tracing for Issue 18
-      if (this.mIntermediates != null)
-      {
-         this.mIntermediates.finishTiming(true);
-      }
-      Debug.stopMethodTracing();
-   }
+        // Start method tracing for Issue 18
+        if (this.mIntermediates != null) {
+            this.mIntermediates.finishTiming(true);
+        }
+        Debug.stopMethodTracing();
+    }
 
-   public int startPerformance(Intermediates intermediates)
-   {
-      this.mIntermediates = intermediates;
-      return 1;
-   }
+    public int startPerformance(Intermediates intermediates) {
+        this.mIntermediates = intermediates;
+        return 1;
+    }
 
-   public boolean isPerformanceOnly()
-   {
-      return true;
-   }
+    public boolean isPerformanceOnly() {
+        return true;
+    }
 }

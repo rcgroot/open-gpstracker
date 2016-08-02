@@ -1,6 +1,6 @@
-<gpx creator="TierraWiki" version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="TierraWiki" version="1.1"
+    xmlns="http://www.topografix.com/GPX/1/1"
+    xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
     <rte>
         <name>rondje singel</name>
         <rtept lat="52.09558" lon="5.118041">

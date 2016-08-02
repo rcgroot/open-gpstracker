@@ -175,7 +175,7 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="search_hint">Поиск треков</string>
     <string name="preference_sharing">Публикация</string>
     <string name="preference_logging">Запись и GPS</string>
-    <string name="customprecisiontime_title">Интервал между точками, минуты</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in seconds</string>
     <string name="customprecisiontime_summary">Интервал времени между точками трека.</string>
     <string name="customprecisiondistance_title">Расстояние между точками, метры</string>
     <string name="customprecisiondistance_summary">Расстояние между точками трека.</string>
@@ -190,7 +190,7 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <string name="streambroadcast_time_title">Минимальное время между обновлениями</string>
     <string name="streambroadcast_time_summary">Количество минут между обновлением положения</string>
     <string name="streambroadcast_distance_title">Минимальное расстояние между обновлениями</string>
-    <string name="streambroadcast_distance_summary">Количество миль или километров между обновлением положения</string>
+    <string name="streambroadcast_distance_summary">Number of meters after which new progress is broadcasted</string>
     <string name="voiceover_title">Влючить аудио сопровождение</string>
     <string name="voiceover_summary">Каждое обновление будет дополнено голосовым сопровождением</string>
     <string name="voiceover_speaking">За последние %1$d минут пройдено %2$d метров</string>
@@ -208,4 +208,4 @@ http://code.google.com/p/open-gpstracker/issues/entry
     <!-- ***************************
        About information
        ***************************-->
-    </resources>
+</resources>

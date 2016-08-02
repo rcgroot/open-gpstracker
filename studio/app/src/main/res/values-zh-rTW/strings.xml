@@ -169,7 +169,7 @@
     <string name="search_hint">搜索路線</string>
     <string name="preference_sharing">分享設定</string>
     <string name="preference_logging">日誌和 GPS 使用設定</string>
-    <string name="customprecisiontime_title">目標陸點的時間間隔，以分鐘計</string>
+    <string name="customprecisiontime_title">Target waypoint time interval in seconds</string>
     <string name="customprecisiontime_summary">在路點之間，GPS 接收器應該休眠的時間。</string>
     <string name="customprecisiondistance_title">目標路點的距離，以米計</string>
     <string name="customprecisiondistance_summary">路點之間應該覆寫的距離。</string>
@@ -184,7 +184,7 @@
     <string name="streambroadcast_time_title">Minimum time between broadcasts</string>
     <string name="streambroadcast_time_summary">Number of minutes after which new progress is broadcasted</string>
     <string name="streambroadcast_distance_title">Minimum distance between broadcasts</string>
-    <string name="streambroadcast_distance_summary">Number of miles or kilometers after which new progress is broadcasted</string>
+    <string name="streambroadcast_distance_summary">Number of meters after which new progress is broadcasted</string>
     <string name="voiceover_title">Stream to audio voice-over</string>
     <string name="voiceover_summary">Each progress broadcast gets a spoken summary</string>
     <string name="voiceover_speaking">In the last %1$d minutes covered a distance of %2$d meter</string>
@@ -202,4 +202,4 @@
     <!-- ***************************
        About information
        ***************************-->
-    </resources>
+</resources>

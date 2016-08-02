@@ -1,40 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    >
+    android:padding="@dimen/alert_dialog_content_margin">
 
     <Button
         android:id="@+id/logcontrol_start"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/logcontrol_start"
-        ></Button>
+        android:text="@string/logcontrol_start" />
 
     <Button
         android:id="@+id/logcontrol_pause"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/logcontrol_pause"
-        ></Button>
+        android:text="@string/logcontrol_pause" />
 
     <Button
         android:id="@+id/logcontrol_resume"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/logcontrol_resume"
-        ></Button>
+        android:text="@string/logcontrol_resume" />
 
     <Button
         android:id="@+id/logcontrol_stop"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/logcontrol_stop"
-        ></Button>
+        android:text="@string/logcontrol_stop" />
+
 </LinearLayout>

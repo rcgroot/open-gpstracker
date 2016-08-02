@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="widget_margin">8dp</dimen>
+    <!-- See: https://www.google.de/design/spec/components/dialogs.html#dialogs-specs -->
+    <dimen name="alert_dialog_content_margin">24dp</dimen>
 </resources>

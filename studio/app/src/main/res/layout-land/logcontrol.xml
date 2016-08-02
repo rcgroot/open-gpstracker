@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="@dimen/alert_dialog_content_margin">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -16,14 +16,14 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:text="@string/logcontrol_start"/>
+            android:text="@string/logcontrol_start" />
 
         <Button
             android:id="@+id/logcontrol_pause"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:text="@string/logcontrol_pause"/>
+            android:text="@string/logcontrol_pause" />
     </LinearLayout>
 
     <LinearLayout
@@ -36,14 +36,14 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:text="@string/logcontrol_stop"/>
+            android:text="@string/logcontrol_stop" />
 
         <Button
             android:id="@+id/logcontrol_resume"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:text="@string/logcontrol_resume"/>
+            android:text="@string/logcontrol_resume" />
     </LinearLayout>
 
 

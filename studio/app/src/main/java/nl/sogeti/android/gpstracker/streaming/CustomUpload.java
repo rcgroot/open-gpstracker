@@ -37,6 +37,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
@@ -46,131 +47,133 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.integration.ServiceConstants;
+import nl.sogeti.android.gpstracker.service.R;
 import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
-import nl.sogeti.android.gpstracker.viewer.ApplicationPreferenceActivity;
+import timber.log.Timber;
 
-public class CustomUpload extends BroadcastReceiver
-{
-   private static final String CUSTOMUPLOAD_BACKLOG_DEFAULT = "20";
-   private static final int NOTIFICATION_ID = R.string.customupload_failed;
-   private static CustomUpload sCustomUpload = null;
-   private static Queue<URL> sRequestBacklog = new LinkedList<URL>();
 
-   public static synchronized void initStreaming(Context ctx)
-   {
-      Log.d(CustomUpload.class, "initStreaming(Context)");
-      if (sCustomUpload != null)
-      {
-         shutdownStreaming(ctx);
-      }
-      sCustomUpload = new CustomUpload();
-      sRequestBacklog = new LinkedList<URL>();
+public class CustomUpload extends BroadcastReceiver {
+    private static final String CUSTOM_UPLOAD_BACKLOG_DEFAULT = "20";
+    private static final int NOTIFICATION_ID = R.string.customupload_failed;
+    private static CustomUpload sCustomUpload = null;
+    private static Queue<URL> sRequestBacklog = new LinkedList<>();
 
-      IntentFilter filter = new IntentFilter(Constants.STREAMBROADCAST);
-      ctx.registerReceiver(sCustomUpload, filter);
-   }
+    public static synchronized void initStreaming(Context ctx) {
+        Timber.d("initStreaming(Context)");
+        if (sCustomUpload != null) {
+            shutdownStreaming(ctx);
+        }
+        sCustomUpload = new CustomUpload();
+        sRequestBacklog = new LinkedList<>();
 
-   public static synchronized void shutdownStreaming(Context ctx)
-   {
-      Log.d(CustomUpload.class, "shutdownStreaming(Context)");
-      if (sCustomUpload != null)
-      {
-         ctx.unregisterReceiver(sCustomUpload);
-         sCustomUpload.onShutdown();
-         sCustomUpload = null;
-      }
-   }
+        IntentFilter filter = new IntentFilter(ServiceConstants.STREAM_BROADCAST);
+        ctx.registerReceiver(sCustomUpload, filter);
+    }
 
-   private void onShutdown()
-   {
-      Log.d(this, "onShutdown()");
-   }
+    public static synchronized void shutdownStreaming(Context ctx) {
+        Timber.d("shutdownStreaming(Context)");
+        if (sCustomUpload != null) {
+            ctx.unregisterReceiver(sCustomUpload);
+            sCustomUpload.onShutdown();
+            sCustomUpload = null;
+        }
+    }
 
-   @Override
-   public void onReceive(Context context, Intent intent)
-   {
-      Log.d(this, "onReceive(Context, Intent)");
-      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-      String prefUrl = preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_URL, "http://www.example.com");
-      Integer prefBacklog = Integer.valueOf(preferences.getString(ApplicationPreferenceActivity.CUSTOMUPLOAD_BACKLOG,
-            CUSTOMUPLOAD_BACKLOG_DEFAULT));
-      Location loc = intent.getParcelableExtra(Constants.EXTRA_LOCATION);
-      Uri trackUri = intent.getParcelableExtra(Constants.EXTRA_TRACK);
-      String buildUrl = prefUrl;
-      buildUrl = buildUrl.replace("@LAT@", Double.toString(loc.getLatitude()));
-      buildUrl = buildUrl.replace("@LON@", Double.toString(loc.getLongitude()));
-      buildUrl = buildUrl.replace("@ID@", trackUri.getLastPathSegment());
-      buildUrl = buildUrl.replace("@TIME@", Long.toString(loc.getTime()));
-      buildUrl = buildUrl.replace("@SPEED@", Float.toString(loc.getSpeed()));
-      buildUrl = buildUrl.replace("@ACC@", Float.toString(loc.getAccuracy()));
-      buildUrl = buildUrl.replace("@ALT@", Double.toString(loc.getAltitude()));
-      buildUrl = buildUrl.replace("@BEAR@", Float.toString(loc.getBearing()));
+    private void onShutdown() {
+        Timber.d("onShutdown()");
+    }
 
-      URL uploadUri;
-      try
-      {
-         uploadUri = new URL(buildUrl);
-         if (uploadUri.getHost() != null && ("http".equals(uploadUri.getProtocol()) || "https".equals(uploadUri
-               .getProtocol())))
-         {
-            sRequestBacklog.add(uploadUri);
-         }
-         else
-         {
-            Log.e(this, "URL does not have correct scheme or host " + uploadUri);
-         }
-         if (sRequestBacklog.size() > prefBacklog)
-         {
-            sRequestBacklog.poll();
-         }
-         while (!sRequestBacklog.isEmpty())
-         {
-            URL request = sRequestBacklog.peek();
-            HttpURLConnection connection = (HttpURLConnection) request.openConnection();
-            sRequestBacklog.poll();
-            connection.connect();
-            int status = connection.getResponseCode();
-            if (status != 200)
-            {
-               throw new IOException("Invalid response from server: " + status);
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Timber.d("onReceive(Context, Intent)");
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String prefUrl = preferences.getString(Constants.CUSTOMUPLOAD_URL, "http://www.example.com");
+        Integer prefBacklog = Integer.valueOf(preferences.getString(Constants.CUSTOMUPLOAD_BACKLOG,
+                CUSTOM_UPLOAD_BACKLOG_DEFAULT));
+        Location loc = intent.getParcelableExtra(ServiceConstants.EXTRA_LOCATION);
+        Uri trackUri = intent.getParcelableExtra(ServiceConstants.EXTRA_TRACK);
+        String buildUrl = prefUrl;
+        buildUrl = buildUrl.replace("@LAT@", Double.toString(loc.getLatitude()));
+        buildUrl = buildUrl.replace("@LON@", Double.toString(loc.getLongitude()));
+        buildUrl = buildUrl.replace("@ID@", trackUri.getLastPathSegment());
+        buildUrl = buildUrl.replace("@TIME@", Long.toString(loc.getTime()));
+        buildUrl = buildUrl.replace("@SPEED@", Float.toString(loc.getSpeed()));
+        buildUrl = buildUrl.replace("@ACC@", Float.toString(loc.getAccuracy()));
+        buildUrl = buildUrl.replace("@ALT@", Double.toString(loc.getAltitude()));
+        buildUrl = buildUrl.replace("@BEAR@", Float.toString(loc.getBearing()));
+
+        URL uploadUri;
+        try {
+            uploadUri = new URL(buildUrl);
+            if (uploadUri.getHost() != null && ("http".equals(uploadUri.getProtocol()) || "https".equals(uploadUri
+                    .getProtocol()))) {
+                sRequestBacklog.add(uploadUri);
+            } else {
+                Timber.e("URL does not have correct scheme or host %s", uploadUri);
             }
-            clearNotification(context);
-         }
-      }
-      catch (IOException e)
-      {
-         notifyError(context, e);
-      }
-   }
+            if (sRequestBacklog.size() > prefBacklog) {
+                sRequestBacklog.poll();
+            }
+            new Uploader(context).execute();
+        } catch (IOException e) {
+            notifyError(context, e);
+        }
+    }
 
-   private void clearNotification(Context context)
-   {
-      NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
-            .NOTIFICATION_SERVICE);
-      notificationManager.cancel(NOTIFICATION_ID);
-   }
+    private static void clearNotification(Context context) {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
+                .NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIFICATION_ID);
+    }
 
-   private void notifyError(Context context, Exception e)
-   {
-      Log.e(this, "Custom upload failed", e);
-      NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
-            .NOTIFICATION_SERVICE);
+    private static void notifyError(Context context, Exception e) {
+        Timber.e(e, "Custom upload failed");
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context
+                .NOTIFICATION_SERVICE);
 
-      int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence tickerText = context.getText(R.string.customupload_failed);
-      Intent notificationIntent = new Intent(context, CustomUpload.class);
-      PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-      NotificationCompat.Builder builder =
-            new NotificationCompat.Builder(context)
-                  .setSmallIcon(icon)
-                  .setContentTitle(tickerText)
-                  .setContentText(e.getMessage())
-                  .setContentIntent(contentIntent)
-                  .setAutoCancel(true);
+        int icon = R.drawable.ic_maps_indicator_current_position;
+        CharSequence tickerText = context.getText(R.string.customupload_failed);
+        Intent notificationIntent = new Intent(context, CustomUpload.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(icon)
+                        .setContentTitle(tickerText)
+                        .setContentText(e.getMessage())
+                        .setContentIntent(contentIntent)
+                        .setAutoCancel(true);
 
-      notificationManager.notify(NOTIFICATION_ID, builder.build());
-   }
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
 
+    static class Uploader extends AsyncTask<Void, Void, Void> {
+
+        private final Context mContext;
+
+        Uploader(Context ctx) {
+            this.mContext = ctx;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                while (!sRequestBacklog.isEmpty()) {
+                    URL request = sRequestBacklog.peek();
+                    HttpURLConnection connection = (HttpURLConnection) request.openConnection();
+                    sRequestBacklog.poll();
+                    connection.connect();
+                    int status = connection.getResponseCode();
+                    if (status != 200) {
+                        throw new IOException("Invalid response from server: " + status);
+                    }
+                    clearNotification(mContext);
+                }
+            } catch (IOException e) {
+                notifyError(mContext, e);
+            }
+
+            return null;
+        }
+    }
 }

@@ -32,40 +32,29 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import nl.sogeti.android.gpstracker.util.Constants;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.settings.Helper;
+import timber.log.Timber;
 
-public class StreamUtils
-{
-   /**
-    * Initialize all appropriate stream listeners
-    *
-    * @param ctx
-    */
-   public static void initStreams(final Context ctx)
-   {
-      Log.d(StreamUtils.class, "initStreams(Context)");
-      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ctx);
-      boolean streams_enabled = sharedPreferences.getBoolean(Constants.BROADCAST_STREAM, false);
-      if (streams_enabled && sharedPreferences.getBoolean("VOICEOVER_ENABLED", false))
-      {
-         VoiceOver.initStreaming(ctx);
-      }
-      if (streams_enabled && sharedPreferences.getBoolean("CUSTOMUPLOAD_ENABLED", false))
-      {
-         CustomUpload.initStreaming(ctx);
-      }
-   }
 
-   /**
-    * Shutdown all stream listeners
-    *
-    * @param ctx
-    */
-   public static void shutdownStreams(Context ctx)
-   {
-      Log.d(StreamUtils.class, "shutdownStreams(Context)");
-      VoiceOver.shutdownStreaming(ctx);
-      CustomUpload.shutdownStreaming(ctx);
-   }
+public class StreamUtils {
+    /**
+     * Initialize all appropriate stream listeners
+     *
+     * @param ctx
+     */
+    public static void initStreams(final Context ctx) {
+        Timber.d("initStreams(Context)");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ctx);
+        boolean streams_enabled = sharedPreferences.getBoolean(Helper.BROADCAST_STREAM, false);
+        if (streams_enabled && sharedPreferences.getBoolean("VOICEOVER_ENABLED", false)) {
+            VoiceOver.initStreaming(ctx);
+        } else {
+            VoiceOver.shutdownStreaming(ctx);
+        }
+        if (streams_enabled && sharedPreferences.getBoolean("CUSTOMUPLOAD_ENABLED", false)) {
+            CustomUpload.initStreaming(ctx);
+        } else {
+            CustomUpload.shutdownStreaming(ctx);
+        }
+    }
 }

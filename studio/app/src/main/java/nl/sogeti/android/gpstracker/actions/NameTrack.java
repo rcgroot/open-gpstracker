@@ -50,8 +50,8 @@ import android.widget.EditText;
 import java.util.Calendar;
 
 import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.db.GPStracking.Tracks;
-import nl.sogeti.android.gpstracker.util.Log;
+import nl.sogeti.android.gpstracker.integration.ContentConstants.Tracks;
+import timber.log.Timber;
 
 /**
  * Empty Activity that pops up the dialog to name the track
@@ -59,165 +59,153 @@ import nl.sogeti.android.gpstracker.util.Log;
  * @author rene (c) Jul 27, 2010, Sogeti B.V.
  * @version $Id$
  */
-public class NameTrack extends AppCompatActivity
-{
-   private static final int DIALOG_TRACKNAME = 23;
-   Uri mTrackUri;
-   private EditText mTrackNameView;
-   private final DialogInterface.OnClickListener mTrackNameDialogListener = new DialogInterface.OnClickListener()
-   {
-      @Override
-      public void onClick(DialogInterface dialog, int which)
-      {
-         String trackName = null;
-         switch (which)
-         {
-            case DialogInterface.BUTTON_POSITIVE:
-               trackName = mTrackNameView.getText().toString();
-               ContentValues values = new ContentValues();
-               values.put(Tracks.NAME, trackName);
-               getContentResolver().update(mTrackUri, values, null, null);
-               clearNotification();
-               break;
-            case DialogInterface.BUTTON_NEUTRAL:
-               startDelayNotification();
-               break;
-            case DialogInterface.BUTTON_NEGATIVE:
-               clearNotification();
-               break;
+public class NameTrack extends AppCompatActivity {
+    private static final int DIALOG_TRACKNAME = 23;
+    Uri mTrackUri;
+    private EditText mTrackNameView;
+    private final DialogInterface.OnClickListener mTrackNameDialogListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            String trackName = null;
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    trackName = mTrackNameView.getText().toString();
+                    ContentValues values = new ContentValues();
+                    values.put(Tracks.NAME, trackName);
+                    getContentResolver().update(mTrackUri, values, null, null);
+                    clearNotification();
+                    break;
+                case DialogInterface.BUTTON_NEUTRAL:
+                    startDelayNotification();
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    clearNotification();
+                    break;
+                default:
+                    Timber.e("Unknown option ending dialog:" + which);
+                    break;
+            }
+            finish();
+        }
+
+
+    };
+    private boolean paused;
+
+    private void clearNotification() {
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context
+                .NOTIFICATION_SERVICE);
+        notificationManager.cancel(R.layout.namedialog);
+    }
+
+    private void startDelayNotification() {
+        int resId = R.string.dialog_routename_title;
+        int icon = R.drawable.ic_maps_indicator_current_position;
+        CharSequence contentTitle = getResources().getString(R.string.app_name);
+        CharSequence contentText = getResources().getString(resId);
+        Intent notificationIntent = new Intent(this, NameTrack.class);
+        notificationIntent.setData(mTrackUri);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(icon)
+                        .setContentTitle(contentTitle)
+                        .setContentText(contentText)
+                        .setContentIntent(contentIntent)
+                        .setOngoing(true);
+
+
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context
+                .NOTIFICATION_SERVICE);
+        notificationManager.notify(R.layout.namedialog, builder.build());
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.setVisible(false);
+        paused = false;
+        mTrackUri = this.getIntent().getData();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.google.android.maps.MapActivity#onPause()
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mTrackUri != null) {
+            showDialog(DIALOG_TRACKNAME);
+        } else {
+            Timber.e("Naming track without a track URI supplied.");
+            finish();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        paused = true;
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog = null;
+        LayoutInflater factory = null;
+        View view = null;
+        Builder builder = null;
+        switch (id) {
+            case DIALOG_TRACKNAME:
+                builder = new AlertDialog.Builder(this);
+                factory = LayoutInflater.from(this);
+                view = factory.inflate(R.layout.namedialog, (ViewGroup) findViewById(android.R.id.content), false);
+                mTrackNameView = (EditText) view.findViewById(R.id.nameField);
+                builder
+                        .setTitle(R.string.dialog_routename_title)
+                        .setMessage(R.string.dialog_routename_message)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(R.string.btn_okay, mTrackNameDialogListener)
+                        .setNeutralButton(R.string.btn_skip, mTrackNameDialogListener)
+                        .setNegativeButton(R.string.btn_cancel, mTrackNameDialogListener)
+                        .setView(view);
+                dialog = builder.create();
+                dialog.setOnDismissListener(new OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        if (!paused) {
+                            finish();
+                        }
+                    }
+                });
+                return dialog;
             default:
-               Log.e(this, "Unknown option ending dialog:" + which);
-               break;
-         }
-         finish();
-      }
+                return super.onCreateDialog(id);
+        }
+    }
 
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case DIALOG_TRACKNAME:
+                String trackName;
+                trackName = createDefaultTrackName(this);
+                mTrackNameView.setText(trackName);
+                mTrackNameView.setSelection(0, trackName.length());
+                break;
+            default:
+                super.onPrepareDialog(id, dialog);
+                break;
+        }
+    }
 
-   };
-   private boolean paused;
+    public static String createDefaultTrackName(Context ctx) {
+        String trackName;
+        Calendar c = Calendar.getInstance();
+        trackName = String.format(ctx.getString(R.string.dialog_routename_default), c, c, c, c, c);
 
-   private void clearNotification()
-   {
-      NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context
-            .NOTIFICATION_SERVICE);
-      notificationManager.cancel(R.layout.namedialog);
-   }
-
-   private void startDelayNotification()
-   {
-      int resId = R.string.dialog_routename_title;
-      int icon = R.drawable.ic_maps_indicator_current_position;
-      CharSequence contentTitle = getResources().getString(R.string.app_name);
-      CharSequence contentText = getResources().getString(resId);
-      Intent notificationIntent = new Intent(this, NameTrack.class);
-      notificationIntent.setData(mTrackUri);
-      PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-      NotificationCompat.Builder builder =
-            new NotificationCompat.Builder(this)
-                  .setSmallIcon(icon)
-                  .setContentTitle(contentTitle)
-                  .setContentText(contentText)
-                  .setContentIntent(contentIntent)
-                  .setOngoing(true);
-
-
-      NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context
-            .NOTIFICATION_SERVICE);
-      notificationManager.notify(R.layout.namedialog, builder.build());
-   }
-
-   @Override
-   protected void onCreate(Bundle savedInstanceState)
-   {
-      super.onCreate(savedInstanceState);
-      this.setVisible(false);
-      paused = false;
-      mTrackUri = this.getIntent().getData();
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see com.google.android.maps.MapActivity#onPause()
-    */
-   @Override
-   protected void onResume()
-   {
-      super.onResume();
-      if (mTrackUri != null)
-      {
-         showDialog(DIALOG_TRACKNAME);
-      }
-      else
-      {
-         Log.e(this, "Naming track without a track URI supplied.");
-         finish();
-      }
-   }
-
-   @Override
-   protected void onPause()
-   {
-      super.onPause();
-      paused = true;
-   }
-
-   @Override
-   protected Dialog onCreateDialog(int id)
-   {
-      Dialog dialog = null;
-      LayoutInflater factory = null;
-      View view = null;
-      Builder builder = null;
-      switch (id)
-      {
-         case DIALOG_TRACKNAME:
-            builder = new AlertDialog.Builder(this);
-            factory = LayoutInflater.from(this);
-            view = factory.inflate(R.layout.namedialog, (ViewGroup) findViewById(android.R.id.content), false);
-            mTrackNameView = (EditText) view.findViewById(R.id.nameField);
-            builder
-                  .setTitle(R.string.dialog_routename_title)
-                  .setMessage(R.string.dialog_routename_message)
-                  .setIcon(android.R.drawable.ic_dialog_alert)
-                  .setPositiveButton(R.string.btn_okay, mTrackNameDialogListener)
-                  .setNeutralButton(R.string.btn_skip, mTrackNameDialogListener)
-                  .setNegativeButton(R.string.btn_cancel, mTrackNameDialogListener)
-                  .setView(view);
-            dialog = builder.create();
-            dialog.setOnDismissListener(new OnDismissListener()
-            {
-               @Override
-               public void onDismiss(DialogInterface dialog)
-               {
-                  if (!paused)
-                  {
-                     finish();
-                  }
-               }
-            });
-            return dialog;
-         default:
-            return super.onCreateDialog(id);
-      }
-   }
-
-   @Override
-   protected void onPrepareDialog(int id, Dialog dialog)
-   {
-      switch (id)
-      {
-         case DIALOG_TRACKNAME:
-            String trackName;
-            Calendar c = Calendar.getInstance();
-            trackName = String.format(getString(R.string.dialog_routename_default), c, c, c, c, c);
-            mTrackNameView.setText(trackName);
-            mTrackNameView.setSelection(0, trackName.length());
-            break;
-         default:
-            super.onPrepareDialog(id, dialog);
-            break;
-      }
-   }
+        return trackName;
+    }
 }
    

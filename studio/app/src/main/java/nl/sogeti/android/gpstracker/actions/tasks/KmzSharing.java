@@ -41,19 +41,16 @@ import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
  * @author rene (c) Jul 9, 2011, Sogeti B.V.
  * @version $Id:$
  */
-public class KmzSharing extends KmzCreator
-{
+public class KmzSharing extends KmzCreator {
 
-   public KmzSharing(Context context, Uri trackUri, String chosenFileName, ProgressListener listener)
-   {
-      super(context, trackUri, chosenFileName, listener);
-   }
+    public KmzSharing(Context context, Uri trackUri, String chosenFileName, ProgressListener listener) {
+        super(context, trackUri, chosenFileName, listener);
+    }
 
-   @Override
-   protected void onPostExecute(Uri resultFilename)
-   {
-      super.onPostExecute(resultFilename);
-      ShareTrack.sendFile(mContext, resultFilename, getContentType(), mContext.getString(R.string.email_kmzbody));
-   }
+    @Override
+    protected void onPostExecute(Uri resultFilename) {
+        super.onPostExecute(resultFilename);
+        ShareTrack.sendFile(mContext, resultFilename, getContentType(), mContext.getString(R.string.email_kmzbody));
+    }
 
 }

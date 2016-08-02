@@ -177,7 +177,7 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="search_hint">Zoek routes</string>
     <string name="preference_sharing">Delen instellingen</string>
     <string name="preference_logging">Loggen en GPS</string>
-    <string name="customprecisiontime_title">Doel tijdsinterval in minuten</string>
+    <string name="customprecisiontime_title">Doel tijdsinterval in seconden</string>
     <string name="customprecisiontime_summary">De tijd die de GPS ontvangen kan slapen tussen opname punten.</string>
     <string name="customprecisiondistance_title">Doel afstandsinterval in meters</string>
     <string name="customprecisiondistance_summary">De afstand die tussen opname punten past.</string>
@@ -192,7 +192,7 @@ or PayPal donation are appreciated at rcgroot@gmail.com
     <string name="streambroadcast_time_title">Minimale tijd tussen verzendingen</string>
     <string name="streambroadcast_time_summary">Het aantal minuten na wanneer een verzending gedaan wordt</string>
     <string name="streambroadcast_distance_title">Minimale afstand tussen verzendingen</string>
-    <string name="streambroadcast_distance_summary">Het aantal afgelegde mijlen of kilometers na wanneer een verzending gedaan wordt</string>
+    <string name="streambroadcast_distance_summary">Het aantal afgelegde meters na wanneer een verzending gedaan wordt</string>
     <string name="voiceover_title">Verstuur naar audio voice-over</string>
     <string name="voiceover_summary">Elke locatie publicatie krijgt een gesproken samenvatting</string>
     <string name="voiceover_speaking">In de laatste %1$d minuten is een afstand van %2$d meter afgelegd</string>
@@ -210,4 +210,4 @@ In this URL the placeholders @LAT@ @LON@ and @ID@ are replaced with actual infor
     <!-- ***************************
        About information
        ***************************-->
-    </resources>
+</resources>

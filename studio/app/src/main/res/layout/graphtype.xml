@@ -1,36 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    >
+    android:padding="@dimen/alert_dialog_content_margin">
 
     <Button
         android:id="@+id/graphtype_timespeed"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/graphtype_timespeed"
-        ></Button>
+        android:text="@string/graphtype_timespeed" />
 
     <Button
         android:id="@+id/graphtype_distancespeed"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/graphtype_distancespeed"
-        ></Button>
+        android:text="@string/graphtype_distancespeed" />
 
     <Button
         android:id="@+id/graphtype_timealtitude"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/graphtype_timealtitude"
-        ></Button>
+        android:text="@string/graphtype_timealtitude" />
 
     <Button
         android:id="@+id/graphtype_distancealtitude"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/graphtype_distancealtitude"
-        ></Button>
+        android:text="@string/graphtype_distancealtitude" />
+
 </LinearLayout>

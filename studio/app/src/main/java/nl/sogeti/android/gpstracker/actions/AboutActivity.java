@@ -47,79 +47,65 @@ import nl.sogeti.android.gpstracker.R;
 import static nl.sogeti.android.gpstracker.BuildConfig.BUILD_NUMBER;
 import static nl.sogeti.android.gpstracker.BuildConfig.GIT_COMMIT;
 
-public class AboutActivity extends AppCompatActivity
-{
+public class AboutActivity extends AppCompatActivity {
 
-   public static final String DIALOG = "fragment_about_dialog";
+    public static final String DIALOG = "fragment_about_dialog";
 
-   @Override
-   protected void onResume()
-   {
-      super.onResume();
-      FragmentManager fm = getSupportFragmentManager();
-      AboutDialogFragment aboutDialog = (AboutDialogFragment) fm.findFragmentByTag(DIALOG);
-      if (aboutDialog == null)
-      {
-         aboutDialog = new AboutDialogFragment();
-         aboutDialog.setListener(this);
-         aboutDialog.show(fm, DIALOG);
-      }
-   }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        FragmentManager fm = getSupportFragmentManager();
+        AboutDialogFragment aboutDialog = (AboutDialogFragment) fm.findFragmentByTag(DIALOG);
+        if (aboutDialog == null) {
+            aboutDialog = new AboutDialogFragment();
+            aboutDialog.setListener(this);
+            aboutDialog.show(fm, DIALOG);
+        }
+    }
 
-   public void onDismiss(AboutDialogFragment aboutDialogFragment)
-   {
-      finish();
-   }
+    public void onDismiss(AboutDialogFragment aboutDialogFragment) {
+        finish();
+    }
 
-   public static class AboutDialogFragment extends AppCompatDialogFragment
-   {
-      AboutActivity listener;
+    public static class AboutDialogFragment extends AppCompatDialogFragment {
+        AboutActivity listener;
 
-      public void setListener(AboutActivity listener)
-      {
-         this.listener = listener;
-      }
+        public void setListener(AboutActivity listener) {
+            this.listener = listener;
+        }
 
-      @Nullable
-      @Override
-      public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-      {
-         getDialog().setTitle(R.string.menu_about);
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            getDialog().setTitle(R.string.menu_about);
 
-         View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_about, container, false);
-         Button button = (Button) view.findViewById(R.id.button_ok);
-         button.setOnClickListener(new View.OnClickListener()
-         {
-            @Override
-            public void onClick(View v)
-            {
-               dismiss();
+            View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_about, container, false);
+            Button button = (Button) view.findViewById(R.id.button_ok);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                }
+            });
+            WebView webView = (WebView) view.findViewById(R.id.fragment_about_webview);
+            webView.loadUrl("file:///android_asset/about.html");
+            TextView version = (TextView) view.findViewById(R.id.fragment_about_version);
+            if (BUILD_NUMBER > 0) {
+                String shortHash = GIT_COMMIT.substring(0, Math.min(GIT_COMMIT.length(), 7));
+                version.setText(String.format("Version %s build %d", shortHash, BUILD_NUMBER));
+            } else {
+                version.setText(String.format("Version %s", BuildConfig.VERSION_NAME));
             }
-         });
-         WebView webView = (WebView) view.findViewById(R.id.fragment_about_webview);
-         webView.loadUrl("file:///android_asset/about.html");
-         TextView version = (TextView) view.findViewById(R.id.fragment_about_version);
-         if (BUILD_NUMBER > 0)
-         {
-            String shortHash = GIT_COMMIT.substring(0, Math.min(GIT_COMMIT.length(), 7));
-            version.setText(String.format("Version %s build %d", shortHash, BUILD_NUMBER));
-         }
-         else
-         {
-            version.setText(String.format("Version %s", BuildConfig.VERSION_NAME));
-         }
 
-         return view;
-      }
+            return view;
+        }
 
-      @Override
-      public void onDismiss(DialogInterface dialog)
-      {
-         super.onDismiss(dialog);
-         if (listener != null)
-         {
-            listener.onDismiss(this);
-         }
-      }
-   }
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            super.onDismiss(dialog);
+            if (listener != null) {
+                listener.onDismiss(this);
+            }
+        }
+    }
 }

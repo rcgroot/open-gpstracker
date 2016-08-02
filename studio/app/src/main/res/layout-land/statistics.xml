@@ -1,87 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <include layout="@layout/toolbar"/>
+    <include layout="@layout/toolbar" />
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
 
         <TableLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="left"
-            >
+            android:gravity="left">
 
             <TableRow
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:paddingRight="10dp"
-                    android:text="@string/stat_distance"/>
+                    android:text="@string/stat_distance" />
 
                 <TextView
-                    android:id="@+id/stat_distance"/>
+                    android:id="@+id/stat_distance"
+                    tools:text="2.72 km" />
             </TableRow>
 
             <TableRow
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:paddingRight="10dp"
-                    android:text="@string/stat_overallaveragespeed"/>
+                    android:text="@string/stat_overallaveragespeed" />
 
                 <TextView
-                    android:id="@+id/stat_overallaveragespeed"/>
+                    android:id="@+id/stat_overallaveragespeed"
+                    tools:text="3.27 km/h" />
             </TableRow>
 
             <TableRow
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:paddingRight="10dp"
-                    android:text="@string/stat_averagespeed"/>
+                    android:text="@string/stat_averagespeed" />
 
                 <TextView
-                    android:id="@+id/stat_averagespeed"/>
+                    android:id="@+id/stat_averagespeed"
+                    tools:text="3.27 km/h" />
             </TableRow>
 
             <TableRow
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:paddingRight="10dp"
-                    android:text="@string/stat_maximumspeed"/>
+                    android:text="@string/stat_maximumspeed" />
 
                 <TextView
-                    android:id="@+id/stat_maximumspeed"/>
+                    android:id="@+id/stat_maximumspeed"
+                    tools:text="22.50 km/h" />
             </TableRow>
 
             <TableRow
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:paddingRight="10dp"
-                    android:text="@string/stat_waypoints"/>
+                    android:text="@string/stat_waypoints" />
 
                 <TextView
-                    android:id="@+id/stat_waypoints"/>
+                    android:id="@+id/stat_waypoints"
+                    tools:text="269" />
             </TableRow>
         </TableLayout>
 
@@ -89,33 +87,32 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:paddingLeft="10dp"
-            >
+            android:paddingLeft="10dp">
 
             <TableRow
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:paddingRight="10dp"
-                    android:text="@string/stat_starttime"/>
+                    android:text="@string/stat_starttime" />
 
                 <nl.sogeti.android.gpstracker.util.DateView
-                    android:id="@+id/stat_starttime"/>
+                    android:id="@+id/stat_starttime"
+                    tools:text="15:10 February 29, 2016" />
             </TableRow>
 
             <TableRow
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:paddingRight="10dp"
-                    android:text="@string/stat_endtime"/>
+                    android:text="@string/stat_endtime" />
 
                 <nl.sogeti.android.gpstracker.util.DateView
-                    android:id="@+id/stat_endtime"/>
+                    android:id="@+id/stat_endtime"
+                    tools:text="16:00 February 29, 2016" />
             </TableRow>
             <!--          <TableRow -->
             <!--             android:layout_width="wrap_content" -->
@@ -139,28 +136,28 @@
             <!--          </TableRow> -->
             <TableRow
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:paddingRight="10dp"
-                    android:text="@string/stat_elapsedtime"/>
+                    android:text="@string/stat_elapsedtime" />
 
                 <TextView
-                    android:id="@+id/stat_elapsedtime"/>
+                    android:id="@+id/stat_elapsedtime"
+                    tools:text="0h:49m:54s" />
             </TableRow>
 
             <TableRow
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:paddingRight="10dp"
-                    android:text="@string/stat_ascension"/>
+                    android:text="@string/stat_ascension" />
 
                 <TextView
-                    android:id="@+id/stat_ascension"/>
+                    android:id="@+id/stat_ascension"
+                    tools:text="20 meter" />
             </TableRow>
 
         </TableLayout>
@@ -176,22 +173,22 @@
         <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
             android:id="@+id/graph_timespeed"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
             android:id="@+id/graph_distancespeed"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
             android:id="@+id/graph_timealtitude"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <nl.sogeti.android.gpstracker.actions.utils.GraphCanvas
             android:id="@+id/graph_distancealtitude"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
     </nl.sogeti.android.gpstracker.actions.utils.ViewFlipper>
 

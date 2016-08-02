@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    android:id="@+id/mapScreen"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mapScreen"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
@@ -13,7 +14,7 @@
         android:apiKey="0bmdf4-ggC50QWBY1OgGRutQ9bIboIy11OczZbw"
         android:clickable="true"
         android:enabled="true"
-        android:visibility="visible"/>
+        android:visibility="visible" />
 
     <TextView
         android:id="@+id/currentSpeed"
@@ -25,7 +26,7 @@
         android:textColor="#ff000000"
         android:textSize="12pt"
         android:textStyle="bold"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/currentAltitude"
@@ -36,7 +37,7 @@
         android:textColor="#ff000000"
         android:textSize="12pt"
         android:textStyle="bold"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/currentDistance"
@@ -47,7 +48,7 @@
         android:textColor="#ff000000"
         android:textSize="12pt"
         android:textStyle="bold"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/speedview00"
@@ -59,7 +60,9 @@
         android:layout_marginTop="5dp"
         android:background="#80aaaaaa"
         android:textColor="#000000"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        tools:text="22km/h"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/speedview01"
@@ -71,7 +74,9 @@
         android:layout_marginTop="45dp"
         android:background="#80aaaaaa"
         android:textColor="#000000"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        tools:text="17 km/h"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/speedview02"
@@ -84,7 +89,8 @@
         android:background="#80aaaaaa"
         android:textColor="#ff000000"
         android:visibility="invisible"
-        />
+        tools:text="13 km/h"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/speedview03"
@@ -96,7 +102,9 @@
         android:layout_marginTop="150dp"
         android:background="#80aaaaaa"
         android:textColor="#ff000000"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        tools:text="9 km/h"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/speedview04"
@@ -108,7 +116,9 @@
         android:layout_marginTop="200dp"
         android:background="#80aaaaaa"
         android:textColor="#ff000000"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        tools:text="4 km/h"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/speedview05"
@@ -120,7 +130,9 @@
         android:layout_marginTop="250dp"
         android:background="#80aaaaaa"
         android:textColor="#ff000000"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        tools:text="0 km/h"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/speedbar"
@@ -131,9 +143,10 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
         android:src="@drawable/speedindexbar"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
-    <include layout="@layout/toolbar"/>
+    <include layout="@layout/toolbar" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/tracking_control"
@@ -142,6 +155,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_navigation_24dp"/>
+        android:src="@drawable/ic_navigation_24dp" />
 
 </RelativeLayout>

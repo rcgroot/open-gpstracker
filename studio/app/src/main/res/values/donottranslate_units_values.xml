@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <item name="conversion_from_mps" format="float" type="raw">3.6</item>
     <item name="conversion_from_meter" format="float" type="raw">0.001</item>
     <item name="conversion_from_meter_to_height" format="float" type="raw">1.0</item>
