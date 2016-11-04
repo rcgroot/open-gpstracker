@@ -1,11 +1,11 @@
 ext {
     // Building
-    gradlePluginVersion = '2.1.2'
-    buildToolsVersion = "24.0.0"
-    compileSdkVersion = "Google Inc.:Google APIs:23"
+    gradlePluginVersion = '2.2.2'
+    buildToolsVersion = "25.0.0"
+    compileSdkVersion = "Google Inc.:Google APIs:24"
 
     // App support
-    supportLibraryVersion = '23.4.0'
+    supportLibraryVersion = '24.2.1'
     timberVersion = '4.1.2'
 
     // Testing
