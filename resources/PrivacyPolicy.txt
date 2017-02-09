@@ -1,0 +1,2 @@
+This app does not share personal information unless intended or allowed by the user. Nor does it store any information other then for the function of the app.
+
