@@ -117,7 +117,7 @@ public class LoggerMapTest extends ActivityInstrumentationTestCase2<LoggerMap> {
         Assert.assertEquals("The service should not be logging", ServiceConstants.STATE_STOPPED, serviceManager
                 .getLoggingState());
 
-        serviceManager.startGPSLogging(getInstrumentation().getContext());
+        serviceManager.startGPSLogging(getInstrumentation().getContext(), "defaultName");
         Assert.assertEquals("The service should be logging", ServiceConstants.STATE_LOGGING, serviceManager.getLoggingState());
 
         //this.setUp();

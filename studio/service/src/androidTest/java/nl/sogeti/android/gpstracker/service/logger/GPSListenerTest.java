@@ -44,7 +44,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import junit.framework.Assert;
 
 import nl.sogeti.android.gpstracker.integration.ContentConstants;
-import nl.sogeti.android.log.Log;
+import timber.log.Timber;
 
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -277,7 +277,7 @@ public class GPSListenerTest extends InstrumentationTestCase {
             } else if (waypoint.equals(uri)) {
                 result = "content://nl.sogeti.android.gpstracker/tracks/1/segments/1/waypoints/1";
             } else {
-                Log.w(this, "No mock insert for " + uri);
+                Timber.w("No mock insert for " + uri);
             }
 
             return Uri.parse(result);
