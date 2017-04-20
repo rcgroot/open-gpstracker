@@ -130,11 +130,6 @@
             android:exported="false"
             android:label="@string/share_track"
             android:windowSoftInputMode="stateUnchanged">
-            <intent-filter>
-                <action android:name="android.intent.action.RUN" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.nl.sogeti.android.track" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".settings.SettingsActivity"

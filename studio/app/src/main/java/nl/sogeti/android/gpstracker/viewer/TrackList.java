@@ -63,6 +63,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import nl.sogeti.android.gpstracker.R;
+import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.Statistics;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxParser;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
@@ -264,7 +265,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener {
         try {
             info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         } catch (ClassCastException e) {
-            Timber.e("Bad menuInfo", e);
+            Timber.e(e, "Bad menuInfo");
             return handled;
         }
 
@@ -281,10 +282,9 @@ public class TrackList extends AppCompatActivity implements ProgressListener {
                     break;
                 }
                 case MENU_SHARE: {
-                    Intent actionIntent = new Intent(Intent.ACTION_RUN);
+                    Intent actionIntent = new Intent(this, ShareTrack.class);
                     actionIntent.setDataAndType(mDialogTrackUri, Tracks.CONTENT_ITEM_TYPE);
-                    actionIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(actionIntent, getString(R.string.share_track)));
+                    startActivity(actionIntent);
                     handled = true;
                     break;
                 }
