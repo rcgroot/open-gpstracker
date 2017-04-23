@@ -88,21 +88,17 @@ public class KmzCreator extends XmlCreator {
 
     private Uri exportKml() {
         if (mFileName.endsWith(".kmz") || mFileName.endsWith(".zip")) {
-            setExportDirectoryPath(Constants.getSdCardDirectory(mContext) + mFileName.substring(0, mFileName.length() -
-                    4));
+            setExportDirectoryPath(new File(Constants.getStorageDirectory(mContext), mFileName.substring(0, mFileName.length() - 4)));
         } else {
-            setExportDirectoryPath(Constants.getSdCardDirectory(mContext) + mFileName);
+            setExportDirectoryPath(new File(Constants.getStorageDirectory(mContext), mFileName));
         }
-
-        new File(getExportDirectoryPath()).mkdirs();
+        getExportDirectoryPath().mkdirs();
         String xmlFilePath = getExportDirectoryPath() + "/doc.kml";
 
         String resultFilename = null;
         FileOutputStream fos = null;
         BufferedOutputStream buf = null;
         try {
-            verifySdCardAvailibility();
-
             XmlSerializer serializer = Xml.newSerializer();
             File xmlFile = new File(xmlFilePath);
             fos = new FileOutputStream(xmlFile);
@@ -384,7 +380,7 @@ public class KmzCreator extends XmlCreator {
     }
 
     private void serializeWaypointDescription(XmlSerializer serializer, Uri media) throws IOException {
-        String mediaPathPrefix = Constants.getSdCardDirectory(mContext);
+        File mediaPathPrefix = Constants.getStorageDirectory(mContext);
         Cursor mediaCursor = null;
         ContentResolver resolver = mContext.getContentResolver();
         BufferedReader buf = null;
@@ -400,7 +396,7 @@ public class KmzCreator extends XmlCreator {
                     String lastPathSegment = mediaUri.getLastPathSegment();
                     if (mediaUri.getScheme().equals("file")) {
                         if (lastPathSegment.endsWith("3gp")) {
-                            String includedMediaFile = includeMediaFile(lastPathSegment);
+                            File includedMediaFile = includeMediaFile(Constants.getUriFromFile(mContext, new File(mediaPathPrefix, lastPathSegment)));
                             serializer.text("\n");
                             serializer.startTag("", "Placemark");
                             serializer.text("\n");
@@ -408,19 +404,19 @@ public class KmzCreator extends XmlCreator {
                             serializer.text("\n");
                             serializer.startTag("", "description");
                             String kmlAudioUnsupported = mContext.getString(R.string.kmlVideoUnsupported);
-                            serializer.text(String.format(kmlAudioUnsupported, includedMediaFile));
+                            serializer.text(String.format(kmlAudioUnsupported, includedMediaFile.getName()));
                             serializer.endTag("", "description");
                             serializeMediaPoint(serializer, singleWaypointUri);
                             serializer.text("\n");
                             serializer.endTag("", "Placemark");
                         } else if (lastPathSegment.endsWith("jpg")) {
-                            String includedMediaFile = includeMediaFile(mediaPathPrefix + lastPathSegment);
+                            File includedMediaFile = includeMediaFile(Constants.getUriFromFile(mContext, new File(mediaPathPrefix, lastPathSegment)));
                             serializer.text("\n");
                             serializer.startTag("", "Placemark");
                             serializer.text("\n");
                             quickTag(serializer, "", "name", lastPathSegment);
                             serializer.text("\n");
-                            quickTag(serializer, "", "description", "<img src=\"" + includedMediaFile + "\" " +
+                            quickTag(serializer, "", "description", "<img src=\"" + includedMediaFile.getName() + "\" " +
                                     "width=\"500px\"/><br/>" + lastPathSegment);
                             serializer.text("\n");
                             serializeMediaPoint(serializer, singleWaypointUri);
@@ -462,7 +458,7 @@ public class KmzCreator extends XmlCreator {
                                 mediaItemCursor = resolver.query(mediaUri, new String[]{MediaColumns.DATA, MediaColumns
                                         .DISPLAY_NAME}, null, null, null);
                                 if (mediaItemCursor != null && mediaItemCursor.moveToFirst()) {
-                                    String includedMediaFile = includeMediaFile(mediaItemCursor.getString(0));
+                                    File includedMediaFile = includeMediaFile(Constants.getUriFromFile(mContext, new File(mediaPathPrefix, mediaItemCursor.getString(0))));
                                     serializer.text("\n");
                                     serializer.startTag("", "Placemark");
                                     serializer.text("\n");
@@ -470,7 +466,7 @@ public class KmzCreator extends XmlCreator {
                                     serializer.text("\n");
                                     serializer.startTag("", "description");
                                     String kmlAudioUnsupported = mContext.getString(R.string.kmlAudioUnsupported);
-                                    serializer.text(String.format(kmlAudioUnsupported, includedMediaFile));
+                                    serializer.text(String.format(kmlAudioUnsupported, includedMediaFile.getName()));
                                     serializer.endTag("", "description");
                                     serializeMediaPoint(serializer, singleWaypointUri);
                                     serializer.text("\n");

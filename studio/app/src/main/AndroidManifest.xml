@@ -9,6 +9,7 @@
         android:smallScreens="true" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <uses-permission android:name="nl.sogeti.android.gpstracker.permission.TRACKING_CONTROL" />
     <uses-permission android:name="nl.sogeti.android.gpstracker.permission.TRACKING_HISTORY" />
@@ -130,6 +131,9 @@
             android:exported="false"
             android:label="@string/share_track"
             android:windowSoftInputMode="stateUnchanged">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".viewer.LoggerMap" />
         </activity>
         <activity
             android:name=".settings.SettingsActivity"
@@ -156,6 +160,15 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/control_appwidget_info" />
         </receiver>
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="nl.sogeti.android.gpstracker.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

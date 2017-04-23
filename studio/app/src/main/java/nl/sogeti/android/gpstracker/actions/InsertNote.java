@@ -133,7 +133,7 @@ public class InsertNote extends AppCompatActivity {
             String noteText = mNoteTextView.getText().toString();
             Calendar c = Calendar.getInstance();
             String newName = String.format("Textnote_%tY-%tm-%td_%tH%tM%tS.txt", c, c, c, c, c, c);
-            File file = new File(Constants.getSdCardDirectory(InsertNote.this) + newName);
+            File file = new File(Constants.getStorageDirectory(InsertNote.this), newName);
             FileWriter filewriter = null;
             try {
                 file.getParentFile().mkdirs();
@@ -334,24 +334,18 @@ public class InsertNote extends AppCompatActivity {
             @Override
             public void run() {
                 if (resultCode != RESULT_CANCELED) {
-                    File file;
-                    Uri uri;
-                    File newFile;
-                    String newName;
-                    Uri fileUri;
-                    android.net.Uri.Builder builder;
                     boolean isLocal = false;
                     switch (requestCode) {
-                        case MENU_PICTURE:
-                            file = new File(Constants.getSdCardTmpFile(InsertNote.this));
+                        case MENU_PICTURE: {
+                            File tmpFile = Constants.getSdCardTmpFile(InsertNote.this);
                             Calendar c = Calendar.getInstance();
-                            newName = String.format("Picture_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c);
-                            newFile = new File(Constants.getSdCardDirectory(InsertNote.this) + newName);
-                            file.getParentFile().mkdirs();
-                            isLocal = file.renameTo(newFile); //
+                            String newName = String.format("Picture_%tY-%tm-%td_%tH%tM%tS.jpg", c, c, c, c, c, c);
+                            File newFile = new File(Constants.getStorageDirectory(InsertNote.this), newName);
+                            tmpFile.getParentFile().mkdirs();
+                            isLocal = tmpFile.renameTo(newFile); //
                             if (!isLocal) {
-                                Timber.w("Failed rename will try copy image: " + file.getAbsolutePath());
-                                isLocal = copyFile(file, newFile);
+                                Timber.w("Failed rename will try copy image: " + tmpFile.getAbsolutePath());
+                                isLocal = copyFile(tmpFile, newFile);
                             }
                             if (isLocal) {
                                 System.gc();
@@ -367,40 +361,37 @@ public class InsertNote extends AppCompatActivity {
                                     width = Integer.toString(opts.outWidth);
                                 }
                                 bm = null;
-                                builder = new Uri.Builder();
-                                fileUri = builder.scheme("file").appendEncodedPath("/").appendEncodedPath(newFile
-                                        .getAbsolutePath())
-                                        .appendQueryParameter("width", width).appendQueryParameter("height", height)
-                                        .build();
+                                Uri fileUri = Constants.getPictureUriFromFile(InsertNote.this, newFile, width, height);
                                 InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);
 
                             } else {
-                                Timber.e("Failed either rename or copy image: " + file.getAbsolutePath());
+                                Timber.e("Failed either rename or copy image: " + tmpFile.getAbsolutePath());
                             }
                             break;
-                        case MENU_VIDEO:
-                            file = new File(Constants.getSdCardTmpFile(InsertNote.this));
-                            c = Calendar.getInstance();
-                            newName = String.format("Video_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c);
-                            newFile = new File(Constants.getSdCardDirectory(InsertNote.this) + newName);
-                            file.getParentFile().mkdirs();
-                            isLocal = file.renameTo(newFile);
+                        }
+                        case MENU_VIDEO: {
+                            File tmpFile = Constants.getSdCardTmpFile(InsertNote.this);
+                            Calendar c = Calendar.getInstance();
+                            String newName = String.format("Video_%tY%tm%td_%tH%tM%tS.3gp", c, c, c, c, c, c);
+                            File newFile = new File(Constants.getStorageDirectory(InsertNote.this), newName);
+                            tmpFile.getParentFile().mkdirs();
+                            isLocal = tmpFile.renameTo(newFile);
                             if (!isLocal) {
-                                Timber.w("Failed rename will try copy video: " + file.getAbsolutePath());
-                                isLocal = copyFile(file, newFile);
+                                Timber.w("Failed rename will try copy video: " + tmpFile.getAbsolutePath());
+                                isLocal = copyFile(tmpFile, newFile);
                             }
                             if (isLocal) {
-                                builder = new Uri.Builder();
-                                fileUri = builder.scheme("file").appendPath(newFile.getAbsolutePath()).build();
-                                InsertNote.this.mLoggerServiceManager.storeMediaUri(fileUri);
+                                InsertNote.this.mLoggerServiceManager.storeMediaUri(Constants.getUriFromFile(InsertNote.this, newFile));
                             } else {
-                                Timber.e("Failed either rename or copy video: " + file.getAbsolutePath());
+                                Timber.e("Failed either rename or copy video: " + tmpFile.getAbsolutePath());
                             }
                             break;
-                        case MENU_VOICE:
-                            uri = Uri.parse(intent.getDataString());
+                        }
+                        case MENU_VOICE: {
+                            Uri uri = Uri.parse(intent.getDataString());
                             InsertNote.this.mLoggerServiceManager.storeMediaUri(uri);
                             break;
+                        }
                         default:
                             Timber.e("Returned form unknow activity: " + requestCode);
                             break;
@@ -419,9 +410,9 @@ public class InsertNote extends AppCompatActivity {
      */
     private void addPicture() {
         Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        File file = new File(Constants.getSdCardTmpFile(this));
+        File tmpFile = Constants.getSdCardTmpFile(this);
         //      Log.d( TAG, "Picture requested at: " + file );
-        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Constants.getUriFromFile(this, tmpFile));
         i.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1);
         startActivityForResult(i, MENU_PICTURE);
     }
@@ -431,8 +422,8 @@ public class InsertNote extends AppCompatActivity {
      */
     private void addVideo() {
         Intent i = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
-        File file = new File(Constants.getSdCardTmpFile(this));
-        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+        File tmpFile = Constants.getSdCardTmpFile(this);
+        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Constants.getUriFromFile(this, tmpFile));
         i.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1);
 
         try {

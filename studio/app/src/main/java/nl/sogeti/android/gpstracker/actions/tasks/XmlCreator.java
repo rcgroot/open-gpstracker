@@ -34,13 +34,17 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.Window;
 
 import org.xmlpull.v1.XmlSerializer;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -77,7 +81,7 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
     protected Uri mTrackUri;
     String mChosenName;
     String mFileName;
-    private String mExportDirectoryPath;
+    private File mExportDirectoryPath;
     private boolean mNeedsBundling;
     private ProgressListener mProgressListener;
     private String mErrorText;
@@ -240,13 +244,65 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
     /**
      * Includes media into the export directory and returns the relative path of the media
      *
-     * @param inputFilePath
+     * @param input either file:// or content:// uri
      * @return file path relative to the export dir
      * @throws IOException
      */
-    protected String includeMediaFile(String inputFilePath) throws IOException {
+    protected File includeMediaFile(Uri input) throws IOException {
         mNeedsBundling = true;
-        File source = new File(inputFilePath);
+        File target;
+        if ("file".equals(input.getScheme())) {
+            target = includeLegacyMediaFile(input);
+        }
+        else {
+            target = includeMarshmallowMediaFile(input);
+        }
+
+        return target;
+    }
+
+    @Nullable
+    private File includeMarshmallowMediaFile(Uri input) throws IOException {
+        File target = new File(mExportDirectoryPath + "/" + input.getLastPathSegment());
+        InputStream is = null;
+        BufferedInputStream bis = null;
+        FileOutputStream os = null;
+        BufferedOutputStream bos = null;
+        try {
+            is = mContext.getContentResolver().openInputStream(input);
+            bis = new BufferedInputStream(is, 8192);
+            target.createNewFile();
+            os = new FileOutputStream(target);
+            bos = new BufferedOutputStream(os, 8192);
+
+            byte[] buffer = new byte[8192];
+            while (bis.read(buffer) != -1) {
+                bos.write(buffer);
+            }
+        }
+        finally {
+            close(bis, is, bos, os);
+        }
+
+        return target;
+    }
+
+    private void close(Closeable... closeables) {
+        for (Closeable closeable: closeables) {
+            try {
+                if (closeable != null) {
+                    closeable.close();
+                }
+            } catch (IOException e) {
+                Timber.w(e, "Failed to close.");
+            }
+        }
+    }
+
+    @NonNull
+    private File includeLegacyMediaFile(Uri input) throws IOException {
+        File mediaPathPrefix = Constants.getStorageDirectory(mContext);
+        File source = new File(mediaPathPrefix, input.getLastPathSegment());
         File target = new File(mExportDirectoryPath + "/" + source.getName());
 
         //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) );
@@ -272,23 +328,10 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
                 }
             }
         } else {
-            Timber.w("Failed to add file to new XML export. Missing: " + inputFilePath);
+            Timber.w("Failed to add file to new XML export. Missing: %s", source.getAbsolutePath());
         }
         mProgressAdmin.addMediaProgress();
-
-        return target.getName();
-    }
-
-    /**
-     * Just to start failing early
-     *
-     * @throws IOException
-     */
-    protected void verifySdCardAvailibility() throws IOException {
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state)) {
-            throw new IOException("The ExternalStorage is not mounted, unable to export files for sharing.");
-        }
+        return target;
     }
 
     /**
@@ -302,11 +345,11 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
     protected String bundlingMediaAndXml(String fileName, String extension) throws IOException {
         String zipFilePath;
         if (fileName.endsWith(".zip") || fileName.endsWith(extension)) {
-            zipFilePath = Constants.getSdCardDirectory(mContext) + fileName;
+            zipFilePath = Constants.getStorageDirectory(mContext) + fileName;
         } else {
-            zipFilePath = Constants.getSdCardDirectory(mContext) + fileName + extension;
+            zipFilePath = Constants.getStorageDirectory(mContext) + fileName + extension;
         }
-        String[] filenames = new File(mExportDirectoryPath).list();
+        String[] filenames = mExportDirectoryPath.list();
         byte[] buf = new byte[1024];
         ZipOutputStream zos = null;
         try {
@@ -329,16 +372,16 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
             }
         }
 
-        deleteRecursive(new File(mExportDirectoryPath));
+        deleteRecursive(mExportDirectoryPath);
 
         return zipFilePath;
     }
 
-    public String getExportDirectoryPath() {
+    public File getExportDirectoryPath() {
         return mExportDirectoryPath;
     }
 
-    public void setExportDirectoryPath(String exportDirectoryPath) {
+    public void setExportDirectoryPath(File exportDirectoryPath) {
         this.mExportDirectoryPath = exportDirectoryPath;
     }
 

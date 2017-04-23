@@ -47,6 +47,7 @@ import android.os.Bundle;
 
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Vector;
 
@@ -659,15 +660,20 @@ public class GPSListener implements LocationListener, GpsStatus.Listener {
      * @param accuracy
      */
     private void startListening(String provider, long milliseconds, float meters, float accuracy) {
-        Timber.d("startListening(" + provider + ", " + milliseconds / 1000L + "s, " + meters + "m, " + accuracy + "m)");
         mProvider = provider;
         mMaxAcceptableAccuracy = accuracy;
         mLocationManager.removeUpdates(this);
-        if (!mLocationManager.getAllProviders().contains(provider)) {
-            provider = LocationManager.NETWORK_PROVIDER;
+        List<String> allProviders = mLocationManager.getAllProviders();
+        if (!allProviders.contains(provider)) {
+            if (allProviders.size() > 0) {
+                provider = allProviders.get(0);
+            }
+            else {
+                provider = null;
+            }
         }
+        Timber.d("startListening(" + provider + ", " + milliseconds / 1000L + "s, " + meters + "m, " + accuracy + "m)");
         mLocationManager.requestLocationUpdates(provider, milliseconds, meters, this);
-
         mCheckPeriod = Math.max(12 * milliseconds, 120);
     }
 

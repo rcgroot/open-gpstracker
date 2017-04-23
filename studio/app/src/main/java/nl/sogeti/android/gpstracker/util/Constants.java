@@ -30,10 +30,14 @@ package nl.sogeti.android.gpstracker.util;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 
 import java.io.File;
+import java.io.IOException;
 
 import nl.sogeti.android.gpstracker.integration.ContentConstants;
 
@@ -77,10 +81,36 @@ public class Constants {
 
     public static final String NAME = "NAME";
     public static final int SECTIONED_HEADER_ITEM_VIEW_TYPE = 0;
+    public static final String AUTHORITY = "nl.sogeti.android.gpstracker.fileprovider";
+    public static final String FILE_SCHEME = "file";
+    public static final String PATH_SEPARATOR = "/";
 
-    public static String getSdCardTmpFile(Context ctx) {
-        String dir = getSdCardDirectory(ctx) + TMPICTUREFILE_SUBPATH;
+    public static File getSdCardTmpFile(Context context) {
+        File dir;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            dir = new File(getMarshmallowTmpFolder(context), TMPICTUREFILE_SUBPATH);
+        } else {
+            dir = new File(getLegacyTmpFile(context), TMPICTUREFILE_SUBPATH);
+        }
+
         return dir;
+    }
+
+    @NonNull
+    private static File getLegacyTmpFile(Context context) {
+        return new File(getStorageDirectory(context), TMPICTUREFILE_SUBPATH);
+    }
+
+    @NonNull
+    private static File getMarshmallowTmpFolder(Context context) {
+        File cacheDir = context.getExternalCacheDir();
+        if (cacheDir == null) {
+            cacheDir = context.getCacheDir();
+        }
+        File media = new File(cacheDir, "media");
+        media.mkdirs();
+
+        return media;
     }
 
     /**
@@ -89,7 +119,29 @@ public class Constants {
      * @param ctx
      * @return
      */
-    public static String getSdCardDirectory(Context ctx) {
+    public static File getStorageDirectory(Context ctx) {
+        File dir;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            dir = getMarshmallowSdCardDirectory(ctx);
+        } else {
+            dir = getLegacySdCardDirectory(ctx);
+        }
+
+        return dir;
+    }
+
+    private static File getMarshmallowSdCardDirectory(Context context) {
+        File sdcardFolder = context.getExternalFilesDir("tracks");
+        if (sdcardFolder == null) {
+            sdcardFolder = new File(context.getFilesDir(), "tracks");
+            sdcardFolder.mkdirs();
+        }
+
+        return sdcardFolder;
+    }
+
+    @NonNull
+    private static File getLegacySdCardDirectory(Context ctx) {
         // Read preference and ensure start and end with '/' symbol
         String dir = PreferenceManager.getDefaultSharedPreferences(ctx).getString(SDDIR_DIR, DEFAULT_EXTERNAL_DIR);
         if (!dir.startsWith("/")) {
@@ -98,14 +150,47 @@ public class Constants {
         if (!dir.endsWith("/")) {
             dir = dir + "/";
         }
-        dir = Environment.getExternalStorageDirectory().getAbsolutePath() + dir;
-
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), dir);
         // If neither exists or can be created fall back to default
-        File dirHandle = new File(dir);
-        if (!dirHandle.exists() && !dirHandle.mkdirs()) {
-            dir = Environment.getExternalStorageDirectory().getAbsolutePath() + DEFAULT_EXTERNAL_DIR;
+        if (!file.exists() && !file.mkdirs()) {
+            file = new File(Environment.getExternalStorageDirectory(), DEFAULT_EXTERNAL_DIR);
         }
-        return dir;
+
+        return file;
+    }
+
+    public static Uri getUriFromFile(Context context, File newFile) {
+        Uri fileUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            fileUri = FileProvider.getUriForFile(context, AUTHORITY, newFile);
+        } else {
+            fileUri = new Uri.Builder()
+                    .scheme(FILE_SCHEME)
+                    .appendEncodedPath(PATH_SEPARATOR)
+                    .appendEncodedPath(newFile.getAbsolutePath())
+                    .build();
+        }
+
+        return fileUri;
+    }
+
+    public static Uri getPictureUriFromFile(Context context, File newFile, String width, String height) {
+        return getUriFromFile(context, newFile).buildUpon()
+                .appendQueryParameter("width", width)
+                .appendQueryParameter("height", height)
+                .build();
+    }
+
+    /**
+     * Just to start failing early
+     *
+     * @throws IOException
+     */
+    private static void verifySdCardAvailibility() throws IOException {
+        String state = Environment.getExternalStorageState();
+        if (!Environment.MEDIA_MOUNTED.equals(state)) {
+            throw new IOException("The ExternalStorage is not mounted, unable to export files for sharing.");
+        }
     }
 
 }

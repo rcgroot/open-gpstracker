@@ -98,23 +98,19 @@ public class GpxCreator extends XmlCreator {
 
         String xmlFilePath;
         if (mFileName.endsWith(".gpx") || mFileName.endsWith(".xml")) {
-            setExportDirectoryPath(Constants.getSdCardDirectory(mContext) + mFileName.substring(0, mFileName.length() -
-                    4));
-
+            setExportDirectoryPath(
+                    new File(Constants.getStorageDirectory(mContext), mFileName.substring(0, mFileName.length() - 4)));
             xmlFilePath = getExportDirectoryPath() + "/" + mFileName;
         } else {
-            setExportDirectoryPath(Constants.getSdCardDirectory(mContext) + mFileName);
+            setExportDirectoryPath(new File(Constants.getStorageDirectory(mContext), mFileName));
             xmlFilePath = getExportDirectoryPath() + "/" + mFileName + ".gpx";
         }
-
-        new File(getExportDirectoryPath()).mkdirs();
+        getExportDirectoryPath().mkdirs();
 
         String resultFilename = null;
         FileOutputStream fos = null;
         BufferedOutputStream buf = null;
         try {
-            verifySdCardAvailibility();
-
             XmlSerializer serializer = Xml.newSerializer();
             File xmlFile = new File(xmlFilePath);
             fos = new FileOutputStream(xmlFile);
@@ -130,7 +126,7 @@ public class GpxCreator extends XmlCreator {
             if (needsBundling()) {
                 resultFilename = bundlingMediaAndXml(xmlFile.getParentFile().getName(), ".zip");
             } else {
-                File finalFile = new File(Constants.getSdCardDirectory(mContext) + xmlFile.getName());
+                File finalFile = new File(Constants.getStorageDirectory(mContext), xmlFile.getName());
                 xmlFile.renameTo(finalFile);
                 resultFilename = finalFile.getAbsolutePath();
 
@@ -297,19 +293,18 @@ public class GpxCreator extends XmlCreator {
                     Uri mediaUri = Uri.parse(mediaCursor.getString(0));
                     if (mediaUri.getScheme().equals("file")) {
                         if (mediaUri.getLastPathSegment().endsWith("3gp")) {
-                            String fileName = includeMediaFile(mediaUri.getLastPathSegment());
-                            quickTag(serializer, "", "name", fileName);
+                            File file = includeMediaFile(mediaUri);
+                            quickTag(serializer, "", "name", file.getName());
                             serializer.startTag("", "link");
-                            serializer.attribute(null, "href", fileName);
-                            quickTag(serializer, "", "text", fileName);
+                            serializer.attribute(null, "href", file.getName());
+                            quickTag(serializer, "", "text", file.getName());
                             serializer.endTag("", "link");
                         } else if (mediaUri.getLastPathSegment().endsWith("jpg")) {
-                            String mediaPathPrefix = Constants.getSdCardDirectory(mContext);
-                            String fileName = includeMediaFile(mediaPathPrefix + mediaUri.getLastPathSegment());
-                            quickTag(serializer, "", "name", fileName);
+                            File file = includeMediaFile(mediaUri);
+                            quickTag(serializer, "", "name", file.getName());
                             serializer.startTag("", "link");
-                            serializer.attribute(null, "href", fileName);
-                            quickTag(serializer, "", "text", fileName);
+                            serializer.attribute(null, "href", file.getName());
+                            quickTag(serializer, "", "text", file.getName());
                             serializer.endTag("", "link");
                         } else if (mediaUri.getLastPathSegment().endsWith("txt")) {
                             quickTag(serializer, "", "name", mediaUri.getLastPathSegment());
@@ -335,10 +330,10 @@ public class GpxCreator extends XmlCreator {
                                 mediaItemCursor = resolver.query(mediaUri, new String[]{MediaColumns.DATA, MediaColumns
                                         .DISPLAY_NAME}, null, null, null);
                                 if (mediaItemCursor != null && mediaItemCursor.moveToFirst()) {
-                                    String fileName = includeMediaFile(mediaItemCursor.getString(0));
-                                    quickTag(serializer, "", "name", fileName);
+                                    File file = includeMediaFile(Uri.parse(mediaItemCursor.getString(0)));
+                                    quickTag(serializer, "", "name", file.getName());
                                     serializer.startTag("", "link");
-                                    serializer.attribute(null, "href", fileName);
+                                    serializer.attribute(null, "href", file.getName());
                                     quickTag(serializer, "", "text", mediaItemCursor.getString(1));
                                     serializer.endTag("", "link");
                                 }
