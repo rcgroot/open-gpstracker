@@ -1,8 +1,8 @@
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
+<paths>
 
     <cache-path name="media" path="media/"/>
     <external-cache-path name="media" path="media/"/>
 
-    <files-path name="tracks" path="tracks"/>
-    <external-path name="tracks" path="tracks"/>
+    <files-path name="tracks" path="tracks/"/>
+    <external-files-path name="tracks" path="tracks/"/>
 </paths>

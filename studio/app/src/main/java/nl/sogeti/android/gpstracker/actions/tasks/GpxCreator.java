@@ -91,6 +91,9 @@ public class GpxCreator extends XmlCreator {
         determineProgressGoal();
 
         Uri resultFilename = exportGpx();
+
+
+
         return resultFilename;
     }
 
@@ -107,7 +110,7 @@ public class GpxCreator extends XmlCreator {
         }
         getExportDirectoryPath().mkdirs();
 
-        String resultFilename = null;
+        File resultFilename = null;
         FileOutputStream fos = null;
         BufferedOutputStream buf = null;
         try {
@@ -128,12 +131,12 @@ public class GpxCreator extends XmlCreator {
             } else {
                 File finalFile = new File(Constants.getStorageDirectory(mContext), xmlFile.getName());
                 xmlFile.renameTo(finalFile);
-                resultFilename = finalFile.getAbsolutePath();
+                resultFilename = finalFile;
 
                 XmlCreator.deleteRecursive(xmlFile.getParentFile());
             }
 
-            mFileName = new File(resultFilename).getName();
+            mFileName = resultFilename.getName();
         } catch (FileNotFoundException e) {
             String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString
                     (R.string.error_filenotfound);
@@ -166,7 +169,7 @@ public class GpxCreator extends XmlCreator {
                 }
             }
         }
-        return Uri.fromFile(new File(resultFilename));
+        return Constants.getUriFromFile(mContext, resultFilename);
     }
 
     private void serializeTrack(Uri trackUri, XmlSerializer serializer) throws IllegalArgumentException,

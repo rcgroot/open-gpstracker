@@ -116,10 +116,24 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
 
     private Uri mImageUri;
 
+    public static void start(Context context, Uri trackUri) {
+        start(context, trackUri, null);
+    }
+
+    public static void start(Context context, Uri trackUri, Uri streamUri) {
+        Intent intent = new Intent(context, ShareTrack.class);
+        intent.setDataAndType(trackUri, Tracks.CONTENT_ITEM_TYPE);
+        if (streamUri != null) {
+            intent.putExtra(Intent.EXTRA_STREAM, streamUri);
+        }
+        context.startActivity(intent);
+    }
+
     public static void sendFile(Context context, Uri fileUri, String fileContentType, String body) {
         Intent sendActionIntent = new Intent(Intent.ACTION_SEND);
         sendActionIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.email_subject));
         sendActionIntent.putExtra(Intent.EXTRA_TEXT, body);
+        sendActionIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         sendActionIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
         sendActionIntent.setType(fileContentType);
         context.startActivity(Intent.createChooser(sendActionIntent, context.getString(R.string.sender_chooser)));

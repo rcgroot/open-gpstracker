@@ -95,7 +95,7 @@ public class KmzCreator extends XmlCreator {
         getExportDirectoryPath().mkdirs();
         String xmlFilePath = getExportDirectoryPath() + "/doc.kml";
 
-        String resultFilename = null;
+        File resultFilename = null;
         FileOutputStream fos = null;
         BufferedOutputStream buf = null;
         try {
@@ -112,7 +112,7 @@ public class KmzCreator extends XmlCreator {
             fos = null;
 
             resultFilename = bundlingMediaAndXml(xmlFile.getParentFile().getName(), ".kmz");
-            mFileName = new File(resultFilename).getName();
+            mFileName = resultFilename.getName();
         } catch (IllegalArgumentException e) {
             String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString
                     (R.string.error_filename);
@@ -141,7 +141,8 @@ public class KmzCreator extends XmlCreator {
                 }
             }
         }
-        return Uri.fromFile(new File(resultFilename));
+
+        return Constants.getUriFromFile(mContext, resultFilename);
     }
 
     private void serializeTrack(Uri trackUri, String trackName, XmlSerializer serializer) throws IOException {
