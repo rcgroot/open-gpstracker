@@ -215,36 +215,35 @@ public class SegmentOverlay extends Overlay {
     }
 
     public static boolean handleMedia(Context ctx, Uri mediaUri) {
-        if (mediaUri.getScheme().equals("file")) {
-            Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-            if (mediaUri.getLastPathSegment().endsWith("3gp")) {
-                intent.setDataAndType(mediaUri, "video/3gpp");
-                ctx.startActivity(intent);
-                return true;
-            } else if (mediaUri.getLastPathSegment().endsWith("jpg")) {
-                //<scheme>://<authority><absolute path>
-                Uri.Builder builder = new Uri.Builder();
-                mediaUri = builder.scheme(mediaUri.getScheme()).authority(mediaUri.getAuthority()).path(mediaUri.getPath
-                        ()).build();
-                intent.setDataAndType(mediaUri, "image/jpeg");
-                ctx.startActivity(intent);
-                return true;
-            } else if (mediaUri.getLastPathSegment().endsWith("txt")) {
-                intent.setDataAndType(mediaUri, "text/plain");
-                ctx.startActivity(intent);
-                return true;
-            }
-        } else if (mediaUri.getScheme().equals("content")) {
-            if (mediaUri.getAuthority().equals(ContentConstants.AUTHORITY + ".string")) {
-                String text = mediaUri.getLastPathSegment();
-                Toast toast = Toast.makeText(ctx, text, Toast.LENGTH_LONG);
-                toast.show();
-                return true;
-            } else if (mediaUri.getAuthority().equals("media")) {
-                ctx.startActivity(new Intent(Intent.ACTION_VIEW, mediaUri));
-                return true;
-            }
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if (mediaUri.getLastPathSegment().endsWith("3gp")) {
+            intent.setDataAndType(mediaUri, "video/3gpp");
+            ctx.startActivity(intent);
+            return true;
+        } else if (mediaUri.getLastPathSegment().endsWith("jpg")) {
+            //<scheme>://<authority><absolute path>
+            Uri.Builder builder = new Uri.Builder();
+            mediaUri = builder.scheme(mediaUri.getScheme()).authority(mediaUri.getAuthority()).path(mediaUri.getPath
+                    ()).build();
+            intent.setDataAndType(mediaUri, "image/jpeg");
+            ctx.startActivity(intent);
+            return true;
+        } else if (mediaUri.getLastPathSegment().endsWith("txt")) {
+            intent.setDataAndType(mediaUri, "text/plain");
+            ctx.startActivity(intent);
+            return true;
+        } else if (mediaUri.getAuthority().equals(ContentConstants.AUTHORITY + ".string")) {
+            String text = mediaUri.getLastPathSegment();
+            Toast toast = Toast.makeText(ctx, text, Toast.LENGTH_LONG);
+            toast.show();
+            return true;
+        } else if (mediaUri.getAuthority().equals("media")) {
+            intent.setDataAndType(mediaUri, "video/3gpp");
+            ctx.startActivity(intent);
+            return true;
         }
+
         return false;
     }
 
@@ -711,20 +710,16 @@ public class SegmentOverlay extends Overlay {
 
     private int getResourceForMedia(Resources resources, Uri uri) {
         int drawable = 0;
-        if (uri.getScheme().equals("file")) {
-            if (uri.getLastPathSegment().endsWith("3gp")) {
-                drawable = R.drawable.media_film;
-            } else if (uri.getLastPathSegment().endsWith("jpg")) {
-                drawable = R.drawable.media_camera;
-            } else if (uri.getLastPathSegment().endsWith("txt")) {
-                drawable = R.drawable.media_notepad;
-            }
-        } else if (uri.getScheme().equals("content")) {
-            if (uri.getAuthority().equals(ContentConstants.AUTHORITY + ".string")) {
-                drawable = R.drawable.media_mark;
-            } else if (uri.getAuthority().equals("media")) {
-                drawable = R.drawable.media_speech;
-            }
+        if (uri.getLastPathSegment().endsWith("3gp")) {
+            drawable = R.drawable.media_film;
+        } else if (uri.getLastPathSegment().endsWith("jpg")) {
+            drawable = R.drawable.media_camera;
+        } else if (uri.getLastPathSegment().endsWith("txt")) {
+            drawable = R.drawable.media_notepad;
+        } else if (uri.getAuthority().equals(ContentConstants.AUTHORITY + ".string")) {
+            drawable = R.drawable.media_mark;
+        } else if (uri.getAuthority().equals("media")) {
+            drawable = R.drawable.media_speech;
         }
         synchronized (sBitmapCache) {
             if (sBitmapCache.get(drawable) == null) {

@@ -25,13 +25,6 @@
             android:enabled="false"
             android:text="@string/menu_notetext" />
 
-        <Button
-            android:id="@+id/noteinsert_voice"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="@string/menu_notespeech" />
-
     </LinearLayout>
 
     <LinearLayout

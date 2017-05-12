@@ -294,56 +294,53 @@ public class GpxCreator extends XmlCreator {
                     }
 
                     Uri mediaUri = Uri.parse(mediaCursor.getString(0));
-                    if (mediaUri.getScheme().equals("file")) {
-                        if (mediaUri.getLastPathSegment().endsWith("3gp")) {
-                            File file = includeMediaFile(mediaUri);
-                            quickTag(serializer, "", "name", file.getName());
-                            serializer.startTag("", "link");
-                            serializer.attribute(null, "href", file.getName());
-                            quickTag(serializer, "", "text", file.getName());
-                            serializer.endTag("", "link");
-                        } else if (mediaUri.getLastPathSegment().endsWith("jpg")) {
-                            File file = includeMediaFile(mediaUri);
-                            quickTag(serializer, "", "name", file.getName());
-                            serializer.startTag("", "link");
-                            serializer.attribute(null, "href", file.getName());
-                            quickTag(serializer, "", "text", file.getName());
-                            serializer.endTag("", "link");
-                        } else if (mediaUri.getLastPathSegment().endsWith("txt")) {
-                            quickTag(serializer, "", "name", mediaUri.getLastPathSegment());
-                            serializer.startTag("", "desc");
-                            if (buf != null) {
-                                buf.close();
-                            }
-                            buf = new BufferedReader(new FileReader(mediaUri.getEncodedPath()));
-                            String line;
-                            while ((line = buf.readLine()) != null) {
-                                serializer.text(line);
-                                serializer.text("\n");
-                            }
-                            serializer.endTag("", "desc");
+                    if (mediaUri.getLastPathSegment().endsWith("3gp")) {
+                        File file = includeMediaFile(mediaUri);
+                        quickTag(serializer, "", "name", file.getName());
+                        serializer.startTag("", "link");
+                        serializer.attribute(null, "href", file.getName());
+                        quickTag(serializer, "", "text", file.getName());
+                        serializer.endTag("", "link");
+                    } else if (mediaUri.getLastPathSegment().endsWith("jpg")) {
+                        File file = includeMediaFile(mediaUri);
+                        quickTag(serializer, "", "name", file.getName());
+                        serializer.startTag("", "link");
+                        serializer.attribute(null, "href", file.getName());
+                        quickTag(serializer, "", "text", file.getName());
+                        serializer.endTag("", "link");
+                    } else if (mediaUri.getLastPathSegment().endsWith("txt")) {
+                        quickTag(serializer, "", "name", mediaUri.getLastPathSegment());
+                        serializer.startTag("", "desc");
+                        if (buf != null) {
+                            buf.close();
                         }
-                    } else if (mediaUri.getScheme().equals("content")) {
-                        if ((ContentConstants.AUTHORITY + ".string").equals(mediaUri.getAuthority())) {
-                            quickTag(serializer, "", "name", mediaUri.getLastPathSegment());
-                        } else if (mediaUri.getAuthority().equals("media")) {
+                        buf = new BufferedReader(new FileReader(mediaUri.getEncodedPath()));
+                        String line;
+                        while ((line = buf.readLine()) != null) {
+                            serializer.text(line);
+                            serializer.text("\n");
+                        }
+                        serializer.endTag("", "desc");
+                    }
+                    else if ((ContentConstants.AUTHORITY + ".string").equals(mediaUri.getAuthority())) {
+                        quickTag(serializer, "", "name", mediaUri.getLastPathSegment());
+                    } else if (mediaUri.getAuthority().equals("media")) {
 
-                            Cursor mediaItemCursor = null;
-                            try {
-                                mediaItemCursor = resolver.query(mediaUri, new String[]{MediaColumns.DATA, MediaColumns
-                                        .DISPLAY_NAME}, null, null, null);
-                                if (mediaItemCursor != null && mediaItemCursor.moveToFirst()) {
-                                    File file = includeMediaFile(Uri.parse(mediaItemCursor.getString(0)));
-                                    quickTag(serializer, "", "name", file.getName());
-                                    serializer.startTag("", "link");
-                                    serializer.attribute(null, "href", file.getName());
-                                    quickTag(serializer, "", "text", mediaItemCursor.getString(1));
-                                    serializer.endTag("", "link");
-                                }
-                            } finally {
-                                if (mediaItemCursor != null) {
-                                    mediaItemCursor.close();
-                                }
+                        Cursor mediaItemCursor = null;
+                        try {
+                            mediaItemCursor = resolver.query(mediaUri, new String[]{MediaColumns.DATA, MediaColumns
+                                    .DISPLAY_NAME}, null, null, null);
+                            if (mediaItemCursor != null && mediaItemCursor.moveToFirst()) {
+                                File file = includeMediaFile(Uri.parse(mediaItemCursor.getString(0)));
+                                quickTag(serializer, "", "name", file.getName());
+                                serializer.startTag("", "link");
+                                serializer.attribute(null, "href", file.getName());
+                                quickTag(serializer, "", "text", mediaItemCursor.getString(1));
+                                serializer.endTag("", "link");
+                            }
+                        } finally {
+                            if (mediaItemCursor != null) {
+                                mediaItemCursor.close();
                             }
                         }
                     }

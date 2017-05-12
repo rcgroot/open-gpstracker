@@ -73,8 +73,10 @@ import java.util.List;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxCreator;
+import nl.sogeti.android.gpstracker.actions.tasks.GpxSDCardStore;
 import nl.sogeti.android.gpstracker.actions.tasks.GpxSharing;
 import nl.sogeti.android.gpstracker.actions.tasks.KmzCreator;
+import nl.sogeti.android.gpstracker.actions.tasks.KmzSDCardStore;
 import nl.sogeti.android.gpstracker.actions.tasks.KmzSharing;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
 import nl.sogeti.android.gpstracker.actions.utils.StatisticsCalulator;
@@ -459,7 +461,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
                 new KmzSharing(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName)).execute();
                 break;
             case EXPORT_TARGET_SAVE:
-                new KmzCreator(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName)).execute();
+                new KmzSDCardStore(this, mTrackUri, chosenFileName, new ShareProgressListener(chosenFileName)).execute();
                 break;
             default:
                 Timber.e("Unable to determine target for sharing KMZ %s", target);
@@ -471,7 +473,7 @@ public class ShareTrack extends AppCompatActivity implements StatisticsDelegate 
     protected void exportGpx(String chosenFileName, int target) {
         switch (target) {
             case EXPORT_TARGET_SAVE:
-                new GpxCreator(this, mTrackUri, chosenFileName, true, new ShareProgressListener(chosenFileName)).execute();
+                new GpxSDCardStore(this, mTrackUri, chosenFileName, true, new ShareProgressListener(chosenFileName)).execute();
                 ShareTrack.this.finish();
                 break;
             case EXPORT_TARGET_SEND:

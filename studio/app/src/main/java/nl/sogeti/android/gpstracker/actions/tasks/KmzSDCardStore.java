@@ -30,23 +30,41 @@ package nl.sogeti.android.gpstracker.actions.tasks;
 
 import android.content.Context;
 import android.net.Uri;
+import android.widget.Toast;
+
+import java.io.File;
 
 import nl.sogeti.android.gpstracker.R;
 import nl.sogeti.android.gpstracker.actions.ShareTrack;
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import nl.sogeti.android.gpstracker.util.Constants;
 
-public class GpxSharing extends GpxCreator {
+/**
+ * ????
+ *
+ * @author rene (c) Jul 9, 2011, Sogeti B.V.
+ * @version $Id:$
+ */
+public class KmzSDCardStore extends KmzCreator {
 
+    public KmzSDCardStore(Context context, Uri trackUri, String chosenFileName, ProgressListener listener) {
+        super(context, trackUri, chosenFileName, listener);
+    }
 
-    public GpxSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener
-            listener) {
-        super(context, trackUri, chosenBaseFileName, attachments, listener);
+    @Override
+    protected Uri doInBackground(Void... params) {
+        Uri contentUri = super.doInBackground(params);
+        ContentProviderFileExtractor contentProviderFileExtractor = new ContentProviderFileExtractor(mContext);
+        File targetDirectory = Constants.getExternalRootDataFolder(mContext);
+        File sdcardFile = contentProviderFileExtractor.copyIntoDirectory(contentUri, targetDirectory);
+
+        return Uri.fromFile(sdcardFile);
     }
 
     @Override
     protected void onPostExecute(Uri resultFilename) {
         super.onPostExecute(resultFilename);
-        ShareTrack.sendFile(mContext, resultFilename, getContentType(), mContext.getString(R.string.email_gpxbody));
+        Toast.makeText(mContext, resultFilename.getPath(), Toast.LENGTH_LONG).show();
     }
 
 }
