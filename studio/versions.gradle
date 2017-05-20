@@ -1,7 +1,7 @@
 ext {
     // Building
     buildToolsVersion = "25.0.2"
-    gradlePluginVersion = '2.3.1'
+    gradlePluginVersion = '2.3.2'
     compileSdkVersion = "Google Inc.:Google APIs:24"
 
     // App support

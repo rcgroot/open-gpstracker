@@ -72,7 +72,6 @@ import timber.log.Timber;
 public class InsertNote extends AppCompatActivity {
     private static final int DIALOG_INSERTNOTE = 27;
     private static final int MENU_PICTURE = 9;
-    private static final int MENU_VOICE = 11;
     private static final int MENU_VIDEO = 12;
     private static final int DIALOG_TEXT = 32;
     private static final int DIALOG_NAME = 33;
@@ -86,9 +85,6 @@ public class InsertNote extends AppCompatActivity {
                     break;
                 case R.id.noteinsert_video:
                     addVideo();
-                    break;
-                case R.id.noteinsert_voice:
-                    addVoice();
                     break;
                 case R.id.noteinsert_text:
                     showDialog(DIALOG_TEXT);
@@ -111,7 +107,6 @@ public class InsertNote extends AppCompatActivity {
     private boolean paused;
     private Button name;
     private Button text;
-    private Button voice;
     private Button picture;
     private Button video;
     private EditText mNoteNameView;
@@ -250,12 +245,10 @@ public class InsertNote extends AppCompatActivity {
                 dialog = builder.create();
                 name = (Button) view.findViewById(R.id.noteinsert_name);
                 text = (Button) view.findViewById(R.id.noteinsert_text);
-                voice = (Button) view.findViewById(R.id.noteinsert_voice);
                 picture = (Button) view.findViewById(R.id.noteinsert_picture);
                 video = (Button) view.findViewById(R.id.noteinsert_video);
                 name.setOnClickListener(mNoteInsertListener);
                 text.setOnClickListener(mNoteInsertListener);
-                voice.setOnClickListener(mNoteInsertListener);
                 picture.setOnClickListener(mNoteInsertListener);
                 video.setOnClickListener(mNoteInsertListener);
                 dialog.setOnDismissListener(new OnDismissListener() {
@@ -306,12 +299,10 @@ public class InsertNote extends AppCompatActivity {
                         ServiceConstants.STATE_LOGGING;
                 name = (Button) dialog.findViewById(R.id.noteinsert_name);
                 text = (Button) dialog.findViewById(R.id.noteinsert_text);
-                voice = (Button) dialog.findViewById(R.id.noteinsert_voice);
                 picture = (Button) dialog.findViewById(R.id.noteinsert_picture);
                 video = (Button) dialog.findViewById(R.id.noteinsert_video);
                 name.setEnabled(prepared);
                 text.setEnabled(prepared);
-                voice.setEnabled(prepared);
                 picture.setEnabled(prepared);
                 video.setEnabled(prepared);
                 break;
@@ -387,11 +378,6 @@ public class InsertNote extends AppCompatActivity {
                             }
                             break;
                         }
-                        case MENU_VOICE: {
-                            Uri uri = Uri.parse(intent.getDataString());
-                            InsertNote.this.mLoggerServiceManager.storeMediaUri(uri);
-                            break;
-                        }
                         default:
                             Timber.e("Returned form unknow activity: " + requestCode);
                             break;
@@ -430,15 +416,6 @@ public class InsertNote extends AppCompatActivity {
             startActivityForResult(i, MENU_VIDEO);
         } catch (ActivityNotFoundException e) {
             Timber.e(e, "Unable to start Activity to record video");
-        }
-    }
-
-    private void addVoice() {
-        Intent intent = new Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-        try {
-            startActivityForResult(intent, MENU_VOICE);
-        } catch (ActivityNotFoundException e) {
-            Timber.e(e, "Unable to start Activity to record audio");
         }
     }
 }

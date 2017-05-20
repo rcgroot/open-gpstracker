@@ -90,7 +90,7 @@ public class Constants {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             dir = new File(getMarshmallowTmpFolder(context), TMPICTUREFILE_SUBPATH);
         } else {
-            dir = new File(getLegacyTmpFile(context), TMPICTUREFILE_SUBPATH);
+            dir = getLegacyTmpFile(context);
         }
 
         return dir;

@@ -870,7 +870,7 @@ public class LoggerMap extends AppCompatMapActivity {
                 break;
             case MENU_SHARE:
                 if (this.mTrackId >= 0) {
-                    intent = new Intent(Intent.ACTION_RUN);
+                    intent = new Intent(this, ShareTrack.class);
                     trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId);
                     intent.setDataAndType(trackUri, Tracks.CONTENT_ITEM_TYPE);
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -879,7 +879,7 @@ public class LoggerMap extends AppCompatMapActivity {
                         Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
                         intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
                     }
-                    startActivityForResult(Intent.createChooser(intent, getString(R.string.share_track)), MENU_SHARE);
+                    startActivity(intent);
                 } else {
                     showDialog(DIALOG_NOTRACK);
                 }
