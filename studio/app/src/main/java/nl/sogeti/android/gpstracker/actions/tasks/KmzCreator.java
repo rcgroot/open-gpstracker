@@ -95,7 +95,7 @@ public class KmzCreator extends XmlCreator {
         getExportDirectoryPath().mkdirs();
         String xmlFilePath = getExportDirectoryPath() + "/doc.kml";
 
-        String resultFilename = null;
+        File resultFilename = null;
         FileOutputStream fos = null;
         BufferedOutputStream buf = null;
         try {
@@ -112,7 +112,7 @@ public class KmzCreator extends XmlCreator {
             fos = null;
 
             resultFilename = bundlingMediaAndXml(xmlFile.getParentFile().getName(), ".kmz");
-            mFileName = new File(resultFilename).getName();
+            mFileName = resultFilename.getName();
         } catch (IllegalArgumentException e) {
             String text = mContext.getString(R.string.ticker_failed) + " \"" + xmlFilePath + "\" " + mContext.getString
                     (R.string.error_filename);
@@ -141,7 +141,8 @@ public class KmzCreator extends XmlCreator {
                 }
             }
         }
-        return Uri.fromFile(new File(resultFilename));
+
+        return Constants.getUriFromFile(mContext, resultFilename);
     }
 
     private void serializeTrack(Uri trackUri, String trackName, XmlSerializer serializer) throws IOException {
@@ -394,88 +395,85 @@ public class KmzCreator extends XmlCreator {
                             + mediaCursor.getLong(2) + "/waypoints/"
                             + mediaCursor.getLong(3));
                     String lastPathSegment = mediaUri.getLastPathSegment();
-                    if (mediaUri.getScheme().equals("file")) {
-                        if (lastPathSegment.endsWith("3gp")) {
-                            File includedMediaFile = includeMediaFile(Constants.getUriFromFile(mContext, new File(mediaPathPrefix, lastPathSegment)));
-                            serializer.text("\n");
-                            serializer.startTag("", "Placemark");
-                            serializer.text("\n");
-                            quickTag(serializer, "", "name", lastPathSegment);
-                            serializer.text("\n");
-                            serializer.startTag("", "description");
-                            String kmlAudioUnsupported = mContext.getString(R.string.kmlVideoUnsupported);
-                            serializer.text(String.format(kmlAudioUnsupported, includedMediaFile.getName()));
-                            serializer.endTag("", "description");
-                            serializeMediaPoint(serializer, singleWaypointUri);
-                            serializer.text("\n");
-                            serializer.endTag("", "Placemark");
-                        } else if (lastPathSegment.endsWith("jpg")) {
-                            File includedMediaFile = includeMediaFile(Constants.getUriFromFile(mContext, new File(mediaPathPrefix, lastPathSegment)));
-                            serializer.text("\n");
-                            serializer.startTag("", "Placemark");
-                            serializer.text("\n");
-                            quickTag(serializer, "", "name", lastPathSegment);
-                            serializer.text("\n");
-                            quickTag(serializer, "", "description", "<img src=\"" + includedMediaFile.getName() + "\" " +
-                                    "width=\"500px\"/><br/>" + lastPathSegment);
-                            serializer.text("\n");
-                            serializeMediaPoint(serializer, singleWaypointUri);
-                            serializer.text("\n");
-                            serializer.endTag("", "Placemark");
-                        } else if (lastPathSegment.endsWith("txt")) {
-                            serializer.text("\n");
-                            serializer.startTag("", "Placemark");
-                            serializer.text("\n");
-                            quickTag(serializer, "", "name", lastPathSegment);
-                            serializer.text("\n");
-                            serializer.startTag("", "description");
-                            if (buf != null) {
-                                buf.close();
-                            }
-                            buf = new BufferedReader(new FileReader(mediaUri.getEncodedPath()));
-                            String line;
-                            while ((line = buf.readLine()) != null) {
-                                serializer.text(line);
-                                serializer.text("\n");
-                            }
-                            serializer.endTag("", "description");
-                            serializeMediaPoint(serializer, singleWaypointUri);
-                            serializer.text("\n");
-                            serializer.endTag("", "Placemark");
+                    if (lastPathSegment.endsWith("3gp")) {
+                        File includedMediaFile = includeMediaFile(Constants.getUriFromFile(mContext, new File(mediaPathPrefix, lastPathSegment)));
+                        serializer.text("\n");
+                        serializer.startTag("", "Placemark");
+                        serializer.text("\n");
+                        quickTag(serializer, "", "name", lastPathSegment);
+                        serializer.text("\n");
+                        serializer.startTag("", "description");
+                        String kmlAudioUnsupported = mContext.getString(R.string.kmlVideoUnsupported);
+                        serializer.text(String.format(kmlAudioUnsupported, includedMediaFile.getName()));
+                        serializer.endTag("", "description");
+                        serializeMediaPoint(serializer, singleWaypointUri);
+                        serializer.text("\n");
+                        serializer.endTag("", "Placemark");
+                    } else if (lastPathSegment.endsWith("jpg")) {
+                        File includedMediaFile = includeMediaFile(Constants.getUriFromFile(mContext, new File(mediaPathPrefix, lastPathSegment)));
+                        serializer.text("\n");
+                        serializer.startTag("", "Placemark");
+                        serializer.text("\n");
+                        quickTag(serializer, "", "name", lastPathSegment);
+                        serializer.text("\n");
+                        quickTag(serializer, "", "description", "<img src=\"" + includedMediaFile.getName() + "\" " +
+                                "width=\"500px\"/><br/>" + lastPathSegment);
+                        serializer.text("\n");
+                        serializeMediaPoint(serializer, singleWaypointUri);
+                        serializer.text("\n");
+                        serializer.endTag("", "Placemark");
+                    } else if (lastPathSegment.endsWith("txt")) {
+                        serializer.text("\n");
+                        serializer.startTag("", "Placemark");
+                        serializer.text("\n");
+                        quickTag(serializer, "", "name", lastPathSegment);
+                        serializer.text("\n");
+                        serializer.startTag("", "description");
+                        if (buf != null) {
+                            buf.close();
                         }
-                    } else if (mediaUri.getScheme().equals("content")) {
-                        if (mediaUri.getAuthority().equals(ContentConstants.AUTHORITY + ".string")) {
+                        buf = new BufferedReader(new FileReader(mediaUri.getEncodedPath()));
+                        String line;
+                        while ((line = buf.readLine()) != null) {
+                            serializer.text(line);
                             serializer.text("\n");
-                            serializer.startTag("", "Placemark");
-                            serializer.text("\n");
-                            quickTag(serializer, "", "name", lastPathSegment);
-                            serializeMediaPoint(serializer, singleWaypointUri);
-                            serializer.text("\n");
-                            serializer.endTag("", "Placemark");
-                        } else if (mediaUri.getAuthority().equals("media")) {
-                            Cursor mediaItemCursor = null;
-                            try {
-                                mediaItemCursor = resolver.query(mediaUri, new String[]{MediaColumns.DATA, MediaColumns
-                                        .DISPLAY_NAME}, null, null, null);
-                                if (mediaItemCursor != null && mediaItemCursor.moveToFirst()) {
-                                    File includedMediaFile = includeMediaFile(Constants.getUriFromFile(mContext, new File(mediaPathPrefix, mediaItemCursor.getString(0))));
-                                    serializer.text("\n");
-                                    serializer.startTag("", "Placemark");
-                                    serializer.text("\n");
-                                    quickTag(serializer, "", "name", mediaItemCursor.getString(1));
-                                    serializer.text("\n");
-                                    serializer.startTag("", "description");
-                                    String kmlAudioUnsupported = mContext.getString(R.string.kmlAudioUnsupported);
-                                    serializer.text(String.format(kmlAudioUnsupported, includedMediaFile.getName()));
-                                    serializer.endTag("", "description");
-                                    serializeMediaPoint(serializer, singleWaypointUri);
-                                    serializer.text("\n");
-                                    serializer.endTag("", "Placemark");
-                                }
-                            } finally {
-                                if (mediaItemCursor != null) {
-                                    mediaItemCursor.close();
-                                }
+                        }
+                        serializer.endTag("", "description");
+                        serializeMediaPoint(serializer, singleWaypointUri);
+                        serializer.text("\n");
+                        serializer.endTag("", "Placemark");
+                    }
+                    else if (mediaUri.getAuthority().equals(ContentConstants.AUTHORITY + ".string")) {
+                        serializer.text("\n");
+                        serializer.startTag("", "Placemark");
+                        serializer.text("\n");
+                        quickTag(serializer, "", "name", lastPathSegment);
+                        serializeMediaPoint(serializer, singleWaypointUri);
+                        serializer.text("\n");
+                        serializer.endTag("", "Placemark");
+                    } else if (mediaUri.getAuthority().equals("media")) {
+                        Cursor mediaItemCursor = null;
+                        try {
+                            mediaItemCursor = resolver.query(mediaUri, new String[]{MediaColumns.DATA, MediaColumns
+                                    .DISPLAY_NAME}, null, null, null);
+                            if (mediaItemCursor != null && mediaItemCursor.moveToFirst()) {
+                                File includedMediaFile = includeMediaFile(Constants.getUriFromFile(mContext, new File(mediaPathPrefix, mediaItemCursor.getString(0))));
+                                serializer.text("\n");
+                                serializer.startTag("", "Placemark");
+                                serializer.text("\n");
+                                quickTag(serializer, "", "name", mediaItemCursor.getString(1));
+                                serializer.text("\n");
+                                serializer.startTag("", "description");
+                                String kmlAudioUnsupported = mContext.getString(R.string.kmlAudioUnsupported);
+                                serializer.text(String.format(kmlAudioUnsupported, includedMediaFile.getName()));
+                                serializer.endTag("", "description");
+                                serializeMediaPoint(serializer, singleWaypointUri);
+                                serializer.text("\n");
+                                serializer.endTag("", "Placemark");
+                            }
+                        } finally {
+                            if (mediaItemCursor != null) {
+                                mediaItemCursor.close();
                             }
                         }
                     }

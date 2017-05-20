@@ -870,16 +870,13 @@ public class LoggerMap extends AppCompatMapActivity {
                 break;
             case MENU_SHARE:
                 if (this.mTrackId >= 0) {
-                    intent = new Intent(this, ShareTrack.class);
                     trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, mTrackId);
-                    intent.setDataAndType(trackUri, Tracks.CONTENT_ITEM_TYPE);
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     Bitmap bm = findViewById(R.id.mapScreen).getDrawingCache();
+                    Uri screenshotUri = null;
                     if (bm != null) {
-                        Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
-                        intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
+                        screenshotUri = ShareTrack.storeScreenBitmap(bm);
                     }
-                    startActivity(intent);
+                    ShareTrack.start(this, trackUri, screenshotUri);
                 } else {
                     showDialog(DIALOG_NOTRACK);
                 }

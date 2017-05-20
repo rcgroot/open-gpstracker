@@ -282,9 +282,7 @@ public class TrackList extends AppCompatActivity implements ProgressListener {
                     break;
                 }
                 case MENU_SHARE: {
-                    Intent actionIntent = new Intent(this, ShareTrack.class);
-                    actionIntent.setDataAndType(mDialogTrackUri, Tracks.CONTENT_ITEM_TYPE);
-                    startActivity(actionIntent);
+                    ShareTrack.start(this, mDialogTrackUri);
                     handled = true;
                     break;
                 }

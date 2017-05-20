@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------
  **     Ident: Delivery Center Java
  **    Author: rene
- ** Copyright: (c) Jul 9, 2011 Sogeti Nederland B.V. All Rights Reserved.
+ ** Copyright: (c) 2017 Sogeti Nederland B.V. All Rights Reserved.
  **------------------------------------------------------------------------------
  ** Sogeti Nederland B.V.            |  No part of this file may be reproduced  
  ** Distributed Software Engineering |  or transmitted in any form or by any        
@@ -30,23 +30,33 @@ package nl.sogeti.android.gpstracker.actions.tasks;
 
 import android.content.Context;
 import android.net.Uri;
+import android.widget.Toast;
 
-import nl.sogeti.android.gpstracker.R;
-import nl.sogeti.android.gpstracker.actions.ShareTrack;
+import java.io.File;
+
 import nl.sogeti.android.gpstracker.actions.utils.ProgressListener;
+import nl.sogeti.android.gpstracker.util.Constants;
 
-public class GpxSharing extends GpxCreator {
+public class GpxSDCardStore extends GpxCreator {
 
-
-    public GpxSharing(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener
+    public GpxSDCardStore(Context context, Uri trackUri, String chosenBaseFileName, boolean attachments, ProgressListener
             listener) {
         super(context, trackUri, chosenBaseFileName, attachments, listener);
     }
 
     @Override
-    protected void onPostExecute(Uri resultFilename) {
-        super.onPostExecute(resultFilename);
-        ShareTrack.sendFile(mContext, resultFilename, getContentType(), mContext.getString(R.string.email_gpxbody));
+    protected Uri doInBackground(Void... params) {
+        Uri contentUri = super.doInBackground(params);
+        ContentProviderFileExtractor contentProviderFileExtractor = new ContentProviderFileExtractor(mContext);
+        File targetDirectory = Constants.getExternalRootDataFolder(mContext);
+        File sdcardFile = contentProviderFileExtractor.copyIntoDirectory(contentUri, targetDirectory);
+
+        return Uri.fromFile(sdcardFile);
     }
 
+    @Override
+    protected void onPostExecute(Uri resultFilename) {
+        super.onPostExecute(resultFilename);
+        Toast.makeText(mContext, resultFilename.getPath(), Toast.LENGTH_LONG).show();
+    }
 }

@@ -342,12 +342,12 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
      * @return full path of the build zip file
      * @throws IOException
      */
-    protected String bundlingMediaAndXml(String fileName, String extension) throws IOException {
-        String zipFilePath;
+    protected File bundlingMediaAndXml(String fileName, String extension) throws IOException {
+        File zipFilePath;
         if (fileName.endsWith(".zip") || fileName.endsWith(extension)) {
-            zipFilePath = Constants.getStorageDirectory(mContext) + fileName;
+            zipFilePath = new File(Constants.getStorageDirectory(mContext), fileName);
         } else {
-            zipFilePath = Constants.getStorageDirectory(mContext) + fileName + extension;
+            zipFilePath = new File(Constants.getStorageDirectory(mContext), fileName + extension);
         }
         String[] filenames = mExportDirectoryPath.list();
         byte[] buf = new byte[1024];

@@ -193,4 +193,12 @@ public class Constants {
         }
     }
 
+    /**
+     * Has the old behaviour of having a directory on the root of the SD-Card where to export GPX tracks to
+     * @param context
+     * @return File pointing to directory in the SD-Card root
+     */
+    public static File getExternalRootDataFolder(Context context) {
+        return getLegacySdCardDirectory(context);
+    }
 }

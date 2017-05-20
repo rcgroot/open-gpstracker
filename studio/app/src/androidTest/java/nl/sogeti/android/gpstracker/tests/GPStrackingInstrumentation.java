@@ -33,7 +33,6 @@ import android.test.InstrumentationTestSuite;
 
 import junit.framework.TestSuite;
 
-import nl.sogeti.android.gpstracker.tests.actions.ExportGPXTest;
 import nl.sogeti.android.gpstracker.tests.gpsmock.MockGPSLoggerServiceTest;
 import nl.sogeti.android.gpstracker.tests.userinterface.LoggerMapTest;
 
@@ -59,7 +58,6 @@ public class GPStrackingInstrumentation extends InstrumentationTestRunner {
         TestSuite suite = new InstrumentationTestSuite(this);
         suite.setName("GPS Tracking Testsuite");
         suite.addTestSuite(MockGPSLoggerServiceTest.class);
-        suite.addTestSuite(ExportGPXTest.class);
         suite.addTestSuite(LoggerMapTest.class);
 
 //      suite.addTestSuite( OpenGPSTrackerDemo.class );   // The demo recorded for youtube

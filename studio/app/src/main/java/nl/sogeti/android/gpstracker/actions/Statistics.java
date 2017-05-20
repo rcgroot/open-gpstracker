@@ -289,13 +289,9 @@ public class Statistics extends AppCompatActivity implements StatisticsDelegate 
                 startActivityForResult(intent, MENU_TRACKLIST);
                 break;
             case MENU_SHARE:
-                intent = new Intent(Intent.ACTION_RUN);
-                intent.setDataAndType(mTrackUri, Tracks.CONTENT_ITEM_TYPE);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 Bitmap bm = mViewFlipper.getDrawingCache();
                 Uri screenStreamUri = ShareTrack.storeScreenBitmap(bm);
-                intent.putExtra(Intent.EXTRA_STREAM, screenStreamUri);
-                startActivityForResult(Intent.createChooser(intent, getString(R.string.share_track)), MENU_SHARE);
+                ShareTrack.start(this, mTrackUri, screenStreamUri);//TODO start for result
                 handled = true;
                 break;
             default:
