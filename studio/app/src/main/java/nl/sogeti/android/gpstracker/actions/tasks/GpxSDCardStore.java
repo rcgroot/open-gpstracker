@@ -49,9 +49,15 @@ public class GpxSDCardStore extends GpxCreator {
         Uri contentUri = super.doInBackground(params);
         ContentProviderFileExtractor contentProviderFileExtractor = new ContentProviderFileExtractor(mContext);
         File targetDirectory = Constants.getExternalRootDataFolder(mContext);
-        File sdcardFile = contentProviderFileExtractor.copyIntoDirectory(contentUri, targetDirectory);
+        Uri resultFileUri;
+        if (contentUri.getScheme() == "file") {
+            resultFileUri = contentUri;
+        } else {
+            File sdcardFile = contentProviderFileExtractor.copyIntoDirectory(contentUri, targetDirectory);
+            resultFileUri = Uri.fromFile(sdcardFile);
+        }
 
-        return Uri.fromFile(sdcardFile);
+        return resultFileUri;
     }
 
     @Override

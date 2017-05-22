@@ -93,7 +93,6 @@ public class GpxCreator extends XmlCreator {
         Uri resultFilename = exportGpx();
 
 
-
         return resultFilename;
     }
 
@@ -321,11 +320,9 @@ public class GpxCreator extends XmlCreator {
                             serializer.text("\n");
                         }
                         serializer.endTag("", "desc");
-                    }
-                    else if ((ContentConstants.AUTHORITY + ".string").equals(mediaUri.getAuthority())) {
+                    } else if ((ContentConstants.AUTHORITY + ".string").equals(mediaUri.getAuthority())) {
                         quickTag(serializer, "", "name", mediaUri.getLastPathSegment());
                     } else if (mediaUri.getAuthority().equals("media")) {
-
                         Cursor mediaItemCursor = null;
                         try {
                             mediaItemCursor = resolver.query(mediaUri, new String[]{MediaColumns.DATA, MediaColumns

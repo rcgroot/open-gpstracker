@@ -251,18 +251,18 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
     protected File includeMediaFile(Uri input) throws IOException {
         mNeedsBundling = true;
         File target;
-        if ("file".equals(input.getScheme())) {
-            target = includeLegacyMediaFile(input);
+        if ("file".equals(input.getScheme()) || input.getScheme() == null) {
+            target = includeFileMediaFile(input);
         }
         else {
-            target = includeMarshmallowMediaFile(input);
+            target = includeContentMediaFile(input);
         }
 
         return target;
     }
 
     @Nullable
-    private File includeMarshmallowMediaFile(Uri input) throws IOException {
+    private File includeContentMediaFile(Uri input) throws IOException {
         File target = new File(mExportDirectoryPath + "/" + input.getLastPathSegment());
         InputStream is = null;
         BufferedInputStream bis = null;
@@ -300,9 +300,8 @@ public abstract class XmlCreator extends AsyncTask<Void, Integer, Uri> {
     }
 
     @NonNull
-    private File includeLegacyMediaFile(Uri input) throws IOException {
-        File mediaPathPrefix = Constants.getStorageDirectory(mContext);
-        File source = new File(mediaPathPrefix, input.getLastPathSegment());
+    private File includeFileMediaFile(Uri input) throws IOException {
+        File source = new File(input.getPath());
         File target = new File(mExportDirectoryPath + "/" + source.getName());
 
         //      Log.d( TAG, String.format( "Copy %s to %s", source, target ) );
