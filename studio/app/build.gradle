@@ -9,7 +9,7 @@ android {
         testApplicationId "nl.sogeti.android.gpstracker.tests"
         minSdkVersion 15
         targetSdkVersion 15
-        versionCode 1550
+        versionCode 1551
         versionName "1.5.5"
         buildConfigField "int", "BUILD_NUMBER", System.getenv("BUILD_NUMBER") as String ?: "0"
         buildConfigField "String", "GIT_COMMIT", "\"" + System.getenv("GIT_COMMIT") + "\"" as String ?: "\"Unknown\""
