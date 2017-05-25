@@ -313,10 +313,16 @@ public class GpxCreator extends XmlCreator {
                         if (buf != null) {
                             buf.close();
                         }
-                        buf = new BufferedReader(new FileReader(mediaUri.getEncodedPath()));
-                        String line;
-                        while ((line = buf.readLine()) != null) {
-                            serializer.text(line);
+                        String encodedPath = mediaUri.getEncodedPath();
+                        if (new File(encodedPath).exists()) {
+                            buf = new BufferedReader(new FileReader(encodedPath));
+                            String line;
+                            while ((line = buf.readLine()) != null) {
+                                serializer.text(line);
+                                serializer.text("\n");
+                            }
+                        } else {
+                            serializer.text("Missing file: " + mediaUri.getPath());
                             serializer.text("\n");
                         }
                         serializer.endTag("", "desc");
