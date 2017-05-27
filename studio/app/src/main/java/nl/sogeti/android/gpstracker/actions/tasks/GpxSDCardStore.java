@@ -29,6 +29,8 @@
 package nl.sogeti.android.gpstracker.actions.tasks;
 
 import android.content.Context;
+import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.widget.Toast;
 
@@ -55,6 +57,9 @@ public class GpxSDCardStore extends GpxCreator {
         } else {
             File sdcardFile = contentProviderFileExtractor.copyIntoDirectory(contentUri, targetDirectory);
             resultFileUri = Uri.fromFile(sdcardFile);
+
+            MediaScannerConnection.scanFile(mContext, new String[]{sdcardFile.getPath()}, null, null);
+            mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, resultFileUri));
         }
 
         return resultFileUri;
