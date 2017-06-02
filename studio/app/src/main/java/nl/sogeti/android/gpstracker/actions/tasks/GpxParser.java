@@ -45,6 +45,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -152,7 +154,7 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
         mProgressAdmin.setContentLength(DEFAULT_UNKNOWN_FILESIZE);
         if (importFileUri != null && importFileUri.getScheme().equals("file")) {
             File file = new File(importFileUri.getPath());
-            mProgressAdmin.setContentLength(file.length());
+            if(!file.isDirectory()) mProgressAdmin.setContentLength(file.length());
         }
     }
 
@@ -160,22 +162,43 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
         Uri result = null;
         String trackName = null;
         InputStream fis = null;
-        if (importFileUri.getScheme().equals("file")) {
-            trackName = importFileUri.getLastPathSegment();
-        }
-        try {
-            fis = mContentResolver.openInputStream(importFileUri);
-        } catch (IOException e) {
-            handleError(e, mContext.getString(R.string.error_importgpx_io));
+        File[] gpxFiles = new File[1];
+
+        // OI Filemanager returns a "content://" Uri, so check for "file://" does not work
+        if (importFileUri != null) {// && importFileUri.getScheme().equals("file")) {
+            File cFile = new File(importFileUri.getPath()); // make file object
+            if (cFile != null && cFile.exists()) {
+                if (cFile.isDirectory()) { // directory -> add all .gpx-files
+                    gpxFiles = cFile.listFiles(new FilenameFilter() {
+                        public boolean accept(File dir, String name) {
+                            return name.endsWith(".gpx");
+                        }
+                    });
+                } else if (cFile.getPath().endsWith(".gpx")) { // single file
+                    gpxFiles[0] = cFile;
+                }
+            }
         }
 
-        result = importTrack(fis, trackName);
+        // go through all files
+        for(File gpxFile : gpxFiles) {
+            if(gpxFile != null) {
+                try {
+                    fis = new FileInputStream(gpxFile);
+                    trackName = gpxFile.getName();
+                    trackName = trackName.substring(0, trackName.length() - 4); // cut .gpx from name
+                    result = importTrack(fis, trackName);
+                } catch (IOException e) {
+                    handleError(e, mContext.getString(R.string.error_importgpx_io));
+                }
+            }
+        }
 
         return result;
     }
 
     protected void handleError(Exception dialogException, String dialogErrorMessage) {
-        Timber.e(dialogException, "Unable to save ");
+        Timber.e(dialogException, "Unable to save: " + dialogErrorMessage);
         mErrorDialogException = dialogException;
         mErrorDialogMessage = dialogErrorMessage;
         cancel(false);
@@ -218,7 +241,11 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
             String attributeName;
 
             Uri segmentUri = null;
-            while (eventType != XmlPullParser.END_DOCUMENT) {
+
+      // init track with date of first waypoint -> preparation
+      boolean updateTrackTime = true;
+
+      while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
                     if (xmlParser.getName().equals(NAME_ELEMENT)) {
                         name = true;
@@ -265,12 +292,15 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
                     } else if (xmlParser.getName().equals(TIME_ELEMENT)) {
                         time = false;
                     } else if (xmlParser.getName().equals(SEGMENT_ELEMENT)) {
-                        if (segmentUri == null) {
-                            segmentUri = startSegment(trackUri);
+                        if(!bulk.isEmpty()) {
+                            if (segmentUri == null) {
+                                segmentUri = startSegment(trackUri);
+                            }
+
+                            mContentResolver.bulkInsert(Uri.withAppendedPath(segmentUri, "waypoints"),
+                              bulk.toArray(new ContentValues[bulk.size()]));
+                            bulk.clear();
                         }
-                        mContentResolver.bulkInsert(Uri.withAppendedPath(segmentUri, "waypoints"), bulk.toArray(new
-                                ContentValues[bulk.size()]));
-                        bulk.clear();
                     } else if (xmlParser.getName().equals(TRACK_ELEMENT)) {
                         if (!lastPosition.containsKey(Waypoints.TIME)) {
                             lastPosition.put(Waypoints.TIME, importDate);
@@ -278,8 +308,12 @@ public class GpxParser extends AsyncTask<Uri, Void, Uri> {
                         if (!lastPosition.containsKey(Waypoints.SPEED)) {
                             lastPosition.put(Waypoints.SPEED, 0);
                         }
+
+                        // very first waypoint -> update track to time of this waypoint
+                        if(bulk.isEmpty() && updateTrackTime) lastPosition.put(Waypoints.UPDATE_TRACK_TIME, Waypoints.VALUE_YES);
                         bulk.add(lastPosition);
                         lastPosition = null;
+                        updateTrackTime = false; // not again
                     }
                 } else if (eventType == XmlPullParser.TEXT) {
                     String text = xmlParser.getText();

@@ -134,6 +134,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         int inserted = 0;
 
+  // determine, if track time shall be updated
+  boolean updateTrackTime = valuesArray[0].getAsString(Waypoints.UPDATE_TRACK_TIME) != null;
+
+  // remove value to avoid trouble with the db
+  if(updateTrackTime) valuesArray[0].remove(Waypoints.UPDATE_TRACK_TIME);
+
         SQLiteDatabase sqldb = getWritableDatabase();
         sqldb.beginTransaction();
         try {
@@ -142,6 +148,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 long id = sqldb.insert(Waypoints.TABLE, null, args);
                 if (id >= 0) {
+                    if(inserted == 0 && updateTrackTime) { // first inserted waypoint -> update track time to this waypoint's time, if indicated
+                         String trackTime = args.getAsString(Waypoints.TIME);
+                         this.updateTrack(trackId, null, trackTime);
+                    }
                     inserted++;
                 }
             }
@@ -466,11 +476,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return affected;
     }
 
-    int updateTrack(long trackId, String name) {
+    int updateTrack(long trackId, String name, String tDate) {
         int updates;
         String whereclause = Tracks._ID + " = " + trackId;
         ContentValues args = new ContentValues();
-        args.put(Tracks.NAME, name);
+        if(name != null) args.put(Tracks.NAME, name);
+        if(tDate != null) args.put(Tracks.CREATION_TIME, tDate);
 
         // Execute the query.
         SQLiteDatabase mDb = getWritableDatabase();
