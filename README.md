@@ -10,5 +10,5 @@ To build and run a version of this app with Google Maps loading you must have
 
 
 Future versions of the Open GPS Tracker will be created at:
-https://github.com/rcgroot/open-gpstracker-ng
+https://gitlab.com/rcgroot/open-gps-tracker
 
