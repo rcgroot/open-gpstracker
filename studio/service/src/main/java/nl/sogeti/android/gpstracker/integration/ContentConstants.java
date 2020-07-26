@@ -148,6 +148,17 @@ public final class ContentConstants {
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nl.sogeti.android.waypoint";
 
         /**
+         *  The flag, if the waypoint's time shall be the time of the track (actual value does not matter,
+         *  but must be unique, of course).
+         */
+        public static final String UPDATE_TRACK_TIME = "updatetracktime";
+
+        /**
+         * The value of the flag UPDATE_TRACK_TIME, just need "yes"
+         */
+        public static final String VALUE_YES = "yes";
+
+        /**
          * The name of this table, waypoints
          */
         public static final String TABLE = "waypoints";

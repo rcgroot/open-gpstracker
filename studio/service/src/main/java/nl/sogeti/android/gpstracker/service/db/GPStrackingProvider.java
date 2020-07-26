@@ -579,7 +579,8 @@ public class GPStrackingProvider extends ContentProvider {
             case TRACK_ID:
                 trackId = Long.parseLong(uri.getLastPathSegment());
                 String name = givenValues.getAsString(Tracks.NAME);
-                updates = mDbHelper.updateTrack(trackId, name);
+                String tDate = givenValues.getAsString(Tracks.CREATION_TIME);
+                updates = mDbHelper.updateTrack(trackId, name, tDate);
                 break;
             case TRACK_METADATA:
                 pathSegments = uri.getPathSegments();
